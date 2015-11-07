@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppNoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">@color/highlight</item>
+        <item name="colorPrimary">@color/highlight</item>
+        <item name="colorPrimaryDark">@color/highlight_dark</item>
+    </style>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">@color/highlight</item>
+        <item name="colorPrimary">@color/highlight</item>
+        <item name="colorPrimaryDark">@color/highlight_dark</item>
+    </style>
+
+</resources>
