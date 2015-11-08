@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -66,7 +67,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
 
-    public void signUp(View view) {
+    public void signUp(final View view) {
         if (signup) {
             ParseUser user = new ParseUser();
             user.setUsername(((TextView)findViewById(R.id.email)).getText().toString());
@@ -82,9 +83,7 @@ public class SplashScreen extends AppCompatActivity {
                 public void done(ParseException e) {
                     if (e == null) {
                         Toast.makeText(getApplicationContext(), "Congrats, you have signed up!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
+                        login(view);
                     } else {
                         Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
                     }
@@ -96,5 +95,23 @@ public class SplashScreen extends AppCompatActivity {
             findViewById(R.id.login).setVisibility(View.GONE);
             signup = !signup;
         }
+    }
+
+    public void login(View view) {
+        ParseUser.logInInBackground(((TextView)findViewById(R.id.email)).getText().toString(), ((TextView)findViewById(R.id.password)).getText().toString(), new LogInCallback() {
+
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e == null) {
+                    Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
     }
 }

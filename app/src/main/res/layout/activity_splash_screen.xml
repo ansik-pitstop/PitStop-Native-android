@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:text="Log In"
             android:textColor="#fff"
-            android:onClick="goToMainScreen"
+            android:onClick="login"
             android:background="@drawable/color_button_add_car"
             android:id="@+id/login"
             android:elevation="6dp"
