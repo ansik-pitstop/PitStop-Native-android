@@ -26,10 +26,12 @@ public class FaultParse {
 		for (int ii = 0; ii < tt1.length; ii++) {
 			FualtInfo fualtValue = new FualtInfo();
 			int tt = tt1[ii];
-			Log.v("tt", String.valueOf(tt));
+			Log.e("gf", String.valueOf(tt));
 			String b = "";
 			String a = Integer.toHexString(tt).toString();
 
+			Log.e("gf", a);
+			
 			if (a.length() == 1) {
 				b = "00,0" + a;
 			} else if (a.length() == 2) {
@@ -41,6 +43,8 @@ public class FaultParse {
 			} else {
 				b = "00,00";
 			}
+			
+			Log.e("gf", b);
 
 			String code = "";
 			List<String> ll = FileUtil.DTC_list;

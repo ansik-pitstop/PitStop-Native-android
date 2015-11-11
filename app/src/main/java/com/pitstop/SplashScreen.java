@@ -1,12 +1,9 @@
 package com.pitstop;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,10 +15,13 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.parse.PushService;
 import com.parse.SignUpCallback;
 
 public class SplashScreen extends AppCompatActivity {
+    final static String pfName = "com.pitstop.login.name";
+    final static String pfCodeForID = "com.pitstop.login.id";
+    final static String pfCodeForPassword = "com.pitstop.login.passwd";
+    final static String pfNoStringPresent = "NO-STRING-PRESENT-HERE";
 
     boolean signup  = false;
 
@@ -36,6 +36,26 @@ public class SplashScreen extends AppCompatActivity {
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
         installation.saveInBackground();
+        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        String email = settings.getString(pfCodeForID,"NA");
+        if(!email.equals("NA")){
+            ParseUser.logInInBackground(email,settings.getString(pfCodeForPassword,"NA"),new LogInCallback() {
+
+                @Override
+                public void done(ParseUser user, ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
+
+        }
     }
 
     @Override
@@ -98,13 +118,19 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void login(View view) {
-        ParseUser.logInInBackground(((TextView)findViewById(R.id.email)).getText().toString(), ((TextView)findViewById(R.id.password)).getText().toString(), new LogInCallback() {
+        ParseUser.logInInBackground(((TextView) findViewById(R.id.email)).getText().toString(), ((TextView) findViewById(R.id.password)).getText().toString(), new LogInCallback() {
 
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e == null) {
                     Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+
+                    SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(pfCodeForID, ((TextView) findViewById(R.id.email)).getText().toString());
+                    editor.putString(pfCodeForPassword, ((TextView) findViewById(R.id.password)).getText().toString());
+                    editor.commit();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {

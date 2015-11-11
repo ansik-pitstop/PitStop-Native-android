@@ -9,7 +9,7 @@ public class OBD {
 
 	public static native String setCtrl(int inCtrlIndex);
 
-	public static native String setMonitor();
+	public static native String setMonitor(int type, String valueList);
 
 	public static native String setParameter(String tlvTagList, String valueList);
 

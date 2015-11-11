@@ -61,4 +61,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivity(intent);
     }
+
+    public void checkDebug(View view) {
+        Intent i = new Intent(MainActivity.this, ReceiveDebugActivity.class);
+        startActivity(i);
+    }
 }
