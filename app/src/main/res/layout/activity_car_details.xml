@@ -1,18 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="false"
     tools:context="com.pitstop.CarDetailsActivity">
 
-    <ListView
+    <LinearLayout
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/evcheck_layout"
+        android:elevation="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enviornmental Pass"
+            android:id="@+id/evcheck" />
+    </LinearLayout>
+
+    <ListView android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/car_event_listview"
         android:choiceMode="singleChoice"
-        android:dividerHeight="16dp"
         android:contextClickable="false"
-        android:background="#fff"
-        android:divider="#fff3f3f3" />
-</RelativeLayout>
+        android:dividerHeight="0dp"
+        android:divider="@null"
+
+        android:clipToPadding="false"/>
+
+</LinearLayout>

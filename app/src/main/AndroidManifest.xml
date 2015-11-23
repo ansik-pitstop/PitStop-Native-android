@@ -49,6 +49,10 @@
             android:name=".Debug.PIDDebugActivity"
             android:label="@string/title_activity_piddebug" >
         </activity>
+        <activity
+            android:name=".EnviornmentalCheckActivity"
+            android:label="@string/title_activity_enviornmental_check" >
+        </activity>
     </application>
 
 </manifest>

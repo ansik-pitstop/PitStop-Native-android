@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
@@ -65,8 +66,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     public void getVIN(View view) {
-
-        BluetoothManage.getInstance(this).obdGetParameter("2201");
+        if(BluetoothManage.getInstance(AddCarActivity.this).getState() != BluetoothManage.CONNECTED) {
+            BluetoothManage.getInstance(AddCarActivity.this).connectBluetooth();
+        }else {
+            BluetoothManage.getInstance(this).obdGetParameter("2201");
+        }
         //VIN = "YS3FD75Y746007819";
     }
 
@@ -103,7 +107,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         List<ParameterInfo> parameterValues = parameterPackageInfo.value;
         VIN = parameterValues.get(0).value;
         scannerID = parameterPackageInfo.deviceId;
-        makeCar();
+        ((TextView) findViewById(R.id.cardetails)).setText(VIN);
+        //makeCar();
     }
 
     @Override

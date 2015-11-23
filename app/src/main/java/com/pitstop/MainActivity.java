@@ -14,19 +14,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Enable Local Datastore.
-//        Parse.enableLocalDatastore(this);
-//        Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
-//        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-//        query.getInBackground("fvmQVfJDA3", new GetCallback<ParseObject>() {
-//            public void done(ParseObject object, ParseException e) {
-//                if (e == null) {
-//                    // object will be your game score
-//                } else {
-//                    // something went wrong
-//                }
-//            }
-//        });
+
     }
 
     @Override

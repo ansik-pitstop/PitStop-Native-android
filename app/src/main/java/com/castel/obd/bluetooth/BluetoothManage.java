@@ -22,7 +22,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.LogUtil;
-import com.castel.obd.util.ProgressDialogUtil;
 import com.castel.obd.util.Utils;
 
 import java.util.ArrayList;
@@ -35,10 +34,10 @@ public class BluetoothManage {
 	public final static int BLUETOOTH_CONNECT_FAIL = 1;// ???????????
 	public final static int BLUETOOTH_CONNECT_EXCEPTION = 2;// ??????????
 	public final static int BLUETOOTH_READ_DATA = 4;// ???????????
-	public final static int CANCEL_DISCOVERY = 5;// ????????õô????
+	public final static int CANCEL_DISCOVERY = 5;// ????????ï¿½ï¿½????
 
 	public final static int CONNECTED = 0;// ??????????
-	public final static int DISCONNECTED = 1;// ????¦Ä????
+	public final static int DISCONNECTED = 1;// ????ï¿½ï¿½????
 	public final static int CONNECTTING = 2;// ??????????????
 	private int btState = DISCONNECTED;
 
@@ -51,7 +50,7 @@ public class BluetoothManage {
 
 	public List<DataPackageInfo> dataPackages;
 
-	private boolean isMacAddress = false;// ???????????????§á????MAC???
+	private boolean isMacAddress = false;// ???????????????ï¿½ï¿½????MAC???
 
 	private boolean isParse = false;
 	private List<String> dataLists = new ArrayList<String>();
@@ -95,7 +94,6 @@ public class BluetoothManage {
 				}
 				break;
 			case BLUETOOTH_CONNECT_SUCCESS:
-				ProgressDialogUtil.dismiss();
 				btState = CONNECTED;
 				OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
 				dataListener.getBluetoothState(btState);
@@ -111,7 +109,6 @@ public class BluetoothManage {
 					}
 					mBluetoothAdapter.startDiscovery();
 				} else {
-					ProgressDialogUtil.dismiss();
 					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
 							Toast.LENGTH_LONG).show();
 					dataListener.getBluetoothState(btState);
@@ -147,12 +144,12 @@ public class BluetoothManage {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			LogUtil.i(action);
-			// ?????õô
+			// ?????ï¿½ï¿½
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				BluetoothDevice device = intent
 						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				LogUtil.i(device.getName() + device.getAddress());
-				if (device.getName().contains(BT_NAME)) {
+				if (device.getName()!=null&&device.getName().contains(BT_NAME)) {
 					mBluetoothChat.connectBluetooth(device);
 				}
 			} else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // ??????????
@@ -170,7 +167,6 @@ public class BluetoothManage {
 					.equals(action)) { // ????????????
 				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_FINISHED");
 				if (btState != CONNECTED) {
-					ProgressDialogUtil.dismiss();
 					btState = DISCONNECTED;
 					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
 							Toast.LENGTH_LONG).show();
@@ -181,14 +177,13 @@ public class BluetoothManage {
 	};
 
 	/**
-	 * ??OBD?õô????
+	 * ??OBD?ï¿½ï¿½????
 	 */
 	public void connectBluetooth() {
 		if (btState == CONNECTED) {
 			return;
 		}
 
-		ProgressDialogUtil.show(mContext);
 		LogUtil.i("Bluetooth state:CONNECTTING");
 		btState = CONNECTTING;
 		mBluetoothChat.closeConnect();
@@ -213,7 +208,7 @@ public class BluetoothManage {
 			if (mBluetoothAdapter.isDiscovering()) {
 				mBluetoothAdapter.cancelDiscovery();
 			}
-			mBluetoothAdapter.startDiscovery();// ?????????õô
+			mBluetoothAdapter.startDiscovery();// ?????????ï¿½ï¿½
 		}
 	}
 
@@ -237,7 +232,7 @@ public class BluetoothManage {
 	}
 
 	/**
-	 * ?????OBD?õô?????????õôID??????ID???????????????????????
+	 * ?????OBD?ï¿½ï¿½?????????ï¿½ï¿½ID??????ID???????????????????????
 	 */
 	public void initOBD() {
 		String deviceId = OBDInfoSP.getDeviceId(mContext);
@@ -262,7 +257,7 @@ public class BluetoothManage {
 			return;
 		}
 
-		ProgressDialogUtil.show(mContext);
+		
 
 		String result = OBD.setCtrl(type);
 		sendCommand(result);
@@ -278,7 +273,6 @@ public class BluetoothManage {
 			return;
 		}
 
-		ProgressDialogUtil.show(mContext);
 
 		String result = OBD.setMonitor(type, valueList);
 		sendCommand(result);
@@ -302,7 +296,6 @@ public class BluetoothManage {
 		LogUtil.i("tlvTagList: " + tlvTagList);
 		LogUtil.i("tlvTagList: " + valueList);
 
-		ProgressDialogUtil.show(mContext);
 
 		String result = OBD.setParameter(tlvTagList, valueList);
 		sendCommand(result);
@@ -321,14 +314,12 @@ public class BluetoothManage {
 			return;
 		}
 
-		ProgressDialogUtil.show(mContext);
-
 		String result = OBD.getParameter(tlvTag);
 		sendCommand(result);
 	}
 
 	/**
-	 * ????§Õ???
+	 * ????ï¿½ï¿½???
 	 * 
 	 * @param str
 	 */
@@ -360,7 +351,7 @@ public class BluetoothManage {
 	}
 
 	/**
-	 * ????§Õ???
+	 * ????ï¿½ï¿½???
 	 * 
 	 * @param msg
 	 */
@@ -453,7 +444,7 @@ public class BluetoothManage {
 	}
 
 	/**
-	 * ????????¨°?????????
+	 * ????????ï¿½ï¿½?????????
 	 * 
 	 * @param info
 	 */
@@ -487,7 +478,7 @@ public class BluetoothManage {
 	}
 
 	/**
-	 * ?§Ô?????????????????????
+	 * ?ï¿½ï¿½?????????????????????
 	 * 
 	 * @param info
 	 */

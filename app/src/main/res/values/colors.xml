@@ -4,4 +4,5 @@
     <color name="primary">#4dbeff</color>
     <color name="primary_dark">#4ba9ff</color>
     <color name="highlight_dark">#d7223d</color>
+    <color name="evcheck">#29d767</color>
 </resources>

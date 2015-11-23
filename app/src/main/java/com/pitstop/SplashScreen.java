@@ -21,9 +21,11 @@ public class SplashScreen extends AppCompatActivity {
     final static String pfName = "com.pitstop.login.name";
     final static String pfCodeForID = "com.pitstop.login.id";
     final static String pfCodeForPassword = "com.pitstop.login.passwd";
-    final static String pfNoStringPresent = "NO-STRING-PRESENT-HERE";
+    final static String pfCodeForObjectID = "com.pitstop.login.objectID";
 
     boolean signup  = false;
+
+    final String loginCache = "PITSTOP_LOGIN_DATA0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,29 +34,14 @@ public class SplashScreen extends AppCompatActivity {
 
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
-
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-
-        installation.saveInBackground();
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        String email = settings.getString(pfCodeForID,"NA");
+        String email = settings.getString(pfCodeForID, "NA");
         if(!email.equals("NA")){
-            ParseUser.logInInBackground(email,settings.getString(pfCodeForPassword,"NA"),new LogInCallback() {
-
-                @Override
-                public void done(ParseUser user, ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            });
-
+            Toast.makeText(getApplicationContext(), "Starting Offline", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         }
     }
 
@@ -130,6 +117,7 @@ public class SplashScreen extends AppCompatActivity {
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putString(pfCodeForID, ((TextView) findViewById(R.id.email)).getText().toString());
                     editor.putString(pfCodeForPassword, ((TextView) findViewById(R.id.password)).getText().toString());
+                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId().toString());
                     editor.commit();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
