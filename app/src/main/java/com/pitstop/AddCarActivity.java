@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,8 +69,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getVIN(View view) {
         if(BluetoothManage.getInstance(AddCarActivity.this).getState() != BluetoothManage.CONNECTED) {
             BluetoothManage.getInstance(AddCarActivity.this).connectBluetooth();
+            findViewById(R.id.loading).setVisibility(View.VISIBLE);
         }else {
             BluetoothManage.getInstance(this).obdGetParameter("2201");
+            findViewById(R.id.loading).setVisibility(View.VISIBLE);
         }
         //VIN = "YS3FD75Y746007819";
     }
@@ -87,7 +90,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getBluetoothState(int state) {
-
+        findViewById(R.id.loading).setVisibility(View.GONE);
     }
 
     @Override
@@ -101,6 +104,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+        findViewById(R.id.loading).setVisibility(View.GONE);
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
 

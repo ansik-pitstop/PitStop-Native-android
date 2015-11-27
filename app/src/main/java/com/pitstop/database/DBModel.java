@@ -1,15 +1,16 @@
 package com.pitstop.database;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by David Liu on 11/20/2015.
  */
-public abstract class DBModel {
+public abstract class DBModel implements Serializable{
     private String TableName;
     protected HashMap<String,String> columns;
     protected HashMap<String,String> values;
-    public static String primaryKey, foreignKey;
+    public String primaryKey, foreignKey;
     public DBModel(String name, String key, String fkey){
         values = new HashMap<String, String>();
         TableName = name;

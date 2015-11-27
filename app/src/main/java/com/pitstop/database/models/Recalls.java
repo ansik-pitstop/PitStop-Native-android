@@ -13,10 +13,10 @@ public class Recalls extends DBModel {
     @Override
     protected void setUpTable() {
         columns.put("RecallID","Text");
+        columns.put("name","Text");
         columns.put("description","Text");
         columns.put("consequences","Text");
         columns.put("action","Text");
-        columns.put("description","Text");
         columns.put("make","Text");
         columns.put("model","Text");
         columns.put("year","Text");
@@ -27,6 +27,6 @@ public class Recalls extends DBModel {
 
     @Override
     public void setValue(String key, String value) {
-
+        values.put(key, value);
     }
 }

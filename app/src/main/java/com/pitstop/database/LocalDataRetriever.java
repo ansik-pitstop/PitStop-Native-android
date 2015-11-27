@@ -22,6 +22,7 @@ public class LocalDataRetriever {
 
     public LocalDataRetriever(Context c){
         context = c;
+        dbase = new Database(c);
     }
 
     /**
@@ -30,7 +31,6 @@ public class LocalDataRetriever {
      * @param values values for input
      */
     public void saveData(String type, HashMap<String,String> values){
-        setUpDBAccess(type);
         SQLiteDatabase db = dbase.getWritableDatabase();
         ContentValues inputValues = new ContentValues();
         for(String i : values.keySet()){
@@ -48,18 +48,19 @@ public class LocalDataRetriever {
      *
      * @param type "Cars","Recalls" or "Services"
      */
-    public ArrayList<DBModel> getData(String type, String id){
-        setUpDBAccess(type);
-        if (type =="Cars") this.id = fid;
-        String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
+    public ArrayList<DBModel> getDataSet(String type, String id){
         SQLiteDatabase db = dbase.getReadableDatabase();
-        Cars c = new Cars();
-        Cursor cursor = db.rawQuery(selectQuery,null);
-        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
+        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
+        if (type.equals("Services")) this.id = (new Services()).primaryKey;
+        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
         ArrayList<DBModel> array = new ArrayList<>();
+        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
         if (cursor.moveToFirst()) {
-            do {
-                DBModel curr = null;
+            do{
+            DBModel curr = null;
                 switch (type) {
                     case "Cars":
                         curr = new Cars();
@@ -76,27 +77,44 @@ public class LocalDataRetriever {
                     curr.setValue(cursor.getColumnName(i), cursor.getString(i));
                 }
                 array.add(curr);
-            } while (cursor.moveToNext());
+            }while(cursor.moveToNext());
         }
         db.close();
         return array;
     }
 
-    private void setUpDBAccess(String type){
-        switch (type) {
-            case "Cars":
-                dbase = new Database(context, new Cars());
-                id = Cars.primaryKey;
-                fid = Cars.foreignKey;
-                break;
-            case "Recalls":
-                dbase = new Database(context, new Recalls());
-                id = Recalls.primaryKey;
-                break;
-            case "Services":
-                dbase = new Database(context, new Services());
-                id = Services.primaryKey;
-                break;
+    /**
+     *
+     * @param type "Cars","Recalls" or "Services"
+     */
+    public DBModel getData(String type, String id){
+        dbase.getReadableDatabase();
+        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
+        if (type.equals("Services")) this.id = (new Services()).primaryKey;
+        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
+        SQLiteDatabase db = dbase.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery,null);
+        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
+        DBModel curr = null;
+        if (cursor.moveToFirst()) {
+            switch (type) {
+                case "Cars":
+                    curr = new Cars();
+                    break;
+                case "Recalls":
+                    curr = new Recalls();
+                    break;
+                case "Services":
+                    curr = new Services();
+                    break;
+            }
+            for (int i = 0 ; i < cursor.getColumnCount(); i++) {
+                assert curr != null;
+                curr.setValue(cursor.getColumnName(i), cursor.getString(i));
+            }
         }
+        db.close();
+        return curr;
     }
 }

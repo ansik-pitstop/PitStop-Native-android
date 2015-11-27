@@ -23,6 +23,6 @@ public class Services extends DBModel {
 
     @Override
     public void setValue(String key, String value) {
-
+        values.put(key, value);
     }
 }

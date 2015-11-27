@@ -20,69 +20,121 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.pitstop.database.DBModel;
+import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Recalls;
+import com.pitstop.database.models.Services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CarDetailsActivity extends AppCompatActivity {
 
     private CustomAdapter customAdapter;
-    private ArrayList<ListItem> arrayList = new ArrayList<>();
+    private ArrayList<DBModel> arrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Service");
+        boolean serviceGet=false, recallsGet=false;
+
+        final LocalDataRetriever ldr = new LocalDataRetriever(this);
+        //--------------------------GET SERVICES--------------------------
         Object[] a = (Object[]) getIntent().getSerializableExtra("servicesDue");
-        ArrayList<Integer> serviceCodes = new ArrayList<Integer>();
+        final HashMap<Integer,Boolean> serviceCodes = new HashMap<Integer,Boolean>();
         for (int i = 0; i<a.length; i++){
-            serviceCodes.add((int) a[i]);
+            serviceCodes.put(Integer.parseInt(a[i].toString().trim()), false);
         }
-        query.whereContainedIn("serviceId", serviceCodes);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                for (ParseObject parseObject: objects) {
-                    Service a = new Service();
-                    a.title = parseObject.getString("item");
-                    a.description = parseObject.getString("itemDescription");
-                    a.priority = parseObject.getInt("priority");
-                    a.action = parseObject.getString("action");
-                    arrayList.add(a);
-                }
-                customAdapter.dataList.clear();
-                customAdapter.dataList.addAll(arrayList);
-                customAdapter.notifyDataSetChanged();
+        //check DB first
+        for (int i : serviceCodes.keySet()){
+            Services service;
+            service = (Services) ldr.getData("Services", String.valueOf(i));
+            if(service ==null){
+                serviceGet = true;//go get some missing services
+            }else {
+                arrayList.add(service);
+                serviceCodes.put(i, true);
             }
-        });
+        }
+        //if need to get some services
+        if(serviceGet){
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Service");
+            query.whereContainedIn("serviceId", serviceCodes.keySet());
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    for (ParseObject parseObject : objects) {
+                        Services service = new Services();
+                        service.setValue("item", parseObject.getString("item"));
+                        service.setValue("action", parseObject.getString("action"));
+                        service.setValue("description", parseObject.getString("itemDescription"));
+                        service.setValue("intervalMileage", parseObject.getString("intervalMileage"));
+                        service.setValue("priority", parseObject.getString("priority"));
+                        service.setValue("engineCode", parseObject.getString("engineCode"));
+                        service.setValue("ServiceID", String.valueOf(parseObject.getInt("serviceId")));
+                        if (!serviceCodes.get(parseObject.getInt("serviceId"))) {
+                            ldr.saveData("Services",service.getValues());
+                            arrayList.add(service);
+                        }
+                    }
+                    customAdapter.dataList.clear();
+                    customAdapter.dataList.addAll(arrayList);
+                    customAdapter.notifyDataSetChanged();
+                }
+            });
+        }
 
-        //get recalls
-        query = ParseQuery.getQuery("EdmundsRecall");
-
+        //--------------------------------GET RECALLS-------------------------------
         a = (Object[]) getIntent().getSerializableExtra("pendingRecalls");
-        ArrayList<String> recallCodes = new ArrayList<String>();
+        final HashMap<String,Boolean> recallCodes = new HashMap<String,Boolean>();
         for (int i = 0; i<a.length; i++){
-            recallCodes.add(a[i].toString());
+            recallCodes.put(a[i].toString(), false);
         }
-        query.whereContainedIn("objectId", recallCodes);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                for (ParseObject parseObject : objects) {
-                    Recall a = new Recall();
-                    a.title = parseObject.getString("componentDescription");
-                    a.description = parseObject.getString("defectDescription");
-                    a.action = parseObject.getString("defectCorrectiveAction");
-                    a.consequence = parseObject.getString("defectConsequence");
-                    arrayList.add(a);
-                }
-                customAdapter.dataList.clear();
-                customAdapter.dataList.addAll(arrayList);
-                customAdapter.notifyDataSetChanged();
+
+        //check DB first
+        for (String i : recallCodes.keySet()){
+            Recalls service;
+            service = (Recalls) ldr.getData("Recalls", i);
+            if(service ==null){
+                recallsGet= true;//go get some missing services
+            }else {
+                arrayList.add(service);
+                recallCodes.put(i, true);
             }
-        });
+        }
+        //see if need to get from online
+        if (recallsGet) {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("EdmundsRecall");
+            query.whereContainedIn("objectId", recallCodes.keySet());
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    for (ParseObject parseObject : objects) {
+                        Recalls recall = new Recalls();
+                        recall.setValue("consequences", parseObject.getString("defectConsequence"));
+                        recall.setValue("action", parseObject.getString("defectCorrectiveAction"));
+                        recall.setValue("name", parseObject.getString("componentDescription"));
+                        recall.setValue("description", parseObject.getString("defectDescription"));
+                        recall.setValue("make", parseObject.getString("make"));
+                        recall.setValue("model", parseObject.getString("model"));
+                        recall.setValue("year", parseObject.getString("year"));
+                        recall.setValue("recallNumber", parseObject.getString("recallNumber"));
+                        recall.setValue("numberAffected", parseObject.getString("numberOfVehiclesAffected"));
+                        recall.setValue("RecallID", parseObject.getObjectId());
+                        if (!recallCodes.get(recall.getValue("RecallID"))){
+                            ldr.saveData("Recalls",recall.getValues());
+                            arrayList.add(recall);
+                        }
+                    }
+                    customAdapter.dataList.clear();
+                    customAdapter.dataList.addAll(arrayList);
+                    customAdapter.notifyDataSetChanged();
+                }
+            });
+        }
 
         customAdapter = new CustomAdapter(this,arrayList);
         ((ListView) findViewById(R.id.car_event_listview)).setAdapter(customAdapter);
@@ -120,9 +172,9 @@ public class CarDetailsActivity extends AppCompatActivity {
     }
     class CustomAdapter extends BaseAdapter {
 
-        ArrayList<ListItem> dataList;
+        ArrayList<DBModel> dataList;
         Context context;
-        public CustomAdapter(Context c, ArrayList<ListItem> list){
+        public CustomAdapter(Context c, ArrayList<DBModel> list){
             context = c;
             dataList = new ArrayList<>(list);
         }
@@ -143,33 +195,30 @@ public class CarDetailsActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
+        public View getView(final int i, View view, ViewGroup viewGroup) {
             RelativeLayout convertview = (RelativeLayout)view;
             LayoutInflater inflater = LayoutInflater.from(context);
             convertview = (RelativeLayout)inflater.inflate(R.layout.car_details_list_item, null);
-            ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).title);
-            ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).description);
+            ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).getValue("description"));
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
             //params.setMargins(10, 10, 10, 10);
-            if(dataList.get(i) instanceof Recall) {
+            if(dataList.get(i) instanceof Recalls) {
+                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("name"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_error_red_600_24dp));
             }else{
+                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
+            convertview.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(CarDetailsActivity.this,DisplayItemActivity.class);
+                    intent.putExtra("Model",dataList.get(i));
+                    startActivity(intent);
+                }
+            });
             convertview.setLayoutParams(params);
             return convertview;
         }
-    }
-
-    private class Service extends ListItem {
-        String action;
-        int priority;
-    }
-    private class Recall extends ListItem {
-        String consequence, action;
-    }
-
-    private class ListItem {
-        String title, description;
     }
 }

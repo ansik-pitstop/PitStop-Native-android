@@ -53,6 +53,10 @@
             android:name=".EnviornmentalCheckActivity"
             android:label="@string/title_activity_enviornmental_check" >
         </activity>
+        <activity
+            android:name=".DisplayItemActivity"
+            android:label="@string/title_activity_display_item" >
+        </activity>
     </application>
 
 </manifest>

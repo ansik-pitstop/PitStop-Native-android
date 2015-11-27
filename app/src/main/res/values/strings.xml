@@ -8,4 +8,5 @@
     <string name="title_activity_receive_debug">ReceiveDebugActivity</string>
     <string name="title_activity_piddebug">PIDDebugActivity</string>
     <string name="title_activity_enviornmental_check">EnviornmentalCheckActivity</string>
+    <string name="title_activity_display_item">DisplayItemActivity</string>
 </resources>
