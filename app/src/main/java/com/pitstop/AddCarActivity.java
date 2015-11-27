@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -112,7 +111,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         VIN = parameterValues.get(0).value;
         scannerID = parameterPackageInfo.deviceId;
         ((TextView) findViewById(R.id.cardetails)).setText(VIN);
-        //makeCar();
+        makeCar();
     }
 
     @Override

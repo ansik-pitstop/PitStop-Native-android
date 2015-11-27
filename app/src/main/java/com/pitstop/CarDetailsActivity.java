@@ -97,7 +97,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (String i : recallCodes.keySet()){
             Recalls service;
-            service = (Recalls) ldr.getData("Recalls", i);
+            service = (Recalls) ldr.getData("Recalls", i.trim());
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
