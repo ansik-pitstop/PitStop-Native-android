@@ -220,6 +220,7 @@ public class BluetoothManage {
 		mContext.unregisterReceiver(mReceiver);
 		mBluetoothChat.closeConnect();
 		mHandler.removeCallbacks(runnable);
+		mInstance = null;
 	}
 
 	/**

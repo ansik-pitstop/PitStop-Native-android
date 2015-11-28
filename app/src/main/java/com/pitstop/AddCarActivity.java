@@ -21,6 +21,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.pitstop.Debug.PrintDebugThread;
 
 import org.json.JSONObject;
 
@@ -34,6 +35,7 @@ import java.util.List;
 public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
 
     private String VIN = "", scannerID = "";
+    private PrintDebugThread mLogDumper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         setContentView(R.layout.activity_add_car);
 
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+
+        mLogDumper = new PrintDebugThread(
+                String.valueOf(android.os.Process.myPid()),
+                ((TextView) findViewById(R.id.debug_log_print)),this);
+        mLogDumper.start();
     }
 
     @Override
@@ -48,6 +55,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_add_car, menu);
         return true;
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        BluetoothManage.getInstance(this).close();
+        mLogDumper.stopLogs();
     }
 
     @Override
