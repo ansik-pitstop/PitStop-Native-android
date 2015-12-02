@@ -17,6 +17,7 @@ public class PIDDebugActivity extends AppCompatActivity implements BluetoothMana
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piddebug);
+        BluetoothManage.getInstance(this).setBluetoothDataListener(this);
     }
 
     @Override
@@ -63,7 +64,5 @@ public class PIDDebugActivity extends AppCompatActivity implements BluetoothMana
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        BluetoothManage.getInstance(PIDDebugActivity.this)
-                .obdGetParameter("2201");
     }
 }

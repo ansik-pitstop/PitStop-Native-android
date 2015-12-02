@@ -117,4 +117,22 @@ public class LocalDataRetriever {
         db.close();
         return curr;
     }
+
+
+
+    /**
+     *
+     * @param type "Cars","Recalls" or "Services"
+     */
+    public boolean deleteData(String type, String id){
+        dbase.getReadableDatabase();
+        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
+        if (type.equals("Services")) this.id = (new Services()).primaryKey;
+        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        String selectQuery = "DELETE FROM " + type + " WHERE " + this.id + "='" + id+"'";
+        SQLiteDatabase db = dbase.getWritableDatabase();
+        db.delete("Cars", this.id +" = ?",new String[]{id});
+        //Cursor cursor = db.rawQuery(selectQuery,null);
+        return true;
+    }
 }

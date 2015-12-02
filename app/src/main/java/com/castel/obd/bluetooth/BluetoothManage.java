@@ -387,7 +387,7 @@ public class BluetoothManage {
 		}
 		if (info.contains("sData\":[],\"obdData\":]")){
 			info = info.replace("\"obdData\":]","\"obdData\":[]");
-			Log.i("log",info);
+			Log.i("log-daily recieved",info);
 		}
 
 		String[] infos = info.split("&");

@@ -22,12 +22,27 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GET PID"
-        android:id="@+id/btn_get_pid"
-        android:onClick="getVIN" />
+        android:text="GET 1 Mode"
+        android:id="@+id/btn_get_1"
+        android:onClick="getDTC" />
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/debug_log" />
+        android:text="GET 3 Mode"
+        android:id="@+id/btn_get_3"
+        android:onClick="getFreeze" />
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView2" >
+
+        <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/debug_log" />
+    </ScrollView>
+
 
 </LinearLayout>

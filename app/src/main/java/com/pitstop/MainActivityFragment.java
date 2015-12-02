@@ -43,7 +43,13 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //getActivity().getActionBar().setBackgroundDrawable(new ColorDrawable(getActivity().getResources().getColor(R.color.highlight)));
+        setUp();
+    }
+
+    public void setUp(){
+        for(int i = 0; i<((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildCount()-1; i++) {
+            ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).removeViewAt(0);
+        }
         final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
         SharedPreferences settings = getActivity().getSharedPreferences(pfName, getContext().MODE_PRIVATE);
         String objectID = settings.getString(pfCodeForObjectID, "NA");
@@ -127,6 +133,5 @@ public class MainActivityFragment extends Fragment {
                 }
             });
         }
-
     }
 }

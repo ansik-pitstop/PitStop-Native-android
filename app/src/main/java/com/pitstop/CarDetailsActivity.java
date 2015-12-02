@@ -46,6 +46,9 @@ public class CarDetailsActivity extends AppCompatActivity {
         Object[] a = (Object[]) getIntent().getSerializableExtra("servicesDue");
         final HashMap<Integer,Boolean> serviceCodes = new HashMap<Integer,Boolean>();
         for (int i = 0; i<a.length; i++){
+            if(a[i].toString().trim().equals("")) {
+                break;
+            }
             serviceCodes.put(Integer.parseInt(a[i].toString().trim()), false);
         }
         //check DB first

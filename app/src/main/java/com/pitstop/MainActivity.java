@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +9,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.database.LocalDataRetriever;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(MainActivity.this, BluetoothAutoConnectService.class));
         setContentView(R.layout.activity_main);
 
     }
@@ -41,8 +46,27 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id==R.id.refresh){
+            refreshDatabase();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==AddCarActivity.RESULT_ADDED){
+            refreshDatabase();
+        }
+    }
+
+    private void refreshDatabase() {
+        final LocalDataRetriever ldr = new LocalDataRetriever(this);
+        SharedPreferences settings = getSharedPreferences(MainActivityFragment.pfName, this.MODE_PRIVATE);
+        String objectID = settings.getString(MainActivityFragment.pfCodeForObjectID, "NA");
+        ldr.deleteData("Cars",objectID);
+        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
     }
 
     public void addCar(View view) {

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -33,7 +34,7 @@ import java.util.List;
 
 
 public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
-
+    public static int RESULT_ADDED = 10;
     private String VIN = "", scannerID = "";
     private PrintDebugThread mLogDumper;
 
@@ -43,11 +44,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         setContentView(R.layout.activity_add_car);
 
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
-
         mLogDumper = new PrintDebugThread(
                 String.valueOf(android.os.Process.myPid()),
                 ((TextView) findViewById(R.id.debug_log_print)),this);
-        mLogDumper.start();
+        //mLogDumper.start();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void finish() {
         super.finish();
         BluetoothManage.getInstance(this).close();
-        mLogDumper.stopLogs();
+        //mLogDumper.stopLogs();
     }
 
     @Override
@@ -96,7 +96,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             @Override
             public void done(ParseConfig config, ParseException e) {
 
-                new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                //new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
             }
         });
     }
@@ -130,7 +130,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-
+        if(dataPackageInfo.result==5){
+            String obd = "";
+            for(PIDInfo i : dataPackageInfo.obdData){
+                obd +=i.pidType+ " - " + i.value + "\n";
+            }
+            ((TextView) findViewById(R.id.debug_log_print)).setText("Time " + dataPackageInfo.rtcTime + "\n" + obd);
+        }
     }
 
 
@@ -180,6 +186,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
+                                setResult(RESULT_ADDED);
                                 finish();
                             } else {
                                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
