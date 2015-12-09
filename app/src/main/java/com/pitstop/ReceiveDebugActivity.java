@@ -12,10 +12,13 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Responses;
 
 public class ReceiveDebugActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
 
     TextView BTSTATUS;
+    private int count;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +26,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         BTSTATUS  = (TextView) findViewById(R.id.bluetooth_status);
         BTSTATUS.setText("Bluetooth Getting Started");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+        setTitle("Connect to Car");
+        count=0;
         //BluetoothManage.getInstance(this).obdSetMonitor();
 
     }
@@ -75,7 +80,39 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(dataPackageInfo.result==1||dataPackageInfo.result==3||dataPackageInfo.result==4||dataPackageInfo.result==6) {
+        LocalDataRetriever ldr = new LocalDataRetriever(this);
+        Responses response = new Responses();
+        if(dataPackageInfo.result==5){
+            count++;
+        }
+        if(dataPackageInfo.result==1||dataPackageInfo.result==3||dataPackageInfo.result==4||dataPackageInfo.result==6||count%20==1) {
+            count=1;
+            response.setValue("result",""+dataPackageInfo.result);
+            response.setValue("deviceId",dataPackageInfo.deviceId);
+            response.setValue("tripId",dataPackageInfo.tripId);
+            response.setValue("dataNumber",dataPackageInfo.dataNumber);
+            response.setValue("tripFlag",dataPackageInfo.tripFlag);
+            response.setValue("rtcTime",dataPackageInfo.rtcTime);
+            response.setValue("protocolType",dataPackageInfo.protocolType);
+            response.setValue("tripMileage",dataPackageInfo.tripMileage);
+            response.setValue("tripfuel",dataPackageInfo.tripfuel);
+            response.setValue("vState",dataPackageInfo.vState);
+            String OBD = "[";
+            for (PIDInfo i : dataPackageInfo.obdData) {
+                OBD+=i.pidType+":"+i.value+";";
+            }
+            OBD+="]";
+            response.setValue("OBD",OBD);
+            String Freeze = "[";
+            for (PIDInfo i : dataPackageInfo.freezeData) {
+                Freeze+=i.pidType+":"+i.value+";";
+            }
+            Freeze+="]";
+            response.setValue("Freeze",Freeze);
+            response.setValue("surportPid",dataPackageInfo.surportPid);
+            response.setValue("dtcData",dataPackageInfo.dtcData);
+            ldr.saveData("Responses",response.getValues());
+            //display out
             String out = "";
             out += "result : " + dataPackageInfo.result + "\n";
             out += "deviceId : " + dataPackageInfo.deviceId + "\n";

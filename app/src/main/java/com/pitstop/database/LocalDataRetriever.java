@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Recalls;
+import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services"
+     * @param type "Cars","Recalls" or "Services" or "Responses"
      * @param values values for input
      */
     public void saveData(String type, HashMap<String,String> values){
@@ -46,13 +47,14 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services"
+     * @param type "Cars","Recalls" or "Services" or "Responses"
      */
     public ArrayList<DBModel> getDataSet(String type, String id){
         SQLiteDatabase db = dbase.getReadableDatabase();
         if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
         if (type.equals("Services")) this.id = (new Services()).primaryKey;
         if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
         String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
         ArrayList<DBModel> array = new ArrayList<>();
         //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
@@ -85,13 +87,14 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services"
+     * @param type "Cars","Recalls" or "Services" or "Responses"
      */
     public DBModel getData(String type, String id){
         dbase.getReadableDatabase();
         if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
         if (type.equals("Services")) this.id = (new Services()).primaryKey;
         if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        if (type.equals("Responses")) this.id = (new Responses()).primaryKey;
         String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
         SQLiteDatabase db = dbase.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery,null);
@@ -122,13 +125,14 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services"
+     * @param type "Cars","Recalls", "Services" or "Responses"
      */
     public boolean deleteData(String type, String id){
         dbase.getReadableDatabase();
         if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
         if (type.equals("Services")) this.id = (new Services()).primaryKey;
         if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
         String selectQuery = "DELETE FROM " + type + " WHERE " + this.id + "='" + id+"'";
         SQLiteDatabase db = dbase.getWritableDatabase();
         db.delete("Cars", this.id +" = ?",new String[]{id});

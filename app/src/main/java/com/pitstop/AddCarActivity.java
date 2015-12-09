@@ -6,12 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -35,8 +35,9 @@ import java.util.List;
 
 public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
     public static int RESULT_ADDED = 10;
-    private String VIN = "", scannerID = "";
+    private String VIN = "", scannerID = "", mileage = "";
     private PrintDebugThread mLogDumper;
+    private boolean hasClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +45,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         setContentView(R.layout.activity_add_car);
 
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
-        mLogDumper = new PrintDebugThread(
-                String.valueOf(android.os.Process.myPid()),
-                ((TextView) findViewById(R.id.debug_log_print)),this);
+//        mLogDumper = new PrintDebugThread(
+//                String.valueOf(android.os.Process.myPid()),
+//                ((TextView) findViewById(R.id.debug_log_print)),this);
+        hasClicked = false;
         //mLogDumper.start();
     }
 
@@ -80,30 +82,41 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     public void getVIN(View view) {
-        if(BluetoothManage.getInstance(AddCarActivity.this).getState() != BluetoothManage.CONNECTED) {
-            BluetoothManage.getInstance(AddCarActivity.this).connectBluetooth();
-            findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        }else {
-            BluetoothManage.getInstance(this).obdGetParameter("2201");
-            findViewById(R.id.loading).setVisibility(View.VISIBLE);
+        if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
+            mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
+            if (!hasClicked) {
+                if (BluetoothManage.getInstance(AddCarActivity.this).getState() != BluetoothManage.CONNECTED) {
+                    BluetoothManage.getInstance(AddCarActivity.this).connectBluetooth();
+                    findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                } else {
+                    BluetoothManage.getInstance(this).obdGetParameter("2201");
+                    findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                }
+                hasClicked = true;
+            }
+        }else{
+            Toast.makeText(this,"Please enter Mileage",Toast.LENGTH_SHORT).show();
         }
         //VIN = "YS3FD75Y746007819";
     }
 
     private void makeCar() {
-        final String[] mashapeKey = {""};
-        ParseConfig.getInBackground(new ConfigCallback() {
-            @Override
-            public void done(ParseConfig config, ParseException e) {
-
-                //new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
-            }
-        });
+        if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")) {
+            VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
+            final String[] mashapeKey = {""};
+            ParseConfig.getInBackground(new ConfigCallback() {
+                @Override
+                public void done(ParseConfig config, ParseException e) {
+                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                }
+            });
+        }
     }
 
     @Override
     public void getBluetoothState(int state) {
         findViewById(R.id.loading).setVisibility(View.GONE);
+        hasClicked  = false;
     }
 
     @Override
@@ -123,20 +136,27 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         List<ParameterInfo> parameterValues = parameterPackageInfo.value;
         VIN = parameterValues.get(0).value;
+        if(!VIN.equals("")&&!VIN.equals("not supported")) {
+            ((EditText) findViewById(R.id.VIN)).setText(VIN);
+            ((TextView) findViewById(R.id.cardetails)).setText(VIN);
+        }else{
+            ((TextView) findViewById(R.id.cardetails)).setText("PLEASE ENTER YOUR VIN MANUALLY");
+            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+        }
         scannerID = parameterPackageInfo.deviceId;
-        ((TextView) findViewById(R.id.cardetails)).setText(VIN);
         makeCar();
+        hasClicked = false;
     }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(dataPackageInfo.result==5){
-            String obd = "";
-            for(PIDInfo i : dataPackageInfo.obdData){
-                obd +=i.pidType+ " - " + i.value + "\n";
-            }
-            ((TextView) findViewById(R.id.debug_log_print)).setText("Time " + dataPackageInfo.rtcTime + "\n" + obd);
-        }
+//        if(dataPackageInfo.result==5){
+//            String obd = "";
+//            for(PIDInfo i : dataPackageInfo.obdData){
+//                obd +=i.pidType+ " - " + i.value + "\n";
+//            }
+//            ((TextView) findViewById(R.id.debug_log_print)).setText("Time " + dataPackageInfo.rtcTime + "\n" + obd);
+//        }
     }
 
 
@@ -181,7 +201,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.put("scannerId", scannerID);
                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
                     newCar.put("user", ParseUser.getCurrentUser().getObjectId());
-                    newCar.put("baseMileage", 10000);
+                    newCar.put("baseMileage", mileage);
                     newCar.saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {

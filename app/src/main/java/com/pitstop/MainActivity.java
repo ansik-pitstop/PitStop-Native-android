@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         if(id==R.id.refresh){
             refreshDatabase();
         }
+        if(id==R.id.action_connect){
+            Intent i = new Intent(MainActivity.this, ReceiveDebugActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -72,10 +76,5 @@ public class MainActivity extends AppCompatActivity {
     public void addCar(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivity(intent);
-    }
-
-    public void checkDebug(View view) {
-        Intent i = new Intent(MainActivity.this, ReceiveDebugActivity.class);
-        startActivity(i);
     }
 }

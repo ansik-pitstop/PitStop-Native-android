@@ -4,9 +4,9 @@
     tools:context="com.example.obdapidemo.MainActivity" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_connect"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:title="CONNECT"
+        app:showAsAction="always"/>
 
 </menu>

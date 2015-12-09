@@ -22,16 +22,16 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GET 1 Mode"
-        android:id="@+id/btn_get_1"
-        android:onClick="getDTC" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GET 3 Mode"
+        android:text="GET FREEZE DATA"
         android:id="@+id/btn_get_3"
-        android:onClick="getFreeze" />
+        android:onClick="getFreeze"
+        android:background="@drawable/color_button_add_car"
+        android:elevation="4dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:textColor="#fff" />
 
 
     <ScrollView
