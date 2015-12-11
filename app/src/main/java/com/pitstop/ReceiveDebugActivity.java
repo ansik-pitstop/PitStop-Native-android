@@ -1,23 +1,35 @@
 package com.pitstop;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.SaveCallback;
+import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
+import com.pitstop.database.models.Uploads;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class ReceiveDebugActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
 
     TextView BTSTATUS;
+    boolean pendingUpload, clicked;
     private int count;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +40,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
         setTitle("Connect to Car");
         count=0;
+        pendingUpload = false;
+        clicked = false;
         //BluetoothManage.getInstance(this).obdSetMonitor();
 
     }
@@ -47,15 +61,30 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_upload) {
+            uploadRecords();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void uploadRecords() {
+        if (!pendingUpload){
+            findViewById(R.id.loading).setVisibility(View.VISIBLE);
+            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
+            uploadInfoOnline.execute();
+        }else{
+            Toast.makeText(this,"Uploads are already pending!",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     @Override
     public void getBluetoothState(int state) {
+        if(!pendingUpload) {
+            findViewById(R.id.loading).setVisibility(View.GONE);
+        }
         if (state == BluetoothManage.CONNECTED) {
             BTSTATUS.setText(R.string.bluetooth_connected);
         } else {
@@ -80,6 +109,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        if(!pendingUpload) {
+            findViewById(R.id.loading).setVisibility(View.GONE);
+        }
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         Responses response = new Responses();
         if(dataPackageInfo.result==5){
@@ -150,11 +182,52 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     }
 
     public void getFreeze(View view) {
+        findViewById(R.id.loading).setVisibility(View.VISIBLE);
         if (BluetoothManage.getInstance(this).getState() != BluetoothManage.CONNECTED) {
             BluetoothManage.getInstance(this).connectBluetooth();
         }else {
             BluetoothManage.getInstance(this).obdSetMonitor(1,"");
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
+        }
+    }
+
+    private class UploadInfoOnline extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            pendingUpload = true;
+            final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+            ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
+            for (final String device : devices){
+                ParseObject object = ParseObject.create("Scan");
+                String pid = "",freeze = "",dtc = "";
+                final ArrayList<DBModel> responses = ldr.getDataSet("Responses",device);
+                for (DBModel model:responses){
+                    pid +=model.getValue("rtcTime") + ":" + model.getValue("supportPid");
+                    freeze +=model.getValue("rtcTime") + ":" + model.getValue("Freeze");
+                    dtc +=model.getValue("rtcTime") + ":" + model.getValue("dtcData");
+                }
+                final int count = responses.size();
+                object.add("DTCs",dtc);
+                object.add("freezeData",freeze);
+                object.add("PIDs",pid);
+                object.add("scannerId",device);
+                object.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Toast.makeText(getBaseContext(),"Uploaded data online",Toast.LENGTH_SHORT).show();
+                        pendingUpload = false;
+                        findViewById(R.id.loading).setVisibility(View.GONE);
+                        ldr.deleteData("Responses",device);
+                        Uploads upload = new Uploads();
+                        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+                        upload.setValue("UploadedAt",timeStamp);
+                        upload.setValue("EntriesUploads",""+count);
+                        ldr.saveData("Responses",upload.getValues());
+                    }
+                });
+            }
+            return null;
         }
     }
 }

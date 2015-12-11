@@ -12,7 +12,7 @@ public class Responses extends DBModel {
 
     @Override
     protected void setUpTable() {
-        columns.put("ResponseID","Text");
+        columns.put("ResponseID","INTEGER PRIMARY KEY AUTOINCREMENT");
         columns.put("result","Integer");
         columns.put("deviceId","Text");
         columns.put("tripId","Text");
@@ -30,8 +30,4 @@ public class Responses extends DBModel {
         columns.put("dtcData","Text");
     }
 
-    @Override
-    public void setValue(String key, String value) {
-        values.put(key, value);
-    }
 }

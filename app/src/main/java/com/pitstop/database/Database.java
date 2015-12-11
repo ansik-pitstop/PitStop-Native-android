@@ -9,6 +9,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
+import com.pitstop.database.models.Uploads;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class Database extends SQLiteOpenHelper {
         models.add(new Recalls());
         models.add(new Cars());
         models.add(new Responses());
+        models.add(new Uploads());
     }
 
     @Override

@@ -28,7 +28,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services" or "Responses"
+     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
      * @param values values for input
      */
     public void saveData(String type, HashMap<String,String> values){
@@ -47,7 +47,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services" or "Responses"
+     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
      */
     public ArrayList<DBModel> getDataSet(String type, String id){
         SQLiteDatabase db = dbase.getReadableDatabase();
@@ -87,7 +87,31 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls" or "Services" or "Responses"
+     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
+     */
+    public ArrayList<String> getDistinctDataSet(String type, String column){
+        SQLiteDatabase db = dbase.getReadableDatabase();
+        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
+        if (type.equals("Services")) this.id = (new Services()).primaryKey;
+        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
+        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
+        String selectQuery = "SELECT DISTINCT " + column + " FROM " + type;
+        ArrayList<String> array = new ArrayList<>();
+        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do{
+                array.add(cursor.getString(0));
+            }while(cursor.moveToNext());
+        }
+        db.close();
+        return array;
+    }
+
+    /**
+     *
+     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
      */
     public DBModel getData(String type, String id){
         dbase.getReadableDatabase();
@@ -125,7 +149,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls", "Services" or "Responses"
+     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
      */
     public boolean deleteData(String type, String id){
         dbase.getReadableDatabase();

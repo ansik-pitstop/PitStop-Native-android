@@ -37,7 +37,9 @@ public abstract class DBModel implements Serializable{
     }
 
     protected abstract void setUpTable();
-    public abstract void setValue(String key, String value);
+    public void setValue(String key, String value){
+        values.put(key,value);
+    }
 
     public String getValue(String key){
         return values.get(key);

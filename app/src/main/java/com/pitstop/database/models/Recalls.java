@@ -24,9 +24,4 @@ public class Recalls extends DBModel {
         columns.put("numberAffected","Integer");
 
     }
-
-    @Override
-    public void setValue(String key, String value) {
-        values.put(key, value);
-    }
 }

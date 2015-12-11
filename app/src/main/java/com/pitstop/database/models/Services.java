@@ -21,8 +21,4 @@ public class Services extends DBModel {
         columns.put("priority","Text");
     }
 
-    @Override
-    public void setValue(String key, String value) {
-        values.put(key, value);
-    }
 }

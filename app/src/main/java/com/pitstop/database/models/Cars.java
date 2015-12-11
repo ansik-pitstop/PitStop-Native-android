@@ -11,7 +11,7 @@ public class Cars extends DBModel{
     }
 
     protected void setUpTable(){
-        columns.put("CarID","Text");
+        columns.put("CarID","INTEGER PRIMARY KEY AUTOINCREMENT");
         columns.put("owner","Text");
         columns.put("scannerId","Text");
         columns.put("VIN","Text");
@@ -30,8 +30,4 @@ public class Cars extends DBModel{
         columns.put("recalls","Text");
     }
 
-    @Override
-    public void setValue(String key, String value) {
-        values.put(key, value);
-    }
 }
