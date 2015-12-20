@@ -1,8 +1,13 @@
 package com.pitstop;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,10 +22,13 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
-import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,20 +38,32 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
 
     TextView BTSTATUS;
     boolean pendingUpload, clicked;
-    private int count;
+    private BluetoothAutoConnectService service;
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service1) {
+            // cast the IBinder and get MyService instance
+            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
+            service = binder.getService();
+            service.setCallbacks(ReceiveDebugActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_debug);
         BTSTATUS  = (TextView) findViewById(R.id.bluetooth_status);
         BTSTATUS.setText("Bluetooth Getting Started");
-        BluetoothManage.getInstance(this).setBluetoothDataListener(this);
         setTitle("Connect to Car");
-        count=0;
         pendingUpload = false;
+        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         clicked = false;
-        //BluetoothManage.getInstance(this).obdSetMonitor();
-
     }
 
     @Override
@@ -69,6 +89,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+    }
+
     private void uploadRecords() {
         if (!pendingUpload){
             findViewById(R.id.loading).setVisibility(View.VISIBLE);
@@ -92,6 +117,13 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
+    }
+
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
 
@@ -104,7 +136,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
-
     }
 
     @Override
@@ -112,81 +143,59 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         if(!pendingUpload) {
             findViewById(R.id.loading).setVisibility(View.GONE);
         }
-        LocalDataRetriever ldr = new LocalDataRetriever(this);
-        Responses response = new Responses();
-        if(dataPackageInfo.result==5){
-            count++;
-        }
-        if(dataPackageInfo.result==1||dataPackageInfo.result==3||dataPackageInfo.result==4||dataPackageInfo.result==6||count%20==1) {
-            count=1;
-            response.setValue("result",""+dataPackageInfo.result);
-            response.setValue("deviceId",dataPackageInfo.deviceId);
-            response.setValue("tripId",dataPackageInfo.tripId);
-            response.setValue("dataNumber",dataPackageInfo.dataNumber);
-            response.setValue("tripFlag",dataPackageInfo.tripFlag);
-            response.setValue("rtcTime",dataPackageInfo.rtcTime);
-            response.setValue("protocolType",dataPackageInfo.protocolType);
-            response.setValue("tripMileage",dataPackageInfo.tripMileage);
-            response.setValue("tripfuel",dataPackageInfo.tripfuel);
-            response.setValue("vState",dataPackageInfo.vState);
-            String OBD = "[";
-            for (PIDInfo i : dataPackageInfo.obdData) {
-                OBD+=i.pidType+":"+i.value+";";
-            }
-            OBD+="]";
-            response.setValue("OBD",OBD);
-            String Freeze = "[";
-            for (PIDInfo i : dataPackageInfo.freezeData) {
-                Freeze+=i.pidType+":"+i.value+";";
-            }
-            Freeze+="]";
-            response.setValue("Freeze",Freeze);
-            response.setValue("surportPid",dataPackageInfo.surportPid);
-            response.setValue("dtcData",dataPackageInfo.dtcData);
-            ldr.saveData("Responses",response.getValues());
-            //display out
-            String out = "";
-            out += "result : " + dataPackageInfo.result + "\n";
-            out += "deviceId : " + dataPackageInfo.deviceId + "\n";
-            out += "tripId : " + dataPackageInfo.tripId + "\n";
-            out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
-            out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
-            out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
-            out += "protocolType : " + dataPackageInfo.protocolType + "\n";
-            out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
-            out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
-            out += "vState : " + dataPackageInfo.vState + "\n";
-            out += "OBD Data \n";
-            for (PIDInfo i : dataPackageInfo.obdData) {
-                out += "     " + i.pidType + " : " + i.value + "\n";
-            }
-            out += "Freeze Data \n";
-            for (PIDInfo i : dataPackageInfo.freezeData) {
-                out += "     " + i.pidType + " : " + i.value + "\n";
-            }
-            out += "surportPid : " + dataPackageInfo.surportPid + "\n";
-            out += "dtcData : " + dataPackageInfo.dtcData + "\n";
 
-            ((TextView) findViewById(R.id.debug_log)).setText(out);
+        //display out
+        String out = "";
+        out += "result : " + dataPackageInfo.result + "\n";
+        out += "deviceId : " + dataPackageInfo.deviceId + "\n";
+        out += "tripId : " + dataPackageInfo.tripId + "\n";
+        out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
+        out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
+        out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
+        out += "protocolType : " + dataPackageInfo.protocolType + "\n";
+        out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
+        out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
+        out += "vState : " + dataPackageInfo.vState + "\n";
+        out += "OBD Data \n";
+        for (PIDInfo i : dataPackageInfo.obdData) {
+            out += "     " + i.pidType + " : " + i.value + "\n";
         }
+        out += "Freeze Data \n";
+        for (PIDInfo i : dataPackageInfo.freezeData) {
+            out += "     " + i.pidType + " : " + i.value + "\n";
+        }
+        out += "surportPid : " + dataPackageInfo.surportPid + "\n";
+        out += "dtcData : " + dataPackageInfo.dtcData + "\n";
+
+        ((TextView) findViewById(R.id.debug_log)).setText(out);
     }
 
 
     public void getDTC(View view) {
-        if (BluetoothManage.getInstance(this).getState() != BluetoothManage.CONNECTED) {
-            BluetoothManage.getInstance(this).connectBluetooth();
+        if (service.getState() != BluetoothManage.CONNECTED) {
+            service.startBluetoothSearch();
         }else {
-            BluetoothManage.getInstance(this).obdSetMonitor(4, "2105,2142");
+            service.getDTCs();
+            ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
+        }
+    }
+
+    public void getPIDS(View view) {
+        findViewById(R.id.loading).setVisibility(View.VISIBLE);
+        if (service.getState() != BluetoothManage.CONNECTED) {
+            service.startBluetoothSearch();
+        }else {
+            service.getPIDs();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
 
     public void getFreeze(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (BluetoothManage.getInstance(this).getState() != BluetoothManage.CONNECTED) {
-            BluetoothManage.getInstance(this).connectBluetooth();
+        if (service.getState() != BluetoothManage.CONNECTED) {
+            service.startBluetoothSearch();
         }else {
-            BluetoothManage.getInstance(this).obdSetMonitor(1,"");
+            service.getFreeze();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
@@ -198,34 +207,59 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
             pendingUpload = true;
             final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
             ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
-            for (final String device : devices){
+            for (final String device : devices) {
                 ParseObject object = ParseObject.create("Scan");
-                String pid = "",freeze = "",dtc = "";
-                final ArrayList<DBModel> responses = ldr.getDataSet("Responses",device);
-                for (DBModel model:responses){
-                    pid +=model.getValue("rtcTime") + ":" + model.getValue("supportPid");
-                    freeze +=model.getValue("rtcTime") + ":" + model.getValue("Freeze");
-                    dtc +=model.getValue("rtcTime") + ":" + model.getValue("dtcData");
-                }
-                final int count = responses.size();
-                object.add("DTCs",dtc);
-                object.add("freezeData",freeze);
-                object.add("PIDs",pid);
-                object.add("scannerId",device);
-                object.saveEventually(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Toast.makeText(getBaseContext(),"Uploaded data online",Toast.LENGTH_SHORT).show();
-                        pendingUpload = false;
-                        findViewById(R.id.loading).setVisibility(View.GONE);
-                        ldr.deleteData("Responses",device);
-                        Uploads upload = new Uploads();
-                        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-                        upload.setValue("UploadedAt",timeStamp);
-                        upload.setValue("EntriesUploads",""+count);
-                        ldr.saveData("Responses",upload.getValues());
+                String pid = "{", freeze = "{", dtc = "{";
+                final ArrayList<DBModel> responses = ldr.getDataSet("Responses", device);
+                boolean firstp = false, firstf = false, firstd = false;
+                for (DBModel model : responses) {
+                    if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
+                        pid += (firstp ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("OBD") + "";
+                        firstp = true;
                     }
-                });
+                    if ((model.getValue("Freeze") != null) && (!model.getValue("Freeze").equals("{}"))) {
+                        freeze += (firstf ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("Freeze");
+                        firstf = true;
+                    }
+                    if ((model.getValue("dtcData") != null) && (!model.getValue("dtcData").equals(""))) {
+                        dtc += (firstd ? "," : "") + "'" + model.getValue("rtcTime") + "':'" + model.getValue("dtcData") + "'";
+                        firstd = true;
+                    }
+                }
+                pid += "}";
+                freeze += "}";
+                dtc += "}";
+                final int count = responses.size();
+                if (count > 0) {
+                    try {
+                        object.put("DTCArray", new JSONObject(dtc));
+                        object.put("freezeDataArray", new JSONObject(freeze));
+                        object.put("PIDArray2", new JSONObject(pid));
+                        object.put("scannerId", device);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    object.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            findViewById(R.id.loading).setVisibility(View.GONE);
+                            if (e == null) {
+                                Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
+                                pendingUpload = false;
+                                ldr.deleteData("Responses", device);
+                                Uploads upload = new Uploads();
+                                String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+                                upload.setValue("UploadedAt", timeStamp);
+                                upload.setValue("EntriesUploaded", "" + count);
+                                ldr.saveData("Uploads", upload.getValues());
+                            } else {
+                                Log.d("Cant upload", e.getMessage());
+                            }
+                        }
+                    });
+                }else{
+                    Toast.makeText(getBaseContext(),"Wait to accumulate more information",Toast.LENGTH_SHORT).show();
+                }
             }
             return null;
         }

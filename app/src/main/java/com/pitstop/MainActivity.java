@@ -3,31 +3,30 @@ package com.pitstop;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.ParameterPackageInfo;
+import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.LocalDataRetriever;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+    public static Intent serviceIntent;
 
+    public static BluetoothAutoConnectService ioService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(new Intent(MainActivity.this, BluetoothAutoConnectService.class));
         setContentView(R.layout.activity_main);
 
     }
-
-    @Override
-    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onPostCreate(savedInstanceState, persistentState);
-
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -73,8 +72,41 @@ public class MainActivity extends AppCompatActivity {
         ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+
+    }
     public void addCar(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void getBluetoothState(int state) {
+
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+
+    }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+
     }
 }

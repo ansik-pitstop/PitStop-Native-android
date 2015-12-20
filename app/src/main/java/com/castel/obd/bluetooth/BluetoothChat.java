@@ -79,12 +79,12 @@ public class BluetoothChat {
 
 		@Override
 		public void run() {
-			LogUtil.i("???????????");
+			LogUtil.i("蓝牙开始连接");
 			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
 			try {
 				mmSocket.connect();
 
-				LogUtil.i("??????????");
+				LogUtil.i("蓝牙连接成功");
 
 				mHandler.sendMessage(mHandler.obtainMessage(
 						BluetoothManage.BLUETOOTH_CONNECT_SUCCESS,
@@ -95,7 +95,7 @@ public class BluetoothChat {
 			} catch (IOException connectException) {
 				connectException.printStackTrace();
 				try {
-					LogUtil.i("???????????");
+					LogUtil.i("蓝牙连接失败");
 					mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
 					mmSocket.close();
 				} catch (IOException e) {

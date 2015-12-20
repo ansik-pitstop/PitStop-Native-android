@@ -9,6 +9,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
+import com.pitstop.database.models.Uploads;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +73,12 @@ public class LocalDataRetriever {
                         break;
                     case "Services":
                         curr = new Services();
+                        break;
+                    case "Responses":
+                        curr = new Responses();
+                        break;
+                    case "Uploads":
+                        curr = new Uploads();
                         break;
                 }
                 for (int i = 0 ; i < cursor.getColumnCount(); i++) {
@@ -159,7 +166,7 @@ public class LocalDataRetriever {
         if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
         String selectQuery = "DELETE FROM " + type + " WHERE " + this.id + "='" + id+"'";
         SQLiteDatabase db = dbase.getWritableDatabase();
-        db.delete("Cars", this.id +" = ?",new String[]{id});
+        db.delete(type, this.id +" = ?",new String[]{id});
         //Cursor cursor = db.rawQuery(selectQuery,null);
         return true;
     }

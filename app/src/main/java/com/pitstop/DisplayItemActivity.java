@@ -1,12 +1,10 @@
 package com.pitstop;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,6 +27,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         }
         HashMap<String,String> info = model.getValues();
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.item_display);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         for (String key : info.keySet()){
             View view = getLayoutInflater().inflate(R.layout.activity_display_item_item,null);
@@ -53,6 +52,10 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id ==  android.R.id.home){
+            finish();
             return true;
         }
 

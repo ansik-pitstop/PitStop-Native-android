@@ -1,7 +1,11 @@
 package com.pitstop;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +27,8 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.Debug.PrintDebugThread;
+import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
 
 import org.json.JSONObject;
 
@@ -37,14 +43,32 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public static int RESULT_ADDED = 10;
     private String VIN = "", scannerID = "", mileage = "";
     private PrintDebugThread mLogDumper;
-    private boolean hasClicked;
+    private boolean hasClicked,bound;
+    private BluetoothAutoConnectService service;
 
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service1) {
+            // cast the IBinder and get MyService instance
+            BluetoothBinder binder = (BluetoothBinder) service1;
+            service = binder.getService();
+            bound = true;
+            service.setCallbacks(AddCarActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
 
-        BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 //        mLogDumper = new PrintDebugThread(
 //                String.valueOf(android.os.Process.myPid()),
 //                ((TextView) findViewById(R.id.debug_log_print)),this);
@@ -60,11 +84,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     @Override
-    public void finish() {
-        super.finish();
-        BluetoothManage.getInstance(this).close();
-        //mLogDumper.stopLogs();
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -83,16 +107,19 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     public void getVIN(View view) {
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
+            if (!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")){
+                makeCar();
+            }
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (!hasClicked) {
-                if (BluetoothManage.getInstance(AddCarActivity.this).getState() != BluetoothManage.CONNECTED) {
-                    BluetoothManage.getInstance(AddCarActivity.this).connectBluetooth();
+                if (service.getState() != BluetoothManage.CONNECTED) {
                     findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                    service.startBluetoothSearch();
                 } else {
-                    BluetoothManage.getInstance(this).obdGetParameter("2201");
+                    service.getCarVIN();
                     findViewById(R.id.loading).setVisibility(View.VISIBLE);
                 }
-                hasClicked = true;
+                //hasClicked = true;
             }
         }else{
             Toast.makeText(this,"Please enter Mileage",Toast.LENGTH_SHORT).show();
@@ -102,6 +129,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private void makeCar() {
         if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")) {
+            Toast.makeText(this,"Adding Car", Toast.LENGTH_SHORT).show();
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
             final String[] mashapeKey = {""};
             ParseConfig.getInBackground(new ConfigCallback() {
@@ -116,6 +144,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getBluetoothState(int state) {
         findViewById(R.id.loading).setVisibility(View.GONE);
+        if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
+            ((TextView) findViewById(R.id.cardetails)).setText("PLEASE ENTER YOUR VIN MANUALLY");
+            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+        }
         hasClicked  = false;
     }
 
@@ -136,7 +168,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         List<ParameterInfo> parameterValues = parameterPackageInfo.value;
         VIN = parameterValues.get(0).value;
-        if(!VIN.equals("")&&!VIN.equals("not supported")) {
+        if(VIN!=null&&VIN.length()==17) {
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
             ((TextView) findViewById(R.id.cardetails)).setText(VIN);
         }else{
@@ -198,10 +230,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.put("engine", jsonObject.getString("engine"));
                     newCar.put("city_mileage", jsonObject.getString("city_mileage"));
                     newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
-                    newCar.put("scannerId", scannerID);
+                    newCar.put("scannerId", scannerID==null?"":scannerID);
                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
                     newCar.put("user", ParseUser.getCurrentUser().getObjectId());
-                    newCar.put("baseMileage", mileage);
+                    newCar.put("baseMileage", Integer.valueOf(mileage));
                     newCar.saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {

@@ -13,11 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * log日志统计保存到SD??
+ * log?ュ?缁??淇????D??
  * 
  * 
  */
-// 日志保存使用方法
+// ?ュ?淇??浣跨??规?
 // LogcatHelper.getInstance(this).start();
 // LogcatHelper.getInstance(this).stop();
 public class LogCatHelper {
@@ -28,7 +28,7 @@ public class LogCatHelper {
 
 	/**
 	 * 
-	 * 初始化目??
+	 * ??????褰?
 	 * 
 	 * */
 	public void init(Context context) {
@@ -38,7 +38,7 @@ public class LogCatHelper {
 					.getAbsolutePath()
 					+ File.separator
 					+ "212BLOG";
-		} else {// 如果SD卡不存在，就保存到本应用的目录下
+		} else {// 濡??SD?′?瀛??锛?氨淇???版?搴?????褰??
 			PATH_LOGCAT = context.getFilesDir().getAbsolutePath()
 					+ File.separator + "Chap";
 		}
@@ -93,15 +93,15 @@ public class LogCatHelper {
 
 			/**
 			 * 
-			 * 日志等级??*:v , *:d , *:w , *:e , *:f , *:s
+			 * ?ュ?绛?骇锛?*:v , *:d , *:w , *:e , *:f , *:s
 			 * 
-			 * 显示当前mPID程序?? E和W等级的日??.
+			 * ?剧ず褰??mPID绋???? E??绛?骇???蹇?.
 			 * 
 			 * */
 
 			// cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
-			// cmds = "logcat  | grep \"(" + mPID + ")\"";//打印??有日志信??
-			cmds = "logcat -s gf";// 打印标签过滤信息
+			// cmds = "logcat  | grep \"(" + mPID + ")\"";//????????蹇?俊??
+			cmds = "logcat -s gf";// ??????杩?护淇℃?
 			// cmds = "logcat *:e *:i | grep \"(" + mPID + ")\"";
 			// cmds = "logcat -s System.out";
 

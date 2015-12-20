@@ -1345,7 +1345,7 @@ containing a value of this type.
             0x7f01004d, 0x7f01004e, 0x7f01004f
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#background}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#background}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1355,7 +1355,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_background = 10;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#backgroundSplit}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#backgroundSplit}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1367,7 +1367,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_backgroundSplit = 12;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#backgroundStacked}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#backgroundStacked}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1379,7 +1379,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_backgroundStacked = 11;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#customNavigationLayout}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#customNavigationLayout}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1389,7 +1389,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_customNavigationLayout = 13;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#displayOptions}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#displayOptions}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1410,7 +1410,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_displayOptions = 3;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#divider}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#divider}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1420,7 +1420,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_divider = 9;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#height}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#height}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1436,7 +1436,7 @@ containing a value of this type.
         */
         public static final int ActionBar_height = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#homeLayout}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#homeLayout}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1446,7 +1446,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_homeLayout = 14;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#icon}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#icon}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1456,7 +1456,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_icon = 7;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#indeterminateProgressStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#indeterminateProgressStyle}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1466,7 +1466,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_indeterminateProgressStyle = 16;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#itemPadding}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#itemPadding}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1482,7 +1482,7 @@ containing a value of this type.
         */
         public static final int ActionBar_itemPadding = 18;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#logo}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#logo}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1492,7 +1492,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_logo = 8;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#navigationMode}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#navigationMode}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1510,7 +1510,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_navigationMode = 2;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#progressBarPadding}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#progressBarPadding}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1526,7 +1526,7 @@ containing a value of this type.
         */
         public static final int ActionBar_progressBarPadding = 17;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#progressBarStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#progressBarStyle}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1536,7 +1536,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_progressBarStyle = 15;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#subtitle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#subtitle}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1550,7 +1550,7 @@ containing a value of this type.
         */
         public static final int ActionBar_subtitle = 4;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#subtitleTextStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#subtitleTextStyle}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1560,7 +1560,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionBar_subtitleTextStyle = 6;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#title}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#title}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1574,7 +1574,7 @@ containing a value of this type.
         */
         public static final int ActionBar_title = 1;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#titleTextStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#titleTextStyle}
           attribute's value can be found in the {@link #ActionBar} array.
 
 
@@ -1629,7 +1629,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             0x7f010054, 0x7f010055, 0x7f010056
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowActionBar}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowActionBar}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1643,7 +1643,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowActionBar = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowActionBarOverlay}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowActionBarOverlay}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1657,7 +1657,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowActionBarOverlay = 1;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowFixedHeightMajor}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowFixedHeightMajor}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1676,7 +1676,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowFixedHeightMajor = 6;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowFixedHeightMinor}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowFixedHeightMinor}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1695,7 +1695,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowFixedHeightMinor = 4;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowFixedWidthMajor}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowFixedWidthMajor}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1714,7 +1714,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowFixedWidthMajor = 3;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowFixedWidthMinor}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowFixedWidthMinor}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1733,7 +1733,7 @@ containing a value of this type.
         */
         public static final int ActionBarWindow_windowFixedWidthMinor = 5;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#windowSplitActionBar}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#windowSplitActionBar}
           attribute's value can be found in the {@link #ActionBarWindow} array.
 
 
@@ -1793,7 +1793,7 @@ containing a value of this type.
             0x7f010049
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#background}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#background}
           attribute's value can be found in the {@link #ActionMode} array.
 
 
@@ -1803,7 +1803,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionMode_background = 3;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#backgroundSplit}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#backgroundSplit}
           attribute's value can be found in the {@link #ActionMode} array.
 
 
@@ -1815,7 +1815,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionMode_backgroundSplit = 4;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#height}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#height}
           attribute's value can be found in the {@link #ActionMode} array.
 
 
@@ -1831,7 +1831,7 @@ containing a value of this type.
         */
         public static final int ActionMode_height = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#subtitleTextStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#subtitleTextStyle}
           attribute's value can be found in the {@link #ActionMode} array.
 
 
@@ -1841,7 +1841,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActionMode_subtitleTextStyle = 2;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#titleTextStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#titleTextStyle}
           attribute's value can be found in the {@link #ActionMode} array.
 
 
@@ -1866,7 +1866,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             0x7f010057, 0x7f010058
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#expandActivityOverflowButtonDrawable}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#expandActivityOverflowButtonDrawable}
           attribute's value can be found in the {@link #ActivityChooserView} array.
 
 
@@ -1876,7 +1876,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int ActivityChooserView_expandActivityOverflowButtonDrawable = 1;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#initialActivityCount}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#initialActivityCount}
           attribute's value can be found in the {@link #ActivityChooserView} array.
 
 
@@ -1903,7 +1903,7 @@ containing a value of this type.
             0x7f010059
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#textAllCaps}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#textAllCaps}
           attribute's value can be found in the {@link #CompatTextView} array.
 
 
@@ -1931,7 +1931,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             0x7f010046, 0x7f01005a, 0x7f01005b
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#divider}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#divider}
           attribute's value can be found in the {@link #LinearLayoutICS} array.
 
 
@@ -1941,7 +1941,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int LinearLayoutICS_divider = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#dividerPadding}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#dividerPadding}
           attribute's value can be found in the {@link #LinearLayoutICS} array.
 
 
@@ -1957,7 +1957,7 @@ containing a value of this type.
         */
         public static final int LinearLayoutICS_dividerPadding = 2;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#showDividers}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#showDividers}
           attribute's value can be found in the {@link #LinearLayoutICS} array.
 
 
@@ -2085,7 +2085,7 @@ containing a value of this type.
             0x7f01005f
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#actionLayout}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#actionLayout}
           attribute's value can be found in the {@link #MenuItem} array.
 
 
@@ -2095,7 +2095,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int MenuItem_actionLayout = 14;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#actionProviderClass}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#actionProviderClass}
           attribute's value can be found in the {@link #MenuItem} array.
 
 
@@ -2109,7 +2109,7 @@ containing a value of this type.
         */
         public static final int MenuItem_actionProviderClass = 16;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#actionViewClass}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#actionViewClass}
           attribute's value can be found in the {@link #MenuItem} array.
 
 
@@ -2201,7 +2201,7 @@ containing a value of this type.
         */
         public static final int MenuItem_android_visible = 4;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#showAsAction}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#showAsAction}
           attribute's value can be found in the {@link #MenuItem} array.
 
 
@@ -2337,7 +2337,7 @@ containing a value of this type.
         */
         public static final int SearchView_android_maxWidth = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#iconifiedByDefault}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#iconifiedByDefault}
           attribute's value can be found in the {@link #SearchView} array.
 
 
@@ -2351,7 +2351,7 @@ containing a value of this type.
         */
         public static final int SearchView_iconifiedByDefault = 3;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#queryHint}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#queryHint}
           attribute's value can be found in the {@link #SearchView} array.
 
 
@@ -2434,7 +2434,7 @@ containing a value of this type.
         */
         public static final int Spinner_android_popupBackground = 2;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#disableChildrenWhenDisabled}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#disableChildrenWhenDisabled}
           attribute's value can be found in the {@link #Spinner} array.
 
 
@@ -2448,7 +2448,7 @@ containing a value of this type.
         */
         public static final int Spinner_disableChildrenWhenDisabled = 9;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#popupPromptView}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#popupPromptView}
           attribute's value can be found in the {@link #Spinner} array.
 
 
@@ -2458,7 +2458,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int Spinner_popupPromptView = 8;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#prompt}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#prompt}
           attribute's value can be found in the {@link #Spinner} array.
 
 
@@ -2468,7 +2468,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int Spinner_prompt = 6;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#spinnerMode}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#spinnerMode}
           attribute's value can be found in the {@link #Spinner} array.
 
 
@@ -2509,7 +2509,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             0x7f01006a, 0x7f01006b
         };
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#actionDropDownStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#actionDropDownStyle}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2519,7 +2519,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int Theme_actionDropDownStyle = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#dropdownListPreferredItemHeight}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#dropdownListPreferredItemHeight}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2535,7 +2535,7 @@ containing a value of this type.
         */
         public static final int Theme_dropdownListPreferredItemHeight = 1;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#listChoiceBackgroundIndicator}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#listChoiceBackgroundIndicator}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2545,7 +2545,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int Theme_listChoiceBackgroundIndicator = 5;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#panelMenuListTheme}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#panelMenuListTheme}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2555,7 +2555,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int Theme_panelMenuListTheme = 4;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#panelMenuListWidth}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#panelMenuListWidth}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2571,7 +2571,7 @@ containing a value of this type.
         */
         public static final int Theme_panelMenuListWidth = 3;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#popupMenuStyle}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#popupMenuStyle}
           attribute's value can be found in the {@link #Theme} array.
 
 
@@ -2604,7 +2604,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int View_android_focusable = 0;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#paddingEnd}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#paddingEnd}
           attribute's value can be found in the {@link #View} array.
 
 
@@ -2620,7 +2620,7 @@ containing a value of this type.
         */
         public static final int View_paddingEnd = 2;
         /**
-          <p>This symbol is the offset where the {@link com.castel.obd.R;.attr#paddingStart}
+          <p>This symbol is the offset where the {@link com.castel.obd.R.attr#paddingStart}
           attribute's value can be found in the {@link #View} array.
 
 
