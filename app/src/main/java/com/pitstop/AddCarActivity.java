@@ -280,7 +280,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                     newCar.put("scannerId", scannerID==null?"":scannerID);
                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-                    newCar.put("user", ParseUser.getCurrentUser().getObjectId());
                     newCar.put("baseMileage", Integer.valueOf(mileage));
                     newCar.saveEventually(new SaveCallback() {
                         @Override
