@@ -7,9 +7,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -45,6 +49,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private PrintDebugThread mLogDumper;
     private boolean hasClicked,bound;
     private BluetoothAutoConnectService service;
+    private boolean askForDTC = false;
+    private ArrayList<String> DTCData= new ArrayList<>();;
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -63,6 +69,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             bound = false;
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +80,24 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 //                String.valueOf(android.os.Process.myPid()),
 //                ((TextView) findViewById(R.id.debug_log_print)),this);
         hasClicked = false;
+        ((EditText) findViewById(R.id.VIN)).addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.toString().length()!=0){
+                    ((Button) findViewById(R.id.button)).setText("ADD CAR");
+                }
+            }
+        });
         //mLogDumper.start();
     }
 
@@ -132,12 +157,18 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             Toast.makeText(this,"Adding Car", Toast.LENGTH_SHORT).show();
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
             final String[] mashapeKey = {""};
-            ParseConfig.getInBackground(new ConfigCallback() {
-                @Override
-                public void done(ParseConfig config, ParseException e) {
-                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
-                }
-            });
+            findViewById(R.id.loading).setVisibility(View.VISIBLE);
+            if(service.getState()==BluetoothManage.CONNECTED){
+                askForDTC=true;
+                service.getDTCs();
+            }else {
+                ParseConfig.getInBackground(new ConfigCallback() {
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
+                        new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                    }
+                });
+            }
         }
     }
 
@@ -147,6 +178,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             ((TextView) findViewById(R.id.cardetails)).setText("PLEASE ENTER YOUR VIN MANUALLY");
             findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            ((EditText) findViewById(R.id.VIN)).setText("JN8AS58V68W115906");
         }
         hasClicked  = false;
     }
@@ -182,6 +214,21 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askForDTC) {
+            DTCData = new ArrayList<>();
+            if(dataPackageInfo.dtcData.length()>0){
+                String[] DTCs = dataPackageInfo.dtcData.split(",");
+                for(String dtc : DTCs) {
+                    DTCData.add(service.parseDTCs(dtc.trim()));
+                }
+            }
+            ParseConfig.getInBackground(new ConfigCallback() {
+                @Override
+                public void done(ParseConfig config, ParseException e) {
+                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                }
+            });
+        }
 //        if(dataPackageInfo.result==5){
 //            String obd = "";
 //            for(PIDInfo i : dataPackageInfo.obdData){
@@ -229,6 +276,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.put("trim_level", jsonObject.getString("trim_level"));
                     newCar.put("engine", jsonObject.getString("engine"));
                     newCar.put("city_mileage", jsonObject.getString("city_mileage"));
+                    newCar.put("pendingDTCs",DTCData);
                     newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                     newCar.put("scannerId", scannerID==null?"":scannerID);
                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
@@ -237,6 +285,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
+                            findViewById(R.id.loading).setVisibility(View.GONE);
                             if (e == null) {
                                 setResult(RESULT_ADDED);
                                 finish();

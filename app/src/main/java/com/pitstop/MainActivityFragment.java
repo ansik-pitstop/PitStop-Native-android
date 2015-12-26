@@ -67,9 +67,17 @@ public class MainActivityFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                         intent.putExtra("title", car.getValue("make") + " " + car.getValue("model"));
                         String temp = car.getValue("services");
-                        intent.putExtra("servicesDue", temp.substring(1, temp.length()-1).split(","));
+                        if(!temp.equals("")) {
+                            intent.putExtra("servicesDue", temp.substring(1, temp.length() - 1).split(","));
+                        }else{
+                            intent.putExtra("servicesDue",new String[]{});
+                        }
                         temp = car.getValue("recalls");
-                        intent.putExtra("pendingRecalls", temp.substring(1, temp.length() - 1).split(","));
+                        if(!temp.equals("")) {
+                            intent.putExtra("pendingRecalls", temp.substring(1, temp.length() - 1).split(","));
+                        }else{
+                            intent.putExtra("pendingRecalls",new String[]{});
+                        }
                         startActivity(intent);
                     }
                 });
@@ -109,9 +117,9 @@ public class MainActivityFragment extends Fragment {
                             c.setValue("tank_size", car.getString("tank_size"));
                             c.setValue("totalMileage", car.getString("totalMileage"));
                             c.setValue("trimLevel", car.getString("trim_level"));
-                            c.setValue("services", car.get("servicesDue").toString());
-                            c.setValue("dtcs", car.getString("storedDTCs"));
-                            c.setValue("recalls", car.get("pendingRecalls").toString());
+                            c.setValue("services", (car.get("servicesDue")==null?"":car.get("servicesDue").toString()));
+                            c.setValue("dtcs", (car.getString("storedDTCs")==null?"":car.get("storedDTCs").toString()));
+                            c.setValue("recalls", (car.get("pendingRecalls")==null?"":car.get("pendingRecalls").toString()));
                             ldr.saveData("Cars", c.getValues());
                             ((TextView) itemBox.findViewById(R.id.car_title)).setText(car.getString("make") + " " + car.getString("model"));
                             itemBox.setOnClickListener(new View.OnClickListener() {
