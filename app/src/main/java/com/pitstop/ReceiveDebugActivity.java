@@ -210,7 +210,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
             for (final String device : devices) {
                 ParseObject object = ParseObject.create("Scan");
                 String pid = "{", freeze = "{", dtc = "{";
-                final ArrayList<DBModel> responses = ldr.getDataSet("Responses", device);
+                final ArrayList<DBModel> responses = ldr.getDataSet("Responses", "deviceId", device);
                 boolean firstp = false, firstf = false, firstd = false;
                 for (DBModel model : responses) {
                     if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
@@ -246,7 +246,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
                             if (e == null) {
                                 Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
                                 pendingUpload = false;
-                                ldr.deleteData("Responses", device);
+                                ldr.deleteData("Responses", "deviceId", device);
                                 Uploads upload = new Uploads();
                                 String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
                                 upload.setValue("UploadedAt", timeStamp);

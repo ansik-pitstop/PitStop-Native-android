@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.database.models.Cars;
+import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
@@ -48,17 +49,12 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
      */
-    public ArrayList<DBModel> getDataSet(String type, String id){
+    public ArrayList<DBModel> getDataSet(String type, String column, String value) {
         SQLiteDatabase db = dbase.getReadableDatabase();
-        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
-        if (type.equals("Services")) this.id = (new Services()).primaryKey;
-        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
-        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
-        String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
+        String selectQuery = "SELECT * FROM " + type + " WHERE " + column + "='" + value + "'";
         ArrayList<DBModel> array = new ArrayList<>();
-        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -67,6 +63,9 @@ public class LocalDataRetriever {
                 switch (type) {
                     case "Cars":
                         curr = new Cars();
+                        break;
+                    case "DTCs":
+                        curr = new DTCs();
                         break;
                     case "Recalls":
                         curr = new Recalls();
@@ -94,17 +93,12 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
      */
     public ArrayList<String> getDistinctDataSet(String type, String column){
         SQLiteDatabase db = dbase.getReadableDatabase();
-        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
-        if (type.equals("Services")) this.id = (new Services()).primaryKey;
-        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
-        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
         String selectQuery = "SELECT DISTINCT " + column + " FROM " + type;
         ArrayList<String> array = new ArrayList<>();
-        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -118,15 +112,11 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
      */
-    public DBModel getData(String type, String id){
+    public DBModel getData(String type, String column, String value){
         dbase.getReadableDatabase();
-        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
-        if (type.equals("Services")) this.id = (new Services()).primaryKey;
-        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
-        if (type.equals("Responses")) this.id = (new Responses()).primaryKey;
-        String selectQuery = "SELECT  * FROM " + type + " WHERE " + this.id + "='" + id+"'";
+        String selectQuery = "SELECT  * FROM " + type + " WHERE " + column + "='" + value + "'";
         SQLiteDatabase db = dbase.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery,null);
         //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
@@ -135,6 +125,9 @@ public class LocalDataRetriever {
             switch (type) {
                 case "Cars":
                     curr = new Cars();
+                    break;
+                case "DTCs":
+                    curr = new DTCs();
                     break;
                 case "Recalls":
                     curr = new Recalls();
@@ -156,17 +149,12 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
      */
-    public boolean deleteData(String type, String id){
+    public boolean deleteData(String type, String column, String value) {
         dbase.getReadableDatabase();
-        if (type.equals("Cars")) this.id = (new Cars()).foreignKey;
-        if (type.equals("Services")) this.id = (new Services()).primaryKey;
-        if (type.equals("Recalls")) this.id = (new Recalls()).primaryKey;
-        if (type.equals("Responses")) this.id = (new Responses()).foreignKey;
-        String selectQuery = "DELETE FROM " + type + " WHERE " + this.id + "='" + id+"'";
         SQLiteDatabase db = dbase.getWritableDatabase();
-        db.delete(type, this.id +" = ?",new String[]{id});
+        db.delete(type, column + "=?", new String[]{value});
         //Cursor cursor = db.rawQuery(selectQuery,null);
         return true;
     }

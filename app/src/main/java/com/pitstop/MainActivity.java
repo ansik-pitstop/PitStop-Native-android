@@ -1,8 +1,12 @@
 package com.pitstop;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,13 +22,31 @@ import com.pitstop.database.LocalDataRetriever;
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
     public static Intent serviceIntent;
 
-    public static BluetoothAutoConnectService ioService;
+
+    private BluetoothAutoConnectService service;
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service1) {
+            // cast the IBinder and get MyService instance
+            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
+            service = binder.getService();
+            service.setCallbacks(MainActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(new Intent(MainActivity.this, BluetoothAutoConnectService.class));
         setContentView(R.layout.activity_main);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
 
     }
     @Override
@@ -70,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         SharedPreferences settings = getSharedPreferences(MainActivityFragment.pfName, this.MODE_PRIVATE);
         String objectID = settings.getString(MainActivityFragment.pfCodeForObjectID, "NA");
-        ldr.deleteData("Cars",objectID);
+        ldr.deleteData("Cars", "owner", objectID);
         ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
     }
 
@@ -109,6 +131,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-
+        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
     }
 }
