@@ -12,5 +12,8 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="pref_logout_key">pref_logout</string>
     <string name="pref_logout_label">Log Out</string>
+    <string name="pref_email_key">pref_email_key</string>
+    <string name="pref_username_key">pref_username_key</string>
+    <string name="pref_phone_number_key">pref_phone_number_key</string>
 
 </resources>
