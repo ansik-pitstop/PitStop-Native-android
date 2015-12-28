@@ -276,7 +276,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     newCar.put("trim_level", jsonObject.getString("trim_level"));
                     newCar.put("engine", jsonObject.getString("engine"));
                     newCar.put("city_mileage", jsonObject.getString("city_mileage"));
-                    newCar.put("pendingDTCs",DTCData);
+                    newCar.put("storedDTCs",DTCData);
                     newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                     newCar.put("scannerId", scannerID==null?"":scannerID);
                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
