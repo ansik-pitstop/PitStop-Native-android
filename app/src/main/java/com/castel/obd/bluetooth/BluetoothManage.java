@@ -170,11 +170,11 @@ public class BluetoothManage {
 					btState = DISCONNECTED;
 					dataListener.getBluetoothState(btState);
 				}
-			}else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
-				if(mBluetoothAdapter.isEnabled())
-					connectBluetooth();
-				dataListener.getBluetoothState(btState);
-			}
+				}else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
+					if(mBluetoothAdapter.isEnabled())
+						connectBluetooth();
+					dataListener.getBluetoothState(btState);
+				}
 		}
 	};
 

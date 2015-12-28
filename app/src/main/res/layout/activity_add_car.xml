@@ -79,18 +79,6 @@
                 android:id="@+id/VIN" />
         </LinearLayout>
 
-        <ScrollView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/scrollView" >
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="New Text"
-                android:id="@+id/debug_log_print" />
-        </ScrollView>
-
     </LinearLayout>
 
     <RelativeLayout
