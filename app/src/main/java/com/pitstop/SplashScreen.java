@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,8 @@ public class SplashScreen extends AppCompatActivity {
     final static String pfCodeForPassword = "com.pitstop.login.passwd";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
 
+    public static final String TAG = SplashScreen.class.getSimpleName();
+
     boolean signup  = false;
 
     final String loginCache = "PITSTOP_LOGIN_DATA0";
@@ -32,16 +35,20 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        Parse.enableLocalDatastore(this);
-        Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         String email = settings.getString(pfCodeForID, "NA");
-        if(!email.equals("NA")){
-            Toast.makeText(getApplicationContext(), "Starting Offline", Toast.LENGTH_SHORT).show();
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser == null) {
+            Log.i(TAG, "Current Parse user is null");
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+            Log.i(TAG, currentUser.getUsername());
         }
     }
 

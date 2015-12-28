@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="MY Account">
+        <EditTextPreference android:title="Your Name"
+            android:key="username_key"
+            android:summary="Tap to change your name">
+        </EditTextPreference>
+
+        <Preference android:title="Email"
+            android:key="email_key">
+        </Preference>
+
+        <EditTextPreference android:title="Your Phone Number"
+            android:key="phone_number_key"
+            android:summary="Tap to change your phone number">
+
+        </EditTextPreference>
+    </PreferenceCategory>
+
+    <Preference
+        android:key="@string/pref_logout_key"
+        android:title="@string/pref_logout_label"/>
+
+    <!--<CheckBoxPreference android:title="Application Updates"-->
+        <!--android:defaultValue="false"-->
+        <!--android:summary="This option if selected will allow the application to check for latest versions."-->
+        <!--android:key="applicationUpdates" />-->
+    <!--<ListPreference     android:title="Download Details"-->
+        <!--android:summary="Select the kind of data that you would like to download"-->
+        <!--android:key="downloadType"-->
+        <!--android:defaultValue="1"-->
+        <!--android:entries="@array/listArray"-->
+        <!--android:entryValues="@array/listValues" />-->
+</PreferenceScreen>
