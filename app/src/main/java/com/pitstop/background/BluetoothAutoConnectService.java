@@ -2,8 +2,11 @@ package com.pitstop.background;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
@@ -11,9 +14,21 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.SaveCallback;
+import com.pitstop.R;
+import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
+import com.pitstop.database.models.Uploads;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -216,4 +231,72 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         serviceCallbacks = callbacks;
     }
 
+
+    public void uploadRecords() {
+        UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
+        uploadInfoOnline.execute();
+    }
+
+    private class UploadInfoOnline extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+            ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
+            for (final String device : devices) {
+                ParseObject object = ParseObject.create("Scan");
+                String pid = "{", freeze = "{", dtc = "{";
+                final ArrayList<DBModel> responses = ldr.getDataSet("Responses", "deviceId", device);
+                boolean firstp = false, firstf = false, firstd = false;
+                for (DBModel model : responses) {
+                    if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
+                        pid += (firstp ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("OBD") + "";
+                        firstp = true;
+                    }
+                    if ((model.getValue("Freeze") != null) && (!model.getValue("Freeze").equals("{}"))) {
+                        freeze += (firstf ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("Freeze");
+                        firstf = true;
+                    }
+                    if ((model.getValue("dtcData") != null) && (!model.getValue("dtcData").equals(""))) {
+                        dtc += (firstd ? "," : "") + "'" + model.getValue("rtcTime") + "':'" + model.getValue("dtcData") + "'";
+                        firstd = true;
+                    }
+                }
+                pid += "}";
+                freeze += "}";
+                dtc += "}";
+                final int count = responses.size();
+                if (count > 0) {
+                    try {
+                        object.put("DTCArray", new JSONObject(dtc));
+                        object.put("freezeDataArray", new JSONObject(freeze));
+                        object.put("PIDArray2", new JSONObject(pid));
+                        object.put("scannerId", device);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    object.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
+                                ldr.deleteData("Responses", "deviceId", device);
+                                Uploads upload = new Uploads();
+                                String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+                                upload.setValue("UploadedAt", timeStamp);
+                                upload.setValue("EntriesStart", responses.get(0).getValue("ResponseID"));
+                                upload.setValue("EntriesEnd", responses.get(responses.size()-1).getValue("ResponseID"));
+                                ldr.saveData("Uploads", upload.getValues());
+                            } else {
+                                Log.d("Cant upload", e.getMessage());
+                            }
+                        }
+                    });
+                }else{
+                    Toast.makeText(getBaseContext(),"Wait to accumulate more information",Toast.LENGTH_SHORT).show();
+                }
+            }
+            return null;
+        }
+    }
 }
