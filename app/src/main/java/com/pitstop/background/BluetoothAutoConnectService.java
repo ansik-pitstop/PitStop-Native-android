@@ -73,7 +73,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public String parseDTCs(String hex){
         int start = 1;
         char head = hex.charAt(0);
-        HashMap<Character, String> map = new HashMap<Character, String>();map.put('0',"P0");
+        HashMap<Character, String> map = new HashMap<Character, String>();
+        map.put('0',"P0");
         map.put('1',"P1");
         map.put('2',"P2");
         map.put('3',"P3");
