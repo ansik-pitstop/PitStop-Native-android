@@ -22,6 +22,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
 
@@ -54,7 +55,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (int i : serviceCodes.keySet()){
             Services service;
-            service = (Services) ldr.getData("Services", "ServiceID", String.valueOf(i));
+            service = (Services) ldr.getData("Services","ServiceID", String.valueOf(i));
             if(service ==null){
                 serviceGet = true;//go get some missing services
             }else {
@@ -100,7 +101,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (String i : recallCodes.keySet()){
             Recalls service;
-            service = (Recalls) ldr.getData("Recalls", "RecallID", i.trim());
+            service = (Recalls) ldr.getData("Recalls","RecallID", i.trim());
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
@@ -130,6 +131,47 @@ public class CarDetailsActivity extends AppCompatActivity {
                         if (!recallCodes.get(recall.getValue("RecallID"))){
                             ldr.saveData("Recalls",recall.getValues());
                             arrayList.add(recall);
+                        }
+                    }
+                    customAdapter.dataList.clear();
+                    customAdapter.dataList.addAll(arrayList);
+                    customAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+
+        //--------------------------------GET DTCS-------------------------------
+        a = (Object[]) getIntent().getSerializableExtra("dtcs");
+        final HashMap<String,Boolean> dtcList = new HashMap<String,Boolean>();
+        for (int i = 0; i<a.length; i++){
+            dtcList.put(a[i].toString(), false);
+        }
+        boolean dtcGet = false;
+        //check DB first
+        for (String i : dtcList.keySet()){
+            DTCs dtc;
+            dtc = (DTCs) ldr.getData("DTCs", "dtcCode",i.trim());
+            if(dtc ==null){
+                dtcGet= true;//go get some missing services
+            }else {
+                arrayList.add(dtc);
+                dtcList.put(i, true);
+            }
+        }
+        //see if need to get from online
+        if (dtcGet) {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("DTC");
+            query.whereContainedIn("dtcCode", dtcList.keySet());
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    for (ParseObject parseObject : objects) {
+                        DTCs dtc = new DTCs();
+                        dtc.setValue("dtcCode", parseObject.getString("dtcCode"));
+                        dtc.setValue("description", parseObject.getString("description"));
+                        if (!dtcList.get(dtc.getValue("dtcCode"))){
+                            ldr.saveData("DTCs",dtc.getValues());
+                            arrayList.add(dtc);
                         }
                     }
                     customAdapter.dataList.clear();
@@ -208,6 +250,9 @@ public class CarDetailsActivity extends AppCompatActivity {
             if(dataList.get(i) instanceof Recalls) {
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("name"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_error_red_600_24dp));
+            }else if(dataList.get(i) instanceof DTCs){
+                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
+                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_announcement_blue_600_24dp));
             }else{
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_warning_amber_300_24dp));

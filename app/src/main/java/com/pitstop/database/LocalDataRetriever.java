@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.database.models.Cars;
-import com.pitstop.database.models.Dtcs;
+import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
@@ -64,8 +64,8 @@ public class LocalDataRetriever {
                     case "Cars":
                         curr = new Cars();
                         break;
-                    case "Dtcs":
-                        curr = new Dtcs();
+                    case "DTCs":
+                        curr = new DTCs();
                         break;
                     case "Recalls":
                         curr = new Recalls();
@@ -126,8 +126,8 @@ public class LocalDataRetriever {
                 case "Cars":
                     curr = new Cars();
                     break;
-                case "Dtcs":
-                    curr = new Dtcs();
+                case "DTCs":
+                    curr = new DTCs();
                     break;
                 case "Recalls":
                     curr = new Recalls();

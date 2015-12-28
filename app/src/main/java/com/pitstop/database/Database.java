@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.pitstop.database.models.Cars;
-import com.pitstop.database.models.Dtcs;
+import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
@@ -22,9 +22,9 @@ public class Database extends SQLiteOpenHelper {
     private static final String DB_NAME = "PitstopDB";
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
-        super(context, DB_NAME, null, 2);
+        super(context, DB_NAME, null, 3);
         models.add(new Cars());
-        models.add(new Dtcs());
+        models.add(new DTCs());
         models.add(new Recalls());
         models.add(new Responses());
         models.add(new Services());
