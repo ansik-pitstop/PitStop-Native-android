@@ -222,10 +222,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
         }
-        if(counter%100==0){
+        if(counter%5==0){
             getDTCs();
         }
-        if(counter==200){
+        if(counter==7){
             counter = 1;
             uploadRecords();
         }
@@ -244,14 +244,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     public void uploadRecords() {
         LocalDataRetriever ldr = new LocalDataRetriever(this);
-        DBModel entry = ldr.getLastRow("Uploads");
+        DBModel entry = ldr.getLastRow("Uploads", "UploadID");
         if(entry==null){
             ArrayList<DBModel> array  = ldr.getAllDataSet("Responses");
             UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
             uploadInfoOnline.execute(array.get(0).getValue("ResponseID"),
                     array.get(array.size()-1).getValue("ResponseID"));
         }else{
-            DBModel lastResponse = ldr.getLastRow("Response");
+            DBModel lastResponse = ldr.getLastRow("Responses", "ResponseID");
             UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
             uploadInfoOnline.execute(entry.getValue("EntriesEnd"),
                     lastResponse.getValue("ResponseID"));
@@ -309,7 +309,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                                 ldr.deleteData("Responses", "deviceId", device);
                                 final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
                                 upload.setValue("UploadedAt", timeStamp);
-                                ldr.updateData("Uploads", "UploadsID",""+index, upload.getValues());
+                                ldr.updateData("Uploads", "UploadID",""+index, upload.getValues());
                             } else {
                                 Log.d("Cant upload", e.getMessage());
                             }

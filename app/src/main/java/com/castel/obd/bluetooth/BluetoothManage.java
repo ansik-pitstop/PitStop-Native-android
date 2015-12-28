@@ -383,6 +383,7 @@ public class BluetoothManage {
 
 		LogUtil.i(info);
 
+		info = info.replace("obdData\":]","obdData\":[]");
 		String[] infos = info.split("&");
 		LogUtil.i("length:" + infos.length);
 		for (int i = 0; i < infos.length; i++) {

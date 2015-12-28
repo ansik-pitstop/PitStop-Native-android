@@ -162,7 +162,7 @@ public class LocalDataRetriever {
 
     public ArrayList<DBModel> getResponse(String deviceId, String start, String end) {
         SQLiteDatabase db = dbase.getReadableDatabase();
-        String selectQuery = "SELECT * FROM Responses WHERE ResponseID > " + start + "AND ResponseID < " + end + " AND deviceID = " + deviceId;
+        String selectQuery = "SELECT * FROM Responses WHERE ResponseID > " + start + " AND ResponseID < " + end + " AND deviceID = " + deviceId;
         ArrayList<DBModel> array = new ArrayList<>();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -194,9 +194,9 @@ public class LocalDataRetriever {
 
     }
 
-    public DBModel getLastRow(String tableName) {
+    public DBModel getLastRow(String tableName, String column) {
         SQLiteDatabase db = dbase.getReadableDatabase();
-        String selectQuery = "SELECT * FROM "+tableName+" ORDER BY column DESC LIMIT 1";
+        String selectQuery = "SELECT * FROM "+tableName+" ORDER BY "+column+" DESC LIMIT 1";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         DBModel curr = null;
@@ -205,6 +205,9 @@ public class LocalDataRetriever {
                 switch (tableName){
                     case "Uploads":
                         curr = new Uploads();
+                        break;
+                    case "Responses":
+                        curr = new Responses();
                         break;
                 }
                 for (int i = 0 ; i < cursor.getColumnCount(); i++) {
