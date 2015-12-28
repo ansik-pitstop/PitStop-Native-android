@@ -52,8 +52,8 @@ public class MainActivityFragment extends Fragment {
         }
         final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
         SharedPreferences settings = getActivity().getSharedPreferences(pfName, getContext().MODE_PRIVATE);
-        String objectID = settings.getString(pfCodeForObjectID, "NA");
-        ArrayList<DBModel> array = ldr.getDataSet("Cars", objectID);
+        String userId = settings.getString(pfCodeForObjectID, "NA");
+        ArrayList<DBModel> array = ldr.getDataSet("Cars", "owner", userId);
         if(array.size()>0){
             for (final DBModel car : array) {
                 LayoutInflater inflater =
@@ -80,11 +80,10 @@ public class MainActivityFragment extends Fragment {
             }
         }else {
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-            String userID = objectID;
             if (ParseUser.getCurrentUser() != null) {
-                userID = ParseUser.getCurrentUser().getObjectId();
+                userId = ParseUser.getCurrentUser().getObjectId();
             }
-            query.whereContains("owner", userID);
+            query.whereContains("owner", userId);
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {

@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         SharedPreferences settings = getSharedPreferences(MainActivityFragment.pfName, this.MODE_PRIVATE);
         String objectID = settings.getString(MainActivityFragment.pfCodeForObjectID, "NA");
-        ldr.deleteData("Cars",objectID);
+        ldr.deleteData("Cars", "owner", objectID);
         ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
     }
 

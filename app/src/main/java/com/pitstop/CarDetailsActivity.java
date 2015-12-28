@@ -54,7 +54,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (int i : serviceCodes.keySet()){
             Services service;
-            service = (Services) ldr.getData("Services", String.valueOf(i));
+            service = (Services) ldr.getData("Services", "ServiceID", String.valueOf(i));
             if(service ==null){
                 serviceGet = true;//go get some missing services
             }else {
@@ -100,7 +100,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (String i : recallCodes.keySet()){
             Recalls service;
-            service = (Recalls) ldr.getData("Recalls", i.trim());
+            service = (Recalls) ldr.getData("Recalls", "RecallID", i.trim());
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
