@@ -33,17 +33,18 @@ public class LocalDataRetriever {
      * @param type "Cars","Recalls", "Services", "Responses" or "Uploads"
      * @param values values for input
      */
-    public void saveData(String type, HashMap<String,String> values){
+    public long saveData(String type, HashMap<String,String> values){
         SQLiteDatabase db = dbase.getWritableDatabase();
         ContentValues inputValues = new ContentValues();
         for(String i : values.keySet()){
             inputValues.put(i,values.get(i));
         }
-        db.insert(
+        long id = db.insert(
                 type,
                 "null",
                 inputValues);
         db.close();
+        return id;
 
     }
 
@@ -157,5 +158,101 @@ public class LocalDataRetriever {
         db.delete(type, column + "=?", new String[]{value});
         //Cursor cursor = db.rawQuery(selectQuery,null);
         return true;
+    }
+
+    public ArrayList<DBModel> getResponse(String deviceId, String start, String end) {
+        SQLiteDatabase db = dbase.getReadableDatabase();
+        String selectQuery = "SELECT * FROM Responses WHERE ResponseID > " + start + "AND ResponseID < " + end + " AND deviceID = " + deviceId;
+        ArrayList<DBModel> array = new ArrayList<>();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do{
+                DBModel curr = new Responses();
+                for (int i = 0 ; i < cursor.getColumnCount(); i++) {
+                    curr.setValue(cursor.getColumnName(i), cursor.getString(i));
+                }
+                array.add(curr);
+            }while(cursor.moveToNext());
+        }
+        db.close();
+        return array;
+    }
+
+    public void updateData(String table, String id, String index, HashMap<String, String> values) {
+        SQLiteDatabase db = dbase.getWritableDatabase();
+        ContentValues inputValues = new ContentValues();
+        for(String i : values.keySet()){
+            inputValues.put(i,values.get(i));
+        }
+        db.update(
+                table,
+                inputValues,
+                id + "= ?",
+                new String []{index});
+        db.close();
+
+    }
+
+    public DBModel getLastRow(String tableName) {
+        SQLiteDatabase db = dbase.getReadableDatabase();
+        String selectQuery = "SELECT * FROM "+tableName+" ORDER BY column DESC LIMIT 1";
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        DBModel curr = null;
+        if (cursor.moveToFirst()) {
+            do{
+                switch (tableName){
+                    case "Uploads":
+                        curr = new Uploads();
+                        break;
+                }
+                for (int i = 0 ; i < cursor.getColumnCount(); i++) {
+                    curr.setValue(cursor.getColumnName(i), cursor.getString(i));
+                }
+            }while(cursor.moveToNext());
+        }
+        db.close();
+        return curr;
+    }
+
+    public ArrayList<DBModel> getAllDataSet(String type) {
+        SQLiteDatabase db = dbase.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + type;
+        ArrayList<DBModel> array = new ArrayList<>();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do{
+                DBModel curr = null;
+                switch (type) {
+                    case "Cars":
+                        curr = new Cars();
+                        break;
+                    case "DTCs":
+                        curr = new DTCs();
+                        break;
+                    case "Recalls":
+                        curr = new Recalls();
+                        break;
+                    case "Services":
+                        curr = new Services();
+                        break;
+                    case "Responses":
+                        curr = new Responses();
+                        break;
+                    case "Uploads":
+                        curr = new Uploads();
+                        break;
+                }
+                for (int i = 0 ; i < cursor.getColumnCount(); i++) {
+                    assert curr != null;
+                    curr.setValue(cursor.getColumnName(i), cursor.getString(i));
+                }
+                array.add(curr);
+            }while(cursor.moveToNext());
+        }
+        db.close();
+        return array;
     }
 }

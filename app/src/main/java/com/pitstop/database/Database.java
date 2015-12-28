@@ -10,6 +10,7 @@ import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
+import com.pitstop.database.models.Shops;
 import com.pitstop.database.models.Uploads;
 
 import java.util.ArrayList;
@@ -22,13 +23,14 @@ public class Database extends SQLiteOpenHelper {
     private static final String DB_NAME = "PitstopDB";
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
-        super(context, DB_NAME, null, 3);
+        super(context, DB_NAME, null, 4);
         models.add(new Cars());
         models.add(new DTCs());
         models.add(new Recalls());
         models.add(new Responses());
         models.add(new Services());
         models.add(new Uploads());
+        models.add(new Shops());
     }
 
     @Override

@@ -14,7 +14,8 @@ public class Uploads extends DBModel {
     protected void setUpTable() {
         columns.put("UploadID","INTEGER PRIMARY KEY AUTOINCREMENT");
         columns.put("UploadedAt","Text");
-        columns.put("EntriesUploaded","Text");
+        columns.put("EntriesStart","Text");
+        columns.put("EntriesEnd","Text");
         columns.put("ScannerID","Text");
     }
 

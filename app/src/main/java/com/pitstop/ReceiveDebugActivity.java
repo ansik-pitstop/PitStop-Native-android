@@ -94,14 +94,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         super.finish();
     }
 
-    private void uploadRecords() {
-        if (!pendingUpload){
-            findViewById(R.id.loading).setVisibility(View.VISIBLE);
-            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
-            uploadInfoOnline.execute();
-        }else{
-            Toast.makeText(this,"Uploads are already pending!",Toast.LENGTH_SHORT).show();
-        }
+    public void uploadRecords() {
+        service.uploadRecords();
     }
 
 
@@ -197,71 +191,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         }else {
             service.getFreeze();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
-        }
-    }
-
-    private class UploadInfoOnline extends AsyncTask<Void,Void,Void>{
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            pendingUpload = true;
-            final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
-            ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
-            for (final String device : devices) {
-                ParseObject object = ParseObject.create("Scan");
-                String pid = "{", freeze = "{", dtc = "{";
-                final ArrayList<DBModel> responses = ldr.getDataSet("Responses", "deviceId", device);
-                boolean firstp = false, firstf = false, firstd = false;
-                for (DBModel model : responses) {
-                    if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
-                        pid += (firstp ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("OBD") + "";
-                        firstp = true;
-                    }
-                    if ((model.getValue("Freeze") != null) && (!model.getValue("Freeze").equals("{}"))) {
-                        freeze += (firstf ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("Freeze");
-                        firstf = true;
-                    }
-                    if ((model.getValue("dtcData") != null) && (!model.getValue("dtcData").equals(""))) {
-                        dtc += (firstd ? "," : "") + "'" + model.getValue("rtcTime") + "':'" + model.getValue("dtcData") + "'";
-                        firstd = true;
-                    }
-                }
-                pid += "}";
-                freeze += "}";
-                dtc += "}";
-                final int count = responses.size();
-                if (count > 0) {
-                    try {
-                        object.put("DTCArray", new JSONObject(dtc));
-                        object.put("freezeDataArray", new JSONObject(freeze));
-                        object.put("PIDArray2", new JSONObject(pid));
-                        object.put("scannerId", device);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    object.saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            findViewById(R.id.loading).setVisibility(View.GONE);
-                            if (e == null) {
-                                Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
-                                pendingUpload = false;
-                                ldr.deleteData("Responses", "deviceId", device);
-                                Uploads upload = new Uploads();
-                                String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-                                upload.setValue("UploadedAt", timeStamp);
-                                upload.setValue("EntriesUploaded", "" + count);
-                                ldr.saveData("Uploads", upload.getValues());
-                            } else {
-                                Log.d("Cant upload", e.getMessage());
-                            }
-                        }
-                    });
-                }else{
-                    Toast.makeText(getBaseContext(),"Wait to accumulate more information",Toast.LENGTH_SHORT).show();
-                }
-            }
-            return null;
         }
     }
 }
