@@ -96,15 +96,16 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView3"
+                android:id="@+id/call_garage_icon"
                 android:src="@drawable/ic_phone_red_400_18dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Call"
-                android:id="@+id/textView7"
-                android:layout_marginLeft="16dp" />
+                android:id="@+id/call_garage"
+                android:layout_marginLeft="16dp"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -117,15 +118,15 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView2"
+                android:id="@+id/message_garage_icon"
                 android:src="@drawable/ic_message_red_400_18dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Message"
-                android:id="@+id/textView6"
-                android:layout_marginLeft="16dp" />
+                android:id="@+id/message_garage"
+                android:layout_marginLeft="16dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -137,15 +138,15 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView"
+                android:id="@+id/directions_to_garage_icon"
                 android:src="@drawable/ic_pin_drop_red_400_18dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Directions to"
-                android:id="@+id/textView5"
-                android:layout_marginLeft="16dp" />
+                android:id="@+id/directions_to_garage"
+                android:layout_marginLeft="16dp"/>
         </LinearLayout>
     </LinearLayout>
 

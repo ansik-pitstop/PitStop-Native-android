@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.Preference;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -29,14 +34,26 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
 
+    public static final String TAG = MainActivityFragment.class.getSimpleName();
+    private static String currentGarage = "";
+    private static String garagePhoneNumber = "";
+    private static String garageAddress = "";
+
     final static String pfName = "com.pitstop.login.name";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
+
+    TextView callGarageTextView;
+    TextView messageGarageTextView;
+    TextView directionsToGarageTextView;
+
+
     private ArrayList<DBModel> array;
     public MainActivityFragment() {
     }
@@ -44,14 +61,83 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main, container, false);
 
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        setTextViews();
         setUp();
+        getGarage();
+    }
+
+    public void setTextViews() {
+        callGarageTextView = (TextView) getView().findViewById(R.id.call_garage);
+        callGarageTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "phone number is " + garagePhoneNumber);
+                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + garagePhoneNumber));
+                startActivity(intent);
+            }
+        });
+
+        messageGarageTextView = (TextView) getView().findViewById(R.id.message_garage);
+        messageGarageTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "phone number is " + garagePhoneNumber);
+                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                sendIntent.setData(Uri.parse("sms:" + garagePhoneNumber));
+                startActivity(sendIntent);
+            }
+        });
+        directionsToGarageTextView = (TextView) getView().findViewById(R.id.directions_to_garage);
+        directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "address is " + garageAddress);
+                String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(intent);
+            }
+        });
+    }
+
+
+    public void getGarage() {
+//        final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+//        array = ldr.getDataSet("Shop", "objectId", "WMV1Z6bjFW");
+//        if (array.size() > 0) {
+//            Log.d(TAG, "Fetching from local datastore");
+//        } else {
+//            Log.d(TAG, "Fetching from online datastore");
+//
+//        }
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+        query.whereEqualTo("objectId", "WMV1Z6bjFW");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
+                if (e == null) {
+                    for (ParseObject parseObject : parseObjects) {
+                        currentGarage = parseObject.get("name").toString();
+                        garagePhoneNumber = parseObject.get("phoneNumber").toString();
+                        garageAddress = parseObject.get("addressText").toString();
+                        Log.i(TAG, "current garage is " + currentGarage);
+                        Log.i(TAG, "current garage phone number is " + garagePhoneNumber);
+                        Log.i(TAG, "current garage address is " + garageAddress);
+                    }
+                } else {
+                    Log.d("ERROR:", "" + e.getMessage());
+                }
+                callGarageTextView.setText("Call " + currentGarage);
+                messageGarageTextView.setText("Message " + currentGarage);
+                directionsToGarageTextView.setText("Directions to " + currentGarage);
+            }
+        });
     }
 
     public void setUp(){

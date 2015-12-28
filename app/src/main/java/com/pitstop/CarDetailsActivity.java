@@ -252,8 +252,7 @@ public class CarDetailsActivity extends AppCompatActivity {
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_error_red_600_24dp));
             }else if(dataList.get(i) instanceof DTCs){
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
-//                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_announcement_blue_600_24dp));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_announcement_blue_600_24dp));
 
             }else{
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
