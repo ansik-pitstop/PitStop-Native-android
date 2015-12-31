@@ -121,7 +121,7 @@ public class MainActivityFragment extends Fragment {
 //            Log.d(TAG, "Fetching from online datastore");
 //        }
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-        query.whereEqualTo("objectId", "WMV1Z6bjFW");
+        query.whereEqualTo("objectId", ParseUser.getCurrentUser().getString("subscribedShopPointer"));
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
@@ -185,6 +185,7 @@ public class MainActivityFragment extends Fragment {
                         }else{
                             intent.putExtra("dtcs",new String[]{});
                         }
+                        intent.putExtra("vin",car.getValue("VIN"));
                         startActivity(intent);
                     }
                 });
@@ -236,6 +237,7 @@ public class MainActivityFragment extends Fragment {
                                     intent.putExtra("servicesDue", (car.getList("servicesDue")==null?new String[]{}:car.getList("servicesDue").toArray()));
                                     intent.putExtra("pendingRecalls", (car.getList("pendingRecalls")==null?new String[]{}:car.getList("pendingRecalls").toArray()));
                                     intent.putExtra("dtcs", (car.getList("storedDTCs")==null?new String[]{}:car.getList("storedDTCs").toArray()));
+                                    intent.putExtra("vin", car.getString("VIN"));
                                     startActivity(intent);
                                 }
                             });
