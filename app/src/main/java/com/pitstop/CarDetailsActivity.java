@@ -5,26 +5,31 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
-import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
+import com.pitstop.database.models.Cars;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,16 +37,22 @@ import java.util.List;
 
 public class CarDetailsActivity extends AppCompatActivity {
 
+    public static final String TAG = CarDetailsActivity.class.getSimpleName();
+    private static String vin="";
     private CustomAdapter customAdapter;
     private ArrayList<DBModel> arrayList = new ArrayList<>();
-
+    private ArrayList<HashMap<String,String>> servicesAppend = new ArrayList<HashMap<String,String>>();
+    //to append services & recalls in one place.
+    //private HashMap<String,String> services = new HashMap<String, String>();
+    //output hashmap to aggregate services,VIN,userObjectId,Comments
+    private HashMap<String,Object> output = new HashMap<String, Object>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
         boolean serviceGet=false, recallsGet=false;
-
+        requestServiceButton();
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         //--------------------------GET SERVICES--------------------------
         Object[] a = (Object[]) getIntent().getSerializableExtra("servicesDue");
@@ -55,7 +66,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (int i : serviceCodes.keySet()){
             Services service;
-            service = (Services) ldr.getData("Services","ServiceID", String.valueOf(i));
+            service = (Services) ldr.getData("Services", "ServiceID", String.valueOf(i));
             if(service ==null){
                 serviceGet = true;//go get some missing services
             }else {
@@ -79,6 +90,18 @@ public class CarDetailsActivity extends AppCompatActivity {
                         service.setValue("priority", parseObject.getString("priority"));
                         service.setValue("engineCode", parseObject.getString("engineCode"));
                         service.setValue("ServiceID", String.valueOf(parseObject.getInt("serviceId")));
+
+                        //HashMap definitions
+                        HashMap<String,String> services = new HashMap<String,String>();
+                        services.put("item", parseObject.getString("item"));
+                        services.put("action", parseObject.getString("action"));
+                        services.put("itemDescription", parseObject.getString("itemDescription"));
+                        services.put("priority", parseObject.getString("priority"));
+                        services.put("serviceId", parseObject.getString("serviceId"));
+                        services.put("serviceObjectId", parseObject.getString("serviceObjectId"));
+
+                        servicesAppend.add(services);
+
                         if (!serviceCodes.get(parseObject.getInt("serviceId"))) {
                             ldr.saveData("Services",service.getValues());
                             arrayList.add(service);
@@ -101,7 +124,7 @@ public class CarDetailsActivity extends AppCompatActivity {
         //check DB first
         for (String i : recallCodes.keySet()){
             Recalls service;
-            service = (Recalls) ldr.getData("Recalls","RecallID", i.trim());
+            service = (Recalls) ldr.getData("Recalls", "RecallID", i.trim());
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
@@ -140,47 +163,6 @@ public class CarDetailsActivity extends AppCompatActivity {
             });
         }
 
-        //--------------------------------GET DTCS-------------------------------
-        a = (Object[]) getIntent().getSerializableExtra("dtcs");
-        final HashMap<String,Boolean> dtcList = new HashMap<String,Boolean>();
-        for (int i = 0; i<a.length; i++){
-            dtcList.put(a[i].toString(), false);
-        }
-        boolean dtcGet = false;
-        //check DB first
-        for (String i : dtcList.keySet()){
-            DTCs dtc;
-            dtc = (DTCs) ldr.getData("DTCs", "dtcCode",i.trim());
-            if(dtc ==null){
-                dtcGet= true;//go get some missing services
-            }else {
-                arrayList.add(dtc);
-                dtcList.put(i, true);
-            }
-        }
-        //see if need to get from online
-        if (dtcGet) {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("DTC");
-            query.whereContainedIn("dtcCode", dtcList.keySet());
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    for (ParseObject parseObject : objects) {
-                        DTCs dtc = new DTCs();
-                        dtc.setValue("dtcCode", parseObject.getString("dtcCode"));
-                        dtc.setValue("description", parseObject.getString("description"));
-                        if (!dtcList.get(dtc.getValue("dtcCode"))){
-                            ldr.saveData("DTCs",dtc.getValues());
-                            arrayList.add(dtc);
-                        }
-                    }
-                    customAdapter.dataList.clear();
-                    customAdapter.dataList.addAll(arrayList);
-                    customAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-
         customAdapter = new CustomAdapter(this,arrayList);
         ((ListView) findViewById(R.id.car_event_listview)).setAdapter(customAdapter);
         findViewById(R.id.evcheck_layout).setBackgroundColor(getResources().getColor(R.color.evcheck));
@@ -191,9 +173,51 @@ public class CarDetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(CarDetailsActivity.this, EnviornmentalCheckActivity.class);
                 startActivity(intent);
             }
+
+
+
         });
     }
 
+    public void requestServiceButton() {
+        String userId = ParseUser.getCurrentUser().getObjectId();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+        query.whereEqualTo("owner", userId);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+
+            public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
+                if (e == null) {
+                    for (ParseObject parseObject : parseObjects) {
+                        vin = parseObject.get("VIN").toString();
+                        //output.put("carVin", vin);
+                        Log.i(TAG, "current VIN is " + vin);
+                    }
+                } else {
+                    Log.d("ERROR:", "" + e.getMessage());
+                }
+            }
+        });
+        // Intent intent = getIntent();
+        // String vin = Intent.getStringExtra("carVin")
+
+        output.put("services", servicesAppend);
+        output.put("carVin", vin);
+        Log.i(TAG, "current VIN2 is " + vin);
+        output.put("userObjectId", userId);
+        output.put("comments","");
+
+//        Button button = (Button) findViewById(R.id.button5);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick (View v){
+//                ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output);
+//                // Log.d("test", temp);
+//
+//            }
+//            // request services from PF object in PARSE
+//        });
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -250,10 +274,6 @@ public class CarDetailsActivity extends AppCompatActivity {
             if(dataList.get(i) instanceof Recalls) {
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("name"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_error_red_600_24dp));
-            }else if(dataList.get(i) instanceof DTCs){
-                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_announcement_blue_600_24dp));
-
             }else{
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_warning_amber_300_24dp));

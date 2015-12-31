@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/DemoApp/app/src/main/java/com/castel/obd/activity/ControlActivity.java" charset="GB2312" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/castel/obd/bluetooth/BluetoothChat.java" charset="GB2312" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/castel/obd/bluetooth/BluetoothManage.java" charset="GB2312" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/castel/obd/data/OBDInfoSP.java" charset="GB2312" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/castel/obd/log/LogCatHelper.java" charset="GB2312" />
     <file url="PROJECT" charset="ISO-8859-1" />
   </component>
 </project>

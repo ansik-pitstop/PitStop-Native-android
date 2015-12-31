@@ -49,6 +49,9 @@ public class MainActivityFragment extends Fragment {
     final static String pfName = "com.pitstop.login.name";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
 
+    final static String pfShopName = "com.pitstop.shop.name";
+    final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
+
     TextView callGarageTextView;
     TextView messageGarageTextView;
     TextView directionsToGarageTextView;
@@ -109,12 +112,13 @@ public class MainActivityFragment extends Fragment {
 
     public void getGarage() {
 //        final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-//        array = ldr.getDataSet("Shop", "objectId", "WMV1Z6bjFW");
+//        SharedPreferences settings = getActivity().getSharedPreferences(pfShopName, getContext().MODE_PRIVATE);
+//        String shopId = settings.getString(pfCodeForShopObjectID, "NA");
+//        array = ldr.getDataSet("Shop", "objectId", shopId);
 //        if (array.size() > 0) {
 //            Log.d(TAG, "Fetching from local datastore");
 //        } else {
 //            Log.d(TAG, "Fetching from online datastore");
-//
 //        }
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
         query.whereEqualTo("objectId", "WMV1Z6bjFW");
@@ -122,6 +126,8 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
                 if (e == null) {
+                    //currentGarage = parseObjects.get(0).toString();
+                    Log.i(TAG, "NITISH current garage is " + currentGarage);
                     for (ParseObject parseObject : parseObjects) {
                         currentGarage = parseObject.get("name").toString();
                         garagePhoneNumber = parseObject.get("phoneNumber").toString();

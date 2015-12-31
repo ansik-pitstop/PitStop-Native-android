@@ -16,5 +16,6 @@ public class Shops extends DBModel{
         columns.put("name","Text");
         columns.put("address","Text");
         columns.put("email","Text");
+        columns.put("phoneNumber","Text");
     }
 }

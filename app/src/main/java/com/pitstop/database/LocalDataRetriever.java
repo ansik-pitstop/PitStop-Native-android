@@ -10,6 +10,7 @@ import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Services;
+import com.pitstop.database.models.Shops;
 import com.pitstop.database.models.Uploads;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
      */
     public ArrayList<DBModel> getDataSet(String type, String column, String value) {
         SQLiteDatabase db = dbase.getReadableDatabase();
@@ -80,6 +81,9 @@ public class LocalDataRetriever {
                     case "Uploads":
                         curr = new Uploads();
                         break;
+                    case "Shops":
+                        curr = new Shops();
+                        break;
                 }
                 for (int i = 0 ; i < cursor.getColumnCount(); i++) {
                     assert curr != null;
@@ -94,7 +98,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
      */
     public ArrayList<String> getDistinctDataSet(String type, String column){
         SQLiteDatabase db = dbase.getReadableDatabase();
@@ -113,7 +117,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shop"
      */
     public DBModel getData(String type, String column, String value){
         dbase.getReadableDatabase();
@@ -135,6 +139,9 @@ public class LocalDataRetriever {
                     break;
                 case "Services":
                     curr = new Services();
+                    break;
+                case "Shops":
+                    curr = new Shops();
                     break;
             }
             for (int i = 0 ; i < cursor.getColumnCount(); i++) {
@@ -246,6 +253,9 @@ public class LocalDataRetriever {
                         break;
                     case "Uploads":
                         curr = new Uploads();
+                        break;
+                    case "Shops":
+                        curr = new Shops();
                         break;
                 }
                 for (int i = 0 ; i < cursor.getColumnCount(); i++) {
