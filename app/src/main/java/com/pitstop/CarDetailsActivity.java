@@ -18,8 +18,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -221,7 +223,16 @@ public class CarDetailsActivity extends AppCompatActivity {
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
         output.put("comments","");
-        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output);
+        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object object, ParseException e) {
+                if(e==null) {
+                    Toast.makeText(getApplicationContext(), "Sent Successfully", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
