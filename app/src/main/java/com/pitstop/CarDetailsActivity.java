@@ -218,6 +218,12 @@ public class CarDetailsActivity extends AppCompatActivity {
             if(model instanceof Services){
                 services.add(model.getValues());
             }
+            if(model instanceof Recalls){
+                services.add(model.getValues());
+            }
+            if(model instanceof DTCs){
+                services.add(model.getValues());
+            }
         }
         output.put("services", services);
         output.put("carVin", VIN);
