@@ -44,7 +44,7 @@ public class CarDetailsActivity extends AppCompatActivity {
     private CustomAdapter customAdapter;
     private ArrayList<DBModel> arrayList = new ArrayList<>();
     private HashMap<String,Object> output = new HashMap<String, Object>();
-    private ArrayList<HashMap<String,String>> servicesAppend = new ArrayList<HashMap<String,String>>();
+
     private String VIN;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,17 +91,6 @@ public class CarDetailsActivity extends AppCompatActivity {
                         service.setValue("priority", parseObject.getString("priority"));
                         service.setValue("engineCode", parseObject.getString("engineCode"));
                         service.setValue("ServiceID", String.valueOf(parseObject.getInt("serviceId")));
-
-                        //HashMap definitions
-                        HashMap<String,String> services = new HashMap<String,String>();
-                        services.put("item", parseObject.getString("item"));
-                        services.put("action", parseObject.getString("action"));
-                        services.put("itemDescription", parseObject.getString("itemDescription"));
-                        services.put("priority", parseObject.getString("priority"));
-                        services.put("serviceId", parseObject.getString("serviceId"));
-                        services.put("serviceObjectId", parseObject.getString("serviceObjectId"));
-
-                        servicesAppend.add(services);
 
                         if (!serviceCodes.get(parseObject.getInt("serviceId"))) {
                             ldr.saveData("Services",service.getValues());
@@ -152,18 +141,6 @@ public class CarDetailsActivity extends AppCompatActivity {
                         recall.setValue("recallNumber", parseObject.getString("recallNumber"));
                         recall.setValue("numberAffected", parseObject.getString("numberOfVehiclesAffected"));
                         recall.setValue("RecallID", parseObject.getObjectId());
-
-                        //HashMap definitions
-                        HashMap<String,String> services = new HashMap<String,String>();
-                        services.put("item", parseObject.getString("componentDescription"));
-                        services.put("action", parseObject.getString("defectCorrectiveAction"));
-                        services.put("itemDescription", parseObject.getString("defectDescription"));
-                        //services.put("priority", parseObject.getString("priority"));
-                        services.put("serviceId", parseObject.getString("recallNumber"));
-                        //services.put("serviceObjectId", parseObject.getString("serviceObjectId"));
-
-                        servicesAppend.add(services);
-
                         if (!recallCodes.get(recall.getValue("RecallID"))){
                             ldr.saveData("Recalls",recall.getValues());
                             arrayList.add(recall);
@@ -242,9 +219,8 @@ public class CarDetailsActivity extends AppCompatActivity {
                 services.add(model.getValues());
             }
         }
-        output.put("services", servicesAppend);
+        output.put("services", services);
         output.put("carVin", VIN);
-        Log.i(TAG, "current VIN2 is " + VIN);
         output.put("userObjectId", userId);
         output.put("comments","");
         ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
