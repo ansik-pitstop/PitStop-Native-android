@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         String objectID = settings.getString(MainActivityFragment.pfCodeForObjectID, "NA");
         ldr.deleteData("Cars", "owner", objectID);
         ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
+        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).getGarage();
     }
 
     @Override
