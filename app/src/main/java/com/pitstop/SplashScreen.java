@@ -124,7 +124,10 @@ public class SplashScreen extends AppCompatActivity {
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putString(pfCodeForID, ((TextView) findViewById(R.id.email)).getText().toString());
                     editor.putString(pfCodeForPassword, ((TextView) findViewById(R.id.password)).getText().toString());
-                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId().toString());
+                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
+                    if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
+                        editor.putString(MainActivityFragment.pfCodeForShopObjectID,ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                    }
                     editor.commit();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);

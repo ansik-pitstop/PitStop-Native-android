@@ -29,6 +29,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import com.pitstop.database.models.Shops;
 
 import org.w3c.dom.Text;
 
@@ -111,39 +112,58 @@ public class MainActivityFragment extends Fragment {
 
 
     public void getGarage() {
-//        final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-//        SharedPreferences settings = getActivity().getSharedPreferences(pfShopName, getContext().MODE_PRIVATE);
-//        String shopId = settings.getString(pfCodeForShopObjectID, "NA");
-//        array = ldr.getDataSet("Shop", "objectId", shopId);
-//        if (array.size() > 0) {
-//            Log.d(TAG, "Fetching from local datastore");
-//        } else {
-//            Log.d(TAG, "Fetching from online datastore");
-//        }
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-        query.whereEqualTo("objectId", ParseUser.getCurrentUser().getString("subscribedShopPointer"));
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
-                if (e == null) {
-                    //currentGarage = parseObjects.get(0).toString();
-                    Log.i(TAG, "NITISH current garage is " + currentGarage);
-                    for (ParseObject parseObject : parseObjects) {
-                        currentGarage = parseObject.get("name").toString();
-                        garagePhoneNumber = parseObject.get("phoneNumber").toString();
-                        garageAddress = parseObject.get("addressText").toString();
-                        Log.i(TAG, "current garage is " + currentGarage);
-                        Log.i(TAG, "current garage phone number is " + garagePhoneNumber);
-                        Log.i(TAG, "current garage address is " + garageAddress);
-                    }
-                } else {
-                    Log.d("ERROR:", "" + e.getMessage());
-                }
-                callGarageTextView.setText("Call " + currentGarage);
-                messageGarageTextView.setText("Message " + currentGarage);
-                directionsToGarageTextView.setText("Directions to " + currentGarage);
+        final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+        SharedPreferences settings = getActivity().getSharedPreferences(pfShopName, getContext().MODE_PRIVATE);
+        String shopId = settings.getString(pfCodeForShopObjectID, "NA");
+        if (shopId.equals("NA")) {
+            SharedPreferences.Editor editor = settings.edit();
+            if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
+                editor.putString(MainActivityFragment.pfCodeForShopObjectID,ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                shopId  = ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId();
+            }else{
+                callGarageTextView.setText("Shop not set up");
+                messageGarageTextView.setText("Shop not set up");
+                directionsToGarageTextView.setText("Shop not set up");
+                return;
             }
-        });
+        }
+        Shops currShop = (Shops)ldr.getData("Shops", "ShopID", shopId);
+        if (currShop!=null) {
+            currentGarage = currShop.getValue("name");
+            garagePhoneNumber = currShop.getValue("phoneNumber");
+            garageAddress = currShop.getValue("addressText");
+            callGarageTextView.setText("Call " + currentGarage);
+            messageGarageTextView.setText("Message " + currentGarage);
+            directionsToGarageTextView.setText("Directions to " + currentGarage);
+        } else {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+            query.whereEqualTo("objectId", shopId);
+            final String finalShopId = shopId;
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
+                    if (e == null) {
+                        for (ParseObject parseObject : parseObjects) {
+                            currentGarage = parseObject.get("name").toString();
+                            garagePhoneNumber = parseObject.get("phoneNumber").toString();
+                            garageAddress = parseObject.get("addressText").toString();
+                            Shops shop = new Shops();
+                            shop.setValue("ShopID", finalShopId);
+                            shop.setValue("name", currentGarage);
+                            shop.setValue("address", garageAddress);
+                            shop.setValue("phoneNumber", garagePhoneNumber);
+                            shop.setValue("email", parseObject.get("email").toString());
+                            ldr.saveData("Shops",shop.getValues());
+                        }
+                    } else {
+                        Log.d("ERROR:", "" + e.getMessage());
+                    }
+                    callGarageTextView.setText("Call " + currentGarage);
+                    messageGarageTextView.setText("Message " + currentGarage);
+                    directionsToGarageTextView.setText("Directions to " + currentGarage);
+                }
+            });
+        }
     }
 
     public void setUp(){
