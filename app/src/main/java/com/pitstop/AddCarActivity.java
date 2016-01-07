@@ -24,15 +24,18 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.parse.ConfigCallback;
+import com.parse.FindCallback;
 import com.parse.ParseConfig;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.Debug.PrintDebugThread;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -50,7 +53,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private boolean hasClicked,bound;
     private BluetoothAutoConnectService service;
     private boolean askForDTC = false;
-    private ArrayList<String> DTCData= new ArrayList<>();;
+    private ArrayList<String> DTCData= new ArrayList<>();
+
+    int counter =0;
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -93,7 +98,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.toString().length()!=0){
+                if (s.toString().length()==17){
                     ((Button) findViewById(R.id.button)).setText("ADD CAR");
                 }
             }
@@ -138,12 +143,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (!hasClicked) {
                 if (service.getState() != BluetoothManage.CONNECTED) {
-                    findViewById(R.id.loading).setVisibility(View.VISIBLE);
                     service.startBluetoothSearch();
                 } else {
                     service.getCarVIN();
-                    findViewById(R.id.loading).setVisibility(View.VISIBLE);
                 }
+                showLoading();
+                ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
                 //hasClicked = true;
             }
         }else{
@@ -154,10 +159,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private void makeCar() {
         if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")) {
-            Toast.makeText(this,"Adding Car", Toast.LENGTH_SHORT).show();
+            ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
             final String[] mashapeKey = {""};
-            findViewById(R.id.loading).setVisibility(View.VISIBLE);
+            showLoading();
             if(service.getState()==BluetoothManage.CONNECTED){
                 askForDTC=true;
                 service.getDTCs();
@@ -172,13 +177,32 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
     }
 
+    private void hideLoading(){
+        findViewById(R.id.loading).setVisibility(View.GONE);
+        findViewById(R.id.mileage).setEnabled(true);
+        findViewById(R.id.VIN).setEnabled(true);
+        findViewById(R.id.button).setEnabled(true);
+    }
+
+    private void showLoading(){
+        findViewById(R.id.loading).setVisibility(View.VISIBLE);
+        findViewById(R.id.mileage).setEnabled(false);
+        findViewById(R.id.VIN).setEnabled(false);
+        findViewById(R.id.button).setEnabled(false);
+    }
+
     @Override
     public void getBluetoothState(int state) {
-        findViewById(R.id.loading).setVisibility(View.GONE);
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
-            ((TextView) findViewById(R.id.cardetails)).setText("PLEASE ENTER YOUR VIN MANUALLY");
-            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
-            ((EditText) findViewById(R.id.VIN)).setText("JN8AS58V68W115906");
+            counter++;
+            if(counter==5) {
+                hideLoading();
+                findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            }else{
+                service.startBluetoothSearch();
+            }
+        }else{
+            hideLoading();
         }
         hasClicked  = false;
     }
@@ -194,7 +218,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
-        findViewById(R.id.loading).setVisibility(View.GONE);
+        hideLoading();
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
 
@@ -202,10 +226,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         VIN = parameterValues.get(0).value;
         if(VIN!=null&&VIN.length()==17) {
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
-            ((TextView) findViewById(R.id.cardetails)).setText(VIN);
+            ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
         }else{
-            ((TextView) findViewById(R.id.cardetails)).setText("PLEASE ENTER YOUR VIN MANUALLY");
-            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            showLoading();
         }
         scannerID = parameterPackageInfo.deviceId;
         makeCar();
@@ -264,33 +287,51 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     input.close();
                 }
                 if(new JSONObject(response.toString()).getBoolean("success")) {
-                    JSONObject jsonObject = new JSONObject(response.toString()).getJSONObject("specification");
+                    final JSONObject jsonObject = new JSONObject(response.toString()).getJSONObject("specification");
 
-                    //Make Car
-                    ParseObject newCar = new ParseObject("Car");
-                    newCar.put("VIN", VIN);
-                    newCar.put("year", jsonObject.getInt("year"));
-                    newCar.put("model", jsonObject.getString("model"));
-                    newCar.put("make", jsonObject.getString("make"));
-                    newCar.put("tank_size", jsonObject.getString("tank_size"));
-                    newCar.put("trim_level", jsonObject.getString("trim_level"));
-                    newCar.put("engine", jsonObject.getString("engine"));
-                    newCar.put("city_mileage", jsonObject.getString("city_mileage"));
-                    newCar.put("storedDTCs",DTCData);
-                    newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
-                    newCar.put("scannerId", scannerID==null?"":scannerID);
-                    newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-                    newCar.put("baseMileage", Integer.valueOf(mileage));
-                    newCar.saveEventually(new SaveCallback() {
+                    //check
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                    query.whereEqualTo("VIN",VIN);
+                    query.findInBackground(new FindCallback<ParseObject>() {
                         @Override
-                        public void done(ParseException e) {
-                            findViewById(R.id.loading).setVisibility(View.GONE);
-                            if (e == null) {
-                                setResult(RESULT_ADDED);
-                                finish();
-                            } else {
-                                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if(objects.size()>0){
+                                Toast.makeText(getApplicationContext(),"Car Already Exist for Another User!", Toast.LENGTH_SHORT).show();
+                                hideLoading();
+                                return;
                             }
+                            try {
+                                //Make Car
+                                ParseObject newCar = new ParseObject("Car");
+                                newCar.put("VIN", VIN);
+                                newCar.put("year", jsonObject.getInt("year"));
+                                newCar.put("model", jsonObject.getString("model"));
+                                newCar.put("make", jsonObject.getString("make"));
+                                newCar.put("tank_size", jsonObject.getString("tank_size"));
+                                newCar.put("trim_level", jsonObject.getString("trim_level"));
+                                newCar.put("engine", jsonObject.getString("engine"));
+                                newCar.put("city_mileage", jsonObject.getString("city_mileage"));
+                                newCar.put("storedDTCs", DTCData);
+                                newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
+                                newCar.put("scannerId", scannerID == null ? "" : scannerID);
+                                newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
+                                newCar.put("baseMileage", Integer.valueOf(mileage));
+                                newCar.saveEventually(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        ((TextView) findViewById(R.id.loading_details)).setText("Final Touches");
+                                        if (e == null) {
+                                            setResult(RESULT_ADDED);
+                                            finish();
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+
                         }
                     });
                 }else{

@@ -45,6 +45,8 @@ public class CarDetailsActivity extends AppCompatActivity {
     private ArrayList<DBModel> arrayList = new ArrayList<>();
     private HashMap<String,Object> output = new HashMap<String, Object>();
 
+    private boolean requestSent = false;
+
     private String VIN;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,6 +212,11 @@ public class CarDetailsActivity extends AppCompatActivity {
     }
 
     public void requestServiceButton() {
+        if(requestSent){
+            Toast.makeText(getApplicationContext(), "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        requestSent = true;
         String userId = ParseUser.getCurrentUser().getObjectId();
         // Intent intent = getIntent();
         // String vin = Intent.getStringExtra("carVin")
@@ -229,16 +236,20 @@ public class CarDetailsActivity extends AppCompatActivity {
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
         output.put("comments","");
-        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
-            @Override
-            public void done(Object object, ParseException e) {
-                if(e==null) {
-                    Toast.makeText(getApplicationContext(), "Sent Successfully", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+        if(services.size()>0) {
+            ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
+                @Override
+                public void done(Object object, ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(getApplicationContext(), "Sent Successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        });
+            });
+        }else{
+            Toast.makeText(getApplicationContext(), "Nothing to Send", Toast.LENGTH_SHORT).show();
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -136,9 +136,9 @@ public class MainActivityFragment extends Fragment {
             messageGarageTextView.setText("Message " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
         } else {
+            final String finalShopId = shopId;
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
             query.whereEqualTo("objectId", shopId);
-            final String finalShopId = shopId;
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> parseObjects, com.parse.ParseException e) {
