@@ -195,14 +195,14 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             counter++;
-            if(counter==5) {
+            if(counter>10) {
                 hideLoading();
                 findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
             }else{
                 service.startBluetoothSearch();
             }
         }else{
-            hideLoading();
+            service.getCarVIN();
         }
         hasClicked  = false;
     }
@@ -251,6 +251,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                 }
             });
+            askForDTC=false;
         }
 //        if(dataPackageInfo.result==5){
 //            String obd = "";

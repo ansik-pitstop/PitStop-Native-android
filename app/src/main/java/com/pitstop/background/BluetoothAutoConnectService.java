@@ -187,7 +187,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             status5counter++;
         }
         LocalDataRetriever ldr = new LocalDataRetriever(this);
-        Responses response = new Responses();if(dataPackageInfo.result==1||dataPackageInfo.result==3||dataPackageInfo.result==4||dataPackageInfo.result==6||status5counter%20==1) {
+        Responses response = new Responses();
+        if(dataPackageInfo.result==1||dataPackageInfo.result==3||dataPackageInfo.result==4||dataPackageInfo.result==6||status5counter%20==1) {
             if (status5counter % 20 == 1)
                 status5counter = 1;
             response.setValue("result", "" + dataPackageInfo.result);
@@ -222,10 +223,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
         }
-        if(counter%5==0){
+        if(counter%100==0){
             getDTCs();
         }
-        if(counter==7){
+        if(counter==500){
             counter = 1;
             uploadRecords();
         }

@@ -39,6 +39,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         public void onServiceDisconnected(ComponentName arg0) {
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

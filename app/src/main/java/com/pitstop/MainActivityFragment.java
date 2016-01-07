@@ -278,7 +278,7 @@ public class MainActivityFragment extends Fragment {
                 for(int i = 0; i<((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildCount()-1; i++) {
                     TextView tv = (TextView) ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).findViewById(R.id.car_title);
                     if(tv.getText().toString().contains(a.getValue("make"))&&tv.getText().toString().contains(a.getValue("model"))){
-                        ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).setBackgroundColor(getResources().getColor(R.color.evcheck));
+                        ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).setBackground(getResources().getDrawable(R.drawable.color_button_car_connected));
                     }
                 }
             }
