@@ -131,6 +131,7 @@ public class BluetoothManage {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+		filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
 		filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 		filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -157,6 +158,14 @@ public class BluetoothManage {
 				btState = CONNECTED;
 				LogUtil.i("Bluetooth state:CONNECTED");
 				dataListener.getBluetoothState(btState);
+			}else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
+				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+				if(device.getBondState()==BluetoothDevice.BOND_BONDED){
+					LogUtil.i("CONNECTED");
+					btState = CONNECTED;
+					LogUtil.i("Bluetooth state:CONNECTED");
+					dataListener.getBluetoothState(btState);
+				}
 			} else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) { // �������ӶϿ�
 				btState = DISCONNECTED;
 				LogUtil.i("Bluetooth state:DISCONNECTED");

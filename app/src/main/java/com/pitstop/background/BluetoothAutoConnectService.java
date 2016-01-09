@@ -67,7 +67,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         status5counter=0;
         counter = 1;
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
-        getBluetoothState(BluetoothManage.CONNECTED);
     }
 
     /**
