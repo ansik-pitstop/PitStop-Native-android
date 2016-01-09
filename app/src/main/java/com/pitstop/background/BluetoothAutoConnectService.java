@@ -1,10 +1,16 @@
 package com.pitstop.background;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -17,6 +23,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -41,6 +48,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private int counter;
 
+    private int notifID= 1360119;
+
     String[] pids = new String[0];
     int checksDone =0;
     int pidI = 0;
@@ -58,6 +67,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         status5counter=0;
         counter = 1;
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+        getBluetoothState(BluetoothManage.CONNECTED);
     }
 
     /**
@@ -145,9 +155,39 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getBluetoothState(int state) {
-//        if(state!=BluetoothManage.CONNECTED&&state!=BluetoothManage.BLUETOOTH_READ_DATA&&count==0)
-//            Log.d("asdfasdfasd",""+state);
-//            startBluetoothSearch();
+        if(state==BluetoothManage.CONNECTED){
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                            .setColor(getResources().getColor(R.color.highlight))
+                            .setContentTitle("Car is Connected")
+                            .setContentText("Click here to check out more");
+            // Creates an explicit intent for an Activity in your app
+            Intent resultIntent = new Intent(this, MainActivity.class);
+
+            // The stack builder object will contain an artificial back stack for the
+            // started Activity.
+            // This ensures that navigating backward from the Activity leads out of
+            // your application to the Home screen.
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            // Adds the back stack for the Intent (but not the Intent itself)
+            stackBuilder.addParentStack(MainActivity.class);
+            // Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(notifID, mBuilder.build());
+        }else{
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.cancel(notifID);
+        }
         if(serviceCallbacks!=null)
             serviceCallbacks.getBluetoothState(state);
     }
