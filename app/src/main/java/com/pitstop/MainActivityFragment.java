@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -25,6 +26,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -34,6 +36,7 @@ import com.pitstop.database.models.Shops;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -272,16 +275,45 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public void indicateConnected(String id) {
+    public void indicateConnected(final String id) {
+        boolean found = false;
+        Cars noDevice = null;
         for(DBModel a : array){
+            if(a.getValue("scannerId").equals("")){
+                noDevice = (Cars) a;
+            }
             if(a.getValue("scannerId").equals(id)){
+                found = true;
                 for(int i = 0; i<((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildCount()-1; i++) {
                     TextView tv = (TextView) ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).findViewById(R.id.car_title);
                     if(tv.getText().toString().contains(a.getValue("make"))&&tv.getText().toString().contains(a.getValue("model"))){
-                        ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).setBackground(getResources().getDrawable(R.drawable.color_button_car_connected));
+                        ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).setBackgroundResource(R.drawable.color_button_car_connected);
                     }
                 }
             }
+        }
+        // add device if a car has no linked device
+        if(!found&&noDevice!=null){
+            final Cars finalNoDevice = noDevice;
+            ParseQuery query = new ParseQuery("Car");
+            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    objects.get(0).add("scannerId",id);
+                    objects.get(0).saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            finalNoDevice.setValue("scannerId", id);
+                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                            HashMap<String,String> map = new HashMap<String,String>();
+                            map.put("scannerId",id);
+                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
+                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         }
     }
 }
