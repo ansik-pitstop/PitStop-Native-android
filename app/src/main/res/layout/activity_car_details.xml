@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     tools:context="com.pitstop.CarDetailsActivity"
+    android:id="@+id/details_activity"
     android:weightSum="10">
 
     <LinearLayout
@@ -25,25 +26,15 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
+        android:paddingBottom="3dp"
+        android:id="@+id/carStatus"
         android:layout_height="0dp"
-        android:padding="16dp"
-        android:layout_weight="3"
-        android:elevation="4dp"
-        android:background="#2196F3">
+        android:layout_weight="3">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Car is Not Connected"
-            android:textSize="24sp"
-            android:textColor="#fff"
-            android:id="@+id/textView34"
-            android:layout_alignParentBottom="false"
-            android:layout_centerInParent="true" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <ListView android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
@@ -54,6 +45,7 @@
         android:id="@+id/car_event_listview"
         android:choiceMode="singleChoice"
         android:contextClickable="false"
+        android:elevation="4dp"
         android:dividerHeight="0dp"
         android:divider="@null"
 

@@ -1,11 +1,19 @@
 package com.pitstop;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +28,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.ParameterPackageInfo;
+import com.castel.obd.info.ResponsePackageInfo;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -27,6 +39,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.DTCs;
@@ -38,7 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CarDetailsActivity extends AppCompatActivity {
+public class CarDetailsActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
 
     public static final String TAG = CarDetailsActivity.class.getSimpleName();
     private CustomAdapter customAdapter;
@@ -47,14 +60,51 @@ public class CarDetailsActivity extends AppCompatActivity {
 
     private boolean requestSent = false;
 
-    private String VIN;
+    private String VIN, scannerID,make, model,year;
+
+
+    public static Intent serviceIntent;
+
+
+    private BluetoothAutoConnectService service;
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service1) {
+            // cast the IBinder and get MyService instance
+            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
+            service = binder.getService();
+            service.setCallbacks(CarDetailsActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
         boolean serviceGet=false, recallsGet=false, dtcsGet = false;
+
         VIN = getIntent().getStringExtra("vin");
+        scannerID = getIntent().getStringExtra("scannerId");
+        make = getIntent().getStringExtra("make");
+        model = getIntent().getStringExtra("model");
+        year = getIntent().getStringExtra("year");
+
+        serviceIntent= new Intent(CarDetailsActivity.this, BluetoothAutoConnectService.class);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+                (Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.unconnected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
+
+        ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
 
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         //--------------------------GET SERVICES--------------------------
@@ -95,7 +145,7 @@ public class CarDetailsActivity extends AppCompatActivity {
                         service.setValue("ServiceID", String.valueOf(parseObject.getInt("serviceId")));
 
                         if (!serviceCodes.get(parseObject.getInt("serviceId"))) {
-                            ldr.saveData("Services",service.getValues());
+                            ldr.saveData("Services", service.getValues());
                             arrayList.add(service);
                         }
                     }
@@ -272,6 +322,40 @@ public class CarDetailsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void getBluetoothState(int state) {
+
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+    }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+        if(scannerID.equals(""+dataPackageInfo.deviceId)){
+            ((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
+            LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+                    (Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.connected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
+            ((TextView)view.findViewById(R.id.make)).setText(make);
+            ((TextView)view.findViewById(R.id.model)).setText(model);
+            ((TextView)view.findViewById(R.id.year)).setText(year);
+            ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
+        }
+    }
+
     class CustomAdapter extends BaseAdapter {
 
         ArrayList<DBModel> dataList;

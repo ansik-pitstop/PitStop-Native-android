@@ -209,6 +209,10 @@ public class MainActivityFragment extends Fragment {
                             intent.putExtra("dtcs",new String[]{});
                         }
                         intent.putExtra("vin",car.getValue("VIN"));
+                        intent.putExtra("scannerId",car.getValue("scannerId"));
+                        intent.putExtra("make",car.getValue("make"));
+                        intent.putExtra("model",car.getValue("model"));
+                        intent.putExtra("year",car.getValue("year"));
                         startActivity(intent);
                     }
                 });
@@ -261,6 +265,10 @@ public class MainActivityFragment extends Fragment {
                                     intent.putExtra("pendingRecalls", (car.getList("pendingRecalls")==null?new String[]{}:car.getList("pendingRecalls").toArray()));
                                     intent.putExtra("dtcs", (car.getList("storedDTCs")==null?new String[]{}:car.getList("storedDTCs").toArray()));
                                     intent.putExtra("vin", car.getString("VIN"));
+                                    intent.putExtra("scannerId",car.getString("scannderId"));
+                                    intent.putExtra("make",car.getString("make"));
+                                    intent.putExtra("model",car.getString("model"));
+                                    intent.putExtra("year",""+car.getNumber("year"));
                                     startActivity(intent);
                                 }
                             });
