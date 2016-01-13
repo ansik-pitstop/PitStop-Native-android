@@ -19,8 +19,8 @@
             android:summary="This is your phone number">
         </Preference>
 
-    </PreferenceCategory>
 
+    </PreferenceCategory>
     <Preference
         android:key="@string/pref_logout_key"
         android:title="@string/pref_logout_label"/>

@@ -189,6 +189,8 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Intent i = new Intent(SettingsActivity.this, ReceiveDebugActivity.class);
+            startActivity(i);
             return true;
         }
         return super.onOptionsItemSelected(item);

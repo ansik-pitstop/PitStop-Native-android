@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,12 +17,30 @@ import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Cars;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
     public static Intent serviceIntent;
 
+
+    public ArrayList<DBModel> array;
+
+    final static String pfName = "com.pitstop.login.name";
+    final static String pfCodeForObjectID = "com.pitstop.login.objectID";
+
+    final static String pfShopName = "com.pitstop.shop.name";
+    final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
@@ -54,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startService(new Intent(MainActivity.this, BluetoothAutoConnectService.class));
         setContentView(R.layout.activity_main);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-
-
+        array = new ArrayList<>();
+        setUp();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,9 +99,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(id==R.id.refresh){
             refreshDatabase();
         }
-        if(id==R.id.action_connect){
-            Intent i = new Intent(MainActivity.this, ReceiveDebugActivity.class);
-            startActivity(i);
+        if(id==R.id.add){
+            addCar(null);
         }
 
         return super.onOptionsItemSelected(item);
@@ -98,11 +116,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private void refreshDatabase() {
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
-        SharedPreferences settings = getSharedPreferences(MainActivityFragment.pfName, this.MODE_PRIVATE);
-        String objectID = settings.getString(MainActivityFragment.pfCodeForObjectID, "NA");
+        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        String objectID = settings.getString(pfCodeForObjectID, "NA");
         ldr.deleteData("Cars", "owner", objectID);
-        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
-        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).getGarage();
+        setUp();
+//        if(array.size()>1){
+//            ((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main_multi)).setUp();
+//        }else {
+//            ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
+//        }
     }
 
     @Override
@@ -113,9 +135,78 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startActivity(startMain);
 
     }
+
     public void addCar(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivity(intent);
+    }
+
+    public void setUp(){
+        array.clear();
+        final LocalDataRetriever ldr = new LocalDataRetriever(this);
+        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+        String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
+        array = ldr.getDataSet("Cars", "owner", userId);
+        if(array.size()>0){
+            if(array.size()>1){
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                MainActivityMultiFragment fragment = new MainActivityMultiFragment();
+                fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
+                fragmentTransaction.commit();
+            }else{
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                MainActivityFragment fragment = new MainActivityFragment();
+                fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
+                fragmentTransaction.commit();
+            }
+        }else {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+            if (ParseUser.getCurrentUser() != null) {
+                userId = ParseUser.getCurrentUser().getObjectId();
+            }
+            query.whereContains("owner", userId);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e==null){
+                        for (final ParseObject car : objects) {
+                            Cars c = new Cars();
+                            c.setValue("CarID", car.getString("objectId"));
+                            c.setValue("owner", car.getString("owner"));
+                            c.setValue("scannerId", car.getString("scannerId"));
+                            c.setValue("VIN", car.getString("VIN"));
+                            c.setValue("baseMileage", car.getString("baseMileage"));
+                            c.setValue("cityMileage", car.getString("city_mileage"));
+                            c.setValue("highwayMileage", car.getString("highway_mileage"));
+                            c.setValue("engine", car.getString("engine"));
+                            c.setValue("dealership", car.getString("dealership"));
+                            c.setValue("make", car.getString("make"));
+                            c.setValue("model", car.getString("model"));
+                            c.setValue("year", ""+car.getInt("year"));
+                            c.setValue("tank_size", car.getString("tank_size"));
+                            c.setValue("totalMileage", car.getString("totalMileage"));
+                            c.setValue("trimLevel", car.getString("trim_level"));
+                            c.setValue("services", (car.get("servicesDue") == null ? "" : car.get("servicesDue").toString()));
+                            c.setValue("dtcs", (car.get("storedDTCs") == null ? "" : car.get("storedDTCs").toString()));
+                            c.setValue("recalls", (car.get("pendingRecalls") == null ? "" : car.get("pendingRecalls").toString()));
+                            ldr.saveData("Cars", c.getValues());
+                            array.add(c);
+                        }
+                    }
+                    if(array.size()<=1){
+                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        MainActivityFragment fragment = new MainActivityFragment();
+                        fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
+                        fragmentTransaction.commit();
+                    }else{
+                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        MainActivityMultiFragment fragment = new MainActivityMultiFragment();
+                        fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
+                        fragmentTransaction.commit();
+                    }
+                }
+            });
+        }
     }
 
     @Override

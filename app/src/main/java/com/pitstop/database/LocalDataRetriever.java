@@ -117,7 +117,7 @@ public class LocalDataRetriever {
 
     /**
      *
-     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shop"
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
      */
     public DBModel getData(String type, String column, String value){
         dbase.getReadableDatabase();
