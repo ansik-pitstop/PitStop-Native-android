@@ -3,40 +3,44 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.database.LocalDataRetriever;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
+    ArrayList<String> cars;
+    ArrayList<String> ids;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_settings);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
+        cars = getIntent().getExtras().getStringArrayList("cars");
+        ids = getIntent().getStringArrayListExtra("ids");
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment(cars,ids)).commit();
     }
 
 //    @Override
@@ -113,9 +117,71 @@ public class SettingsActivity extends AppCompatActivity {
 //        return result;
 //    }
 
-    public static class SettingsFragment extends PreferenceFragment {
+    public class SettingsFragment extends PreferenceFragment {
+
+        ArrayList<ListPreference> preferenceList;
+        ArrayList<String> cars;
+        ArrayList<String> ids;
+        public SettingsFragment(ArrayList<String> cars, ArrayList<String> ids){
+            this.cars  =cars;
+            this.ids = ids;
+        }
+
         @Override
-        public void onCreate(Bundle savedInstanceState) {
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            preferenceList = new ArrayList<>();
+            cars = ((SettingsActivity)getActivity()).cars;
+            ids = ((SettingsActivity)getActivity()).ids;
+
+            ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    ArrayList<String> shops = new ArrayList<String>(), shopIds = new ArrayList<String>();
+                    for (ParseObject object : objects) {
+                        shops.add(object.getString("name"));
+                        shopIds.add(object.getObjectId());
+                    }
+
+                    for (int i = 0; i < cars.size(); i++) {
+                        ListPreference listPreference = new ListPreference(getActivity());
+                        listPreference.setTitle(cars.get(i));
+                        listPreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
+                        listPreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+                        listPreference.setDialogTitle("Choose Shop for: " + cars.get(i));
+                        final int index = i;
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                                final String shopSelected = (String) newValue;
+                                LocalDataRetriever ldr = new LocalDataRetriever(getActivity());
+                                HashMap<String, String> hm = new HashMap<String, String>();
+                                hm.put("dealership", shopSelected);
+                                ldr.updateData("Cars", "CarID", ids.get(index), hm);
+                                //updateParse
+                                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                                query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
+                                    public void done(ParseObject car, ParseException e) {
+                                        if (e == null) {
+                                            // Now let's update it with some new data. In this case, only cheatMode and score
+                                            // will get sent to the Parse Cloud. playerName hasn't changed.
+                                            car.put("dealership", shopSelected);
+                                            car.saveInBackground();
+                                        }
+                                    }
+                                });
+                                return true;
+                            }
+                        });
+                        ((PreferenceCategory)  getPreferenceManager().findPreference(getString(R.string.pref_vehicles))).addPreference(listPreference);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preferences);
@@ -128,6 +194,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
             phoneNumberPreference.setTitle(ParseUser.getCurrentUser().getString("phoneNumber"));
+
 
             //logging out
             Preference logoutPref = findPreference(getString(R.string.pref_logout_key));
@@ -168,6 +235,11 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return super.onCreateView(inflater, container, savedInstanceState);
         }
 
         private void navigateToLogin() {

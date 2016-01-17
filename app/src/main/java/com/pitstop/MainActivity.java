@@ -93,6 +93,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            ArrayList<String> ids = new ArrayList<>(),cars = new ArrayList<>();
+            for (DBModel car : array){
+                cars.add(car.getValue("make") + " " + car.getValue("model"));
+                ids.add(car.getValue("CarID"));
+            }
+            i.putStringArrayListExtra("cars", cars);
+            i.putStringArrayListExtra("ids",ids);
             startActivity(i);
             return true;
         }
@@ -171,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     if(e==null){
                         for (final ParseObject car : objects) {
                             Cars c = new Cars();
-                            c.setValue("CarID", car.getString("objectId"));
+                            c.setValue("CarID", car.getObjectId());
                             c.setValue("owner", car.getString("owner"));
                             c.setValue("scannerId", car.getString("scannerId"));
                             c.setValue("VIN", car.getString("VIN"));
@@ -231,6 +238,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+//        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
     }
 }
