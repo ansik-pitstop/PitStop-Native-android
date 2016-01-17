@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        setUp();
     }
 
     @Override
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 MainActivityMultiFragment fragment = new MainActivityMultiFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
                 fragmentTransaction.commit();
-            }else{
+            }else {
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 MainActivityFragment fragment = new MainActivityFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
@@ -200,11 +201,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             array.add(c);
                         }
                     }
-                    if(array.size()<=1){
+                    if(array.size()==1){
                         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                         MainActivityFragment fragment = new MainActivityFragment();
                         fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
                         fragmentTransaction.commit();
+                    }else if (array.size()==0) {
+                        Intent intent = new Intent(MainActivity.this,AddCarActivity.class);
+                        startActivity(intent);
                     }else{
                         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                         MainActivityMultiFragment fragment = new MainActivityMultiFragment();

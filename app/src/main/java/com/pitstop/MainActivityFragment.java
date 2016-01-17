@@ -109,20 +109,7 @@ public class MainActivityFragment extends Fragment {
 
     public void getGarage() {
         final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.pfName, getContext().MODE_PRIVATE);
-        String shopId = settings.getString(MainActivity.pfCodeForShopObjectID, "NA");
-        if (shopId.equals("NA")) {
-            SharedPreferences.Editor editor = settings.edit();
-            if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                editor.putString(MainActivity.pfCodeForShopObjectID,ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
-                shopId  = ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId();
-            }else{
-                callGarageTextView.setText("Shop not set up");
-                messageGarageTextView.setText("Shop not set up");
-                directionsToGarageTextView.setText("Shop not set up");
-                return;
-            }
-        }
+        String shopId = array.get(0).getValue("dealership");
         Shops currShop = (Shops)ldr.getData("Shops", "ShopID", shopId);
         if (currShop!=null) {
             currentGarage = currShop.getValue("name");
