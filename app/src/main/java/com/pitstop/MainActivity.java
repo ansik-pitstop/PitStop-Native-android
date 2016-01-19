@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        setUp();
     }
 
     @Override
@@ -98,6 +99,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            ArrayList<String> ids = new ArrayList<>(),cars = new ArrayList<>();
+            for (DBModel car : array){
+                cars.add(car.getValue("make") + " " + car.getValue("model"));
+                ids.add(car.getValue("CarID"));
+            }
+            i.putStringArrayListExtra("cars", cars);
+            i.putStringArrayListExtra("ids",ids);
             startActivity(i);
             return true;
         }
@@ -158,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 MainActivityMultiFragment fragment = new MainActivityMultiFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
                 fragmentTransaction.commit();
-            }else{
+            }else {
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 MainActivityFragment fragment = new MainActivityFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
@@ -176,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     if(e==null){
                         for (final ParseObject car : objects) {
                             Cars c = new Cars();
-                            c.setValue("CarID", car.getString("objectId"));
+                            c.setValue("CarID", car.getObjectId());
                             c.setValue("owner", car.getString("owner"));
                             c.setValue("scannerId", car.getString("scannerId"));
                             c.setValue("VIN", car.getString("VIN"));
@@ -203,6 +211,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         MainActivityFragment fragment = new MainActivityFragment();
                         fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
                         fragmentTransaction.commit();
+                    }else if (array.size()==0) {
+                        Intent intent = new Intent(MainActivity.this,AddCarActivity.class);
+                        startActivity(intent);
                     }else{
                         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                         MainActivityMultiFragment fragment = new MainActivityMultiFragment();

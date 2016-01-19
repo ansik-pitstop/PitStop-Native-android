@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
-    <PreferenceCategory android:title="MY Account">
+    <PreferenceCategory android:title="My Account">
         <Preference android:title="Your Name"
             android:key="@string/pref_username_key"
             android:summary="Tap to change your name">
@@ -19,6 +19,10 @@
             android:summary="This is your phone number">
         </Preference>
 
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="My Vehicles" android:key="@string/pref_vehicles">
 
     </PreferenceCategory>
     <Preference

@@ -2,6 +2,8 @@ package com.pitstop.database.models;
 
 import com.pitstop.database.DBModel;
 
+import java.io.Serializable;
+
 /**
  * Created by David Liu on 11/20/2015.
  */
@@ -11,7 +13,7 @@ public class Cars extends DBModel{
     }
 
     protected void setUpTable(){
-        columns.put("CarID","INTEGER PRIMARY KEY AUTOINCREMENT");
+        columns.put("CarID","Text PRIMARY KEY");
         columns.put("owner","Text");
         columns.put("scannerId","Text");
         columns.put("VIN","Text");
