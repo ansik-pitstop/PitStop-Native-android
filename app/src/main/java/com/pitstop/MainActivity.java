@@ -53,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
+            if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                service.startBluetoothSearch();
+            }
         }
 
         @Override
@@ -65,22 +68,17 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        setUp();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
-        startService(new Intent(MainActivity.this, BluetoothAutoConnectService.class));
+        startService(serviceIntent);
         setContentView(R.layout.activity_main);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         array = new ArrayList<>();
         setUp();
-
-        if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            service.startBluetoothSearch();
-        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -161,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
         array = ldr.getDataSet("Cars", "owner", userId);
         if(array.size()>0){
-            if(array.size()==1){
+            if(array.size()>1){
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 MainActivityMultiFragment fragment = new MainActivityMultiFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");

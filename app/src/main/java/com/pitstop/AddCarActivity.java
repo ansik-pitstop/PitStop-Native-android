@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -129,6 +130,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(AddCarActivity.this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -137,7 +140,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     public void getVIN(View view) {
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
-            if (!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")){
+            if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
                 makeCar();
             }
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
@@ -201,7 +204,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             counter++;
-            if(counter>10) {
+            if(counter>5) {
                 hideLoading();
                 findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
             }else{

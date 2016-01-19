@@ -100,7 +100,7 @@
         android:layout_height="match_parent"
         android:background="#bfce6746"
         android:id="@+id/loading"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <LinearLayout
             android:orientation="vertical"

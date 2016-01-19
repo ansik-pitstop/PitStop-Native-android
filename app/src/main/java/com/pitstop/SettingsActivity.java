@@ -38,8 +38,13 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_settings);
-        cars = getIntent().getExtras().getStringArrayList("cars");
-        ids = getIntent().getStringArrayListExtra("ids");
+        if(getIntent().getExtras()!=null) {
+            cars = getIntent().getExtras().getStringArrayList("cars");
+            ids = getIntent().getStringArrayListExtra("ids");
+        }else{
+            cars = new ArrayList<>();
+            ids = new ArrayList<>();
+        }
         getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment(cars,ids)).commit();
     }
 
@@ -138,6 +143,9 @@ public class SettingsActivity extends AppCompatActivity {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
+                    if(e!=null){
+                        return;
+                    }
                     ArrayList<String> shops = new ArrayList<String>(), shopIds = new ArrayList<String>();
                     for (ParseObject object : objects) {
                         shops.add(object.getString("name"));
