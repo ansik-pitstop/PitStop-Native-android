@@ -2,8 +2,10 @@ package com.pitstop;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
@@ -11,6 +13,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -21,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -261,7 +266,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         });
     }
 
-    public void requestServiceButton() {
+    public void requestServiceButton(String additional) {
         if(requestSent){
             Toast.makeText(getApplicationContext(), "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
             return;
@@ -285,7 +290,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         output.put("services", services);
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
-        output.put("comments","");
+        output.put("comments",additional);
         if(services.size()>0) {
             ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
                 @Override
@@ -317,7 +322,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            requestServiceButton();
+            ServiceDialog dialog = new ServiceDialog();
+            dialog.show(getSupportFragmentManager(),"sendSupportEmail");
         }
 
         return super.onOptionsItemSelected(item);
@@ -356,6 +362,33 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    public class ServiceDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            final View view = inflater.inflate(R.layout.dialog_request_service, null);
+            builder.setView(view)
+                    // Add action buttons
+                    .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            requestServiceButton(((EditText) view.findViewById(R.id.additional_comments)).getText().toString());
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ServiceDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
     class CustomAdapter extends BaseAdapter {
 
         ArrayList<DBModel> dataList;
@@ -386,17 +419,15 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             LayoutInflater inflater = LayoutInflater.from(context);
             convertview = (RelativeLayout)inflater.inflate(R.layout.car_details_list_item, null);
             ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).getValue("description"));
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            //params.setMargins(10, 10, 10, 10);
             if(dataList.get(i) instanceof Recalls) {
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("name"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_error_red_600_24dp));
+                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
             }else if(dataList.get(i) instanceof DTCs) {
                 ((TextView) convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_announcement_blue_600_24dp));
+                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_announcement_blue_600_24dp));
             }else{
                 ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
             convertview.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -406,7 +437,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                     startActivity(intent);
                 }
             });
-            convertview.setLayoutParams(params);
             return convertview;
         }
     }

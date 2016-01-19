@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -75,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         array = new ArrayList<>();
         setUp();
+
+        if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            service.startBluetoothSearch();
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
         array = ldr.getDataSet("Cars", "owner", userId);
         if(array.size()>0){
-            if(array.size()>1){
+            if(array.size()==1){
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 MainActivityMultiFragment fragment = new MainActivityMultiFragment();
                 fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
@@ -193,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             array.add(c);
                         }
                     }
-                    if(array.size()<=1){
+                    if(array.size()==1){
                         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                         MainActivityFragment fragment = new MainActivityFragment();
                         fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
@@ -231,6 +236,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+//        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
     }
 }

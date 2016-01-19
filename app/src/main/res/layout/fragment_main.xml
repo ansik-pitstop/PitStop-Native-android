@@ -157,14 +157,4 @@
         </LinearLayout>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="MY NOTIFICATION"
-        android:id="@+id/textView4"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp" />
-
 </LinearLayout>

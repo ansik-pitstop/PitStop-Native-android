@@ -159,17 +159,18 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private void makeCar() {
         if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")) {
-            ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
             final String[] mashapeKey = {""};
             showLoading();
             if(service.getState()==BluetoothManage.CONNECTED){
+                ((TextView) findViewById(R.id.loading_details)).setText("Loading Car Engine Code");
                 askForDTC=true;
                 service.getDTCs();
             }else {
                 ParseConfig.getInBackground(new ConfigCallback() {
                     @Override
                     public void done(ParseConfig config, ParseException e) {
+                        ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
                         new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                     }
                 });
@@ -182,6 +183,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.mileage).setEnabled(true);
         findViewById(R.id.VIN).setEnabled(true);
         findViewById(R.id.button).setEnabled(true);
+
+    }
+
+    public void hideLoading(View view){
+        hideLoading();
     }
 
     private void showLoading(){
@@ -248,6 +254,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ParseConfig.getInBackground(new ConfigCallback() {
                 @Override
                 public void done(ParseConfig config, ParseException e) {
+                    ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
                     new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                 }
             });
@@ -296,6 +303,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     query.findInBackground(new FindCallback<ParseObject>() {
                         @Override
                         public void done(List<ParseObject> objects, ParseException e) {
+                            ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
                             if(objects.size()>0){
                                 Toast.makeText(getApplicationContext(),"Car Already Exist for Another User!", Toast.LENGTH_SHORT).show();
                                 hideLoading();
@@ -325,6 +333,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                             setResult(RESULT_ADDED);
                                             finish();
                                         } else {
+                                            hideLoading();
                                             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                                         }
                                     }
@@ -336,9 +345,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         }
                     });
                 }else{
-                    Toast.makeText(getApplicationContext(),"Failed to find by VIN",Toast.LENGTH_SHORT).show();
+                    hideLoading();
+                    Toast.makeText(getApplicationContext(),"Failed to find by VIN, may be invalid",Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
+                hideLoading();
+                Toast.makeText(getApplicationContext(),"Errored Out",Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
             return null;

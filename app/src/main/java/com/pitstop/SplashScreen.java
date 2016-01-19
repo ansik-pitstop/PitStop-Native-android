@@ -3,6 +3,7 @@ package com.pitstop;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -83,6 +84,14 @@ public class SplashScreen extends AppCompatActivity {
 
     public void signUp(final View view) {
         if (signup) {
+            if(((TextView)findViewById(R.id.password)).getText().toString().length()<6){
+                Snackbar.make(findViewById(R.id.splash_layout), "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+            if(((TextView)findViewById(R.id.phone)).getText().toString().length()!=10){
+                Snackbar.make(findViewById(R.id.splash_layout), "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+                return;
+            }
             ParseUser user = new ParseUser();
             user.setUsername(((TextView)findViewById(R.id.email)).getText().toString());
             user.setPassword(((TextView)findViewById(R.id.password)).getText().toString());
