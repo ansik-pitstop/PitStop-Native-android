@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     final static String pfShopName = "com.pitstop.shop.name";
     final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
+    public static boolean refresh = false;
+
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -68,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if(refresh){
+            refresh = false;
+            refreshDatabase();
+        }
     }
 
     @Override

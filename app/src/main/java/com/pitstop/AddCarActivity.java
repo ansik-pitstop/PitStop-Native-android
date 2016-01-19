@@ -333,7 +333,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                     public void done(ParseException e) {
                                         ((TextView) findViewById(R.id.loading_details)).setText("Final Touches");
                                         if (e == null) {
-                                            setResult(RESULT_ADDED);
+                                            MainActivity.refresh = true;
                                             finish();
                                         } else {
                                             hideLoading();
