@@ -18,6 +18,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
@@ -91,6 +92,46 @@ public class MainActivityMultiFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void indicateConnected(final String deviceId) {
+        boolean found = false;
+        Cars noDevice = null;
+        for(DBModel a : array){
+            if(a.getValue("scannerId").equals("")){
+                noDevice = (Cars) a;
+            }
+            if(a.getValue("scannerId").equals(deviceId)){
+                found = true;
+                for(int i = 0; i<((ListView) getActivity().findViewById(R.id.listView)).getChildCount(); i++) {
+                    TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
+                    ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
+                }
+            }
+        }
+        // add device if a car has no linked device
+        if(!found&&noDevice!=null){
+            final Cars finalNoDevice = noDevice;
+            ParseQuery query = new ParseQuery("Car");
+            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    objects.get(0).add("scannerId",deviceId);
+                    objects.get(0).saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            finalNoDevice.setValue("scannerId", deviceId);
+                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                            HashMap<String,String> map = new HashMap<String,String>();
+                            map.put("scannerId",deviceId);
+                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
+                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -200,12 +201,7 @@ public class MainActivityFragment extends Fragment {
             }
             if(a.getValue("scannerId").equals(id)){
                 found = true;
-//                for(int i = 0; i<((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildCount()-1; i++) {
-//                    TextView tv = (TextView) ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).findViewById(R.id.car_title);
-//                    if(tv.getText().toString().contains(a.getValue("make"))&&tv.getText().toString().contains(a.getValue("model"))){
-//                        ((LinearLayout) getActivity().findViewById(R.id.horizontalScrollView)).getChildAt(i).setBackgroundResource(R.drawable.color_button_car_connected);
-//                    }
-//                }
+                getActivity().findViewById(R.id.button5).setBackgroundResource(R.drawable.color_button_car_connected);
             }
         }
         // add device if a car has no linked device

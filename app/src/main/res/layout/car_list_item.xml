@@ -19,7 +19,7 @@
             android:layout_width="8dp"
             android:layout_height="fill_parent"
             android:id="@+id/color"
-            android:background="#54ce59" />
+            android:background="@color/highlight" />
 
         <LinearLayout
             android:orientation="vertical"

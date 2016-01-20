@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
-            if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 service.startBluetoothSearch();
             }
         }
@@ -251,6 +251,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-//        ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+        if(array.size()==1){
+            ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+        }else if (array.size()>1){
+            ((MainActivityMultiFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+
+        }
     }
 }

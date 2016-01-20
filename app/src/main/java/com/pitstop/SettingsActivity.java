@@ -3,6 +3,7 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -24,7 +25,10 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.database.LocalDataRetriever;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -138,6 +142,8 @@ public class SettingsActivity extends AppCompatActivity {
             preferenceList = new ArrayList<>();
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
+
+            ((Preference)  getPreferenceManager().findPreference("AppInfo")).setTitle("0.3.2");
 
             ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
             query.findInBackground(new FindCallback<ParseObject>() {

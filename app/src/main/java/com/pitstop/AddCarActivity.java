@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -99,8 +100,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.toString().length()==17){
+                if (s.toString().length() == 17) {
                     ((Button) findViewById(R.id.button)).setText("ADD CAR");
+                } else {
+                    ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
                 }
             }
         });
@@ -141,19 +144,23 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getVIN(View view) {
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
+                showLoading();
                 makeCar();
             }
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
-            if (!hasClicked) {
+            if(BluetoothAdapter.getDefaultAdapter()==null){
+                hideLoading();
+                findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            }else {
                 if (service.getState() != BluetoothManage.CONNECTED) {
                     service.startBluetoothSearch();
                 } else {
                     service.getCarVIN();
                 }
-                showLoading();
-                ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
-                //hasClicked = true;
             }
+            showLoading();
+            ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
+
         }else{
             Toast.makeText(this,"Please enter Mileage",Toast.LENGTH_SHORT).show();
         }
@@ -204,7 +211,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             counter++;
-            if(counter>5) {
+            if(counter==5) {
                 hideLoading();
                 findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
             }else{
@@ -348,15 +355,26 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         }
                     });
                 }else{
-                    hideLoading();
-                    Toast.makeText(getApplicationContext(),"Failed to find by VIN, may be invalid",Toast.LENGTH_SHORT).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
+                            hideLoading();
+                        }
+                    });
                 }
             } catch (Exception e) {
-                hideLoading();
-                Toast.makeText(getApplicationContext(),"Errored Out",Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Errored Out", Toast.LENGTH_SHORT).show();
+                        hideLoading();
+                    }
+                });
                 e.printStackTrace();
             }
             return null;
         }
     }
+
 }

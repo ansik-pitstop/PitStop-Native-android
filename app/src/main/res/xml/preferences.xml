@@ -25,6 +25,12 @@
     <PreferenceCategory android:title="My Vehicles" android:key="@string/pref_vehicles">
 
     </PreferenceCategory>
+    <PreferenceCategory android:title="App Info" android:key="@string/appinfo">
+        <Preference
+            android:key="AppInfo"
+            android:selectable="false"
+            android:title="you can omit the titleasdfasd "/>
+    </PreferenceCategory>
     <Preference
         android:key="@string/pref_logout_key"
         android:title="@string/pref_logout_label"/>
