@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,10 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 public void done(List<ParseObject> objects, ParseException e) {
                     if(e==null){
                         for (final ParseObject car : objects) {
-                            Cars c = new Cars();
+                            final Cars c = new Cars();
                             c.setValue("CarID", car.getObjectId());
                             c.setValue("owner", car.getString("owner"));
                             c.setValue("scannerId", car.getString("scannerId"));
@@ -205,24 +210,50 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("trimLevel", car.getString("trim_level"));
                             c.setValue("services", (car.get("servicesDue") == null ? "" : car.get("servicesDue").toString()));
                             c.setValue("dtcs", (car.get("storedDTCs") == null ? "" : car.get("storedDTCs").toString()));
-                            c.setValue("recalls", (car.get("pendingRecalls") == null ? "" : car.get("pendingRecalls").toString()));
-                            ldr.saveData("Cars", c.getValues());
-                            array.add(c);
+                            ParseQuery<ParseObject> recalls = ParseQuery.getQuery("RecallMasters");
+                            recalls.whereEqualTo("forCar", car);
+                            recalls.findInBackground(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+                                    if (e == null) {
+                                        String recalls = "[";
+                                        if (objects.size()>0) {
+                                            JSONArray arrayOfRecalls = objects.get(0).getJSONArray("recalls");
+                                            for (int i = 0; i < arrayOfRecalls.length(); i++) {
+                                                try {
+                                                    recalls += arrayOfRecalls.getJSONObject(i).getString("objectId") + ",";
+                                                } catch (JSONException e1) {
+                                                    e1.printStackTrace();
+                                                }
+                                            }
+                                            if (recalls.length() != 1) {
+                                                recalls = recalls.substring(0, recalls.length() - 1);
+                                            }
+                                        }
+                                        recalls += "]";
+                                        c.setValue("recalls", recalls);
+                                        ldr.saveData("Cars", c.getValues());
+                                        array.add(c);
+                                    }else{
+                                        Log.d("Recalls", e.getMessage());
+                                    }
+                                    if(array.size()==1){
+                                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                                        MainActivityFragment fragment = new MainActivityFragment();
+                                        fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
+                                        fragmentTransaction.commit();
+                                    }else if (array.size()==0) {
+                                        Intent intent = new Intent(MainActivity.this,AddCarActivity.class);
+                                        startActivity(intent);
+                                    }else{
+                                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                                        MainActivityMultiFragment fragment = new MainActivityMultiFragment();
+                                        fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
+                                        fragmentTransaction.commit();
+                                    }
+                                }
+                            });
                         }
-                    }
-                    if(array.size()==1){
-                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                        MainActivityFragment fragment = new MainActivityFragment();
-                        fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
-                        fragmentTransaction.commit();
-                    }else if (array.size()==0) {
-                        Intent intent = new Intent(MainActivity.this,AddCarActivity.class);
-                        startActivity(intent);
-                    }else{
-                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                        MainActivityMultiFragment fragment = new MainActivityMultiFragment();
-                        fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
-                        fragmentTransaction.commit();
                     }
                 }
             });

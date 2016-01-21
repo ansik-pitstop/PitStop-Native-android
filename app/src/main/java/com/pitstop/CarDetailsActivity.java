@@ -181,23 +181,24 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
         //see if need to get from online
         if (recallsGet) {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("EdmundsRecall");
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
             query.whereContainedIn("objectId", recallCodes.keySet());
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
                     for (ParseObject parseObject : objects) {
                         Recalls recall = new Recalls();
-                        recall.setValue("consequences", parseObject.getString("defectConsequence"));
-                        recall.setValue("action", parseObject.getString("defectCorrectiveAction"));
-                        recall.setValue("name", parseObject.getString("componentDescription"));
-                        recall.setValue("description", parseObject.getString("defectDescription"));
-                        recall.setValue("make", parseObject.getString("make"));
-                        recall.setValue("model", parseObject.getString("model"));
-                        recall.setValue("year", parseObject.getString("year"));
-                        recall.setValue("recallNumber", parseObject.getString("recallNumber"));
-                        recall.setValue("numberAffected", parseObject.getString("numberOfVehiclesAffected"));
-                        recall.setValue("RecallID", parseObject.getObjectId());
+
+                        recall.setValue("RecallID",parseObject.getObjectId());
+                        recall.setValue("name",parseObject.getString("name"));
+                        recall.setValue("description",parseObject.getString("description"));
+                        recall.setValue("remedy",parseObject.getString("remedy"));
+                        recall.setValue("risk",""+parseObject.getNumber("risk"));
+                        recall.setValue("effectiveDate",parseObject.getString("effectiveDate"));
+                        recall.setValue("oemID",parseObject.getString("oemID"));
+                        recall.setValue("reimbursement",""+parseObject.getNumber("reimbursement"));
+                        recall.setValue("state",parseObject.getString("state"));
+                        recall.setValue("riskRank",""+parseObject.getNumber("riskRank"));
                         if (!recallCodes.get(recall.getValue("RecallID"))){
                             ldr.saveData("Recalls",recall.getValues());
                             arrayList.add(recall);
@@ -281,7 +282,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(model.getValues());
             }
             if(model instanceof Recalls){
-                services.add(model.getValues());
+                Recalls recall = new Recalls();
+                recall.setValue("item", model.getValue("name"));
+                recall.setValue("action","Recall For");
+                recall.setValue("itemDescription",model.getValue("description"));
+                recall.setValue("priority",""+ 6); // high priority for recall
+                services.add(recall.getValues());
             }
             if(model instanceof DTCs){
                 services.add(model.getValues());

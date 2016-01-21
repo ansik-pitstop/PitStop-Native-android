@@ -15,13 +15,13 @@ public class Recalls extends DBModel {
         columns.put("RecallID","Text");
         columns.put("name","Text");
         columns.put("description","Text");
-        columns.put("consequences","Text");
-        columns.put("action","Text");
-        columns.put("make","Text");
-        columns.put("model","Text");
-        columns.put("year","Text");
-        columns.put("recallNumber","Text");
-        columns.put("numberAffected","Integer");
+        columns.put("remedy","Text");
+        columns.put("risk","Text");
+        columns.put("effectiveDate","Text");
+        columns.put("oemID","Text");
+        columns.put("reimbursement","Text");
+        columns.put("state","Text");
+        columns.put("riskRank","Integer");
 
     }
 }
