@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
@@ -48,7 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
+public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
     public static int RESULT_ADDED = 10;
     private String VIN = "", scannerID = "", mileage = "";
     private PrintDebugThread mLogDumper;
@@ -56,6 +57,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private BluetoothAutoConnectService service;
     private boolean askForDTC = false;
     private ArrayList<String> DTCData= new ArrayList<>();
+
+    private ToggleButton yesButton;
+    private ToggleButton noButton;
+    /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
+    private boolean hasBluetoothVinEntryFailed = false;
 
     int counter =0;
 
@@ -82,6 +88,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
 
+        yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
+        noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
+        yesButton.setOnClickListener(this);
+        noButton.setOnClickListener(this);
+
         bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 //        mLogDumper = new PrintDebugThread(
 //                String.valueOf(android.os.Process.myPid()),
@@ -100,11 +111,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.toString().length() == 17) {
-                    ((Button) findViewById(R.id.button)).setText("ADD CAR");
-                } else {
-                    ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
-                }
+                Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
+                findViewById(R.id.button).setEnabled(isValidVin(vin));
             }
         });
         //mLogDumper.start();
@@ -213,7 +221,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             counter++;
             if(counter==5) {
                 hideLoading();
-                findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+                showManualEntryUI();
+                hasBluetoothVinEntryFailed = true;
             }else{
                 service.startBluetoothSearch();
             }
@@ -279,6 +288,60 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 //        }
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view == yesButton || view == noButton) {
+            // this flag will be true after the block if the buttons have changed.
+            // if the yes button was checked and they press it => newAction = false
+            // if the yes button was checked and they press the no button => newAction = true
+            boolean newAction = true;
+
+            // after this block, exactly one of the yes and no buttons will be checked
+            if (view == yesButton) {
+                if (yesButton.isChecked()) {
+                    noButton.setChecked(false);
+                } else if (!noButton.isChecked()) {
+                    yesButton.setChecked(true);
+                    newAction = false;
+                }
+            } else {
+                if (noButton.isChecked()) {
+                    yesButton.setChecked(false);
+                } else if (!yesButton.isChecked()) {
+                    noButton.setChecked(true);
+                    newAction = false;
+                }
+            }
+
+            if (newAction) {
+                // don't hide the manual entry UI if we're showing it after bluetooth failure
+                if (yesButton.isChecked() && !hasBluetoothVinEntryFailed) {
+                    showBluetoothEntryUI();
+                } else if (noButton.isChecked()) {
+                    showManualEntryUI();
+                }
+            }
+        }
+    }
+
+    boolean isValidVin(Editable vin) {
+        return vin != null && vin.length() == 17;
+    }
+
+    void showManualEntryUI() {
+        findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+        ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_manual));
+        ((Button) findViewById(R.id.button)).setText("ADD CAR");
+
+        Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
+        findViewById(R.id.button).setEnabled(isValidVin(vin));
+    }
+
+    void showBluetoothEntryUI() {
+        findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
+        ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
+        ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
+    }
 
     private class CallMashapeAsync extends AsyncTask<String, Void,Void>{
 
