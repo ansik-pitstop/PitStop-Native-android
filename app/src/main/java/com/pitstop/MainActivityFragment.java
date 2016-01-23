@@ -33,6 +33,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import org.w3c.dom.Text;
 
@@ -162,6 +163,11 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
+                if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
+                    // clear the action so it's not repeated
+                    getArguments().putString(EXTRA_ACTION, null);
+                    intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
+                }
                 intent.putExtra("title", car.getValue("make") + " " + car.getValue("model"));
                 String temp = car.getValue("services");
                 if (!temp.equals("")) {
@@ -182,11 +188,13 @@ public class MainActivityFragment extends Fragment {
                 } else {
                     intent.putExtra("dtcs", new String[]{});
                 }
+                intent.putExtra("CarID", car.getValue("CarID"));
                 intent.putExtra("vin", car.getValue("VIN"));
                 intent.putExtra("scannerId", car.getValue("scannerId"));
                 intent.putExtra("make", car.getValue("make"));
                 intent.putExtra("model", car.getValue("model"));
                 intent.putExtra("year", car.getValue("year"));
+                intent.putExtra("baseMileage", car.getValue("baseMileage"));
                 startActivity(intent);
             }
         });
