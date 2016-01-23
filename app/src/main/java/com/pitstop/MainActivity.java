@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -96,6 +97,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if (ACTION_UPDATE_MILEAGE.equals(getIntent().getStringExtra(EXTRA_ACTION))) {
             isUpdatingMileage = true;
             carId = getIntent().getStringExtra(EXTRA_CAR_ID);
+
+            // clear the action once we've recorded it
+            getIntent().putExtra(EXTRA_ACTION, (String)null);
+            getIntent().putExtra(EXTRA_CAR_ID, (String)null);
         }
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -181,17 +186,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
         array = ldr.getDataSet("Cars", "owner", userId);
         if(array.size()>0){
-            if(array.size()>1){
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                MainActivityMultiFragment fragment = new MainActivityMultiFragment();
-                fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
-                fragmentTransaction.commit();
-            }else {
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                MainActivityFragment fragment = new MainActivityFragment();
-                fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
-                fragmentTransaction.commit();
-            }
+            openFragment();
         }else {
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
             if (ParseUser.getCurrentUser() != null) {
@@ -248,31 +243,47 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                     }else{
                                         Log.d("Recalls", e.getMessage());
                                     }
-
-                                    if (isUpdatingMileage) {
-                                        // TODO(srcreigh) open the car details activity
-                                    }
-
-                                    if(array.size()==1){
-                                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                                        MainActivityFragment fragment = new MainActivityFragment();
-                                        fragmentTransaction.replace(R.id.placeholder, fragment, "single_view");
-                                        fragmentTransaction.commit();
-                                    }else if (array.size()==0) {
-                                        Intent intent = new Intent(MainActivity.this,AddCarActivity.class);
-                                        startActivity(intent);
-                                    }else{
-                                        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                                        MainActivityMultiFragment fragment = new MainActivityMultiFragment();
-                                        fragmentTransaction.replace(R.id.placeholder, fragment, "multi_view");
-                                        fragmentTransaction.commit();
-                                    }
+                                    openFragment();
                                 }
                             });
                         }
                     }
                 }
             });
+        }
+    }
+
+    private void openFragment() {
+        if (array.size() == 0) {
+            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+            startActivity(intent);
+        } else {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            final Fragment fragment;
+            final String tag;
+
+            if (array.size() == 1) {
+                fragment = new MainActivityFragment();
+                tag = "single_view";
+            } else {
+                fragment = new MainActivityMultiFragment();
+                tag = "multi_view";
+            }
+
+            Bundle args = new Bundle();
+            if (isUpdatingMileage) {
+                args.putString(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
+                args.putString(EXTRA_CAR_ID, carId);
+
+                // clear the data so that we don't update mileage again
+                isUpdatingMileage = false;
+                carId = null;
+            }
+            fragment.setArguments(args);
+
+            fragmentTransaction.replace(R.id.placeholder, fragment, tag);
+            fragmentTransaction.commit();
         }
     }
 
