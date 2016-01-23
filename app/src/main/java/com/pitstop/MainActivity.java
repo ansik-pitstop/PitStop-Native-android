@@ -28,6 +28,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static boolean refresh = false;
 
     private boolean isUpdatingMileage = false;
+    private String carId;
 
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
@@ -91,8 +93,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         setContentView(R.layout.activity_main);
 
         // check the intent action
-        if ("update_mileage".equals(getIntent().getStringExtra("action"))) {
+        if (ACTION_UPDATE_MILEAGE.equals(getIntent().getStringExtra(EXTRA_ACTION))) {
             isUpdatingMileage = true;
+            carId = getIntent().getStringExtra(EXTRA_CAR_ID);
         }
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -245,6 +248,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                     }else{
                                         Log.d("Recalls", e.getMessage());
                                     }
+
+                                    if (isUpdatingMileage) {
+                                        // TODO(srcreigh) open the car details activity
+                                    }
+
                                     if(array.size()==1){
                                         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                                         MainActivityFragment fragment = new MainActivityFragment();
