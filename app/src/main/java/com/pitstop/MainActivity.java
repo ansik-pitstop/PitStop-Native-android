@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public static boolean refresh = false;
 
+    private boolean isUpdatingMileage = false;
+
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -87,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
+
+        // check the intent action
+        if ("update_mileage".equals(getIntent().getStringExtra("action"))) {
+            isUpdatingMileage = true;
+        }
+
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         array = new ArrayList<>();
         setUp();
