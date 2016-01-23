@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
@@ -65,7 +67,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     private boolean requestSent = false;
 
-    private String VIN, scannerID,make, model,year;
+    private String carId, VIN, scannerID,make, model,year,baseMileage;
 
 
     public static Intent serviceIntent;
@@ -96,16 +98,34 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
         boolean serviceGet=false, recallsGet=false, dtcsGet = false;
 
+        carId = getIntent().getStringExtra("CarID");
         VIN = getIntent().getStringExtra("vin");
         scannerID = getIntent().getStringExtra("scannerId");
         make = getIntent().getStringExtra("make");
         model = getIntent().getStringExtra("model");
         year = getIntent().getStringExtra("year");
+        baseMileage = getIntent().getStringExtra("baseMileage");
 
         serviceIntent= new Intent(CarDetailsActivity.this, BluetoothAutoConnectService.class);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+        ((TextView)findViewById(R.id.mileage)).setText(baseMileage);
+        findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(CarDetailsActivity.this)
+                        .title("Update Mileage")
+                        .inputType(InputType.TYPE_CLASS_NUMBER)
+                        .input("Enter Mileage", "", false /* allowEmptyInput */, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                updateMileage(input);
+                            }
+                        }).show();
+            }
+        });
+
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.unconnected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
 
@@ -265,6 +285,36 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
 
         });
+    }
+
+    private void updateMileage(CharSequence chsq) {
+        String mileage = chsq.toString();
+
+        // save to parse
+        try {
+            ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
+            ParseObject car = cars.get(carId);
+            car.put("baseMileage", Integer.parseInt(mileage));
+            car.saveEventually();
+
+        } catch (ParseException e) {
+            Log.e("CarDetailsActivity", "parse exception: ", e);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid mileage", Toast.LENGTH_SHORT).show();
+        }
+
+        // save to local DB
+        LocalDataRetriever ldr = new LocalDataRetriever(this);
+        Toast.makeText(this, carId, Toast.LENGTH_SHORT).show();
+        Cars c = (Cars)ldr.getData("Cars", "CarID", carId);
+        c.setValue("baseMileage", mileage);
+        ldr.saveData("Cars", c.getValues());
+
+        // update the textview
+        ((TextView)findViewById(R.id.mileage)).setText(mileage);
+
+        // set mainactivity to refresh
+        MainActivity.refresh = true;
     }
 
     public void requestServiceButton(String additional) {
