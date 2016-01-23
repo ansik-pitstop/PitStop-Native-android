@@ -151,11 +151,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     public void getVIN(View view) {
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
+            mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
                 showLoading();
                 makeCar();
             }
-            mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if(BluetoothAdapter.getDefaultAdapter()==null){
                 hideLoading();
                 findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);

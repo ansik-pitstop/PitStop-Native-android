@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("owner", car.getString("owner"));
                             c.setValue("scannerId", car.getString("scannerId"));
                             c.setValue("VIN", car.getString("VIN"));
-                            c.setValue("baseMileage", car.getString("baseMileage"));
+                            c.setValue("baseMileage", String.valueOf(car.getInt("baseMileage")));
                             c.setValue("cityMileage", car.getString("city_mileage"));
                             c.setValue("highwayMileage", car.getString("highway_mileage"));
                             c.setValue("engine", car.getString("engine"));
