@@ -190,6 +190,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private void hideLoading(){
         findViewById(R.id.loading).setVisibility(View.GONE);
+        findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
         findViewById(R.id.mileage).setEnabled(true);
         findViewById(R.id.VIN).setEnabled(true);
         findViewById(R.id.button).setEnabled(true);
