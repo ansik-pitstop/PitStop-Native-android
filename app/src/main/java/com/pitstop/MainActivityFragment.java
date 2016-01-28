@@ -163,19 +163,35 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 intent.putExtra("title", car.getValue("make") + " " + car.getValue("model"));
-                String temp = car.getValue("services");
+                //edmund
+                String temp = car.getValue("pendingEdmundServices");
                 if (!temp.equals("")) {
-                    intent.putExtra("servicesDue", temp.substring(1, temp.length() - 1).split(","));
+                    intent.putExtra("edmund", temp.substring(1, temp.length() - 1).split(","));
                 } else {
-                    intent.putExtra("servicesDue", new String[]{});
+                    intent.putExtra("edmund", new String[]{});
                 }
+                //interval
+                temp = car.getValue("pendingIntervalServices");
+                if (!temp.equals("")) {
+                    intent.putExtra("interval", temp.substring(1, temp.length() - 1).split(","));
+                } else {
+                    intent.putExtra("interval", new String[]{});
+                }
+                //fixed
+                temp = car.getValue("pendingFixedServices");
+                if (!temp.equals("")) {
+                    intent.putExtra("fixed", temp.substring(1, temp.length() - 1).split(","));
+                } else {
+                    intent.putExtra("fixed", new String[]{});
+                }
+                //recalls
                 temp = car.getValue("recalls");
                 if (!temp.equals("")) {
                     intent.putExtra("pendingRecalls", temp.substring(1, temp.length() - 1).split(","));
                 } else {
                     intent.putExtra("pendingRecalls", new String[]{});
                 }
-
+                //dtcs
                 temp = car.getValue("dtcs");
                 if (!temp.equals("")) {
                     intent.putExtra("dtcs", temp.substring(1, temp.length() - 1).split(","));

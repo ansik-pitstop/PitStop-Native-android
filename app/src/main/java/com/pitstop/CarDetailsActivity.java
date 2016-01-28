@@ -53,6 +53,7 @@ import com.pitstop.database.models.Services;
 import com.pitstop.database.models.Cars;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
-        boolean serviceGet=false, recallsGet=false, dtcsGet = false;
+        boolean recallsGet=false, dtcsGet = false;
 
         VIN = getIntent().getStringExtra("vin");
         scannerID = getIntent().getStringExtra("scannerId");
@@ -113,56 +114,15 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         //--------------------------GET SERVICES--------------------------
-        Object[] a = (Object[]) getIntent().getSerializableExtra("servicesDue");
-        final HashMap<Integer,Boolean> serviceCodes = new HashMap<Integer,Boolean>();
-        for (int i = 0; i<a.length; i++){
-            if(a[i].toString().trim().equals("")) {
-                break;
-            }
-            serviceCodes.put(Integer.parseInt(a[i].toString().trim()), false);
-        }
-        //check DB first
-        for (int i : serviceCodes.keySet()){
-            Services service;
-            service = (Services) ldr.getData("Services", "ServiceID", String.valueOf(i));
-            if(service ==null){
-                serviceGet = true;//go get some missing services
-            }else {
-                arrayList.add(service);
-                serviceCodes.put(i, true);
-            }
-        }
-        //if need to get some services
-        if(serviceGet){
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Service");
-            query.whereContainedIn("serviceId", serviceCodes.keySet());
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    for (ParseObject parseObject : objects) {
-                        Services service = new Services();
-                        service.setValue("item", parseObject.getString("item"));
-                        service.setValue("action", parseObject.getString("action"));
-                        service.setValue("description", parseObject.getString("itemDescription"));
-                        service.setValue("intervalMileage", parseObject.getString("intervalMileage"));
-                        service.setValue("priority", parseObject.getString("priority"));
-                        service.setValue("engineCode", parseObject.getString("engineCode"));
-                        service.setValue("ServiceID", String.valueOf(parseObject.getInt("serviceId")));
 
-                        if (!serviceCodes.get(parseObject.getInt("serviceId"))) {
-                            ldr.saveData("Services", service.getValues());
-                            arrayList.add(service);
-                        }
-                    }
-                    customAdapter.dataList.clear();
-                    customAdapter.dataList.addAll(arrayList);
-                    customAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-
+        Bundle extras = getIntent().getExtras();
+        getEdmundsServices(extras, ldr);
+        getIntervalServices(extras, ldr);
+        getFixedServices(extras,ldr);
         //--------------------------------GET RECALLS-------------------------------
-        a = (Object[]) getIntent().getSerializableExtra("pendingRecalls");
+
+
+        Object [] a = (Object[]) getIntent().getSerializableExtra("pendingRecalls");
         final HashMap<String,Boolean> recallCodes = new HashMap<String,Boolean>();
         for (int i = 0; i<a.length; i++){
             recallCodes.put(a[i].toString(), false);
@@ -261,10 +221,156 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 Intent intent = new Intent(CarDetailsActivity.this, EnviornmentalCheckActivity.class);
                 startActivity(intent);
             }
-
-
-
         });
+    }
+
+    private void getFixedServices(Bundle extras, final LocalDataRetriever ldr) {
+        //-------Interval----------
+        ArrayList<String> fixed = new ArrayList<String>(Arrays.asList(extras.getStringArray("fixed")));
+        ArrayList<String> removes = new ArrayList<>();
+        if(fixed.size()!=0) {
+            //check DB first
+            for (String i : fixed) {
+                Services service;
+                HashMap<String,String> values = new HashMap<>();
+                values.put("ParseID",i.trim());
+                fixed.set(fixed.indexOf(i),i.trim());
+                values.put("serviceType","fixed");
+                service = (Services) ldr.getData("Services", values);
+                if (service != null) {
+                    arrayList.add(service);
+                    removes.add(i.trim());
+                }
+            }
+            fixed.removeAll(removes);
+            //if need to get some services
+            if (fixed.size() > 0) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("ServiceFixed");
+                query.whereContainedIn("objectId", fixed);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        for (ParseObject parseObject : objects) {
+                            Services service = new Services();
+                            service.setValue("item", parseObject.getString("item"));
+                            service.setValue("serviceType", "fixed");
+                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                            service.setValue("action", parseObject.getString("action"));
+                            service.setValue("ParseID", parseObject.getObjectId());
+                            //end key, now custom
+                            service.setValue("dealership", parseObject.getString("dealership"));
+                            service.setValue("priority", "" + parseObject.getNumber("priority"));
+                            service.setValue("intervalFixed", "" + parseObject.getNumber("mileage"));
+
+                            ldr.saveData("Services", service.getValues());
+                            arrayList.add(service);
+                        }
+                        customAdapter.dataList.clear();
+                        customAdapter.dataList.addAll(arrayList);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    }
+
+    private void getIntervalServices(Bundle extras,final LocalDataRetriever ldr) {
+        //-------Interval----------
+        ArrayList<String> interval = new ArrayList<String>(Arrays.asList(extras.getStringArray("interval")));
+        ArrayList<String> removes = new ArrayList<>();
+        if(interval.size()!=0) {
+            //check DB first
+            for (String i : interval) {
+                Services service;
+                HashMap<String,String> values = new HashMap<>();
+                values.put("ParseID",i.trim());
+                interval.set(interval.indexOf(i),i.trim());
+                values.put("serviceType","interval");
+                service = (Services) ldr.getData("Services", values);
+                if (service != null) {
+                    arrayList.add(service);
+                    removes.add(i.trim());
+                }
+            }
+            interval.removeAll(removes);
+            //if need to get some services
+            if (interval.size()>0) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("ServiceInterval");
+                query.whereContainedIn("objectId", interval);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        for (ParseObject parseObject : objects) {
+                            Services service = new Services();
+                            service.setValue("item", parseObject.getString("item"));
+                            service.setValue("serviceType", "interval");
+                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                            service.setValue("action", parseObject.getString("action"));
+                            service.setValue("ParseID", parseObject.getObjectId());
+                            //end key, now custom
+                            service.setValue("dealership", parseObject.getString("dealership"));
+                            service.setValue("priority",""+ parseObject.getNumber("priority"));
+                            service.setValue("intervalMileage",""+ parseObject.getNumber("mileage"));
+
+                            ldr.saveData("Services", service.getValues());
+                            arrayList.add(service);
+                        }
+                        customAdapter.dataList.clear();
+                        customAdapter.dataList.addAll(arrayList);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    }
+
+    private void getEdmundsServices(Bundle extras, final LocalDataRetriever ldr) {
+        //-------EDMUND----------
+        ArrayList<String> edmunds = new ArrayList<String>(Arrays.asList(extras.getStringArray("edmund")));
+        ArrayList<String> removes = new ArrayList<>();
+        if(edmunds.size()!=0) {
+            //check DB first
+            for (String i : edmunds) {
+                Services service;
+                HashMap<String,String> values = new HashMap<>();
+                edmunds.set(edmunds.indexOf(i),i.trim());
+                values.put("ParseID",i.trim());
+                values.put("serviceType","edmunds");
+                service = (Services) ldr.getData("Services", values);
+                if (service != null) {
+                    arrayList.add(service);
+                    removes.add(i.trim());
+                }
+            }
+            edmunds.removeAll(removes);
+            //if need to get some services
+            if (edmunds.size()>0) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("EdmundsService");
+                query.whereContainedIn("objectId", edmunds);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        for (ParseObject parseObject : objects) {
+                            Services service = new Services();
+                            service.setValue("item", parseObject.getString("item"));
+                            service.setValue("serviceType", "edmunds");
+                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                            service.setValue("action", parseObject.getString("action"));
+                            service.setValue("ParseID", parseObject.getObjectId());
+                            //end key, now custom
+                            service.setValue("intervalMileage",""+ parseObject.getNumber("intervalMileage"));
+                            service.setValue("intervalMonth",""+ parseObject.getNumber("intervalMonth"));
+
+                            ldr.saveData("Services", service.getValues());
+                            arrayList.add(service);
+                        }
+                        customAdapter.dataList.clear();
+                        customAdapter.dataList.addAll(arrayList);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
     }
 
     public void requestServiceButton(String additional) {
@@ -432,7 +538,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 ((TextView) convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_announcement_blue_600_24dp));
             }else{
-                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("action"));
+                ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).getValue("itemDescription"));
+                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("item"));
                 ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
             convertview.setOnClickListener(new View.OnClickListener() {

@@ -208,7 +208,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("tank_size", car.getString("tank_size"));
                             c.setValue("totalMileage", car.getString("totalMileage"));
                             c.setValue("trimLevel", car.getString("trim_level"));
-                            c.setValue("services", (car.get("servicesDue") == null ? "" : car.get("servicesDue").toString()));
+                            c.setValue("pendingEdmundServices",
+                                    (car.get("pendingEdmundServices") == null ? "" : car.get("pendingEdmundServices").toString()));
+                            c.setValue("pendingIntervalServices",
+                                    (car.get("pendingIntervalServices") == null ? "" : car.get("pendingIntervalServices").toString()));
+                            c.setValue("pendingFixedServices",
+                                    (car.get("pendingFixedServices") == null ? "" : car.get("pendingFixedServices").toString()));
                             c.setValue("dtcs", (car.get("storedDTCs") == null ? "" : car.get("storedDTCs").toString()));
                             ParseQuery<ParseObject> recalls = ParseQuery.getQuery("RecallMasters");
                             recalls.whereEqualTo("forCar", car);

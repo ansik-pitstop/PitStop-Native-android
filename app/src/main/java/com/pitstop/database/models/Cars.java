@@ -27,7 +27,9 @@ public class Cars extends DBModel{
         columns.put("tank_size","Text");
         columns.put("totalMileage","Integer");
         columns.put("trimLevel","Integer");
-        columns.put("services","Text");
+        columns.put("pendingEdmundServices","Text");
+        columns.put("pendingIntervalServices","Text");
+        columns.put("pendingFixedServices","Text");
         columns.put("dtcs","Text");
         columns.put("recalls","Text");
         columns.put("dealership","Text");
