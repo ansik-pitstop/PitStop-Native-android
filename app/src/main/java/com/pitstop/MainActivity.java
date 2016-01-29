@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("scannerId", car.getString("scannerId"));
                             c.setValue("VIN", car.getString("VIN"));
                             c.setValue("baseMileage", String.valueOf(car.getInt("baseMileage")));
+                            c.setValue("totalMileage", String.valueOf(car.getInt("totalMileage")));
                             c.setValue("cityMileage", car.getString("city_mileage"));
                             c.setValue("highwayMileage", car.getString("highway_mileage"));
                             c.setValue("engine", car.getString("engine"));
@@ -215,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("model", car.getString("model"));
                             c.setValue("year", ""+car.getInt("year"));
                             c.setValue("tank_size", car.getString("tank_size"));
-                            c.setValue("totalMileage", car.getString("totalMileage"));
                             c.setValue("trimLevel", car.getString("trim_level"));
                             c.setValue("pendingEdmundServices",
                                     (car.get("pendingEdmundServices") == null ? "" : car.get("pendingEdmundServices").toString()));

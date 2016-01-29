@@ -228,6 +228,7 @@ public class MainActivityFragment extends Fragment {
                 intent.putExtra("model", car.getValue("model"));
                 intent.putExtra("year", car.getValue("year"));
                 intent.putExtra("baseMileage", car.getValue("baseMileage"));
+                intent.putExtra("totalMileage", car.getValue("totalMileage"));
                 startActivity(intent);
             }
         });

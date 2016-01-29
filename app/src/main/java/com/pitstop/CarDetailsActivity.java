@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CarDetailsActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
 
@@ -69,7 +70,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     private boolean requestSent = false;
 
-    private String carId, VIN, scannerID,make, model,year,baseMileage;
+    private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage;
 
 
     public static Intent serviceIntent;
@@ -107,11 +108,21 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         model = getIntent().getStringExtra("model");
         year = getIntent().getStringExtra("year");
         baseMileage = getIntent().getStringExtra("baseMileage");
-
+        totalMileage = getIntent().getStringExtra("totalMileage");
         serviceIntent= new Intent(CarDetailsActivity.this, BluetoothAutoConnectService.class);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        ((TextView)findViewById(R.id.mileage)).setText(baseMileage);
+        Log.d("total mileage", totalMileage);
+        Log.d("base mileage", baseMileage);
+
+        if (totalMileage == null) { // total mileage was not calculated in backend yet
+            ((TextView)findViewById(R.id.mileage)).setText(baseMileage);
+        }
+        else {
+            ((TextView)findViewById(R.id.mileage)).setText(totalMileage);
+        }
+
+
         findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -312,8 +323,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             for (String i : interval) {
                 Services service;
                 HashMap<String,String> values = new HashMap<>();
-                values.put("ParseID",i.trim());
-                interval.set(interval.indexOf(i),i.trim());
+                values.put("ParseID", i.trim());
+                interval.set(interval.indexOf(i), i.trim());
                 values.put("serviceType","interval");
                 service = (Services) ldr.getData("Services", values);
                 if (service != null) {
@@ -407,9 +418,26 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
         // save to parse
         try {
+            final HashMap<String, Object> params = new HashMap<String, Object>();
+
+            params.put("carVin", VIN);
+            params.put("mileage", Integer.valueOf(mileage));
+
+            ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
+                public void done(Object o, ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(getApplicationContext(), "mileage updated", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "failed to update mileage", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+
             ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
             ParseObject car = cars.get(carId);
-            car.put("baseMileage", Integer.parseInt(mileage));
+            car.put("totalMileage", Integer.parseInt(mileage));
             car.saveEventually();
 
         } catch (ParseException e) {
@@ -420,10 +448,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
         // save to local DB
         LocalDataRetriever ldr = new LocalDataRetriever(this);
-        Toast.makeText(this, carId, Toast.LENGTH_SHORT).show();
-        Cars c = (Cars)ldr.getData("Cars", "CarID", carId);
-        c.setValue("baseMileage", mileage);
-        ldr.saveData("Cars", c.getValues());
+        // carId shouldn't be shown to user
+//        Toast.makeText(this, carId, Toast.LENGTH_SHORT).show();
+        HashMap<String, String> hm = new HashMap<String, String>();
+        hm.put("totalMileage", mileage);
+        ldr.updateData("Cars", "CarID", carId, hm);
 
         // update the textview
         ((TextView)findViewById(R.id.mileage)).setText(mileage);
