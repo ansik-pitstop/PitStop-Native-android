@@ -54,14 +54,39 @@ public class LocalDataRetriever {
      * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
      */
     public ArrayList<DBModel> getDataSet(String type, String column, String value) {
+        HashMap<String,String> map = new HashMap<>();
+        map.put(column,value);
+        return getDataSet(type,map);
+    }
+
+    public ArrayList<DBModel> getDataSet(String type, HashMap<String,String> queryParams) {
+        return getDataSet(type,queryParams,null,false);
+    }
+
+    /**
+     *
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
+     */
+    public ArrayList<DBModel> getDataSet(String type, HashMap<String,String> queryParams, String[] columns, boolean distinct) {
         SQLiteDatabase db = dbase.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + type + " WHERE " + column + "='" + value + "'";
         ArrayList<DBModel> array = new ArrayList<>();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        String selection = "";
+        ArrayList<String> params = new ArrayList<>();
+        for (String a: queryParams.keySet()){
+            if(selection.length()>0){
+                selection += "AND ";
+            }
+            selection+=a + " = ?";
+            if(queryParams.get(a)==null){
+                return null;
+            }
+            params.add(queryParams.get(a));
+        }
+        Cursor cursor = db.query(distinct,type,(columns!=null&&columns.length>0)?columns:null,selection,params.toArray(new String[params.size()]),null,null,null,null);
 
         if (cursor.moveToFirst()) {
             do{
-            DBModel curr = null;
+                DBModel curr = null;
                 switch (type) {
                     case "Cars":
                         curr = new Cars();
@@ -120,37 +145,25 @@ public class LocalDataRetriever {
      * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
      */
     public DBModel getData(String type, String column, String value){
-        dbase.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + type + " WHERE " + column + "='" + value + "'";
-        SQLiteDatabase db = dbase.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery,null);
-        //Cursor cursor = db.query(type,c.getColumns(),this.id + "=?",new String[]{id},null,null,null,null);
-        DBModel curr = null;
-        if (cursor.moveToFirst()) {
-            switch (type) {
-                case "Cars":
-                    curr = new Cars();
-                    break;
-                case "DTCs":
-                    curr = new DTCs();
-                    break;
-                case "Recalls":
-                    curr = new Recalls();
-                    break;
-                case "Services":
-                    curr = new Services();
-                    break;
-                case "Shops":
-                    curr = new Shops();
-                    break;
-            }
-            for (int i = 0 ; i < cursor.getColumnCount(); i++) {
-                assert curr != null;
-                curr.setValue(cursor.getColumnName(i), cursor.getString(i));
-            }
+        ArrayList<DBModel> response = getDataSet(type,column,value);
+        if(response==null||response.size()==0){
+            return null;
+        }else{
+            return response.get(0);
         }
-        db.close();
-        return curr;
+    }
+
+    /**
+     *
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses", "Uploads", "Shops"
+     */
+    public DBModel getData(String type, HashMap<String,String> values){
+        ArrayList<DBModel> response = getDataSet(type,values);
+        if(response==null||response.size()==0){
+            return null;
+        }else{
+            return response.get(0);
+        }
     }
 
 
