@@ -53,6 +53,7 @@ import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
 import com.pitstop.database.models.Cars;
+import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,6 +126,14 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                         }).show();
             }
         });
+
+        if (ACTION_UPDATE_MILEAGE.equals(getIntent().getStringExtra(EXTRA_ACTION))) {
+            // clear the action so it's not repeated
+            getIntent().putExtra(EXTRA_ACTION, (String)null);
+
+            // update the mileage
+            findViewById(R.id.update_mileage).performClick();
+        }
 
         LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);

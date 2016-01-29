@@ -23,6 +23,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -195,12 +196,86 @@ public class MainActivityMultiFragment extends Fragment {
                     }else{
                         Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
                     }
-                    ((ListView) getActivity().findViewById(R.id.listView)).setAdapter(new CarsListAdapter(array,shopList));
+                    onDataReady();
                 }
             });
         }else{
-            ((ListView) getActivity().findViewById(R.id.listView)).setAdapter(new CarsListAdapter(array, shopList));
+            onDataReady();
         }
+    }
+
+    private void onDataReady() {
+        if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
+            // clear the action so it's not repeated
+            getArguments().putString(EXTRA_ACTION, null);
+
+            // find the car
+            String carId = getArguments().getString(EXTRA_CAR_ID);
+            Cars car = null;
+            for (DBModel model : array) {
+                if (model instanceof Cars && carId != null && carId.equals(model.getValue("CarID"))) {
+                    car = (Cars)model;
+                    break;
+                }
+            }
+
+            if (car != null) {
+                openCar(car, true /* update_mileage */);
+            }
+        }
+
+        ((ListView) getActivity().findViewById(R.id.listView)).setAdapter(new CarsListAdapter(array, shopList));
+    }
+
+    private void openCar(Cars car, boolean updateMileage) {
+        Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
+        if (updateMileage) {
+            intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
+        }
+        intent.putExtra("title", car.getValue("make") + " " + car.getValue("model"));
+        //edmund
+        String temp = car.getValue("pendingEdmundServices");
+        if (!temp.equals("")) {
+            intent.putExtra("edmund", temp.substring(1, temp.length() - 1).split(","));
+        } else {
+            intent.putExtra("edmund", new String[]{});
+        }
+        //interval
+        temp = car.getValue("pendingIntervalServices");
+        if (!temp.equals("")) {
+            intent.putExtra("interval", temp.substring(1, temp.length() - 1).split(","));
+        } else {
+            intent.putExtra("interval", new String[]{});
+        }
+        //fixed
+        temp = car.getValue("pendingFixedServices");
+        if (!temp.equals("")) {
+            intent.putExtra("fixed", temp.substring(1, temp.length() - 1).split(","));
+        } else {
+            intent.putExtra("fixed", new String[]{});
+        }
+        //recalls
+        temp = car.getValue("recalls");
+        if (!temp.equals("")) {
+            intent.putExtra("pendingRecalls", temp.substring(1, temp.length() - 1).split(","));
+        } else {
+            intent.putExtra("pendingRecalls", new String[]{});
+        }
+        //dtcs
+        temp = car.getValue("dtcs");
+        if (!temp.equals("")) {
+            intent.putExtra("dtcs", temp.substring(1, temp.length() - 1).split(","));
+        } else {
+            intent.putExtra("dtcs", new String[]{});
+        }
+        intent.putExtra("CarID", car.getValue("CarID"));
+        intent.putExtra("vin", car.getValue("VIN"));
+        intent.putExtra("scannerId", car.getValue("scannerId"));
+        intent.putExtra("make", car.getValue("make"));
+        intent.putExtra("model", car.getValue("model"));
+        intent.putExtra("year", car.getValue("year"));
+        intent.putExtra("baseMileage", car.getValue("baseMileage"));
+        startActivity(intent);
     }
 
     public class CarsListAdapter extends BaseAdapter{
@@ -246,51 +321,7 @@ public class MainActivityMultiFragment extends Fragment {
             convertview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
-                    intent.putExtra("title", car.getValue("make") + " " + car.getValue("model"));
-                    //edmund
-                    String temp = car.getValue("pendingEdmundServices");
-                    if (!temp.equals("")) {
-                        intent.putExtra("edmund", temp.substring(1, temp.length() - 1).split(","));
-                    } else {
-                        intent.putExtra("edmund", new String[]{});
-                    }
-                    //interval
-                    temp = car.getValue("pendingIntervalServices");
-                    if (!temp.equals("")) {
-                        intent.putExtra("interval", temp.substring(1, temp.length() - 1).split(","));
-                    } else {
-                        intent.putExtra("interval", new String[]{});
-                    }
-                    //fixed
-                    temp = car.getValue("pendingFixedServices");
-                    if (!temp.equals("")) {
-                        intent.putExtra("fixed", temp.substring(1, temp.length() - 1).split(","));
-                    } else {
-                        intent.putExtra("fixed", new String[]{});
-                    }
-                    //recalls
-                    temp = car.getValue("recalls");
-                    if (!temp.equals("")) {
-                        intent.putExtra("pendingRecalls", temp.substring(1, temp.length() - 1).split(","));
-                    } else {
-                        intent.putExtra("pendingRecalls", new String[]{});
-                    }
-                    //dtcs
-                    temp = car.getValue("dtcs");
-                    if (!temp.equals("")) {
-                        intent.putExtra("dtcs", temp.substring(1, temp.length() - 1).split(","));
-                    } else {
-                        intent.putExtra("dtcs", new String[]{});
-                    }
-                    intent.putExtra("CarID", car.getValue("CarID"));
-                    intent.putExtra("vin", car.getValue("VIN"));
-                    intent.putExtra("scannerId", car.getValue("scannerId"));
-                    intent.putExtra("make", car.getValue("make"));
-                    intent.putExtra("model", car.getValue("model"));
-                    intent.putExtra("year", car.getValue("year"));
-                    intent.putExtra("baseMileage", car.getValue("baseMileage"));
-                    startActivity(intent);
+                    openCar(car, false /* update_mileage */);
                 }
             });
             return convertview;
