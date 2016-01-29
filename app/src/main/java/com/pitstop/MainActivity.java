@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public static boolean refresh = false;
 
+    public boolean isRefresh = true;
+
     private boolean isUpdatingMileage = false;
     private String carId;
 
@@ -134,10 +136,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             startActivity(i);
             return true;
         }
-        if(id==R.id.refresh){
+        if(id==R.id.refresh&&!isRefresh){
             refreshDatabase();
         }
-        if(id==R.id.add){
+        if(id==R.id.add&&!isRefresh){
             addCar(null);
         }
 
@@ -153,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     private void refreshDatabase() {
+        isRefresh = true;
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         String objectID = settings.getString(pfCodeForObjectID, "NA");
@@ -261,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private void openFragment() {
         if (array.size() == 0) {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+            isRefresh= false;
             startActivity(intent);
         } else {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -289,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
             fragmentTransaction.replace(R.id.placeholder, fragment, tag);
             fragmentTransaction.commit();
+            isRefresh = false;
         }
     }
 

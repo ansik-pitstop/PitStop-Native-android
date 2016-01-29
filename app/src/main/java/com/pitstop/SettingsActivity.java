@@ -143,7 +143,7 @@ public class SettingsActivity extends AppCompatActivity {
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
 
-            ((Preference)  getPreferenceManager().findPreference("AppInfo")).setTitle("0.4.1");
+            ((Preference)  getPreferenceManager().findPreference("AppInfo")).setTitle("0.5.1");
 
             ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
             query.findInBackground(new FindCallback<ParseObject>() {
@@ -274,7 +274,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_connect) {
             Intent i = new Intent(SettingsActivity.this, ReceiveDebugActivity.class);
             startActivity(i);
             return true;

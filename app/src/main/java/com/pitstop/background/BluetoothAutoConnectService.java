@@ -4,6 +4,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -37,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by David Liu on 11/30/2015.
@@ -154,41 +157,53 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getBluetoothState(int state) {
-        if(state==BluetoothManage.CONNECTED){
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                            .setColor(getResources().getColor(R.color.highlight))
-                            .setContentTitle("Car is Connected")
-                            .setContentText("Click here to check out more");
-            // Creates an explicit intent for an Activity in your app
-            Intent resultIntent = new Intent(this, MainActivity.class);
+        if(state==BluetoothManage.CONNECTED) {
+            BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+            List<BluetoothDevice> devices = bluetoothManager.getDevicesMatchingConnectionStates(BluetoothProfile.GATT, new int[]{
+                    BluetoothDevice.BOND_BONDED
+            });
+            boolean deviceConnected = false;
+            for (BluetoothDevice device : devices) {
+                if (device.getName().contains("IDD-212")) {
+                    deviceConnected = true;
+                }
+            }
+            if (deviceConnected) {
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                                .setColor(getResources().getColor(R.color.highlight))
+                                .setContentTitle("Car is Connected")
+                                .setContentText("Click here to check out more");
+                // Creates an explicit intent for an Activity in your app
+                Intent resultIntent = new Intent(this, MainActivity.class);
 
-            // The stack builder object will contain an artificial back stack for the
-            // started Activity.
-            // This ensures that navigating backward from the Activity leads out of
-            // your application to the Home screen.
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            // Adds the back stack for the Intent (but not the Intent itself)
-            stackBuilder.addParentStack(MainActivity.class);
-            // Adds the Intent that starts the Activity to the top of the stack
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
-                            0,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
-            mBuilder.setContentIntent(resultPendingIntent);
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(notifID, mBuilder.build());
-        }else{
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.cancel(notifID);
+                // The stack builder object will contain an artificial back stack for the
+                // started Activity.
+                // This ensures that navigating backward from the Activity leads out of
+                // your application to the Home screen.
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                // Adds the back stack for the Intent (but not the Intent itself)
+                stackBuilder.addParentStack(MainActivity.class);
+                // Adds the Intent that starts the Activity to the top of the stack
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent =
+                        stackBuilder.getPendingIntent(
+                                0,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+                mBuilder.setContentIntent(resultPendingIntent);
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(notifID, mBuilder.build());
+            } else {
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.cancel(notifID);
+            }
+            if (serviceCallbacks != null)
+                serviceCallbacks.getBluetoothState(state);
         }
-        if(serviceCallbacks!=null)
-            serviceCallbacks.getBluetoothState(state);
     }
 
     @Override
