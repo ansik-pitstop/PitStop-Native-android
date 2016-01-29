@@ -18,6 +18,7 @@ public class Cars extends DBModel{
         columns.put("scannerId","Text");
         columns.put("VIN","Text");
         columns.put("baseMileage","Text");
+        columns.put("totalMileage", "Text");
         columns.put("cityMileage","Text");
         columns.put("highwayMileage","Text");
         columns.put("engine","Text");
