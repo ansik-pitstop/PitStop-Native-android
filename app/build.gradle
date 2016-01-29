@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+
 android {
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 23
@@ -34,4 +40,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.1.+'
     compile 'com.parse:parse-android:1.+'
     compile 'com.android.support:design:23.1.1'
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.3@aar') {
+        transitive = true
+    }
 }

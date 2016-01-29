@@ -283,11 +283,13 @@ public class MainActivityMultiFragment extends Fragment {
                     } else {
                         intent.putExtra("dtcs", new String[]{});
                     }
+                    intent.putExtra("CarID", car.getValue("CarID"));
                     intent.putExtra("vin", car.getValue("VIN"));
                     intent.putExtra("scannerId", car.getValue("scannerId"));
                     intent.putExtra("make", car.getValue("make"));
                     intent.putExtra("model", car.getValue("model"));
                     intent.putExtra("year", car.getValue("year"));
+                    intent.putExtra("baseMileage", car.getValue("baseMileage"));
                     startActivity(intent);
                 }
             });
