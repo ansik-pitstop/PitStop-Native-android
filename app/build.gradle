@@ -25,6 +25,10 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('jniLibs/httpclient-4.3-beta1.jar')
@@ -35,4 +39,5 @@ dependencies {
     compile 'com.parse:parse-android:1.+'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.makeramen:roundedimageview:2.2.1'  // lib for rounded image for service count icon
 }

@@ -31,6 +31,8 @@ public class Cars extends DBModel{
         columns.put("dtcs","Text");
         columns.put("recalls","Text");
         columns.put("dealership","Text");
+        columns.put("numberOfRecalls","Integer");
+        columns.put("numberOfServices","Integer");
     }
 
 }

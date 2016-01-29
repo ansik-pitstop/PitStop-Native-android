@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -158,6 +160,21 @@ public class MainActivityFragment extends Fragment {
 
         ((TextView) getActivity().findViewById(R.id.carName)).setText(car.getValue("make") + " " + car.getValue("model"));
         ((TextView) getActivity().findViewById(R.id.year)).setText(car.getValue("year"));
+
+        int recallCount = car.getValue("numberOfRecalls") == null? 0 : Integer.valueOf(car.getValue("numberOfRecalls"));
+        int serviceCount = car.getValue("numberOfServices") == null? 0 : Integer.valueOf(car.getValue("numberOfServices"));
+        int totalServiceCount = recallCount + serviceCount;
+        ((TextView) getActivity().findViewById(R.id.serviceCountTextSingleCar)).setText(String.valueOf(totalServiceCount));
+
+        if (totalServiceCount > 0) {
+            // set color to red
+            ((ImageView)getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(203, 77, 69));
+        }
+        else {
+            // set color to green
+            ((ImageView)getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(93, 172, 129));
+        }
+
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
