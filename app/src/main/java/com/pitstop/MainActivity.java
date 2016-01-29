@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         if(refresh){
             refresh = false;
-            refreshDatabase();
+            setUp();
         }
     }
 
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             query.whereContains("owner", userId);
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
-                public void done(List<ParseObject> objects, ParseException e) {
+                public void done(final List<ParseObject> objects, ParseException e) {
                     if(e==null){
                         for (final ParseObject car : objects) {
                             final Cars c = new Cars();
@@ -231,11 +231,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             recalls.whereEqualTo("forCar", car);
                             recalls.findInBackground(new FindCallback<ParseObject>() {
                                 @Override
-                                public void done(List<ParseObject> objects, ParseException e) {
+                                public void done(List<ParseObject> recallsList, ParseException e) {
                                     if (e == null) {
                                         String recalls = "[";
-                                        if (objects.size()>0) {
-                                            JSONArray arrayOfRecalls = objects.get(0).getJSONArray("recalls");
+                                        if (recallsList.size()>0) {
+                                            JSONArray arrayOfRecalls = recallsList.get(0).getJSONArray("recalls");
                                             for (int i = 0; i < arrayOfRecalls.length(); i++) {
                                                 try {
                                                     recalls += arrayOfRecalls.getJSONObject(i).getString("objectId") + ",";
@@ -251,12 +251,17 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                         c.setValue("recalls", recalls);
                                         ldr.saveData("Cars", c.getValues());
                                         array.add(c);
+                                        if(array.size()==objects.size()){
+                                            openFragment();
+                                        }
                                     }else{
                                         Log.d("Recalls", e.getMessage());
                                     }
-                                    openFragment();
                                 }
                             });
+                        }
+                        if(objects.size()==0){
+                            openFragment();
                         }
                     }
                 }
