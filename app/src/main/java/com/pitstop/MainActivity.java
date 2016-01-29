@@ -224,6 +224,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("pendingFixedServices",
                                     (car.get("pendingFixedServices") == null ? "" : car.get("pendingFixedServices").toString()));
                             c.setValue("dtcs", (car.get("storedDTCs") == null ? "" : car.get("storedDTCs").toString()));
+                            c.setValue("numberOfRecalls", String.valueOf(car.getInt("numberOfRecalls")));
+                            c.setValue("numberOfServices",String.valueOf(car.getInt("numberOfServices")));
+
                             ParseQuery<ParseObject> recalls = ParseQuery.getQuery("RecallMasters");
                             recalls.whereEqualTo("forCar", car);
                             recalls.findInBackground(new FindCallback<ParseObject>() {

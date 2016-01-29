@@ -485,6 +485,13 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // unbind service to prevent memory leaks
+        unbindService(serviceConnection);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long

@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -306,10 +308,24 @@ public class MainActivityMultiFragment extends Fragment {
             LinearLayout convertview = (LinearLayout)view;
             LayoutInflater inflater = LayoutInflater.from(getContext());
             final Cars car = (Cars) array.get(i);
+
+            int recallCount = car.getValue("numberOfRecalls") == null? 0 : Integer.valueOf(car.getValue("numberOfRecalls"));
+            int serviceCount = car.getValue("numberOfServices") == null? 0 : Integer.valueOf(car.getValue("numberOfServices"));
+            int totalServiceCount = recallCount + serviceCount;
+
             convertview = (LinearLayout)inflater.inflate(R.layout.car_list_item, null);
 
             ((TextView)convertview.findViewById(R.id.name)).setText(car.getValue("make") + " " + car.getValue("model"));
             ((TextView)convertview.findViewById(R.id.desc)).setText(car.getValue("year"));
+            ((TextView)convertview.findViewById(R.id.serviceCountText)).setText(String.valueOf(totalServiceCount));
+            if (totalServiceCount > 0) {
+                // set color to red
+                (convertview.findViewById(R.id.serviceCountBackground)).setBackgroundColor(Color.rgb(203, 77, 69));
+            }
+            else {
+                // set color to green
+                (convertview.findViewById(R.id.serviceCountBackground)).setBackgroundColor(Color.rgb(93, 172, 129));
+            }
             DBModel shop = shopList.get(car.getValue("dealership"));
             if(shop!=null) {
                 ((TextView) convertview.findViewById(R.id.phone)).setText(shop.getValue("phoneNumber"));

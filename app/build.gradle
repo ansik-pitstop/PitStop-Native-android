@@ -31,16 +31,20 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('jniLibs/httpclient-4.3-beta1.jar')
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.parse.bolts:bolts-android:1.+'
-    compile 'com.android.support:cardview-v7:23.1.+'
     compile 'com.parse:parse-android:1.+'
     compile 'com.android.support:design:23.1.1'
     compile('com.github.afollestad.material-dialogs:core:0.8.5.3@aar') {
         transitive = true
     }
+    compile 'com.makeramen:roundedimageview:2.2.1'  // lib for rounded image for service count icon
 }
