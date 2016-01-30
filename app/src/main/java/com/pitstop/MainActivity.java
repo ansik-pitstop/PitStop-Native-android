@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             }
             fragment.setArguments(args);
 
-            fragmentTransaction.replace(R.id.placeholder, fragment, tag);
+            fragmentTransaction.replace(R.id.fragment_main, fragment, tag);
             fragmentTransaction.commit();
             isRefresh = false;
         }
@@ -327,11 +327,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(array.size()==1){
-            ((MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
-        }else if (array.size()>1){
-            ((MainActivityMultiFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+        if(getSupportFragmentManager().getFragments().size()>0) {
+            if (array.size() == 1) {
+                ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+            } else if (array.size() > 1) {
+                ((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
 
+            }
         }
     }
 }

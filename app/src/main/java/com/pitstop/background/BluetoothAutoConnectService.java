@@ -350,6 +350,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     final long index = ldr.saveData("Uploads", upload.getValues());
                     try {
                         object.put("DTCArray", new JSONObject(dtc));
+                        object.add("runAfterSave",false);
                         object.put("freezeDataArray", new JSONObject(freeze));
                         object.put("PIDArray2", new JSONObject(pid));
                         object.put("scannerId", device);

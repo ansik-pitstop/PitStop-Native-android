@@ -100,17 +100,17 @@ public class MainActivityMultiFragment extends Fragment {
     public void indicateConnected(final String deviceId) {
         boolean found = false;
         Cars noDevice = null;
+        int i = 0;
         for(DBModel a : array){
             if(a.getValue("scannerId").equals("")){
                 noDevice = (Cars) a;
             }
             if(a.getValue("scannerId").equals(deviceId)){
                 found = true;
-                for(int i = 0; i<((ListView) getActivity().findViewById(R.id.listView)).getChildCount(); i++) {
-                    TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
-                    ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
-                }
+                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
+                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
             }
+            i++;
         }
         // add device if a car has no linked device
         if(!found&&noDevice!=null){

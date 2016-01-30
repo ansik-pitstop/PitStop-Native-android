@@ -255,14 +255,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
-            counter++;
-            if(counter==5) {
-                hideLoading();
-                showManualEntryUI();
-                hasBluetoothVinEntryFailed = true;
-            }else{
                 service.startBluetoothSearch();
-            }
         }else{
             service.getCarVIN();
         }
@@ -300,13 +293,22 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askForDTC) {
-            DTCData = new ArrayList<>();
+            String dtcs = "";
             if(dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
-                    DTCData.add(service.parseDTCs(dtc.trim()));
+                    dtcs+=dtc+",";
                 }
             }
+            ParseObject scansSave = new ParseObject("Scan");
+            scansSave.add("DTCs",dtcs);
+            scansSave.add("runAfterSave",true);
+            scansSave.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    Log.d("DTC Saving","DTCs saved");
+                }
+            });
             ParseConfig.getInBackground(new ConfigCallback() {
                 @Override
                 public void done(ParseConfig config, ParseException e) {
@@ -442,7 +444,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                     newCar.put("trim_level", jsonObject.getString("trim_level"));
                                                     newCar.put("engine", jsonObject.getString("engine"));
                                                     newCar.put("city_mileage", jsonObject.getString("city_mileage"));
-                                                    newCar.put("storedDTCs", DTCData);
+                                                    //newCar.put("storedDTCs",    DTCData);
                                                     newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                                                     newCar.put("scannerId", scannerID == null ? "" : scannerID);
                                                     newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
