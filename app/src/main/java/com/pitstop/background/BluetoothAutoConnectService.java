@@ -306,7 +306,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
         }
-        if(counter==300){
+        if(counter==30){
             getDTCs();
             counter = 1;
             uploadRecords();

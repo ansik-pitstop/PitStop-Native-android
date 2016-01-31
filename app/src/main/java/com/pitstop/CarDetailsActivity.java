@@ -679,7 +679,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(dtc.getValues());
             }
         }
-        ParseQuery query = new ParseQuery("RecallMaster");
+        ParseQuery query = new ParseQuery("RecallEntry");
         query.whereEqualTo("objectId",recalls);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override

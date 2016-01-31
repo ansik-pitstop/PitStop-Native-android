@@ -55,9 +55,9 @@ import java.util.List;
 
 public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
     public static int RESULT_ADDED = 10;
-    private String VIN = "", scannerID = "", mileage = "", shopSelected = "";
+    private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
     private PrintDebugThread mLogDumper;
-    private boolean hasClicked,bound;
+    private boolean bound;
     private BluetoothAutoConnectService service;
     private boolean askForDTC = false;
     private ArrayList<String> DTCData= new ArrayList<>();
@@ -104,7 +104,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 //        mLogDumper = new PrintDebugThread(
 //                String.valueOf(android.os.Process.myPid()),
 //                ((TextView) findViewById(R.id.debug_log_print)),this);
-        hasClicked = false;
         ((EditText) findViewById(R.id.VIN)).addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -259,7 +258,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }else{
             service.getCarVIN();
         }
-        hasClicked  = false;
     }
 
     @Override
@@ -287,29 +285,18 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
         scannerID = parameterPackageInfo.deviceId;
         makeCar();
-        hasClicked = false;
     }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askForDTC) {
-            String dtcs = "";
+            dtcs = "";
             if(dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
                     dtcs+=service.parseDTCs(dtc)+",";
                 }
             }
-            ParseObject scansSave = new ParseObject("Scan");
-            scansSave.put("DTCs", dtcs);
-            scansSave.put("scannerId", scannerID);
-            scansSave.put("runAfterSave",true);
-            scansSave.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("DTC Saving","DTCs saved");
-                }
-            });
             ParseConfig.getInBackground(new ConfigCallback() {
                 @Override
                 public void done(ParseConfig config, ParseException e) {
@@ -455,12 +442,31 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                         @Override
                                                         public void done(ParseException e) {
                                                             ((TextView) findViewById(R.id.loading_details)).setText("Final Touches");
-                                                            if (e == null) {
-                                                                MainActivity.refresh = true;
-                                                                finish();
-                                                            } else {
+                                                            if(e!=null){
                                                                 hideLoading();
                                                                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                                                return;
+                                                            }
+                                                            if(scannerID!=null) {
+                                                                ParseObject scansSave = new ParseObject("Scan");
+                                                                scansSave.put("DTCs", dtcs);
+                                                                scansSave.put("scannerId", scannerID);
+                                                                scansSave.put("runAfterSave", true);
+                                                                scansSave.saveEventually(new SaveCallback() {
+                                                                    @Override
+                                                                    public void done(ParseException e) {
+                                                                        if (e == null) {
+                                                                            MainActivity.refresh = true;
+                                                                            finish();
+                                                                        } else {
+                                                                            hideLoading();
+                                                                            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }else{
+                                                                MainActivity.refresh = true;
+                                                                finish();
                                                             }
                                                         }
                                                     });

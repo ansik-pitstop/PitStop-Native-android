@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private boolean isUpdatingMileage = false;
     private String carId;
 
-    private BluetoothAutoConnectService service;
+    public BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
