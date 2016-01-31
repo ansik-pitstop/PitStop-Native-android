@@ -3,4 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.pitstop.CarDetailsActivity">
     <item android:id="@+id/action_settings" android:title="REQUEST SERVICE"
         android:orderInCategory="100" app:showAsAction="always" />
+    <item android:id="@+id/history" android:title="History"
+        android:orderInCategory="100" />
 </menu>

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
@@ -16,7 +17,11 @@ import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -34,11 +39,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -46,6 +51,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -53,10 +59,19 @@ import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
 import com.pitstop.database.models.Cars;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +85,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     private boolean requestSent = false;
 
-    private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage;
-
+    private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage, shopId;
+    private HashMap<String,Boolean> recallCodes;
 
     public static Intent serviceIntent;
 
@@ -107,6 +122,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         make = getIntent().getStringExtra("make");
         model = getIntent().getStringExtra("model");
         year = getIntent().getStringExtra("year");
+        shopId = getIntent().getStringExtra("shopId");
         baseMileage = getIntent().getStringExtra("baseMileage");
         totalMileage = getIntent().getStringExtra("totalMileage");
         serviceIntent= new Intent(CarDetailsActivity.this, BluetoothAutoConnectService.class);
@@ -115,6 +131,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         Log.d("total mileage", totalMileage);
         Log.d("base mileage", baseMileage);
 
+        //setup mileage
         if (totalMileage == null) { // total mileage was not calculated in backend yet
             ((TextView)findViewById(R.id.mileage)).setText(baseMileage);
         }
@@ -126,13 +143,18 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MaterialDialog.Builder(CarDetailsActivity.this)
-                        .title("Update Mileage")
-                        .inputType(InputType.TYPE_CLASS_NUMBER)
-                        .input("Enter Mileage", "", false /* allowEmptyInput */, new MaterialDialog.InputCallback() {
+                final EditText input = new EditText(getApplicationContext());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                input.setRawInputType(Configuration.KEYBOARD_12KEY);
+                input.setTextColor(getResources().getColor(R.color.highlight));
+                new AlertDialog.Builder(CarDetailsActivity.this)
+                        .setTitle("Update Mileage")
+                        .setView(input)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                updateMileage(input);
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                updateMileage(input.getText().toString());
+                                dialogInterface.dismiss();
                             }
                         }).show();
             }
@@ -163,7 +185,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
 
         Object [] a = (Object[]) getIntent().getSerializableExtra("pendingRecalls");
-        final HashMap<String,Boolean> recallCodes = new HashMap<String,Boolean>();
+        recallCodes = new HashMap<String,Boolean>();
         for (int i = 0; i<a.length; i++){
             recallCodes.put(a[i].toString(), false);
         }
@@ -175,7 +197,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
-                arrayList.add(service);
+                if(service.getValue("state").equals("new")) {
+                    arrayList.add(service);
+                }
                 recallCodes.put(i, true);
             }
         }
@@ -200,8 +224,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                         recall.setValue("state",parseObject.getString("state"));
                         recall.setValue("riskRank",""+parseObject.getNumber("riskRank"));
                         if (!recallCodes.get(recall.getValue("RecallID"))){
-                            ldr.saveData("Recalls",recall.getValues());
-                            arrayList.add(recall);
+                            ldr.saveData("Recalls", recall.getValues());
+                            if(parseObject.getString("state").equals("new"))
+                                arrayList.add(recall);
                         }
                     }
                     customAdapter.dataList.clear();
@@ -251,8 +276,15 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             });
         }
 
+        // set up listview
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.car_event_listview);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
         customAdapter = new CustomAdapter(this,arrayList);
-        ((ListView) findViewById(R.id.car_event_listview)).setAdapter(customAdapter);
+        mRecyclerView.setAdapter(customAdapter);
+        setSwipeDeleteListener(mRecyclerView);
+        //setup car connected
         findViewById(R.id.evcheck_layout).setBackgroundColor(getResources().getColor(R.color.evcheck));
         ((TextView) findViewById(R.id.evcheck)).setTextColor(Color.WHITE);
         findViewById(R.id.evcheck_layout).setOnClickListener(new View.OnClickListener() {
@@ -262,6 +294,149 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 startActivity(intent);
             }
         });
+    }
+
+    private void setSwipeDeleteListener(RecyclerView mRecyclerView){
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(mRecyclerView,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+                            @Override
+                            public boolean canSwipe(int position) {
+                                if(customAdapter.dataList.get(position) instanceof DTCs){
+                                    return false;
+                                }
+                                return true;
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
+                                final CharSequence[] times = new CharSequence[]{
+                                        "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
+                                };
+                                final int[] estimate = new int[]{
+                                        0,2,3,10,18,32
+                                };
+                                Calendar cal = Calendar.getInstance();
+                                Date currentLocalTime = cal.getTime();
+
+                                final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
+
+                                final int i = reverseSortedPositions[0];
+                                AlertDialog setDoneDialog = new AlertDialog.Builder(CarDetailsActivity.this)
+                                    .setItems(times, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, final int position) {
+                                            int mileage = Integer.valueOf(((TextView) findViewById(R.id.mileage)).getText().toString());
+                                            //services
+                                            if(customAdapter.dataList.get(i) instanceof Services) {
+                                                final String type = customAdapter.dataList.get(i).getValue("serviceType");
+                                                final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
+//                                            Toast.makeText(getApplicationContext(), times[i], Toast.LENGTH_SHORT).show();
+                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
+                                                saveCompletion.put("carId", carId);
+                                                saveCompletion.put("mileageSetByUser", mileage);
+                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
+                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("ParseID").toString());
+                                                saveCompletion.put("shopId", shopId);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date);
+                                                saveCompletion.put("type", Integer.valueOf(typeService));
+                                                saveCompletion.saveEventually(new SaveCallback() {
+                                                    @Override
+                                                    public void done(ParseException e) {
+                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+
+                                                ParseQuery updateObject = new ParseQuery("Car");
+                                                try {
+                                                    updateObject.get(carId);
+                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                                                        @Override
+                                                        public void done(List<ParseObject> objects, ParseException e) {
+                                                            String type = (typeService==0?"pendingEdmundServices":(typeService==1?"pendingFixedServices":"pendingIntervalServices"));
+                                                            JSONArray original = objects.get(0).getJSONArray(type);
+                                                            ArrayList<String> updatedTexts = new ArrayList<>();
+                                                            for (int j =0 ; j< original.length(); j++){
+                                                                try {
+                                                                    if(!original.getString(j).equals(customAdapter.dataList.get(i).getValue("ParseID"))){
+                                                                        updatedTexts.add(original.getString(j));
+                                                                    }
+                                                                } catch (JSONException e1) {
+                                                                    e1.printStackTrace();
+                                                                }
+                                                            }
+                                                            objects.get(0).put(type, updatedTexts);
+                                                            ((ParseObject)objects.get(0)).saveEventually();
+                                                            LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+                                                            HashMap<String,String> map = new HashMap<String,String>();
+                                                            map.put(type,"["+ TextUtils.join(",",updatedTexts)+"]");
+                                                            ldr.updateData("Cars", "CarID", carId, map);
+
+                                                            for (int position : reverseSortedPositions) {
+                                                                customAdapter.dataList.remove(position);
+                                                                customAdapter.notifyItemRemoved(position);
+                                                            }
+                                                            customAdapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }else{//if Recalls
+                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
+                                                saveCompletion.put("carId", carId.toString());
+                                                saveCompletion.put("mileageSetByUser", mileage);
+                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
+                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("RecallID"));
+                                                saveCompletion.put("shopId", shopId);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date);
+                                                saveCompletion.saveEventually(new SaveCallback() {
+                                                    @Override
+                                                    public void done(ParseException e) {
+                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                ParseQuery updateObject = new ParseQuery("RecallEntry");
+                                                try {
+                                                    updateObject.get(customAdapter.dataList.get(i).getValue("RecallID"));
+                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                                                        @Override
+                                                        public void done(List<ParseObject> objects, ParseException e) {
+                                                            objects.get(0).put("state","doneByUser");
+                                                            ((ParseObject)objects.get(0)).saveEventually();
+                                                            LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+                                                            HashMap<String,String> map = new HashMap<String,String>();
+                                                            recallCodes.remove(customAdapter.dataList.get(i).getValue("RecallID"));
+                                                            map.put("recalls", "[" + TextUtils.join(",", recallCodes.keySet()) + "]");
+                                                            ldr.updateData("Cars", "CarID", carId, map);
+
+                                                            for (int position : reverseSortedPositions) {
+                                                                customAdapter.dataList.remove(position);
+                                                                customAdapter.notifyItemRemoved(position);
+                                                            }
+                                                            customAdapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .setTitle("When did you complete this task?")
+                                    .show();
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                onDismissedBySwipeLeft(recyclerView,reverseSortedPositions);
+                            }
+                        });
+
+        mRecyclerView.addOnItemTouchListener(swipeTouchListener);
     }
 
     private void getFixedServices(Bundle extras, final LocalDataRetriever ldr) {
@@ -532,6 +707,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             ServiceDialog dialog = new ServiceDialog();
             dialog.show(getSupportFragmentManager(),"sendSupportEmail");
         }
+        if (id == R.id.history) {
+            Intent intent = new Intent(CarDetailsActivity.this, CarHistoryActivity.class);
+            intent.putExtra("carId",carId);
+            startActivity(intent);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -596,7 +776,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
-    class CustomAdapter extends BaseAdapter {
+    class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         ArrayList<DBModel> dataList;
         Context context;
@@ -606,46 +786,59 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
 
         @Override
-        public int getCount() {
-            return dataList.size();
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            // create a new view
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.car_details_list_item, parent, false);
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
         }
 
         @Override
-        public Object getItem(int i) {
-            return dataList.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(final int i, View view, ViewGroup viewGroup) {
-            RelativeLayout convertview = (RelativeLayout)view;
-            LayoutInflater inflater = LayoutInflater.from(context);
-            convertview = (RelativeLayout)inflater.inflate(R.layout.car_details_list_item, null);
-            ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).getValue("description"));
+        public void onBindViewHolder(ViewHolder holder, final int i) {
+            holder.description.setText(dataList.get(i).getValue("description"));
             if(dataList.get(i) instanceof Recalls) {
-                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("name"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
+                holder.title.setText(dataList.get(i).getValue("name"));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
             }else if(dataList.get(i) instanceof DTCs) {
-                ((TextView) convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("dtcCode"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_announcement_blue_600_24dp));
-            }else{
-                ((TextView)convertview.findViewById(R.id.description)).setText(dataList.get(i).getValue("itemDescription"));
-                ((TextView)convertview.findViewById(R.id.title)).setText(dataList.get(i).getValue("item"));
-                ((ImageView) convertview.findViewById(R.id.image_icon)).setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                holder.title.setText(dataList.get(i).getValue("dtcCode"));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_announcement_blue_600_24dp));
+            } else {
+                holder.description.setText(dataList.get(i).getValue("itemDescription"));
+                holder.title.setText(dataList.get(i).getValue("item"));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
-            convertview.setOnClickListener(new View.OnClickListener() {
+            holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(CarDetailsActivity.this,DisplayItemActivity.class);
-                    intent.putExtra("Model",dataList.get(i));
+                    Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
+                    intent.putExtra("Model", dataList.get(i));
                     startActivity(intent);
                 }
             });
-            return convertview;
+        }
+
+        @Override
+        public int getItemCount() {
+            return dataList.size();
+        }
+
+        // Provide a reference to the views for each data item
+        // Complex data items may need more than one view per item, and
+        // you provide access to all the views for a data item in a view holder
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            // each data item is just a string in this case
+            public TextView title;
+            public TextView description;
+            public ImageView imageView;
+            public CardView container;
+            public ViewHolder(View v) {
+                super(v);
+                title = (TextView) v.findViewById(R.id.title);
+                description = (TextView) v.findViewById(R.id.description);
+                imageView = (ImageView) v.findViewById(R.id.image_icon);
+                container = (CardView) v.findViewById(R.id.list_car_item);
+            }
         }
     }
 }

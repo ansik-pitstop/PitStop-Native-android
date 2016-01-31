@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(getSupportFragmentManager().getFragments().size()>0) {
+        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments().size()>0) {
             if (array.size() == 1) {
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
             } else if (array.size() > 1) {

@@ -272,6 +272,7 @@ public class MainActivityMultiFragment extends Fragment {
         }
         intent.putExtra("CarID", car.getValue("CarID"));
         intent.putExtra("vin", car.getValue("VIN"));
+        intent.putExtra("shopId", car.getValue("dealership"));
         intent.putExtra("scannerId", car.getValue("scannerId"));
         intent.putExtra("make", car.getValue("make"));
         intent.putExtra("model", car.getValue("model"));

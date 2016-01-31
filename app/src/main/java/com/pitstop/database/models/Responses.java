@@ -23,7 +23,6 @@ public class Responses extends DBModel {
         columns.put("tripMileage","Text");
         columns.put("tripfuel","Text");
         columns.put("vState","Text");
-        columns.put("vState","Text");
         columns.put("OBD","Text");
         columns.put("Freeze","Text");
         columns.put("supportPid","Text");

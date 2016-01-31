@@ -44,8 +44,9 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.1.+'
     compile 'com.parse:parse-android:1.+'
     compile 'com.android.support:design:23.1.1'
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.3@aar') {
-        transitive = true
-    }
-    compile 'com.makeramen:roundedimageview:2.2.1'  // lib for rounded image for service count icon
+    // only necessary if you are using CardView
+    compile 'com.android.support:cardview-v7:23.+'
+    // already includes 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
+
 }

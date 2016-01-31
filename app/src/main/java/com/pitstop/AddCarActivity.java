@@ -301,8 +301,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 }
             }
             ParseObject scansSave = new ParseObject("Scan");
-            scansSave.add("DTCs",dtcs);
-            scansSave.add("runAfterSave",true);
+            scansSave.put("DTCs", dtcs);
+            scansSave.put("runAfterSave",true);
             scansSave.saveEventually(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {

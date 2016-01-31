@@ -169,11 +169,11 @@ public class MainActivityFragment extends Fragment {
 
         if (totalServiceCount > 0) {
             // set color to red
-            ((ImageView)getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(203, 77, 69));
+            (getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(203, 77, 69));
         }
         else {
             // set color to green
-            ((ImageView)getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(93, 172, 129));
+            (getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(93, 172, 129));
         }
 
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
@@ -225,6 +225,7 @@ public class MainActivityFragment extends Fragment {
                 intent.putExtra("vin", car.getValue("VIN"));
                 intent.putExtra("scannerId", car.getValue("scannerId"));
                 intent.putExtra("make", car.getValue("make"));
+                intent.putExtra("shopId", car.getValue("dealership"));
                 intent.putExtra("model", car.getValue("model"));
                 intent.putExtra("year", car.getValue("year"));
                 intent.putExtra("baseMileage", car.getValue("baseMileage"));

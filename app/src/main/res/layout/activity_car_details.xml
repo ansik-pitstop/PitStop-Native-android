@@ -64,7 +64,7 @@
         android:background="#ddd"
         android:layout_marginTop="16dp"/>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
@@ -75,6 +75,7 @@
         android:choiceMode="singleChoice"
         android:contextClickable="false"
         android:elevation="4dp"
+        android:scrollbars="vertical"
         android:dividerHeight="0dp"
         android:divider="@null"
 

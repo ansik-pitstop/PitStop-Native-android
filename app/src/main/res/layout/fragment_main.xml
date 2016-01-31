@@ -32,9 +32,8 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/button5"
-            android:layout_alignParentEnd="false"
-            android:layout_alignParentStart="false">
+            android:layout_toLeftOf="@+id/relativeLayout2"
+            android:layout_toStartOf="@+id/relativeLayout2">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -58,10 +57,11 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/carInfoLayout"
-            android:layout_centerInParent="true">
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:id="@+id/relativeLayout2">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -70,46 +70,29 @@
                 android:layout_centerVertical="true"
                 android:id="@+id/relativeLayout"
                 android:layout_alignParentLeft="false"
-                android:layout_toStartOf="@+id/button5"
                 android:layout_marginRight="10dp">
 
-                <com.makeramen.roundedimageview.RoundedImageView
+                <RelativeLayout
                     xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:id="@+id/serviceCountBackgroundSingleCar"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_gravity="center"
                     android:background="#000000"
                     android:layout_centerInParent="true"
-                    app:riv_corner_radius="30dip"
-                    app:riv_border_width="2dip"
-                    app:riv_border_color="#333333"
-                    app:riv_mutate_background="true"
-                    app:riv_tile_mode="repeat"
-                    app:riv_oval="true" />
+                    android:layout_alignParentRight="false"
+                    android:layout_marginRight="12dp">
+                    <TextView
+                        android:id="@+id/serviceCountTextSingleCar"
+                        android:layout_width="wrap_content"
+                        android:text="12"
+                        android:textColor="#fff"
+                        android:textSize="18sp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_centerInParent="true" />
+                </RelativeLayout>
 
-                <!--<ImageView-->
-                <!--android:layout_width="35dp"-->
-                <!--android:layout_height="35dp"-->
-                <!--android:id="@+id/serviceCountBackground"-->
-                <!--android:layout_gravity="center_horizontal"-->
-                <!--android:background="#000000"-->
-                <!--android:layout_centerInParent="true" />-->
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0"
-                    android:id="@+id/serviceCountTextSingleCar"
-                    android:digits="2"
-                    android:layout_gravity="center"
-                    android:textSize="30dp"
-                    android:textColor="#ffffff"
-                    android:textIsSelectable="false"
-                    android:layout_centerInParent="true" />
-
-            </RelativeLayout>
 
             <Button
                 android:layout_width="wrap_content"
@@ -125,6 +108,8 @@
                 android:layout_alignParentTop="false"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true" />
+            </LinearLayout>
+
 
         </RelativeLayout>
 
