@@ -242,44 +242,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
 
         //--------------------------------GET DTCS-------------------------------
-        a = (Object[]) getIntent().getSerializableExtra("dtcs");
-        final HashMap<String,Boolean> dtcList = new HashMap<String,Boolean>();
-        for (int i = 0; i<a.length; i++){
-            dtcList.put(a[i].toString(), false);
-        }
-        //check DB first
-        for (String i : dtcList.keySet()){
-            DTCs dtc;
-            dtc = (DTCs) ldr.getData("DTCs", "dtcCode",i.trim());
-            if(dtc ==null){
-                dtcsGet= true;//go get some missing services
-            }else {
-                arrayList.add(dtc);
-                dtcList.put(i, true);
-            }
-        }
-        //see if need to get from online
-        if (dtcsGet) {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("DTC");
-            query.whereContainedIn("dtcCode", dtcList.keySet());
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    for (ParseObject parseObject : objects) {
-                        DTCs dtc = new DTCs();
-                        dtc.setValue("dtcCode", parseObject.getString("dtcCode"));
-                        dtc.setValue("description", parseObject.getString("description"));
-                        if (!dtcList.get(dtc.getValue("dtcCode"))){
-                            ldr.saveData("DTCs",dtc.getValues());
-                            arrayList.add(dtc);
-                        }
-                    }
-                    customAdapter.dataList.clear();
-                    customAdapter.dataList.addAll(arrayList);
-                    customAdapter.notifyDataSetChanged();
-                }
-            });
-        }
+
+
+        getDTCs(extras, ldr);
 
         // set up listview
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.car_event_listview);
@@ -299,6 +264,48 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 startActivity(intent);
             }
         });
+    }
+
+    private void getDTCs(Bundle extras, final LocalDataRetriever ldr) {
+        ArrayList<String> dtcs = new ArrayList<String>(Arrays.asList(extras.getStringArray("dtcs")));
+        ArrayList<String> removes = new ArrayList<>();
+        final HashMap<String,Boolean> dtcList = new HashMap<String,Boolean>();
+        if(dtcs.size()!=0) {
+            //check DB first
+            for (String i : dtcs) {
+                DTCs dtc;
+                HashMap<String,String> values = new HashMap<>();
+                values.put("dtcCode", i.trim());
+                dtcs.set(dtcs.indexOf(i), i.trim());
+                dtc = (DTCs) ldr.getData("DTCs", values);
+                if (dtc != null) {
+                    arrayList.add(dtc);
+                    removes.add(i.trim());
+                }
+            }
+            dtcs.removeAll(removes);
+            //if need to get some services
+            if (dtcs.size() > 0) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("DTC");
+                query.whereContainedIn("dtcCode", dtcs);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        for (ParseObject parseObject : objects) {
+                            DTCs service = new DTCs();
+                            service.setValue("dtcCode", parseObject.getString("dtcCode"));
+                            service.setValue("description", parseObject.getString("description"));
+
+                            ldr.saveData("Services", service.getValues());
+                            arrayList.add(service);
+                        }
+                        customAdapter.dataList.clear();
+                        customAdapter.dataList.addAll(arrayList);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
     }
 
     private void setSwipeDeleteListener(RecyclerView mRecyclerView){
@@ -679,17 +686,19 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(dtc.getValues());
             }
         }
-        ParseQuery query = new ParseQuery("RecallEntry");
-        query.whereEqualTo("objectId",recalls);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                for (ParseObject obj : objects){
-                    obj.put("state","pending");
-                    obj.saveEventually();
+        if(recalls.size()>0) {
+            ParseQuery query = new ParseQuery("RecallEntry");
+            query.whereEqualTo("objectId", recalls);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    for (ParseObject obj : objects) {
+                        obj.put("state", "pending");
+                        obj.saveEventually();
+                    }
                 }
-            }
-        });
+            });
+        }
         output.put("services", services);
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
