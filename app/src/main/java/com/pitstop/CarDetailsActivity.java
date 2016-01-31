@@ -202,7 +202,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if(service ==null){
                 recallsGet= true;//go get some missing services
             }else {
-                if(service.getValue("state").equals("new")) {
+                if(service.getValue("state").equals("new")||service.getValue("state").equals("pending")) {
                     arrayList.add(service);
                 }
                 recallCodes.put(i, true);
@@ -230,7 +230,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                         recall.setValue("riskRank",""+parseObject.getNumber("riskRank"));
                         if (!recallCodes.get(recall.getValue("RecallID"))){
                             ldr.saveData("Recalls", recall.getValues());
-                            if(parseObject.getString("state").equals("new"))
+                            if(parseObject.getString("state").equals("new")||parseObject.getString("state").equals("pending"))
                                 arrayList.add(recall);
                         }
                     }
