@@ -1,8 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.pitstop.CarDetailsActivity">
-    <item android:id="@+id/action_settings" android:title="REQUEST SERVICE"
-        android:orderInCategory="100" app:showAsAction="always" />
-    <item android:id="@+id/history" android:title="History"
+
+    <item android:id="@+id/action_settings"
+        android:title="REQUEST SERVICE"
+        android:icon="@drawable/request_service_button"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/history"
+        android:title="History"
         android:orderInCategory="100" />
 </menu>
