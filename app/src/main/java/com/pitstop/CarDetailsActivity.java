@@ -656,6 +656,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         // Intent intent = getIntent();
         // String vin = Intent.getStringExtra("carVin")
         ArrayList<HashMap<String,String>> services = new ArrayList<>();
+        ArrayList<String> recalls = new ArrayList<>();
         for(DBModel model: arrayList){
             if(model instanceof Services){
                 services.add(model.getValues());
@@ -667,6 +668,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 recall.setValue("itemDescription",model.getValue("description"));
                 recall.setValue("priority",""+ 6); // high priority for recall
                 services.add(recall.getValues());
+                recalls.add(model.getValue("RecallID"));
             }
             if(model instanceof DTCs){
                 DTCs dtc = new DTCs();
@@ -677,6 +679,17 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(dtc.getValues());
             }
         }
+        ParseQuery query = new ParseQuery("RecallMaster");
+        query.whereEqualTo("objectId",recalls);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                for (ParseObject obj : objects){
+                    obj.put("state","pending");
+                    obj.saveEventually();
+                }
+            }
+        });
         output.put("services", services);
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
