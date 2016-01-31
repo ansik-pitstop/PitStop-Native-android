@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         if(refresh){
             refresh = false;
-            setUp();
+            refreshDatabase();
         }
     }
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         array = new ArrayList<>();
-        setUp();
+        refreshDatabase();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -266,6 +267,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     }
                 }
             });
+        }
+
+        if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
+            snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
+            snackbar.setAction("TURN ON", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    service.startBluetoothSearch();
+                }
+            });
+            snackbar.show();
         }
     }
 

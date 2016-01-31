@@ -297,11 +297,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             if(dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
-                    dtcs+=dtc+",";
+                    dtcs+=service.parseDTCs(dtc)+",";
                 }
             }
             ParseObject scansSave = new ParseObject("Scan");
             scansSave.put("DTCs", dtcs);
+            scansSave.put("scannerId", scannerID);
             scansSave.put("runAfterSave",true);
             scansSave.saveEventually(new SaveCallback() {
                 @Override

@@ -3,6 +3,7 @@ package com.pitstop;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -101,6 +102,10 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
             service.setCallbacks(CarDetailsActivity.this); // register
+
+            if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                service.startBluetoothSearch();
+            }
         }
 
         @Override
@@ -317,7 +322,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                         0,2,3,10,18,32
                                 };
                                 Calendar cal = Calendar.getInstance();
-                                Date currentLocalTime = cal.getTime();
+                                final Date currentLocalTime = cal.getTime();
 
                                 final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
 
@@ -338,7 +343,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.put("mileage", mileage - estimate[position] * 375);
                                                 saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("ParseID").toString());
                                                 saveCompletion.put("shopId", shopId);
-                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
                                                 saveCompletion.put("type", Integer.valueOf(typeService));
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
@@ -390,7 +395,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.put("mileage", mileage - estimate[position] * 375);
                                                 saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("RecallID"));
                                                 saveCompletion.put("shopId", shopId);
-                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
                                                     public void done(ParseException e) {
@@ -405,7 +410,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                         @Override
                                                         public void done(List<ParseObject> objects, ParseException e) {
                                                             objects.get(0).put("state","doneByUser");
-                                                            ((ParseObject)objects.get(0)).saveEventually();
+                                                            ((ParseObject)objects.get(0)).saveEventually(new SaveCallback() {
+                                                                @Override
+                                                                public void done(ParseException e) {
+                                                                }
+                                                            });
                                                             LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
                                                             HashMap<String,String> map = new HashMap<String,String>();
                                                             recallCodes.remove(customAdapter.dataList.get(i).getValue("RecallID"));
@@ -423,6 +432,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                     e.printStackTrace();
                                                 }
                                             }
+                                            MainActivity.refresh=true;
                                             dialogInterface.dismiss();
                                         }
                                     })
@@ -659,7 +669,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(recall.getValues());
             }
             if(model instanceof DTCs){
-                services.add(model.getValues());
+                DTCs dtc = new DTCs();
+                dtc.setValue("item", model.getValue("dtcCode"));
+                dtc.setValue("action","DTC/Engine Code");
+                dtc.setValue("itemDescription",model.getValue("description"));
+                dtc.setValue("priority",""+ 4); // high priority for recall
+                services.add(dtc.getValues());
             }
         }
         output.put("services", services);

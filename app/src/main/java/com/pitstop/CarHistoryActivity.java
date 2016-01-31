@@ -69,8 +69,13 @@ public class CarHistoryActivity extends AppCompatActivity {
                         public void done(List<ParseObject> objects, ParseException e) {
                             for (ParseObject obj : objects) {
                                 Container con = new Container();
-                                con.name = obj.getString("item");
-                                con.description = obj.getString("itemDescription");
+                                if(obj.get("forRecallMasters")!=null) {
+                                    con.name = obj.getString("name");
+                                    con.description = obj.getString("description");
+                                }else{
+                                    con.name = obj.getString("item");
+                                    con.description = obj.getString("itemDescription");
+                                }
                                 array.add(con);
                             }
                             customAdapter.dataList.clear();

@@ -51,6 +51,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private int counter;
 
+    private boolean askforDtcs;
+
     private int notifID= 1360119;
 
     String[] pids = new String[0];
@@ -67,6 +69,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public void onCreate() {
         super.onCreate();
+        askforDtcs = false;
         status5counter=0;
         counter = 1;
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
@@ -92,8 +95,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         gettingPID=true;
     }
 
-    public void getDTCs(){
-        BluetoothManage.getInstance(this).obdSetMonitor(1, "");
+    public void getDTCs() {
+        if (!askforDtcs){
+            askforDtcs = true;
+            BluetoothManage.getInstance(this).obdSetMonitor(1, "");
+        }
     }
 
     public void getFreeze(){
@@ -233,6 +239,29 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
+            askforDtcs=false;
+            String dtcs = "";
+            if(dataPackageInfo.dtcData.length()>0){
+                String[] DTCs = dataPackageInfo.dtcData.split(",");
+                for(String dtc : DTCs) {
+                    dtcs+=parseDTCs(dtc)+",";
+                }
+            }
+            ParseObject scansSave = new ParseObject("Scan");
+            scansSave.put("DTCs", dtcs);
+            scansSave.put("scannerId", dataPackageInfo.deviceId);
+            scansSave.put("runAfterSave", true);
+            scansSave.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    Log.d("DTC Saving", "DTCs saved");
+                }
+            });
+            if (serviceCallbacks != null)
+                serviceCallbacks.getIOData(dataPackageInfo);
+            return;
+        }
         counter ++;
         if(pidI!=pids.length&&dataPackageInfo.result!=5){
             sendForPIDS();
@@ -277,10 +306,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
         }
-        if(counter%100==0){
+        if(counter==300){
             getDTCs();
-        }
-        if(counter==500){
             counter = 1;
             uploadRecords();
         }
@@ -311,6 +338,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             uploadInfoOnline.execute(entry.getValue("EntriesEnd"),
                     lastResponse.getValue("ResponseID"));
         }
+    }
+
+    private void sentDTCsOnline(){
+
     }
 
     private class UploadInfoOnline extends AsyncTask<String,Void,Void> {
