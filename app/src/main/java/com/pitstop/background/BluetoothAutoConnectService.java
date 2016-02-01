@@ -403,7 +403,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         }
                     });
                 }else{
-                    Toast.makeText(getBaseContext(),"Wait to accumulate more information",Toast.LENGTH_SHORT).show();
                 }
             }
             return null;

@@ -30,14 +30,16 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
-import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
     public static Intent serviceIntent;
@@ -340,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments().size()>0) {
+        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&getSupportFragmentManager().getFragments().size()>0) {
             if (array.size() == 1) {
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
             } else if (array.size() > 1) {

@@ -23,7 +23,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String DB_NAME = "PitstopDB";
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
-        super(context, DB_NAME, null, 12);
+        super(context, DB_NAME, null, 13);
         models.add(new Cars());
         models.add(new DTCs());
         models.add(new Recalls());

@@ -1,7 +1,5 @@
 package com.pitstop;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -10,9 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
@@ -24,19 +20,14 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,13 +50,9 @@ import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
-import com.pitstop.database.models.Cars;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,7 +62,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
 public class CarDetailsActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
 
@@ -296,7 +285,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                             service.setValue("dtcCode", parseObject.getString("dtcCode"));
                             service.setValue("description", parseObject.getString("description"));
 
-                            ldr.saveData("Services", service.getValues());
+                            ldr.saveData("DTCs", service.getValues());
                             arrayList.add(service);
                         }
                         customAdapter.dataList.clear();
@@ -669,6 +658,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 services.add(model.getValues());
             }
             if(model instanceof Recalls){
+                LocalDataRetriever ldr  = new LocalDataRetriever(this);
                 Recalls recall = new Recalls();
                 recall.setValue("item", model.getValue("name"));
                 recall.setValue("action","Recall For");
@@ -676,6 +666,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 recall.setValue("priority",""+ 6); // high priority for recall
                 services.add(recall.getValues());
                 recalls.add(model.getValue("RecallID"));
+                //update db
+                model.setValue("state","pending");
+                HashMap<String,String> tmp = new HashMap<>();
+                tmp.put("state","pending");
+                ldr.updateData("Recalls","RecallID",model.getValue("RecallID"),tmp);
             }
             if(model instanceof DTCs){
                 DTCs dtc = new DTCs();
@@ -688,7 +683,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
         if(recalls.size()>0) {
             ParseQuery query = new ParseQuery("RecallEntry");
-            query.whereEqualTo("objectId", recalls);
+            query.whereContainedIn("objectId", recalls);
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
