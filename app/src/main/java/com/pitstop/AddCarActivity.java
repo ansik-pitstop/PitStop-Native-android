@@ -1,7 +1,6 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
@@ -281,7 +280,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
             ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
         } else {
-            showLoading();
+            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            findViewById(R.id.VIN_hint).setVisibility(View.VISIBLE);
         }
         scannerID = parameterPackageInfo.deviceId;
         makeCar();

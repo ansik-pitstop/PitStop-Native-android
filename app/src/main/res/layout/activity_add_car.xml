@@ -80,6 +80,13 @@
             android:id="@+id/VIN_SECTION"
             android:visibility="gone">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Car was found, however, VIN retrival failed. Please Input VIN manually below."
+                android:id="@+id/VIN_hint"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
