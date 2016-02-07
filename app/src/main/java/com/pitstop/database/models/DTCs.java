@@ -5,7 +5,7 @@ import com.pitstop.database.DBModel;
  * Created by thebe on 12/22/15.
  */
 public class DTCs extends DBModel {
-    public DTCs() { super("DTCs", "dtcCode", "dtcCode"); }
+    public DTCs() { super("DTCs", "DTCID", "dtcCode"); }
 
     @Override
     protected void setUpTable() {

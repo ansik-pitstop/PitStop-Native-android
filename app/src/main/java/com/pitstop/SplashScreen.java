@@ -1,25 +1,35 @@
 package com.pitstop;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+import com.pitstop.utils.SplashSlidePagerAdapter;
 
 public class SplashScreen extends AppCompatActivity {
+
     final static String pfName = "com.pitstop.login.name";
     final static String pfCodeForID = "com.pitstop.login.id";
     final static String pfCodeForPassword = "com.pitstop.login.passwd";
@@ -29,7 +39,17 @@ public class SplashScreen extends AppCompatActivity {
 
     boolean signup  = false;
 
-    final String loginCache = "PITSTOP_LOGIN_DATA0";
+
+    /**
+     * The pager widget, which handles animation and allows swiping horizontally to access previous
+     * and next wizard steps.
+     */
+    private ViewPager mPager;
+
+    /**
+     * The pager adapter, which provides the pages to the view pager widget.
+     */
+    private PagerAdapter mPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +71,59 @@ public class SplashScreen extends AppCompatActivity {
             startActivity(intent);
             Log.i(TAG, currentUser.getUsername());
         }
+
+
+        // Instantiate a ViewPager and a PagerAdapter.
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPagerAdapter = new SplashSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position==3){
+                    findViewById(R.id.radio_layout).setVisibility(View.GONE);
+                    findViewById(R.id.button7).setVisibility(View.GONE);
+
+                    ((EditText)findViewById(R.id.password)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            boolean handled = false;
+                            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                                if(signup){
+                                    signUp(null);
+                                }else{
+                                    login(null);
+                                }
+                                handled = true;
+                                View view = getCurrentFocus();
+                                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+                            return handled;
+                        }
+                    });
+                }else{
+                    findViewById(R.id.radio_layout).setVisibility(View.VISIBLE);
+                    findViewById(R.id.button7).setVisibility(View.VISIBLE);
+                    for(int i = 0; i<3; i++){
+                        ((RadioButton)((LinearLayout)findViewById(R.id.radio_layout)).getChildAt(i)).setChecked(false);
+                    }
+                    ((RadioButton)((LinearLayout)findViewById(R.id.radio_layout)).getChildAt(position)).setChecked(true);
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mPager.setAdapter(mPagerAdapter);
+
     }
 
     @Override
@@ -58,6 +131,19 @@ public class SplashScreen extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_splash_screen, menu);
         return true;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
+        } else {
+            // Otherwise, select the previous step.
+            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        }
     }
 
     @Override
@@ -138,6 +224,11 @@ public class SplashScreen extends AppCompatActivity {
                         editor.putString(MainActivity.pfCodeForShopObjectID,ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
                     }
                     editor.commit();
+
+                    //save user data
+                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                    installation.put("userId", ParseUser.getCurrentUser().getObjectId());
+                    installation.saveInBackground();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
@@ -146,5 +237,9 @@ public class SplashScreen extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void goToLogin(View view) {
+        mPager.setCurrentItem(3);
     }
 }

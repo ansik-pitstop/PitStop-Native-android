@@ -187,6 +187,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
             }else {
                 if (service.getState() != BluetoothManage.CONNECTED) {
+                    showLoading();
                     service.startBluetoothSearch();
                 } else {
                     service.getCarVIN();
@@ -253,7 +254,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
-                service.startBluetoothSearch();
+            hideLoading();
+            service.startBluetoothSearch();
         }else{
             service.getCarVIN();
         }
@@ -365,6 +367,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     void showBluetoothEntryUI() {
+        findViewById(R.id.button).setEnabled(true);
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
         ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");

@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
     public static boolean refresh = false;
+    public static boolean refreshLocal = false;
 
     public boolean isRefresh = true;
 
@@ -89,6 +92,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             refresh = false;
             refreshDatabase();
         }
+        if(refreshLocal){
+            refreshLocal = false;
+            setUp();
+        }
     }
 
     @Override
@@ -108,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             getIntent().putExtra(EXTRA_CAR_ID, (String)null);
         }
 
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
         array = new ArrayList<>();
         refreshDatabase();
     }
@@ -129,13 +136,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            ArrayList<String> ids = new ArrayList<>(),cars = new ArrayList<>();
+            ArrayList<String> ids = new ArrayList<>(),cars = new ArrayList<>(),origDealers = new ArrayList<>();
             for (DBModel car : array){
                 cars.add(car.getValue("make") + " " + car.getValue("model"));
                 ids.add(car.getValue("CarID"));
+                origDealers.add(car.getValue("dealership"));
             }
             i.putStringArrayListExtra("cars", cars);
             i.putStringArrayListExtra("ids",ids);
+            i.putStringArrayListExtra("dealerships",origDealers);
             startActivity(i);
             return true;
         }
@@ -157,18 +166,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
+    @Override
+    protected void onPause() {
+        unbindService(serviceConnection);
+        super.onPause();
+    }
+
     private void refreshDatabase() {
-        isRefresh = true;
-        final LocalDataRetriever ldr = new LocalDataRetriever(this);
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        String objectID = settings.getString(pfCodeForObjectID, "NA");
-        ldr.deleteData("Cars", "owner", objectID);
+        // if wifi is on
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (mWifi.isConnected()) {
+            isRefresh = true;
+            final LocalDataRetriever ldr = new LocalDataRetriever(this);
+            SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+            String objectID = settings.getString(pfCodeForObjectID, "NA");
+            ldr.deleteData("Cars", "owner", objectID);
+        }else{
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"No internet connection to update.",Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
         setUp();
-//        if(array.size()>1){
-//            ((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main_multi)).setUp();
-//        }else {
-//            ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).setUp();
-//        }
     }
 
     @Override
@@ -186,14 +204,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     public void setUp(){
+        findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
         array.clear();
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
         array = ldr.getDataSet("Cars", "owner", userId);
+
+        // if wifi is on
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if(array.size()>0){
             openFragment();
-        }else {
+        }else if(mWifi.isConnected()){
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
             if (ParseUser.getCurrentUser() != null) {
                 userId = ParseUser.getCurrentUser().getObjectId();
@@ -269,6 +292,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     }
                 }
             });
+        }else{
+            openFragment();
         }
 
         if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -285,12 +310,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     private void openFragment() {
+        findViewById(R.id.loading_section).setVisibility(View.GONE);
         if (array.size() == 0) {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             isRefresh= false;
             startActivity(intent);
         } else {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             final Fragment fragment;
             final String tag;
@@ -303,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 tag = "multi_view";
             }
 
-            Bundle args = new Bundle();
+            final Bundle args = new Bundle();
             if (isUpdatingMileage) {
                 args.putString(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
                 args.putString(EXTRA_CAR_ID, carId);
@@ -312,8 +337,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 isUpdatingMileage = false;
                 carId = null;
             }
-            fragment.setArguments(args);
 
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragment.setArguments(args);
             fragmentTransaction.replace(R.id.fragment_main, fragment, tag);
             fragmentTransaction.commit();
             isRefresh = false;

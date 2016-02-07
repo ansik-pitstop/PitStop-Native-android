@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
@@ -32,6 +31,7 @@ import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -292,19 +292,29 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             OBD += "}";
             response.setValue("OBD", OBD);
-            String Freeze = "{";
-            recordedOnce = false;
-            for (PIDInfo i : dataPackageInfo.freezeData) {
-                Freeze += (recordedOnce ? ";'" : "'") + i.pidType + "':" + i.value;
-                recordedOnce = true;
+            JSONObject Freeze = new JSONObject();
+            JSONArray arrayOfPids = new JSONArray();
+            try {
+                Freeze.put("time",dataPackageInfo.rtcTime);
+                JSONObject individual = new JSONObject();
+                for (PIDInfo i : dataPackageInfo.freezeData) {
+                    individual.put("id",i.pidType);
+                    individual.put("data", i.value);
+                    arrayOfPids.put(individual);
+                }
+                Freeze.put("pids",arrayOfPids);
+                response.setValue("Freeze", Freeze.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            Freeze += "}";
-            response.setValue("Freeze", Freeze);
             response.setValue("supportPid", dataPackageInfo.surportPid);
             response.setValue("dtcData", dataPackageInfo.dtcData);
             ldr.saveData("Responses", response.getValues());
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
+        }
+        if(counter%10==0){
+            getPIDs();
         }
         if(counter==30){
             getDTCs();

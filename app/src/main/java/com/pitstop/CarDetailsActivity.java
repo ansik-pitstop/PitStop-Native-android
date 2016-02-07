@@ -20,11 +20,14 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -120,7 +123,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         baseMileage = getIntent().getStringExtra("baseMileage");
         totalMileage = getIntent().getStringExtra("totalMileage");
         serviceIntent= new Intent(CarDetailsActivity.this, BluetoothAutoConnectService.class);
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         Log.d("total mileage", totalMileage);
         Log.d("base mileage", baseMileage);
@@ -204,23 +206,25 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    for (ParseObject parseObject : objects) {
-                        Recalls recall = new Recalls();
+                    if(e==null) {
+                        for (ParseObject parseObject : objects) {
+                            Recalls recall = new Recalls();
 
-                        recall.setValue("RecallID",parseObject.getObjectId());
-                        recall.setValue("name",parseObject.getString("name"));
-                        recall.setValue("description",parseObject.getString("description"));
-                        recall.setValue("remedy",parseObject.getString("remedy"));
-                        recall.setValue("risk",""+parseObject.getNumber("risk"));
-                        recall.setValue("effectiveDate",parseObject.getString("effectiveDate"));
-                        recall.setValue("oemID",parseObject.getString("oemID"));
-                        recall.setValue("reimbursement",""+parseObject.getNumber("reimbursement"));
-                        recall.setValue("state",parseObject.getString("state"));
-                        recall.setValue("riskRank",""+parseObject.getNumber("riskRank"));
-                        if (!recallCodes.get(recall.getValue("RecallID"))){
-                            ldr.saveData("Recalls", recall.getValues());
-                            if(parseObject.getString("state").equals("new")||parseObject.getString("state").equals("pending"))
-                                arrayList.add(recall);
+                            recall.setValue("RecallID", parseObject.getObjectId());
+                            recall.setValue("name", parseObject.getString("name"));
+                            recall.setValue("description", parseObject.getString("description"));
+                            recall.setValue("remedy", parseObject.getString("remedy"));
+                            recall.setValue("risk", "" + parseObject.getNumber("risk"));
+                            recall.setValue("effectiveDate", parseObject.getString("effectiveDate"));
+                            recall.setValue("oemID", parseObject.getString("oemID"));
+                            recall.setValue("reimbursement", "" + parseObject.getNumber("reimbursement"));
+                            recall.setValue("state", parseObject.getString("state"));
+                            recall.setValue("riskRank", "" + parseObject.getNumber("riskRank"));
+                            if (!recallCodes.get(recall.getValue("RecallID"))) {
+                                ldr.saveData("Recalls", recall.getValues());
+                                if (parseObject.getString("state").equals("new") || parseObject.getString("state").equals("pending"))
+                                    arrayList.add(recall);
+                            }
                         }
                     }
                     customAdapter.dataList.clear();
@@ -255,6 +259,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         });
     }
 
+    @Override
+    protected void onResume() {
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        super.onResume();
+    }
+
     private void getDTCs(Bundle extras, final LocalDataRetriever ldr) {
         ArrayList<String> dtcs = new ArrayList<String>(Arrays.asList(extras.getStringArray("dtcs")));
         ArrayList<String> removes = new ArrayList<>();
@@ -280,13 +290,15 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 query.findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
-                        for (ParseObject parseObject : objects) {
-                            DTCs service = new DTCs();
-                            service.setValue("dtcCode", parseObject.getString("dtcCode"));
-                            service.setValue("description", parseObject.getString("description"));
+                        if(e==null) {
+                            for (ParseObject parseObject : objects) {
+                                DTCs service = new DTCs();
+                                service.setValue("dtcCode", parseObject.getString("dtcCode"));
+                                service.setValue("description", parseObject.getString("description"));
 
-                            ldr.saveData("DTCs", service.getValues());
-                            arrayList.add(service);
+                                ldr.saveData("DTCs", service.getValues());
+                                arrayList.add(service);
+                            }
                         }
                         customAdapter.dataList.clear();
                         customAdapter.dataList.addAll(arrayList);
@@ -355,30 +367,32 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
                                                         @Override
                                                         public void done(List<ParseObject> objects, ParseException e) {
-                                                            String type = (typeService==0?"pendingEdmundServices":(typeService==1?"pendingFixedServices":"pendingIntervalServices"));
-                                                            JSONArray original = objects.get(0).getJSONArray(type);
-                                                            ArrayList<String> updatedTexts = new ArrayList<>();
-                                                            for (int j =0 ; j< original.length(); j++){
-                                                                try {
-                                                                    if(!original.getString(j).equals(customAdapter.dataList.get(i).getValue("ParseID"))){
-                                                                        updatedTexts.add(original.getString(j));
+                                                            if(e==null) {
+                                                                String type = (typeService == 0 ? "pendingEdmundServices" : (typeService == 1 ? "pendingFixedServices" : "pendingIntervalServices"));
+                                                                JSONArray original = objects.get(0).getJSONArray(type);
+                                                                ArrayList<String> updatedTexts = new ArrayList<>();
+                                                                for (int j = 0; j < original.length(); j++) {
+                                                                    try {
+                                                                        if (!original.getString(j).equals(customAdapter.dataList.get(i).getValue("ParseID"))) {
+                                                                            updatedTexts.add(original.getString(j));
+                                                                        }
+                                                                    } catch (JSONException e1) {
+                                                                        e1.printStackTrace();
                                                                     }
-                                                                } catch (JSONException e1) {
-                                                                    e1.printStackTrace();
                                                                 }
-                                                            }
-                                                            objects.get(0).put(type, updatedTexts);
-                                                            ((ParseObject)objects.get(0)).saveEventually();
-                                                            LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
-                                                            HashMap<String,String> map = new HashMap<String,String>();
-                                                            map.put(type,"["+ TextUtils.join(",",updatedTexts)+"]");
-                                                            ldr.updateData("Cars", "CarID", carId, map);
+                                                                objects.get(0).put(type, updatedTexts);
+                                                                ((ParseObject) objects.get(0)).saveEventually();
+                                                                LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+                                                                HashMap<String, String> map = new HashMap<String, String>();
+                                                                map.put(type, "[" + TextUtils.join(",", updatedTexts) + "]");
+                                                                ldr.updateData("Cars", "CarID", carId, map);
 
-                                                            for (int position : reverseSortedPositions) {
-                                                                customAdapter.dataList.remove(position);
-                                                                customAdapter.notifyItemRemoved(position);
+                                                                for (int position : reverseSortedPositions) {
+                                                                    customAdapter.dataList.remove(position);
+                                                                    customAdapter.notifyItemRemoved(position);
+                                                                }
+                                                                customAdapter.notifyDataSetChanged();
                                                             }
-                                                            customAdapter.notifyDataSetChanged();
                                                         }
                                                     });
                                                 } catch (ParseException e) {
@@ -471,20 +485,22 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 query.findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
-                        for (ParseObject parseObject : objects) {
-                            Services service = new Services();
-                            service.setValue("item", parseObject.getString("item"));
-                            service.setValue("serviceType", "fixed");
-                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
-                            service.setValue("action", parseObject.getString("action"));
-                            service.setValue("ParseID", parseObject.getObjectId());
-                            //end key, now custom
-                            service.setValue("dealership", parseObject.getString("dealership"));
-                            service.setValue("priority", "" + parseObject.getNumber("priority"));
-                            service.setValue("intervalFixed", "" + parseObject.getNumber("mileage"));
+                        if(e==null) {
+                            for (ParseObject parseObject : objects) {
+                                Services service = new Services();
+                                service.setValue("item", parseObject.getString("item"));
+                                service.setValue("serviceType", "fixed");
+                                service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                                service.setValue("action", parseObject.getString("action"));
+                                service.setValue("ParseID", parseObject.getObjectId());
+                                //end key, now custom
+                                service.setValue("dealership", parseObject.getString("dealership"));
+                                service.setValue("priority", "" + parseObject.getNumber("priority"));
+                                service.setValue("intervalFixed", "" + parseObject.getNumber("mileage"));
 
-                            ldr.saveData("Services", service.getValues());
-                            arrayList.add(service);
+                                ldr.saveData("Services", service.getValues());
+                                arrayList.add(service);
+                            }
                         }
                         customAdapter.dataList.clear();
                         customAdapter.dataList.addAll(arrayList);
@@ -521,20 +537,22 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 query.findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
-                        for (ParseObject parseObject : objects) {
-                            Services service = new Services();
-                            service.setValue("item", parseObject.getString("item"));
-                            service.setValue("serviceType", "interval");
-                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
-                            service.setValue("action", parseObject.getString("action"));
-                            service.setValue("ParseID", parseObject.getObjectId());
-                            //end key, now custom
-                            service.setValue("dealership", parseObject.getString("dealership"));
-                            service.setValue("priority",""+ parseObject.getNumber("priority"));
-                            service.setValue("intervalMileage",""+ parseObject.getNumber("mileage"));
+                        if(e==null) {
+                            for (ParseObject parseObject : objects) {
+                                Services service = new Services();
+                                service.setValue("item", parseObject.getString("item"));
+                                service.setValue("serviceType", "interval");
+                                service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                                service.setValue("action", parseObject.getString("action"));
+                                service.setValue("ParseID", parseObject.getObjectId());
+                                //end key, now custom
+                                service.setValue("dealership", parseObject.getString("dealership"));
+                                service.setValue("priority", "" + parseObject.getNumber("priority"));
+                                service.setValue("intervalMileage", "" + parseObject.getNumber("mileage"));
 
-                            ldr.saveData("Services", service.getValues());
-                            arrayList.add(service);
+                                ldr.saveData("Services", service.getValues());
+                                arrayList.add(service);
+                            }
                         }
                         customAdapter.dataList.clear();
                         customAdapter.dataList.addAll(arrayList);
@@ -571,19 +589,21 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 query.findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
-                        for (ParseObject parseObject : objects) {
-                            Services service = new Services();
-                            service.setValue("item", parseObject.getString("item"));
-                            service.setValue("serviceType", "edmunds");
-                            service.setValue("itemDescription", parseObject.getString("itemDescription"));
-                            service.setValue("action", parseObject.getString("action"));
-                            service.setValue("ParseID", parseObject.getObjectId());
-                            //end key, now custom
-                            service.setValue("intervalMileage",""+ parseObject.getNumber("intervalMileage"));
-                            service.setValue("intervalMonth",""+ parseObject.getNumber("intervalMonth"));
+                        if(e==null) {
+                            for (ParseObject parseObject : objects) {
+                                Services service = new Services();
+                                service.setValue("item", parseObject.getString("item"));
+                                service.setValue("serviceType", "edmunds");
+                                service.setValue("itemDescription", parseObject.getString("itemDescription"));
+                                service.setValue("action", parseObject.getString("action"));
+                                service.setValue("ParseID", parseObject.getObjectId());
+                                //end key, now custom
+                                service.setValue("intervalMileage", "" + parseObject.getNumber("intervalMileage"));
+                                service.setValue("intervalMonth", "" + parseObject.getNumber("intervalMonth"));
 
-                            ldr.saveData("Services", service.getValues());
-                            arrayList.add(service);
+                                ldr.saveData("Services", service.getValues());
+                                arrayList.add(service);
+                            }
                         }
                         customAdapter.dataList.clear();
                         customAdapter.dataList.addAll(arrayList);
@@ -675,9 +695,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if(model instanceof DTCs){
                 DTCs dtc = new DTCs();
                 dtc.setValue("item", model.getValue("dtcCode"));
-                dtc.setValue("action","DTC/Engine Code");
+                dtc.setValue("action","Engine Issue: DTC Code");
                 dtc.setValue("itemDescription",model.getValue("description"));
-                dtc.setValue("priority",""+ 4); // high priority for recall
+                dtc.setValue("priority",""+ 5); // high priority for recall
                 services.add(dtc.getValues());
             }
         }
@@ -687,9 +707,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    for (ParseObject obj : objects) {
-                        obj.put("state", "pending");
-                        obj.saveEventually();
+                    if(e==null) {
+                        for (ParseObject obj : objects) {
+                            obj.put("state", "pending");
+                            obj.saveEventually();
+                        }
                     }
                 }
             });
@@ -721,10 +743,10 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
         // unbind service to prevent memory leaks
         unbindService(serviceConnection);
+        super.onPause();
     }
 
     @Override
@@ -743,6 +765,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             Intent intent = new Intent(CarDetailsActivity.this, CarHistoryActivity.class);
             intent.putExtra("carId",carId);
             startActivity(intent);
+        }
+
+        if (id ==  android.R.id.home){
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

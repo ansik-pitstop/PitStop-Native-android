@@ -3,7 +3,6 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -25,10 +24,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.database.LocalDataRetriever;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,6 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     ArrayList<String> cars;
     ArrayList<String> ids;
+    ArrayList<String> dealers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,14 +42,42 @@ public class SettingsActivity extends AppCompatActivity {
         if(getIntent().getExtras()!=null) {
             cars = getIntent().getExtras().getStringArrayList("cars");
             ids = getIntent().getStringArrayListExtra("ids");
+            dealers = getIntent().getStringArrayListExtra("dealerships");
         }else{
             cars = new ArrayList<>();
             ids = new ArrayList<>();
+            dealers = new ArrayList<>();
         }
         getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment(cars,ids)).commit();
     }
 
-//    @Override
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_connect) {
+            Intent i = new Intent(SettingsActivity.this, ReceiveDebugActivity.class);
+            startActivity(i);
+            return true;
+        }
+
+
+        if (id ==  android.R.id.home){
+            MainActivity.refreshLocal=true;
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onBackPressed() {
+        MainActivity.refreshLocal=true;
+        super.onBackPressed();
+    }
+    //    @Override
 //    protected void onPostCreate(Bundle savedInstanceState) {
 //        super.onPostCreate(savedInstanceState);
 //        Toolbar bar;
@@ -163,6 +188,7 @@ public class SettingsActivity extends AppCompatActivity {
                         listPreference.setTitle(cars.get(i));
                         listPreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
                         listPreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+                        listPreference.setValue(dealers.get(i));
                         listPreference.setDialogTitle("Choose Shop for: " + cars.get(i));
                         final int index = i;
                         listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -271,14 +297,4 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_connect) {
-            Intent i = new Intent(SettingsActivity.this, ReceiveDebugActivity.class);
-            startActivity(i);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }
