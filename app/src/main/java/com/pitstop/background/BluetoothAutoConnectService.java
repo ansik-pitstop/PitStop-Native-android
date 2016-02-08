@@ -56,6 +56,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private int notifID= 1360119;
 
     String[] pids = new String[0];
+
+    private boolean gettingPIDs = false;
     int checksDone =0;
     int pidI = 0;
     private int status5counter;
@@ -133,6 +135,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     private void sendForPIDS(){
+        gettingPIDs = true;
         String pid="";
         while(pidI!=pids.length){
             pid+=pids[pidI]+",";
@@ -242,7 +245,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;
             String dtcs = "";
-            if(dataPackageInfo.dtcData.length()>0){
+            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
                     dtcs+=parseDTCs(dtc)+",";
@@ -292,20 +295,25 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             OBD += "}";
             response.setValue("OBD", OBD);
-            JSONObject Freeze = new JSONObject();
-            JSONArray arrayOfPids = new JSONArray();
-            try {
-                Freeze.put("time",dataPackageInfo.rtcTime);
-                JSONObject individual = new JSONObject();
-                for (PIDInfo i : dataPackageInfo.freezeData) {
-                    individual.put("id",i.pidType);
-                    individual.put("data", i.value);
-                    arrayOfPids.put(individual);
+            if (pidI<=pids.length&&gettingPIDs&&dataPackageInfo.obdData.size()>0) {
+                if(pidI==pids.length){
+                    gettingPIDs= false;
                 }
-                Freeze.put("pids",arrayOfPids);
-                response.setValue("Freeze", Freeze.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+                JSONObject Freeze = new JSONObject();
+                JSONArray arrayOfPids = new JSONArray();
+                try {
+                    Freeze.put("time", dataPackageInfo.rtcTime);
+                    JSONObject individual = new JSONObject();
+                    for (PIDInfo i : dataPackageInfo.obdData) {
+                        individual.put("id", i.pidType);
+                        individual.put("data", i.value);
+                        arrayOfPids.put(individual);
+                    }
+                    Freeze.put("pids", arrayOfPids);
+                    response.setValue("Freeze", Freeze.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             response.setValue("supportPid", dataPackageInfo.surportPid);
             response.setValue("dtcData", dataPackageInfo.dtcData);
@@ -391,9 +399,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     final long index = ldr.saveData("Uploads", upload.getValues());
                     try {
                         object.put("DTCArray", new JSONObject(dtc));
-                        object.add("runAfterSave",false);
-                        object.put("freezeDataArray", new JSONObject(freeze));
-                        object.put("PIDArray2", new JSONObject(pid));
+                        object.put("runAfterSave",false);
+                        object.put("freezeDataArray", new JSONObject(pid));
+                        object.put("PIDArray", new JSONObject(freeze));
                         object.put("scannerId", device);
                     } catch (JSONException e) {
                         e.printStackTrace();

@@ -105,7 +105,7 @@ public class MainActivityMultiFragment extends Fragment {
             if(a.getValue("scannerId").equals("")){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(deviceId)){
+            if(a.getValue("scannerId").equals(deviceId)&&((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
                 TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
                 ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
@@ -120,7 +120,7 @@ public class MainActivityMultiFragment extends Fragment {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).add("scannerId",deviceId);
+                    objects.get(0).put("scannerId",deviceId);
                     objects.get(0).saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
