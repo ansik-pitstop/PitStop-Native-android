@@ -255,7 +255,7 @@ public class MainActivityFragment extends Fragment {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).add("scannerId",id);
+                    objects.get(0).put("scannerId",id);
                     objects.get(0).saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {

@@ -321,11 +321,13 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (serviceCallbacks != null)
                 serviceCallbacks.getIOData(dataPackageInfo);
         }
-        if(counter%10==0){
+        if(counter%20==0){
             getPIDs();
         }
-        if(counter==30){
+        if(counter%50==0){
             getDTCs();
+        }
+        if(counter==100){
             counter = 1;
             uploadRecords();
         }
@@ -401,7 +403,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         object.put("DTCArray", new JSONObject(dtc));
                         object.put("runAfterSave",false);
                         object.put("freezeDataArray", new JSONObject(pid));
-                        object.put("PIDArray", new JSONObject(freeze));
+                        object.put("PIDArray2", new JSONObject(freeze));
                         object.put("scannerId", device);
                     } catch (JSONException e) {
                         e.printStackTrace();
