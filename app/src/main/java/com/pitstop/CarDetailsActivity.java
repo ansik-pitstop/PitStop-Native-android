@@ -76,7 +76,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     private boolean requestSent = false;
 
     private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage, shopId;
-    private HashMap<String,Boolean> recallCodes;
+    private HashMap<String,Boolean> recallCodes = new HashMap<>();
 
     public static Intent serviceIntent;
 
@@ -174,8 +174,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         Bundle extras = getIntent().getExtras();
         getEdmundsServices(extras, ldr);
         getIntervalServices(extras, ldr);
-        getFixedServices(extras,ldr);
-        getRecalls(extras,ldr);
+        getFixedServices(extras, ldr);
+        getRecalls(extras, ldr);
         getDTCs(extras, ldr);
 
         //------------------------------- set up listview
@@ -229,6 +229,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             }
             recalls.removeAll(removes);
             //if need to get some services
+            Log.e("Recall keySet: ",recallCodes.keySet().toString());
             if (recalls.size() > 0) {
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
                 query.whereContainedIn("objectId", recallCodes.keySet());
