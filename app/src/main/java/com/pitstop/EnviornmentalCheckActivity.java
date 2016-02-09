@@ -16,6 +16,9 @@ import com.castel.obd.parse.PIDParse;
 
 import java.util.List;
 
+/**
+ * Proof of concept only! NOT IN USE!
+ */
 public class EnviornmentalCheckActivity extends AppCompatActivity  implements BluetoothManage.BluetoothDataListener{
 
     @Override

@@ -1,48 +1,34 @@
 package com.pitstop;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.Preference;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
-import static com.pitstop.PitstopPushBroadcastReceiver.*;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -153,7 +139,9 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Big setup for getting the display ready
+     */
     public void setUp(){
         setTextViews();
         getGarage();
@@ -235,6 +223,10 @@ public class MainActivityFragment extends Fragment {
         });
     }
 
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param id
+     */
     public void indicateConnected(final String id) {
         boolean found = false;
         Cars noDevice = null;

@@ -24,6 +24,7 @@ public class Database extends SQLiteOpenHelper {
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
         super(context, DB_NAME, null, 14);
+        //add all tables
         models.add(new Cars());
         models.add(new DTCs());
         models.add(new Recalls());

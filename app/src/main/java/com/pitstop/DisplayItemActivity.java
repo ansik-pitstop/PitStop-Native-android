@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pitstop.database.DBModel;
+import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 
 import java.util.HashMap;
@@ -22,13 +23,15 @@ public class DisplayItemActivity extends AppCompatActivity {
         DBModel model = (DBModel)getIntent().getSerializableExtra("Model");
         if(model instanceof Recalls){
             setTitle("Recall");
+        }else if(model instanceof DTCs){
+            setTitle("Engine Code");
         }else{
             setTitle("Service");
         }
         HashMap<String,String> info = model.getValues();
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.item_display);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        //list the information
         for (String key : info.keySet()){
             View view = getLayoutInflater().inflate(R.layout.activity_display_item_item,null);
             ((TextView)view.findViewById(R.id.title)).setText(key);

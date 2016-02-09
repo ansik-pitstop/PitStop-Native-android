@@ -9,6 +9,9 @@ import com.parse.ParsePushBroadcastReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * TODO Move to UTIL folder
+ */
 public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
     private static final String EXTRA_PARSE_DATA = "com.parse.Data";

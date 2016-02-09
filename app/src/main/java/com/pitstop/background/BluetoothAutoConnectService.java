@@ -84,6 +84,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         BluetoothManage.getInstance(this).obdGetParameter("2201");
     }
 
+    public void setRTCTime(){
+        Log.d("SETTINGRTCTIME","SETTING");
+        long currentTime = System.currentTimeMillis();
+        BluetoothManage.getInstance(this).obdSetParameter("1A01",String.valueOf(currentTime / 1000));
+    }
+
     public void startBluetoothSearch(){
         BluetoothManage.getInstance(this).connectBluetooth();
     }
@@ -177,6 +183,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     deviceConnected = true;
                 }
             }
+            //set RTC time once anything is connected
+            setRTCTime();
             if (deviceConnected) {
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -251,6 +259,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     dtcs+=parseDTCs(dtc)+",";
                 }
             }
+            //update DTC to online
             ParseObject scansSave = new ParseObject("Scan");
             scansSave.put("DTCs", dtcs);
             scansSave.put("scannerId", dataPackageInfo.deviceId);
@@ -266,9 +275,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             return;
         }
         counter ++;
+        //keep looking for pids until all pids are recieved
         if(pidI!=pids.length&&dataPackageInfo.result!=5){
             sendForPIDS();
         }
+        //because theres a lot of status 5, keep looking
         if(dataPackageInfo.result==5){
             status5counter++;
         }
@@ -302,6 +313,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 JSONObject Freeze = new JSONObject();
                 JSONArray arrayOfPids = new JSONArray();
                 try {
+                    //freeze data will need to be stored ina  different format (PIDS)
                     Freeze.put("time", dataPackageInfo.rtcTime);
                     JSONObject individual = new JSONObject();
                     for (PIDInfo i : dataPackageInfo.obdData) {
@@ -360,9 +372,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
-    private void sentDTCsOnline(){
-
-    }
 
     private class UploadInfoOnline extends AsyncTask<String,Void,Void> {
 

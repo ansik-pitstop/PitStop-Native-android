@@ -11,14 +11,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -37,7 +34,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
+        //get all service history
         final ParseQuery query = new ParseQuery("ServiceHistory");
         query.whereEqualTo("carId",getIntent().getStringExtra("carId"));
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -108,6 +105,9 @@ public class CarHistoryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Adapter for listview
+     */
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>{
 
         ArrayList<Container> dataList;

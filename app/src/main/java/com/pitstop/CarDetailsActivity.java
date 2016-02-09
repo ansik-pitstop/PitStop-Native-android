@@ -20,14 +20,11 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -111,8 +108,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
-        boolean recallsGet=false, dtcsGet = false;
 
+        //------------------------------- setup constants
         carId = getIntent().getStringExtra("CarID");
         VIN = getIntent().getStringExtra("vin");
         scannerID = getIntent().getStringExtra("scannerId");
@@ -127,7 +124,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         Log.d("total mileage", totalMileage);
         Log.d("base mileage", baseMileage);
 
-        //setup mileage
+        //------------------------------- set up mileage stuff
         if (totalMileage == null) { // total mileage was not calculated in backend yet
             ((TextView)findViewById(R.id.mileage)).setText(baseMileage);
         }
@@ -136,6 +133,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
 
 
+        //------------------------------- set up mileage stuff
         findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,75 +169,16 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
 
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
-        //--------------------------GET SERVICES--------------------------
+        //--------------------------GET SERVICES + RECALLS + DTCS--------------------------
 
         Bundle extras = getIntent().getExtras();
         getEdmundsServices(extras, ldr);
         getIntervalServices(extras, ldr);
         getFixedServices(extras,ldr);
-        //--------------------------------GET RECALLS-------------------------------
-
-
-        Object [] a = (Object[]) getIntent().getSerializableExtra("pendingRecalls");
-        recallCodes = new HashMap<String,Boolean>();
-        for (int i = 0; i<a.length; i++){
-            recallCodes.put(a[i].toString(), false);
-        }
-
-        //check DB first
-        for (String i : recallCodes.keySet()){
-            Recalls service;
-            service = (Recalls) ldr.getData("Recalls", "RecallID", i.trim());
-            if(service ==null){
-                recallsGet= true;//go get some missing services
-            }else {
-                if(service.getValue("state").equals("new")||service.getValue("state").equals("pending")) {
-                    arrayList.add(service);
-                }
-                recallCodes.put(i, true);
-            }
-        }
-        //see if need to get from online
-        if (recallsGet) {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
-            query.whereContainedIn("objectId", recallCodes.keySet());
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e==null) {
-                        for (ParseObject parseObject : objects) {
-                            Recalls recall = new Recalls();
-
-                            recall.setValue("RecallID", parseObject.getObjectId());
-                            recall.setValue("name", parseObject.getString("name"));
-                            recall.setValue("description", parseObject.getString("description"));
-                            recall.setValue("remedy", parseObject.getString("remedy"));
-                            recall.setValue("risk", "" + parseObject.getNumber("risk"));
-                            recall.setValue("effectiveDate", parseObject.getString("effectiveDate"));
-                            recall.setValue("oemID", parseObject.getString("oemID"));
-                            recall.setValue("reimbursement", "" + parseObject.getNumber("reimbursement"));
-                            recall.setValue("state", parseObject.getString("state"));
-                            recall.setValue("riskRank", "" + parseObject.getNumber("riskRank"));
-                            if (!recallCodes.get(recall.getValue("RecallID"))) {
-                                ldr.saveData("Recalls", recall.getValues());
-                                if (parseObject.getString("state").equals("new") || parseObject.getString("state").equals("pending"))
-                                    arrayList.add(recall);
-                            }
-                        }
-                    }
-                    customAdapter.dataList.clear();
-                    customAdapter.dataList.addAll(arrayList);
-                    customAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-
-        //--------------------------------GET DTCS-------------------------------
-
-
+        getRecalls(extras,ldr);
         getDTCs(extras, ldr);
 
-        // set up listview
+        //------------------------------- set up listview
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.car_event_listview);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -265,6 +204,72 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         super.onResume();
     }
 
+    /**
+     * Recieves all the Recalls
+     * @param extras
+     * @param ldr
+     */
+    private void getRecalls(Bundle extras, final LocalDataRetriever ldr) {
+        ArrayList<String> recalls = new ArrayList<String>(Arrays.asList(extras.getStringArray("pendingRecalls")));
+        ArrayList<String> removes = new ArrayList<>();
+        if(recalls.size()!=0) {
+            //check DB first
+            for (String i : recalls) {
+                Recalls recall;
+                HashMap<String,String> values = new HashMap<>();
+                values.put("RecallID", i.trim());
+                recalls.set(recalls.indexOf(i), i.trim());
+                recall = (Recalls) ldr.getData("Recalls", values);
+                if (recall != null) {
+                    if(recall.getValue("state").equals("new")||recall.getValue("state").equals("pending")) {
+                        arrayList.add(recall);
+                    }
+                    removes.add(i.trim());
+                }
+            }
+            recalls.removeAll(removes);
+            //if need to get some services
+            if (recalls.size() > 0) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
+                query.whereContainedIn("objectId", recallCodes.keySet());
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            for (ParseObject parseObject : objects) {
+                                Recalls recall = new Recalls();
+
+                                recall.setValue("RecallID", parseObject.getObjectId());
+                                recall.setValue("name", parseObject.getString("name"));
+                                recall.setValue("description", parseObject.getString("description"));
+                                recall.setValue("remedy", parseObject.getString("remedy"));
+                                recall.setValue("risk", "" + parseObject.getNumber("risk"));
+                                recall.setValue("effectiveDate", parseObject.getString("effectiveDate"));
+                                recall.setValue("oemID", parseObject.getString("oemID"));
+                                recall.setValue("reimbursement", "" + parseObject.getNumber("reimbursement"));
+                                recall.setValue("state", parseObject.getString("state"));
+                                recall.setValue("riskRank", "" + parseObject.getNumber("riskRank"));
+                                if (!recallCodes.get(recall.getValue("RecallID"))) {
+                                    ldr.saveData("Recalls", recall.getValues());
+                                    if (parseObject.getString("state").equals("new") || parseObject.getString("state").equals("pending"))
+                                        arrayList.add(recall);
+                                }
+                            }
+                        }
+                        customAdapter.dataList.clear();
+                        customAdapter.dataList.addAll(arrayList);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Gets all the DTCs
+     * @param extras
+     * @param ldr
+     */
     private void getDTCs(Bundle extras, final LocalDataRetriever ldr) {
         ArrayList<String> dtcs = new ArrayList<String>(Arrays.asList(extras.getStringArray("dtcs")));
         ArrayList<String> removes = new ArrayList<>();
@@ -309,156 +314,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
-    private void setSwipeDeleteListener(RecyclerView mRecyclerView){
-        SwipeableRecyclerViewTouchListener swipeTouchListener =
-                new SwipeableRecyclerViewTouchListener(mRecyclerView,
-                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
-                            @Override
-                            public boolean canSwipe(int position) {
-                                if(customAdapter.dataList.get(position) instanceof DTCs){
-                                    return false;
-                                }
-                                return true;
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
-                                final CharSequence[] times = new CharSequence[]{
-                                        "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
-                                };
-                                final int[] estimate = new int[]{
-                                        0,2,3,10,18,32
-                                };
-                                Calendar cal = Calendar.getInstance();
-                                final Date currentLocalTime = cal.getTime();
-
-                                final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
-
-                                final int i = reverseSortedPositions[0];
-                                AlertDialog setDoneDialog = new AlertDialog.Builder(CarDetailsActivity.this)
-                                    .setItems(times, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, final int position) {
-                                            int mileage = Integer.valueOf(((TextView) findViewById(R.id.mileage)).getText().toString());
-                                            //services
-                                            if(customAdapter.dataList.get(i) instanceof Services) {
-                                                final String type = customAdapter.dataList.get(i).getValue("serviceType");
-                                                final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
-//                                            Toast.makeText(getApplicationContext(), times[i], Toast.LENGTH_SHORT).show();
-                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
-                                                saveCompletion.put("carId", carId);
-                                                saveCompletion.put("mileageSetByUser", mileage);
-                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
-                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("ParseID").toString());
-                                                saveCompletion.put("shopId", shopId);
-                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
-                                                saveCompletion.put("type", Integer.valueOf(typeService));
-                                                saveCompletion.saveEventually(new SaveCallback() {
-                                                    @Override
-                                                    public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-
-                                                ParseQuery updateObject = new ParseQuery("Car");
-                                                try {
-                                                    updateObject.get(carId);
-                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
-
-                                                        @Override
-                                                        public void done(List<ParseObject> objects, ParseException e) {
-                                                            if(e==null) {
-                                                                String type = (typeService == 0 ? "pendingEdmundServices" : (typeService == 1 ? "pendingFixedServices" : "pendingIntervalServices"));
-                                                                JSONArray original = objects.get(0).getJSONArray(type);
-                                                                ArrayList<String> updatedTexts = new ArrayList<>();
-                                                                for (int j = 0; j < original.length(); j++) {
-                                                                    try {
-                                                                        if (!original.getString(j).equals(customAdapter.dataList.get(i).getValue("ParseID"))) {
-                                                                            updatedTexts.add(original.getString(j));
-                                                                        }
-                                                                    } catch (JSONException e1) {
-                                                                        e1.printStackTrace();
-                                                                    }
-                                                                }
-                                                                objects.get(0).put(type, updatedTexts);
-                                                                ((ParseObject) objects.get(0)).saveEventually();
-                                                                LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
-                                                                HashMap<String, String> map = new HashMap<String, String>();
-                                                                map.put(type, "[" + TextUtils.join(",", updatedTexts) + "]");
-                                                                ldr.updateData("Cars", "CarID", carId, map);
-
-                                                                for (int position : reverseSortedPositions) {
-                                                                    customAdapter.dataList.remove(position);
-                                                                    customAdapter.notifyItemRemoved(position);
-                                                                }
-                                                                customAdapter.notifyDataSetChanged();
-                                                            }
-                                                        }
-                                                    });
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }else{//if Recalls
-                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
-                                                saveCompletion.put("carId", carId.toString());
-                                                saveCompletion.put("mileageSetByUser", mileage);
-                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
-                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("RecallID"));
-                                                saveCompletion.put("shopId", shopId);
-                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
-                                                saveCompletion.saveEventually(new SaveCallback() {
-                                                    @Override
-                                                    public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                                ParseQuery updateObject = new ParseQuery("RecallEntry");
-                                                try {
-                                                    updateObject.get(customAdapter.dataList.get(i).getValue("RecallID"));
-                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
-
-                                                        @Override
-                                                        public void done(List<ParseObject> objects, ParseException e) {
-                                                            objects.get(0).put("state","doneByUser");
-                                                            ((ParseObject)objects.get(0)).saveEventually(new SaveCallback() {
-                                                                @Override
-                                                                public void done(ParseException e) {
-                                                                }
-                                                            });
-                                                            LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
-                                                            HashMap<String,String> map = new HashMap<String,String>();
-                                                            recallCodes.remove(customAdapter.dataList.get(i).getValue("RecallID"));
-                                                            map.put("recalls", "[" + TextUtils.join(",", recallCodes.keySet()) + "]");
-                                                            ldr.updateData("Cars", "CarID", carId, map);
-
-                                                            for (int position : reverseSortedPositions) {
-                                                                customAdapter.dataList.remove(position);
-                                                                customAdapter.notifyItemRemoved(position);
-                                                            }
-                                                            customAdapter.notifyDataSetChanged();
-                                                        }
-                                                    });
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                            MainActivity.refresh=true;
-                                            dialogInterface.dismiss();
-                                        }
-                                    })
-                                    .setTitle("When did you complete this task?")
-                                    .show();
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
-                                onDismissedBySwipeLeft(recyclerView,reverseSortedPositions);
-                            }
-                        });
-
-        mRecyclerView.addOnItemTouchListener(swipeTouchListener);
-    }
-
+    /**
+     * Get Fixed Services
+     * @param extras
+     * @param ldr
+     */
     private void getFixedServices(Bundle extras, final LocalDataRetriever ldr) {
         //-------Interval----------
         ArrayList<String> fixed = new ArrayList<String>(Arrays.asList(extras.getStringArray("fixed")));
@@ -511,6 +371,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    /**
+     * Get Interval Services
+     * @param extras
+     * @param ldr
+     */
     private void getIntervalServices(Bundle extras,final LocalDataRetriever ldr) {
         //-------Interval----------
         ArrayList<String> interval = new ArrayList<String>(Arrays.asList(extras.getStringArray("interval")));
@@ -563,6 +428,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    /**
+     * Get Edmund Services
+     * @param extras
+     * @param ldr
+     */
     private void getEdmundsServices(Bundle extras, final LocalDataRetriever ldr) {
         //-------EDMUND----------
         ArrayList<String> edmunds = new ArrayList<String>(Arrays.asList(extras.getStringArray("edmund")));
@@ -614,6 +484,166 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+
+    /**
+     * Detect Swipes on each list item
+     * @param mRecyclerView
+     */
+    private void setSwipeDeleteListener(RecyclerView mRecyclerView){
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(mRecyclerView,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+                            @Override
+                            public boolean canSwipe(int position) {
+                                //------------------------------- DTCS are disabled still TODO add DTCS Response
+                                if(customAdapter.dataList.get(position) instanceof DTCs){
+                                    return false;
+                                }
+                                return true;
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
+                                final CharSequence[] times = new CharSequence[]{
+                                        "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
+                                };
+                                final int[] estimate = new int[]{
+                                        0,2,3,10,18,32
+                                };
+                                Calendar cal = Calendar.getInstance();
+                                final Date currentLocalTime = cal.getTime();
+                                final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
+                                final int i = reverseSortedPositions[0];
+                                AlertDialog setDoneDialog = new AlertDialog.Builder(CarDetailsActivity.this)
+                                    .setItems(times, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, final int position) {
+                                            int mileage = Integer.valueOf(((TextView) findViewById(R.id.mileage)).getText().toString());
+
+                                            //------------------------------- services
+                                            if(customAdapter.dataList.get(i) instanceof Services) {
+                                                final String type = customAdapter.dataList.get(i).getValue("serviceType");
+                                                final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
+                                                //update service info only in Servie History first
+                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
+                                                saveCompletion.put("carId", carId);
+                                                saveCompletion.put("mileageSetByUser", mileage);
+                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
+                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("ParseID").toString());
+                                                saveCompletion.put("shopId", shopId);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
+                                                saveCompletion.put("type", Integer.valueOf(typeService));
+                                                saveCompletion.saveEventually(new SaveCallback() {
+                                                    @Override
+                                                    public void done(ParseException e) {
+                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                //update the car object on the server next
+                                                ParseQuery updateObject = new ParseQuery("Car");
+                                                try {
+                                                    updateObject.get(carId);
+                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                                                        @Override
+                                                        public void done(List<ParseObject> objects, ParseException e) {
+                                                            if(e==null) {
+                                                                String type = (typeService == 0 ? "pendingEdmundServices" : (typeService == 1 ? "pendingFixedServices" : "pendingIntervalServices"));
+                                                                JSONArray original = objects.get(0).getJSONArray(type);
+                                                                ArrayList<String> updatedTexts = new ArrayList<>();
+                                                                for (int j = 0; j < original.length(); j++) {
+                                                                    try {
+                                                                        if (!original.getString(j).equals(customAdapter.dataList.get(i).getValue("ParseID"))) {
+                                                                            updatedTexts.add(original.getString(j));
+                                                                        }
+                                                                    } catch (JSONException e1) {
+                                                                        e1.printStackTrace();
+                                                                    }
+                                                                }
+                                                                //update object on server for Car
+                                                                objects.get(0).put(type, updatedTexts);
+                                                                objects.get(0).saveEventually();
+                                                                // update local database!
+                                                                LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+                                                                HashMap<String, String> map = new HashMap<String, String>();
+                                                                map.put(type, "[" + TextUtils.join(",", updatedTexts) + "]");
+                                                                ldr.updateData("Cars", "CarID", carId, map);
+
+                                                                for (int position : reverseSortedPositions) {
+                                                                    customAdapter.dataList.remove(position);
+                                                                    customAdapter.notifyItemRemoved(position);
+                                                                }
+                                                                customAdapter.notifyDataSetChanged();
+                                                            }
+                                                        }
+                                                    });
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }else{
+                                                //------------------------------- Recalls
+                                                //update service history
+                                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
+                                                saveCompletion.put("carId", carId.toString());
+                                                saveCompletion.put("mileageSetByUser", mileage);
+                                                saveCompletion.put("mileage", mileage - estimate[position] * 375);
+                                                saveCompletion.put("serviceObjectId", customAdapter.dataList.get(i).getValue("RecallID"));
+                                                saveCompletion.put("shopId", shopId);
+                                                saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
+                                                saveCompletion.saveEventually(new SaveCallback() {
+                                                    @Override
+                                                    public void done(ParseException e) {
+                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                //update recall object
+                                                ParseQuery updateObject = new ParseQuery("RecallEntry");
+                                                try {
+                                                    updateObject.get(customAdapter.dataList.get(i).getValue("RecallID"));
+                                                    updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                                                        @Override
+                                                        public void done(List<ParseObject> objects, ParseException e) {
+                                                            objects.get(0).put("state","doneByUser");
+                                                            ((ParseObject)objects.get(0)).saveEventually();
+                                                            //update local database
+                                                            LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+                                                            HashMap<String,String> map = new HashMap<String,String>();
+                                                            recallCodes.remove(customAdapter.dataList.get(i).getValue("RecallID"));
+                                                            map.put("recalls", "[" + TextUtils.join(",", recallCodes.keySet()) + "]");
+                                                            ldr.updateData("Cars", "CarID", carId, map);
+
+                                                            for (int position : reverseSortedPositions) {
+                                                                customAdapter.dataList.remove(position);
+                                                                customAdapter.notifyItemRemoved(position);
+                                                            }
+                                                            customAdapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                            MainActivity.refresh=true;
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .setTitle("When did you complete this task?")
+                                    .show();
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                onDismissedBySwipeLeft(recyclerView,reverseSortedPositions);
+                            }
+                        });
+
+        mRecyclerView.addOnItemTouchListener(swipeTouchListener);
+    }
+    /**
+     * Update the mileage
+     * @param chsq
+     */
     private void updateMileage(CharSequence chsq) {
         String mileage = chsq.toString();
 
@@ -623,7 +653,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
             params.put("carVin", VIN);
             params.put("mileage", Integer.valueOf(mileage));
-
+            // update the server information
             ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
                 public void done(Object o, ParseException e) {
                     if (e == null) {
@@ -636,6 +666,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             });
 
 
+            //update the car object
             ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
             ParseObject car = cars.get(carId);
             car.put("totalMileage", Integer.parseInt(mileage));
@@ -650,7 +681,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         // save to local DB
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         // carId shouldn't be shown to user
-//        Toast.makeText(this, carId, Toast.LENGTH_SHORT).show();
         HashMap<String, String> hm = new HashMap<String, String>();
         hm.put("totalMileage", mileage);
         ldr.updateData("Cars", "CarID", carId, hm);
@@ -662,6 +692,10 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         MainActivity.refresh = true;
     }
 
+    /**
+     * Request Service Button Response
+     * @param additional
+     */
     public void requestServiceButton(String additional) {
         if(requestSent){
             Toast.makeText(getApplicationContext(), "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
@@ -674,9 +708,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         ArrayList<HashMap<String,String>> services = new ArrayList<>();
         ArrayList<String> recalls = new ArrayList<>();
         for(DBModel model: arrayList){
+            //services dont need to be reformatted
             if(model instanceof Services){
                 services.add(model.getValues());
             }
+            //change recall structure to work
             if(model instanceof Recalls){
                 LocalDataRetriever ldr  = new LocalDataRetriever(this);
                 Recalls recall = new Recalls();
@@ -692,15 +728,17 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 tmp.put("state","pending");
                 ldr.updateData("Recalls","RecallID",model.getValue("RecallID"),tmp);
             }
+            //change dtc object to work
             if(model instanceof DTCs){
                 DTCs dtc = new DTCs();
                 dtc.setValue("item", model.getValue("dtcCode"));
                 dtc.setValue("action","Engine Issue: DTC Code");
                 dtc.setValue("itemDescription",model.getValue("description"));
-                dtc.setValue("priority",""+ 5); // high priority for recall
+                dtc.setValue("priority",""+ 5); // must be 5
                 services.add(dtc.getValues());
             }
         }
+        //update the recall state to pending!
         if(recalls.size()>0) {
             ParseQuery query = new ParseQuery("RecallEntry");
             query.whereContainedIn("objectId", recalls);
@@ -716,11 +754,13 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 }
             });
         }
+        //update the object to be send to server with "additional" messages
         output.put("services", services);
         output.put("carVin", VIN);
         output.put("userObjectId", userId);
         output.put("comments",additional);
         if(services.size()>0) {
+            //send email
             ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
                 @Override
                 public void done(Object object, ParseException e) {
@@ -732,6 +772,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 }
             });
         }else{
+            //if there are no entries, say nothing to send!
             Toast.makeText(getApplicationContext(), "Nothing to Send", Toast.LENGTH_SHORT).show();
         }
     }
@@ -808,6 +849,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    /**
+     * The dialog to display for clicking service request button
+     */
     public class ServiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -835,6 +879,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    /**
+     * Adapter for the list
+     */
     class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         ArrayList<DBModel> dataList;

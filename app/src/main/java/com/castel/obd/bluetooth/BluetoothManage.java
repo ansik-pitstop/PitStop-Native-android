@@ -21,7 +21,6 @@ import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,8 +107,8 @@ public class BluetoothManage {
 					}
 					mBluetoothAdapter.startDiscovery();
 				} else {
-					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
-							Toast.LENGTH_LONG).show();
+//					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
+//							Toast.LENGTH_LONG).show();
 					dataListener.getBluetoothState(btState);
 				}
 				break;
@@ -263,8 +262,8 @@ public class BluetoothManage {
 	 */
 	public void obdSetCtrl(int type) {
 		if (btState != CONNECTED) {
-			Toast.makeText(mContext, R.string.bluetooth_disconnected,
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(mContext, R.string.bluetooth_disconnected,
+//					Toast.LENGTH_LONG).show();
 			return;
 		}
 
@@ -278,8 +277,8 @@ public class BluetoothManage {
 	 */
 	public void obdSetMonitor(int type, String valueList) {
 		if (btState != CONNECTED) {
-			Toast.makeText(mContext, R.string.bluetooth_disconnected,
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(mContext, R.string.bluetooth_disconnected,
+//					Toast.LENGTH_LONG).show();
 			return;
 		}
 
@@ -298,8 +297,8 @@ public class BluetoothManage {
 	 */
 	public void obdSetParameter(String tlvTagList, String valueList) {
 		if (btState != CONNECTED) {
-			Toast.makeText(mContext, R.string.bluetooth_disconnected,
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(mContext, R.string.bluetooth_disconnected,
+//					Toast.LENGTH_LONG).show();
 			return;
 		}
 
@@ -319,8 +318,8 @@ public class BluetoothManage {
 	 */
 	public void obdGetParameter(String tlvTag) {
 		if (btState != CONNECTED) {
-			Toast.makeText(mContext, R.string.bluetooth_disconnected,
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(mContext, R.string.bluetooth_disconnected,
+//					Toast.LENGTH_LONG).show();
 			return;
 		}
 

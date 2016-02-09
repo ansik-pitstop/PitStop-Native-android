@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,12 +24,15 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
-import static com.pitstop.PitstopPushBroadcastReceiver.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
+import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
 
 
 /**
@@ -95,47 +97,6 @@ public class MainActivityMultiFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public void indicateConnected(final String deviceId) {
-        boolean found = false;
-        Cars noDevice = null;
-        int i = 0;
-        for(DBModel a : array){
-            if(a.getValue("scannerId").equals("")){
-                noDevice = (Cars) a;
-            }
-            if(a.getValue("scannerId").equals(deviceId)&&((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
-                found = true;
-                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
-                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
-            }
-            i++;
-        }
-        // add device if a car has no linked device
-        if(!found&&noDevice!=null){
-            final Cars finalNoDevice = noDevice;
-            ParseQuery query = new ParseQuery("Car");
-            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).put("scannerId",deviceId);
-                    objects.get(0).saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            finalNoDevice.setValue("scannerId", deviceId);
-                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-                            HashMap<String,String> map = new HashMap<String,String>();
-                            map.put("scannerId",deviceId);
-                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
-                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
-                            ((MainActivity)getActivity()).service.getDTCs();
-                        }
-                    });
-                }
-            });
-        }
     }
 
     /**
@@ -283,6 +244,51 @@ public class MainActivityMultiFragment extends Fragment {
         startActivity(intent);
     }
 
+
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     */
+    public void indicateConnected(final String deviceId) {
+        boolean found = false;
+        Cars noDevice = null;
+        int i = 0;
+        for(DBModel a : array){
+            if(a.getValue("scannerId").equals("")){
+                noDevice = (Cars) a;
+            }
+            if(a.getValue("scannerId").equals(deviceId)&&((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
+                found = true;
+                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
+                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
+            }
+            i++;
+        }
+        // add device if a car has no linked device
+        if(!found&&noDevice!=null){
+            final Cars finalNoDevice = noDevice;
+            ParseQuery query = new ParseQuery("Car");
+            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    objects.get(0).put("scannerId",deviceId);
+                    objects.get(0).saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            finalNoDevice.setValue("scannerId", deviceId);
+                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                            HashMap<String,String> map = new HashMap<String,String>();
+                            map.put("scannerId",deviceId);
+                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
+                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
+                            ((MainActivity)getActivity()).service.getDTCs();
+                        }
+                    });
+                }
+            });
+        }
+    }
     public class CarsListAdapter extends BaseAdapter{
         private ArrayList<DBModel> array;
         private HashMap<String,DBModel> shops;

@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
@@ -32,12 +30,14 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -172,20 +172,30 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onPause();
     }
 
+    /**
+     * Clears and refreshes the whole database
+     */
     private void refreshDatabase() {
         // if wifi is on
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (mWifi.isConnected()) {
-            isRefresh = true;
-            final LocalDataRetriever ldr = new LocalDataRetriever(this);
-            SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-            String objectID = settings.getString(pfCodeForObjectID, "NA");
-            ldr.deleteData("Cars", "owner", objectID);
-        }else{
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"No internet connection to update.",Snackbar.LENGTH_SHORT);
-            snackbar.show();
+        boolean hasWifi = false;
+        try {
+            hasWifi = new InternetChecker(this).execute().get();
+            if (hasWifi) {
+                isRefresh = true;
+                final LocalDataRetriever ldr = new LocalDataRetriever(this);
+                SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+                String objectID = settings.getString(pfCodeForObjectID, "NA");
+                ldr.deleteData("Cars", "owner", objectID);
+            }else{
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"No internet connection to update.",Snackbar.LENGTH_SHORT);
+                snackbar.show();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
+
         setUp();
     }
 
@@ -198,11 +208,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     }
 
+    /**
+     * Add new Car
+     * @param view
+     */
     public void addCar(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Reload screen withou clearing database, using network when it exists!
+     */
     public void setUp(){
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
         array.clear();
@@ -212,11 +229,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         array = ldr.getDataSet("Cars", "owner", userId);
 
         // if wifi is on
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean hasWifi = false;
+        try {
+            hasWifi = new InternetChecker(this).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        //load from database if possible
         if(array.size()>0){
             openFragment();
-        }else if(mWifi.isConnected()){
+        }else if(hasWifi){
+            //search database
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
             if (ParseUser.getCurrentUser() != null) {
                 userId = ParseUser.getCurrentUser().getObjectId();
@@ -253,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                             c.setValue("numberOfRecalls", String.valueOf(car.getInt("numberOfRecalls")));
                             c.setValue("numberOfServices",String.valueOf(car.getInt("numberOfServices")));
 
+                            //custom call for recall entry
                             ParseQuery<ParseObject> recalls = ParseQuery.getQuery("RecallMasters");
                             recalls.whereEqualTo("forCar", car);
                             recalls.findInBackground(new FindCallback<ParseObject>() {
@@ -295,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }else{
             openFragment();
         }
-
+        //if no bluetooth on, ask to turn it on
         if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
             snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
@@ -309,13 +335,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
+    /**
+     * Determine the fragment to open
+     */
     private void openFragment() {
         findViewById(R.id.loading_section).setVisibility(View.GONE);
         if (array.size() == 0) {
+            //if no car, go to add car screen
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             isRefresh= false;
             startActivity(intent);
         } else {
+            //choose between single and multi view
 
             final Fragment fragment;
             final String tag;
@@ -368,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        //update the front end if data being received from a device!
         if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&getSupportFragmentManager().getFragments().size()>0) {
             if (array.size() == 1 && getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityFragment) {
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);

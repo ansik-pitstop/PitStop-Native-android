@@ -3,37 +3,24 @@ package com.pitstop;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.SaveCallback;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.database.DBModel;
-import com.pitstop.database.LocalDataRetriever;
-import com.pitstop.database.models.Uploads;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
+/**
+ * TODO move to DEBUG folder
+ */
 public class ReceiveDebugActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
 
     TextView BTSTATUS;
