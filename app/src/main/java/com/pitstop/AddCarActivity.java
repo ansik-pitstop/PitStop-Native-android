@@ -57,6 +57,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
     private PrintDebugThread mLogDumper;
     private boolean bound;
+    boolean makingCar = false;
     private BluetoothAutoConnectService service;
     private boolean askForDTC = false;
     private ArrayList<String> DTCData= new ArrayList<>();
@@ -203,7 +204,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     private void makeCar() {
-        if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")) {
+        if(!((EditText) findViewById(R.id.VIN)).getText().toString().equals("")&&!makingCar) {
+            makingCar = true;
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
             final String[] mashapeKey = {""};
             showLoading();
@@ -293,7 +295,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getIOData(DataPackageInfo dataPackageInfo) {
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askForDTC) {
             dtcs = "";
-            if(dataPackageInfo.dtcData.length()>0){
+            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
                     dtcs+=service.parseDTCs(dtc)+",";
@@ -374,9 +376,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     private class CallMashapeAsync extends AsyncTask<String, Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showLoading();
+        }
 
         protected Void doInBackground(String... msg) {
-            showLoading();
 
             try {
 
@@ -411,6 +417,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                             if(objects.size()>0){
                                 Toast.makeText(getApplicationContext(),"Car Already Exist for Another User!", Toast.LENGTH_SHORT).show();
                                 hideLoading();
+                                makingCar = false;
                                 return;
                             }
                             else {
@@ -463,6 +470,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                                             finish();
                                                                         } else {
                                                                             hideLoading();
+                                                                            makingCar = false;
                                                                             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                                                                         }
                                                                     }
@@ -475,6 +483,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                     });
                                                 } catch (JSONException e1) {
                                                     e1.printStackTrace();
+                                                    makingCar = false;
                                                 }
                                             }
                                         })
@@ -488,6 +497,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         public void run() {
                             Toast.makeText(getApplicationContext(), "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
                             hideLoading();
+                            makingCar = false;
                         }
                     });
                 }
@@ -497,6 +507,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     public void run() {
                         Toast.makeText(getApplicationContext(), "Errored Out", Toast.LENGTH_SHORT).show();
                         hideLoading();
+                        makingCar = false;
                     }
                 });
                 e.printStackTrace();
