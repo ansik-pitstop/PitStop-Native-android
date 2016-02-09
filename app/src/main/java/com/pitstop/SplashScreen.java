@@ -142,6 +142,10 @@ public class SplashScreen extends AppCompatActivity {
             super.onBackPressed();
         } else {
             // Otherwise, select the previous step.
+            //TODO: Come up with an elegant solution
+            if(signup) {
+                signup = !signup;
+            }
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
     }
