@@ -47,6 +47,7 @@ import com.parse.SaveCallback;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
@@ -257,9 +258,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 }
                             }
                         }
-                        customAdapter.dataList.clear();
-                        customAdapter.dataList.addAll(arrayList);
-                        customAdapter.notifyDataSetChanged();
+                        updateAdapter();
                     }
                 });
             }
@@ -306,9 +305,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 arrayList.add(service);
                             }
                         }
-                        customAdapter.dataList.clear();
-                        customAdapter.dataList.addAll(arrayList);
-                        customAdapter.notifyDataSetChanged();
+                        updateAdapter();
                     }
                 });
             }
@@ -363,9 +360,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 arrayList.add(service);
                             }
                         }
-                        customAdapter.dataList.clear();
-                        customAdapter.dataList.addAll(arrayList);
-                        customAdapter.notifyDataSetChanged();
+                        updateAdapter();
                     }
                 });
             }
@@ -420,9 +415,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 arrayList.add(service);
                             }
                         }
-                        customAdapter.dataList.clear();
-                        customAdapter.dataList.addAll(arrayList);
-                        customAdapter.notifyDataSetChanged();
+                        updateAdapter();
                     }
                 });
             }
@@ -476,13 +469,24 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 arrayList.add(service);
                             }
                         }
-                        customAdapter.dataList.clear();
-                        customAdapter.dataList.addAll(arrayList);
-                        customAdapter.notifyDataSetChanged();
+                        updateAdapter();
                     }
                 });
             }
         }
+    }
+
+
+    public void updateAdapter(){
+        customAdapter.dataList.clear();
+        customAdapter.dataList.addAll(arrayList);
+        if(arrayList.size()==0){
+            Cars car = new Cars();
+            car.setValue("itemDescription", "You have no pending Engine Code, Recalls or Services");
+            car.setValue("item","Congrats!");
+            customAdapter.dataList.add(car);
+        }
+        customAdapter.notifyDataSetChanged();
     }
 
 
@@ -910,10 +914,14 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             }else if(dataList.get(i) instanceof DTCs) {
                 holder.title.setText(dataList.get(i).getValue("dtcCode"));
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_announcement_blue_600_24dp));
-            } else {
+            } else if(dataList.get(i) instanceof Services){
                 holder.description.setText(dataList.get(i).getValue("itemDescription"));
                 holder.title.setText(dataList.get(i).getValue("item"));
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
+            }else{
+                holder.description.setText(dataList.get(i).getValue("itemDescription"));
+                holder.title.setText(dataList.get(i).getValue("item"));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_check_circle_green_400_36dp));
             }
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -929,6 +937,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         public int getItemCount() {
             return dataList.size();
         }
+
+
 
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and

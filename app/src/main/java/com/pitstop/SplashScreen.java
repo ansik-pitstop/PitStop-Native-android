@@ -38,6 +38,7 @@ public class SplashScreen extends AppCompatActivity {
     public static final String TAG = SplashScreen.class.getSimpleName();
 
     boolean signup  = false;
+    boolean backPressed = false;
 
 
     /**
@@ -87,6 +88,9 @@ public class SplashScreen extends AppCompatActivity {
                 if(position==3){
                     findViewById(R.id.radio_layout).setVisibility(View.GONE);
                     findViewById(R.id.button7).setVisibility(View.GONE);
+                    findViewById(R.id.login).setVisibility(View.VISIBLE);
+                    findViewById(R.id.name).setVisibility(View.GONE);
+                    findViewById(R.id.phone).setVisibility(View.GONE);
 
                     ((EditText)findViewById(R.id.password)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
                         @Override
@@ -136,6 +140,7 @@ public class SplashScreen extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        backPressed = true;
         if (mPager.getCurrentItem() == 0) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
@@ -143,10 +148,16 @@ public class SplashScreen extends AppCompatActivity {
         } else {
             // Otherwise, select the previous step.
             //TODO: Come up with an elegant solution
-            if(signup) {
+            if(signup && backPressed) {
                 signup = !signup;
+                backPressed = !backPressed;
+                findViewById(R.id.login).setVisibility(View.VISIBLE);
+                findViewById(R.id.name).setVisibility(View.GONE);
+                findViewById(R.id.phone).setVisibility(View.GONE);
+            } else {
+                mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
-            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+
         }
     }
 
@@ -211,7 +222,11 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void login(View view) {
-        ParseUser.logInInBackground(((TextView) findViewById(R.id.email)).getText().toString(), ((TextView) findViewById(R.id.password)).getText().toString(), new LogInCallback() {
+
+        String username = ((TextView) findViewById(R.id.email)).getText().toString();
+        String password = ((TextView) findViewById(R.id.password)).getText().toString();
+
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
 
             @Override
             public void done(ParseUser user, ParseException e) {
