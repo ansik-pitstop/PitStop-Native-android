@@ -7,14 +7,14 @@
     tools:context="com.pitstop.DisplayItemActivity"
     android:orientation="vertical">
 
-    <ScrollView
+    <!--<ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent">-->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/item_display"
             ></LinearLayout>
-    </ScrollView>
+    <!--</ScrollView>-->
 </LinearLayout>
