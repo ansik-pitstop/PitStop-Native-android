@@ -77,7 +77,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     private boolean requestSent = false;
 
     private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage, shopId;
-    private HashMap<String,Boolean> recallCodes = new HashMap<>();
 
     public static Intent serviceIntent;
 
@@ -211,7 +210,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      * @param ldr
      */
     private void getRecalls(Bundle extras, final LocalDataRetriever ldr) {
-        ArrayList<String> recalls = new ArrayList<String>(Arrays.asList(extras.getStringArray("pendingRecalls")));
+        final ArrayList<String> recalls = new ArrayList<String>(Arrays.asList(extras.getStringArray("pendingRecalls")));
         ArrayList<String> removes = new ArrayList<>();
         if(recalls.size()!=0) {
             //check DB first
@@ -230,10 +229,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             }
             recalls.removeAll(removes);
             //if need to get some services
-            Log.e("Recall keySet: ",recallCodes.keySet().toString());
             if (recalls.size() > 0) {
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
-                query.whereContainedIn("objectId", recallCodes.keySet());
+                query.whereContainedIn("objectId",recalls);
                 query.findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
@@ -251,7 +249,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 recall.setValue("reimbursement", "" + parseObject.getNumber("reimbursement"));
                                 recall.setValue("state", parseObject.getString("state"));
                                 recall.setValue("riskRank", "" + parseObject.getNumber("riskRank"));
-                                if (!recallCodes.get(recall.getValue("RecallID"))) {
+                                if (!recalls.contains(recall.getValue("RecallID"))) {
                                     ldr.saveData("Recalls", recall.getValues());
                                     if (parseObject.getString("state").equals("new") || parseObject.getString("state").equals("pending"))
                                         arrayList.add(recall);
@@ -501,7 +499,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                             @Override
                             public boolean canSwipe(int position) {
                                 //------------------------------- DTCS are disabled still TODO add DTCS Response
-                                if(customAdapter.dataList.get(position) instanceof DTCs){
+                                if(customAdapter.dataList.get(position) instanceof DTCs || customAdapter.dataList.get(position) instanceof Cars){
                                     return false;
                                 }
                                 return true;
@@ -614,8 +612,13 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                             //update local database
                                                             LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
                                                             HashMap<String,String> map = new HashMap<String,String>();
-                                                            recallCodes.remove(customAdapter.dataList.get(i).getValue("RecallID"));
-                                                            map.put("recalls", "[" + TextUtils.join(",", recallCodes.keySet()) + "]");
+                                                            ArrayList<Recalls> tempRecallList = new ArrayList<>();
+                                                            for (DBModel a : arrayList){
+                                                                if(a instanceof Recalls && !a.getValue("RecallID").equals(customAdapter.dataList.get(i).getValue("RecallID"))){
+                                                                    tempRecallList.add((Recalls)a);
+                                                                }
+                                                            }
+                                                            map.put("recalls", "[" + TextUtils.join(",", tempRecallList) + "]");
                                                             ldr.updateData("Cars", "CarID", carId, map);
 
                                                             for (int position : reverseSortedPositions) {
