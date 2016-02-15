@@ -132,18 +132,25 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
             @Override
             public void afterTextChanged(Editable s) {
-                Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
-                if (isValidVin(vin)) { // VIN is valid - enable add car, don't show scanner
-                    findViewById(R.id.button).setVisibility(View.VISIBLE);
-                    scannerButton.setVisibility(View.GONE);
-                    findViewById(R.id.button).setEnabled(true);
-                }
-                else {
-                    findViewById(R.id.button).setVisibility(View.GONE);
-                    scannerButton.setVisibility(View.VISIBLE);
-                    findViewById(R.id.button).setEnabled(false);
-                }
+                Editable vin = ((EditText) findViewById(R.id.VIN)).getText();
 
+                String whitespaceRemoved = String.valueOf(vin);
+                whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "").replace("\r", "").replace("\n", "");
+
+                if (String.valueOf(vin).equals(whitespaceRemoved)) {
+                    if (isValidVin(vin)) { // VIN is valid - enable add car, don't show scanner
+                        findViewById(R.id.button).setVisibility(View.VISIBLE);
+                        scannerButton.setVisibility(View.GONE);
+                        findViewById(R.id.button).setEnabled(true);
+                    } else {
+                        findViewById(R.id.button).setVisibility(View.GONE);
+                        scannerButton.setVisibility(View.VISIBLE);
+                        findViewById(R.id.button).setEnabled(false);
+                    }
+                } else {
+                    Log.v("", "whitespace in VIN input removed. Original input: " + vin);
+                    ((EditText) findViewById(R.id.VIN)).setText(whitespaceRemoved);
+                }
             }
         });
 
