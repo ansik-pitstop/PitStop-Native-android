@@ -38,7 +38,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textOn="NO"
-                android:textOff="NO"/>
+                android:textOff="NO"
+                android:checked="false" />
         </LinearLayout>
 
         <TextView
@@ -54,7 +55,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/linearLayout"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="16dp"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -108,20 +110,43 @@
 
         </LinearLayout>
 
-        <Button
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="SEARCH FOR CAR"
-            android:id="@+id/button"
-            android:layout_alignParentTop="true"
-            android:onClick="getVIN"
-            android:layout_centerHorizontal="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/color_button_add_car"
-            android:textColor="#fff"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"/>
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="SEARCH FOR CAR"
+                android:id="@+id/button"
+                android:layout_alignParentTop="true"
+                android:onClick="getVIN"
+                android:layout_centerHorizontal="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@drawable/color_button_add_car"
+                android:textColor="#fff"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="visible" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="SCAN VIN BARCODE"
+                android:id="@+id/scannerButton"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@drawable/color_button_add_car"
+                android:textColor="#fff"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
+        </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
