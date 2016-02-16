@@ -184,7 +184,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 }
             }
             //set RTC time once anything is connected
-            setRTCTime();
+            //setRTCTime();
             if (deviceConnected) {
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
