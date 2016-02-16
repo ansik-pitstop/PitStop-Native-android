@@ -176,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * Clears and refreshes the whole database
      */
     private void refreshDatabase() {
+        findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
+
         // if wifi is on
         boolean hasWifi = false;
         try {
