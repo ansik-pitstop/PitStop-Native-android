@@ -52,7 +52,9 @@ public class BluetoothManage {
 
 	private boolean isParse = false;
 	private List<String> dataLists = new ArrayList<String>();
+
 	private boolean isDeviceSynced = false;
+	private int initResultZeroCounter = 0;
 
 	public BluetoothManage() {
 		dataPackages = new ArrayList<DataPackageInfo>();
@@ -414,7 +416,8 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		if (0 == result) {
-			if(!isDeviceSynced) {
+			initResultZeroCounter++;
+			if(initResultZeroCounter > 2 && !isDeviceSynced) {
 				long systemTime = System.currentTimeMillis();
 				obdSetParameter("1A01", String.valueOf(systemTime / 1000));
 			}
