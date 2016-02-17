@@ -120,7 +120,23 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             @Override
             public void afterTextChanged(Editable s) {
                 Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
-                findViewById(R.id.button).setEnabled(isValidVin(vin));
+
+                String whitespaceRemoved = String.valueOf(vin);
+                whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "")
+                        .replace("\r", "").replace("\n", "");
+
+                if (String.valueOf(vin).equals(whitespaceRemoved)) {
+                    if (isValidVin(vin)) {
+                        findViewById(R.id.button).setVisibility(View.VISIBLE);
+                        findViewById(R.id.button).setEnabled(true);
+                    } else {
+                        findViewById(R.id.button).setVisibility(View.GONE);
+                        findViewById(R.id.button).setEnabled(false);
+                    }
+                } else {
+                    Log.v("", "whitespace in VIN input removed. Original input: " + vin);
+                    ((EditText) findViewById(R.id.VIN)).setText(whitespaceRemoved);
+                }
             }
         });
 
@@ -354,7 +370,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     void showBluetoothEntryUI() {
         findViewById(R.id.button).setEnabled(true);
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
-        ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
+        ((TextView) findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
     }
 
