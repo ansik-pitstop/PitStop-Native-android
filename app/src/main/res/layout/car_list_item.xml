@@ -28,6 +28,7 @@
             android:layout_marginLeft="12dp">
 
             <RelativeLayout
+                android:id="@+id/open_car_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -113,6 +114,7 @@
                 android:layout_marginBottom="8dp">
 
                 <LinearLayout
+                    android:id="@+id/dial_garage"
                     android:orientation="horizontal"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -134,6 +136,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/email_garage"
                     android:orientation="horizontal"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -157,6 +160,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/locate_garage"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
