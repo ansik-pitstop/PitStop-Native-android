@@ -15,6 +15,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -22,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.pitstop.database.LocalDataRetriever;
 
 import java.util.ArrayList;
@@ -95,13 +99,13 @@ public class SettingsActivity extends AppCompatActivity {
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
 
-            ((Preference)  getPreferenceManager().findPreference("AppInfo")).setTitle("0.5.1");
+            (getPreferenceManager().findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
 
             ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    if(e!=null){
+                    if (e != null) {
                         return;
                     }
                     ArrayList<String> shops = new ArrayList<String>(), shopIds = new ArrayList<String>();
@@ -141,7 +145,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 return true;
                             }
                         });
-                        ((PreferenceCategory)  getPreferenceManager().findPreference(getString(R.string.pref_vehicles))).addPreference(listPreference);
+                        ((PreferenceCategory) getPreferenceManager().findPreference(getString(R.string.pref_vehicles))).addPreference(listPreference);
                     }
                 }
             });
@@ -152,9 +156,42 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preferences);
+            final Preference namePreference = findPreference(getString(R.string.pref_username_key));
+            namePreference.setTitle(ParseUser.getCurrentUser().getString("name"));
+            namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
 
-            Preference namePreference = findPreference(getString(R.string.pref_username_key));
-            namePreference.setTitle(ParseUser.getCurrentUser().getUsername());
+                    alertDialog.setTitle("Edit name");
+                    final EditText nameInput = new EditText(getActivity());
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                    );
+                    nameInput.setLayoutParams(lp);
+                    alertDialog.setView(nameInput);
+
+                    alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String updatedName = nameInput.getText().toString();
+                            updateUsersName(updatedName,namePreference);
+                        }
+                    });
+
+                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    alertDialog.show();
+                    return true;
+                }
+            });
 
             Preference emailPreference = findPreference(getString(R.string.pref_email_key));
             emailPreference.setTitle(ParseUser.getCurrentUser().getEmail());
@@ -215,6 +252,22 @@ public class SettingsActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             Log.i(TAG, "navigateToLogin ran");
             startActivity(intent);
+        }
+
+        private void updateUsersName(final String updatedName, final Preference namePreference) {
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            currentUser.put("name", updatedName);
+            currentUser.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        namePreference.setTitle(updatedName);
+                        Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(),"Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 

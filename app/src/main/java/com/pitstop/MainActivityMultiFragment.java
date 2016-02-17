@@ -6,12 +6,14 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -47,6 +50,7 @@ public class MainActivityMultiFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     private ArrayList<DBModel> array;
     private HashMap<String,DBModel> shopList;
+    private static final String EMAIL_SUBJECT = "PITSTOP - USER REQUEST";
 
     private OnFragmentInteractionListener mListener;
 
@@ -323,6 +327,8 @@ public class MainActivityMultiFragment extends Fragment {
             int totalServiceCount = recallCount + serviceCount;
 
             convertview = (LinearLayout)inflater.inflate(R.layout.car_list_item, null);
+            RelativeLayout openCarDetialsView = (RelativeLayout)
+                    convertview.findViewById(R.id.open_car_details);
 
             ((TextView)convertview.findViewById(R.id.name)).setText(car.getValue("make") + " " + car.getValue("model"));
             ((TextView)convertview.findViewById(R.id.desc)).setText(car.getValue("year"));
@@ -343,13 +349,56 @@ public class MainActivityMultiFragment extends Fragment {
                 ((TextView) convertview.findViewById(R.id.shopName)).setText(shop.getValue("name"));
             }
 
-            convertview.setOnClickListener(new View.OnClickListener() {
+            openCarDetialsView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     openCar(car, false /* update_mileage */);
                 }
             });
+
+            setOnclickListnersForViews(shop,convertview);
             return convertview;
+        }
+
+        private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
+
+            final String garagePhoneNumber = shop.getValue("phoneNumber");
+            final String garageEmailAddress = shop.getValue("email");
+            final String garageAddress = shop.getValue("address");
+
+            LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
+            callGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + garagePhoneNumber));
+                    startActivity(intent);
+                }
+            });
+
+            LinearLayout emailGarageTextView = (LinearLayout) convertView.findViewById(R.id.email_garage);
+            emailGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                    emailIntent.setData(Uri.parse("mailto:"));
+                    emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT);
+                    emailIntent.setType("message/rfc822");
+
+                    startActivity(Intent.createChooser(emailIntent, "Choose an Email client"));
+                }
+            });
+
+            LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
+            locateGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    startActivity(intent);
+                }
+            });
         }
     }
 
