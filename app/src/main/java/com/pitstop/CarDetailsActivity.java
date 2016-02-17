@@ -926,14 +926,18 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 holder.title.setText(dataList.get(i).getValue("item"));
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_check_circle_green_400_36dp));
             }
-            holder.container.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
-                    intent.putExtra("Model", dataList.get(i));
-                    startActivity(intent);
-                }
-            });
+
+            if(dataList.get(i) instanceof Recalls || dataList.get(i) instanceof DTCs ||
+                    dataList.get(i) instanceof  Services) {
+                holder.container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
+                        intent.putExtra("Model", dataList.get(i));
+                        startActivity(intent);
+                    }
+                });
+            }
         }
 
         @Override
