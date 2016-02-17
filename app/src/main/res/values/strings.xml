@@ -24,4 +24,12 @@
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. You may have to click the button multiple times to locate the car.</string>
     <string name="add_car_manual">Enter your vehicle\'s mileage and VIN below.</string>
 
+    <!-- Severity indicators -->
+    <string-array name="severity_indicators">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+        <item>Critical</item>
+    </string-array>
+
 </resources>

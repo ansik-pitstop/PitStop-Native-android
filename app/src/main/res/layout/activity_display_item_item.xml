@@ -62,7 +62,7 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/description"
                 android:paddingTop="60dp"
@@ -88,39 +88,3 @@
         android:layout_gravity="bottom" />
 
 </LinearLayout>
-
-
-<!--
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-<LinearLayout
-    android:orientation="horizontal"
-    android:layout_marginLeft="14dp"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:weightSum="3"
-    android:paddingBottom="12dp"
-    android:id="@+id/item_list_item"
-    android:paddingTop="12dp">
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Small Text"
-        android:textStyle="italic"
-        android:id="@+id/title"
-        android:layout_weight="1"
-        android:textAllCaps="true"/>
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Small Text"
-        android:id="@+id/description"
-        android:layout_weight="2" />
-
-    </LinearLayout>
-</LinearLayout>-->
