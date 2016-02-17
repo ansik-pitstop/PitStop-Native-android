@@ -28,6 +28,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
@@ -69,6 +70,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     int counter =0;
 
+    //debugging storing
+    LogCatHelper mLogStore;
+
     ArrayList<String> shops = new ArrayList<String>();
     ArrayList<String> shopIds = new ArrayList<String>();
 
@@ -105,6 +109,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 //                String.valueOf(android.os.Process.myPid()),
 //                ((TextView) findViewById(R.id.debug_log_print)),this);
 //      mLogDumper.start();
+
+        mLogStore = LogCatHelper.getInstance(this);
+
         //watch the number of characters in the textbox for VIN
         ((EditText) findViewById(R.id.VIN)).addTextChangedListener(new TextWatcher() {
             @Override
@@ -167,6 +174,18 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_add_car, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLogStore.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLogStore.stop();
     }
 
     @Override
