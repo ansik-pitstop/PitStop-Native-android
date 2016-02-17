@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -65,6 +66,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private ToggleButton yesButton;
     private ToggleButton noButton;
+    private Button scannerButton;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -104,6 +106,17 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         yesButton.setOnClickListener(this);
         noButton.setOnClickListener(this);
 
+        // barcode scanner button
+        scannerButton = (Button)findViewById(R.id.scannerButton);
+
+        scannerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startScanner();
+            }
+        });
+
+
         bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 //        mLogDumper = new PrintDebugThread(
 //                String.valueOf(android.os.Process.myPid()),
@@ -126,18 +139,20 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
             @Override
             public void afterTextChanged(Editable s) {
-                Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
+                Editable vin = ((EditText) findViewById(R.id.VIN)).getText();
 
                 String whitespaceRemoved = String.valueOf(vin);
-                whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "")
+				whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "")
                         .replace("\r", "").replace("\n", "");
 
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
                     if (isValidVin(vin)) {
                         findViewById(R.id.button).setVisibility(View.VISIBLE);
+                        scannerButton.setVisibility(View.GONE);
                         findViewById(R.id.button).setEnabled(true);
                     } else {
                         findViewById(R.id.button).setVisibility(View.GONE);
+                        scannerButton.setVisibility(View.VISIBLE);
                         findViewById(R.id.button).setEnabled(false);
                     }
                 } else {
@@ -212,6 +227,31 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            VIN = data.getStringExtra("scannerVIN");
+            ((EditText) findViewById(R.id.VIN)).setText(VIN);
+
+            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+
+            if (isValidVin(VIN)) { // show add car button iff vin is valid
+                findViewById(R.id.button).setVisibility(View.VISIBLE);
+                scannerButton.setVisibility(View.GONE);
+                findViewById(R.id.button).setEnabled(true);
+            }
+            else {
+                findViewById(R.id.button).setVisibility(View.GONE);
+                scannerButton.setVisibility(View.VISIBLE);
+                Toast.makeText(this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+    }
+
     /**
      * Button clicked for getting VIN
      * @param view
@@ -238,7 +278,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
 
         }else{
-            Toast.makeText(this,"Please enter Mileage",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
         }
         //VIN = "YS3FD75Y746007819";
     }
@@ -268,6 +308,14 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
     }
 
+    private void startScanner() {
+        Intent intent = new Intent(this, BarcodeScannerActivity.class);
+        startActivityForResult(intent, 0); // TODO: request code is hard-coded - need to change it.
+
+    }
+
+        
+        
     @Override
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
@@ -371,6 +419,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         return vin != null && vin.length() == 17;
     }
 
+    boolean isValidVin(String vin) {
+        return vin != null && vin.length() == 17;
+    }
     /**
      * show Manual VIN UI
      */
@@ -379,8 +430,20 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_manual));
         ((Button) findViewById(R.id.button)).setText("ADD CAR");
 
-        Editable vin = ((EditText)findViewById(R.id.VIN)).getText();
-        findViewById(R.id.button).setEnabled(isValidVin(vin));
+        String vin = String.valueOf(((EditText) findViewById(R.id.VIN)).getText());
+
+        Log.d("isValidVin() result", String.valueOf(isValidVin(vin)));
+
+        if (isValidVin(vin)) {
+            findViewById(R.id.button).setVisibility(View.VISIBLE);
+            scannerButton.setVisibility(View.GONE);
+
+            findViewById(R.id.button).setEnabled(true);
+        }
+        else {
+            findViewById(R.id.button).setVisibility(View.GONE);
+            scannerButton.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -391,6 +454,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
+
+        // TODO: scanner button should be in VIN_SECTION view
+
+        findViewById(R.id.button).setVisibility(View.VISIBLE);
+        scannerButton.setVisibility(View.GONE);
     }
 
     /**
@@ -556,7 +624,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.mileage).setEnabled(true);
         findViewById(R.id.VIN).setEnabled(true);
         findViewById(R.id.button).setEnabled(true);
-
+		scannerButton.setEnabled(true);
     }
 
     public void hideLoading(View view){
@@ -571,6 +639,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.mileage).setEnabled(false);
         findViewById(R.id.VIN).setEnabled(false);
         findViewById(R.id.button).setEnabled(false);
+		scannerButton.setEnabled(false);
     }
 
     private void setDealership(String shopId) {

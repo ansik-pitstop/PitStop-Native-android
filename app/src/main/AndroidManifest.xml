@@ -10,10 +10,12 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!-- permission for barcode scanner -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
 
@@ -26,17 +28,19 @@
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-    <permission android:protectionLevel="signature"
-        android:name="com.pitstop.permission.C2D_MESSAGE" />
+    <permission
+        android:name="com.pitstop.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.pitstop.permission.C2D_MESSAGE" />
 
     <application
+        android:name=".parse.ParseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name=".parse.ParseApplication">
-        <receiver android:name=".background.BootBroadcastReceiver">
+        android:theme="@style/AppTheme" >
+        <receiver android:name=".background.BootBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -45,17 +49,17 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AddCarActivity"
-            android:label="@string/title_activity_add_car">
+            android:label="@string/title_activity_add_car" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".SplashScreen"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,7 +68,7 @@
         </activity>
         <activity
             android:name=".CarDetailsActivity"
-            android:label="@string/title_activity_car_details">
+            android:label="@string/title_activity_car_details" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -90,33 +94,35 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.MainActivity" />
         </activity>
-
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
             android:parentActivityName=".CarDetailsActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.CarDetailsActivity" />
         </activity>
 
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.pitstop.PitstopPushBroadcastReceiver"
-            android:exported="false">
+
+        <receiver
+            android:name=".PitstopPushBroadcastReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
                 <action android:name="com.parse.push.intent.DELETE" />
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -124,6 +130,10 @@
                 <category android:name="com.pitstop" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".parse.BarcodeScannerActivity" />
+        <activity android:name=".BarcodeScannerActivity" >
+        </activity>
     </application>
 
 </manifest>

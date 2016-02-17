@@ -55,7 +55,7 @@ public class DisplayItemActivity extends AppCompatActivity {
             model.setValue(ITEM_KEY,model.getValue(DTCCODE_KEY));
             model.setValue(ITEM_DESCRIPTION_KEY, model.getValue(DESCRIPTION_KEY));
 
-            setUpDisplayItems(model, "Engine Issue: DTC code ");
+			setUpDisplayItems(model, "Engine Issue: DTC code ");
         }else{
             setTitle("Service");
             setUpDisplayItems(model,null);

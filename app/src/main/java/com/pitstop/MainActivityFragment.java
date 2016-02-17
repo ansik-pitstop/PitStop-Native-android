@@ -111,7 +111,7 @@ public class MainActivityFragment extends Fragment {
             currentGarage = currShop.getValue("name");
             garagePhoneNumber = currShop.getValue("phoneNumber");
             garageEmailAddress = currShop.getValue("email");
-            garageAddress = currShop.getValue("addressText");
+            garageAddress = currShop.getValue("address");
             callGarageTextView.setText("Call " + currentGarage);
             messageGarageTextView.setText("Email " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
