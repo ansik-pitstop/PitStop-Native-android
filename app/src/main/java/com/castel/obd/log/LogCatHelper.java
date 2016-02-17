@@ -37,7 +37,7 @@ public class LogCatHelper {
 			PATH_LOGCAT = Environment.getExternalStorageDirectory()
 					.getAbsolutePath()
 					+ File.separator
-					+ "212BLOG";
+					+ "PITSTOP_DEBUG";
 		} else {// å¦??SD?¡ä?å­??ï¼?°±ä¿???°æ?åº?????å½??
 			PATH_LOGCAT = context.getFilesDir().getAbsolutePath()
 					+ File.separator + "Chap";

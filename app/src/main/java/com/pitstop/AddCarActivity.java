@@ -29,6 +29,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
@@ -70,6 +71,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private boolean hasBluetoothVinEntryFailed = false;
 
     int counter =0;
+
+    //debugging storing
+    LogCatHelper mLogStore;
 
     ArrayList<String> shops = new ArrayList<String>();
     ArrayList<String> shopIds = new ArrayList<String>();
@@ -118,6 +122,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 //                String.valueOf(android.os.Process.myPid()),
 //                ((TextView) findViewById(R.id.debug_log_print)),this);
 //      mLogDumper.start();
+
+        mLogStore = LogCatHelper.getInstance(this);
+
         //watch the number of characters in the textbox for VIN
         ((EditText) findViewById(R.id.VIN)).addTextChangedListener(new TextWatcher() {
             @Override
@@ -135,10 +142,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 Editable vin = ((EditText) findViewById(R.id.VIN)).getText();
 
                 String whitespaceRemoved = String.valueOf(vin);
-                whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "").replace("\r", "").replace("\n", "");
+				whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "")
+                        .replace("\r", "").replace("\n", "");
 
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
-                    if (isValidVin(vin)) { // VIN is valid - enable add car, don't show scanner
+                    if (isValidVin(vin)) {
                         findViewById(R.id.button).setVisibility(View.VISIBLE);
                         scannerButton.setVisibility(View.GONE);
                         findViewById(R.id.button).setEnabled(true);
@@ -181,6 +189,18 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_add_car, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLogStore.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLogStore.stop();
     }
 
     @Override
@@ -432,7 +452,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     void showBluetoothEntryUI() {
         findViewById(R.id.button).setEnabled(true);
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
-        ((TextView)findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
+        ((TextView) findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
 
         // TODO: scanner button should be in VIN_SECTION view
