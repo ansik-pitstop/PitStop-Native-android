@@ -176,15 +176,9 @@ public class SplashScreen extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void goToMainScreen(View view) {
-        Intent intent = new Intent(SplashScreen.this,MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-
     public void signUp(final View view) {
         if (signup) {
+            showLoading();
             if(((TextView)findViewById(R.id.password)).getText().toString().length()<6){
                 Snackbar.make(findViewById(R.id.splash_layout), "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
                 return;
@@ -209,6 +203,7 @@ public class SplashScreen extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Congrats, you have signed up!", Toast.LENGTH_SHORT).show();
                         login(view);
                     } else {
+                        hideLoading();
                         Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -222,7 +217,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void login(View view) {
-
+        showLoading();
         String username = ((TextView) findViewById(R.id.email)).getText().toString();
         String password = ((TextView) findViewById(R.id.password)).getText().toString();
 
@@ -253,6 +248,7 @@ public class SplashScreen extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                hideLoading();
 
             }
         });
@@ -260,5 +256,13 @@ public class SplashScreen extends AppCompatActivity {
 
     public void goToLogin(View view) {
         mPager.setCurrentItem(3);
+    }
+
+    private void showLoading(){
+        findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoading(){
+        findViewById(R.id.loading_section).setVisibility(View.GONE);
     }
 }
