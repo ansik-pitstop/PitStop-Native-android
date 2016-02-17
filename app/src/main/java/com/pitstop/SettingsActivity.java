@@ -99,7 +99,7 @@ public class SettingsActivity extends AppCompatActivity {
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
 
-            ((Preference)  getPreferenceManager().findPreference("AppInfo")).setTitle("0.5.1");
+            (getPreferenceManager().findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
 
             ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
             query.findInBackground(new FindCallback<ParseObject>() {

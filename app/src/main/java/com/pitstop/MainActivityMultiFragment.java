@@ -50,6 +50,7 @@ public class MainActivityMultiFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     private ArrayList<DBModel> array;
     private HashMap<String,DBModel> shopList;
+    private static final String EMAIL_SUBJECT = "PITSTOP - USER REQUEST";
 
     private OnFragmentInteractionListener mListener;
 
@@ -382,10 +383,10 @@ public class MainActivityMultiFragment extends Fragment {
                     Intent emailIntent = new Intent(Intent.ACTION_SEND);
                     emailIntent.setData(Uri.parse("mailto:"));
                     emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
-                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "PITSTOP - USER REQUEST");
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT);
                     emailIntent.setType("message/rfc822");
 
-                    startActivity(Intent.createChooser(emailIntent,"Choose an Email client"));
+                    startActivity(Intent.createChooser(emailIntent, "Choose an Email client"));
                 }
             });
 

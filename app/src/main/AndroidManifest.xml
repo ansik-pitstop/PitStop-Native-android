@@ -131,7 +131,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".parse.BarcodeScannerActivity" />
         <activity android:name=".BarcodeScannerActivity" >
         </activity>
     </application>
