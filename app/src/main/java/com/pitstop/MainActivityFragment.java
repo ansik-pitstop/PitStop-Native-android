@@ -83,7 +83,7 @@ public class MainActivityFragment extends Fragment {
 
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.setData(Uri.parse("mailto:"));
-                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"psoladoye@live.com"});
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, "PITSTOP - USER REQUEST");
                 emailIntent.setType("message/rfc822");
 
