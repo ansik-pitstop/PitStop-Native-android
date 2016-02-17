@@ -38,6 +38,7 @@ public class MainActivityFragment extends Fragment {
     public static final String TAG = MainActivityFragment.class.getSimpleName();
     private static String currentGarage = "";
     private static String garagePhoneNumber = "";
+    private static String garageEmailAddress ="";
     private static String garageAddress = "";
 
     TextView callGarageTextView;
@@ -78,10 +79,15 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "phone number is " + garagePhoneNumber);
-                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                sendIntent.setData(Uri.parse("sms:" + garagePhoneNumber));
-                startActivity(sendIntent);
+                Log.d(TAG, "Email address is " + garageEmailAddress);
+
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.setData(Uri.parse("mailto:"));
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "PITSTOP - USER REQUEST");
+                emailIntent.setType("message/rfc822");
+
+                startActivity(Intent.createChooser(emailIntent,"Choose an Email client"));
             }
         });
         directionsToGarageTextView = (TextView) getActivity().findViewById(R.id.directions_to_garage);
@@ -104,9 +110,10 @@ public class MainActivityFragment extends Fragment {
         if (currShop!=null) {
             currentGarage = currShop.getValue("name");
             garagePhoneNumber = currShop.getValue("phoneNumber");
+            garageEmailAddress = currShop.getValue("email");
             garageAddress = currShop.getValue("addressText");
             callGarageTextView.setText("Call " + currentGarage);
-            messageGarageTextView.setText("Message " + currentGarage);
+            messageGarageTextView.setText("Email " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
         } else {
             final String finalShopId = shopId;
@@ -119,13 +126,14 @@ public class MainActivityFragment extends Fragment {
                         for (ParseObject parseObject : parseObjects) {
                             currentGarage = parseObject.get("name").toString();
                             garagePhoneNumber = parseObject.get("phoneNumber").toString();
+                            garageEmailAddress = parseObject.get("email").toString();
                             garageAddress = parseObject.get("addressText").toString();
                             Shops shop = new Shops();
                             shop.setValue("ShopID", finalShopId);
                             shop.setValue("name", currentGarage);
                             shop.setValue("address", garageAddress);
                             shop.setValue("phoneNumber", garagePhoneNumber);
-                            shop.setValue("email", parseObject.get("email").toString());
+                            shop.setValue("email", garageEmailAddress);
                             ldr.saveData("Shops",shop.getValues());
                         }
                     } else {
