@@ -104,7 +104,7 @@ public class MainActivityFragment extends Fragment {
         if (currShop!=null) {
             currentGarage = currShop.getValue("name");
             garagePhoneNumber = currShop.getValue("phoneNumber");
-            garageAddress = currShop.getValue("addressText");
+            garageAddress = currShop.getValue("address");
             callGarageTextView.setText("Call " + currentGarage);
             messageGarageTextView.setText("Message " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
