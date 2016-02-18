@@ -113,6 +113,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.CarDetailsActivity" />
         </activity>
+	<activity android:name=".BarcodeScannerActivity" ></activity>
 
         <service android:name="com.parse.PushService" />
 
@@ -136,8 +137,18 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".BarcodeScannerActivity" >
-        </activity>
+        <service android:name="io.smooch.core.service.SmoochService"/>
+        <service android:name="io.smooch.core.GcmInstanceIDListenerService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <service android:name="io.smooch.core.GcmRegistrationIntentService" android:exported="false"/>
+        <service android:name="io.smooch.core.GcmService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

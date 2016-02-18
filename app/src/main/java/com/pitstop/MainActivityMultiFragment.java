@@ -21,6 +21,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -32,6 +33,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -50,7 +54,6 @@ public class MainActivityMultiFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     private ArrayList<DBModel> array;
     private HashMap<String,DBModel> shopList;
-    private static final String EMAIL_SUBJECT = "PITSTOP - USER REQUEST";
 
     private OnFragmentInteractionListener mListener;
 
@@ -363,7 +366,6 @@ public class MainActivityMultiFragment extends Fragment {
         private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
 
             final String garagePhoneNumber = shop.getValue("phoneNumber");
-            final String garageEmailAddress = shop.getValue("email");
             final String garageAddress = shop.getValue("address");
 
             LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
@@ -375,18 +377,15 @@ public class MainActivityMultiFragment extends Fragment {
                 }
             });
 
-            LinearLayout emailGarageTextView = (LinearLayout) convertView.findViewById(R.id.email_garage);
-            emailGarageTextView.setOnClickListener(new View.OnClickListener() {
+            LinearLayout messageGarageTextView =
+                    (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
+            messageGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                    emailIntent.setData(Uri.parse("mailto:"));
-                    emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
-                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT);
-                    emailIntent.setType("message/rfc822");
-
-                    startActivity(Intent.createChooser(emailIntent, "Choose an Email client"));
+                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                    User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                    ConversationActivity.show(getContext());
                 }
             });
 

@@ -16,6 +16,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -79,15 +83,11 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Email address is " + garageEmailAddress);
+                Log.d(TAG, "phone number is " + garagePhoneNumber);
 
-                Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                emailIntent.setData(Uri.parse("mailto:"));
-                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "PITSTOP - USER REQUEST");
-                emailIntent.setType("message/rfc822");
-
-                startActivity(Intent.createChooser(emailIntent,"Choose an Email client"));
+                User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                ConversationActivity.show(getContext());
             }
         });
         directionsToGarageTextView = (TextView) getActivity().findViewById(R.id.directions_to_garage);
