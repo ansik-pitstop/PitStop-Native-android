@@ -348,7 +348,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
             ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
         } else {
-            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+            // same as in manual input plus vin hint
+            showManualEntryUI();
             findViewById(R.id.VIN_hint).setVisibility(View.VISIBLE);
         }
         scannerID = parameterPackageInfo.deviceId;
