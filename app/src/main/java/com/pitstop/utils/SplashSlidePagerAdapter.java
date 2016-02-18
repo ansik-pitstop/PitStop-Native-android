@@ -43,7 +43,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     }
 
 
-    public class SplashFragment1 extends Fragment {
+    public static class SplashFragment1 extends Fragment {
+        public SplashFragment1() {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,7 +55,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             return rootView;
         }
     }
-    public class SplashFragment2 extends Fragment {
+    public static class SplashFragment2 extends Fragment {
+        public SplashFragment2() {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,7 +67,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             return rootView;
         }
     }
-    public class SplashFragment3 extends Fragment {
+    public static class SplashFragment3 extends Fragment {
+        public SplashFragment3() {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,7 +79,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             return rootView;
         }
     }
-    public class SplashFragment4 extends Fragment {
+    public static class SplashFragment4 extends Fragment {
+        public SplashFragment4() {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
