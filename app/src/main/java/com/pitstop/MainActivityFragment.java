@@ -16,6 +16,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -79,9 +83,10 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
-                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                sendIntent.setData(Uri.parse("sms:" + garagePhoneNumber));
-                startActivity(sendIntent);
+
+                User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                ConversationActivity.show(getContext());
             }
         });
         directionsToGarageTextView = (TextView) getActivity().findViewById(R.id.directions_to_garage);
