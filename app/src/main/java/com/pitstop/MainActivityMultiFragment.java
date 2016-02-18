@@ -370,7 +370,7 @@ public class MainActivityMultiFragment extends Fragment {
             callGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + garagePhoneNumber));
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                     startActivity(intent);
                 }
             });
