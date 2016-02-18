@@ -70,7 +70,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
-                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + garagePhoneNumber));
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
             }
         });
