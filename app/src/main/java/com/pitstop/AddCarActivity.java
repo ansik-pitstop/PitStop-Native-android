@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -256,7 +258,14 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
      * Button clicked for getting VIN
      * @param view
      */
+    private long startTime = 0;
+    private boolean isSearching = false;
     public void getVIN(View view) {
+        //
+        startTime = System.currentTimeMillis();
+        timerHandler.post(runnable);
+        isSearching = true;
+
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
@@ -280,8 +289,62 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }else{
             Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
         }
-        //VIN = "YS3FD75Y746007819";
     }
+
+    private void tryAgainDialog() {
+        hideLoading();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddCarActivity.this);
+        alertDialog.setTitle("Try Again");
+
+        // Alert message
+        alertDialog.setMessage("Could not connect to device. Try again ?");
+        alertDialog.setCancelable(false);
+
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ((Button) (findViewById(R.id.button))).performClick();
+            }
+        });
+
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        alertDialog.show();
+    }
+    /**
+     *  Car search timer handler
+     */
+
+    private Handler timerHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 0) {
+                tryAgainDialog();
+            }
+        }
+    };
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - startTime;
+            int seconds = (int) (timeDiff / 1000);
+
+            if(seconds > 15 && isSearching) {
+                timerHandler.sendEmptyMessage(0);
+                timerHandler.removeCallbacks(runnable);
+            } else {
+                timerHandler.post(runnable);
+            }
+        }
+    };
 
     /**
      * Create a new Car
@@ -339,6 +402,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
         hideLoading();
+        isSearching = false;
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
 

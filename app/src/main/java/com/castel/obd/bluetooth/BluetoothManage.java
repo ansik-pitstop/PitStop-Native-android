@@ -473,7 +473,7 @@ public class BluetoothManage {
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
 			initResultZeroCounter++;
-			if(initResultZeroCounter > 2 && !isDeviceSynced) {
+			if(!isDeviceSynced) {
 				Log.i(DTAG,"Resetting RTC time - BluetoothManage");
 				long systemTime = System.currentTimeMillis();
 				obdSetParameter("1A01", String.valueOf(systemTime / 1000));

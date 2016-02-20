@@ -330,7 +330,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             snackbar.setAction("TURN ON", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //service.startBluetoothSearch();
+                    service.startBluetoothSearch();
+
                 }
             });
             snackbar.show();
