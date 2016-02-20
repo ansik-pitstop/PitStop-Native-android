@@ -50,9 +50,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private BluetoothManage.BluetoothDataListener serviceCallbacks;
 
     private int counter;
-
     private boolean askforDtcs;
-
     private int notifID= 1360119;
 
     String[] pids = new String[0];
@@ -62,6 +60,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     int pidI = 0;
     private int status5counter;
     boolean gettingPID =false;
+
+    private static String DTAG = "BLUETOOTH_DEBUG";
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -74,6 +74,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         askforDtcs = false;
         status5counter=0;
         counter = 1;
+        Log.i(DTAG,"Creating auto-connect bluetooth service");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
     }
 
@@ -81,6 +82,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * Gets the Car's VIN
      */
     public void getCarVIN(){
+        Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
         BluetoothManage.getInstance(this).obdGetParameter("2201");
     }
 
@@ -91,19 +93,23 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     public void startBluetoothSearch(){
+        Log.i(DTAG, "starting bluetooth search - auto-connect service");
         BluetoothManage.getInstance(this).connectBluetooth();
     }
 
     public int getState(){
+        Log.i(DTAG, "getting bluetooth state - auto-connect service");
         return BluetoothManage.getInstance(this).getState();
     }
 
     public void getPIDs(){
+        Log.i(DTAG,"getting PIDs - auto-connect service");
         BluetoothManage.getInstance(this).obdGetParameter("2401");
         gettingPID=true;
     }
 
     public void getDTCs() {
+        Log.i(DTAG, "calling getting DTCs - auto-connect service");
         if (!askforDtcs){
             askforDtcs = true;
             BluetoothManage.getInstance(this).obdSetMonitor(1, "");
@@ -111,10 +117,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     public void getFreeze(){
-        BluetoothManage.getInstance(this).obdSetMonitor(3,"");
+        Log.i(DTAG, "Getting freeze data - auto-connect service");
+        BluetoothManage.getInstance(this).obdSetMonitor(3, "");
     }
 
     public String parseDTCs(String hex){
+        Log.i(DTAG,"Parsing DTCs - auto-connect service");
         int start = 1;
         char head = hex.charAt(0);
         HashMap<Character, String> map = new HashMap<Character, String>();
@@ -141,6 +149,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     private void sendForPIDS(){
+        Log.i(DTAG, "Sending for PIDS - auto-connect service");
         gettingPIDs = true;
         String pid="";
         while(pidI!=pids.length){
@@ -160,11 +169,13 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //BluetoothManage.getInstance(this).connectBluetooth();
+        Log.i(DTAG, "Running on start command - auto-connect service");
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        Log.i(DTAG,"Destroying auto-connect service");
         Toast.makeText(this, "Destroyed",Toast.LENGTH_SHORT).show();
         super.onDestroy();
         BluetoothManage.getInstance(this).close();
@@ -172,20 +183,26 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getBluetoothState(int state) {
+        Log.i(DTAG, "Getting bluetooth state - auto-connect service");
         if(state==BluetoothManage.CONNECTED) {
+            Log.i(DTAG,"Bluetooth state connected - auto-connect service");
+            Log.i(DTAG,"getting bonded devices - auto-connect service");
             BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
             List<BluetoothDevice> devices = bluetoothManager.getDevicesMatchingConnectionStates(BluetoothProfile.GATT, new int[]{
                     BluetoothDevice.BOND_BONDED
             });
             boolean deviceConnected = false;
             for (BluetoothDevice device : devices) {
+                Log.i(DTAG,"Iterating through bonded devices - auto-connect service");
                 if (device.getName().contains("IDD-212")) {
+                    Log.i(DTAG,"Found connected device - auto-connect service");
                     deviceConnected = true;
                 }
             }
             //set RTC time once anything is connected
             //setRTCTime();
             if (deviceConnected) {
+                Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
@@ -212,44 +229,62 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 mBuilder.setContentIntent(resultPendingIntent);
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                Log.i(DTAG, "sending out car is connected notification - auto-connect service");
                 mNotificationManager.notify(notifID, mBuilder.build());
             } else {
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                Log.i(DTAG, "cancelling car is connected notification");
                 mNotificationManager.cancel(notifID);
             }
-            if (serviceCallbacks != null)
+
+            if (serviceCallbacks != null) {
+                Log.i(DTAG, "Calling service callbacks to getBluetooth State - auto connect service");
                 serviceCallbacks.getBluetoothState(state);
+            }
+
+
         }
     }
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-        if(serviceCallbacks!=null)
+        if(serviceCallbacks!=null) {
+            Log.i(DTAG,"Setting ctrl response on service callbacks - auto-connect service");
             serviceCallbacks.setCtrlResponse(responsePackageInfo);
+        }
+
     }
 
     @Override
     public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
-        if(serviceCallbacks!=null)
+        if(serviceCallbacks!=null) {
+            Log.i(DTAG, "Setting parameter response on service callbacks - auto-connect service");
             serviceCallbacks.setParamaterResponse(responsePackageInfo);
+        }
+
 
     }
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
         if(gettingPID){
+            Log.i(DTAG,"Getting parameter data- auto-connect service");
             pids  =parameterPackageInfo.value.get(0).value.split(",");
             pidI = 0;
             sendForPIDS();
             gettingPID=false;
-        }else if(serviceCallbacks!=null)
+        }else if(serviceCallbacks!=null) {
+            Log.i(DTAG, "getting parameter data on service Callbacks - auto-connect service");
             serviceCallbacks.getParamaterData(parameterPackageInfo);
+        }
+
 
     }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        Log.i(DTAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;
             String dtcs = "";
@@ -329,9 +364,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             response.setValue("supportPid", dataPackageInfo.surportPid);
             response.setValue("dtcData", dataPackageInfo.dtcData);
+            Log.i(DTAG, "IO data saving to local db - auto-connect service");
             ldr.saveData("Responses", response.getValues());
-            if (serviceCallbacks != null)
+
+            if (serviceCallbacks != null) {
+                Log.i(DTAG, "calling service callbacks for getIOdata - auto-connect service");
                 serviceCallbacks.getIOData(dataPackageInfo);
+            }
+
         }
         if(counter%20==0){
             getPIDs();
@@ -352,11 +392,13 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     public void setCallbacks(BluetoothManage.BluetoothDataListener callbacks) {
+        Log.i(DTAG, "setting call backs - auto-connect service");
         serviceCallbacks = callbacks;
     }
 
 
     public void uploadRecords() {
+        Log.i(DTAG, "Uploading database records");
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         DBModel entry = ldr.getLastRow("Uploads", "UploadID");
         if(entry==null){
@@ -377,6 +419,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         @Override
         protected Void doInBackground(String... params) {
+            Log.i(DTAG,"Uploading info online (async task) - auto-connect service");
             final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
             ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
             for (final String device : devices) {

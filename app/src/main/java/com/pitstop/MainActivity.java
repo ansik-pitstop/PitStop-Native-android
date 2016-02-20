@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch();
+                //service.startBluetoothSearch();
             }
         }
 
@@ -330,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             snackbar.setAction("TURN ON", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    service.startBluetoothSearch();
+                    //service.startBluetoothSearch();
                 }
             });
             snackbar.show();

@@ -93,7 +93,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             service.setCallbacks(CarDetailsActivity.this); // register
 
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch();
+                //service.startBluetoothSearch();
             }
         }
 

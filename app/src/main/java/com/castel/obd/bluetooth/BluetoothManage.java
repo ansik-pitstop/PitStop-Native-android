@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.OBD;
@@ -36,8 +37,8 @@ public class BluetoothManage {
 
 	public final static int CONNECTED = 0;// ����������
 	public final static int DISCONNECTED = 1;// ����δ����
-	public final static int CONNECTTING = 2;// ��������������
-	private int btState = DISCONNECTED;
+	public final static int CONNECTING = 2;// ��������������
+	private int btConnectionState = DISCONNECTED;
 
 	private static Context mContext;
 	private static BluetoothManage mInstance;
@@ -49,14 +50,15 @@ public class BluetoothManage {
 	public List<DataPackageInfo> dataPackages;
 
 	private boolean isMacAddress = false;// �״����������Ƿ��п��Ե�MAC��ַ
-
 	private boolean isParse = false;
 	private List<String> dataLists = new ArrayList<String>();
 
 	private boolean isDeviceSynced = false;
 	private int initResultZeroCounter = 0;
+	private String DTAG = "DEBUG_BLUETOOTH";
 
 	public BluetoothManage() {
+		Log.i(DTAG,"Initializing BluetoothManage");
 		dataPackages = new ArrayList<DataPackageInfo>();
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mBluetoothChat = new BluetoothChat(mHandler);
@@ -66,6 +68,7 @@ public class BluetoothManage {
 	}
 
 	public static BluetoothManage getInstance(Context context) {
+		Log.i("DEBUG_BLUETOOTH","Getting BluetoothManage instance");
 		mContext = context;
 		if (null == mInstance) {
 			mInstance = new BluetoothManage();
@@ -87,49 +90,70 @@ public class BluetoothManage {
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
+			Log.i(DTAG, "BluetoothManage message handler");
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case CANCEL_DISCOVERY:
-				if (mBluetoothAdapter.isDiscovering()) {
-					mBluetoothAdapter.cancelDiscovery();
-				}
-				break;
-			case BLUETOOTH_CONNECT_SUCCESS:
-				btState = CONNECTED;
-				OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
-				dataListener.getBluetoothState(btState);
-				LogUtil.i("Bluetooth state:CONNECTED");
-				break;
-			case BLUETOOTH_CONNECT_FAIL:
-				btState = DISCONNECTED;
-				LogUtil.i("Bluetooth state:DISCONNECTED");
-
-				if (isMacAddress) {
+				case CANCEL_DISCOVERY:
+				{
+					Log.i(DTAG,"CANCEL_DISCOVERY - BluetoothManage");
 					if (mBluetoothAdapter.isDiscovering()) {
 						mBluetoothAdapter.cancelDiscovery();
 					}
-					mBluetoothAdapter.startDiscovery();
-				} else {
-//					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
-//							Toast.LENGTH_LONG).show();
-					dataListener.getBluetoothState(btState);
+					break;
 				}
-				break;
-			case BLUETOOTH_CONNECT_EXCEPTION:
-				btState = DISCONNECTED;
-				LogUtil.i("Bluetooth state:DISCONNECTED");
-				dataListener.getBluetoothState(btState);
-				break;
-			case BLUETOOTH_READ_DATA:
-				if (!Utils.isEmpty(Utils.bytesToHexString((byte[]) msg.obj))) {
-					dataLists.add(Utils.bytesToHexString((byte[]) msg.obj));
+				case BLUETOOTH_CONNECT_SUCCESS:
+				{
+					Log.i(DTAG,"Bluetooth connect success - BluetoothManage");
+					btConnectionState = CONNECTED;
+					Log.i(DTAG, "Saving Mac Address - BluetoothManage");
+					OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
+					Log.i(DTAG, "setting dataListener - getting bluetooth state - BluetoothManage");
+					dataListener.getBluetoothState(btConnectionState);
+					LogUtil.i("Bluetooth state:CONNECTED");
+					break;
 				}
-				break;
+				case BLUETOOTH_CONNECT_FAIL:
+				{
+					btConnectionState = DISCONNECTED;
+					LogUtil.i("Bluetooth state:DISCONNECTED");
+					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage");
+					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage: Bool - Value: "+isMacAddress);
+					if (isMacAddress) {
+						if (mBluetoothAdapter.isDiscovering()) {
+							mBluetoothAdapter.cancelDiscovery();
+						}
+						Log.i(DTAG,"Retry connection");
+						mBluetoothAdapter.startDiscovery();
+					} else {
+	//					Toast.makeText(mContext, R.string.bluetooth_connect_fail,
+	//							Toast.LENGTH_LONG).show();
+						Log.i(DTAG, "Sending out bluetooth state on dataListener");
+						dataListener.getBluetoothState(btConnectionState);
+					}
+					break;
+				}
+				case BLUETOOTH_CONNECT_EXCEPTION:
+				{
+					btConnectionState = DISCONNECTED;
+					LogUtil.i("Bluetooth state:DISCONNECTED");
+					Log.i(DTAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
+					dataListener.getBluetoothState(btConnectionState);
+					break;
+				}
+				case BLUETOOTH_READ_DATA:
+				{
+					if (!Utils.isEmpty(Utils.bytesToHexString((byte[]) msg.obj))) {
+						Log.i(DTAG, "Bluetooth read data... - BluetoothManage");
+						dataLists.add(Utils.bytesToHexString((byte[]) msg.obj));
+					}
+					break;
+				}
 			}
 		}
 	};
 
 	private void registerBluetoothReceiver() {
+		Log.i(DTAG,"Registering bluetooth intent receivers");
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
@@ -141,83 +165,104 @@ public class BluetoothManage {
 		mContext.registerReceiver(mReceiver, filter);
 	}
 
+
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			Log.i(DTAG, "BReceiver onReceive - BluetoothManage");
+
 			String action = intent.getAction();
 			LogUtil.i(action);
 			// �����豸
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+				Log.i(DTAG,"A device found - BluetoothManage");
 				BluetoothDevice device = intent
 						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				LogUtil.i(device.getName() + device.getAddress());
 				if (device.getName()!=null&&device.getName().contains(BT_NAME)) {
+					Log.i(DTAG,"OBD device found... Connect to IDD-212 - BluetoothManage");
 					mBluetoothChat.connectBluetooth(device);
+					Log.i(DTAG,"Connecting to device - BluetoothManage");
 					Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
 				}
 			} else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // �������ӳɹ�
+				Log.i(DTAG,"Phone is connected to a remote device - BluetoothManage");
 				LogUtil.i("CONNECTED");
-				btState = CONNECTED;
+				btConnectionState = CONNECTED;
 				LogUtil.i("Bluetooth state:CONNECTED");
-				dataListener.getBluetoothState(btState);
+				dataListener.getBluetoothState(btConnectionState);
 			}else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
+				Log.i(DTAG,"Pairing state changed - BluetoothManage");
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				if(device.getBondState()==BluetoothDevice.BOND_BONDED){
+					Log.i(DTAG,"Connected to a PAIRED device - BluetoothManage");
 					LogUtil.i("CONNECTED");
-					btState = CONNECTED;
+					btConnectionState = CONNECTED;
 					LogUtil.i("Bluetooth state:CONNECTED");
-					dataListener.getBluetoothState(btState);
+					dataListener.getBluetoothState(btConnectionState);
 				}
 			} else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) { // �������ӶϿ�
-				btState = DISCONNECTED;
+				btConnectionState = DISCONNECTED;
+				Log.i(DTAG,"Disconnection from a remote device - BluetoothManage");
 				LogUtil.i("Bluetooth state:DISCONNECTED");
-				dataListener.getBluetoothState(btState);
+				dataListener.getBluetoothState(btConnectionState);
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+				Log.i(DTAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothManage");
 				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_STARTED");
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED
 					.equals(action)) { // ������������
+				Log.i(DTAG,"Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothManage");
 				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_FINISHED");
-				if (btState != CONNECTED) {
-					btState = DISCONNECTED;
-					dataListener.getBluetoothState(btState);
+				if (btConnectionState != CONNECTED) {
+					btConnectionState = DISCONNECTED;
+					Log.i(DTAG,"Not connected - setting get bluetooth state on dListeners");
+					dataListener.getBluetoothState(btConnectionState);
 				}
-				}else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
-					if(mBluetoothAdapter.isEnabled())
-						connectBluetooth();
-					dataListener.getBluetoothState(btState);
-				}
+			}/*else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
+				if(mBluetoothAdapter.isEnabled())
+					connectBluetooth();
+				Log.i(DTAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
+				dataListener.getBluetoothState(btConnectionState);
+			}*/
 		}
 	};
 
 	/**
 	 * ��OBD�豸����
 	 */
+	// Connect to OBD device
 	public void connectBluetooth() {
-		if (btState == CONNECTED) {
+		if (btConnectionState == CONNECTED) {
+			Log.i(DTAG,"Bluetooth is connected - BluetoothManage");
 			return;
 		}
 
-		LogUtil.i("Bluetooth state:CONNECTTING");
-		btState = CONNECTTING;
+		LogUtil.i("Bluetooth state:CONNECTING");
+		Log.i(DTAG,"Connecting to bluetooth - BluetoothManage");
+		btConnectionState = CONNECTING;
 		mBluetoothChat.closeConnect();
 
 		// ֱ�Ӵ�����
 		if (!mBluetoothAdapter.isEnabled()) {
 			LogUtil.i("BluetoothAdapter.enable()");
+			Log.i(DTAG,"Bluetooth not enabled");
 			mBluetoothAdapter.enable();
 		}
 
+		Log.i(DTAG,"Getting saved macAddress - BluetoothManage");
 		String macAddress = OBDInfoSP.getMacAddress(mContext);
 //		 macAddress = "8C:DE:52:71:F7:71";
 //		macAddress = "8C:DE:52:19:DB:86";
 //		macAddress = "8C:DE:52:22:C8:B5";
 		if (!"".equals(macAddress)) {
 			isMacAddress = true;
+			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
 			BluetoothDevice device = mBluetoothAdapter
 					.getRemoteDevice(macAddress);
 			mBluetoothChat.connectBluetooth(device);// ֱ����MAC��ַ��������
 		} else {
 			LogUtil.i("startDiscovery()");
+			Log.i(DTAG,"Starting discovery - BluetoothManage");
 			if (mBluetoothAdapter.isDiscovering()) {
 				mBluetoothAdapter.cancelDiscovery();
 			}
@@ -229,7 +274,8 @@ public class BluetoothManage {
 	 * �ر���������
 	 */
 	public void close() {
-		btState = DISCONNECTED;
+		Log.i(DTAG,"Closing connection - BluetoothManage");
+		btConnectionState = DISCONNECTED;
 		mContext.unregisterReceiver(mReceiver);
 		mBluetoothChat.closeConnect();
 		mHandler.removeCallbacks(runnable);
@@ -241,19 +287,22 @@ public class BluetoothManage {
 	 * @return
 	 */
 	public int getState() {
-		return btState;
+		Log.i(DTAG,"Getting bluetooth state - BluetoothManage");
+		return btConnectionState;
 	}
 
 	/**
 	 * ��ʼ��OBD�豸���������豸ID����ݰ�ID���ʼ����������������ʼ��
 	 */
 	public void initOBD() {
+		Log.i(DTAG,"Initialize obd func - BluetoothManage");
 		String deviceId = OBDInfoSP.getDeviceId(mContext);
 		String dataNum = OBDInfoSP.getDataNum(mContext);
 		if (!Utils.isEmpty(deviceId) && !Utils.isEmpty(dataNum)) {
 			LogUtil.i("deviceId:" + deviceId + "dataNum"
 					+ OBDInfoSP.getDataNum(mContext));
 			// ��ʼ�����������̬��
+			Log.i(DTAG,"Initializing obd module - BluetoothManage");
 			OBD.init(deviceId, dataNum);
 		}
 	}
@@ -264,7 +313,7 @@ public class BluetoothManage {
 	 * @param type
 	 */
 	public void obdSetCtrl(int type) {
-		if (btState != CONNECTED) {
+		if (btConnectionState != CONNECTED) {
 //			Toast.makeText(mContext, R.string.bluetooth_disconnected,
 //					Toast.LENGTH_LONG).show();
 			return;
@@ -279,7 +328,8 @@ public class BluetoothManage {
 	 * ���������
 	 */
 	public void obdSetMonitor(int type, String valueList) {
-		if (btState != CONNECTED) {
+		if (btConnectionState != CONNECTED) {
+			Log.i(DTAG,"obdSetMonitor bluetooth not connected - BluetoothManage");
 //			Toast.makeText(mContext, R.string.bluetooth_disconnected,
 //					Toast.LENGTH_LONG).show();
 			return;
@@ -299,7 +349,8 @@ public class BluetoothManage {
 	 *            ����ֵ
 	 */
 	public void obdSetParameter(String tlvTagList, String valueList) {
-		if (btState != CONNECTED) {
+		if (btConnectionState != CONNECTED) {
+			Log.i(DTAG,"obd set parameter - bluetooth not connected");
 //			Toast.makeText(mContext, R.string.bluetooth_disconnected,
 //					Toast.LENGTH_LONG).show();
 			return;
@@ -308,7 +359,7 @@ public class BluetoothManage {
 		LogUtil.i("tlvTagList: " + tlvTagList);
 		LogUtil.i("tlvTagList: " + valueList);
 
-
+		Log.i(DTAG,"obd set parameter - BluetoothManage");
 		String result = OBD.setParameter(tlvTagList, valueList);
 		sendCommand(result);
 	}
@@ -320,13 +371,15 @@ public class BluetoothManage {
 	 *            ��������
 	 */
 	public void obdGetParameter(String tlvTag) {
-		if (btState != CONNECTED) {
+		Log.i(DTAG,"Getting obd parameter - BluetoothManage");
+		if (btConnectionState != CONNECTED) {
+			Log.i(DTAG,"Getting obd parameter (bluetooth state not connected) - BluetoothManage");
 //			Toast.makeText(mContext, R.string.bluetooth_disconnected,
 //					Toast.LENGTH_LONG).show();
 			return;
 		}
 
-
+		Log.i(DTAG, "Getting data from obd device - BluetoothManage");
 		String result = OBD.getParameter(tlvTag);
 		sendCommand(result);
 	}
@@ -358,7 +411,7 @@ public class BluetoothManage {
 
 		byte[] bytes = Utils.hexStringToBytes(sendPackageInfo.instruction);
 
-		if (btState == CONNECTED && null != mBluetoothChat.connectedThread) {
+		if (btConnectionState == CONNECTED && null != mBluetoothChat.connectedThread) {
 			mBluetoothChat.connectedThread.write(bytes);
 		}
 	}
@@ -375,7 +428,7 @@ public class BluetoothManage {
 
 		byte[] bytes = Utils.hexStringToBytes(msg);
 
-		if (btState == CONNECTED && null != mBluetoothChat.connectedThread) {
+		if (btConnectionState == CONNECTED && null != mBluetoothChat.connectedThread) {
 			mBluetoothChat.connectedThread.write(bytes);
 		}
 	}
@@ -386,6 +439,7 @@ public class BluetoothManage {
 	 * @param data
 	 */
 	public void receiveDataAndParse(String data) {
+		Log.i(DTAG,"Calling receive data and parse - BluetoothManage");
 		LogUtil.i("isParse:" + isParse);
 		isParse = true;
 		String info = OBD.getIOData(data);
@@ -415,18 +469,24 @@ public class BluetoothManage {
 	 */
 
 	public void packageType(String info, int result) {
+		Log.i(DTAG,"Checking package type - BluetoothManage");
 		if (0 == result) {
+			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
 			initResultZeroCounter++;
 			if(initResultZeroCounter > 2 && !isDeviceSynced) {
+				Log.i(DTAG,"Resetting RTC time - BluetoothManage");
 				long systemTime = System.currentTimeMillis();
 				obdSetParameter("1A01", String.valueOf(systemTime / 1000));
 			}
 			obdLoginPackageParse(info);
 		} else if (2 == result) {
+			Log.i(DTAG,"Receiving result 2 - BluetoothManage");
 			obdResponsePackageParse(info);
 		} else if (3 == result) {
+			Log.i(DTAG,"Receiving result 3 - BluetoothManage");
 			obdParameterPackageParse(info);
 		} else if (4 == result || 5 == result || 6 == result) {
+			Log.i(DTAG,"Receiving result 4 or 5 or 6 - BluetoothManage");
 			isDeviceSynced = true;
 			obdIODataPackageParse(info);
 		}
@@ -438,6 +498,7 @@ public class BluetoothManage {
 	 * @param info
 	 */
 	private void obdLoginPackageParse(String info) {
+		Log.i(DTAG,"Obd login package parse - BluetoothManage");
 		LoginPackageInfo loginPackageInfo = JsonUtil.json2object(info,
 				LoginPackageInfo.class);
 
@@ -462,16 +523,20 @@ public class BluetoothManage {
 	 * @param info
 	 */
 	private void obdResponsePackageParse(String info) {
+		Log.i(DTAG,"calling obd response package - BluetoothManage");
 		ResponsePackageInfo responsePackageInfo = JsonUtil.json2object(info,
 				ResponsePackageInfo.class);
 
 		if (null == responsePackageInfo) {
+			Log.i(DTAG,"obd response package setting ctrl and parameter response dataListeners (null data)");
 			dataListener.setCtrlResponse(null);
 			dataListener.setParamaterResponse(null);
 		} else {
 			if ("0".equals(responsePackageInfo.flag)) {
+				Log.i(DTAG,"obd response package set ctrl resp dataListener - BluetoothManage");
 				dataListener.setCtrlResponse(responsePackageInfo);
 			} else if ("1".equals(responsePackageInfo.flag)) {
+				Log.i(DTAG,"obd response package set parameter resp dataListener - BluetoothManage");
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}
 		}
@@ -485,7 +550,7 @@ public class BluetoothManage {
 	private void obdParameterPackageParse(String info) {
 		ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
 				ParameterPackageInfo.class);
-
+		Log.i(DTAG,"getting parameterData on dataListener - BluetoothManage");
 		dataListener.getParamaterData(parameterPackageInfo);
 	}
 
@@ -495,6 +560,7 @@ public class BluetoothManage {
 	 * @param info
 	 */
 	public void obdIODataPackageParse(String info) {
+		Log.i(DTAG,"obd io data package parse - BluetoothManage");
 		DataPackageInfo dataPackageInfo = JsonUtil.json2object(info,
 				DataPackageInfo.class);
 
@@ -502,12 +568,13 @@ public class BluetoothManage {
 			dataPackages.add(dataPackageInfo);
 
 			if (!Utils.isEmpty(dataPackageInfo.dataNumber)) {
+				Log.i(DTAG, "Saving OBDInfo (DeviceId and DataNumber) - BluetoothManage");
 				OBDInfoSP.saveInfo(mContext, dataPackageInfo.deviceId,
 						dataPackageInfo.dataNumber);
 				LogUtil.i("dataNumber:" + dataPackageInfo.dataNumber);
 			}
 		}
-
+		Log.i(DTAG,"Setting getIOdata on dataListener - BluetoothManage");
 		dataListener.getIOData(dataPackageInfo);
 	}
 
@@ -517,6 +584,7 @@ public class BluetoothManage {
 	 * @param dataListener
 	 */
 	public void setBluetoothDataListener(BluetoothDataListener dataListener) {
+		Log.i(DTAG,"Setting up data listeners - BluetoothManage");
 		this.dataListener = dataListener;
 	}
 
