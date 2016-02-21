@@ -172,19 +172,23 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getBluetoothState(int state) {
+        //if device is connected
         if(state==BluetoothManage.CONNECTED) {
+            //get all devices
             BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
             List<BluetoothDevice> devices = bluetoothManager.getDevicesMatchingConnectionStates(BluetoothProfile.GATT, new int[]{
                     BluetoothDevice.BOND_BONDED
             });
             boolean deviceConnected = false;
             for (BluetoothDevice device : devices) {
+                //if device has name IDD-212
                 if (device.getName().contains("IDD-212")) {
                     deviceConnected = true;
                 }
             }
             //set RTC time once anything is connected
             setRTCTime();
+            //show a custom notification
             if (deviceConnected) {
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
