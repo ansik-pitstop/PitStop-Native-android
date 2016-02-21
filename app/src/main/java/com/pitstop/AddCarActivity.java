@@ -33,6 +33,8 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -183,7 +185,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             }
         });
 
+        setUpTutorialScreen();
 
+    }
+
+    private void setUpTutorialScreen() {
     }
 
     @Override

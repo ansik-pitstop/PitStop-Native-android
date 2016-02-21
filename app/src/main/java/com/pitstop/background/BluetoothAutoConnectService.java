@@ -201,6 +201,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             //set RTC time once anything is connected
             //setRTCTime();
+            //show a custom notification
             if (deviceConnected) {
                 Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
