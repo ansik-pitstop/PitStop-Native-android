@@ -325,12 +325,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
         //if no bluetooth on, ask to turn it on
         if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            final boolean isMainActivity = true;
             Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
             snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
             snackbar.setAction("TURN ON", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    service.startBluetoothSearch();
+
+                    service.startBluetoothSearch(isMainActivity);
 
                 }
             });

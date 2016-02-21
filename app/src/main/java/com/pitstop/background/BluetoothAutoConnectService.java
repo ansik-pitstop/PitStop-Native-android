@@ -92,9 +92,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         BluetoothManage.getInstance(this).obdSetParameter("1A01", String.valueOf(currentTime / 1000));
     }
 
-    public void startBluetoothSearch(){
+    public void startBluetoothSearch(boolean isMainOrCarDetails){
         Log.i(DTAG, "starting bluetooth search - auto-connect service");
-        BluetoothManage.getInstance(this).connectBluetooth();
+        BluetoothManage.getInstance(this).connectBluetooth(isMainOrCarDetails);
     }
 
     public int getState(){

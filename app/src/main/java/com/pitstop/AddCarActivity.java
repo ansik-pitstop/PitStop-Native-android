@@ -278,7 +278,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             }else {
                 if (service.getState() != BluetoothManage.CONNECTED) {
                     showLoading();
-                    service.startBluetoothSearch();
+                    service.startBluetoothSearch(false);
                 } else {
                     service.getCarVIN();
                 }
@@ -383,7 +383,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             hideLoading();
-            service.startBluetoothSearch();
+            service.startBluetoothSearch(false);
         }else{
             ((TextView) findViewById(R.id.loading_details)).setText("Linking with Device, give it a few seconds");
             service.getCarVIN();
