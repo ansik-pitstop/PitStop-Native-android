@@ -224,15 +224,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * @param view
      */
     public void addCar(View view) {
-        //check if already pending cars (you cannot add another car when you have one pending)
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
-        if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
-            Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
-            startActivity(intent);
-        }else {
-            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -363,8 +356,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         findViewById(R.id.loading_section).setVisibility(View.GONE);
         if (array.size() == 0) {
             //if no car, go to add car screen
-            addCar(null);
+            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             isRefresh= false;
+            startActivity(intent);
         } else {
             //choose between single and multi view
 

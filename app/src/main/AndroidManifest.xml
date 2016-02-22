@@ -84,9 +84,6 @@
             android:name=".ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
         <activity
-            android:name=".PendingAddCarActivity"
-            android:label="Please Connect to Internet" />
-        <activity
             android:name=".Debug.PIDDebugActivity"
             android:label="@string/title_activity_piddebug" />
         <activity
