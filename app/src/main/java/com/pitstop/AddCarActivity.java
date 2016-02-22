@@ -173,7 +173,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         mLogStore.start();
         //setup restore possiblities
         ((TextView)findViewById(R.id.VIN)).setText(VIN);
-        if(!mileage.equals("")) {
+        if(!VIN.equals("")) {
             ((TextView) findViewById(R.id.mileage)).setText(mileage);
 
             ParseConfig.getInBackground(new ConfigCallback() {
@@ -202,6 +202,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void finish() {
         super.finish();
         VIN="";
+        mileage="";
+        scannerID="";
+        dtcs="";
     }
 
     @Override
