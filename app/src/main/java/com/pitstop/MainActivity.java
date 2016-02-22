@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service1) {
+            Log.i("connecting","onServiceConnection");
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
@@ -83,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+
+            Log.i("Disconnecting","onServiceConnection");
         }
     };
 

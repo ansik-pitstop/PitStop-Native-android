@@ -265,7 +265,7 @@ public class BluetoothManage {
 //		 macAddress = "8C:DE:52:71:F7:71";
 //		macAddress = "8C:DE:52:19:DB:86";
 //		macAddress = "8C:DE:52:22:C8:B5";
-		if (!"".equals(macAddress) && !isAddCar) {
+		/*if (!"".equals(macAddress) && !isAddCar) {
 			isMacAddress = true;
 			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
 			BluetoothDevice device = mBluetoothAdapter
@@ -278,6 +278,22 @@ public class BluetoothManage {
 				mBluetoothAdapter.cancelDiscovery();
 			}
 			mBluetoothAdapter.startDiscovery();// ���������豸
+		}*/
+		if((!"".equals(macAddress) && isAddCar) || ("".equals(macAddress) && isAddCar)) {
+			Log.i(DTAG,"Starting discovery - BluetoothManage");
+			isMacAddress = true;
+			if (mBluetoothAdapter.isDiscovering()) {
+				mBluetoothAdapter.cancelDiscovery();
+			}
+			mBluetoothAdapter.startDiscovery();
+		} else if((!"".equals(macAddress) && !isAddCar)) {
+			isMacAddress = true;
+			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
+			BluetoothDevice device = mBluetoothAdapter
+					.getRemoteDevice(macAddress);
+			mBluetoothChat.connectBluetooth(device);
+		} else if("".equals(macAddress) && !isAddCar) {
+			btConnectionState = DISCONNECTED;
 		}
 	}
 

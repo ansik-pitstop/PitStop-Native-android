@@ -94,11 +94,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             service = binder.getService();
             bound = true;
             service.setCallbacks(AddCarActivity.this); // register
+            Log.i("connecting", "onServiceConnection");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             bound = false;
+            Log.i("Disconnecting","onServiceConnection");
         }
     };
 
@@ -166,7 +168,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             public void done(List<ParseObject> objects, ParseException e) {
 
                 if (e != null) {
-                    Toast.makeText(getApplicationContext(), "Failed to get dealership info", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddCarActivity.this, "Failed to get dealership info", Toast.LENGTH_SHORT).show();
                 } else {
                     for (ParseObject object : objects) {
                         Log.d("dealer name", object.getString("name"));
@@ -194,8 +196,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ((TextView) findViewById(R.id.mileage)).setText(mileage);
 
             ParseConfig.getInBackground(new ConfigCallback() {
+
                 @Override
                 public void done(ParseConfig config, ParseException e) {
+                    // TODO: Why is config returning null ?
+                    if(config == null) {
+                        return;
+                    }
                     ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
                     new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                 }
@@ -447,7 +454,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
-        hideLoading();
+
         isSearching = false;
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
@@ -459,6 +466,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
         } else {
             // same as in manual input plus vin hint
+            hideLoading();
             showManualEntryUI();
             findViewById(R.id.VIN_hint).setVisibility(View.VISIBLE);
         }
@@ -631,7 +639,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                             ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
                             if(objects.size()>0){
                                 //see if car already exists!
-                                Toast.makeText(getApplicationContext(),"Car Already Exist for Another User!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AddCarActivity.this,"Car Already Exist for Another User!", Toast.LENGTH_SHORT).show();
                                 hideLoading();
                                 makingCar = false;
                                 return;
@@ -670,7 +678,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                         ((TextView) findViewById(R.id.loading_details)).setText("Final Touches");
                                                         if(e!=null){
                                                             hideLoading();
-                                                            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(AddCarActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                                                             return;
                                                         }
                                                         if(scannerID!=null) {
@@ -689,7 +697,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                                     } else {
                                                                         hideLoading();
                                                                         makingCar = false;
-                                                                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                                                        Toast.makeText(AddCarActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                                                                     }
                                                                 }
                                                             });
@@ -714,7 +722,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         @Override
                         public void run() {
                             //show vin already exists
-                            Toast.makeText(getApplicationContext(), "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddCarActivity.this, "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
                             hideLoading();
                             makingCar = false;
                         }
@@ -724,7 +732,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Errored Out", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddCarActivity.this, "Errored Out", Toast.LENGTH_SHORT).show();
                         hideLoading();
                         makingCar = false;
                     }
