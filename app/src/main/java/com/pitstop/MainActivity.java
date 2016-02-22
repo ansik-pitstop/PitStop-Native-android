@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
             Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
             startActivity(intent);
-        }else {
+        } else {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             startActivity(intent);
         }

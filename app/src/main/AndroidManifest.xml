@@ -153,8 +153,6 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
             </intent-filter>
         </service>
-        <activity android:name=".BarcodeScannerActivity" >
-        </activity>
     </application>
 
 </manifest>

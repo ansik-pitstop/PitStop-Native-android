@@ -188,13 +188,22 @@ public class BluetoothManage {
 			} else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // �������ӳɹ�
 				Log.i(DTAG,"Phone is connected to a remote device - BluetoothManage");
 				LogUtil.i("CONNECTED");
-				btConnectionState = CONNECTED;
+				// Phone is not necessarily connected to device
+				/*btConnectionState = CONNECTED;
 				LogUtil.i("Bluetooth state:CONNECTED");
-				dataListener.getBluetoothState(btConnectionState);
-			}else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
+				dataListener.getBluetoothState(btConnectionState);*/
+				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+				Log.i(DTAG, "Connected to devce: " + device.getName());
+				if(device.getName()!=null && device.getName().contains(BT_NAME)) {
+					btConnectionState = CONNECTED;
+					LogUtil.i("Bluetooth state:CONNECTED");
+					dataListener.getBluetoothState(btConnectionState);
+				}
+			} else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
 				Log.i(DTAG,"Pairing state changed - BluetoothManage");
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-				if(device.getBondState()==BluetoothDevice.BOND_BONDED){
+				if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
+						(device.getName().contains(BT_NAME))){
 					Log.i(DTAG,"Connected to a PAIRED device - BluetoothManage");
 					LogUtil.i("CONNECTED");
 					btConnectionState = CONNECTED;
