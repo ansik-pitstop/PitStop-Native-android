@@ -228,13 +228,24 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         unbindService(serviceConnection);
     }
 
+    public void finish(boolean forceReset) {
+        if(forceReset){
+            VIN="";
+            mileage="";
+            scannerID="";
+            dtcs="";
+
+        }
+        super.finish();
+    }
+
     @Override
     public void finish() {
-        super.finish();
         VIN="";
         mileage="";
         scannerID="";
         dtcs="";
+        super.finish();
     }
 
     @Override
@@ -337,6 +348,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     }else{
                         Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
                         startActivity(intent);
+                        finish(false);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -417,6 +429,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 }else{
                     Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
                     startActivity(intent);
+                    finish(false);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
