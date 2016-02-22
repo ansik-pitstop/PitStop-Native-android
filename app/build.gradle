@@ -49,6 +49,8 @@ dependencies {
     // already includes 'com.android.support:recyclerview-v7:21.0.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
+    // barcode scanner lib
+    compile 'me.dm7.barcodescanner:zbar:1.5'
 
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'

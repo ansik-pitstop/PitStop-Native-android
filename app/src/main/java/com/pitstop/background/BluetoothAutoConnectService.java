@@ -85,9 +85,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     public void setRTCTime(){
-        Log.d("SETTINGRTCTIME","SETTING");
+        Log.d("SETTINGRTCTIME", "SETTING");
         long currentTime = System.currentTimeMillis();
-        BluetoothManage.getInstance(this).obdSetParameter("1A01",String.valueOf(currentTime / 1000));
+        BluetoothManage.getInstance(this).obdSetParameter("1A01", String.valueOf(currentTime / 1000));
     }
 
     public void startBluetoothSearch(){
@@ -187,8 +187,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 }
             }
             //set RTC time once anything is connected
-            setRTCTime();
             //show a custom notification
+            //setRTCTime();
             if (deviceConnected) {
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
