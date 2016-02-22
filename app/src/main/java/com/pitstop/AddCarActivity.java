@@ -231,6 +231,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         unbindService(serviceConnection);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        VIN="";
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
