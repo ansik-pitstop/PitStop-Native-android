@@ -79,4 +79,9 @@ public class PendingAddCarActivity extends AppCompatActivity{
         startActivity(intent);
         finish();
     }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
 }
