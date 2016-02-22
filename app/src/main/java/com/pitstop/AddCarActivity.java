@@ -267,10 +267,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private long startTime = 0;
     private boolean isSearching = false;
     public void getVIN(View view) {
-        //
-        startTime = System.currentTimeMillis();
-        timerHandler.post(runnable);
-        isSearching = true;
 
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
@@ -278,6 +274,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 showLoading();
                 makeCar();
             } else {
+                startTime = System.currentTimeMillis();
+                timerHandler.post(runnable);
+                isSearching = true;
                 if (BluetoothAdapter.getDefaultAdapter() == null) {
                     hideLoading();
                     findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
@@ -350,11 +349,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else if (!isSearching) {
-
                 timerHandler.removeCallbacks(runnable);
-
             } else {
-
                 timerHandler.post(runnable);
             }
 

@@ -168,7 +168,7 @@ public class MainActivityFragment extends Fragment {
             garageEmailAddress = currShop.getValue("email");
             garageAddress = currShop.getValue("address");
             callGarageTextView.setText("Call " + currentGarage);
-            messageGarageTextView.setText("Email " + currentGarage);
+            messageGarageTextView.setText("Message " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
         } else {
             final String finalShopId = shopId;
