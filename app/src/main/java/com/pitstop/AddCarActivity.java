@@ -259,28 +259,29 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
      * @param view
      */
     private long startTime = 0;
-    private boolean isDeviceConnected = false;
+    private boolean isSearching = false;
     public void getVIN(View view) {
         //
         startTime = System.currentTimeMillis();
         timerHandler.post(runnable);
-        //isSearching = true;
+        isSearching = true;
 
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
                 showLoading();
                 makeCar();
-            }
-            if(BluetoothAdapter.getDefaultAdapter()==null){
-                hideLoading();
-                findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
-            }else {
-                if (service.getState() != BluetoothManage.CONNECTED) {
-                    showLoading();
-                    service.startBluetoothSearch(false);
+            } else {
+                if (BluetoothAdapter.getDefaultAdapter() == null) {
+                    hideLoading();
+                    findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
                 } else {
-                    service.getCarVIN();
+                    if (service.getState() != BluetoothManage.CONNECTED) {
+                        showLoading();
+                        service.startBluetoothSearch(false);
+                    } else {
+                        service.getCarVIN();
+                    }
                 }
             }
             showLoading();
@@ -311,7 +312,9 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                isSearching= false;
                 dialog.cancel();
+
             }
         });
         alertDialog.show();
@@ -336,13 +339,19 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
-
-            if(seconds > 30 && (isDeviceConnected)) {
+           // Log.i("AddCarString", "Timer Still Running");
+            if(seconds > 30 && (isSearching)) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
+            } else if (!isSearching) {
+
+                timerHandler.removeCallbacks(runnable);
+
             } else {
+
                 timerHandler.post(runnable);
             }
+
         }
     };
 
@@ -383,11 +392,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             hideLoading();
-            isDeviceConnected = false;
+            //isDeviceConnected = false;
             service.startBluetoothSearch(false);
         }else{
             ((TextView) findViewById(R.id.loading_details)).setText("Linking with Device, give it a few seconds");
-            isDeviceConnected = true;
+            //isDeviceConnected = true;
             service.getCarVIN();
         }
     }
@@ -404,7 +413,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
         hideLoading();
-        //isSearching = false;
+        isSearching = false;
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
 
@@ -692,6 +701,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.VIN).setEnabled(true);
         findViewById(R.id.button).setEnabled(true);
 		scannerButton.setEnabled(true);
+        isSearching = false ;
     }
 
     public void hideLoading(View view){
