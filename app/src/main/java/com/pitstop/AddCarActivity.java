@@ -30,8 +30,6 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -43,6 +41,7 @@ import com.parse.SaveCallback;
 import com.pitstop.Debug.PrintDebugThread;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
+import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,11 +52,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
     public static int RESULT_ADDED = 10;
-    private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
+    public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
     private PrintDebugThread mLogDumper;
     private boolean bound;
     boolean makingCar = false;
@@ -154,6 +154,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         setUpTutorialScreen();
 
+
     }
 
     private void setUpTutorialScreen() {
@@ -170,6 +171,19 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     protected void onResume() {
         super.onResume();
         mLogStore.start();
+        //setup restore possiblities
+        ((TextView)findViewById(R.id.VIN)).setText(VIN);
+        if(!mileage.equals("")) {
+            ((TextView) findViewById(R.id.mileage)).setText(mileage);
+
+            ParseConfig.getInBackground(new ConfigCallback() {
+                @Override
+                public void done(ParseConfig config, ParseException e) {
+                    ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
+                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                }
+            });
+        }
     }
 
     @Override
@@ -247,13 +261,25 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 askForDTC=true;
                 service.getDTCs();
             }else {
-                ParseConfig.getInBackground(new ConfigCallback() {
-                    @Override
-                    public void done(ParseConfig config, ParseException e) {
-                        ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
-                        new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                try {
+                    if(new InternetChecker(this).execute().get()){
+                        showLoading();
+                        ParseConfig.getInBackground(new ConfigCallback() {
+                            @Override
+                            public void done(ParseConfig config, ParseException e) {
+                                ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
+                                new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                            }
+                        });
+                    }else{
+                        Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
+                        startActivity(intent);
                     }
-                });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -308,13 +334,24 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                     dtcs+=service.parseDTCs(dtc)+",";
                 }
             }
-            ParseConfig.getInBackground(new ConfigCallback() {
-                @Override
-                public void done(ParseConfig config, ParseException e) {
-                    ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
-                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+            try {
+                if(new InternetChecker(this).execute().get()){
+                    ParseConfig.getInBackground(new ConfigCallback() {
+                        @Override
+                        public void done(ParseConfig config, ParseException e) {
+                            ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
+                            new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
+                        }
+                    });
+                }else{
+                    Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
+                    startActivity(intent);
                 }
-            });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
             askForDTC=false;
         }else{
             service.getCarVIN();
