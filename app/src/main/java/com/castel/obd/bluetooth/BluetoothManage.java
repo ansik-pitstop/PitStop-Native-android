@@ -118,7 +118,7 @@ public class BluetoothManage {
 					LogUtil.i("Bluetooth state:DISCONNECTED");
 					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage");
 					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage: Bool - Value: "+isMacAddress);
-					if (isMacAddress && !isCarDetails) {
+					if (isMacAddress && isAddCar) {
 						if (mBluetoothAdapter.isDiscovering()) {
 							mBluetoothAdapter.cancelDiscovery();
 						}
@@ -231,9 +231,9 @@ public class BluetoothManage {
 	 * ��OBD�豸����
 	 */
 	// Connect to OBD device
-	private boolean isCarDetails = false;
-	public void connectBluetooth(boolean isMainOrCarDetails) {
-		isCarDetails = isMainOrCarDetails;
+	private boolean isAddCar = false;
+	public void connectBluetooth(boolean isAddCarActivity) {
+		isAddCar = isAddCarActivity;
 		if (btConnectionState == CONNECTED) {
 			Log.i(DTAG,"Bluetooth is connected - BluetoothManage");
 			return;
@@ -256,7 +256,7 @@ public class BluetoothManage {
 //		 macAddress = "8C:DE:52:71:F7:71";
 //		macAddress = "8C:DE:52:19:DB:86";
 //		macAddress = "8C:DE:52:22:C8:B5";
-		if (!"".equals(macAddress) && isMainOrCarDetails) {
+		if (!"".equals(macAddress) && !isAddCar) {
 			isMacAddress = true;
 			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
 			BluetoothDevice device = mBluetoothAdapter

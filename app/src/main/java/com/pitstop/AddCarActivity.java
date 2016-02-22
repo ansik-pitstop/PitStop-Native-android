@@ -259,12 +259,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
      * @param view
      */
     private long startTime = 0;
-    private boolean isSearching = false;
+    private boolean isDeviceConnected = false;
     public void getVIN(View view) {
         //
         startTime = System.currentTimeMillis();
         timerHandler.post(runnable);
-        isSearching = true;
+        //isSearching = true;
 
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
@@ -337,7 +337,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 15 && isSearching) {
+            if(seconds > 30 && (isDeviceConnected)) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else {
@@ -383,9 +383,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             hideLoading();
+            isDeviceConnected = false;
             service.startBluetoothSearch(false);
         }else{
             ((TextView) findViewById(R.id.loading_details)).setText("Linking with Device, give it a few seconds");
+            isDeviceConnected = true;
             service.getCarVIN();
         }
     }
@@ -402,7 +404,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
         hideLoading();
-        isSearching = false;
+        //isSearching = false;
         LogUtil.i("parameterPackage.size():"
                 + parameterPackageInfo.value.size());
 

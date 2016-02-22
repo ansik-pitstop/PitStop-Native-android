@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public boolean isRefresh = true;
 
     private boolean isUpdatingMileage = false;
+    private boolean isAddCar = false;
     private String carId;
 
     public BluetoothAutoConnectService service;
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                //service.startBluetoothSearch();
+                service.startBluetoothSearch(isAddCar);
             }
         }
 
@@ -325,14 +326,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
         //if no bluetooth on, ask to turn it on
         if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            final boolean isMainActivity = true;
+
             Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
             snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
             snackbar.setAction("TURN ON", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
-                    service.startBluetoothSearch(isMainActivity);
+                    service.startBluetoothSearch(isAddCar);
 
                 }
             });
