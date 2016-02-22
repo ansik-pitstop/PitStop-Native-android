@@ -194,12 +194,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             boolean deviceConnected = false;
             for (BluetoothDevice device : devices) {
                 Log.i(DTAG,"Iterating through bonded devices - auto-connect service");
+                //if device has name IDD-212
                 if (device.getName().contains("IDD-212")) {
                     Log.i(DTAG,"Found connected device - auto-connect service");
                     deviceConnected = true;
                 }
             }
             //set RTC time once anything is connected
+            //show a custom notification
             //setRTCTime();
             //show a custom notification
             if (deviceConnected) {

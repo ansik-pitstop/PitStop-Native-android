@@ -21,7 +21,7 @@ public class OBDInfoSP {
 		Editor editor = sp.edit();
 		editor.putString("DEVICE_ID", deviceId);
 		editor.putString("DATA_NUM", dataNum);
-		editor.commit();
+		editor.apply();
 	}
 
 	public static void saveMacAddress(Context context, String macAddress) {
@@ -29,7 +29,7 @@ public class OBDInfoSP {
 				Context.MODE_PRIVATE);
 		Editor editor = sp.edit();
 		editor.putString("MAC_ADDRESS", macAddress);
-		editor.commit();
+		editor.apply();
 		LogUtil.i("save MAC_ADDRESS:" + macAddress);
 	}
 
@@ -38,7 +38,7 @@ public class OBDInfoSP {
 				Context.MODE_PRIVATE);
 		Editor editor = sp.edit();
 		editor.putInt("CAR_TYPE", carType);
-		editor.commit();
+		editor.apply();
 		LogUtil.i("save CarType:" + carType);
 	}
 
