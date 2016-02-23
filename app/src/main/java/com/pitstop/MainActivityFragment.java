@@ -1,10 +1,13 @@
 package com.pitstop;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -22,6 +28,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import com.pitstop.utils.ToolbarActionItemTarget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +73,54 @@ public class MainActivityFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         array=((MainActivity)getActivity()).array;
         setUp();
+        showTutorial();
+    }
+
+    private void showTutorial() {
+
+
+        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.pfName, Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        if(settings.getBoolean("FirstAppOpen",false)==false) {
+            new ShowcaseView.Builder(getActivity())
+                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.button5)))
+                    .setContentTitle("View Your Car Information")
+                    .setContentText("Click this button to see more detailed view of your car")
+                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+                        @Override
+                        public void onShowcaseViewDidHide(ShowcaseView v) {
+                            final Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+                            new ShowcaseView.Builder(getActivity())
+                                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.message_garage_icon)))
+                                    .setContentTitle("Your Dealership")
+                                    .setContentText("Feel free to click these to message/call/get directions to your dealership. You can edit this in your settings.")
+                                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+                                        @Override
+                                        public void onShowcaseViewDidHide(ShowcaseView v) {
+                                            new ShowcaseView.Builder(getActivity())
+                                                    .setTarget(new ToolbarActionItemTarget(toolbar, R.id.add))
+                                                    .setContentTitle("Add Car")
+                                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                                    .setContentText("Click here to add a new car to your library")
+                                                    .withMaterialShowcase()
+                                                    .build()
+                                                    .show();
+
+                                        }
+                                    })
+                                    .withMaterialShowcase()
+                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                    .build()
+                                    .show();
+                        }
+                    })
+                    .setStyle(R.style.CustomShowcaseTheme2)
+                    .withMaterialShowcase()
+                    .build()
+                    .show();
+            editor.putBoolean("FirstAppOpen",true);
+            editor.commit();
+        }
     }
 
     public void setTextViews() {
@@ -113,7 +168,7 @@ public class MainActivityFragment extends Fragment {
             garageEmailAddress = currShop.getValue("email");
             garageAddress = currShop.getValue("address");
             callGarageTextView.setText("Call " + currentGarage);
-            messageGarageTextView.setText("Email " + currentGarage);
+            messageGarageTextView.setText("Message " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
         } else {
             final String finalShopId = shopId;

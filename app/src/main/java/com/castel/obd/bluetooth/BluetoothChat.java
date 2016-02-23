@@ -58,28 +58,13 @@ public class BluetoothChat {
 				e1.printStackTrace();
 			}
 			
-//			Method m = null;
-//			try {
-//				m = mmDevice.getClass().getMethod("createRfcommSocket",
-//
-//				new Class[] { int.class });
-//				temp = (BluetoothSocket) m.invoke(mmDevice, 1);
-//			} catch (NoSuchMethodException e) {
-//				e.printStackTrace();
-//			} catch (IllegalAccessException e) {
-//				e.printStackTrace();
-//			} catch (IllegalArgumentException e) {
-//				e.printStackTrace();
-//			} catch (InvocationTargetException e) {
-//				e.printStackTrace();
-//			}
-			
 			mmSocket = temp;
 		}
 
 		@Override
 		public void run() {
 			LogUtil.i("蓝牙开始连接");
+
 			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
 			try {
 				mmSocket.connect();

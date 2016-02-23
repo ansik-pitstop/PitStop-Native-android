@@ -181,10 +181,12 @@ public class SplashScreen extends AppCompatActivity {
             showLoading();
             if(((TextView)findViewById(R.id.password)).getText().toString().length()<6){
                 Snackbar.make(findViewById(R.id.splash_layout), "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+                hideLoading();
                 return;
             }
             if(((TextView)findViewById(R.id.phone)).getText().toString().length()!=10){
                 Snackbar.make(findViewById(R.id.splash_layout), "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+                hideLoading();
                 return;
             }
             ParseUser user = new ParseUser();

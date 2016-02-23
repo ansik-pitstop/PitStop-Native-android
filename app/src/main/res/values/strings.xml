@@ -33,4 +33,7 @@
         <item>Critical</item>
     </string-array>
 
+    <!--Barcode scanner Request Permission Rationale -->
+    <string name="camera_request_rationale">Access to camera is required to scan vin barcode</string>
+
 </resources>
