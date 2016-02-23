@@ -102,6 +102,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         return BluetoothManage.getInstance(this).getState();
     }
 
+    public void setIsAddCarState(boolean isAddCarState) {
+        Log.i(DTAG,"Setting is add car state");
+        BluetoothManage.getInstance(this).setIsAddCarActivityState(isAddCarState);
+    }
+
     public void getPIDs(){
         Log.i(DTAG,"getting PIDs - auto-connect service");
         BluetoothManage.getInstance(this).obdGetParameter("2401");

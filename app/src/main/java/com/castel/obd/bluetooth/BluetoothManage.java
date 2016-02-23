@@ -294,7 +294,12 @@ public class BluetoothManage {
 			mBluetoothChat.connectBluetooth(device);
 		} else if("".equals(macAddress) && !isAddCar) {
 			btConnectionState = DISCONNECTED;
+			dataListener.getBluetoothState(btConnectionState);
 		}
+	}
+
+	public void setIsAddCarActivityState(boolean isAddCarActivityState) {
+		this.isAddCar = isAddCarActivityState;
 	}
 
 	/**

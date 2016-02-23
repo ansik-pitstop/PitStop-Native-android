@@ -109,6 +109,7 @@ public class AddCarActivity extends AppCompatActivity
             service = binder.getService();
             bound = true;
             service.setCallbacks(AddCarActivity.this); // register
+            service.setIsAddCarState(true);
             Log.i("connecting", "onServiceConnection");
         }
 
@@ -227,8 +228,9 @@ public class AddCarActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
-        super.onPause();
         mLogStore.stop();
+        service.setIsAddCarState(false);
+        super.onPause();
     }
 
     @Override
