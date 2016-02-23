@@ -1,5 +1,7 @@
 package com.pitstop;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -9,10 +11,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -23,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -58,8 +63,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import static android.Manifest.permission.CAMERA;
 
-public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
+
+public class AddCarActivity extends AppCompatActivity
+        implements BluetoothManage.BluetoothDataListener, View.OnClickListener,
+        EasyPermissions.PermissionCallbacks {
     public static int RESULT_ADDED = 10;
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
@@ -73,6 +84,10 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private ToggleButton yesButton;
     private ToggleButton noButton;
     private Button scannerButton;
+
+    // Id to identify CAMERA permission request.
+    private static final int REQUEST_CAMERA = 0;
+
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -425,9 +440,43 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     }
 
     public void startScanner(View view) {
-        Intent intent = new Intent(this, BarcodeScannerActivity.class);
-        startActivityForResult(intent, 0); // TODO: request code is hard-coded - need to change it.
+        launchBarcodeScanner();
+    }
 
+    @AfterPermissionGranted(REQUEST_CAMERA)
+    private void launchBarcodeScanner() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String msg = "Barcode scanner feature currently not supported on marshmallow";
+            LinearLayout lLayout = (LinearLayout) findViewById(R.id.add_car_view);
+            Snackbar.make(lLayout,msg,Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        if(EasyPermissions.hasPermissions(AddCarActivity.this, Manifest.permission.CAMERA)) {
+            Intent intent = new Intent(this, BarcodeScannerActivity.class);
+            startActivityForResult(intent, 0); // TODO: request code is hard-coded - need to change it.
+        } else {
+            EasyPermissions.requestPermissions(AddCarActivity.this,
+                    getString(R.string.camera_request_rationale), REQUEST_CAMERA,
+                    Manifest.permission.CAMERA);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Toast.makeText(AddCarActivity.this,"Access to camera was not granted",
+                Toast.LENGTH_SHORT).show();
     }
 
         

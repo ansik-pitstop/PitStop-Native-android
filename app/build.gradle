@@ -56,5 +56,6 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'io.smooch:core:latest.release'
     compile 'io.smooch:ui:latest.release'
-
+    // Permissions wrapper for android version >= 23
+    compile 'pub.devrel:easypermissions:0.1.5'
 }
