@@ -55,7 +55,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'io.smooch:core:latest.release'
-    compile 'io.smooch:ui:latest.release'
+    compile 'io.smooch:ui:latest.release'  
+    compile "com.mixpanel.android:mixpanel-android:4.8.0"
     // Permissions wrapper for android version >= 23
     compile 'pub.devrel:easypermissions:0.1.5'
 }

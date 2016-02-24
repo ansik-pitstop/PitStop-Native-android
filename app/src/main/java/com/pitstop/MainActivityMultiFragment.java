@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import com.pitstop.parse.ParseApplication;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +51,7 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
  * create an instance of this fragment.
  */
 public class MainActivityMultiFragment extends Fragment {
+    private ParseApplication baseApplication;
     // TODO: Rename parameter arguments, choose names that match
     private ArrayList<DBModel> array;
     private HashMap<String,DBModel> shopList;
@@ -78,6 +79,7 @@ public class MainActivityMultiFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        baseApplication = (ParseApplication) getActivity().getApplicationContext();
     }
 
     @Override
@@ -199,6 +201,9 @@ public class MainActivityMultiFragment extends Fragment {
     }
 
     private void openCar(Cars car, boolean updateMileage) {
+
+        baseApplication.getMixpanelAPI().track("Car Detail Button Pressed - Multi Car View");
+        baseApplication.getMixpanelAPI().flush();
         Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
         if (updateMileage) {
             intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
@@ -359,12 +364,13 @@ public class MainActivityMultiFragment extends Fragment {
                 }
             });
 
-            setOnclickListnersForViews(shop,convertview);
+            if(shop!=null) {
+                setOnclickListenersForViews(shop,convertview);
+            }
             return convertview;
         }
 
-        private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
-
+        private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
             final String garagePhoneNumber = shop.getValue("phoneNumber");
             final String garageAddress = shop.getValue("address");
 
@@ -372,6 +378,8 @@ public class MainActivityMultiFragment extends Fragment {
             callGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    baseApplication.getMixpanelAPI().track("Car Call Garage Pressed - Multi Car View");
+                    baseApplication.getMixpanelAPI().flush();
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                     startActivity(intent);
                 }
@@ -383,6 +391,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
+                    baseApplication.getMixpanelAPI().track("Car Msg Garage Pressed - Multi Car View");
+                    baseApplication.getMixpanelAPI().flush();
                     User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                     User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                     ConversationActivity.show(getContext());
@@ -393,6 +403,8 @@ public class MainActivityMultiFragment extends Fragment {
             locateGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    baseApplication.getMixpanelAPI().track("Car Map Garage Pressed - Multi Car View");
+                    baseApplication.getMixpanelAPI().flush();
                     String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                     startActivity(intent);

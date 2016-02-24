@@ -39,6 +39,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -50,6 +51,7 @@ import com.parse.SaveCallback;
 import com.pitstop.Debug.PrintDebugThread;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONException;
@@ -71,6 +73,7 @@ import static android.Manifest.permission.CAMERA;
 public class AddCarActivity extends AppCompatActivity
         implements BluetoothManage.BluetoothDataListener, View.OnClickListener,
         EasyPermissions.PermissionCallbacks {
+    private ParseApplication baseApplication;
     public static int RESULT_ADDED = 10;
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
@@ -87,7 +90,6 @@ public class AddCarActivity extends AppCompatActivity
 
     // Id to identify CAMERA permission request.
     private static final int REQUEST_CAMERA = 0;
-
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -124,6 +126,7 @@ public class AddCarActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
+        baseApplication = (ParseApplication) getApplicationContext();
 
         yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
         noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
@@ -236,6 +239,7 @@ public class AddCarActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        baseApplication.getMixpanelAPI().flush();
         unbindService(serviceConnection);
     }
 
@@ -311,10 +315,9 @@ public class AddCarActivity extends AppCompatActivity
     public void getVIN(View view) {
 
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
-            Log.i(DTAG,"Mileage is present");
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
-            if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
-                Log.i(DTAG,"VIN is present");
+            if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
+                baseApplication.getMixpanelAPI().track("Adding Car Button - Manual VIN");
                 showLoading();
                 makeCar();
             } else {
@@ -332,7 +335,7 @@ public class AddCarActivity extends AppCompatActivity
                         isSearching = true;
                     } else {
                         service.getCarVIN();
-                        showLoading();
+                        baseApplication.getMixpanelAPI().track("Adding Car Button - Bluetooth for VIN");
                     }
                 }
             }
