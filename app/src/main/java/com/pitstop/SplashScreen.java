@@ -26,9 +26,12 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
 public class SplashScreen extends AppCompatActivity {
+
+    private ParseApplication baseApplication;
 
     final static String pfName = "com.pitstop.login.name";
     final static String pfCodeForID = "com.pitstop.login.id";
@@ -60,12 +63,18 @@ public class SplashScreen extends AppCompatActivity {
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         String email = settings.getString(pfCodeForID, "NA");
+        baseApplication = (ParseApplication) getApplicationContext();
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
             Log.i(TAG, "Current Parse user is null");
         }
         else {
+            baseApplication.getMixpanelAPI().identify(currentUser.getObjectId());
+            baseApplication.getMixpanelAPI().getPeople().identify(currentUser.getObjectId());
+            baseApplication.getMixpanelAPI().getPeople().set("Phone Number",currentUser.get("phoneNumber"));
+            baseApplication.getMixpanelAPI().getPeople().set("Name",currentUser.getUsername());
+            baseApplication.getMixpanelAPI().getPeople().set("Email",currentUser.getEmail());
             Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -245,6 +254,12 @@ public class SplashScreen extends AppCompatActivity {
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("userId", ParseUser.getCurrentUser().getObjectId());
                     installation.saveInBackground();
+
+                    baseApplication.getMixpanelAPI().identify(ParseUser.getCurrentUser().getObjectId());
+                    baseApplication.getMixpanelAPI().getPeople().identify( ParseUser.getCurrentUser().getObjectId());
+                    baseApplication.getMixpanelAPI().getPeople().set("Phone Number", ParseUser.getCurrentUser().get("phoneNumber"));
+                    baseApplication.getMixpanelAPI().getPeople().set("Name", ParseUser.getCurrentUser().getUsername());
+                    baseApplication.getMixpanelAPI().getPeople().set("Email", ((TextView) findViewById(R.id.email)).getText().toString());
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {

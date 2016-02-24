@@ -28,6 +28,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.ToolbarActionItemTarget;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+    private ParseApplication baseApplication;
 
     public static final String TAG = MainActivityFragment.class.getSimpleName();
     private static String currentGarage = "";
@@ -59,6 +61,12 @@ public class MainActivityFragment extends Fragment {
 
     private ArrayList<DBModel> array;
     public MainActivityFragment() {
+    }
+
+    @Override
+    public void onCreate (Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        baseApplication = (ParseApplication) getActivity().getApplicationContext();
     }
 
     @Override
@@ -128,6 +136,8 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                baseApplication.getMixpanelAPI().track("Car Call Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
@@ -138,6 +148,8 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                baseApplication.getMixpanelAPI().track("Car Msg Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
@@ -149,6 +161,8 @@ public class MainActivityFragment extends Fragment {
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                baseApplication.getMixpanelAPI().track("Car Map Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Log.d(TAG, "address is " + garageAddress);
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
@@ -230,6 +244,8 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                baseApplication.getMixpanelAPI().track("Car Detail Button Clicked - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated
