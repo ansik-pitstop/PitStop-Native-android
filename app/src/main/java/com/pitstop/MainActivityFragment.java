@@ -128,6 +128,8 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainActivity.mixpanelAPI.track("Car Call Garage Pressed - Single Car View");
+                MainActivity.mixpanelAPI.flush();
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
@@ -138,6 +140,8 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainActivity.mixpanelAPI.track("Car Msg Garage Pressed - Single Car View");
+                MainActivity.mixpanelAPI.flush();
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
@@ -149,6 +153,8 @@ public class MainActivityFragment extends Fragment {
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainActivity.mixpanelAPI.track("Car Map Garage Pressed - Single Car View");
+                MainActivity.mixpanelAPI.flush();
                 Log.d(TAG, "address is " + garageAddress);
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
@@ -230,6 +236,8 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MainActivity.mixpanelAPI.track("Car Detail Button Clicked - Single Car View");
+                MainActivity.mixpanelAPI.flush();
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated

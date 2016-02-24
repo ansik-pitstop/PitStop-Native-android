@@ -33,6 +33,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -71,6 +72,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private ToggleButton yesButton;
     private ToggleButton noButton;
     private Button scannerButton;
+
+    private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -185,6 +188,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             }
         });
 
+        mixpanelAPI = MixpanelAPI.getInstance(this, "330c942ffad6819253501447810ad761");
+
         setUpTutorialScreen();
 
 
@@ -228,6 +233,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mixpanelAPI.flush();
         unbindService(serviceConnection);
     }
 
@@ -303,7 +309,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
-            if (((EditText) findViewById(R.id.VIN)).getText().toString().length()==17){
+            if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
+                mixpanelAPI.track("Adding Car Button - Manual VIN");
                 showLoading();
                 makeCar();
             } else {
@@ -319,12 +326,20 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         service.startBluetoothSearch(false);
                     } else {
                         service.getCarVIN();
+                        if (service.getState() != BluetoothManage.CONNECTED) {
+                            showLoading();
+                            service.startBluetoothSearch(false);
+                            //getApplica
+                        } else {
+                            mixpanelAPI.track("Adding Car Button - Bluetooth for VIN");
+                            service.getCarVIN();
+                        }
                     }
                 }
-            }
-            showLoading();
-            ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
+                showLoading();
+                ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
 
+            }
         }else{
             Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
         }

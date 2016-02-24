@@ -23,6 +23,7 @@ import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -32,6 +33,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public static boolean refresh = false;
     public static boolean refreshLocal = false;
+
+    public static MixpanelAPI mixpanelAPI;
 
     public boolean isRefresh = true;
 
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mixpanelAPI = ParseApplication.mixpanelAPI;
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
@@ -185,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * Clears and refreshes the whole database
      */
     private void refreshDatabase() {
+        mixpanelAPI.track("RefreshDatabase Pressed/Triggered");
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
 
         // if wifi is on
@@ -206,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
+        mixpanelAPI.flush();
         setUp();
     }
 
@@ -224,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * @param view
      */
     public void addCar(View view) {
+        mixpanelAPI.track("Add Car Pressed");
         //check if already pending cars (you cannot add another car when you have one pending)
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
@@ -233,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             startActivity(intent);
         }
+        mixpanelAPI.flush();
     }
 
     /**

@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -199,6 +198,9 @@ public class MainActivityMultiFragment extends Fragment {
     }
 
     private void openCar(Cars car, boolean updateMileage) {
+
+        MainActivity.mixpanelAPI.track("Car Detail Button Pressed - Multi Car View");
+        MainActivity.mixpanelAPI.flush();
         Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
         if (updateMileage) {
             intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
@@ -364,40 +366,47 @@ public class MainActivityMultiFragment extends Fragment {
         }
 
         private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
+            if(shop!=null) {
+                final String garagePhoneNumber = shop.getValue("phoneNumber");
+                final String garageAddress = shop.getValue("address");
 
-            final String garagePhoneNumber = shop.getValue("phoneNumber");
-            final String garageAddress = shop.getValue("address");
+                LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
+                callGarageTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MainActivity.mixpanelAPI.track("Car Call Garage Pressed - Multi Car View");
+                        MainActivity.mixpanelAPI.flush();
+                        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
+                        startActivity(intent);
+                    }
+                });
 
-            LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
-            callGarageTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
-                    startActivity(intent);
-                }
-            });
+                LinearLayout messageGarageTextView =
+                        (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
+                messageGarageTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-            LinearLayout messageGarageTextView =
-                    (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
-            messageGarageTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                        MainActivity.mixpanelAPI.track("Car Msg Garage Pressed - Multi Car View");
+                        MainActivity.mixpanelAPI.flush();
+                        User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                        User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                        ConversationActivity.show(getContext());
+                    }
+                });
 
-                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
-                    User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
-                    ConversationActivity.show(getContext());
-                }
-            });
-
-            LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
-            locateGarageTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(intent);
-                }
-            });
+                LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
+                locateGarageTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MainActivity.mixpanelAPI.track("Car Map Garage Pressed - Multi Car View");
+                        MainActivity.mixpanelAPI.flush();
+                        String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        startActivity(intent);
+                    }
+                });
+            }
         }
     }
 

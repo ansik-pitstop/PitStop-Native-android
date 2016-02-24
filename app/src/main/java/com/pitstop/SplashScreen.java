@@ -26,6 +26,7 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
 public class SplashScreen extends AppCompatActivity {
@@ -66,6 +67,11 @@ public class SplashScreen extends AppCompatActivity {
             Log.i(TAG, "Current Parse user is null");
         }
         else {
+            ParseApplication.mixpanelAPI.identify(currentUser.getObjectId());
+            ParseApplication.mixpanelAPI.getPeople().identify(currentUser.getObjectId());
+            ParseApplication.mixpanelAPI.getPeople().set("Phone Number",currentUser.get("phoneNumber"));
+            ParseApplication.mixpanelAPI.getPeople().set("Name",currentUser.getUsername());
+            ParseApplication.mixpanelAPI.getPeople().set("Email",currentUser.getEmail());
             Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -245,6 +251,12 @@ public class SplashScreen extends AppCompatActivity {
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("userId", ParseUser.getCurrentUser().getObjectId());
                     installation.saveInBackground();
+
+                    ParseApplication.mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
+                    ParseApplication.mixpanelAPI.getPeople().identify( ParseUser.getCurrentUser().getObjectId());
+                    ParseApplication.mixpanelAPI.getPeople().set("Phone Number", ParseUser.getCurrentUser().get("phoneNumber"));
+                    ParseApplication.mixpanelAPI.getPeople().set("Name", ParseUser.getCurrentUser().getUsername());
+                    ParseApplication.mixpanelAPI.getPeople().set("Email", ((TextView) findViewById(R.id.email)).getText().toString());
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
