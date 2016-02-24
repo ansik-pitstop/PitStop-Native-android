@@ -359,11 +359,13 @@ public class MainActivityMultiFragment extends Fragment {
                 }
             });
 
-            setOnclickListnersForViews(shop,convertview);
+            if(shop!=null) {
+                setOnclickListenersForViews(shop,convertview);
+            }
             return convertview;
         }
 
-        private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
+        private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
 
             final String garagePhoneNumber = shop.getValue("phoneNumber");
             final String garageAddress = shop.getValue("address");
