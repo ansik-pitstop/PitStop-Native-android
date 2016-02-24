@@ -8,6 +8,6 @@
         app:showAsAction="always" />
 
     <item android:id="@+id/history"
-        android:title="History"
+        android:title="Service History"
         android:orderInCategory="100" />
 </menu>

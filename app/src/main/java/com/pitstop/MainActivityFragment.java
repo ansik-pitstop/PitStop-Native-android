@@ -1,10 +1,13 @@
 package com.pitstop;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,20 +15,29 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.ToolbarActionItemTarget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
@@ -34,6 +46,7 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+    private ParseApplication baseApplication;
 
     public static final String TAG = MainActivityFragment.class.getSimpleName();
     private static String currentGarage = "";
@@ -51,6 +64,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onCreate (Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        baseApplication = (ParseApplication) getActivity().getApplicationContext();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -62,6 +81,54 @@ public class MainActivityFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         array=((MainActivity)getActivity()).array;
         setUp();
+        showTutorial();
+    }
+
+    private void showTutorial() {
+
+
+        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.pfName, Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        if(settings.getBoolean("FirstAppOpen",false)==false) {
+            new ShowcaseView.Builder(getActivity())
+                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.button5)))
+                    .setContentTitle("View Your Car Information")
+                    .setContentText("Click this button to see more detailed view of your car")
+                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+                        @Override
+                        public void onShowcaseViewDidHide(ShowcaseView v) {
+                            final Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+                            new ShowcaseView.Builder(getActivity())
+                                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.message_garage_icon)))
+                                    .setContentTitle("Your Dealership")
+                                    .setContentText("Feel free to click these to message/call/get directions to your dealership. You can edit this in your settings.")
+                                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+                                        @Override
+                                        public void onShowcaseViewDidHide(ShowcaseView v) {
+                                            new ShowcaseView.Builder(getActivity())
+                                                    .setTarget(new ToolbarActionItemTarget(toolbar, R.id.add))
+                                                    .setContentTitle("Add Car")
+                                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                                    .setContentText("Click here to add a new car to your library")
+                                                    .withMaterialShowcase()
+                                                    .build()
+                                                    .show();
+
+                                        }
+                                    })
+                                    .withMaterialShowcase()
+                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                    .build()
+                                    .show();
+                        }
+                    })
+                    .setStyle(R.style.CustomShowcaseTheme2)
+                    .withMaterialShowcase()
+                    .build()
+                    .show();
+            editor.putBoolean("FirstAppOpen",true);
+            editor.commit();
+        }
     }
 
     public void setTextViews() {
@@ -69,6 +136,8 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                baseApplication.getMixpanelAPI().track("Car Call Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
@@ -79,21 +148,21 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Email address is " + garageEmailAddress);
+                baseApplication.getMixpanelAPI().track("Car Msg Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
+                Log.d(TAG, "phone number is " + garagePhoneNumber);
 
-                Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                emailIntent.setData(Uri.parse("mailto:"));
-                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{garageEmailAddress});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "PITSTOP - USER REQUEST");
-                emailIntent.setType("message/rfc822");
-
-                startActivity(Intent.createChooser(emailIntent,"Choose an Email client"));
+                User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                ConversationActivity.show(getContext());
             }
         });
         directionsToGarageTextView = (TextView) getActivity().findViewById(R.id.directions_to_garage);
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                baseApplication.getMixpanelAPI().track("Car Map Garage Pressed - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Log.d(TAG, "address is " + garageAddress);
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
@@ -113,7 +182,7 @@ public class MainActivityFragment extends Fragment {
             garageEmailAddress = currShop.getValue("email");
             garageAddress = currShop.getValue("address");
             callGarageTextView.setText("Call " + currentGarage);
-            messageGarageTextView.setText("Email " + currentGarage);
+            messageGarageTextView.setText("Message " + currentGarage);
             directionsToGarageTextView.setText("Directions to " + currentGarage);
         } else {
             final String finalShopId = shopId;
@@ -175,6 +244,8 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                baseApplication.getMixpanelAPI().track("Car Detail Button Clicked - Single Car View");
+                baseApplication.getMixpanelAPI().flush();
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated

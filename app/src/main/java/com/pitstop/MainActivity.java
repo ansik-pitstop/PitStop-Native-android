@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +23,7 @@ import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -30,6 +33,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
@@ -44,6 +48,7 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+    private ParseApplication baseApplication;
     public static Intent serviceIntent;
 
 
@@ -61,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public boolean isRefresh = true;
 
     private boolean isUpdatingMileage = false;
+    private boolean isAddCar = false;
     private String carId;
 
     public BluetoothAutoConnectService service;
@@ -69,17 +75,20 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service1) {
+            Log.i("connecting","onServiceConnection");
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch();
+                service.startBluetoothSearch(isAddCar);
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+
+            Log.i("Disconnecting","onServiceConnection");
         }
     };
 
@@ -101,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        baseApplication = (ParseApplication) getApplicationContext();
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
@@ -118,6 +128,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         array = new ArrayList<>();
         refreshDatabase();
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -176,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * Clears and refreshes the whole database
      */
     private void refreshDatabase() {
+        baseApplication.getMixpanelAPI().track("RefreshDatabase Pressed/Triggered");
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
 
         // if wifi is on
@@ -197,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
+        baseApplication.getMixpanelAPI().flush();
         setUp();
     }
 
@@ -215,8 +232,17 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * @param view
      */
     public void addCar(View view) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        startActivity(intent);
+        baseApplication.getMixpanelAPI().track("Add Car Pressed");
+        //check if already pending cars (you cannot add another car when you have one pending)
+        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+        if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
+            Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+            startActivity(intent);
+        }
+        baseApplication.getMixpanelAPI().flush();
     }
 
     /**
@@ -325,12 +351,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
         //if no bluetooth on, ask to turn it on
         if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+
             Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
             snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
             snackbar.setAction("TURN ON", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    service.startBluetoothSearch();
+
+                    service.startBluetoothSearch(isAddCar);
+
                 }
             });
             snackbar.show();
@@ -344,9 +373,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         findViewById(R.id.loading_section).setVisibility(View.GONE);
         if (array.size() == 0) {
             //if no car, go to add car screen
-            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+            addCar(null);
             isRefresh= false;
-            startActivity(intent);
         } else {
             //choose between single and multi view
 

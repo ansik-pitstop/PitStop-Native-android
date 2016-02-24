@@ -3,6 +3,7 @@ package com.pitstop;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +42,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         DBModel model = (DBModel)getIntent().getSerializableExtra("Model");
         if(model instanceof Recalls){
+            Log.i("TYPE RECALLS", "Recalls");
             setTitle("Recall");
 
             model.setValue(PRIORITY_KEY,RECALLS_PRIORITY_DEFAULT_VALUE);
@@ -50,6 +52,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         }else if(model instanceof DTCs){
             setTitle("Engine Code");
+            Log.i("TYPE DTCS", "Engine Code");
 
             model.setValue(PRIORITY_KEY,DTCS_PRIORITY_DEFAULT_VALUE);
             model.setValue(ITEM_KEY,model.getValue(DTCCODE_KEY));
@@ -58,6 +61,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 			setUpDisplayItems(model, "Engine Issue: DTC code ");
         }else{
             setTitle("Service");
+            Log.i("TYPE Service", "Service");
             setUpDisplayItems(model,null);
         }
     }
@@ -103,6 +107,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         String title = info.get(ITEM_KEY);
         String description = info.get(ITEM_DESCRIPTION_KEY);
+        Log.i("RECALLS",info.get("item"));
         int severity =  Integer.parseInt(info.get(PRIORITY_KEY));
 
         if(action != null) {
