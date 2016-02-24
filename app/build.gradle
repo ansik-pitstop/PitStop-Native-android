@@ -17,6 +17,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        //multiDexEnabled = true
     }
     buildTypes {
         release {
@@ -49,14 +50,16 @@ dependencies {
     // already includes 'com.android.support:recyclerview-v7:21.0.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
-    // barcode scanner lib
-    compile 'me.dm7.barcodescanner:zbar:1.5'
 
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'io.smooch:core:latest.release'
     compile 'io.smooch:ui:latest.release'  
     compile "com.mixpanel.android:mixpanel-android:4.8.0"
     // Permissions wrapper for android version >= 23
     compile 'pub.devrel:easypermissions:0.1.5'
+    // Important - the CameraSource implementation in this project requires version 8.1 or higher.
+    compile 'com.google.android.gms:play-services-vision:8.4.0'
+    // Multidex support library - Use when Building Apps with Over 65K Methods
+    //compile 'com.android.support:multidex:1.0.0'
 }
