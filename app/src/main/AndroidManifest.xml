@@ -106,7 +106,8 @@
             android:label="@string/title_activity_enviornmental_check" />
         <activity
             android:name=".DisplayItemActivity"
-            android:label="@string/title_activity_display_item" />
+            android:label="@string/title_activity_display_item"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".background.BluetoothAutoConnectService"

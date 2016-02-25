@@ -243,6 +243,10 @@ public class BluetoothManage {
 	private boolean isAddCar = false;
 	public void connectBluetooth(boolean isAddCarActivity) {
 		isAddCar = isAddCarActivity;
+		if(!isAddCar && mBluetoothAdapter.isDiscovering()) {
+			mBluetoothAdapter.cancelDiscovery();
+		}
+
 		if (btConnectionState == CONNECTED) {
 			Log.i(DTAG,"Bluetooth is connected - BluetoothManage");
 			return;
@@ -294,7 +298,7 @@ public class BluetoothManage {
 			mBluetoothChat.connectBluetooth(device);
 		} else if("".equals(macAddress) && !isAddCar) {
 			btConnectionState = DISCONNECTED;
-			dataListener.getBluetoothState(btConnectionState);
+			//dataListener.getBluetoothState(btConnectionState);
 		}
 	}
 

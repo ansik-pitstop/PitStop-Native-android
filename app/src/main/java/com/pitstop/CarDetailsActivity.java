@@ -459,6 +459,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 service.setValue("serviceType", "edmunds");
                                 service.setValue("itemDescription", parseObject.getString("itemDescription"));
                                 service.setValue("action", parseObject.getString("action"));
+                                service.setValue("priority", "" + parseObject.getNumber("priority"));
                                 service.setValue("ParseID", parseObject.getObjectId());
                                 //end key, now custom
                                 service.setValue("intervalMileage", "" + parseObject.getNumber("intervalMileage"));

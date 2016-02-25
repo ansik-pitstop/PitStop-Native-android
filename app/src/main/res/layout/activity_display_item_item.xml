@@ -27,12 +27,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="#eae4e4">
 
             <LinearLayout
                 android:layout_width="110dp"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@color/cardview_light_background">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -62,12 +64,12 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:id="@+id/description"
-                android:paddingTop="60dp"
-                android:paddingLeft="10dp"
-                android:background="#eae4e4"
+                android:paddingTop="50dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="5dp"
                 android:textSize="15dp"/>
         </LinearLayout>
     </android.support.v7.widget.CardView>
