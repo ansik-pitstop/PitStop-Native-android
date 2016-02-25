@@ -33,6 +33,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private static final String RECALLS_PRIORITY_DEFAULT_VALUE = "6";
     private static final String DTCS_PRIORITY_DEFAULT_VALUE = "5";
+    private static final String SERVICES_PRIORITY_DEFAULT_VALUE = "1";
 
 
     @Override
@@ -62,6 +63,9 @@ public class DisplayItemActivity extends AppCompatActivity {
         }else{
             setTitle("Service");
             Log.i("TYPE Service", "Service");
+            if(model.getValue(PRIORITY_KEY) == null) {
+                model.setValue(PRIORITY_KEY,SERVICES_PRIORITY_DEFAULT_VALUE);
+            }
             setUpDisplayItems(model,null);
         }
     }
