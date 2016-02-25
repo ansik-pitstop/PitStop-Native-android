@@ -39,6 +39,8 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
@@ -71,8 +73,8 @@ import static android.Manifest.permission.CAMERA;
 
 
 public class AddCarActivity extends AppCompatActivity
-        implements BluetoothManage.BluetoothDataListener, View.OnClickListener,
-        EasyPermissions.PermissionCallbacks {
+        implements BluetoothManage.BluetoothDataListener, View.OnClickListener
+        /*EasyPermissions.PermissionCallbacks*/ {
     private ParseApplication baseApplication;
     public static int RESULT_ADDED = 10;
     // TODO: Transferring data through intents is safer than using global variables
@@ -89,13 +91,14 @@ public class AddCarActivity extends AppCompatActivity
     private Button scannerButton;
 
     // Id to identify CAMERA permission request.
-    private static final int REQUEST_CAMERA = 0;
+    //private static final int REQUEST_CAMERA = 0;
+    private static final int RC_BARCODE_CAPTURE = 9001;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
     int counter =0;
 
-    //debugging storing
+    //debugging storing TODO: Request permission for storage
     LogCatHelper mLogStore;
 
     ArrayList<String> shops = new ArrayList<String>();
@@ -282,26 +285,35 @@ public class AddCarActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK) {
-            VIN = data.getStringExtra("scannerVIN");
-            ((EditText) findViewById(R.id.VIN)).setText(VIN);
+        if (requestCode == RC_BARCODE_CAPTURE) {
+            if (resultCode == CommonStatusCodes.SUCCESS) {
+                if (data != null) {
+                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+                    VIN = barcode.displayValue;
+                    ((EditText) findViewById(R.id.VIN)).setText(VIN);
+                    findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+                    Log.i(DTAG, "Barcode read: " + barcode.displayValue);
 
-            findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
-
-            if (isValidVin(VIN)) { // show add car button iff vin is valid
-                findViewById(R.id.button).setVisibility(View.VISIBLE);
-                scannerButton.setVisibility(View.GONE);
-                findViewById(R.id.button).setEnabled(true);
+                    if (isValidVin(VIN)) { // show add car button iff vin is valid
+                        findViewById(R.id.button).setVisibility(View.VISIBLE);
+                        scannerButton.setVisibility(View.GONE);
+                        findViewById(R.id.button).setEnabled(true);
+                    } else {
+                        findViewById(R.id.button).setVisibility(View.GONE);
+                        scannerButton.setVisibility(View.VISIBLE);
+                        Toast.makeText(this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    //statusMessage.setText(R.string.barcode_failure);
+                    Log.i(DTAG, "No barcode captured, intent data is null");
+                }
+            } else {
+                //statusMessage.setText(String.format(getString(R.string.barcode_error),
+                //        CommonStatusCodes.getStatusCodeString(resultCode)));
             }
-            else {
-                findViewById(R.id.button).setVisibility(View.GONE);
-                scannerButton.setVisibility(View.VISIBLE);
-                Toast.makeText(this,"Invalid VIN",Toast.LENGTH_SHORT).show();
-            }
-
-
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -448,43 +460,14 @@ public class AddCarActivity extends AppCompatActivity
         launchBarcodeScanner();
     }
 
-    @AfterPermissionGranted(REQUEST_CAMERA)
     private void launchBarcodeScanner() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String msg = "Barcode scanner feature currently not supported on marshmallow";
-            LinearLayout lLayout = (LinearLayout) findViewById(R.id.add_car_view);
-            Snackbar.make(lLayout,msg,Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-        if(EasyPermissions.hasPermissions(AddCarActivity.this, Manifest.permission.CAMERA)) {
-            Intent intent = new Intent(this, BarcodeScannerActivity.class);
-            startActivityForResult(intent, 0); // TODO: request code is hard-coded - need to change it.
-        } else {
-            EasyPermissions.requestPermissions(AddCarActivity.this,
-                    getString(R.string.camera_request_rationale), REQUEST_CAMERA,
-                    Manifest.permission.CAMERA);
-        }
+        // launch barcode activity.
+        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+        intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
+        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
+
+        startActivityForResult(intent, RC_BARCODE_CAPTURE);
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Toast.makeText(AddCarActivity.this,"Access to camera was not granted",
-                Toast.LENGTH_SHORT).show();
-    }
-
-        
         
     @Override
     public void getBluetoothState(int state) {

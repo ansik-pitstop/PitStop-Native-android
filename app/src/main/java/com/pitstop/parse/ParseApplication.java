@@ -1,6 +1,7 @@
 package com.pitstop.parse;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
@@ -26,6 +27,13 @@ public class ParseApplication extends Application {
         Smooch.init(this, getString(R.string.smooch_token));
         mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_api_token));
     }
+
+    //Multidex support library - Use when Building Apps with Over 65K Methods
+    /*@Override
+    protected void attachBaseContext (Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }*/
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI==null) {
