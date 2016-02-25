@@ -506,14 +506,13 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		Log.i(DTAG,"Checking package type - BluetoothManage");
+		if(!isDeviceSynced) {
+			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
+			long systemTime = System.currentTimeMillis();
+			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
+		}
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
-			initResultZeroCounter++;
-			if(!isDeviceSynced) {
-				Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-				long systemTime = System.currentTimeMillis();
-				obdSetParameter("1A01", String.valueOf(systemTime / 1000));
-			}
 			obdLoginPackageParse(info);
 		} else if (2 == result) {
 			Log.i(DTAG,"Receiving result 2 - BluetoothManage");
@@ -558,6 +557,7 @@ public class BluetoothManage {
 	 * 
 	 * @param info
 	 */
+	private static String OBDTAG = "DEBUG_OBD_RTC";
 	private void obdResponsePackageParse(String info) {
 		Log.i(DTAG,"calling obd response package - BluetoothManage");
 		ResponsePackageInfo responsePackageInfo = JsonUtil.json2object(info,
@@ -573,6 +573,10 @@ public class BluetoothManage {
 				dataListener.setCtrlResponse(responsePackageInfo);
 			} else if ("1".equals(responsePackageInfo.flag)) {
 				Log.i(DTAG,"obd response package set parameter resp dataListener - BluetoothManage");
+				Log.i(OBDTAG,"result: "+responsePackageInfo.result);
+				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
+				Log.i(OBDTAG,"type: "+responsePackageInfo.type);
+
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}
 		}
@@ -583,10 +587,13 @@ public class BluetoothManage {
 	 * 
 	 * @param info
 	 */
+
 	private void obdParameterPackageParse(String info) {
 		ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
 				ParameterPackageInfo.class);
 		Log.i(DTAG,"getting parameterData on dataListener - BluetoothManage");
+		Log.i(OBDTAG,"result: "+parameterPackageInfo.result);
+		Log.i(OBDTAG,"value: "+parameterPackageInfo.value);
 		dataListener.getParamaterData(parameterPackageInfo);
 	}
 
@@ -609,6 +616,10 @@ public class BluetoothManage {
 						dataPackageInfo.dataNumber);
 				LogUtil.i("dataNumber:" + dataPackageInfo.dataNumber);
 			}
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.result);
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.rtcTime);
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.tripMileage);
+
 		}
 		Log.i(DTAG,"Setting getIOdata on dataListener - BluetoothManage");
 		dataListener.getIOData(dataPackageInfo);
