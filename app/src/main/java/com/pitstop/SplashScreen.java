@@ -75,7 +75,7 @@ public class SplashScreen extends AppCompatActivity {
             baseApplication.getMixpanelAPI().getPeople().set("Phone Number",currentUser.get("phoneNumber"));
             baseApplication.getMixpanelAPI().getPeople().set("Name",currentUser.getUsername());
             baseApplication.getMixpanelAPI().getPeople().set("Email",currentUser.getEmail());
-            Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(SplashScreen.this, "Logging in" , Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -211,11 +211,14 @@ public class SplashScreen extends AppCompatActivity {
             user.signUpInBackground(new SignUpCallback() {
                 public void done(ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Congrats, you have signed up!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SplashScreen.this, "Congrats, you have signed up!",
+                                Toast.LENGTH_SHORT).show();
                         login(view);
                     } else {
                         hideLoading();
-                        Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SplashScreen.this,
+                                "Failed, please double check your information!",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -237,7 +240,8 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e == null) {
-                    Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SplashScreen.this, "Congrats, you have logged in!",
+                            Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
                     SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
@@ -263,7 +267,7 @@ public class SplashScreen extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 hideLoading();
 

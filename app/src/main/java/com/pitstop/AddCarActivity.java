@@ -358,6 +358,10 @@ public class AddCarActivity extends AppCompatActivity
 
     private void tryAgainDialog() {
         hideLoading();
+        if(isFinishing()) { // You don't want to add a dialog to a finished activity
+           return;
+        }
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddCarActivity.this);
         alertDialog.setTitle("Try Again");
 
@@ -759,7 +763,9 @@ public class AddCarActivity extends AppCompatActivity
                         @Override
                         public void run() {
                             //show vin already exists
-                            Toast.makeText(AddCarActivity.this, "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddCarActivity.this,
+                                    "Failed to find by VIN, may be invalid",
+                                    Toast.LENGTH_SHORT).show();
                             hideLoading();
                             makingCar = false;
                         }
@@ -769,7 +775,8 @@ public class AddCarActivity extends AppCompatActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddCarActivity.this, "Errored Out", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddCarActivity.this, "Errored Out",
+                                Toast.LENGTH_SHORT).show();
                         hideLoading();
                         makingCar = false;
                     }
@@ -792,10 +799,6 @@ public class AddCarActivity extends AppCompatActivity
         findViewById(R.id.button).setEnabled(true);
 		scannerButton.setEnabled(true);
         isSearching = false ;
-    }
-
-    public void hideLoading(View view){
-        hideLoading();
     }
 
     /**
