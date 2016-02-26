@@ -138,7 +138,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText input = new EditText(getApplicationContext());
+                final EditText input = new EditText(CarDetailsActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_NUMBER);
                 input.setRawInputType(Configuration.KEYBOARD_12KEY);
                 input.setTextColor(getResources().getColor(R.color.highlight));
@@ -541,7 +541,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
                                                     public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(CarDetailsActivity.this,
+                                                                "Updated Service History",
+                                                                Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                                 //update the car object on the server next
@@ -598,7 +600,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
                                                     public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(CarDetailsActivity.this,
+                                                                "Updated Service History",
+                                                                Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                                 //update recall object
@@ -667,10 +671,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
                 public void done(Object o, ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "mileage updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "mileage updated", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        Toast.makeText(getApplicationContext(), "failed to update mileage", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "failed to update mileage", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -708,7 +714,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      */
     public void requestServiceButton(String additional) {
         if(requestSent){
-            Toast.makeText(getApplicationContext(), "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CarDetailsActivity.this,
+                    "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
             return;
         }
         requestSent = true;
@@ -775,15 +782,18 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 @Override
                 public void done(Object object, ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Sent Successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "Sent Successfully", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }else{
             //if there are no entries, say nothing to send!
-            Toast.makeText(getApplicationContext(), "Nothing to Send", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CarDetailsActivity.this,
+                    "Nothing to Send", Toast.LENGTH_SHORT).show();
         }
     }
     @Override
@@ -865,7 +875,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     public class ServiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(CarDetailsActivity.this);
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
