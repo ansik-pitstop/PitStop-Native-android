@@ -2,6 +2,7 @@ package com.pitstop.parse;
 
 import android.app.Application;
 
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.pitstop.R;

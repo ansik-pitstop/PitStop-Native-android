@@ -53,6 +53,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-vision:8.4.0'
     compile 'me.dm7.barcodescanner:zbar:1.5'
 
+    compile 'pub.devrel:easypermissions:0.1.5'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
