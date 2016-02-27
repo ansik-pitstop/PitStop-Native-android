@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -379,8 +380,7 @@ public class MainActivityMultiFragment extends Fragment {
                         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                         startActivity(intent);
                     }
-                });
-
+                });                
                 LinearLayout messageGarageTextView =
                         (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
                 messageGarageTextView.setOnClickListener(new View.OnClickListener() {
@@ -393,9 +393,9 @@ public class MainActivityMultiFragment extends Fragment {
                         User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                         ConversationActivity.show(getContext());
                     }
-                });
-
-                LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
+                });                
+                LinearLayout locateGarageTextView = 
+                        (LinearLayout) convertView.findViewById(R.id.locate_garage);
                 locateGarageTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

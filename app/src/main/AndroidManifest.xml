@@ -3,7 +3,6 @@
     package="com.pitstop">
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -18,11 +17,16 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <!-- feature support-->
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
-    <uses-feature android:name="android.hardware.telephony" android:required="false" />
-
+    <!-- feature support -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -42,10 +46,11 @@
     <application
         android:name=".parse.ParseApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <receiver android:name=".background.BootBroadcastReceiver" >
+        android:theme="@style/AppTheme">
+        <receiver android:name=".background.BootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -54,14 +59,21 @@
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
             android:value="true" />
 
+        <meta-data
+            android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="barcode" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppNoActionBarTheme"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
         <activity
             android:name=".AddCarActivity"
-            android:label="@string/title_activity_add_car" >
+            android:label="@string/title_activity_add_car">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -78,7 +90,7 @@
         </activity>
         <activity
             android:name=".CarDetailsActivity"
-            android:label="@string/title_activity_car_details" >
+            android:label="@string/title_activity_car_details">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -97,7 +109,8 @@
             android:label="@string/title_activity_enviornmental_check" />
         <activity
             android:name=".DisplayItemActivity"
-            android:label="@string/title_activity_display_item" />
+            android:label="@string/title_activity_display_item"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".background.BluetoothAutoConnectService"
@@ -107,7 +120,7 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.MainActivity" />
@@ -116,18 +129,21 @@
             android:name=".CarHistoryActivity"
             android:label="History"
             android:parentActivityName=".CarDetailsActivity"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.CarDetailsActivity" />
         </activity>
-	<activity android:name=".BarcodeScannerActivity" ></activity>
+        <activity
+            android:name=".BarcodeCaptureActivity"
+            android:label="Read Barcode"
+            android:screenOrientation="portrait"/>
 
         <service android:name="com.parse.PushService" />
 
         <receiver
             android:name=".PitstopPushBroadcastReceiver"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
                 <action android:name="com.parse.push.intent.DELETE" />
@@ -136,7 +152,7 @@
         </receiver>
         <receiver
             android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -144,16 +160,23 @@
                 <category android:name="com.pitstop" />
             </intent-filter>
         </receiver>
-        <service android:name="io.smooch.core.service.SmoochService"/>
-        <service android:name="io.smooch.core.GcmInstanceIDListenerService" android:exported="false">
+
+        <service android:name="io.smooch.core.service.SmoochService" />
+        <service
+            android:name="io.smooch.core.GcmInstanceIDListenerService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-        <service android:name="io.smooch.core.GcmRegistrationIntentService" android:exported="false"/>
-        <service android:name="io.smooch.core.GcmService" android:exported="false">
+        <service
+            android:name="io.smooch.core.GcmRegistrationIntentService"
+            android:exported="false" />
+        <service
+            android:name="io.smooch.core.GcmService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
     </application>

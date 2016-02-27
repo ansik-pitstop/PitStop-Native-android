@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service1) {
+            Log.i("connecting","onServiceConnection");
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = binder.getService();
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+
+            Log.i("Disconnecting","onServiceConnection");
         }
     };
 
@@ -236,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
             Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
             startActivity(intent);
-        }else {
+        } else {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             startActivity(intent);
         }
