@@ -27,6 +27,10 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -239,6 +243,12 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            try {
+                ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'SettingActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
 
         @Override
@@ -277,4 +287,9 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ParseApplication.mixpanelAPI.flush();
+    }
 }

@@ -51,9 +51,11 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
+import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -197,6 +199,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 startActivity(intent);
             }
         });
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'CarDetailActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -509,6 +517,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
                             @Override
                             public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
+
+                                try {
+                                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Swiped Away Service/Recall','View':'CarDetailActivity'}"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 final CharSequence[] times = new CharSequence[]{
                                         "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
                                 };
@@ -659,6 +673,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      * @param chsq
      */
     private void updateMileage(CharSequence chsq) {
+
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Update Mileage','View':'CarDetailActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         String mileage = chsq.toString();
 
         // save to parse
@@ -713,6 +733,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      * @param additional
      */
     public void requestServiceButton(String additional) {
+
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'AddCarActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if(requestSent){
             Toast.makeText(CarDetailsActivity.this,
                     "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
@@ -807,6 +833,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     protected void onPause() {
         // unbind service to prevent memory leaks
         unbindService(serviceConnection);
+        ParseApplication.mixpanelAPI.flush();
         super.onPause();
     }
 
@@ -823,6 +850,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             dialog.show(getSupportFragmentManager(),"sendSupportEmail");
         }
         if (id == R.id.history) {
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open History View','View':'CarDetailActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Intent intent = new Intent(CarDetailsActivity.this, CarHistoryActivity.class);
             intent.putExtra("carId",carId);
             startActivity(intent);

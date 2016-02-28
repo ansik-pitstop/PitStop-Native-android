@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -203,6 +204,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         setUpTutorialScreen();
 
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'AddCarAcivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -242,6 +249,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     protected void onPause() {
         mLogStore.stop();
+        mixpanelAPI.flush();
         service.setIsAddCarState(false);
         super.onPause();
     }
@@ -249,7 +257,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mixpanelAPI.flush();
         unbindService(serviceConnection);
     }
 
@@ -336,7 +343,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
-                mixpanelAPI.track("Adding Car Button - Manual VIN");
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 showLoading();
                 makeCar();
             } else {
@@ -359,7 +370,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                             service.startBluetoothSearch(false);
                             //getApplica
                         } else {
-                            mixpanelAPI.track("Adding Car Button - Bluetooth for VIN");
+                            try {
+                                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             service.getCarVIN();
                         }
                     }
@@ -516,6 +531,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         List<ParameterInfo> parameterValues = parameterPackageInfo.value;
         VIN = parameterValues.get(0).value;
+        try {
+            ParseApplication.mixpanelAPI.track("Scanned VIN", new JSONObject("{'VIN':'"+VIN+"'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (VIN != null && VIN.length() == 17) {
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
             ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
@@ -615,6 +635,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         ((Button) findViewById(R.id.button)).setText("ADD CAR");
 
         String vin = String.valueOf(((EditText) findViewById(R.id.VIN)).getText());
+        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources().getDrawable(R.drawable.illustration_car));
 
         Log.d("isValidVin() result", String.valueOf(isValidVin(vin)));
 
@@ -637,6 +658,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         findViewById(R.id.button).setEnabled(true);
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
+        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources().getDrawable(R.drawable.illustration_dashboard));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
 
         // TODO: scanner button should be in VIN_SECTION view

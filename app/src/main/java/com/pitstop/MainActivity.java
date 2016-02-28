@@ -38,6 +38,7 @@ import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,12 +131,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         array = new ArrayList<>();
         refreshDatabase();
 
-
+        //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -166,9 +168,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             return true;
         }
         if(id==R.id.refresh&&!isRefresh){
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Refresh from Server','View':'MainActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             refreshDatabase();
         }
         if(id==R.id.add&&!isRefresh){
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car','View':'MainActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             addCar(null);
         }
 
@@ -186,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     protected void onPause() {
         unbindService(serviceConnection);
+        ParseApplication.mixpanelAPI.flush();
         super.onPause();
     }
 
@@ -193,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * Clears and refreshes the whole database
      */
     private void refreshDatabase() {
-        mixpanelAPI.track("RefreshDatabase Pressed/Triggered");
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
 
         // if wifi is on
@@ -215,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        mixpanelAPI.flush();
         setUp();
     }
 
@@ -233,7 +244,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * @param view
      */
     public void addCar(View view) {
-        mixpanelAPI.track("Add Car Pressed");
         //check if already pending cars (you cannot add another car when you have one pending)
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
@@ -243,7 +253,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             startActivity(intent);
         }
-        mixpanelAPI.flush();
     }
 
     /**

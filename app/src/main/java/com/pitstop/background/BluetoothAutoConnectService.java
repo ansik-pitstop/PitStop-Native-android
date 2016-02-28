@@ -30,6 +30,7 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
+import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -193,9 +195,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             Log.i(DTAG,"Bluetooth state connected - auto-connect service");
             Log.i(DTAG,"getting bonded devices - auto-connect service");
             BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-            List<BluetoothDevice> devices = bluetoothManager.getDevicesMatchingConnectionStates(BluetoothProfile.GATT, new int[]{
-                    BluetoothDevice.BOND_BONDED
-            });
+            List<BluetoothDevice> devices = new LinkedList<>();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                devices = bluetoothManager.getConnectedDevices(BluetoothDevice.BOND_BONDED);
+            }
             boolean deviceConnected = false;
             for (BluetoothDevice device : devices) {
                 Log.i(DTAG,"Iterating through bonded devices - auto-connect service");
@@ -210,6 +213,16 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             //setRTCTime();
             //show a custom notification
             if (deviceConnected) {
+                try {// mixpanel stuff
+                    if(ParseApplication.mixpanelAPI!=null){
+                        ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Connected'}"));
+                        ParseApplication.mixpanelAPI.flush();
+                    }else{
+                        ParseApplication.setUpMixPanel();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -252,6 +265,17 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
 
+        }else{// car not connected
+            try {// mixpanel stuff
+                if(ParseApplication.mixpanelAPI!=null){
+                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
+                    ParseApplication.mixpanelAPI.flush();
+                }else{
+                    ParseApplication.setUpMixPanel();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -286,8 +310,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             Log.i(DTAG, "getting parameter data on service Callbacks - auto-connect service");
             serviceCallbacks.getParamaterData(parameterPackageInfo);
         }
-
-
     }
 
     @Override
@@ -406,6 +428,16 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
 
     public void uploadRecords() {
+        try {// mixpanel stuff
+            if(ParseApplication.mixpanelAPI!=null){
+                ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Uploading Data'}"));
+                ParseApplication.mixpanelAPI.flush();
+            }else{
+                ParseApplication.setUpMixPanel();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Log.i(DTAG, "Uploading database records");
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         DBModel entry = ldr.getLastRow("Uploads", "UploadID");
