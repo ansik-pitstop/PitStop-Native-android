@@ -1,6 +1,8 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -57,6 +59,7 @@ public class MainActivityMultiFragment extends Fragment {
     private HashMap<String,DBModel> shopList;
 
     private OnFragmentInteractionListener mListener;
+    private CarListAdapter listAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -95,6 +98,7 @@ public class MainActivityMultiFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         array=((MainActivity)getActivity()).array;
         setUp();
+        listAdapter = new CarListAdapter(array);
     }
 
     @Override
@@ -256,6 +260,55 @@ public class MainActivityMultiFragment extends Fragment {
         startActivity(intent);
     }
 
+    /*
+    *
+    *
+    * */
+    private final List<DBModel> car = new ArrayList<>();
+    private void indicateCurrentCarDialog(final String deviceId) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+
+        dialog.setTitle("Select the car you are currenlty seating in");
+        dialog.setCancelable(false);
+
+        dialog.setSingleChoiceItems(listAdapter, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick (DialogInterface dialog, int which) {
+                car.clear();
+                car.add(array.get(which));
+            }
+        });
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick (DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                final Cars selectedCar = (Cars)car.get(0);
+                final ParseQuery query = new ParseQuery("Car");
+                query.whereEqualTo("VIN",selectedCar.getValue("VIN"));
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done (List<ParseObject> objects, ParseException e) {
+                        objects.get(0).put("scannerId", deviceId);
+                        objects.get(0).saveEventually(new SaveCallback() {
+                            @Override
+                            public void done (ParseException e) {
+                                selectedCar.setValue("scannerId", deviceId);
+                                LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                                HashMap<String, String> map = new HashMap<String, String>();
+                                map.put("scannerId", deviceId);
+                                ldr.updateData("Cars", "VIN", selectedCar.getValue("VIN"), map);
+                                Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
+                                ((MainActivity) getActivity()).service.getDTCs();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        dialog.show();
+    }
+
 
     /**
      * Link car to device if device is new to user, and change colors of connected cars!
@@ -266,10 +319,11 @@ public class MainActivityMultiFragment extends Fragment {
         Cars noDevice = null;
         int i = 0;
         for(DBModel a : array){
-            if(a.getValue("scannerId").equals("")){
+            if(a.getValue("scannerId").isEmpty()){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(deviceId)&&((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
+            if(a.getValue("scannerId").equals(deviceId)&&
+                    ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
                 TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
                 ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
@@ -277,28 +331,8 @@ public class MainActivityMultiFragment extends Fragment {
             i++;
         }
         // add device if a car has no linked device
-        if(!found&&noDevice!=null){
-            final Cars finalNoDevice = noDevice;
-            ParseQuery query = new ParseQuery("Car");
-            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).put("scannerId",deviceId);
-                    objects.get(0).saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            finalNoDevice.setValue("scannerId", deviceId);
-                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-                            HashMap<String,String> map = new HashMap<String,String>();
-                            map.put("scannerId",deviceId);
-                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
-                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
-                            ((MainActivity)getActivity()).service.getDTCs();
-                        }
-                    });
-                }
-            });
+        if(!found&&noDevice!=null) {
+            indicateCurrentCarDialog(deviceId);
         }
     }
     public class CarsListAdapter extends BaseAdapter{
@@ -410,6 +444,42 @@ public class MainActivityMultiFragment extends Fragment {
                     startActivity(intent);
                 }
             });
+        }
+    }
+
+    class CarListAdapter extends BaseAdapter {
+        private List<DBModel> ownedCars;
+
+        public CarListAdapter(List<DBModel> cars) {
+            ownedCars = cars;
+        }
+
+        @Override
+        public int getCount () {
+            return ownedCars.size();
+        }
+
+        @Override
+        public Object getItem (int position) {
+            return ownedCars.get(position);
+        }
+
+        @Override
+        public long getItemId (int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView (int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) getActivity()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater
+                    .inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+            Cars ownedCar = (Cars) getItem(position);
+
+            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
+            carName.setText(ownedCar.getValue("make") + " " + ownedCar.getValue("model"));
+            return rowView;
         }
     }
 
