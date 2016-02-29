@@ -197,7 +197,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
             List<BluetoothDevice> devices = new LinkedList<>();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                devices = bluetoothManager.getConnectedDevices(BluetoothDevice.BOND_BONDED);
+                devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
             }
             boolean deviceConnected = false;
             for (BluetoothDevice device : devices) {
