@@ -129,14 +129,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         scannerButton = (Button) findViewById(R.id.scannerButton);
 
-        scannerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScanner(null);
-            }
-        });
-
-
         bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 //        mLogDumper = new PrintDebugThread(
 //                String.valueOf(android.os.Process.myPid()),
