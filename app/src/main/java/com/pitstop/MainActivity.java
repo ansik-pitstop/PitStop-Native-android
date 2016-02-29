@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             refreshLocal = false;
             setUp();
         }
+        connectedCarIndicatorHandler.postDelayed(runnable, 4000);
     }
 
     @Override
@@ -136,13 +137,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // check connectedCar
-        handler.postDelayed(r,5000);
     }
 
     @Override
@@ -194,12 +188,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     protected void onPause() {
+        connectedCarIndicatorHandler.removeCallbacks(runnable);
         unbindService(serviceConnection);
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        connectedCarIndicatorHandler.removeCallbacks(runnable);
         super.onDestroy();
     }
 
@@ -382,13 +378,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     String tag = "ConnectedCar";
-    public void setCurrentCar(Cars car) {
+    public void setCurrentConnectedCar(Cars car) {
         if(service!=null) {
             service.setCurrentCar(car);
+            refreshDatabase();
         }
     }
 
-    public Cars getCurrentCar() {
+    public Cars getCurrentConnectedCar() {
         if(service!=null) {
             return service.getCurrentCar();
         }
@@ -399,16 +396,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
                 getSupportFragmentManager().getFragments().size()>0) {
             Log.i(tag,"MainActivity has fragments");
-            if(service!=null && service.getDeviceConnState()) {
-                if (array.size() > 1&& getSupportFragmentManager()
-                        .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
-                    Log.i(tag,"running link device func");
-                    Log.i(tag, "Device conn state "+service.getDeviceConnState());
-                    ((MainActivityMultiFragment) getSupportFragmentManager()
-                            .findFragmentById(R.id.fragment_main))
-                            .linkDevice(service.getCurrentDeviceId());
+            if (array.size() > 1&& getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
+                Log.i(tag,"running link device func");
+                Log.i(tag, "Device conn state "+service.getDeviceConnState());
+                ((MainActivityMultiFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.fragment_main))
+                        .linkDevice(service.getCurrentDeviceId());
 
-                }
             }
         }
     }
@@ -454,26 +449,35 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
-    Handler handler = new Handler() {
+    Handler connectedCarIndicatorHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if(msg.what==0) {
-                connectedCarIndicator();
+                if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()==null) {
+                    connectedCarIndicator();
+                } else if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()!=null) {
+                    connectedCarIndicatorHandler.removeCallbacks(runnable);
+                } else {
+                    connectedCarIndicatorHandler.postDelayed(runnable,4000);
+                }
+
             }
         }
     };
 
-    Runnable r = new Runnable() {
+    Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            handler.sendEmptyMessage(0);
+            connectedCarIndicatorHandler.sendEmptyMessage(0);
         }
     };
 
     @Override
     public void getBluetoothState(int state) {
-
+        if(state==BluetoothManage.DISCONNECTED) {
+            refreshDatabase();
+        }
     }
 
     @Override

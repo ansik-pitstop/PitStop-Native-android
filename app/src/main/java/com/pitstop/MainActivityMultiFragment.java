@@ -300,7 +300,7 @@ public class MainActivityMultiFragment extends Fragment {
                                 map.put("scannerId", deviceId);
                                 ldr.updateData("Cars", "VIN", selectedCar.getValue("VIN"), map);
                                 Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
-                                ((MainActivity)getActivity()).setCurrentCar(selectedCar);
+                                ((MainActivity)getActivity()).setCurrentConnectedCar(selectedCar);
                                 ((MainActivity) getActivity()).service.getDTCs();
                             }
                         });
@@ -350,22 +350,8 @@ public class MainActivityMultiFragment extends Fragment {
         int foundPosition = 0;
         boolean found = false;
 
-        Cars currentCar = ((MainActivity)getActivity()).getCurrentCar();
-        if(currentCar!=null) {
-            Log.i(tag,"Car make(current): "+currentCar.getValue("make"));
-            int i = 0;
-            for(DBModel car : array) {
-                Log.i(tag,"Current: "+currentCar.getValue("VIN")+"Loop car: "+car.getValue("VIN"));
-                if(car.getValue("VIN").equals(currentCar.getValue("VIN")) &&
-                        ((ListView) getActivity().findViewById(R.id.listView))
-                                .getChildAt(i)!=null) {
-                    ListView lView = (ListView)getActivity().findViewById(R.id.listView);
-                    lView.getChildAt(i).findViewById(R.id.color)
-                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
-                }
-                i++;
-            }
-        } else {
+        Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+        if(currentCar==null) {
             for(DBModel car : array) {
                 if(car.getValue("scannerId").equals(deviceId)) {
                     Log.i(tag,"Car name(equal): "+car.getValue("make"));
@@ -387,14 +373,7 @@ public class MainActivityMultiFragment extends Fragment {
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0) {
                 indicateCurrentCarDialog(deviceId);
             } else if(associationCount==1) {
-                Log.i(tag,"Found one car setting up ui");
-                if(((ListView) getActivity().findViewById(R.id.listView))
-                        .getChildAt(foundPosition)!=null) {
-
-                    ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
-                            .getChildAt(foundPosition)).findViewById(R.id.color)
-                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
-                }
+                ((MainActivity)getActivity()).setCurrentConnectedCar((Cars)array.get(foundPosition));
             }
             Log.i(tag,"found position: "+foundPosition);
         }
@@ -465,6 +444,15 @@ public class MainActivityMultiFragment extends Fragment {
 
             if(shop!=null) {
                 setOnclickListenersForViews(shop,convertview);
+            }
+
+            // Set connectedCar indicator
+            Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+            if(currentCar!=null) {
+                if(car.getValue("VIN").equals(currentCar.getValue("VIN"))) {
+                    convertview.findViewById(R.id.color)
+                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
+                }
             }
             return convertview;
         }
