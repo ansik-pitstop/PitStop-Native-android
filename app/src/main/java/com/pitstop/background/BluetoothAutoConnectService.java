@@ -61,6 +61,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private int status5counter;
     boolean gettingPID =false;
 
+    private boolean deviceConnState = false;
+    private String currentDeviceId = null;
+
     private static String DTAG = "BLUETOOTH_DEBUG";
     @Override
     public IBinder onBind(Intent intent)
@@ -76,6 +79,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+    }
+
+    public boolean getDeviceConnState() {
+        return deviceConnState;
+    }
+
+    public String getCurrentDeviceId() {
+        return currentDeviceId;
     }
 
     /**
@@ -252,6 +263,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
 
+        } else {
+            deviceConnState = false;
         }
     }
 
@@ -292,6 +305,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        deviceConnState = true;
+        currentDeviceId  = dataPackageInfo.deviceId;
+
         Log.i(DTAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;

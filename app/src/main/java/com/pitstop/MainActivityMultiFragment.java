@@ -325,8 +325,11 @@ public class MainActivityMultiFragment extends Fragment {
             if(a.getValue("scannerId").equals(deviceId)&&
                     ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
-                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
-                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
+                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(i).findViewById(R.id.car_title);
+                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(i)).findViewById(R.id.color)
+                        .setBackgroundColor(getResources().getColor(R.color.evcheck));
             }
             i++;
         }
@@ -335,6 +338,39 @@ public class MainActivityMultiFragment extends Fragment {
             indicateCurrentCarDialog(deviceId);
         }
     }
+
+    public void linkDevice(final String deviceId) {
+        int noIdCount = 0;
+        int associationCount = 0;
+        int carPosition = 0;
+        int foundPosition = 0;
+
+        for(DBModel car : array) {
+            if(car.getValue("scannerId").equals(deviceId)) {
+                associationCount++;
+            } else if(car.getValue("scannerId").isEmpty()) {
+                noIdCount++;
+            }
+
+            if(associationCount==1) {
+                foundPosition = carPosition;
+            }
+            carPosition++;
+        }
+
+        if(associationCount > 1 && noIdCount > 1) {
+            indicateCurrentCarDialog(deviceId);
+        } else {
+            if(((ListView) getActivity().findViewById(R.id.listView)).getChildAt(foundPosition)!=null) {
+                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(foundPosition).findViewById(R.id.car_title);
+                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(foundPosition)).findViewById(R.id.color)
+                        .setBackgroundColor(getResources().getColor(R.color.evcheck));
+            }
+        }
+    }
+
     public class CarsListAdapter extends BaseAdapter{
         private ArrayList<DBModel> array;
         private HashMap<String,DBModel> shops;

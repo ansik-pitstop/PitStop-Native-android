@@ -364,6 +364,21 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             });
             snackbar.show();
         }
+
+        // checkconnectedCar
+        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
+                getSupportFragmentManager().getFragments().size()>0) {
+            if(service.getDeviceConnState()) {
+                if (array.size() > 1&& getSupportFragmentManager()
+                        .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
+                    ((MainActivityMultiFragment) getSupportFragmentManager()
+                            .findFragmentById(R.id.fragment_main))
+                            .linkDevice(service.getCurrentDeviceId());
+
+                }
+            }
+        }
+
     }
 
     /**
