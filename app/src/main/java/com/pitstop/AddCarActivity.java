@@ -461,10 +461,6 @@ public class AddCarActivity extends AppCompatActivity
     }
 
     public void startScanner(View view) {
-        launchBarcodeScanner();
-    }
-
-    private void launchBarcodeScanner() {
         // launch barcode activity.
         Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
@@ -684,8 +680,7 @@ public class AddCarActivity extends AppCompatActivity
                                 hideLoading();
                                 makingCar = false;
                                 return;
-                            }
-                            else {
+                            } else {
                                 //choose the Shop to link with
                                 new AlertDialog.Builder(AddCarActivity.this)
                                     .setSingleChoiceItems(shops.toArray(new CharSequence[shops.size()]), 0, null)
@@ -711,7 +706,7 @@ public class AddCarActivity extends AppCompatActivity
                                                 newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                                                 newCar.put("scannerId", scannerID == null ? "" : scannerID);
                                                 newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-                                                newCar.put("baseMileage", Integer.valueOf(mileage));
+                                                newCar.put("baseMileage", mileage==""? 0 : Integer.valueOf(mileage));
                                                 newCar.put("dealership", shopSelected);
                                                 newCar.saveEventually(new SaveCallback() {
                                                     @Override

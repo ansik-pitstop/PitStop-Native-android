@@ -28,6 +28,7 @@ import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
 
@@ -63,6 +64,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private boolean deviceConnState = false;
     private String currentDeviceId = null;
+    private Cars currentCar = null;
 
     private static String DTAG = "BLUETOOTH_DEBUG";
     @Override
@@ -87,6 +89,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     public String getCurrentDeviceId() {
         return currentDeviceId;
+    }
+
+    public void setCurrentCar(Cars car) {
+        currentCar = car;
+    }
+
+    public Cars getCurrentCar() {
+        return currentCar;
     }
 
     /**
@@ -265,6 +275,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         } else {
             deviceConnState = false;
+            currentCar = null;
         }
     }
 

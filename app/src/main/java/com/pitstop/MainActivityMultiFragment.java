@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -268,10 +269,10 @@ public class MainActivityMultiFragment extends Fragment {
     private void indicateCurrentCarDialog(final String deviceId) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
 
-        dialog.setTitle("Select the car you are currenlty seating in");
+        dialog.setTitle("Select the car you are currently seating in");
         dialog.setCancelable(false);
 
-        dialog.setSingleChoiceItems(listAdapter, -1, new DialogInterface.OnClickListener() {
+        dialog.setSingleChoiceItems(listAdapter, 0, new DialogInterface.OnClickListener() {
             @Override
             public void onClick (DialogInterface dialog, int which) {
                 car.clear();
@@ -299,6 +300,7 @@ public class MainActivityMultiFragment extends Fragment {
                                 map.put("scannerId", deviceId);
                                 ldr.updateData("Cars", "VIN", selectedCar.getValue("VIN"), map);
                                 Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
+                                ((MainActivity)getActivity()).setCurrentCar(selectedCar);
                                 ((MainActivity) getActivity()).service.getDTCs();
                             }
                         });
@@ -339,35 +341,62 @@ public class MainActivityMultiFragment extends Fragment {
         }
     }
 
+    String tag = "ConnectedCar";
     public void linkDevice(final String deviceId) {
+        Log.i(tag,"Linking device");
         int noIdCount = 0;
         int associationCount = 0;
         int carPosition = 0;
         int foundPosition = 0;
+        boolean found = false;
 
-        for(DBModel car : array) {
-            if(car.getValue("scannerId").equals(deviceId)) {
-                associationCount++;
-            } else if(car.getValue("scannerId").isEmpty()) {
-                noIdCount++;
+        Cars currentCar = ((MainActivity)getActivity()).getCurrentCar();
+        if(currentCar!=null) {
+            Log.i(tag,"Car make(current): "+currentCar.getValue("make"));
+            int i = 0;
+            for(DBModel car : array) {
+                Log.i(tag,"Current: "+currentCar.getValue("VIN")+"Loop car: "+car.getValue("VIN"));
+                if(car.getValue("VIN").equals(currentCar.getValue("VIN")) &&
+                        ((ListView) getActivity().findViewById(R.id.listView))
+                                .getChildAt(i)!=null) {
+                    ListView lView = (ListView)getActivity().findViewById(R.id.listView);
+                    lView.getChildAt(i).findViewById(R.id.color)
+                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
+                }
+                i++;
             }
-
-            if(associationCount==1) {
-                foundPosition = carPosition;
-            }
-            carPosition++;
-        }
-
-        if(associationCount > 1 && noIdCount > 1) {
-            indicateCurrentCarDialog(deviceId);
         } else {
-            if(((ListView) getActivity().findViewById(R.id.listView)).getChildAt(foundPosition)!=null) {
-                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
-                        .getChildAt(foundPosition).findViewById(R.id.car_title);
-                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
-                        .getChildAt(foundPosition)).findViewById(R.id.color)
-                        .setBackgroundColor(getResources().getColor(R.color.evcheck));
+            for(DBModel car : array) {
+                if(car.getValue("scannerId").equals(deviceId)) {
+                    Log.i(tag,"Car name(equal): "+car.getValue("make"));
+                    associationCount++;
+                } else if(car.getValue("scannerId").isEmpty()) {
+                    Log.i(tag,"Car name (non)"+car.getValue("make"));
+                    noIdCount++;
+                }
+
+                if(associationCount==1 && !found) {
+                    found = true;
+                    foundPosition = carPosition;
+                }
+                carPosition++;
             }
+
+            Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
+
+            if(associationCount > 1 || (noIdCount > 1) && associationCount==0) {
+                indicateCurrentCarDialog(deviceId);
+            } else if(associationCount==1) {
+                Log.i(tag,"Found one car setting up ui");
+                if(((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(foundPosition)!=null) {
+
+                    ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
+                            .getChildAt(foundPosition)).findViewById(R.id.color)
+                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
+                }
+            }
+            Log.i(tag,"found position: "+foundPosition);
         }
     }
 

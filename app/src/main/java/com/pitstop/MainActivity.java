@@ -8,7 +8,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -135,6 +137,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // check connectedCar
+        handler.postDelayed(r,5000);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -186,6 +196,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onPause() {
         unbindService(serviceConnection);
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**
@@ -364,13 +379,31 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             });
             snackbar.show();
         }
+    }
 
-        // checkconnectedCar
+    String tag = "ConnectedCar";
+    public void setCurrentCar(Cars car) {
+        if(service!=null) {
+            service.setCurrentCar(car);
+        }
+    }
+
+    public Cars getCurrentCar() {
+        if(service!=null) {
+            return service.getCurrentCar();
+        }
+        return null;
+    }
+
+    private void connectedCarIndicator() {
         if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
                 getSupportFragmentManager().getFragments().size()>0) {
-            if(service.getDeviceConnState()) {
+            Log.i(tag,"MainActivity has fragments");
+            if(service!=null && service.getDeviceConnState()) {
                 if (array.size() > 1&& getSupportFragmentManager()
                         .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
+                    Log.i(tag,"running link device func");
+                    Log.i(tag, "Device conn state "+service.getDeviceConnState());
                     ((MainActivityMultiFragment) getSupportFragmentManager()
                             .findFragmentById(R.id.fragment_main))
                             .linkDevice(service.getCurrentDeviceId());
@@ -378,7 +411,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 }
             }
         }
-
     }
 
     /**
@@ -422,6 +454,23 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what==0) {
+                connectedCarIndicator();
+            }
+        }
+    };
+
+    Runnable r = new Runnable() {
+        @Override
+        public void run() {
+            handler.sendEmptyMessage(0);
+        }
+    };
+
     @Override
     public void getBluetoothState(int state) {
 
@@ -449,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             if (array.size() == 1 && getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityFragment) {
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
             } else if (array.size() > 1&& getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
-                ((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
+                //((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
 
             }
         }
