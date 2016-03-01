@@ -31,6 +31,9 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
 import com.pitstop.parse.ParseApplication;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +57,6 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
  * create an instance of this fragment.
  */
 public class MainActivityMultiFragment extends Fragment {
-    private ParseApplication baseApplication;
     // TODO: Rename parameter arguments, choose names that match
     private ArrayList<DBModel> array;
     private HashMap<String,DBModel> shopList;
@@ -83,7 +85,6 @@ public class MainActivityMultiFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        baseApplication = (ParseApplication) getActivity().getApplicationContext();
     }
 
     @Override
@@ -207,8 +208,11 @@ public class MainActivityMultiFragment extends Fragment {
 
     private void openCar(Cars car, boolean updateMileage) {
 
-        baseApplication.getMixpanelAPI().track("Car Detail Button Pressed - Multi Car View");
-        baseApplication.getMixpanelAPI().flush();
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open Details for Car','View':'MainActivityMultiFragment'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
         if (updateMileage) {
             intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
@@ -443,8 +447,8 @@ public class MainActivityMultiFragment extends Fragment {
             });
 
             if(shop!=null) {
-                setOnclickListenersForViews(shop,convertview);
-            }
+				setOnclickListenersForViews(shop,convertview);
+			}
 
             // Set connectedCar indicator
             Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
@@ -458,6 +462,7 @@ public class MainActivityMultiFragment extends Fragment {
         }
 
         private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
+
             final String garagePhoneNumber = shop.getValue("phoneNumber");
             final String garageAddress = shop.getValue("address");
 
@@ -465,39 +470,47 @@ public class MainActivityMultiFragment extends Fragment {
             callGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    baseApplication.getMixpanelAPI().track("Car Call Garage Pressed - Multi Car View");
-                    baseApplication.getMixpanelAPI().flush();
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                     startActivity(intent);
                 }
-            });
-
+            });                
             LinearLayout messageGarageTextView =
                     (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
             messageGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    baseApplication.getMixpanelAPI().track("Car Msg Garage Pressed - Multi Car View");
-                    baseApplication.getMixpanelAPI().flush();
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                     User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                     ConversationActivity.show(getContext());
                 }
-            });
-
-            LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
+            });                
+            LinearLayout locateGarageTextView = 
+                    (LinearLayout) convertView.findViewById(R.id.locate_garage);
             locateGarageTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    baseApplication.getMixpanelAPI().track("Car Map Garage Pressed - Multi Car View");
-                    baseApplication.getMixpanelAPI().flush();
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                     startActivity(intent);
                 }
             });
         }
+
     }
 
     class CarListAdapter extends BaseAdapter {

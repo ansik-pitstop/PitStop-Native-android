@@ -14,6 +14,10 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -88,6 +92,18 @@ public class CarHistoryActivity extends AppCompatActivity {
 
         customAdapter = new CustomAdapter(array);
         mRecyclerView.setAdapter(customAdapter);
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'CarHistoryActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ParseApplication.mixpanelAPI.flush();
     }
 
     private class Container{

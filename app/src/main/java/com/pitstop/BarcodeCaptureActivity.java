@@ -24,11 +24,16 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.parse.Parse;
 import com.pitstop.BarcodeHelpers.BarcodeGraphic;
 import com.pitstop.BarcodeHelpers.BarcodeTrackerFactory;
 import com.pitstop.BarcodeHelpers.camera.CameraSource;
 import com.pitstop.BarcodeHelpers.camera.CameraSourcePreview;
 import com.pitstop.BarcodeHelpers.camera.GraphicOverlay;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -90,6 +95,12 @@ public class BarcodeCaptureActivity extends Activity
 
         Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
                 Snackbar.LENGTH_LONG).show();
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'BarcodeCaptureActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterPermissionGranted(RC_HANDLE_CAMERA_PERM)
@@ -121,6 +132,7 @@ public class BarcodeCaptureActivity extends Activity
     @Override
     protected void onPause() {
         super.onPause();
+        ParseApplication.mixpanelAPI.flush();
         if (mPreview != null) {
             mPreview.stop();
         }
@@ -236,6 +248,12 @@ public class BarcodeCaptureActivity extends Activity
      * @return true if the activity is ending.
      */
     private boolean onTap(float rawX, float rawY) {
+
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Scan Barcode','View':'BarcodeCaptureActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         //TODO: use the tap position to select the barcode.
         BarcodeGraphic graphic = mGraphicOverlay.getFirstGraphic();
