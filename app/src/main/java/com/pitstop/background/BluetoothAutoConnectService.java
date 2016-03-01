@@ -28,6 +28,7 @@ import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
 import com.pitstop.parse.ParseApplication;
@@ -63,6 +64,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private int status5counter;
     boolean gettingPID =false;
 
+    private boolean deviceConnState = false;
+    private String currentDeviceId = null;
+    private Cars currentCar = null;
+
     private static String DTAG = "BLUETOOTH_DEBUG";
     @Override
     public IBinder onBind(Intent intent)
@@ -78,6 +83,22 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+    }
+
+    public boolean getDeviceConnState() {
+        return deviceConnState;
+    }
+
+    public String getCurrentDeviceId() {
+        return currentDeviceId;
+    }
+
+    public void setCurrentCar(Cars car) {
+        currentCar = car;
+    }
+
+    public Cars getCurrentCar() {
+        return currentCar;
     }
 
     /**
@@ -265,7 +286,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
 
-        }else{// car not connected
+        } else {// car not connected
             try {// mixpanel stuff
                 if(ParseApplication.mixpanelAPI!=null){
                     ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
@@ -276,6 +297,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+			deviceConnState = false;
+            currentCar = null;
         }
     }
 
@@ -314,6 +337,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        deviceConnState = true;
+        currentDeviceId  = dataPackageInfo.deviceId;
+
         Log.i(DTAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;
