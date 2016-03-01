@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -158,7 +161,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         .replace("\r", "").replace("\n", "");
 
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
-                    if (isValidVin(vin)) {
+                    if (isValidVin(vin.toString())) {
                         findViewById(R.id.button).setVisibility(View.VISIBLE);
                         scannerButton.setVisibility(View.GONE);
                         findViewById(R.id.button).setEnabled(true);
@@ -297,6 +300,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                 if (data != null) {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     VIN = barcode.displayValue;
+
+                    String possibleEditedVin = checkVinForInvalidCharacter(VIN);
+                    if(possibleEditedVin!=null) {
+                        VIN = possibleEditedVin;
+                    }
+
                     ((EditText) findViewById(R.id.VIN)).setText(VIN);
                     findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
                     Log.i(DTAG, "Barcode read: " + barcode.displayValue);
@@ -481,8 +490,26 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
     }
 
+    private boolean checkBackCamera() {
+        final int CAMERA_FACING_BACK = 0;
+        int cameraCount = Camera.getNumberOfCameras();
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        for(int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i,info);
+            if(CAMERA_FACING_BACK == info.facing) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void startScanner(View view) {
         // launch barcode activity.
+        if(!checkBackCamera()) {
+            Toast.makeText(this,"This device does not have a back facing camera",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
         intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
@@ -607,8 +634,11 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
     }
 
-    boolean isValidVin(Editable vin) {
-        return vin != null && vin.length() == 17;
+    private String checkVinForInvalidCharacter(String vin) {
+        if(vin!=null && vin.length() == 18 && vin.startsWith("I")) {
+            return vin.substring(1,vin.length()-1);
+        }
+        return null;
     }
 
     boolean isValidVin(String vin) {
