@@ -105,20 +105,15 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * Gets the Car's VIN
      */
     public void getCarVIN() {
-        if(deviceConnState && currentDeviceId!=null &&
-                BluetoothManage.getInstance(this).isDeviceSynced()) {
-            Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
-            BluetoothManage.getInstance(this).obdGetParameter("2201");
-        } else {
+        if(!BluetoothManage.getInstance(this).isDeviceSynced() &&
+                !BluetoothManage.getInstance(this).isSettingRTC()) {
             Toast.makeText(this, "Syncing device",Toast.LENGTH_SHORT).show();
             BluetoothManage.getInstance(this).syncObdDevice();
+        } else if(BluetoothManage.getInstance(this).isDeviceSynced() &&
+                !BluetoothManage.getInstance(this).isSettingRTC()) {
+            Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
+            BluetoothManage.getInstance(this).obdGetParameter("2201");
         }
-    }
-
-    public void setRTCTime(){
-        Log.d("SETTINGRTCTIME", "SETTING");
-        long currentTime = System.currentTimeMillis();
-        BluetoothManage.getInstance(this).obdSetParameter("1A01", String.valueOf(currentTime / 1000));
     }
 
     public void startBluetoothSearch(boolean isAddCar){
@@ -235,9 +230,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     deviceConnected = true;
                 }
             }
-            //set RTC time once anything is connected
-            //show a custom notification
-            //setRTCTime();
             //show a custom notification
             if (deviceConnected) {
                 try {// mixpanel stuff

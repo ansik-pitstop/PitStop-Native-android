@@ -28,6 +28,7 @@ import java.util.List;
 
 public class BluetoothManage {
 	private final String BT_NAME = "IDD-212";// �������
+	public static String RTC_TAG = "1A01";
 
 	public final static int BLUETOOTH_CONNECT_SUCCESS = 0;// �������ӳɹ�
 	public final static int BLUETOOTH_CONNECT_FAIL = 1;// ��������ʧ��
@@ -54,7 +55,9 @@ public class BluetoothManage {
 	private List<String> dataLists = new ArrayList<String>();
 
 	private boolean isDeviceSynced = false;
+	private boolean settingRTC = false;
 	private int initResultZeroCounter = 0;
+
 	private String DTAG = "DEBUG_BLUETOOTH";
 
 	public BluetoothManage() {
@@ -506,7 +509,6 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		Log.i(DTAG,"Checking package type - BluetoothManage");
-		//syncObdDevice();
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
 			obdLoginPackageParse(info);
@@ -528,12 +530,15 @@ public class BluetoothManage {
 	}
 
 	public void syncObdDevice() {
-		if(!isDeviceSynced) {
-			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-			Toast.makeText(mContext,"Resetting device time...",Toast.LENGTH_LONG).show();
-			long systemTime = System.currentTimeMillis();
-			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
-		}
+		settingRTC = true;
+		Log.i(DTAG,"Resetting RTC time - BluetoothManage");
+		Toast.makeText(mContext,"Resetting device time...",Toast.LENGTH_SHORT).show();
+		long systemTime = System.currentTimeMillis();
+		obdSetParameter(RTC_TAG, String.valueOf(systemTime / 1000));
+	}
+
+	public boolean isSettingRTC() {
+		return settingRTC;
 	}
 
 	/**
@@ -584,7 +589,11 @@ public class BluetoothManage {
 				Log.i(DTAG,"obd response package set parameter resp dataListener - BluetoothManage");
 				Log.i(OBDTAG,"result: "+responsePackageInfo.result);
 				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
-				Log.i(OBDTAG,"type: "+responsePackageInfo.type);
+				Log.i(OBDTAG, "type: " + responsePackageInfo.type);
+				if((responsePackageInfo.type+responsePackageInfo.value).equals(RTC_TAG)) {
+					settingRTC = false;
+					isDeviceSynced = true;
+				}
 
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}

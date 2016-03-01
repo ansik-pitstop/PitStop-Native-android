@@ -356,18 +356,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         timerHandler.post(runnable);
                         isSearching = true;
                     } else {
+                        showLoading();
                         service.getCarVIN();
-                        if (service.getState() != BluetoothManage.CONNECTED) {
-                            showLoading();
-                            service.startBluetoothSearch(false);
-                            //getApplica
-                        } else {
-                            try {
-                                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            service.getCarVIN();
+                        try {
+                            ParseApplication.mixpanelAPI.track("Button Clicked",
+                                    new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -429,7 +424,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
            // Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 30 && (isSearching)) {
+            if(seconds > 60 && (isSearching)) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else if (!isSearching) {
@@ -508,12 +503,19 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
-        if(responsePackageInfo!=null&&responsePackageInfo.result==0) {
+
+        /*
+        * Once RTC is set, check response
+        * */
+        if((responsePackageInfo.type+responsePackageInfo.value).equals(BluetoothManage.RTC_TAG)) {
             Log.i(DTAG,"Car RTC set");
             Log.i(DTAG,"DeviceId "+responsePackageInfo.deviceId);
+            Log.i(DTAG,"Result "+responsePackageInfo.result);
             Log.i(DTAG,"Type "+responsePackageInfo.type);
             Log.i(DTAG,"Value "+responsePackageInfo.value);
-            Toast.makeText(this,"Device time is set. Now retrieving vin",Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Device time is set. Now retrieving vin. Value: "
+                            +responsePackageInfo.value+" Type: "+responsePackageInfo.type,
+                    Toast.LENGTH_SHORT).show();
             service.getCarVIN();
         }
     }
