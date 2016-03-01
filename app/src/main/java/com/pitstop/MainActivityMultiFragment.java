@@ -374,7 +374,8 @@ public class MainActivityMultiFragment extends Fragment {
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
 
-            if(associationCount > 1 || (noIdCount > 1) && associationCount==0) {
+            if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
+                    noIdCount==array.size()) {
                 indicateCurrentCarDialog(deviceId);
             } else if(associationCount==1) {
                 ((MainActivity)getActivity()).setCurrentConnectedCar((Cars)array.get(foundPosition));
