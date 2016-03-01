@@ -323,7 +323,7 @@ public class BluetoothManage {
 	 * @return
 	 */
 	public int getState() {
-		Log.i(DTAG,"Getting bluetooth state - BluetoothManage");
+		Log.i(DTAG, "Getting bluetooth state - BluetoothManage");
 		return btConnectionState;
 	}
 
@@ -372,7 +372,7 @@ public class BluetoothManage {
 		}
 
 
-		String result = OBD.setMonitor(type,valueList);
+		String result = OBD.setMonitor(type, valueList);
 		sendCommand(result);
 	}
 
@@ -506,11 +506,7 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		Log.i(DTAG,"Checking package type - BluetoothManage");
-		if(!isDeviceSynced) {
-			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-			long systemTime = System.currentTimeMillis();
-			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
-		}
+		//syncObdDevice();
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
 			obdLoginPackageParse(info);
@@ -524,6 +520,19 @@ public class BluetoothManage {
 			Log.i(DTAG,"Receiving result 4 or 5 or 6 - BluetoothManage");
 			isDeviceSynced = true;
 			obdIODataPackageParse(info);
+		}
+	}
+
+	public boolean isDeviceSynced() {
+		return isDeviceSynced;
+	}
+
+	public void syncObdDevice() {
+		if(!isDeviceSynced) {
+			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
+			Toast.makeText(mContext,"Resetting device time...",Toast.LENGTH_LONG).show();
+			long systemTime = System.currentTimeMillis();
+			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
 		}
 	}
 

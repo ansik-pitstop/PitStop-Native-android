@@ -104,9 +104,15 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     /**
      * Gets the Car's VIN
      */
-    public void getCarVIN(){
-        Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
-        BluetoothManage.getInstance(this).obdGetParameter("2201");
+    public void getCarVIN() {
+        if(deviceConnState && currentDeviceId!=null &&
+                BluetoothManage.getInstance(this).isDeviceSynced()) {
+            Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
+            BluetoothManage.getInstance(this).obdGetParameter("2201");
+        } else {
+            Toast.makeText(this, "Syncing device",Toast.LENGTH_SHORT).show();
+            BluetoothManage.getInstance(this).syncObdDevice();
+        }
     }
 
     public void setRTCTime(){

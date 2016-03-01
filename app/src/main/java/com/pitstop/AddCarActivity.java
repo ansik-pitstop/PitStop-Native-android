@@ -508,6 +508,14 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     @Override
     public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+        if(responsePackageInfo!=null&&responsePackageInfo.result==0) {
+            Log.i(DTAG,"Car RTC set");
+            Log.i(DTAG,"DeviceId "+responsePackageInfo.deviceId);
+            Log.i(DTAG,"Type "+responsePackageInfo.type);
+            Log.i(DTAG,"Value "+responsePackageInfo.value);
+            Toast.makeText(this,"Device time is set. Now retrieving vin",Toast.LENGTH_LONG).show();
+            service.getCarVIN();
+        }
     }
 
     @Override
