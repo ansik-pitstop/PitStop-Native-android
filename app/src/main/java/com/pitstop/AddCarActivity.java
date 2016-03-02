@@ -197,8 +197,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
         mixpanelAPI = ParseApplication.mixpanelAPI;
 
-        setUpTutorialScreen();
-
         try {
             ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'AddCarAcivity'}"));
         } catch (JSONException e) {
@@ -206,9 +204,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         }
 
 
-    }
-
-    private void setUpTutorialScreen() {
     }
 
     @Override
@@ -365,19 +360,13 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                         timerHandler.post(runnable);
                         isSearching = true;
                     } else {
-                        service.getCarVIN();
-                        if (service.getState() != BluetoothManage.CONNECTED) {
-                            showLoading();
-                            service.startBluetoothSearch(false);
-                            //getApplica
-                        } else {
-                            try {
-                                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            service.getCarVIN();
+                        try {
+                            ParseApplication.mixpanelAPI.track("Button Clicked",
+                                    new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+                        service.getCarVIN();
                     }
                 }
             }
@@ -458,7 +447,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             makingCar = true;
             Log.i(DTAG,"Making car");
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
-            final String[] mashapeKey = {""};
             showLoading();
             ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
             if(service.getState()==BluetoothManage.CONNECTED){
@@ -764,7 +752,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
                                                 newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                                                 newCar.put("scannerId", scannerID == null ? "" : scannerID);
                                                 newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-                                                newCar.put("baseMileage", mileage==""? 0 : Integer.valueOf(mileage));
+                                                newCar.put("baseMileage", mileage.equals("") ? 0 : Integer.valueOf(mileage));
                                                 newCar.put("dealership", shopSelected);
                                                 newCar.saveEventually(new SaveCallback() {
                                                     @Override
