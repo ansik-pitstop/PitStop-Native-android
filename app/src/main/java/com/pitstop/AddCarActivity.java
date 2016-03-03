@@ -126,7 +126,6 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
         noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
