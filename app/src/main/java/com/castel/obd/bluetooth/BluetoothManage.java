@@ -188,13 +188,22 @@ public class BluetoothManage {
 			} else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // �������ӳɹ�
 				Log.i(DTAG,"Phone is connected to a remote device - BluetoothManage");
 				LogUtil.i("CONNECTED");
-				btConnectionState = CONNECTED;
+				// Phone is not necessarily connected to device
+				/*btConnectionState = CONNECTED;
 				LogUtil.i("Bluetooth state:CONNECTED");
-				dataListener.getBluetoothState(btConnectionState);
-			}else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
+				dataListener.getBluetoothState(btConnectionState);*/
+				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+				Log.i(DTAG, "Connected to devce: " + device.getName());
+				if(device.getName()!=null && device.getName().contains(BT_NAME)) {
+					btConnectionState = CONNECTED;
+					LogUtil.i("Bluetooth state:CONNECTED");
+					dataListener.getBluetoothState(btConnectionState);
+				}
+			} else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { // �������ӳɹ�
 				Log.i(DTAG,"Pairing state changed - BluetoothManage");
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-				if(device.getBondState()==BluetoothDevice.BOND_BONDED){
+				if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
+						(device.getName().contains(BT_NAME))){
 					Log.i(DTAG,"Connected to a PAIRED device - BluetoothManage");
 					LogUtil.i("CONNECTED");
 					btConnectionState = CONNECTED;
@@ -234,6 +243,10 @@ public class BluetoothManage {
 	private boolean isAddCar = false;
 	public void connectBluetooth(boolean isAddCarActivity) {
 		isAddCar = isAddCarActivity;
+		if(!isAddCar && mBluetoothAdapter.isDiscovering()) {
+			mBluetoothAdapter.cancelDiscovery();
+		}
+
 		if (btConnectionState == CONNECTED) {
 			Log.i(DTAG,"Bluetooth is connected - BluetoothManage");
 			return;
@@ -256,7 +269,7 @@ public class BluetoothManage {
 //		 macAddress = "8C:DE:52:71:F7:71";
 //		macAddress = "8C:DE:52:19:DB:86";
 //		macAddress = "8C:DE:52:22:C8:B5";
-		if (!"".equals(macAddress) && !isAddCar) {
+		/*if (!"".equals(macAddress) && !isAddCar) {
 			isMacAddress = true;
 			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
 			BluetoothDevice device = mBluetoothAdapter
@@ -269,7 +282,28 @@ public class BluetoothManage {
 				mBluetoothAdapter.cancelDiscovery();
 			}
 			mBluetoothAdapter.startDiscovery();// ���������豸
+		}*/
+		if((!"".equals(macAddress) && isAddCar) || ("".equals(macAddress) && isAddCar)) {
+			Log.i(DTAG,"Starting discovery - BluetoothManage");
+			isMacAddress = true;
+			if (mBluetoothAdapter.isDiscovering()) {
+				mBluetoothAdapter.cancelDiscovery();
+			}
+			mBluetoothAdapter.startDiscovery();
+		} else if((!"".equals(macAddress) && !isAddCar)) {
+			isMacAddress = true;
+			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
+			BluetoothDevice device = mBluetoothAdapter
+					.getRemoteDevice(macAddress);
+			mBluetoothChat.connectBluetooth(device);
+		} else if("".equals(macAddress) && !isAddCar) {
+			btConnectionState = DISCONNECTED;
+			//dataListener.getBluetoothState(btConnectionState);
 		}
+	}
+
+	public void setIsAddCarActivityState(boolean isAddCarActivityState) {
+		this.isAddCar = isAddCarActivityState;
 	}
 
 	/**
@@ -472,14 +506,13 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		Log.i(DTAG,"Checking package type - BluetoothManage");
+		if(!isDeviceSynced) {
+			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
+			long systemTime = System.currentTimeMillis();
+			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
+		}
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
-			initResultZeroCounter++;
-			if(!isDeviceSynced) {
-				Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-				long systemTime = System.currentTimeMillis();
-				obdSetParameter("1A01", String.valueOf(systemTime / 1000));
-			}
 			obdLoginPackageParse(info);
 		} else if (2 == result) {
 			Log.i(DTAG,"Receiving result 2 - BluetoothManage");
@@ -524,6 +557,7 @@ public class BluetoothManage {
 	 * 
 	 * @param info
 	 */
+	private static String OBDTAG = "DEBUG_OBD_RTC";
 	private void obdResponsePackageParse(String info) {
 		Log.i(DTAG,"calling obd response package - BluetoothManage");
 		ResponsePackageInfo responsePackageInfo = JsonUtil.json2object(info,
@@ -539,6 +573,10 @@ public class BluetoothManage {
 				dataListener.setCtrlResponse(responsePackageInfo);
 			} else if ("1".equals(responsePackageInfo.flag)) {
 				Log.i(DTAG,"obd response package set parameter resp dataListener - BluetoothManage");
+				Log.i(OBDTAG,"result: "+responsePackageInfo.result);
+				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
+				Log.i(OBDTAG,"type: "+responsePackageInfo.type);
+
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}
 		}
@@ -549,10 +587,13 @@ public class BluetoothManage {
 	 * 
 	 * @param info
 	 */
+
 	private void obdParameterPackageParse(String info) {
 		ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
 				ParameterPackageInfo.class);
 		Log.i(DTAG,"getting parameterData on dataListener - BluetoothManage");
+		Log.i(OBDTAG,"result: "+parameterPackageInfo.result);
+		Log.i(OBDTAG,"value: "+parameterPackageInfo.value);
 		dataListener.getParamaterData(parameterPackageInfo);
 	}
 
@@ -575,6 +616,10 @@ public class BluetoothManage {
 						dataPackageInfo.dataNumber);
 				LogUtil.i("dataNumber:" + dataPackageInfo.dataNumber);
 			}
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.result);
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.rtcTime);
+			Log.i(OBDTAG,"data package: "+dataPackageInfo.tripMileage);
+
 		}
 		Log.i(DTAG,"Setting getIOdata on dataListener - BluetoothManage");
 		dataListener.getIOData(dataPackageInfo);

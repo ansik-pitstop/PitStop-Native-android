@@ -29,6 +29,9 @@ import com.parse.SignUpCallback;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SplashScreen extends AppCompatActivity {
 
     final static String pfName = "com.pitstop.login.name";
@@ -67,11 +70,7 @@ public class SplashScreen extends AppCompatActivity {
             Log.i(TAG, "Current Parse user is null");
         }
         else {
-            ParseApplication.mixpanelAPI.identify(currentUser.getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().identify(currentUser.getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().set("Phone Number",currentUser.get("phoneNumber"));
-            ParseApplication.mixpanelAPI.getPeople().set("Name",currentUser.getUsername());
-            ParseApplication.mixpanelAPI.getPeople().set("Email",currentUser.getEmail());
+            ParseApplication.setUpMixPanel();
             Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -208,14 +207,23 @@ public class SplashScreen extends AppCompatActivity {
             user.signUpInBackground(new SignUpCallback() {
                 public void done(ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Congrats, you have signed up!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SplashScreen.this, "Congrats, you have signed up!",
+                                Toast.LENGTH_SHORT).show();
                         login(view);
                     } else {
                         hideLoading();
-                        Toast.makeText(getApplicationContext(), "Failed, please double check your information!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SplashScreen.this,
+                                "Failed, please double check your information!",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }else{
             findViewById(R.id.name).setVisibility(View.VISIBLE);
             findViewById(R.id.phone).setVisibility(View.VISIBLE);
@@ -234,7 +242,8 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e == null) {
-                    Toast.makeText(getApplicationContext(), "Congrats, you have logged in!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SplashScreen.this, "Congrats, you have logged in!",
+                            Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
                     SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
@@ -251,16 +260,18 @@ public class SplashScreen extends AppCompatActivity {
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("userId", ParseUser.getCurrentUser().getObjectId());
                     installation.saveInBackground();
-
-                    ParseApplication.mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
-                    ParseApplication.mixpanelAPI.getPeople().identify( ParseUser.getCurrentUser().getObjectId());
-                    ParseApplication.mixpanelAPI.getPeople().set("Phone Number", ParseUser.getCurrentUser().get("phoneNumber"));
-                    ParseApplication.mixpanelAPI.getPeople().set("Name", ParseUser.getCurrentUser().getUsername());
-                    ParseApplication.mixpanelAPI.getPeople().set("Email", ((TextView) findViewById(R.id.email)).getText().toString());
+                    ParseApplication.setUpMixPanel();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
+
+
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
+                    } catch (JSONException e2) {
+                        e2.printStackTrace();
+                    }
                 } else {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 hideLoading();
 
@@ -278,5 +289,11 @@ public class SplashScreen extends AppCompatActivity {
 
     private void hideLoading(){
         findViewById(R.id.loading_section).setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ParseApplication.mixpanelAPI.flush();
     }
 }

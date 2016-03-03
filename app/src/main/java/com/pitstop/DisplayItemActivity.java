@@ -14,6 +14,10 @@ import android.widget.TextView;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -33,6 +37,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private static final String RECALLS_PRIORITY_DEFAULT_VALUE = "6";
     private static final String DTCS_PRIORITY_DEFAULT_VALUE = "5";
+    private static final String SERVICES_PRIORITY_DEFAULT_VALUE = "1";
 
 
     @Override
@@ -62,9 +67,25 @@ public class DisplayItemActivity extends AppCompatActivity {
         }else{
             setTitle("Service");
             Log.i("TYPE Service", "Service");
+            if(model.getValue(PRIORITY_KEY) == null) {
+                model.setValue(PRIORITY_KEY,SERVICES_PRIORITY_DEFAULT_VALUE);
+            }
             setUpDisplayItems(model,null);
         }
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'DisplayItemActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ParseApplication.mixpanelAPI.flush();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -92,6 +113,11 @@ public class DisplayItemActivity extends AppCompatActivity {
     }
 
     public void requestService(View view) {
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'DisplayItemActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Snackbar.make(view,"Service requested",Snackbar.LENGTH_LONG).show();
     }
 

@@ -1,11 +1,14 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +29,10 @@ import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Shops;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +62,7 @@ public class MainActivityMultiFragment extends Fragment {
     private HashMap<String,DBModel> shopList;
 
     private OnFragmentInteractionListener mListener;
+    private CarListAdapter listAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -92,6 +100,7 @@ public class MainActivityMultiFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         array=((MainActivity)getActivity()).array;
         setUp();
+        listAdapter = new CarListAdapter(array);
     }
 
     @Override
@@ -199,8 +208,11 @@ public class MainActivityMultiFragment extends Fragment {
 
     private void openCar(Cars car, boolean updateMileage) {
 
-        MainActivity.mixpanelAPI.track("Car Detail Button Pressed - Multi Car View");
-        MainActivity.mixpanelAPI.flush();
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open Details for Car','View':'MainActivityMultiFragment'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
         if (updateMileage) {
             intent.putExtra(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
@@ -253,6 +265,56 @@ public class MainActivityMultiFragment extends Fragment {
         startActivity(intent);
     }
 
+    /*
+    *
+    *
+    * */
+    private final List<DBModel> car = new ArrayList<>();
+    private void indicateCurrentCarDialog(final String deviceId) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+
+        dialog.setTitle("Select the car you are currently seating in");
+        dialog.setCancelable(false);
+
+        dialog.setSingleChoiceItems(listAdapter, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick (DialogInterface dialog, int which) {
+                car.clear();
+                car.add(array.get(which));
+            }
+        });
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick (DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                final Cars selectedCar = (Cars)car.get(0);
+                final ParseQuery query = new ParseQuery("Car");
+                query.whereEqualTo("VIN",selectedCar.getValue("VIN"));
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done (List<ParseObject> objects, ParseException e) {
+                        objects.get(0).put("scannerId", deviceId);
+                        objects.get(0).saveEventually(new SaveCallback() {
+                            @Override
+                            public void done (ParseException e) {
+                                selectedCar.setValue("scannerId", deviceId);
+                                LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                                HashMap<String, String> map = new HashMap<String, String>();
+                                map.put("scannerId", deviceId);
+                                ldr.updateData("Cars", "VIN", selectedCar.getValue("VIN"), map);
+                                Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
+                                ((MainActivity)getActivity()).setCurrentConnectedCar(selectedCar);
+                                ((MainActivity) getActivity()).service.getDTCs();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        dialog.show();
+    }
+
 
     /**
      * Link car to device if device is new to user, and change colors of connected cars!
@@ -263,41 +325,65 @@ public class MainActivityMultiFragment extends Fragment {
         Cars noDevice = null;
         int i = 0;
         for(DBModel a : array){
-            if(a.getValue("scannerId").equals("")){
+            if(a.getValue("scannerId").isEmpty()){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(deviceId)&&((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
+            if(a.getValue("scannerId").equals(deviceId)&&
+                    ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
-                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i).findViewById(R.id.car_title);
-                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)).findViewById(R.id.color).setBackgroundColor(getResources().getColor(R.color.evcheck));
+                TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(i).findViewById(R.id.car_title);
+                ((LinearLayout) ((ListView) getActivity().findViewById(R.id.listView))
+                        .getChildAt(i)).findViewById(R.id.color)
+                        .setBackgroundColor(getResources().getColor(R.color.evcheck));
             }
             i++;
         }
         // add device if a car has no linked device
-        if(!found&&noDevice!=null){
-            final Cars finalNoDevice = noDevice;
-            ParseQuery query = new ParseQuery("Car");
-            query.whereEqualTo("VIN",noDevice.getValue("VIN"));
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).put("scannerId",deviceId);
-                    objects.get(0).saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            finalNoDevice.setValue("scannerId", deviceId);
-                            LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-                            HashMap<String,String> map = new HashMap<String,String>();
-                            map.put("scannerId",deviceId);
-                            ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
-                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
-                            ((MainActivity)getActivity()).service.getDTCs();
-                        }
-                    });
-                }
-            });
+        if(!found&&noDevice!=null) {
+            indicateCurrentCarDialog(deviceId);
         }
     }
+
+    String tag = "ConnectedCar";
+    public void linkDevice(final String deviceId) {
+        Log.i(tag,"Linking device");
+        int noIdCount = 0;
+        int associationCount = 0;
+        int carPosition = 0;
+        int foundPosition = 0;
+        boolean found = false;
+
+        Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+        if(currentCar==null) {
+            for(DBModel car : array) {
+                if(car.getValue("scannerId").equals(deviceId)) {
+                    Log.i(tag,"Car name(equal): "+car.getValue("make"));
+                    associationCount++;
+                } else if(car.getValue("scannerId").isEmpty()) {
+                    Log.i(tag,"Car name (non)"+car.getValue("make"));
+                    noIdCount++;
+                }
+
+                if(associationCount==1 && !found) {
+                    found = true;
+                    foundPosition = carPosition;
+                }
+                carPosition++;
+            }
+
+            Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
+
+            if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
+                    noIdCount==array.size()) {
+                indicateCurrentCarDialog(deviceId);
+            } else if(associationCount==1) {
+                ((MainActivity)getActivity()).setCurrentConnectedCar((Cars)array.get(foundPosition));
+            }
+            Log.i(tag,"found position: "+foundPosition);
+        }
+    }
+
     public class CarsListAdapter extends BaseAdapter{
         private ArrayList<DBModel> array;
         private HashMap<String,DBModel> shops;
@@ -361,52 +447,106 @@ public class MainActivityMultiFragment extends Fragment {
                 }
             });
 
-            setOnclickListnersForViews(shop,convertview);
+            if(shop!=null) {
+				setOnclickListenersForViews(shop,convertview);
+			}
+
+            // Set connectedCar indicator
+            Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+            if(currentCar!=null) {
+                if(car.getValue("VIN").equals(currentCar.getValue("VIN"))) {
+                    convertview.findViewById(R.id.color)
+                            .setBackgroundColor(getResources().getColor(R.color.evcheck));
+                }
+            }
             return convertview;
         }
 
-        private void setOnclickListnersForViews(DBModel shop, LinearLayout convertView) {
-            if(shop!=null) {
-                final String garagePhoneNumber = shop.getValue("phoneNumber");
-                final String garageAddress = shop.getValue("address");
+        private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
 
-                LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
-                callGarageTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        MainActivity.mixpanelAPI.track("Car Call Garage Pressed - Multi Car View");
-                        MainActivity.mixpanelAPI.flush();
-                        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
-                        startActivity(intent);
+            final String garagePhoneNumber = shop.getValue("phoneNumber");
+            final String garageAddress = shop.getValue("address");
+
+            LinearLayout callGarageTextView = (LinearLayout) convertView.findViewById(R.id.dial_garage);
+            callGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-
-                LinearLayout messageGarageTextView =
-                        (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
-                messageGarageTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        MainActivity.mixpanelAPI.track("Car Msg Garage Pressed - Multi Car View");
-                        MainActivity.mixpanelAPI.flush();
-                        User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
-                        User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
-                        ConversationActivity.show(getContext());
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
+                    startActivity(intent);
+                }
+            });                
+            LinearLayout messageGarageTextView =
+                    (LinearLayout) convertView.findViewById(R.id.chat_message_garage);
+            messageGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-
-                LinearLayout locateGarageTextView = (LinearLayout) convertView.findViewById(R.id.locate_garage);
-                locateGarageTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        MainActivity.mixpanelAPI.track("Car Map Garage Pressed - Multi Car View");
-                        MainActivity.mixpanelAPI.flush();
-                        String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                        startActivity(intent);
+                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                    User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                    ConversationActivity.show(getContext());
+                }
+            });                
+            LinearLayout locateGarageTextView = 
+                    (LinearLayout) convertView.findViewById(R.id.locate_garage);
+            locateGarageTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-            }
+                    String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    startActivity(intent);
+                }
+            });
+        }
+
+    }
+
+    class CarListAdapter extends BaseAdapter {
+        private List<DBModel> ownedCars;
+
+        public CarListAdapter(List<DBModel> cars) {
+            ownedCars = cars;
+        }
+
+        @Override
+        public int getCount () {
+            return ownedCars.size();
+        }
+
+        @Override
+        public Object getItem (int position) {
+            return ownedCars.get(position);
+        }
+
+        @Override
+        public long getItemId (int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView (int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) getActivity()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater
+                    .inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+            Cars ownedCar = (Cars) getItem(position);
+
+            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
+            carName.setText(ownedCar.getValue("make") + " " + ownedCar.getValue("model"));
+            return rowView;
         }
     }
 

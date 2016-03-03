@@ -8,7 +8,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
@@ -17,16 +21,18 @@ import java.util.concurrent.ExecutionException;
  */
 public class PendingAddCarActivity extends AppCompatActivity{
 
+    // TODO: Transferring data through intents is safer than using global variables (bugs)
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
     public static String ADD_CAR_SCANNER = "PENDING_ADD_CAR_SCANNER_ID";
     public static String ADD_CAR_DTCS = "PENDING_ADD_CAR_DTCS";
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_pending_add_car);
-
+        // TODO: Transferring data through intents is safer than using global variables (bugs)
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(AddCarActivity.VIN!=null&&!AddCarActivity.VIN.equals("")) {
             SharedPreferences.Editor editor = settings.edit();
@@ -40,6 +46,12 @@ public class PendingAddCarActivity extends AppCompatActivity{
         ((TextView)findViewById(R.id.vin)).setText("VIN: " + settings.getString(ADD_CAR_VIN,""));
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'PendingAddCarActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     // Create the Handler object (on the main thread by default)

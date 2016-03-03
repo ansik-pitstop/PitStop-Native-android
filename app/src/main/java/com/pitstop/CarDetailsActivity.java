@@ -51,9 +51,11 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
+import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -138,7 +140,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         findViewById(R.id.update_mileage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText input = new EditText(getApplicationContext());
+                final EditText input = new EditText(CarDetailsActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_NUMBER);
                 input.setRawInputType(Configuration.KEYBOARD_12KEY);
                 input.setTextColor(getResources().getColor(R.color.highlight));
@@ -197,11 +199,36 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 startActivity(intent);
             }
         });
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'CarDetailActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //connectedCarStatusUpdate();
     }
+
+    /*private void connectedCarStatusUpdate() {
+        if(service!=null && service.getCurrentCar()!=null) {
+            Cars connectedCar = service.getCurrentCar();
+            if(connectedCar.getValue("VIN").equals(VIN)) {
+                ((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
+                LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+                        (Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.connected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
+                ((TextView)view.findViewById(R.id.make)).setText(make);
+                ((TextView)view.findViewById(R.id.model)).setText(model);
+                ((TextView)view.findViewById(R.id.year)).setText(year);
+                ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
+            }
+        }
+    }*/
 
     @Override
     protected void onResume() {
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        //connectedCarStatusUpdate();
         super.onResume();
     }
 
@@ -459,6 +486,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                 service.setValue("serviceType", "edmunds");
                                 service.setValue("itemDescription", parseObject.getString("itemDescription"));
                                 service.setValue("action", parseObject.getString("action"));
+                                service.setValue("priority", "" + parseObject.getNumber("priority"));
                                 service.setValue("ParseID", parseObject.getObjectId());
                                 //end key, now custom
                                 service.setValue("intervalMileage", "" + parseObject.getNumber("intervalMileage"));
@@ -508,6 +536,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
                             @Override
                             public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
+
+                                try {
+                                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Swiped Away Service/Recall','View':'CarDetailActivity'}"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 final CharSequence[] times = new CharSequence[]{
                                         "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
                                 };
@@ -540,7 +574,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
                                                     public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(CarDetailsActivity.this,
+                                                                "Updated Service History",
+                                                                Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                                 //update the car object on the server next
@@ -597,7 +633,9 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                 saveCompletion.saveEventually(new SaveCallback() {
                                                     @Override
                                                     public void done(ParseException e) {
-                                                        Toast.makeText(getApplicationContext(), "Updated Service History", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(CarDetailsActivity.this,
+                                                                "Updated Service History",
+                                                                Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                                 //update recall object
@@ -654,6 +692,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      * @param chsq
      */
     private void updateMileage(CharSequence chsq) {
+
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Update Mileage','View':'CarDetailActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         String mileage = chsq.toString();
 
         // save to parse
@@ -666,10 +710,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
                 public void done(Object o, ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "mileage updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "mileage updated", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        Toast.makeText(getApplicationContext(), "failed to update mileage", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "failed to update mileage", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -706,8 +752,15 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      * @param additional
      */
     public void requestServiceButton(String additional) {
+
+        try {
+            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'AddCarActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if(requestSent){
-            Toast.makeText(getApplicationContext(), "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CarDetailsActivity.this,
+                    "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
             return;
         }
         requestSent = true;
@@ -774,15 +827,18 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                 @Override
                 public void done(Object object, ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Sent Successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                "Sent Successfully", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CarDetailsActivity.this,
+                                e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }else{
             //if there are no entries, say nothing to send!
-            Toast.makeText(getApplicationContext(), "Nothing to Send", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CarDetailsActivity.this,
+                    "Nothing to Send", Toast.LENGTH_SHORT).show();
         }
     }
     @Override
@@ -796,6 +852,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     protected void onPause() {
         // unbind service to prevent memory leaks
         unbindService(serviceConnection);
+        ParseApplication.mixpanelAPI.flush();
         super.onPause();
     }
 
@@ -812,6 +869,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             dialog.show(getSupportFragmentManager(),"sendSupportEmail");
         }
         if (id == R.id.history) {
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open History View','View':'CarDetailActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Intent intent = new Intent(CarDetailsActivity.this, CarHistoryActivity.class);
             intent.putExtra("carId",carId);
             startActivity(intent);
@@ -864,7 +926,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     public class ServiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(CarDetailsActivity.this);
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
