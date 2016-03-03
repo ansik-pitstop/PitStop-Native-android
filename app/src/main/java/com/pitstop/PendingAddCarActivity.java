@@ -8,7 +8,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
@@ -42,6 +46,12 @@ public class PendingAddCarActivity extends AppCompatActivity{
         ((TextView)findViewById(R.id.vin)).setText("VIN: " + settings.getString(ADD_CAR_VIN,""));
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'PendingAddCarActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     // Create the Handler object (on the main thread by default)

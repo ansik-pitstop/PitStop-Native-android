@@ -31,6 +31,9 @@ import com.pitstop.database.models.Shops;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.ToolbarActionItemTarget;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,12 +67,6 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    public void onCreate (Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        baseApplication = (ParseApplication) getActivity().getApplicationContext();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -82,14 +79,24 @@ public class MainActivityFragment extends Fragment {
         array=((MainActivity)getActivity()).array;
         setUp();
         showTutorial();
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'MainActivityFragment'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showTutorial() {
-
-
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.pfName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         if(settings.getBoolean("FirstAppOpen",false)==false) {
+
+            try {
+                ParseApplication.mixpanelAPI.track("Showing Tutorial", new JSONObject("{'View':'MainActivity Fragment'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             new ShowcaseView.Builder(getActivity())
                     .setTarget(new ViewTarget(getActivity().findViewById(R.id.button5)))
                     .setContentTitle("View Your Car Information")
@@ -136,8 +143,11 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                baseApplication.getMixpanelAPI().track("Car Call Garage Pressed - Single Car View");
-                baseApplication.getMixpanelAPI().flush();
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityFragment'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
@@ -148,8 +158,11 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                baseApplication.getMixpanelAPI().track("Car Msg Garage Pressed - Single Car View");
-                baseApplication.getMixpanelAPI().flush();
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityFragment'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.d(TAG, "phone number is " + garagePhoneNumber);
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
@@ -161,8 +174,11 @@ public class MainActivityFragment extends Fragment {
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                baseApplication.getMixpanelAPI().track("Car Map Garage Pressed - Single Car View");
-                baseApplication.getMixpanelAPI().flush();
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Directions Garage','View':'MainActivityFragment'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.d(TAG, "address is " + garageAddress);
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
@@ -244,8 +260,11 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                baseApplication.getMixpanelAPI().track("Car Detail Button Clicked - Single Car View");
-                baseApplication.getMixpanelAPI().flush();
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open Details for Car','View':'MainActivityFragment'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated

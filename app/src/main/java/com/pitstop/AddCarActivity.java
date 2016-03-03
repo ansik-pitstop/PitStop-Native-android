@@ -1,7 +1,5 @@
 package com.pitstop;
 
-import android.*;
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -10,14 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -27,7 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -44,6 +45,7 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
+import com.parse.ParseACL;
 import com.parse.ParseConfig;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -67,15 +69,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
-import static android.Manifest.permission.CAMERA;
 
-
-public class AddCarActivity extends AppCompatActivity
-        implements BluetoothManage.BluetoothDataListener, View.OnClickListener
-        /*EasyPermissions.PermissionCallbacks*/ {
-    private ParseApplication baseApplication;
+public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
     public static int RESULT_ADDED = 10;
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
@@ -93,6 +88,8 @@ public class AddCarActivity extends AppCompatActivity
     // Id to identify CAMERA permission request.
     //private static final int REQUEST_CAMERA = 0;
     private static final int RC_BARCODE_CAPTURE = 9001;
+
+    private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -129,7 +126,7 @@ public class AddCarActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
-        baseApplication = (ParseApplication) getApplicationContext();
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
         noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
@@ -167,7 +164,7 @@ public class AddCarActivity extends AppCompatActivity
                         .replace("\r", "").replace("\n", "");
 
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
-                    if (isValidVin(vin)) {
+                    if (isValidVin(vin.toString())) {
                         findViewById(R.id.button).setVisibility(View.VISIBLE);
                         scannerButton.setVisibility(View.GONE);
                         findViewById(R.id.button).setEnabled(true);
@@ -200,6 +197,16 @@ public class AddCarActivity extends AppCompatActivity
                 }
             }
         });
+
+        mixpanelAPI = ParseApplication.mixpanelAPI;
+
+        try {
+            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'AddCarAcivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
@@ -214,7 +221,12 @@ public class AddCarActivity extends AppCompatActivity
         super.onResume();
         mLogStore.start();
         //setup restore possiblities
-        if(!TextUtils.isEmpty(VIN)) {
+        if(TextUtils.isEmpty(mileage)) {
+            Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!TextUtils.isEmpty(VIN) ) {
             ((TextView) findViewById(R.id.mileage)).setText(mileage);
 
             ParseConfig.getInBackground(new ConfigCallback() {
@@ -235,6 +247,7 @@ public class AddCarActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         mLogStore.stop();
+        mixpanelAPI.flush();
         service.setIsAddCarState(false);
         super.onPause();
     }
@@ -242,7 +255,6 @@ public class AddCarActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        baseApplication.getMixpanelAPI().flush();
         unbindService(serviceConnection);
     }
 
@@ -280,6 +292,11 @@ public class AddCarActivity extends AppCompatActivity
             return true;
         }
 
+        if(id == android.R.id.home) {
+            super.onBackPressed();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -291,6 +308,12 @@ public class AddCarActivity extends AppCompatActivity
                 if (data != null) {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     VIN = barcode.displayValue;
+
+                    String possibleEditedVin = checkVinForInvalidCharacter(VIN);
+                    if(possibleEditedVin!=null) {
+                        VIN = possibleEditedVin;
+                    }
+
                     ((EditText) findViewById(R.id.VIN)).setText(VIN);
                     findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
                     Log.i(DTAG, "Barcode read: " + barcode.displayValue);
@@ -329,7 +352,11 @@ public class AddCarActivity extends AppCompatActivity
         if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
             mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
             if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
-                baseApplication.getMixpanelAPI().track("Adding Car Button - Manual VIN");
+                try {
+                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 showLoading();
                 makeCar();
             } else {
@@ -346,8 +373,13 @@ public class AddCarActivity extends AppCompatActivity
                         timerHandler.post(runnable);
                         isSearching = true;
                     } else {
+                        try {
+                            ParseApplication.mixpanelAPI.track("Button Clicked",
+                                    new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         service.getCarVIN();
-                        baseApplication.getMixpanelAPI().track("Adding Car Button - Bluetooth for VIN");
                     }
                 }
             }
@@ -358,6 +390,10 @@ public class AddCarActivity extends AppCompatActivity
 
     private void tryAgainDialog() {
         hideLoading();
+        if(isFinishing()) { // You don't want to add a dialog to a finished activity
+           return;
+        }
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddCarActivity.this);
         alertDialog.setTitle("Try Again");
 
@@ -404,7 +440,7 @@ public class AddCarActivity extends AppCompatActivity
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
            // Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 30 && (isSearching)) {
+            if(seconds > 60 && (isSearching)) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else if (!isSearching) {
@@ -424,7 +460,6 @@ public class AddCarActivity extends AppCompatActivity
             makingCar = true;
             Log.i(DTAG,"Making car");
             VIN = ((EditText) findViewById(R.id.VIN)).getText().toString();
-            final String[] mashapeKey = {""};
             showLoading();
             ((TextView) findViewById(R.id.loading_details)).setText("Adding Car");
             if(service.getState()==BluetoothManage.CONNECTED){
@@ -456,12 +491,26 @@ public class AddCarActivity extends AppCompatActivity
         }
     }
 
-    public void startScanner(View view) {
-        launchBarcodeScanner();
+    private boolean checkBackCamera() {
+        final int CAMERA_FACING_BACK = 0;
+        int cameraCount = Camera.getNumberOfCameras();
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        for(int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i,info);
+            if(CAMERA_FACING_BACK == info.facing) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void launchBarcodeScanner() {
+    public void startScanner(View view) {
         // launch barcode activity.
+        if(!checkBackCamera()) {
+            Toast.makeText(this,"This device does not have a back facing camera",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
         intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
@@ -498,6 +547,11 @@ public class AddCarActivity extends AppCompatActivity
 
         List<ParameterInfo> parameterValues = parameterPackageInfo.value;
         VIN = parameterValues.get(0).value;
+        try {
+            ParseApplication.mixpanelAPI.track("Scanned VIN", new JSONObject("{'VIN':'"+VIN+"'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (VIN != null && VIN.length() == 17) {
             ((EditText) findViewById(R.id.VIN)).setText(VIN);
             ((TextView) findViewById(R.id.loading_details)).setText("Loaded VIN");
@@ -581,8 +635,11 @@ public class AddCarActivity extends AppCompatActivity
         }
     }
 
-    boolean isValidVin(Editable vin) {
-        return vin != null && vin.length() == 17;
+    private String checkVinForInvalidCharacter(String vin) {
+        if(vin!=null && vin.length() == 18 && vin.startsWith("I")) {
+            return vin.substring(1,vin.length()-1);
+        }
+        return null;
     }
 
     boolean isValidVin(String vin) {
@@ -597,6 +654,7 @@ public class AddCarActivity extends AppCompatActivity
         ((Button) findViewById(R.id.button)).setText("ADD CAR");
 
         String vin = String.valueOf(((EditText) findViewById(R.id.VIN)).getText());
+        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources().getDrawable(R.drawable.illustration_car));
 
         Log.d("isValidVin() result", String.valueOf(isValidVin(vin)));
 
@@ -619,6 +677,7 @@ public class AddCarActivity extends AppCompatActivity
         findViewById(R.id.button).setEnabled(true);
         findViewById(R.id.VIN_SECTION).setVisibility(View.GONE);
         ((TextView) findViewById(R.id.textView6)).setText(getString(R.string.add_car_bluetooth));
+        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources().getDrawable(R.drawable.illustration_dashboard));
         ((Button) findViewById(R.id.button)).setText("SEARCH FOR CAR");
 
         // TODO: scanner button should be in VIN_SECTION view
@@ -680,8 +739,7 @@ public class AddCarActivity extends AppCompatActivity
                                 hideLoading();
                                 makingCar = false;
                                 return;
-                            }
-                            else {
+                            } else {
                                 //choose the Shop to link with
                                 new AlertDialog.Builder(AddCarActivity.this)
                                     .setSingleChoiceItems(shops.toArray(new CharSequence[shops.size()]), 0, null)
@@ -707,7 +765,7 @@ public class AddCarActivity extends AppCompatActivity
                                                 newCar.put("highway_mileage", jsonObject.getString("highway_mileage"));
                                                 newCar.put("scannerId", scannerID == null ? "" : scannerID);
                                                 newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-                                                newCar.put("baseMileage", Integer.valueOf(mileage));
+                                                newCar.put("baseMileage", mileage.equals("") ? 0 : Integer.valueOf(mileage));
                                                 newCar.put("dealership", shopSelected);
                                                 newCar.saveEventually(new SaveCallback() {
                                                     @Override
@@ -759,7 +817,9 @@ public class AddCarActivity extends AppCompatActivity
                         @Override
                         public void run() {
                             //show vin already exists
-                            Toast.makeText(AddCarActivity.this, "Failed to find by VIN, may be invalid", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddCarActivity.this,
+                                    "Failed to find by VIN, may be invalid",
+                                    Toast.LENGTH_SHORT).show();
                             hideLoading();
                             makingCar = false;
                         }
@@ -769,7 +829,8 @@ public class AddCarActivity extends AppCompatActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(AddCarActivity.this, "Errored Out", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddCarActivity.this, "Errored Out",
+                                Toast.LENGTH_SHORT).show();
                         hideLoading();
                         makingCar = false;
                     }
@@ -792,10 +853,6 @@ public class AddCarActivity extends AppCompatActivity
         findViewById(R.id.button).setEnabled(true);
 		scannerButton.setEnabled(true);
         isSearching = false ;
-    }
-
-    public void hideLoading(View view){
-        hideLoading();
     }
 
     /**

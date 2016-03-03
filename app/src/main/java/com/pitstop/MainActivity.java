@@ -8,7 +8,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +40,7 @@ import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +51,6 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
-    private ParseApplication baseApplication;
     public static Intent serviceIntent;
 
 
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public static boolean refresh = false;
     public static boolean refreshLocal = false;
+
+    public static MixpanelAPI mixpanelAPI;
 
     public boolean isRefresh = true;
 
@@ -105,12 +109,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             refreshLocal = false;
             setUp();
         }
+        connectedCarIndicatorHandler.postDelayed(runnable, 4000);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        baseApplication = (ParseApplication) getApplicationContext();
+        mixpanelAPI = ParseApplication.mixpanelAPI;
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
@@ -129,12 +134,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         array = new ArrayList<>();
         refreshDatabase();
 
-
+        //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -165,9 +171,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             return true;
         }
         if(id==R.id.refresh&&!isRefresh){
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Refresh from Server','View':'MainActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             refreshDatabase();
         }
         if(id==R.id.add&&!isRefresh){
+            try {
+                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car','View':'MainActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             addCar(null);
         }
 
@@ -184,15 +200,22 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     protected void onPause() {
+        connectedCarIndicatorHandler.removeCallbacks(runnable);
         unbindService(serviceConnection);
+        ParseApplication.mixpanelAPI.flush();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        connectedCarIndicatorHandler.removeCallbacks(runnable);
+        super.onDestroy();
     }
 
     /**
      * Clears and refreshes the whole database
      */
     private void refreshDatabase() {
-        baseApplication.getMixpanelAPI().track("RefreshDatabase Pressed/Triggered");
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
 
         // if wifi is on
@@ -214,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        baseApplication.getMixpanelAPI().flush();
         setUp();
     }
 
@@ -232,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
      * @param view
      */
     public void addCar(View view) {
-        baseApplication.getMixpanelAPI().track("Add Car Pressed");
         //check if already pending cars (you cannot add another car when you have one pending)
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
@@ -242,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
             startActivity(intent);
         }
-        baseApplication.getMixpanelAPI().flush();
     }
 
     /**
@@ -364,6 +384,40 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             });
             snackbar.show();
         }
+        if(service!=null && service.getCurrentCar()==null) {
+            connectedCarIndicatorHandler.postDelayed(runnable,2000);
+        }
+    }
+
+    String tag = "ConnectedCar";
+    public void setCurrentConnectedCar(Cars car) {
+        if(service!=null) {
+            service.setCurrentCar(car);
+            refreshDatabase();
+        }
+    }
+
+    public Cars getCurrentConnectedCar() {
+        if(service!=null) {
+            return service.getCurrentCar();
+        }
+        return null;
+    }
+
+    private void connectedCarIndicator() {
+        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
+                getSupportFragmentManager().getFragments().size()>0) {
+            Log.i(tag,"MainActivity has fragments");
+            if (array.size() > 1&& getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
+                Log.i(tag,"running link device func");
+                Log.i(tag, "Device conn state "+service.getDeviceConnState());
+                ((MainActivityMultiFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.fragment_main))
+                        .linkDevice(service.getCurrentDeviceId());
+
+            }
+        }
     }
 
     /**
@@ -407,9 +461,35 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
+    Handler connectedCarIndicatorHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what==0) {
+                if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()==null) {
+                    connectedCarIndicator();
+                } else if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()!=null) {
+                    connectedCarIndicatorHandler.removeCallbacks(runnable);
+                } else {
+                    connectedCarIndicatorHandler.postDelayed(runnable,4000);
+                }
+
+            }
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            connectedCarIndicatorHandler.sendEmptyMessage(0);
+        }
+    };
+
     @Override
     public void getBluetoothState(int state) {
-
+        if(state==BluetoothManage.DISCONNECTED) {
+            refreshDatabase();
+        }
     }
 
     @Override
@@ -433,9 +513,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&getSupportFragmentManager().getFragments().size()>0) {
             if (array.size() == 1 && getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityFragment) {
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
-            } else if (array.size() > 1&& getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
-                ((MainActivityMultiFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
-
             }
         }
     }
