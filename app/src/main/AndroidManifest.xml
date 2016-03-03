@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -78,7 +80,8 @@
             android:theme="@style/AppNoActionBarTheme" />
         <activity
             android:name=".AddCarActivity"
-            android:label="@string/title_activity_add_car">
+            android:label="@string/title_activity_add_car"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -95,7 +98,8 @@
         </activity>
         <activity
             android:name=".CarDetailsActivity"
-            android:label="@string/title_activity_car_details">
+            android:label="@string/title_activity_car_details"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />

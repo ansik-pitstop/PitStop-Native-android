@@ -384,6 +384,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             });
             snackbar.show();
         }
+        if(service!=null && service.getCurrentCar()==null) {
+            connectedCarIndicatorHandler.postDelayed(runnable,2000);
+        }
     }
 
     String tag = "ConnectedCar";
