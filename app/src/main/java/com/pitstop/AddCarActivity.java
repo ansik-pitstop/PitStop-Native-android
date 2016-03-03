@@ -218,7 +218,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         super.onResume();
         mLogStore.start();
         //setup restore possiblities
-        if(!TextUtils.isEmpty(VIN)) {
+        if(TextUtils.isEmpty(mileage)) {
+            Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!TextUtils.isEmpty(VIN) ) {
             ((TextView) findViewById(R.id.mileage)).setText(mileage);
 
             ParseConfig.getInBackground(new ConfigCallback() {
@@ -427,7 +432,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
            // Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 30 && (isSearching)) {
+            if(seconds > 60 && (isSearching)) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else if (!isSearching) {
