@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.*;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -69,8 +70,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class AddCarActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener, View.OnClickListener {
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+
+public class AddCarActivity extends AppCompatActivity implements
+        BluetoothManage.BluetoothDataListener, View.OnClickListener,
+        EasyPermissions.PermissionCallbacks {
     public static int RESULT_ADDED = 10;
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
@@ -87,7 +97,7 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     // Id to identify CAMERA permission request.
     //private static final int REQUEST_CAMERA = 0;
-    private static final int RC_BARCODE_CAPTURE = 9001;
+    private static final int RC_BARCODE_CAPTURE = 100;
 
     private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
@@ -100,6 +110,8 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     ArrayList<String> shops = new ArrayList<String>();
     ArrayList<String> shopIds = new ArrayList<String>();
+
+    private static final int RC_LOCATION_PERM = 101;
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -348,43 +360,53 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
     private boolean isSearching = false;
     private String DTAG = "ADD_CAR";
     public void getVIN(View view) {
+        String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
-            mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
-            if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
-                try {
-                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                showLoading();
-                makeCar();
-            } else {
-                if (BluetoothAdapter.getDefaultAdapter() == null) {
-                    hideLoading();
-                    findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
+        if(EasyPermissions.hasPermissions(AddCarActivity.this,perms)) {
+
+            if(!((EditText) findViewById(R.id.mileage)).getText().toString().equals("")) {
+                mileage = ((EditText) findViewById(R.id.mileage)).getText().toString();
+                if (((EditText) findViewById(R.id.VIN)).getText().toString().length() == 17) {
+                    try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    showLoading();
+                    makeCar();
                 } else {
-                    if (service.getState() != BluetoothManage.CONNECTED) {
-                        showLoading();
-                        ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
-                        service.startBluetoothSearch(true);
-
-                        startTime = System.currentTimeMillis();
-                        timerHandler.post(runnable);
-                        isSearching = true;
+                    if (BluetoothAdapter.getDefaultAdapter() == null) {
+                        hideLoading();
+                        findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
                     } else {
-                        try {
-                            ParseApplication.mixpanelAPI.track("Button Clicked",
-                                    new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        if (service.getState() != BluetoothManage.CONNECTED) {
+                            showLoading();
+                            ((TextView) findViewById(R.id.loading_details)).setText("Searching for Car");
+                            service.startBluetoothSearch(true);
+
+                            startTime = System.currentTimeMillis();
+                            timerHandler.post(runnable);
+                            isSearching = true;
+                        } else {
+                            try {
+                                ParseApplication.mixpanelAPI.track("Button Clicked",
+                                        new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            service.getCarVIN();
                         }
-                        service.getCarVIN();
                     }
                 }
+            } else {
+                Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
             }
+
         } else {
-            Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
+            EasyPermissions.requestPermissions(AddCarActivity.this,
+                    getString(R.string.location_request_rationale),RC_LOCATION_PERM,perms);
         }
     }
 
@@ -686,6 +708,25 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
         scannerButton.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onRequestPermissionsResult (int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Toast.makeText(AddCarActivity.this,"Access to location not granted",
+                Toast.LENGTH_SHORT).show();
+    }
+
     /**
      * Complex call in adding car.
      * First it goes to Mashape and get info based on VIN -> determines if valid
@@ -872,6 +913,12 @@ public class AddCarActivity extends AppCompatActivity implements BluetoothManage
 
     private String getDealership() {
         return shopSelected;
+    }
+
+
+    @AfterPermissionGranted(RC_LOCATION_PERM)
+    private void beginSearchForCar() {
+        findViewById(R.id.button).performClick();
     }
 
 }
