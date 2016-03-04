@@ -232,27 +232,30 @@ public class AddCarActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         mLogStore.start();
-        //setup restore possiblities
-        if(TextUtils.isEmpty(mileage)) {
-            Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
-            return;
-        }
+        //setup restore possibilities for pending activity
+        Intent intent = getIntent();
+        if(intent!=null && intent.getBooleanExtra(PendingAddCarActivity.PENDING,false)) {
+            if(TextUtils.isEmpty(mileage)) {
+                Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        if(!TextUtils.isEmpty(VIN) ) {
-            ((TextView) findViewById(R.id.mileage)).setText(mileage);
+            if(!TextUtils.isEmpty(VIN) ) {
+                ((TextView) findViewById(R.id.mileage)).setText(mileage);
 
-            ParseConfig.getInBackground(new ConfigCallback() {
+                ParseConfig.getInBackground(new ConfigCallback() {
 
-                @Override
-                public void done(ParseConfig config, ParseException e) {
-                    // TODO: Why is config returning null ?
-                    if(config == null) {
-                        return;
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
+                        // TODO: Why is config returning null ?
+                        if(config == null) {
+                            return;
+                        }
+                        ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
+                        new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                     }
-                    ((TextView) findViewById(R.id.loading_details)).setText("Checking VIN");
-                    new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
-                }
-            });
+                });
+            }
         }
     }
 
@@ -406,7 +409,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         } else {
             EasyPermissions.requestPermissions(AddCarActivity.this,
-                    getString(R.string.location_request_rationale),RC_LOCATION_PERM,perms);
+                    getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
         }
     }
 
