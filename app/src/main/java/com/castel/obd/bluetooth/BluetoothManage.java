@@ -28,7 +28,6 @@ import java.util.List;
 
 public class BluetoothManage {
 	private final String BT_NAME = "IDD-212";// �������
-	public static String RTC_TAG = "1A01";
 
 	public final static int BLUETOOTH_CONNECT_SUCCESS = 0;// �������ӳɹ�
 	public final static int BLUETOOTH_CONNECT_FAIL = 1;// ��������ʧ��
@@ -520,25 +519,8 @@ public class BluetoothManage {
 			obdParameterPackageParse(info);
 		} else if (4 == result || 5 == result || 6 == result) {
 			Log.i(DTAG,"Receiving result 4 or 5 or 6 - BluetoothManage");
-			isDeviceSynced = true;
 			obdIODataPackageParse(info);
 		}
-	}
-
-	public boolean isDeviceSynced() {
-		return isDeviceSynced;
-	}
-
-	public void syncObdDevice() {
-		settingRTC = true;
-		Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-		Toast.makeText(mContext,"Resetting device time...",Toast.LENGTH_SHORT).show();
-		long systemTime = System.currentTimeMillis();
-		obdSetParameter(RTC_TAG, String.valueOf(systemTime / 1000));
-	}
-
-	public boolean isSettingRTC() {
-		return settingRTC;
 	}
 
 	/**
@@ -590,10 +572,6 @@ public class BluetoothManage {
 				Log.i(OBDTAG,"result: "+responsePackageInfo.result);
 				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
 				Log.i(OBDTAG, "type: " + responsePackageInfo.type);
-				if((responsePackageInfo.type+responsePackageInfo.value).equals(RTC_TAG)) {
-					settingRTC = false;
-					isDeviceSynced = true;
-				}
 
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}
