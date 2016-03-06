@@ -291,7 +291,7 @@ public class BarcodeCaptureActivity extends Activity
 
     @Override
     public void onPermissionsDenied (int requestCode, List<String> perms) {
-        Toast.makeText(BarcodeCaptureActivity.this,"Access to camera was not granted",
+        Toast.makeText(BarcodeCaptureActivity.this,"Access to camera not granted",
                 Toast.LENGTH_SHORT).show();
     }
 
