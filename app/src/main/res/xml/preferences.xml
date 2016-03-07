@@ -26,12 +26,18 @@
 
     </PreferenceCategory>
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">
+        <Preference android:title="Privacy policy" >
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://getpitstop.io/privacypolicy/" />
+        </Preference>
+        <Preference
+            android:key="@string/pref_logout_key"
+            android:title="@string/pref_logout_label"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="App Version" android:key="@string/appversion">
         <Preference
             android:key="AppInfo"
             android:selectable="false"
             android:title="you can omit the titleasdfasd "/>
     </PreferenceCategory>
-    <Preference
-        android:key="@string/pref_logout_key"
-        android:title="@string/pref_logout_label"/>
 </PreferenceScreen>
