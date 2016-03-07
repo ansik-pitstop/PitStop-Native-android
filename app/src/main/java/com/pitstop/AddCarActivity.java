@@ -935,7 +935,7 @@ public class AddCarActivity extends AppCompatActivity implements
 	
 	@AfterPermissionGranted(RC_LOCATION_PERM)
     private void beginSearchForCar() {
-        findViewById(R.id.button).performClick();
+        abstractButton.performClick();
     }
 
     private void setupUIReferences() {
