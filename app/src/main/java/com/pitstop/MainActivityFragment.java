@@ -148,7 +148,6 @@ public class MainActivityFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "phone number is " + garagePhoneNumber);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
             }
@@ -163,7 +162,6 @@ public class MainActivityFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "phone number is " + garagePhoneNumber);
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                 User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
@@ -179,7 +177,6 @@ public class MainActivityFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "address is " + garageAddress);
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
