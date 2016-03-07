@@ -238,6 +238,9 @@ public class AddCarActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        if(BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+        }
         mLogStore.start();
         //setup restore possibilities for pending activity
         Intent intent = getIntent();
@@ -268,6 +271,9 @@ public class AddCarActivity extends AppCompatActivity implements
 
     @Override
     protected void onPause() {
+        if(BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+        }
         mLogStore.stop();
         mixpanelAPI.flush();
         service.setIsAddCarState(false);
@@ -375,31 +381,31 @@ public class AddCarActivity extends AppCompatActivity implements
 
         if(EasyPermissions.hasPermissions(AddCarActivity.this,perms)) {
 
-        if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
-            mileage = mileageEditText.getText().toString();
-            if (isValidVin(vinEditText.getText().toString())) {
-                    try {
-                    ParseApplication.mixpanelAPI.track("Button Clicked",
-                            new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    showLoading();
-                    makeCar();
+            if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
+                mileage = mileageEditText.getText().toString();
+                if (isValidVin(vinEditText.getText().toString())) {
+                        try {
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        showLoading();
+                        makeCar();
                 } else {
                     if (BluetoothAdapter.getDefaultAdapter() == null) {
                         hideLoading();
                     vinSection.setVisibility(View.VISIBLE);
-                    Toast.makeText(this,"Device does not support bluetooth",
+                    Toast.makeText(this, "Device does not support bluetooth",
                             Toast.LENGTH_SHORT).show();
                     } else {
                         if (service.getState() != BluetoothManage.CONNECTED) {
                             showLoading();
-                        loadingDetails.setText("Searching for Car");
+                            loadingDetails.setText("Searching for Car");
                             service.startBluetoothSearch(true);
 
                             startTime = System.currentTimeMillis();
-                            timerHandler.post(runnable);
+                            //timerHandler.post(runnable);
                             isSearching = true;
                         } else {
                             try {
@@ -567,7 +573,13 @@ public class AddCarActivity extends AppCompatActivity implements
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+        if((responsePackageInfo.type+responsePackageInfo.value)
+                .equals(BluetoothAutoConnectService.RTC_TAG)) {
+            // Once device time is reset, the obd device disconnects from mobile device
+            service.startBluetoothSearch(true);
+        }
+    }
 
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
@@ -948,6 +960,7 @@ public class AddCarActivity extends AppCompatActivity implements
         scannerButton = (Button) findViewById(R.id.scannerButton);
 
         vinEditText = (EditText) findViewById(R.id.VIN);
+        mileageEditText = (EditText) findViewById(R.id.mileage);
         vinHint = (TextView) findViewById(R.id.VIN_hint);
         loadingDetails = (TextView) findViewById(R.id.loading_details);
         searchForCarInfo = (TextView)findViewById(R.id.search_for_car_info);
