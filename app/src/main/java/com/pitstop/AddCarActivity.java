@@ -310,7 +310,12 @@ public class AddCarActivity extends AppCompatActivity implements
         }
 
         if(id == android.R.id.home) {
-            super.onBackPressed();
+            Intent intent = getIntent();
+            if(intent!=null && !intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)){
+                super.onBackPressed();
+            } else {
+                Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
 

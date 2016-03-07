@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private boolean isUpdatingMileage = false;
     private boolean isAddCar = false;
+    public static String  hasCarsInDashboard = "HAS_CARS";
     private String carId;
 
     public BluetoothAutoConnectService service;
@@ -258,9 +259,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
             Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
+            if(!array.isEmpty()) {
+                intent.putExtra(hasCarsInDashboard,true);
+            }
             startActivity(intent);
         } else {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+            intent.putExtra(hasCarsInDashboard,true);
             startActivity(intent);
         }
     }
