@@ -808,6 +808,9 @@ public class AddCarActivity extends AppCompatActivity implements
                                 return;
                             } else {
                                 //choose the Shop to link with
+                                /*if(shops.isEmpty() || shopIds.isEmpty()) {
+                                    return;
+                                }*/
                                 new AlertDialog.Builder(AddCarActivity.this)
                                     .setSingleChoiceItems(shops.toArray(new CharSequence[shops.size()]), 0, null)
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -874,8 +877,7 @@ public class AddCarActivity extends AppCompatActivity implements
                                                 makingCar = false;
                                             }
                                         }
-                                    })
-                                    .show();
+                                    }).show();
                             }
                         }
                     });
