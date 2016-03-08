@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
@@ -64,5 +65,10 @@ public class PIDDebugActivity extends AppCompatActivity implements BluetoothMana
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
     }
 }

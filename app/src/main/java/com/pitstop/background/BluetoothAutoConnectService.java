@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -497,6 +498,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             counter = 1;
             uploadRecords();
         }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        Log.i(DTAG,"Device login: "+loginPackageInfo.deviceId);
+        Log.i(DTAG,"Device result: "+loginPackageInfo.result);
     }
 
     public class BluetoothBinder extends Binder {

@@ -541,6 +541,7 @@ public class BluetoothManage {
 			LogUtil.i("��½��");
 
 			sendCommandPassive(loginPackageInfo.instruction);
+			dataListener.deviceLogin(loginPackageInfo);
 		}
 	}
 
@@ -641,6 +642,8 @@ public class BluetoothManage {
 		public void getParamaterData(ParameterPackageInfo parameterPackageInfo);
 
 		public void getIOData(DataPackageInfo dataPackageInfo);
+
+		public void deviceLogin(LoginPackageInfo loginPackageInfo);
 	}
 
 }

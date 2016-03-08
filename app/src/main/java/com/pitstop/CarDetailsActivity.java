@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
@@ -918,6 +919,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             ((TextView)view.findViewById(R.id.year)).setText(year);
             ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
         }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
     }
 
     /**

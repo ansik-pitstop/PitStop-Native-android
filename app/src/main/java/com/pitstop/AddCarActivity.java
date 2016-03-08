@@ -32,6 +32,7 @@ import android.widget.ToggleButton;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -645,6 +646,11 @@ public class AddCarActivity extends AppCompatActivity implements
             //TODO why ?
             service.getCarVIN();
         }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        
     }
 
     @Override

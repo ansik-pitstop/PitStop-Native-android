@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -90,6 +91,12 @@ public class EnviornmentalCheckActivity extends AppCompatActivity  implements Bl
         ((TextView) findViewById(R.id.textView9)).setText(stringBuffer.toString());
         Toast.makeText(this,"Updated",Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
+    }
+
     private StringBuffer getPIDData(StringBuffer stringBuffer,
                                     List<PIDInfo> lists) {
         stringBuffer.append(getString(R.string.freeze_data) + "\n");

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -149,6 +150,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         out += "dtcData : " + dataPackageInfo.dtcData + "\n";
 
         ((TextView) findViewById(R.id.debug_log)).setText(out);
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
     }
 
 
