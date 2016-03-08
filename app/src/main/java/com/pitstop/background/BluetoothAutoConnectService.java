@@ -69,6 +69,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private Cars currentCar = null;
 
     private static String DTAG = "BLUETOOTH_DEBUG";
+    private boolean isGettingVin = false;
+    public static String RTC_TAG = "1A01";
+    public static String VIN_TAG = "2201";
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -104,15 +107,39 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     /**
      * Gets the Car's VIN
      */
-    public void getCarVIN(){
-        Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
-        BluetoothManage.getInstance(this).obdGetParameter("2201");
+    public void getCarVIN() {
+        isGettingVin = true;
+        /*if(!BluetoothManage.getInstance(this).isDeviceSynced() &&
+                !BluetoothManage.getInstance(this).isSettingRTC()) {
+            Toast.makeText(this, "Syncing device",Toast.LENGTH_SHORT).show();
+            BluetoothManage.getInstance(this).syncObdDevice();
+        } else if(BluetoothManage.getInstance(this).isDeviceSynced() &&
+                !BluetoothManage.getInstance(this).isSettingRTC()) {
+            Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
+            BluetoothManage.getInstance(this).obdGetParameter("2201");
+        }*/
+        /*
+        * get device time to check if the device is in sync
+        * */
+        getObdDeviceTime();
     }
 
-    public void setRTCTime(){
-        Log.d("SETTINGRTCTIME", "SETTING");
-        long currentTime = System.currentTimeMillis();
-        BluetoothManage.getInstance(this).obdSetParameter("1A01", String.valueOf(currentTime / 1000));
+    private void getVinFromCar() {
+        Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
+        BluetoothManage.getInstance(this).obdGetParameter(VIN_TAG);
+    }
+
+    private void getObdDeviceTime() {
+        Log.i(DTAG,"Getting device time");
+        BluetoothManage.getInstance(this).obdGetParameter(RTC_TAG);
+    }
+
+    private void syncObdDevice() {
+        Log.i(DTAG,"Resetting RTC time - BluetoothManage");
+        Toast.makeText(this,"Resetting device time...",Toast.LENGTH_SHORT).show();
+        long systemTime = System.currentTimeMillis();
+        BluetoothManage.getInstance(this)
+                .obdSetParameter(RTC_TAG, String.valueOf(systemTime / 1000));
     }
 
     public void startBluetoothSearch(boolean isAddCar){
@@ -120,7 +147,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         BluetoothManage.getInstance(this).connectBluetooth(isAddCar);
     }
 
-    public int getState(){
+    public int getState() {
         Log.i(DTAG, "getting bluetooth state - auto-connect service");
         return BluetoothManage.getInstance(this).getState();
     }
@@ -133,7 +160,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void getPIDs(){
         Log.i(DTAG,"getting PIDs - auto-connect service");
         BluetoothManage.getInstance(this).obdGetParameter("2401");
-        gettingPID=true;
+        gettingPID = true;
     }
 
     public void getDTCs() {
@@ -144,7 +171,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
-    public void getFreeze(){
+    public void getFreeze() {
         Log.i(DTAG, "Getting freeze data - auto-connect service");
         BluetoothManage.getInstance(this).obdSetMonitor(3, "");
     }
@@ -204,7 +231,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public void onDestroy() {
         Log.i(DTAG,"Destroying auto-connect service");
-        Toast.makeText(this, "Destroyed",Toast.LENGTH_SHORT).show();
         super.onDestroy();
         BluetoothManage.getInstance(this).close();
     }
@@ -229,9 +255,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     deviceConnected = true;
                 }
             }
-            //set RTC time once anything is connected
-            //show a custom notification
-            //setRTCTime();
             //show a custom notification
             if (deviceConnected) {
                 try {// mixpanel stuff
@@ -329,7 +352,21 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             pidI = 0;
             sendForPIDS();
             gettingPID=false;
-        }else if(serviceCallbacks!=null) {
+        } else if(isGettingVin) {
+            if(parameterPackageInfo.value.get(0).tlvTag.equals(RTC_TAG)) {
+                long moreThanOneYear = 32000000;
+                long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
+                long currentTime = System.currentTimeMillis()/1000;
+                long diff = currentTime - deviceTime;
+                if(diff > moreThanOneYear) {
+                    syncObdDevice();
+                } else {
+                    getVinFromCar();
+                    isGettingVin = false;
+                }
+            }
+
+        } else if(serviceCallbacks!=null) {
             Log.i(DTAG, "getting parameter data on service Callbacks - auto-connect service");
             serviceCallbacks.getParamaterData(parameterPackageInfo);
         }

@@ -26,6 +26,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
     public static String ADD_CAR_SCANNER = "PENDING_ADD_CAR_SCANNER_ID";
     public static String ADD_CAR_DTCS = "PENDING_ADD_CAR_DTCS";
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
+    public static String PENDING = "PENDING";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,6 +89,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         editor.putString(ADD_CAR_VIN, "");
         editor.apply();
         Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
+        intent.putExtra(PENDING,true);
         startActivity(intent);
         finish();
     }

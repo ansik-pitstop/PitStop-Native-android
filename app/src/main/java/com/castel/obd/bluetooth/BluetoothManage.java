@@ -53,8 +53,6 @@ public class BluetoothManage {
 	private boolean isParse = false;
 	private List<String> dataLists = new ArrayList<String>();
 
-	private boolean isDeviceSynced = false;
-	private int initResultZeroCounter = 0;
 	private String DTAG = "DEBUG_BLUETOOTH";
 
 	public BluetoothManage() {
@@ -323,7 +321,7 @@ public class BluetoothManage {
 	 * @return
 	 */
 	public int getState() {
-		Log.i(DTAG,"Getting bluetooth state - BluetoothManage");
+		Log.i(DTAG, "Getting bluetooth state - BluetoothManage");
 		return btConnectionState;
 	}
 
@@ -372,7 +370,7 @@ public class BluetoothManage {
 		}
 
 
-		String result = OBD.setMonitor(type,valueList);
+		String result = OBD.setMonitor(type, valueList);
 		sendCommand(result);
 	}
 
@@ -506,11 +504,6 @@ public class BluetoothManage {
 
 	public void packageType(String info, int result) {
 		Log.i(DTAG,"Checking package type - BluetoothManage");
-		if(!isDeviceSynced) {
-			Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-			long systemTime = System.currentTimeMillis();
-			obdSetParameter("1A01", String.valueOf(systemTime / 1000));
-		}
 		if (0 == result) {
 			Log.i(DTAG,"Receiving result 0 - BluetoothManage");
 			obdLoginPackageParse(info);
@@ -522,7 +515,6 @@ public class BluetoothManage {
 			obdParameterPackageParse(info);
 		} else if (4 == result || 5 == result || 6 == result) {
 			Log.i(DTAG,"Receiving result 4 or 5 or 6 - BluetoothManage");
-			isDeviceSynced = true;
 			obdIODataPackageParse(info);
 		}
 	}
@@ -575,7 +567,7 @@ public class BluetoothManage {
 				Log.i(DTAG,"obd response package set parameter resp dataListener - BluetoothManage");
 				Log.i(OBDTAG,"result: "+responsePackageInfo.result);
 				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
-				Log.i(OBDTAG,"type: "+responsePackageInfo.type);
+				Log.i(OBDTAG, "type: " + responsePackageInfo.type);
 
 				dataListener.setParamaterResponse(responsePackageInfo);
 			}

@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:background="#eae4e4">
+            android:background="#ebebeb">
 
             <LinearLayout
                 android:layout_width="110dp"
