@@ -18,7 +18,6 @@
             android:layout_height="match_parent" />
 
     </com.pitstop.BarcodeHelpers.camera.CameraSourcePreview>
-
 </LinearLayout>
 
 
