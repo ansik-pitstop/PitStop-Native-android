@@ -78,6 +78,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
+
+    public static int DEVICE_LOGIN = 1;
+    public static int DEVICE_LOGOUT = 0;
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -116,7 +119,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void getCarVIN() {
 
         String savedDeviceId = getSavedSyncedDeviceId();
-        if(TextUtils.isEmpty(savedDeviceId)) {
+        if(TextUtils.isEmpty(savedDeviceId) || currentDeviceId==null
+                || !currentDeviceId.equals(savedDeviceId)) {
             isGettingVin = true;
             getObdDeviceTime();
         } else {
@@ -355,6 +359,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         if((responsePackageInfo.type+responsePackageInfo.value)
                 .equals(BluetoothAutoConnectService.RTC_TAG)) {
             // Once device time is reset, store deviceId
+            currentDeviceId = responsePackageInfo.deviceId;
             saveSyncedDevice(responsePackageInfo.deviceId);
         }
 
@@ -383,6 +388,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 if(diff > moreThanOneYear) {
                     syncObdDevice();
                 } else {
+                    saveSyncedDevice(currentDeviceId);
                     getVinFromCar();
                     isGettingVin = false;
                 }
@@ -397,7 +403,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         deviceConnState = true;
-        currentDeviceId  = dataPackageInfo.deviceId;
 
         Log.i(DTAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
@@ -502,8 +507,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        Log.i(DTAG,"Device login: "+loginPackageInfo.deviceId);
-        Log.i(DTAG,"Device result: "+loginPackageInfo.result);
+        if(loginPackageInfo.flag.equals(String.valueOf(DEVICE_LOGIN))) {
+            Log.i(DTAG,"Device login: "+loginPackageInfo.deviceId);
+            Log.i(DTAG,"Device result: "+loginPackageInfo.result);
+            Log.i(DTAG,"Device flag: "+loginPackageInfo.flag);
+            currentDeviceId = loginPackageInfo.deviceId;
+        }
     }
 
     public class BluetoothBinder extends Binder {

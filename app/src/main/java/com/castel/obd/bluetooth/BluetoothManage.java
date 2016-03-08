@@ -536,6 +536,7 @@ public class BluetoothManage {
 		if ("0".equals(loginPackageInfo.flag)) {
 			// �˳���
 			LogUtil.i("�˳���");
+			dataListener.deviceLogin(loginPackageInfo);
 		} else if ("1".equals(loginPackageInfo.flag)) {
 			// ��½��
 			LogUtil.i("��½��");

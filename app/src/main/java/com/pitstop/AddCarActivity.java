@@ -112,8 +112,7 @@ public class AddCarActivity extends AppCompatActivity implements
     //debugging storing TODO: Request permission for storage
     LogCatHelper mLogStore;
 
-    ArrayList<String> shops = new ArrayList<String>();
-    ArrayList<String> shopIds = new ArrayList<String>();
+    private boolean isLoading = false;
 
     private static final int RC_LOCATION_PERM = 101;
 
@@ -416,6 +415,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            showLoading();
                             service.getCarVIN();
                         }
                     }
@@ -509,7 +509,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 loadingDetails.setText("Loading Car Engine Code");
                 askForDTC=true;
                 service.getDTCs();
-            }else {
+            } else {
                 try {
                     if(new InternetChecker(this).execute().get()){
                         showLoading();
@@ -650,7 +650,11 @@ public class AddCarActivity extends AppCompatActivity implements
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
+        if(loginPackageInfo.flag.equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+            if(isLoading) {
+                hideLoading();
+            }
+        }
     }
 
     @Override
@@ -918,12 +922,14 @@ public class AddCarActivity extends AppCompatActivity implements
         yesButton.setEnabled(true);
         noButton.setEnabled(true);
         isSearching = false ;
+        isLoading = false;
     }
 
     /**
      * Show the loading screen
      */
     private void showLoading(){
+        isLoading = true;
         loadingScreen.setVisibility(View.VISIBLE);
         mileageEditText.setEnabled(false);
         vinEditText.setEnabled(false);
