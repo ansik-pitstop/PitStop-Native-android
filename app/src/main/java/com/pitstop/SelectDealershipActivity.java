@@ -22,9 +22,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.pitstop.R;
+import com.pitstop.utils.InternetChecker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class SelectDealershipActivity extends AppCompatActivity {
     public static String SELECTED_DEALERSHIP = "selected_dealership";
@@ -36,6 +39,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
 
     private ProgressBar progressBar;
+    private CardView message_card;
+    private TextView message;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,23 +55,34 @@ public class SelectDealershipActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        message_card = (CardView) findViewById(R.id.message_card);
+        message = (TextView) findViewById(R.id.message);
         progressBar.setVisibility(View.VISIBLE);
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-        query.findInBackground(new FindCallback<ParseObject>() {
+        try {
+            if(new InternetChecker(this).execute().get()) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+                query.findInBackground(new FindCallback<ParseObject>() {
 
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        progressBar.setVisibility(View.GONE);
+                        if(e == null) {
+                            adapter = new DealershipAdapter(objects);
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            } else {
                 progressBar.setVisibility(View.GONE);
-                if(e == null) {
-                    adapter = new DealershipAdapter(objects);
-                    recyclerView.setAdapter(adapter);
-                } else {
-                    Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
-                            Toast.LENGTH_SHORT).show();
-                }
+                message_card.setVisibility(View.VISIBLE);
             }
-        });
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -113,7 +129,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent data = new Intent();
-                    data.putExtra(SELECTED_DEALERSHIP,displayedShopId);
+                    data.putExtra(SELECTED_DEALERSHIP, displayedShopId);
                     setResult(RESULT_OK, data);
                     finish();
                 }

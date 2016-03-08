@@ -17,6 +17,8 @@
         android:layout_marginBottom="10dp"
         android:id="@+id/dealership_row_item"
         android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:background="@android:drawable/list_selector_background">
 
         <LinearLayout
