@@ -650,7 +650,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        
+
     }
 
     @Override
