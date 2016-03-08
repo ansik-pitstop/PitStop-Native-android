@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -275,6 +276,16 @@ public class AddCarActivity extends AppCompatActivity implements
         unbindService(serviceConnection);
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = getIntent();
+        if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
+            super.onBackPressed();
+        } else {
+            Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void finish(boolean forceReset) {
         if(forceReset){
             VIN="";
@@ -311,14 +322,13 @@ public class AddCarActivity extends AppCompatActivity implements
 
         if(id == android.R.id.home) {
             Intent intent = getIntent();
-            if(intent!=null && !intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)){
+            if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)){
                 super.onBackPressed();
             } else {
                 Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
             }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -378,14 +388,14 @@ public class AddCarActivity extends AppCompatActivity implements
             if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
                 mileage = mileageEditText.getText().toString();
                 if (isValidVin(vinEditText.getText().toString())) {
-                        try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked",
-                                new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        showLoading();
-                        makeCar();
+                    try {
+                            ParseApplication.mixpanelAPI.track("Button Clicked",
+                                    new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    showLoading();
+                    makeCar();
                 } else {
                     if (BluetoothAdapter.getDefaultAdapter() == null) {
                         hideLoading();
@@ -956,16 +966,13 @@ public class AddCarActivity extends AppCompatActivity implements
 
         abstractButton = (Button) findViewById(R.id.button);
         scannerButton = (Button) findViewById(R.id.scannerButton);
-
         vinEditText = (EditText) findViewById(R.id.VIN);
         mileageEditText = (EditText) findViewById(R.id.mileage);
         vinHint = (TextView) findViewById(R.id.VIN_hint);
         loadingDetails = (TextView) findViewById(R.id.loading_details);
         searchForCarInfo = (TextView)findViewById(R.id.search_for_car_info);
-
         vinSection = (LinearLayout) findViewById(R.id.VIN_SECTION);
         loadingScreen = (RelativeLayout) findViewById(R.id.loading);
-
     }
 
 }
