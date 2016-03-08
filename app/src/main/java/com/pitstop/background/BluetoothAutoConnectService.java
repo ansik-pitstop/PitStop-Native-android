@@ -8,11 +8,13 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -72,6 +74,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private boolean isGettingVin = false;
     public static String RTC_TAG = "1A01";
     public static String VIN_TAG = "2201";
+
+    private static String SYNCED_DEVICE = "SYNCED_DEVICE";
+    private static String DEVICE_ID = "deviceId";
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -108,20 +113,15 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * Gets the Car's VIN
      */
     public void getCarVIN() {
-        isGettingVin = true;
-        /*if(!BluetoothManage.getInstance(this).isDeviceSynced() &&
-                !BluetoothManage.getInstance(this).isSettingRTC()) {
-            Toast.makeText(this, "Syncing device",Toast.LENGTH_SHORT).show();
-            BluetoothManage.getInstance(this).syncObdDevice();
-        } else if(BluetoothManage.getInstance(this).isDeviceSynced() &&
-                !BluetoothManage.getInstance(this).isSettingRTC()) {
-            Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
-            BluetoothManage.getInstance(this).obdGetParameter("2201");
-        }*/
-        /*
-        * get device time to check if the device is in sync
-        * */
-        getObdDeviceTime();
+
+        String savedDeviceId = getSavedSyncedDeviceId();
+        if(TextUtils.isEmpty(savedDeviceId)) {
+            isGettingVin = true;
+            getObdDeviceTime();
+        } else {
+            // Device has already been synced
+            getVinFromCar();
+        }
     }
 
     private void getVinFromCar() {
@@ -140,6 +140,21 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         long systemTime = System.currentTimeMillis();
         BluetoothManage.getInstance(this)
                 .obdSetParameter(RTC_TAG, String.valueOf(systemTime / 1000));
+    }
+
+    private void saveSyncedDevice(String deviceId) {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DEVICE_ID,deviceId);
+        editor.apply();
+
+    }
+
+    private String getSavedSyncedDeviceId() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
+                Context.MODE_PRIVATE);
+        return sharedPreferences.getString(DEVICE_ID,"");
     }
 
     public void startBluetoothSearch(boolean isAddCar){
@@ -230,7 +245,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void onDestroy() {
-        Log.i(DTAG,"Destroying auto-connect service");
+        Log.i(DTAG, "Destroying auto-connect service");
         super.onDestroy();
         BluetoothManage.getInstance(this).close();
     }
@@ -336,6 +351,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     @Override
     public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+        if((responsePackageInfo.type+responsePackageInfo.value)
+                .equals(BluetoothAutoConnectService.RTC_TAG)) {
+            // Once device time is reset, store deviceId
+            saveSyncedDevice(responsePackageInfo.deviceId);
+        }
+
         if(serviceCallbacks!=null) {
             Log.i(DTAG, "Setting parameter response on service callbacks - auto-connect service");
             serviceCallbacks.setParamaterResponse(responsePackageInfo);
