@@ -1,9 +1,11 @@
 package com.pitstop;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,9 +23,14 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.pitstop.R;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class SelectDealershipActivity extends AppCompatActivity {
+    public static String SELECTED_DEALERSHIP = "selected_dealership";
+    public static int RESULT_OK = 103;
+    public static int RC_DEALERSHIP = 104;
+
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -64,6 +71,17 @@ public class SelectDealershipActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        Intent intent = getIntent();
+        if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
+            startActivity(new Intent(this,MainActivity.class));
+        } else {
+            Toast.makeText(SelectDealershipActivity.this,"Please select dealership",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public void finish() {
         super.finish();
     }
@@ -86,10 +104,20 @@ public class SelectDealershipActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(DealershipAdapter.ViewHolder holder, int position) {
             ParseObject shop = shops.get(position);
+            final String displayedShopId = shop.getObjectId();
 
             holder.dealershipName.setText(shop.get("name").toString());
             holder.dealershipAddress.setText(shop.get("addressText").toString());
             holder.dealershipTel.setText(shop.get("phoneNumber").toString());
+            holder.container.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent data = new Intent();
+                    data.putExtra(SELECTED_DEALERSHIP,displayedShopId);
+                    setResult(RESULT_OK, data);
+                    finish();
+                }
+            });
         }
 
         @Override
@@ -102,6 +130,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
             public TextView dealershipName;
             public TextView dealershipAddress;
             public TextView dealershipTel;
+            public CardView container;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -109,6 +138,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 dealershipName = (TextView) itemView.findViewById(R.id.dealership_name);
                 dealershipAddress = (TextView) itemView.findViewById(R.id.dealership_address);
                 dealershipTel = (TextView) itemView.findViewById(R.id.dealership_tel);
+                container = (CardView) itemView.findViewById(R.id.dealership_row_item);
             }
         }
     }

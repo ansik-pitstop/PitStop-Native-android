@@ -128,7 +128,7 @@
                     android:text="SEARCH FOR CAR"
                     android:id="@+id/button"
                     android:layout_alignParentTop="true"
-                    android:onClick="test"
+                    android:onClick="searchForCar"
                     android:layout_centerHorizontal="true"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="16dp"
