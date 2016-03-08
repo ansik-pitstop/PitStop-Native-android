@@ -250,7 +250,7 @@ public class AddCarActivity extends AppCompatActivity implements
                         if(config == null) {
                             return;
                         }
-                    loadingDetails.setText("Checking VIN");
+                        loadingDetails.setText("Checking VIN");
                         new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                     }
                 });

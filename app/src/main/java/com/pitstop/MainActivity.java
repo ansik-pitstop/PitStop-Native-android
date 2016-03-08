@@ -265,13 +265,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             startActivity(intent);
         } else {
             Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-            intent.putExtra(hasCarsInDashboard,true);
+            if(!array.isEmpty()) {
+                intent.putExtra(hasCarsInDashboard,true);
+            }
             startActivity(intent);
         }
     }
 
     /**
-     * Reload screen withou clearing database, using network when it exists!
+     * Reload screen without clearing database, using network when it exists!
      */
     public void setUp(){
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);

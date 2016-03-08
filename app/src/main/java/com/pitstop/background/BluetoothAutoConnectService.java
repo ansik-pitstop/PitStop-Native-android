@@ -231,7 +231,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public void onDestroy() {
         Log.i(DTAG,"Destroying auto-connect service");
-        Toast.makeText(this, "Destroyed",Toast.LENGTH_SHORT).show();
         super.onDestroy();
         BluetoothManage.getInstance(this).close();
     }
