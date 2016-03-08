@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     /**
-     * Reload screen withou clearing database, using network when it exists!
+     * Reload screen without clearing database, using network when it exists!
      */
     public void setUp(){
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);

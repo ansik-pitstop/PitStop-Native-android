@@ -53,10 +53,6 @@ public class BluetoothManage {
 	private boolean isParse = false;
 	private List<String> dataLists = new ArrayList<String>();
 
-	private boolean isDeviceSynced = false;
-	private boolean settingRTC = false;
-	private int initResultZeroCounter = 0;
-
 	private String DTAG = "DEBUG_BLUETOOTH";
 
 	public BluetoothManage() {
