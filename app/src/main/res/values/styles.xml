@@ -17,6 +17,7 @@
     <style name="AddCarButtonStyle" parent="Widget.AppCompat.Button.Colored">
         <item name="android:background">@drawable/color_button_add_car</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
@@ -25,5 +26,10 @@
         <item name="sv_backgroundColor">#e51249d9</item>
         <item name="sv_showcaseColor">#25467A</item>
         <item name="sv_buttonText">OK</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>

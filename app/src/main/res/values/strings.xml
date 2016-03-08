@@ -46,5 +46,6 @@
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature</string>
     <string name="appversion">app_version</string>
+    <string name="title_activity_select_dealership">SelectDealershipActivity</string>
 
 </resources>
