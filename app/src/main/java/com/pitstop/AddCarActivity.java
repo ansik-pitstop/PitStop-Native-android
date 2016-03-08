@@ -240,7 +240,7 @@ public class AddCarActivity extends AppCompatActivity implements
             }
 
             if(!TextUtils.isEmpty(VIN) ) {
-            mileageEditText.setText(mileage);
+                 mileageEditText.setText(mileage);
 
                 ParseConfig.getInBackground(new ConfigCallback() {
 
@@ -250,7 +250,7 @@ public class AddCarActivity extends AppCompatActivity implements
                         if(config == null) {
                             return;
                         }
-                    loadingDetails.setText("Checking VIN");
+                        loadingDetails.setText("Checking VIN");
                         new CallMashapeAsync().execute(config.getString("MashapeAPIKey"));
                     }
                 });
@@ -415,6 +415,10 @@ public class AddCarActivity extends AppCompatActivity implements
             EasyPermissions.requestPermissions(AddCarActivity.this,
                     getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
         }
+    }
+
+    public void test(View view) {
+        startActivity(new Intent(this,SelectDealershipActivity.class));
     }
 
     private void tryAgainDialog() {
