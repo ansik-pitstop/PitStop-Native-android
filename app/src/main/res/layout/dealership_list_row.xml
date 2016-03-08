@@ -16,7 +16,8 @@
         android:layout_marginTop="5dp"
         android:layout_marginBottom="10dp"
         android:id="@+id/dealership_row_item"
-        android:background="#ffffff">
+        android:clickable="true"
+        android:background="@android:drawable/list_selector_background">
 
         <LinearLayout
             android:layout_width="match_parent"
