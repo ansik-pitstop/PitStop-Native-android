@@ -113,6 +113,7 @@ public class AddCarActivity extends AppCompatActivity implements
     LogCatHelper mLogStore;
 
     private boolean isLoading = false;
+    private boolean isGettingVin = false;
 
     private static final int RC_LOCATION_PERM = 101;
 
@@ -408,6 +409,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             startTime = System.currentTimeMillis();
                             //timerHandler.post(runnable);
                             isSearching = true;
+                            isGettingVin = true;
                         } else {
                             try {
                                 ParseApplication.mixpanelAPI.track("Button Clicked",
@@ -566,8 +568,10 @@ public class AddCarActivity extends AppCompatActivity implements
             hideLoading();
             service.startBluetoothSearch(true);
         }else{
-            loadingDetails.setText("Linking with Device, give it a few seconds");
-            service.getCarVIN();
+            if(isGettingVin) {
+                loadingDetails.setText("Linking with Device, give it a few seconds");
+                service.getCarVIN();
+            }
         }
     }
 
@@ -588,6 +592,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(BluetoothAutoConnectService.VIN_TAG)) {
             isSearching = false;
+            isGettingVin = false;
             LogUtil.i("parameterPackage.size():"
                     + parameterPackageInfo.value.size());
 
