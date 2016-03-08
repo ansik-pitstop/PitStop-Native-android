@@ -42,12 +42,37 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private CardView message_card;
     private TextView message;
 
+    private boolean hadInternetConnection = false;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_dealership);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setup();
+    }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = getIntent();
+        if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
+            startActivity(new Intent(this,MainActivity.class));
+        } else {
+            if(hadInternetConnection) {
+                Toast.makeText(SelectDealershipActivity.this,"Please select dealership",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                setup();
+            }
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+    }
+
+    private void setup() {
         recyclerView = (RecyclerView) findViewById(R.id.dealership_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -58,9 +83,11 @@ public class SelectDealershipActivity extends AppCompatActivity {
         message_card = (CardView) findViewById(R.id.message_card);
         message = (TextView) findViewById(R.id.message);
         progressBar.setVisibility(View.VISIBLE);
+        message_card.setVisibility(View.GONE);
 
         try {
             if(new InternetChecker(this).execute().get()) {
+                hadInternetConnection = true;
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
                 query.findInBackground(new FindCallback<ParseObject>() {
 
@@ -77,29 +104,13 @@ public class SelectDealershipActivity extends AppCompatActivity {
                     }
                 });
             } else {
+                hadInternetConnection = false;
                 progressBar.setVisibility(View.GONE);
                 message_card.setVisibility(View.VISIBLE);
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
-            startActivity(new Intent(this,MainActivity.class));
-        } else {
-            Toast.makeText(SelectDealershipActivity.this,"Please select dealership",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
     }
 
     public class DealershipAdapter extends RecyclerView.Adapter<DealershipAdapter.ViewHolder> {
