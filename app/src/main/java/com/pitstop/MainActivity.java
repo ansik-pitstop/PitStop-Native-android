@@ -23,6 +23,7 @@ import android.view.View;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -519,5 +520,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
             }
         }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
     }
 }

@@ -536,11 +536,13 @@ public class BluetoothManage {
 		if ("0".equals(loginPackageInfo.flag)) {
 			// �˳���
 			LogUtil.i("�˳���");
+			dataListener.deviceLogin(loginPackageInfo);
 		} else if ("1".equals(loginPackageInfo.flag)) {
 			// ��½��
 			LogUtil.i("��½��");
 
 			sendCommandPassive(loginPackageInfo.instruction);
+			dataListener.deviceLogin(loginPackageInfo);
 		}
 	}
 
@@ -641,6 +643,8 @@ public class BluetoothManage {
 		public void getParamaterData(ParameterPackageInfo parameterPackageInfo);
 
 		public void getIOData(DataPackageInfo dataPackageInfo);
+
+		public void deviceLogin(LoginPackageInfo loginPackageInfo);
 	}
 
 }

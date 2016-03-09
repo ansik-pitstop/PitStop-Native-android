@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
@@ -754,7 +755,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     public void requestServiceButton(String additional) {
 
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'AddCarActivity'}"));
+            ParseApplication.mixpanelAPI.track("Button Clicked",
+                    new JSONObject("{'Button':'Request Service','View':'CarDetailsActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -920,6 +922,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
+    }
+
     /**
      * The dialog to display for clicking service request button
      */
@@ -997,6 +1004,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                     public void onClick(View view) {
                         Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
                         intent.putExtra("Model", dataList.get(i));
+                        intent.putExtra("VIN",VIN);
                         startActivity(intent);
                     }
                 });

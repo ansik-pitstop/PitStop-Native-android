@@ -32,6 +32,7 @@ import android.widget.ToggleButton;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
+import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -111,8 +112,8 @@ public class AddCarActivity extends AppCompatActivity implements
     //debugging storing TODO: Request permission for storage
     LogCatHelper mLogStore;
 
-    ArrayList<String> shops = new ArrayList<String>();
-    ArrayList<String> shopIds = new ArrayList<String>();
+    private boolean isLoading = false;
+    private boolean isGettingVin = false;
 
     private static final int RC_LOCATION_PERM = 101;
 
@@ -408,6 +409,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             startTime = System.currentTimeMillis();
                             //timerHandler.post(runnable);
                             isSearching = true;
+                            isGettingVin = true;
                         } else {
                             try {
                                 ParseApplication.mixpanelAPI.track("Button Clicked",
@@ -415,6 +417,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            showLoading();
                             service.getCarVIN();
                         }
                     }
@@ -508,7 +511,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 loadingDetails.setText("Loading Car Engine Code");
                 askForDTC=true;
                 service.getDTCs();
-            }else {
+            } else {
                 try {
                     if(new InternetChecker(this).execute().get()){
                         showLoading();
@@ -565,8 +568,10 @@ public class AddCarActivity extends AppCompatActivity implements
             hideLoading();
             service.startBluetoothSearch(true);
         }else{
-            loadingDetails.setText("Linking with Device, give it a few seconds");
-            service.getCarVIN();
+            if(isGettingVin) {
+                loadingDetails.setText("Linking with Device, give it a few seconds");
+                service.getCarVIN();
+            }
         }
     }
 
@@ -587,6 +592,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(BluetoothAutoConnectService.VIN_TAG)) {
             isSearching = false;
+            isGettingVin = false;
             LogUtil.i("parameterPackage.size():"
                     + parameterPackageInfo.value.size());
 
@@ -644,6 +650,15 @@ public class AddCarActivity extends AppCompatActivity implements
         }else{
             //TODO why ?
             service.getCarVIN();
+        }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        if(loginPackageInfo.flag.equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+            if(isLoading) {
+                hideLoading();
+            }
         }
     }
 
@@ -912,12 +927,14 @@ public class AddCarActivity extends AppCompatActivity implements
         yesButton.setEnabled(true);
         noButton.setEnabled(true);
         isSearching = false ;
+        isLoading = false;
     }
 
     /**
      * Show the loading screen
      */
     private void showLoading(){
+        isLoading = true;
         loadingScreen.setVisibility(View.VISIBLE);
         mileageEditText.setEnabled(false);
         vinEditText.setEnabled(false);

@@ -25,6 +25,7 @@ import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.parse.Parse;
+import com.pitstop.BarcodeHelpers.ActivitySource;
 import com.pitstop.BarcodeHelpers.BarcodeGraphic;
 import com.pitstop.BarcodeHelpers.BarcodeTrackerFactory;
 import com.pitstop.BarcodeHelpers.camera.CameraSource;
@@ -73,6 +74,7 @@ public class BarcodeCaptureActivity extends Activity
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_capture);
+        ActivitySource.caller = this;
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
@@ -93,8 +95,8 @@ public class BarcodeCaptureActivity extends Activity
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG).show();
+        /*Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
+                Snackbar.LENGTH_LONG).show();*/
 
         try {
             ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'BarcodeCaptureActivity'}"));
