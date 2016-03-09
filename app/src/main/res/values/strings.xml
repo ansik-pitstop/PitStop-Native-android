@@ -20,7 +20,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
     <string name="appinfo">appinfo</string>
-    <string name="app_build_no">1.0.4</string>
+    <string name="app_build_no">1.0.5</string>
 
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. Make sure your device is plugged in and ready to go. Below are various location that the OBD plug can be at.</string>
     <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
@@ -45,6 +45,7 @@
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature</string>
+    
     <string name="appversion">app_version</string>
     <string name="title_activity_select_dealership">SelectDealershipActivity</string>
 
