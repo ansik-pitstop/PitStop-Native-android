@@ -6,22 +6,11 @@
     android:id="@+id/item_list_item_layout"
     android:weightSum="1">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ISSUE"
-        android:id="@+id/title"
-        android:textIsSelectable="false"
-        android:textSize="20dp"
-        android:maxLines="1"
-        android:textColor="@color/highlight"
-        android:fontFamily="sans-serif-light"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"/>
+
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="135dp"
         android:layout_marginTop="10dp">
 
         <LinearLayout
@@ -38,12 +27,12 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="35dp"
+                    android:layout_height="39dp"
                     android:background="@color/highlight"
                     android:text="Severity"
                     android:textColor="@color/cardview_light_background"
                     android:textSize="20dp"
-                    android:paddingTop="3dp"
+                    android:paddingTop="4dp"
                     android:paddingLeft="20dp"/>
 
                 <RelativeLayout
@@ -51,7 +40,7 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="40dp">
+                    android:layout_marginTop="9dp">
 
                     <TextView
                         android:id="@+id/severity_text"
@@ -61,23 +50,39 @@
                         android:text="High"
                         android:textColor="@color/cardview_light_background"/>
                 </RelativeLayout>
+
             </LinearLayout>
-
-            <ScrollView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/scrollView" >
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:id="@+id/description"
-                    android:textSize="15dp"
-                    android:padding="12dp" />
-            </ScrollView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="ISSUE"
+                android:id="@+id/title"
+                android:textIsSelectable="false"
+                android:textSize="18sp"
+                android:textColor="@color/highlight"
+                android:fontFamily="sans-serif-light"
+                android:layout_margin="1dp"
+                android:layout_gravity="center"
+                android:background="#ffffff"
+                android:padding="10dp"/>
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="15dp">
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="12dp"
+            android:textSize="15sp"
+            android:background="#ffffff"/>
+    </ScrollView>
 
     <Button
         android:layout_width="match_parent"
@@ -90,7 +95,6 @@
         android:background="@drawable/color_button_add_car"
         android:drawableRight="@drawable/request_service_button"
         android:textColor="#fff"
-        android:layout_marginTop="150dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_gravity="bottom"/>
 
 </LinearLayout>
