@@ -755,7 +755,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     public void requestServiceButton(String additional) {
 
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'AddCarActivity'}"));
+            ParseApplication.mixpanelAPI.track("Button Clicked",
+                    new JSONObject("{'Button':'Request Service','View':'CarDetailsActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1003,6 +1004,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                     public void onClick(View view) {
                         Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
                         intent.putExtra("Model", dataList.get(i));
+                        intent.putExtra("VIN",VIN);
                         startActivity(intent);
                     }
                 });
