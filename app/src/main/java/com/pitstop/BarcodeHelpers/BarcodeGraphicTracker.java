@@ -1,8 +1,12 @@
 package com.pitstop.BarcodeHelpers;
 
+import android.content.Intent;
+
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.pitstop.BarcodeCaptureActivity;
 import com.pitstop.BarcodeHelpers.camera.GraphicOverlay;
 
 /**
@@ -26,6 +30,14 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
+        if(ActivitySource.caller!=null && item!=null && item.displayValue!= null &&
+                item.displayValue.length()==17) {
+            Intent data = new Intent();
+            data.putExtra(BarcodeCaptureActivity.BarcodeObject,item);
+            ActivitySource.caller.setResult(CommonStatusCodes.SUCCESS, data);
+            ActivitySource.caller.finish();
+            ActivitySource.caller =null;
+        }
     }
 
     /**

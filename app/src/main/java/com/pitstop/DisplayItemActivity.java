@@ -1,25 +1,41 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.pitstop.database.DBModel;
+import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
+import com.pitstop.database.models.Services;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
@@ -114,11 +130,122 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     public void requestService(View view) {
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Request Service','View':'DisplayItemActivity'}"));
+            ParseApplication.mixpanelAPI.track("Button Clicked",
+                    new JSONObject("{'Button':'Request Service','View':'DisplayItemActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Snackbar.make(view,"Service requested",Snackbar.LENGTH_LONG).show();
+
+        if(isFinishing()) {
+            return;
+        }
+
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(DisplayItemActivity.this);
+        alertDialog.setTitle("Enter additional comment");
+
+        final String[] additionalComment = {""};
+        final EditText userInput = new EditText(DisplayItemActivity.this);
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        alertDialog.setView(userInput);
+
+        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                additionalComment[0] = userInput.getText().toString();
+                sendRequest(additionalComment[0]);
+            }
+        });
+
+        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void sendRequest(String additionalComment) {
+        String userId = ParseUser.getCurrentUser().getObjectId();
+        HashMap<String,Object> output = new HashMap<String, Object>();
+        List<HashMap<String,String>> services = new ArrayList<>();
+
+        DBModel model = (DBModel)getIntent().getSerializableExtra("Model");
+        String VIN = getIntent().getStringExtra("VIN");
+
+        if(model instanceof Recalls) {
+            LocalDataRetriever dataRetriever = new LocalDataRetriever(this);
+
+            Recalls recall =  new Recalls();
+            recall.setValue("item", model.getValue("name"));
+            recall.setValue("action","Recall For");
+            recall.setValue("itemDescription",model.getValue("description"));
+            recall.setValue("priority",""+ 6); // high priority for recall
+            services.add(recall.getValues());
+
+            //update db
+            model.setValue("state","pending");
+            HashMap<String,String> tmp = new HashMap<>();
+            tmp.put("state","pending");
+            dataRetriever.updateData("Recalls", "RecallID", model.getValue("RecallID"),tmp);
+
+            ParseQuery query = new ParseQuery("RecallEntry");
+            query.whereEqualTo("objectId",model.getValue("RecallID"));
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if (e == null && !objects.isEmpty()) {
+                        ParseObject objToUpdate = objects.get(0);
+                        objToUpdate.put("state", "pending");
+                        objToUpdate.saveEventually();
+                    }
+                }
+            });
+
+            output.put("services", services);
+            output.put("carVin", VIN);
+            output.put("userObjectId", userId);
+            output.put("comments", additionalComment);
+
+
+
+        } else if(model instanceof DTCs) {
+            DTCs dtc = new DTCs();
+            dtc.setValue("item", model.getValue("dtcCode"));
+            dtc.setValue("action","Engine Issue: DTC Code");
+            dtc.setValue("itemDescription",model.getValue("description"));
+            dtc.setValue("priority", "" + 5); // must be 5
+            services.add(dtc.getValues());
+
+            output.put("services", services);
+            output.put("carVin", VIN);
+            output.put("userObjectId", userId);
+            output.put("comments", additionalComment);
+
+
+        } else if(model instanceof Services) {
+            services.add(model.getValues());
+
+            output.put("services", services);
+            output.put("carVin", VIN);
+            output.put("userObjectId", userId);
+            output.put("comments",additionalComment);
+        }
+
+        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object object, ParseException e) {
+                if (e == null) {
+                    Toast.makeText(DisplayItemActivity.this,
+                            "Request sent", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(DisplayItemActivity.this,
+                            e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        super.onBackPressed();
     }
 
     private void setUpDisplayItems(DBModel model, String action) {

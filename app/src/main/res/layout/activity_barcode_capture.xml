@@ -15,8 +15,7 @@
         <com.pitstop.BarcodeHelpers.camera.GraphicOverlay
             android:id="@+id/graphicOverlay"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
+            android:layout_height="match_parent"/>
     </com.pitstop.BarcodeHelpers.camera.CameraSourcePreview>
 </LinearLayout>
 
