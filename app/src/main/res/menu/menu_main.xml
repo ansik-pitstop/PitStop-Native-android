@@ -1,19 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
 
-    <item android:id="@+id/refresh"
-        tools:context=".MainActivity"
+    <item
+        android:id="@+id/refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="Refresh"
         app:showAsAction="always"
-        android:title="Refresh"/>
-    <item android:id="@+id/add"
-        tools:context=".MainActivity"
+        tools:context=".MainActivity" />
+    <item
+        android:id="@+id/add"
         android:icon="@drawable/ic_add_circle_white_48dp"
+        android:title="Refresh"
         app:showAsAction="always"
-        android:title="Refresh"/>
+        tools:context=".MainActivity" />
 
     <item
         android:id="@+id/action_settings"
-        android:title="@string/action_settings"/>
+        android:title="@string/action_settings" />
 </menu>
