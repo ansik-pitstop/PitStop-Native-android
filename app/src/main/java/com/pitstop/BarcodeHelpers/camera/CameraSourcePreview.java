@@ -130,45 +130,49 @@ public class CameraSourcePreview extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int width = 320;
-        int height = 240;
+        int width = right - left;
+        int height = bottom - top;
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();
             if (size != null) {
-                width = size.getWidth();
-                height = size.getHeight();
+                float ratioH, ratioW;
+                if(size.getHeight() < height) {
+                    ratioH = (float) height / size.getHeight();
+                } else {
+                    ratioH = (float) size.getHeight() / height;
+                }
+                if(size.getWidth() < width) {
+                    ratioW = (float) width / size.getWidth();
+                } else {
+                    ratioW = (float) size.getWidth() / width;
+                }
+                if(ratioH > ratioW) {
+                    height = (int) Math.abs(size.getHeight() * ratioH);
+                    width = (int) Math.abs(size.getWidth() * ratioH);
+                } else {
+                    height = (int) Math.abs(size.getHeight() * ratioW);
+                    width = (int) Math.abs(size.getWidth() * ratioW);
+                }
             }
         }
 
         // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
-        if (isPortraitMode()) {
+        if (!isPortraitMode()) {
             int tmp = width;
-            //noinspection SuspiciousNameCombination
             width = height;
             height = tmp;
         }
 
-        final int layoutWidth = right - left;
-        final int layoutHeight = bottom - top;
-
-        // Computes height and width for potentially doing fit width.
-        int childWidth = layoutWidth;
-        int childHeight = (int)(((float) layoutWidth / (float) width) * height);
-
-        // If height is too tall using fit width, does fit height instead.
-        if (childHeight > layoutHeight) {
-            childHeight = layoutHeight;
-            childWidth = (int)(((float) layoutHeight / (float) height) * width);
-        }
-
+        final int layoutWidth = width;
+        final int layoutHeight = height;
         for (int i = 0; i < getChildCount(); ++i) {
-            getChildAt(i).layout(0, 0, childWidth, childHeight);
+            getChildAt(i).layout(0, 0, layoutWidth, layoutHeight);
         }
 
         try {
             startIfReady();
         } catch (SecurityException se) {
-            Log.e(TAG,"Do not have permission to start the camera", se);
+            Log.e(TAG, "Do not have permission to start the camera", se);
         } catch (IOException e) {
             Log.e(TAG, "Could not start camera source.", e);
         }
