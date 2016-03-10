@@ -72,6 +72,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private Cars currentCar = null;
 
     private static String DTAG = "BLUETOOTH_DEBUG";
+    private static String R4_TAG = "R4_TRIP_MILEAGE";
     private boolean isGettingVin = false;
     public static String RTC_TAG = "1A01";
     public static String VIN_TAG = "2201";
@@ -151,7 +152,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(DEVICE_ID,deviceId);
+        editor.putString(DEVICE_ID, deviceId);
         editor.apply();
 
     }
@@ -404,6 +405,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void getIOData(DataPackageInfo dataPackageInfo) {
         deviceConnState = true;
 
+        if(dataPackageInfo.result == 4) {
+            processResultFourData(dataPackageInfo);
+        }
+
         Log.i(DTAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;
@@ -513,6 +518,28 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             Log.i(DTAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
         }
+    }
+
+    private void processResultFourData(DataPackageInfo data) {
+        Log.i(R4_TAG,"Receiving result 4");
+        Log.i(R4_TAG,"result "+data.result);
+        Log.i(R4_TAG,"DeviceId "+data.deviceId);
+        Log.i(R4_TAG,"DataNumber "+data.dataNumber);
+        Log.i(R4_TAG,"RTC "+data.rtcTime);
+        Log.i(R4_TAG,"ProtocolType "+data.protocolType);
+        Log.i(R4_TAG,"Trip flag "+data.tripFlag);
+        Log.i(R4_TAG,"TripId "+data.tripId);
+        Log.i(R4_TAG,"Trip mileage "+data.tripMileage);
+        Log.i(R4_TAG,"Trip fuel "+data.tripfuel);
+        Log.i(R4_TAG,"Vehicle state "+data.vState);
+    }
+
+    private void processResultFiveData(DataPackageInfo data) {
+
+    }
+
+    private void processResultSixData(DataPackageInfo data) {
+
     }
 
     public class BluetoothBinder extends Binder {
