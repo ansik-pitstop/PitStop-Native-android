@@ -10,7 +10,7 @@
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="135dp"
+        android:layout_height="137dp"
         android:layout_marginTop="10dp">
 
         <LinearLayout
@@ -80,32 +80,35 @@
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="fill_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="15dp">
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        >
         <TextView
             android:id="@+id/description"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:padding="12dp"
             android:textSize="15sp"
             android:background="#ffffff"/>
-    </ScrollView>
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="15dp">
+            <Button
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Request Service"
+            android:id="@+id/btnRequestService"
+            android:onClick="requestService"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:background="@drawable/color_button_add_car"
+            android:drawableRight="@drawable/request_service_button"
+            android:textColor="#fff" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Request Service"
-        android:id="@+id/btnRequestService"
-        android:onClick="requestService"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:background="@drawable/color_button_add_car"
-        android:drawableRight="@drawable/request_service_button"
-        android:textColor="#fff"
-        android:layout_gravity="bottom"/>
+        </RelativeLayout>
+    </RelativeLayout>
 
 </LinearLayout>
