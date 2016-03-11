@@ -32,6 +32,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.DataAccessLayer.FluentHttpClient;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -525,5 +526,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
 
+    }
+
+    public void getJson(View view) {
+        FluentHttpClient client = FluentHttpClient.getFluentHttpClient();
+        /*JSONObject data = client.buildUrl("user/289").get();
+        Log.i("JSON", data.toString());*/
     }
 }
