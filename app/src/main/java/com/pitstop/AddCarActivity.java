@@ -562,8 +562,8 @@ public class AddCarActivity extends AppCompatActivity implements
     @Override
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
-            hideLoading();
-            service.startBluetoothSearch();
+            /*hideLoading();
+            service.startBluetoothSearch();*/
         }else{
             if(isGettingVin) {
                 loadingDetails.setText("Linking with Device, give it a few seconds");
