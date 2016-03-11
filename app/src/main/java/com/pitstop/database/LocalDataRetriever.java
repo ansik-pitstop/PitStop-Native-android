@@ -82,7 +82,7 @@ public class LocalDataRetriever {
             }
             params.add(queryParams.get(a));
         }
-        Cursor cursor = db.query(distinct,type,(columns!=null&&columns.length>0)?columns:null,selection,params.toArray(new String[params.size()]),null,null,type.substring(0,type.length()-1)+"ID DESC",null);
+        Cursor cursor = db.query(distinct, type, (columns != null && columns.length > 0) ? columns : null, selection, params.toArray(new String[params.size()]), null, null, type.substring(0, type.length() - 1) + "ID DESC", null);
 
         if (cursor.moveToFirst()) {
             do{
@@ -182,6 +182,10 @@ public class LocalDataRetriever {
 
     public ArrayList<DBModel> getResponse(String deviceId, String start, String end) {
         SQLiteDatabase db = dbase.getReadableDatabase();
+        if(!db.isOpen()) {
+            return new ArrayList<>();
+        }
+        
         String selectQuery = "SELECT * FROM Responses WHERE ResponseID > " + start + " AND ResponseID < " + end + " AND deviceId = '" + deviceId+"'";
         ArrayList<DBModel> array = new ArrayList<>();
         Cursor cursor = db.rawQuery(selectQuery, null);
