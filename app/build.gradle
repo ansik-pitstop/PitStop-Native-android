@@ -47,7 +47,7 @@ dependencies {
     // Important - the CameraSource implementation in this project requires version 8.1 or higher.
     // Multidex support library - Use when Building Apps with Over 65K Methods
     //compile 'com.android.support:multidex:1.0.0'
-    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.android.support:cardview-v7:23.2.0'
