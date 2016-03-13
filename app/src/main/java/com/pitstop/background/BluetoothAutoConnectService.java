@@ -35,6 +35,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.PIDParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +44,6 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -197,33 +197,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         BluetoothManage.getInstance(this).obdSetMonitor(3, "");
     }
 
-    public String parseDTCs(String hex){
-        Log.i(DTAG,"Parsing DTCs - auto-connect service");
-        int start = 1;
-        char head = hex.charAt(0);
-        HashMap<Character, String> map = new HashMap<Character, String>();
-        map.put('0',"P0");
-        map.put('1',"P1");
-        map.put('2',"P2");
-        map.put('3',"P3");
-
-        map.put('4',"C0");
-        map.put('5',"C1");
-        map.put('6',"C2");
-        map.put('7',"C3");
-
-        map.put('8',"B0");
-        map.put('9',"B1");
-        map.put('A',"B2");
-        map.put('B',"B3");
-
-        map.put('C',"U0");
-        map.put('D',"U1");
-        map.put('E',"U2");
-        map.put('F',"U3");
-        return map.get(head)+hex.substring(start);
-    }
-
     private void sendForPIDS(){
         Log.i(DTAG, "Sending for PIDS - auto-connect service");
         gettingPIDs = true;
@@ -267,7 +240,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
             }
-            boolean deviceConnected = false;
+            boolean deviceConnected = true;
             for (BluetoothDevice device : devices) {
                 Log.i(DTAG,"Iterating through bonded devices - auto-connect service");
                 //if device has name IDD-212
@@ -399,6 +372,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             Log.i(DTAG, "getting parameter data on service Callbacks - auto-connect service");
             serviceCallbacks.getParamaterData(parameterPackageInfo);
         }
+    }
+
+    public String parseDTCs(String input){
+        return PIDParser.parseDTCs(input);
     }
 
     @Override

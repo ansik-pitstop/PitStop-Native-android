@@ -329,7 +329,7 @@ public class MainActivityFragment extends Fragment {
             if(a.getValue("scannerId").equals("")){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(id)){
+            if(id.contains(a.getValue("scannerId"))){
                 found = true;
                 getActivity().findViewById(R.id.button5).setBackgroundResource(R.drawable.color_button_car_connected);
             }

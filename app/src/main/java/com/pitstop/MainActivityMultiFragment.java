@@ -328,7 +328,7 @@ public class MainActivityMultiFragment extends Fragment {
             if(a.getValue("scannerId").isEmpty()){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(deviceId)&&
+            if(deviceId.contains(a.getValue("scannerId"))&&
                     ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
                 TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
