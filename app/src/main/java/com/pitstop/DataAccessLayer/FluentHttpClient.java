@@ -1,5 +1,8 @@
 package com.pitstop.DataAccessLayer;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
@@ -45,9 +48,35 @@ public class FluentHttpClient {
             return ;
         }
 
-        Response<JSONObject> response = webClient.get(resource)
-                .header(Webb.HDR_ACCEPT,Webb.APP_JSON)
-                .asJsonObject();
+        HttpClientAsyncTask getAsync = new HttpClientAsyncTask();
+        getAsync.execute(resource);
         
+    }
+
+    public class HttpClientAsyncTask extends AsyncTask {
+        @Override
+        protected void onPreExecute () {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Object doInBackground (Object[] params) {
+            Response<JSONObject> response = webClient.get(params[0].toString())
+                    .header(Webb.HDR_ACCEPT,Webb.APP_JSON)
+                    .asJsonObject();
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute (Object o) {
+            super.onPostExecute(o);
+            Response<JSONObject> response = (Response<JSONObject>) o;
+            Log.i("GET", response.toString());
+        }
+
+        @Override
+        protected void onCancelled (Object o) {
+            super.onCancelled(o);
+        }
     }
 }
