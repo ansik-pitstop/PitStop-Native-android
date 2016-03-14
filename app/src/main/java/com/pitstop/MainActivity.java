@@ -26,6 +26,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -33,6 +34,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.FluentHttpClient;
+import com.pitstop.DataAccessLayer.Models.Car;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -530,18 +532,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public void getJson(View view) {
         FluentHttpClient client = FluentHttpClient.getFluentHttpClient();
-        client.buildUrl("people.json");
-        client.setCallback(new FluentHttpClient.HttpClientAsyncTask.onRequestExecutedListener() {
-            @Override
-            public void onSuccess(JSONObject obj) {
-                Log.i("MainActivity",obj.toString());
-            }
+        client.setResource("car/1")
+                .setCallback(new FluentHttpClient.HttpClientAsyncTask.onRequestExecutedListener() {
+                    @Override
+                    public void onSuccess(JSONObject obj) {
+                        Log.i("MainActivity", obj.toString());
+                        Car car = new Gson().fromJson(obj.toString(),Car.class);
+                        Log.i("API ", "Make: "+car.getMake());
+                    }
 
-            @Override
-            public void onError(JSONObject error) {
+                    @Override
+                    public void onError(Object error) {
 
-            }
-        });
-        client.get();
+                    }
+                }).get();
     }
 }

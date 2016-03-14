@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 
 /**
@@ -17,7 +18,7 @@ import java.util.HashMap;
  */
 public class FluentHttpClient {
 
-    private static  final String BASE_ENDPOINT = "https://crackling-inferno-1642.firebaseio.com/";  //"http://52.35.99.168:10010/";
+    private static  final String BASE_ENDPOINT = "http://52.35.99.168:10011/";//"https://crackling-inferno-1642.firebaseio.com/";  //"http://52.35.99.168:10011/";
     private static Webb webClient;
     private HttpClientAsyncTask.onRequestExecutedListener listener;
 
@@ -32,7 +33,7 @@ public class FluentHttpClient {
         return new FluentHttpClient();
     }
 
-    public FluentHttpClient buildUrl(String resource) {
+    public FluentHttpClient setResource(String resource) {
         bundle.put("resource",resource);
         return this;
     }
@@ -47,7 +48,7 @@ public class FluentHttpClient {
         return this;
     }
 
-    public void get() {
+    public void getAsync() {
 
         String resource = bundle.get("resource").toString();
         if(resource == null || resource.equals("")) {
@@ -56,7 +57,40 @@ public class FluentHttpClient {
 
         HttpClientAsyncTask getAsync = new HttpClientAsyncTask();
         getAsync.setListener(listener);
-        getAsync.execute(resource);
+        getAsync.execute(resource, "GET");
+    }
+
+    public void postAsync() {
+        String uri = bundle.get("resource").toString();
+        if(uri == null || uri.equals("")) {
+            return ;
+        }
+
+        HttpClientAsyncTask postAsync = new HttpClientAsyncTask();
+        postAsync.setListener(listener);
+        postAsync.execute(uri, "POST");
+    }
+
+    public void putAsync() {
+        String uri = bundle.get("resource").toString();
+        if(uri == null || uri.equals("")) {
+            return;
+        }
+
+        HttpClientAsyncTask putAsync = new HttpClientAsyncTask();
+        putAsync.setListener(listener);
+        putAsync.execute(uri, "PUT");
+    }
+
+    public void deleteAsync() {
+        String resource = bundle.get("resource").toString();
+        if(resource == null || resource.equals("")) {
+            return;
+        }
+
+        HttpClientAsyncTask putAsync = new HttpClientAsyncTask();
+        putAsync.setListener(listener);
+        putAsync.execute(resource, "DELETE");
     }
 
     public static class HttpClientAsyncTask extends AsyncTask<Object, Object,Response<JSONObject> > {
@@ -75,9 +109,26 @@ public class FluentHttpClient {
         protected Response<JSONObject> doInBackground (Object[] params) {
             Response<JSONObject> response = null;
             try {
-                response = webClient.get(params[0].toString())
-                        .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
-                        .asJsonObject();
+                switch (params[1].toString()) {
+                    case "GET": {
+                        response = webClient.get(params[0].toString())
+                                .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
+                                .asJsonObject();
+                        break;
+                    }
+
+                    case "POST": {
+                        break;
+                    }
+
+                    case "PUT": {
+                        break;
+                    }
+
+                    case "DELETE" : {
+                        break;
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -86,16 +137,24 @@ public class FluentHttpClient {
 
         @Override
         protected void onPostExecute(Response<JSONObject> jsonObjectResponse) {
-            if(jsonObjectResponse!=null) {
+            if(jsonObjectResponse!=null && jsonObjectResponse.isSuccess()) {
                 Log.i("GET", jsonObjectResponse.getBody().toString());
                 listener.onSuccess(jsonObjectResponse.getBody());
+            } else {
+                if(jsonObjectResponse==null) {
+                    Log.i("Response is null","Something went wrong");
+                } else {
+                    Log.i("error", jsonObjectResponse.getResponseMessage().toString());
+                    listener.onError(jsonObjectResponse.getErrorBody());
+                }
             }
+            Log.i("TEST","Testing");
         }
 
         public interface onRequestExecutedListener {
             public void onSuccess(JSONObject obj);
 
-            public void onError(JSONObject error);
+            public void onError(Object error);
         }
     }
 }
