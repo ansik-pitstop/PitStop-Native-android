@@ -374,6 +374,10 @@ public class MainActivityMultiFragment extends Fragment {
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
 
+            /**
+             * If device is associated with more than one car in the dashboard or
+             * */
+
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
                     noIdCount==array.size()) {
                 indicateCurrentCarDialog(deviceId);

@@ -19,6 +19,7 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -49,7 +50,6 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    private ParseApplication baseApplication;
 
     public static final String TAG = MainActivityFragment.class.getSimpleName();
     private static String currentGarage = "";
@@ -216,7 +216,7 @@ public class MainActivityFragment extends Fragment {
                             shop.setValue("address", garageAddress);
                             shop.setValue("phoneNumber", garagePhoneNumber);
                             shop.setValue("email", garageEmailAddress);
-                            ldr.saveData("Shops",shop.getValues());
+                            ldr.saveData("Shops", shop.getValues());
                         }
                     } else {
                         Log.d("ERROR:", "" + e.getMessage());
@@ -358,5 +358,48 @@ public class MainActivityFragment extends Fragment {
                 }
             });
         }
+    }
+
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     *
+     * */
+    public void linkDevice(final String deviceId) {
+        String tag = "ConnectedCar";
+
+        Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+        if(currentCar==null) {
+            Cars car = (Cars)array.get(0);
+            if(deviceId.equals(car.getValue("scannerId"))) {
+                ((MainActivity)getActivity()).setCurrentConnectedCar(car);
+            } else {
+                final Cars carToUpdate = car;
+                ParseQuery query = new ParseQuery("Car");
+                query.whereEqualTo("VIN",car.getValue("VIN"));
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        objects.get(0).put("scannerId",deviceId);
+                        objects.get(0).saveEventually(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                carToUpdate.setValue("scannerId",deviceId);
+                                LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                                HashMap<String,String> map = new HashMap<String,String>();
+                                map.put("scannerId",deviceId);
+                                ldr.updateData("Cars", "VIN", carToUpdate.getValue("VIN"), map);
+                                Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
+                                ((MainActivity)getActivity()).service.getDTCs();
+                                ((MainActivity)getActivity()).setCurrentConnectedCar(carToUpdate);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        getActivity().findViewById(R.id.car_connected_ind_button)
+                .setBackgroundResource(R.drawable.color_button_car_connected);
     }
 }
