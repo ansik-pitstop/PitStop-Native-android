@@ -98,7 +98,7 @@ public class MainActivityFragment extends Fragment {
                 e.printStackTrace();
             }
             new ShowcaseView.Builder(getActivity())
-                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.button5)))
+                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.car_connected_ind_button)))
                     .setContentTitle("View Your Car Information")
                     .setContentText("Click this button to see more detailed view of your car")
                     .setShowcaseEventListener(new SimpleShowcaseEventListener() {
@@ -138,7 +138,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public void setTextViews() {
+    private void setTextViews() {
         callGarageTextView = (TextView) getActivity().findViewById(R.id.call_garage);
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,7 +185,7 @@ public class MainActivityFragment extends Fragment {
     }
 
 
-    public void getGarage() {
+    private void getGarage() {
         final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
         String shopId = array.get(0).getValue("dealership");
         Shops currShop = (Shops)ldr.getData("Shops", "ShopID", shopId);
@@ -232,7 +232,7 @@ public class MainActivityFragment extends Fragment {
     /**
      * Big setup for getting the display ready
      */
-    public void setUp(){
+    private void setUp(){
         setTextViews();
         getGarage();
         final DBModel car = array.get(0);
@@ -254,7 +254,7 @@ public class MainActivityFragment extends Fragment {
             (getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(93, 172, 129));
         }
 
-        getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+        getActivity().findViewById(R.id.car_connected_ind_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -331,7 +331,7 @@ public class MainActivityFragment extends Fragment {
             }
             if(a.getValue("scannerId").equals(id)){
                 found = true;
-                getActivity().findViewById(R.id.button5).setBackgroundResource(R.drawable.color_button_car_connected);
+                getActivity().findViewById(R.id.car_connected_ind_button).setBackgroundResource(R.drawable.color_button_car_connected);
             }
         }
         // add device if a car has no linked device

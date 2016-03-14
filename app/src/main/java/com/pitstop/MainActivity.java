@@ -114,7 +114,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             refreshLocal = false;
             setUp();
         }
-        connectedCarIndicatorHandler.postDelayed(runnable, 1000);
+
+        if(!refresh && !refreshLocal) {
+            connectedCarIndicatorHandler.postDelayed(runnable, 1000);
+        }
     }
 
     @Override
@@ -277,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     /**
      * Reload screen without clearing database, using network when it exists!
      */
-    public void setUp(){
+    private void setUp(){
         loadingScreen.setVisibility(View.VISIBLE);
         array.clear();
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
