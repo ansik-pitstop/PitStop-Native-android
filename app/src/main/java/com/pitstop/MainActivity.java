@@ -530,7 +530,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public void getJson(View view) {
         FluentHttpClient client = FluentHttpClient.getFluentHttpClient();
-        /*JSONObject data = client.buildUrl("user/289").get();
-        Log.i("JSON", data.toString());*/
+        client.buildUrl("people.json");
+        client.setCallback(new FluentHttpClient.HttpClientAsyncTask.onRequestExecutedListener() {
+            @Override
+            public void onSuccess(JSONObject obj) {
+                Log.i("MainActivity",obj.toString());
+            }
+
+            @Override
+            public void onError(JSONObject error) {
+
+            }
+        });
+        client.get();
     }
 }

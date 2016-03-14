@@ -17,8 +17,9 @@ import java.util.HashMap;
  */
 public class FluentHttpClient {
 
-    private static  final String BASE_ENDPOINT = "http://52.35.99.168:10010/";
-    private Webb webClient;
+    private static  final String BASE_ENDPOINT = "https://crackling-inferno-1642.firebaseio.com/";  //"http://52.35.99.168:10010/";
+    private static Webb webClient;
+    private HttpClientAsyncTask.onRequestExecutedListener listener;
 
     private HashMap<String, Object> bundle = new HashMap<>();
 
@@ -41,6 +42,11 @@ public class FluentHttpClient {
         return this;
     }
 
+    public FluentHttpClient setCallback(HttpClientAsyncTask.onRequestExecutedListener listener) {
+        this.listener = listener;
+        return this;
+    }
+
     public void get() {
 
         String resource = bundle.get("resource").toString();
@@ -49,34 +55,47 @@ public class FluentHttpClient {
         }
 
         HttpClientAsyncTask getAsync = new HttpClientAsyncTask();
+        getAsync.setListener(listener);
         getAsync.execute(resource);
-        
     }
 
-    public class HttpClientAsyncTask extends AsyncTask {
+    public static class HttpClientAsyncTask extends AsyncTask<Object, Object,Response<JSONObject> > {
+        private onRequestExecutedListener listener;
+
+        public void setListener(onRequestExecutedListener listener) {
+            this.listener = listener;
+        }
+
         @Override
         protected void onPreExecute () {
             super.onPreExecute();
         }
 
         @Override
-        protected Object doInBackground (Object[] params) {
-            Response<JSONObject> response = webClient.get(params[0].toString())
-                    .header(Webb.HDR_ACCEPT,Webb.APP_JSON)
-                    .asJsonObject();
+        protected Response<JSONObject> doInBackground (Object[] params) {
+            Response<JSONObject> response = null;
+            try {
+                response = webClient.get(params[0].toString())
+                        .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
+                        .asJsonObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return response;
         }
 
         @Override
-        protected void onPostExecute (Object o) {
-            super.onPostExecute(o);
-            Response<JSONObject> response = (Response<JSONObject>) o;
-            Log.i("GET", response.toString());
+        protected void onPostExecute(Response<JSONObject> jsonObjectResponse) {
+            if(jsonObjectResponse!=null) {
+                Log.i("GET", jsonObjectResponse.getBody().toString());
+                listener.onSuccess(jsonObjectResponse.getBody());
+            }
         }
 
-        @Override
-        protected void onCancelled (Object o) {
-            super.onCancelled(o);
+        public interface onRequestExecutedListener {
+            public void onSuccess(JSONObject obj);
+
+            public void onError(JSONObject error);
         }
     }
 }
