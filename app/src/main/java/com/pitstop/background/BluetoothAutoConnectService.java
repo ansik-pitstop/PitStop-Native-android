@@ -55,6 +55,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private final IBinder mBinder = new BluetoothBinder();
     private BluetoothManage.BluetoothDataListener serviceCallbacks;
 
+    private ParseObject tripMileage = null;
+    private HashMap<String, String> tripData = new HashMap<>();
+    private static String tripStart = "0";
+    private static String tripEnd = "9";
+
     private int counter;
     private boolean askforDtcs;
     private int notifID= 1360119;
@@ -72,7 +77,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     private Cars currentCar = null;
 
     private static String DTAG = "BLUETOOTH_DEBUG";
-    private static String R4_TAG = "R4_TRIP_MILEAGE";
+    public static String R4_TAG = "R4_TRIP_MILEAGE";
     private boolean isGettingVin = false;
     public static String RTC_TAG = "1A01";
     public static String VIN_TAG = "2201";
@@ -95,7 +100,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         status5counter=0;
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
-        BluetoothManage.getInstance(this).setBluetoothDataListener(this);
+        BluetoothManage.getInstance(this).setBluetoothDataListener(this);/**/
     }
 
     public boolean getDeviceConnState() {
@@ -131,12 +136,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     private void getVinFromCar() {
-        Log.i(DTAG,"Calling getCarVIN from Bluetooth auto-connect");
+        Log.i(DTAG, "Calling getCarVIN from Bluetooth auto-connect");
         BluetoothManage.getInstance(this).obdGetParameter(VIN_TAG);
     }
 
     private void getObdDeviceTime() {
-        Log.i(DTAG,"Getting device time");
+        Log.i(DTAG, "Getting device time");
         BluetoothManage.getInstance(this).obdGetParameter(RTC_TAG);
     }
 
@@ -163,19 +168,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         return sharedPreferences.getString(DEVICE_ID,"");
     }
 
-    public void startBluetoothSearch(boolean isAddCar){
+    public void startBluetoothSearch(){
         Log.i(DTAG, "starting bluetooth search - auto-connect service");
-        BluetoothManage.getInstance(this).connectBluetooth(isAddCar);
+        BluetoothManage.getInstance(this).connectBluetooth();
     }
 
     public int getState() {
         Log.i(DTAG, "getting bluetooth state - auto-connect service");
         return BluetoothManage.getInstance(this).getState();
-    }
-
-    public void setIsAddCarState(boolean isAddCarState) {
-        Log.i(DTAG,"Setting is add car state");
-        BluetoothManage.getInstance(this).setIsAddCarActivityState(isAddCarState);
     }
 
     public void getPIDs(){
@@ -324,16 +324,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 mNotificationManager.cancel(notifID);
             }
 
-            if (serviceCallbacks != null) {
-                Log.i(DTAG, "Calling service callbacks to getBluetooth State - auto connect service");
-                serviceCallbacks.getBluetoothState(state);
-            }
-
-
         } else {// car not connected
             try {// mixpanel stuff
                 if(ParseApplication.mixpanelAPI!=null){
-                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
+                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
+                            new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
                     ParseApplication.mixpanelAPI.flush();
                 }else{
                     ParseApplication.setUpMixPanel();
@@ -341,8 +336,39 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            // Set device connection state for connected car indicator
 			deviceConnState = false;
             currentCar = null;
+
+            if(tripMileage!=null) {
+                // Save current trip data when bluetooth gets disconnected from device
+                tripMileage.put("bluetoothConnection", "disconnected");
+                tripMileage.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if(e!=null) {
+                            /*Toast.makeText(getApplicationContext(),
+                                    e.getMessage(),Toast.LENGTH_SHORT).show();*/
+                            Log.i(R4_TAG,"Trip mil error: "+e.getMessage());
+                        } else {
+                            /*Toast.makeText(getApplicationContext(),
+                                    "Saved trip mileage",Toast.LENGTH_SHORT).show();*/
+                            Log.i(R4_TAG,"Saved trip mileage");
+                        }
+
+                    }
+                });
+
+                // Once bluetooth gets disconnected clear trip mileage object
+                tripMileage = null;
+            }
+
+        }
+
+        if (serviceCallbacks != null) {
+            Log.i(DTAG, "Calling service callbacks to getBluetooth State - auto connect service");
+            serviceCallbacks.getBluetoothState(state);
         }
     }
 
@@ -518,6 +544,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             Log.i(DTAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
         }
+        if(serviceCallbacks!=null) {
+            serviceCallbacks.deviceLogin(loginPackageInfo);
+        }
     }
 
     private void processResultFourData(DataPackageInfo data) {
@@ -532,6 +561,43 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R4_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R4_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R4_TAG,"Vehicle state "+data.vState);
+
+        if(tripMileage==null) {
+            tripMileage = new ParseObject("TripMileage");
+            tripData.clear();
+        }
+
+        tripMileage.put("tripId", Integer.parseInt(data.tripId));
+        tripMileage.put("scannerId", data.deviceId);
+        tripMileage.put("mileage", data.tripMileage == "" ? 0 : Double.parseDouble(data.tripMileage)/1000);
+        tripMileage.put("bluetoothConnection",
+                getState() == BluetoothManage.CONNECTED ? "connected" : "disconnected");
+        tripMileage.put("rtcTime", data.rtcTime);
+        tripMileage.put("tripFlag", data.tripFlag);
+        tripMileage.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+
+        tripData.put("dataNumber", data.dataNumber);
+        tripMileage.put("tripData",tripData);
+        
+        if(data.tripFlag.equals(tripEnd)) {
+
+            tripMileage.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e != null) {
+                        /*Toast.makeText(getApplicationContext(),
+                                e.getMessage(), Toast.LENGTH_SHORT).show();*/
+                        Log.i(R4_TAG, "Error: " + e.getMessage());
+                    } else {
+                        /*Toast.makeText(getApplicationContext(),
+                                "Saved trip mileage", Toast.LENGTH_SHORT).show();*/
+                        Log.i(R4_TAG,"Saved trip mileage");
+                    }
+
+                }
+            });
+            tripMileage = null;
+        }
     }
 
     private void processResultFiveData(DataPackageInfo data) {
@@ -557,7 +623,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void uploadRecords() {
         try {// mixpanel stuff
             if(ParseApplication.mixpanelAPI!=null){
-                ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Uploading Data'}"));
+                ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
+                        new JSONObject("{'Status':'Uploading Data'}"));
                 ParseApplication.mixpanelAPI.flush();
             }else{
                 ParseApplication.setUpMixPanel();
