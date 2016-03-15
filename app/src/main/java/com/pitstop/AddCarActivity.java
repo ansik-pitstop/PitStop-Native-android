@@ -394,8 +394,8 @@ public class AddCarActivity extends AppCompatActivity implements
                 } else {
                     if (BluetoothAdapter.getDefaultAdapter() == null) {
                         hideLoading();
-                    vinSection.setVisibility(View.VISIBLE);
-                    Toast.makeText(this, "Device does not support bluetooth",
+                        vinSection.setVisibility(View.VISIBLE);
+                        Toast.makeText(this, "Device does not support bluetooth",
                             Toast.LENGTH_SHORT).show();
                     } else {
                         if (service.getState() != BluetoothManage.CONNECTED) {

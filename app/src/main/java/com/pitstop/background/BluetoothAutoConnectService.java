@@ -350,6 +350,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         if(e!=null) {
                             Toast.makeText(getApplicationContext(),
                                     e.getMessage(),Toast.LENGTH_SHORT).show();
+                            Log.i(R4_TAG,"Trip mil error: "+e.getMessage());
                         } else {
                             Toast.makeText(getApplicationContext(),
                                     "Saved trip mileage",Toast.LENGTH_SHORT).show();
@@ -560,11 +561,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R4_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R4_TAG,"Vehicle state "+data.vState);
 
-        if(data.tripFlag.equals(tripStart)) {
-            if(tripMileage==null) {
-                tripMileage = new ParseObject("TripMileage");
-                tripData.clear();
-            }
+        if(tripMileage==null) {
+            tripMileage = new ParseObject("TripMileage");
+            tripData.clear();
+        }
+        
+        if(data.tripFlag.equals(tripEnd)) {
 
             tripMileage.put("tripId", Integer.parseInt(data.tripId));
             tripMileage.put("scannerId",data.deviceId);
@@ -580,31 +582,10 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             tripMileage.saveEventually(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    if(e!=null) {
-                        Toast.makeText(getApplicationContext(),
-                                e.getMessage(),Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(),
-                                "Saved trip mileage",Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            });
-
-        } else if(data.tripFlag.equals(tripEnd) && tripMileage!=null) {
-            tripMileage.put("mileage",data.tripMileage == "" ? 0 : Integer.parseInt(data.tripMileage));
-            tripData.put("tripFlag",data.tripFlag);
-            tripData.put("rtcTime",data.rtcTime);
-            tripData.put("bluetoothConnection",
-                    getState()==BluetoothManage.CONNECTED ? "connected" : "disconnected");
-
-            tripMileage.put("tripData",tripData);
-            tripMileage.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
                     if (e != null) {
                         Toast.makeText(getApplicationContext(),
                                 e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.i(R4_TAG,"Error: "+e.getMessage());
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 "Saved trip mileage", Toast.LENGTH_SHORT).show();
@@ -614,13 +595,17 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             });
             tripMileage = null;
         } else {
-            if(tripMileage!=null) {
-                tripMileage.put("mileage",data.tripMileage);
-                tripData.put("tripFlag",data.tripFlag);
-                tripData.put("rtcTime",data.rtcTime);
+            tripMileage.put("tripId", Integer.parseInt(data.tripId));
+            tripMileage.put("scannerId",data.deviceId);
+            tripMileage.put("mileage",data.tripMileage == "" ? 0 : Integer.parseInt(data.tripMileage));
 
-                tripMileage.put("tripData",tripData);
-            }
+            tripData.put("tripFlag",data.tripFlag);
+            tripData.put("rtcTime",data.rtcTime);
+            tripData.put("dataNumber",data.dataNumber);
+            tripData.put("bluetoothConnection",
+                    getState()==BluetoothManage.CONNECTED ? "connected" : "disconnected");
+
+            tripMileage.put("tripData",tripData);
         }
     }
 

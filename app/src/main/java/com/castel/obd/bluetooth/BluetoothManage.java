@@ -233,12 +233,12 @@ public class BluetoothManage {
 					Log.i(DTAG,"Not connected - setting get bluetooth state on dListeners");
 					dataListener.getBluetoothState(btConnectionState);
 				}
-			}/*else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
+			}else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
 				if(mBluetoothAdapter.isEnabled())
 					connectBluetooth();
 				Log.i(DTAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
 				dataListener.getBluetoothState(btConnectionState);
-			}*/
+			}
 		}
 	};
 

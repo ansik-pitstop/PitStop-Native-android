@@ -480,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 } else if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()!=null) {
                     connectedCarIndicatorHandler.removeCallbacks(runnable);
                 } else {
-                    connectedCarIndicatorHandler.postDelayed(runnable,4000);
+                    connectedCarIndicatorHandler.postDelayed(runnable,2000);
                 }
 
             }
