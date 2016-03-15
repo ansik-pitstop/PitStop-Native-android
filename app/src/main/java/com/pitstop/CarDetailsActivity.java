@@ -98,6 +98,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 service.startBluetoothSearch();
             }
+            connectedCarStatusUpdate();
         }
 
         @Override
@@ -170,7 +171,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         View view = inflater.inflate(R.layout.unconnected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
 
         ((LinearLayout)findViewById(R.id.carStatus)).addView(view);*/
-        connectedCarStatusUpdate();
+
 
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         //--------------------------GET SERVICES + RECALLS + DTCS--------------------------
@@ -211,6 +212,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     }
 
     private void connectedCarStatusUpdate() {
+        if(service==null) {
+            Log.i("SERVICE", "service is null");
+        }
+
+
         if(service!=null && service.getCurrentCar()!=null) {
             Cars connectedCar = service.getCurrentCar();
             if(connectedCar.getValue("VIN").equals(VIN)) {
@@ -899,7 +905,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getBluetoothState(int state) {
-
+        connectedCarStatusUpdate();
     }
 
     @Override
