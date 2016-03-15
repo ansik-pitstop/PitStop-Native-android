@@ -918,7 +918,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(scannerID.equals(""+dataPackageInfo.deviceId)){
+        /*if(scannerID.equals(""+dataPackageInfo.deviceId)){
             ((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
             LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
                     (Context.LAYOUT_INFLATER_SERVICE);
@@ -927,7 +927,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             ((TextView)view.findViewById(R.id.model)).setText(model);
             ((TextView)view.findViewById(R.id.year)).setText(year);
             ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
-        }
+        }*/
     }
 
     @Override

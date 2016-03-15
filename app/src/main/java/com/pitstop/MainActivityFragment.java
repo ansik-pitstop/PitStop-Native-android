@@ -342,17 +342,17 @@ public class MainActivityFragment extends Fragment {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).put("scannerId",id);
+                    objects.get(0).put("scannerId", id);
                     objects.get(0).saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
                             finalNoDevice.setValue("scannerId", id);
                             LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-                            HashMap<String,String> map = new HashMap<String,String>();
-                            map.put("scannerId",id);
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("scannerId", id);
                             ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
-                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
-                            ((MainActivity)getActivity()).service.getDTCs();
+                            Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
+                            ((MainActivity) getActivity()).service.getDTCs();
                         }
                     });
                 }
@@ -371,8 +371,8 @@ public class MainActivityFragment extends Fragment {
         Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
         if(currentCar==null) {
             Cars car = (Cars)array.get(0);
-            if(deviceId.equals(car.getValue("scannerId"))) {
-                ((MainActivity)getActivity()).setCurrentConnectedCar(car);
+            if(deviceId == car.getValue("scannerId")) {
+                ((MainActivity)getActivity()).service.setCurrentCar(car);
             } else {
                 final Cars carToUpdate = car;
                 ParseQuery query = new ParseQuery("Car");
@@ -391,7 +391,7 @@ public class MainActivityFragment extends Fragment {
                                 ldr.updateData("Cars", "VIN", carToUpdate.getValue("VIN"), map);
                                 Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).service.getDTCs();
-                                ((MainActivity)getActivity()).setCurrentConnectedCar(carToUpdate);
+                                ((MainActivity)getActivity()).service.setCurrentCar(carToUpdate);
                             }
                         });
                     }
