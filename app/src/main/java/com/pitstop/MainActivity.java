@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public boolean isRefresh = true;
 
     private boolean isUpdatingMileage = false;
-    private boolean isAddCar = false;
     public static String  hasCarsInDashboard = "HAS_CARS";
     private String carId;
 
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch(isAddCar);
+                service.startBluetoothSearch();
             }
         }
 
@@ -178,6 +177,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             i.putStringArrayListExtra("dealerships",origDealers);
             startActivity(i);
             return true;
+        }
+
+        //TODO remove once BLE is implemented
+        if(id == R.id.refresh && service!=null) {
+            service.startBluetoothSearch();
         }
         if(id==R.id.refresh&&!isRefresh){
             try {
@@ -389,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 @Override
                 public void onClick(View view) {
 
-                    service.startBluetoothSearch(isAddCar);
+                    service.startBluetoothSearch();
 
                 }
             });
@@ -506,7 +510,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void getBluetoothState(int state) {
-
+        if(state==BluetoothManage.DISCONNECTED) {
+            Log.i(BluetoothAutoConnectService.R4_TAG,"Bluetooth disconnected");
+            //setUp();
+        }
     }
 
     @Override
@@ -536,6 +543,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
+        if(loginPackageInfo.flag.
+                equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+            Log.i(BluetoothAutoConnectService.R4_TAG,"Device logout");
+        }
     }
 }

@@ -82,7 +82,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     private String carId, VIN, scannerID,make, model,year,baseMileage, totalMileage, shopId;
 
     public static Intent serviceIntent;
-    private boolean isAddCar = false;
 
 
     private BluetoothAutoConnectService service;
@@ -97,7 +96,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             service.setCallbacks(CarDetailsActivity.this); // register
 
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch(isAddCar);
+                service.startBluetoothSearch();
             }
         }
 

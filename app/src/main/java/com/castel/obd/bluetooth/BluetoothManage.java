@@ -116,7 +116,7 @@ public class BluetoothManage {
 					LogUtil.i("Bluetooth state:DISCONNECTED");
 					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage");
 					Log.i(DTAG, "Bluetooth connection failed - BluetoothManage: Bool - Value: "+isMacAddress);
-					if (isMacAddress && isAddCar) {
+					if (isMacAddress) {
 						if (mBluetoothAdapter.isDiscovering()) {
 							mBluetoothAdapter.cancelDiscovery();
 						}
@@ -191,8 +191,9 @@ public class BluetoothManage {
 				LogUtil.i("Bluetooth state:CONNECTED");
 				dataListener.getBluetoothState(btConnectionState);*/
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-				Log.i(DTAG, "Connected to devce: " + device.getName());
+
 				if(device.getName()!=null && device.getName().contains(BT_NAME)) {
+					Log.i(DTAG, "Connected to devce: " + device.getName());
 					btConnectionState = CONNECTED;
 					LogUtil.i("Bluetooth state:CONNECTED");
 					dataListener.getBluetoothState(btConnectionState);
@@ -209,10 +210,17 @@ public class BluetoothManage {
 					dataListener.getBluetoothState(btConnectionState);
 				}
 			} else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) { // �������ӶϿ�
-				btConnectionState = DISCONNECTED;
-				Log.i(DTAG,"Disconnection from a remote device - BluetoothManage");
-				LogUtil.i("Bluetooth state:DISCONNECTED");
-				dataListener.getBluetoothState(btConnectionState);
+
+				Log.i(DTAG, "Disconnection from a remote device - BluetoothManage");
+
+				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+				if(device.getName()!= null && device.getName().contains(BT_NAME)) {
+					btConnectionState = DISCONNECTED;
+					LogUtil.i("Bluetooth state:DISCONNECTED");
+					dataListener.getBluetoothState(btConnectionState);
+				}
+
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
 				Log.i(DTAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothManage");
 				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_STARTED");
@@ -225,12 +233,12 @@ public class BluetoothManage {
 					Log.i(DTAG,"Not connected - setting get bluetooth state on dListeners");
 					dataListener.getBluetoothState(btConnectionState);
 				}
-			}/*else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
+			}else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
 				if(mBluetoothAdapter.isEnabled())
 					connectBluetooth();
 				Log.i(DTAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
 				dataListener.getBluetoothState(btConnectionState);
-			}*/
+			}
 		}
 	};
 
@@ -238,12 +246,7 @@ public class BluetoothManage {
 	 * ��OBD�豸����
 	 */
 	// Connect to OBD device
-	private boolean isAddCar = false;
-	public void connectBluetooth(boolean isAddCarActivity) {
-		isAddCar = isAddCarActivity;
-		if(!isAddCar && mBluetoothAdapter.isDiscovering()) {
-			mBluetoothAdapter.cancelDiscovery();
-		}
+	public void connectBluetooth() {
 
 		if (btConnectionState == CONNECTED) {
 			Log.i(DTAG,"Bluetooth is connected - BluetoothManage");
@@ -267,7 +270,7 @@ public class BluetoothManage {
 //		 macAddress = "8C:DE:52:71:F7:71";
 //		macAddress = "8C:DE:52:19:DB:86";
 //		macAddress = "8C:DE:52:22:C8:B5";
-		/*if (!"".equals(macAddress) && !isAddCar) {
+		if (!"".equals(macAddress)) {
 			isMacAddress = true;
 			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
 			BluetoothDevice device = mBluetoothAdapter
@@ -280,28 +283,7 @@ public class BluetoothManage {
 				mBluetoothAdapter.cancelDiscovery();
 			}
 			mBluetoothAdapter.startDiscovery();// ���������豸
-		}*/
-		if((!"".equals(macAddress) && isAddCar) || ("".equals(macAddress) && isAddCar)) {
-			Log.i(DTAG,"Starting discovery - BluetoothManage");
-			isMacAddress = true;
-			if (mBluetoothAdapter.isDiscovering()) {
-				mBluetoothAdapter.cancelDiscovery();
-			}
-			mBluetoothAdapter.startDiscovery();
-		} else if((!"".equals(macAddress) && !isAddCar)) {
-			isMacAddress = true;
-			Log.i(DTAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
-			BluetoothDevice device = mBluetoothAdapter
-					.getRemoteDevice(macAddress);
-			mBluetoothChat.connectBluetooth(device);
-		} else if("".equals(macAddress) && !isAddCar) {
-			btConnectionState = DISCONNECTED;
-			//dataListener.getBluetoothState(btConnectionState);
 		}
-	}
-
-	public void setIsAddCarActivityState(boolean isAddCarActivityState) {
-		this.isAddCar = isAddCarActivityState;
 	}
 
 	/**
