@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public boolean isRefresh = true;
 
     private boolean isUpdatingMileage = false;
-    private boolean isAddCar = false;
     public static String  hasCarsInDashboard = "HAS_CARS";
     private String carId;
 
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             service = binder.getService();
             service.setCallbacks(MainActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch(isAddCar);
+                service.startBluetoothSearch();
             }
         }
 
@@ -174,6 +173,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             i.putStringArrayListExtra("dealerships",origDealers);
             startActivity(i);
             return true;
+        }
+
+        //TODO remove once BLE is implemented
+        if(id == R.id.refresh && service!=null) {
+            service.startBluetoothSearch();
         }
         if(id==R.id.refresh&&!isRefresh){
             try {
@@ -276,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     /**
      * Reload screen without clearing database, using network when it exists!
      */
-    public void setUp(){
+    public void setUp() {
         findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
         array.clear();
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
@@ -386,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 @Override
                 public void onClick(View view) {
 
-                    service.startBluetoothSearch(isAddCar);
+                    service.startBluetoothSearch();
 
                 }
             });
@@ -479,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 } else if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()!=null) {
                     connectedCarIndicatorHandler.removeCallbacks(runnable);
                 } else {
-                    connectedCarIndicatorHandler.postDelayed(runnable,4000);
+                    connectedCarIndicatorHandler.postDelayed(runnable,2000);
                 }
 
             }
@@ -496,7 +500,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     public void getBluetoothState(int state) {
         if(state==BluetoothManage.DISCONNECTED) {
-            refreshDatabase();
+            Log.i(BluetoothAutoConnectService.R4_TAG,"Bluetooth disconnected");
+            //setUp();
         }
     }
 
@@ -527,7 +532,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
+        if(loginPackageInfo.flag.
+                equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+            Log.i(BluetoothAutoConnectService.R4_TAG,"Device logout");
+        }
     }
 
     public void getJson(View view) {
