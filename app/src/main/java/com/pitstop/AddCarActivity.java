@@ -63,7 +63,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -127,7 +126,6 @@ public class AddCarActivity extends AppCompatActivity implements
             service = binder.getService();
             bound = true;
             service.setCallbacks(AddCarActivity.this); // register
-            service.setIsAddCarState(true);
             Log.i("connecting", "onServiceConnection");
         }
 
@@ -256,7 +254,6 @@ public class AddCarActivity extends AppCompatActivity implements
         }
         mLogStore.stop();
         mixpanelAPI.flush();
-        service.setIsAddCarState(false);
         super.onPause();
     }
 
@@ -397,14 +394,14 @@ public class AddCarActivity extends AppCompatActivity implements
                 } else {
                     if (BluetoothAdapter.getDefaultAdapter() == null) {
                         hideLoading();
-                    vinSection.setVisibility(View.VISIBLE);
-                    Toast.makeText(this, "Device does not support bluetooth",
+                        vinSection.setVisibility(View.VISIBLE);
+                        Toast.makeText(this, "Device does not support bluetooth",
                             Toast.LENGTH_SHORT).show();
                     } else {
                         if (service.getState() != BluetoothManage.CONNECTED) {
                             showLoading();
                             loadingDetails.setText("Searching for Car");
-                            service.startBluetoothSearch(true);
+                            service.startBluetoothSearch();
 
                             startTime = System.currentTimeMillis();
                             //timerHandler.post(runnable);
@@ -565,8 +562,8 @@ public class AddCarActivity extends AppCompatActivity implements
     @Override
     public void getBluetoothState(int state) {
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
-            hideLoading();
-            service.startBluetoothSearch(true);
+            /*hideLoading();
+            service.startBluetoothSearch();*/
         }else{
             if(isGettingVin) {
                 loadingDetails.setText("Linking with Device, give it a few seconds");
@@ -583,7 +580,7 @@ public class AddCarActivity extends AppCompatActivity implements
         if((responsePackageInfo.type+responsePackageInfo.value)
                 .equals(BluetoothAutoConnectService.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
-            service.startBluetoothSearch(true);
+            service.startBluetoothSearch();
         }
     }
 

@@ -160,7 +160,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
 
     public void getDTC(View view) {
         if (service.getState() != BluetoothManage.CONNECTED) {
-            service.startBluetoothSearch(false);
+            service.startBluetoothSearch();
         }else {
             service.getDTCs();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -170,7 +170,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
         if (service.getState() != BluetoothManage.CONNECTED) {
-            service.startBluetoothSearch(false);
+            service.startBluetoothSearch();
         }else {
             service.getPIDs();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -180,7 +180,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     public void getFreeze(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
         if (service.getState() != BluetoothManage.CONNECTED) {
-            service.startBluetoothSearch(false);
+            service.startBluetoothSearch();
         }else {
             service.getFreeze();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
