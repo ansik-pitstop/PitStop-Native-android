@@ -352,8 +352,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                                     e.getMessage(),Toast.LENGTH_SHORT).show();*/
                             Log.i(R4_TAG,"Trip mil error: "+e.getMessage());
                         } else {
-                            Toast.makeText(getApplicationContext(),
-                                    "Saved trip mileage",Toast.LENGTH_SHORT).show();
+                            /*Toast.makeText(getApplicationContext(),
+                                    "Saved trip mileage",Toast.LENGTH_SHORT).show();*/
+                            Log.i(R4_TAG,"Saved trip mileage");
                         }
 
                     }
@@ -568,12 +569,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         tripMileage.put("tripId", Integer.parseInt(data.tripId));
         tripMileage.put("scannerId", data.deviceId);
-        tripMileage.put("mileage", data.tripMileage == "" ? 0 : Double.parseDouble(data.tripMileage));
+        tripMileage.put("mileage", data.tripMileage == "" ? 0 : Double.parseDouble(data.tripMileage)/1000);
         tripMileage.put("bluetoothConnection",
                 getState() == BluetoothManage.CONNECTED ? "connected" : "disconnected");
         tripMileage.put("rtcTime", data.rtcTime);
         tripMileage.put("tripFlag", data.tripFlag);
-        tripMileage.put("timestamp", System.currentTimeMillis() / 1000);
+        tripMileage.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
 
         tripData.put("dataNumber", data.dataNumber);
         tripMileage.put("tripData",tripData);
@@ -588,8 +589,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                                 e.getMessage(), Toast.LENGTH_SHORT).show();*/
                         Log.i(R4_TAG, "Error: " + e.getMessage());
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                "Saved trip mileage", Toast.LENGTH_SHORT).show();
+                        /*Toast.makeText(getApplicationContext(),
+                                "Saved trip mileage", Toast.LENGTH_SHORT).show();*/
+                        Log.i(R4_TAG,"Saved trip mileage");
                     }
 
                 }
@@ -621,7 +623,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void uploadRecords() {
         try {// mixpanel stuff
             if(ParseApplication.mixpanelAPI!=null){
-                ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Uploading Data'}"));
+                ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
+                        new JSONObject("{'Status':'Uploading Data'}"));
                 ParseApplication.mixpanelAPI.flush();
             }else{
                 ParseApplication.setUpMixPanel();
