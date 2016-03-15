@@ -25,6 +25,11 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
     public static final String ACTION_UPDATE_MILEAGE = "update_mileage";
 
     @Override
+    protected void onPushReceive(Context context, Intent intent) {
+        super.onPushReceive(context, intent);
+    }
+
+    @Override
     public void onPushOpen(Context context, Intent intent) {
         // if we don't open a specialized activity, delegate to "super" which will open the default
         // activity (i.e. MainActivity)
@@ -39,7 +44,8 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
                 String carId = data.getString(PARSE_DATA_CAR_ID);
                 try {
                     if(ParseApplication.mixpanelAPI!=null) {
-                        ParseApplication.mixpanelAPI.track("App Status", new JSONObject("{'Status':'App opened from Push Notif'}"));
+                        ParseApplication.mixpanelAPI.track("App Status",
+                                new JSONObject("{'Status':'App opened from Push Notif'}"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -59,5 +65,12 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         if (!openedActivity) {
             super.onPushOpen(context, intent);
         }
+
+
+    }
+
+    @Override
+    protected int getSmallIconId(Context context, Intent intent) {
+        return super.getSmallIconId(context, intent);
     }
 }

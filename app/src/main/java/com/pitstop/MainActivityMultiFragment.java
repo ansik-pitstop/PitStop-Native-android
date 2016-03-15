@@ -273,7 +273,7 @@ public class MainActivityMultiFragment extends Fragment {
     private void indicateCurrentCarDialog(final String deviceId) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
 
-        dialog.setTitle("Select the car you are currently seating in");
+        dialog.setTitle("Select the car you are currently sitting in");
         dialog.setCancelable(false);
 
         dialog.setSingleChoiceItems(listAdapter, 0, new DialogInterface.OnClickListener() {
