@@ -702,7 +702,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     /**
      * Send pid data to server on 100 data points received
-     * @see #processPIDData(DataPackageInfo) 
+     * @see #processPIDData(DataPackageInfo)
      * @param data
      */
     private void sendPidDataToServer(DataPackageInfo data) {
@@ -875,7 +875,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         object.put("DTCArray", new JSONObject(dtc));
                         object.put("runAfterSave",false);
                         object.put("freezeDataArray", new JSONObject(pid));
-                        object.put("PIDArray2", new JSONObject(freeze));
+                        //object.put("PIDArray2", new JSONObject(freeze));
                         object.put("scannerId", device);
                     } catch (JSONException e) {
                         e.printStackTrace();
