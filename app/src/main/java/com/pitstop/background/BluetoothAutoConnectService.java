@@ -113,24 +113,42 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         db = new LocalDatabaseHelper(getApplicationContext());
     }
 
+    /**
+     * @return The connection state of the obd device to the car.
+     * If device is sending data packages with result greater than
+     * 3, then device is connected
+     * @see #getIOData(DataPackageInfo)
+     */
     public boolean getDeviceConnState() {
         return deviceConnState;
     }
 
+    /**
+     * @return The device id of the currently connected obd device
+     * */
     public String getCurrentDeviceId() {
         return currentDeviceId;
     }
 
+    /**
+     * A reference to the car the obd device is connected to
+     * */
     public void setCurrentCar(Cars car) {
         currentCar = car;
     }
 
+    /**
+     * @return A reference to the current connected car
+     * */
     public Cars getCurrentCar() {
         return currentCar;
     }
 
     /**
-     * Gets the Car's VIN
+     * Gets the Car's VIN. Check if obd device is synced. If synced,
+     * send command to device to retrieve vin info.
+     * @see #getObdDeviceTime()
+     * @see #getParamaterData(ParameterPackageInfo)
      */
     public void getCarVIN() {
 
@@ -145,33 +163,57 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
+    /**
+     * Send command to obd device to retrieve vin from the currently
+     * connected car.
+     * @see #getParamaterData(ParameterPackageInfo) for info returned
+     * on the vin query.
+     * */
     private void getVinFromCar() {
         Log.i(DTAG, "Calling getCarVIN from Bluetooth auto-connect");
         BluetoothManage.getInstance(this).obdGetParameter(VIN_TAG);
     }
 
+    /**
+     * Send command to obd device to retrieve the current device time.
+     * @see #getParamaterData(ParameterPackageInfo) for device time returned
+     * by obd device.
+     */
     private void getObdDeviceTime() {
         Log.i(DTAG, "Getting device time");
         BluetoothManage.getInstance(this).obdGetParameter(RTC_TAG);
     }
 
+    /**
+     * Sync obd device time with current mobile device time.
+     * On successfully syncing device,  #setParameter() gets called
+     * @see #setParamaterResponse(ResponsePackageInfo)
+     * */
     private void syncObdDevice() {
         Log.i(DTAG,"Resetting RTC time - BluetoothManage");
-        Toast.makeText(this,"Resetting device time...",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"Resetting obd device time...",Toast.LENGTH_SHORT).show();
         long systemTime = System.currentTimeMillis();
         BluetoothManage.getInstance(this)
                 .obdSetParameter(RTC_TAG, String.valueOf(systemTime / 1000));
     }
 
+    /**
+     * Store info on already synced device to reduce calls
+     * to #getObdDeviceTime()
+     * @param deviceId
+     *          The device id of the currently connected obd device
+     */
     private void saveSyncedDevice(String deviceId) {
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(DEVICE_ID, deviceId);
         editor.apply();
-
     }
 
+    /**
+     * @return The device id of the most recently synced obd device
+     */
     private String getSavedSyncedDeviceId() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
@@ -347,12 +389,20 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                 e.printStackTrace();
             }
 
-            // Set device connection state for connected car indicator
+            /**
+             * Set device connection state for connected car indicator,
+             * once bluetooth connection is lost.
+             * @see MainActivity#connectedCarIndicator()
+             * */
 			deviceConnState = false;
             currentCar = null;
 
+            /**
+             * Save current trip data when bluetooth gets disconnected from device
+             * @see #processResultFourData(DataPackageInfo)
+             */
             if(tripMileage!=null) {
-                // Save current trip data when bluetooth gets disconnected from device
+
                 tripMileage.put("bluetoothConnection", "disconnected");
                 tripMileage.saveEventually(new SaveCallback() {
                     @Override
@@ -370,7 +420,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     }
                 });
 
-                // Once bluetooth gets disconnected clear trip mileage object
                 tripMileage = null;
             }
 
@@ -391,6 +440,12 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     }
 
+    /**
+     * @param responsePackageInfo
+     *          The response from device for a parameter that
+     *          was successfully set.
+     * If device time was set, save the id of the device.
+     * */
     @Override
     public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
         if((responsePackageInfo.type+responsePackageInfo.value)
@@ -408,6 +463,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     }
 
+    /**
+     * @param parameterPackageInfo
+     *          The response sent from device upon querying the
+     *          obd device for a specific tag or list of tags
+     * If response is for device time, check if returned value for
+     * is within 1 year. If device time is not within range then sync.
+     * @see #syncObdDevice()
+     * */
     @Override
     public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
         if(gettingPID){
@@ -442,6 +505,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * result=4 --> trip data uploaded by terminal
      * result=5 --> PID data uploaded by terminal
      * result=6 --> OBD monitor data uploaded from the terminal after the monitor command
+     *
+     * @see #processPIDData(DataPackageInfo)
+     * @see #processResultFourData(DataPackageInfo)
      */
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
