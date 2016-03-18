@@ -413,6 +413,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         return null;
     }
 
+    /**
+     * Update ui with car connection status
+     * @see BluetoothAutoConnectService#getDeviceConnState()
+     * */
     private void connectedCarIndicator() {
         if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
                 getSupportFragmentManager().getFragments().size()>0) {
@@ -470,6 +474,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
+    /**
+     * @see BluetoothAutoConnectService#getCurrentCar()
+     * @see BluetoothAutoConnectService#getDeviceConnState()
+     * */
     Handler connectedCarIndicatorHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
