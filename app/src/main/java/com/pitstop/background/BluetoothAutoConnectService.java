@@ -901,6 +901,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
 
+    //Todo: Refactor
     private class UploadInfoOnline extends AsyncTask<String,Void,Void> {
 
         @Override
