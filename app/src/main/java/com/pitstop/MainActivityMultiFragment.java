@@ -346,6 +346,10 @@ public class MainActivityMultiFragment extends Fragment {
     }
 
     String tag = "ConnectedCar";
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     */
     public void linkDevice(final String deviceId) {
         Log.i(tag,"Linking device");
         int noIdCount = 0;

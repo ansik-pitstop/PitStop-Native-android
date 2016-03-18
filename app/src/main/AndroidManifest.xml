@@ -62,9 +62,9 @@
             </intent-filter>
         </receiver>
 
-        <meta-data
+        <!--<meta-data
             android:name="com.parse.push.notification_icon"
-            android:resource="@drawable/common_plus_signin_btn_icon_dark_disabled" />
+            android:resource="@drawable/common_plus_signin_btn_icon_dark_disabled" />-->
 
         <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
