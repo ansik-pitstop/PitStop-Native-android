@@ -234,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
                 String objectID = settings.getString(pfCodeForObjectID, "NA");
                 ldr.deleteData("Cars", "owner", objectID);
+                ldr.deleteData("Shops");
             }else{
                 Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"No internet connection to update.",Snackbar.LENGTH_SHORT);
                 snackbar.show();

@@ -2,8 +2,6 @@ package com.pitstop;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,15 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.pitstop.R;
 import com.pitstop.utils.InternetChecker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,6 +59,10 @@ public class SelectDealershipActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.refresh) {
             setup();
+        }
+        if(item.getItemId() == R.id.action_settings) {
+            Intent intent = new Intent(SelectDealershipActivity.this,SettingsActivity.class);
+            startActivity(intent);
         }
         return true;
     }

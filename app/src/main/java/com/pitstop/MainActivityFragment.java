@@ -164,6 +164,14 @@ public class MainActivityFragment extends Fragment {
                 }
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                final HashMap<String, Object> customProperties = new HashMap<>();
+                customProperties.put("VIN", array.get(0).getValue("VIN"));
+                customProperties.put("Car Make",  array.get(0).getValue("make"));
+                customProperties.put("Car Model", array.get(0).getValue("model"));
+                customProperties.put("Car Year", array.get(0).getValue("year"));
+                customProperties.put("Phone", ParseUser.getCurrentUser().get("phoneNumber"));
+                customProperties.put("Email",garageEmailAddress);
+                User.getCurrentUser().addProperties(customProperties);
                 User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                 ConversationActivity.show(getContext());
             }
