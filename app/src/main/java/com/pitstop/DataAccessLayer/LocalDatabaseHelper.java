@@ -34,9 +34,24 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_PID_DATA_TIMESTAMP = "timestamp";
     private static final String KEY_PID_DATA_PIDS = "pids";
 
+    // CAR TABLE - column names
+    private static final String KEY_CAR_VIN = "vin";
+    private static final String KEY_CAR_DEALERSHIP_ID = "shopId";
+    private static final String KEY_CAR_MILEAGE = "mileage";
+
+
     // Table Create Statements
     // PID_DATA table create statement
     private static final String CREATE_TABLE_PID_DATA = "CREATE TABLE "
+            + TABLE_PID_DATA + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_PID_DATA_DATANUM + " TEXT,"
+            + KEY_PID_DATA_TIMESTAMP + " TEXT,"
+            + KEY_PID_DATA_RTCTIME + " TEXT,"
+            + KEY_PID_DATA_PIDS + " TEXT,"
+            + KEY_CREATED_AT + " DATETIME" + ")";
+
+    // CAR table create statement
+    private static final String CREATE_TABLE_CAR = "CREATE TABLE "
             + TABLE_PID_DATA + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_PID_DATA_DATANUM + " TEXT,"
             + KEY_PID_DATA_TIMESTAMP + " TEXT,"

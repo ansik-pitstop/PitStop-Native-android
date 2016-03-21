@@ -1,9 +1,9 @@
-package com.pitstop.DataAccessLayer.Models;
+package com.pitstop.DataAccessLayer.DTOs;
 
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by psola on 3/14/2016.
+ * Created by Paul Soladoye on 3/14/2016.
  */
 public class Dealership {
     private long id;
@@ -11,6 +11,8 @@ public class Dealership {
     private String address;
     private String phone;
     private String email;
+    private double latitude;
+    private double longitude;
 
     public Dealership(){}
 
