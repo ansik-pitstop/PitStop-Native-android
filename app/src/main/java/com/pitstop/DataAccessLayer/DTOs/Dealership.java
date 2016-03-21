@@ -6,7 +6,9 @@ import com.google.gson.annotations.SerializedName;
  * Created by Paul Soladoye on 3/14/2016.
  */
 public class Dealership {
+
     private long id;
+    private long dealershipId;
     private String name;
     private String address;
     private String phone;
@@ -18,6 +20,10 @@ public class Dealership {
 
     public long getId() {
         return id;
+    }
+
+    public long getDealershipId() {
+        return dealershipId;
     }
 
     public String getName() {
@@ -34,5 +40,13 @@ public class Dealership {
 
     public String getEmail() {
         return email;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 }

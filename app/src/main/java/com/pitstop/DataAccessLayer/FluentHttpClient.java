@@ -58,6 +58,9 @@ public class FluentHttpClient {
         HttpClientAsyncTask getAsync = new HttpClientAsyncTask();
         getAsync.setListener(listener);
         getAsync.execute(resource, "GET");
+
+        // resource
+        bundle.put("resource",null);
     }
 
     public void postAsync() {

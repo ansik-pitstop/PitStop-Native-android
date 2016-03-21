@@ -23,6 +23,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     // Table Names
     private static final String TABLE_PID_DATA = "pidData";
+    private static final String TABLE_CAR = "car";
+    private static final String TABLE_DEALERSHIP = "dealership";
+    private static final String TABLE_DTC = "dtc";
+    private static final String TABLE_RECALL = "recall";
+    private static final String TABLE_SERVICE = "service";
 
     // Common column names
     private static final String KEY_ID = "id";
@@ -38,6 +43,46 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_CAR_VIN = "vin";
     private static final String KEY_CAR_DEALERSHIP_ID = "shopId";
     private static final String KEY_CAR_MILEAGE = "mileage";
+    private static final String KEY_CAR_SCANNER_ID = "scannerId";
+    private static final String KEY_CAR_MAKE = "make";
+    private static final String KEY_CAR_MODEL = "model";
+    private static final String KEY_CAR_YEAR = "year";
+    private static final String KEY_CAR_DEALERSHIP = "dealership";
+
+
+    // DEALERSHIP TABLE - column names
+    private static final String KEY_DEALERSHIP_ID = "dealershipId";
+    private static final String KEY_DEALERSHIP_NAME = "name";
+    private static final String KEY_DEALERSHIP_ADDRESS = "address";
+    private static final String KEY_DEALERSHIP_PHONE = "phone";
+    private static final String KEY_DEALERSHIP_EMAIL = "email";
+
+    // DTC TABLE - column names
+    private static final String KEY_DTC_CODE = "dtcCode";
+    private static final String KEY_DTC_DESCRIPTION = "codeDescription";
+
+    // RECALL TABLE - column names
+    private static final String KEY_RECALL_ID = "recallId";
+    private static final String KEY_RECALL_NAME = "name";
+    private static final String KEY_RECALL_DESCRIPTION = "description";
+    private static final String KEY_RECALL_REMEDY = "remedy";
+    private static final String KEY_RECALL_RISK = "risk";
+    private static final String KEY_RECALL_EFFECTIVE_DATE = "effectiveDate";
+    private static final String KEY_RECALL_OEM_ID = "oemId";
+    private static final String KEY_RECALL_REIMBURSEMENT = "reimbursement";
+    private static final String KEY_RECALL_STATE = "state";
+    private static final String KEY_RECALL_RISK_RANK = "riskRank";
+
+    // SERVICE TABLE - column names
+    private static final String KEY_SERVICE_TYPE = "serviceType";
+    private static final String KEY_SERVICE_DESCRIPTION = "description";
+    private static final String KEY_SERVICE_ITEM = "item";
+    private static final String KEY_SERVICE_ACTION = "action";
+    private static final String KEY_SERVICE_INTERVAL_MONTH = "intervalMonth";
+    private static final String KEY_SERVICE_INTERVAL_MILEAGE = "intervalMileage";
+    private static final String KEY_SERVICE_INTERVAL_FIXED = "intervalFixed";
+    private static final String KEY_SERVICE_PRIORITY = "priority";
+    private static final String KEY_SERVICE_DEALERSHIP = "dealership";
 
 
     // Table Create Statements
@@ -52,11 +97,51 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     // CAR table create statement
     private static final String CREATE_TABLE_CAR = "CREATE TABLE "
-            + TABLE_PID_DATA + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
-            + KEY_PID_DATA_DATANUM + " TEXT,"
-            + KEY_PID_DATA_TIMESTAMP + " TEXT,"
-            + KEY_PID_DATA_RTCTIME + " TEXT,"
-            + KEY_PID_DATA_PIDS + " TEXT,"
+            + TABLE_CAR + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_CAR_VIN + " TEXT, "
+            + KEY_CAR_MILEAGE + " TEXT, "
+            + KEY_CAR_DEALERSHIP_ID + " TEXT, "
+            + KEY_PID_DATA_PIDS + " TEXT, "
+            + KEY_CREATED_AT + " DATETIME" + ")";
+
+    //DEALERSHIP table create statement
+    private static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE "
+            + TABLE_DEALERSHIP + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_DEALERSHIP_ID + " INTEGER, "
+            + KEY_DEALERSHIP_NAME + " TEXT, "
+            + KEY_DEALERSHIP_ADDRESS + " TEXT, "
+            + KEY_DEALERSHIP_PHONE + " TEXT, "
+            + KEY_DEALERSHIP_EMAIL + " TEXT, "
+            + KEY_CREATED_AT + " DATETIME" + ")";
+
+    //DTC table create statement
+    private static final String CREATE_TABLE_DTC = "CREATE TABLE "
+            + TABLE_DTC + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_DTC_CODE + " TEXT, "
+            + KEY_DTC_DESCRIPTION + " TEXT, "
+            + KEY_CREATED_AT + " DATETIME" + ")";
+
+    //RECALL table create statement
+    private static final String CREATE_TABLE_RECALL = "CREATE TABLE "
+            + TABLE_RECALL + "(" + KEY_ID + "INTEGER PRIMARY KEY,"
+            + KEY_RECALL_ID + " INTEGER, "
+            + KEY_RECALL_NAME + " TEXT, "
+            + KEY_RECALL_DESCRIPTION + " TEXT, "
+            + KEY_RECALL_REMEDY + " TEXT, "
+            + KEY_RECALL_RISK + " TEXT, "
+            + KEY_RECALL_EFFECTIVE_DATE + " TEXT, "
+            + KEY_RECALL_OEM_ID + " TEXT, "
+            + KEY_RECALL_REIMBURSEMENT + " TEXT, "
+            + KEY_RECALL_STATE + " TEXT, "
+            + KEY_RECALL_RISK_RANK + "INTEGER"
+            + KEY_CREATED_AT + " DATETIME" + ")";
+
+    //SERVICE table create statement
+    private static final String CREATE_TABLE_SERVICE = "CREATE TABLE "
+            + TABLE_SERVICE + "(" + KEY_ID + " INTEGER PRIMARY KEY, "
+            + KEY_SERVICE_TYPE + " TEXT, "
+            + KEY_SERVICE_DEALERSHIP + " TEXT, "
+            + KEY_SERVICE_ITEM + " TEXT, "
             + KEY_CREATED_AT + " DATETIME" + ")";
 
     public LocalDatabaseHelper(Context context) {
@@ -67,12 +152,22 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // creating required tables
         db.execSQL(CREATE_TABLE_PID_DATA);
+        db.execSQL(CREATE_TABLE_CAR);
+        db.execSQL(CREATE_TABLE_DEALERSHIP);
+        db.execSQL(CREATE_TABLE_DTC);
+        db.execSQL(CREATE_TABLE_RECALL);
+        db.execSQL(CREATE_TABLE_SERVICE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // on upgrade drop older tables
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PID_DATA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAR);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEALERSHIP);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DTC);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECALL);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE);
 
         // create new tables
         onCreate(db);

@@ -33,8 +33,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.FluentHttpClient;
-import com.pitstop.DataAccessLayer.Models.Car;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
@@ -241,9 +241,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),"No internet connection to update.",Snackbar.LENGTH_SHORT);
                 snackbar.show();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         setUp();
@@ -553,14 +551,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     @Override
                     public void onSuccess(JSONObject obj) {
                         Log.i("MainActivity", obj.toString());
-                        Car car = new Gson().fromJson(obj.toString(),Car.class);
-                        Log.i("API ", "Make: "+car.getMake());
+
+                        Car car  = Car.jsonToCarObject(obj);
+                        Log.i("Car make: ",car.getMake() + "Model: "+car.getModel());
                     }
 
                     @Override
                     public void onError(Object error) {
 
                     }
-                }).get();
+                }).getAsync();
     }
 }

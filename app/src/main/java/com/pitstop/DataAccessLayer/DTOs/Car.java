@@ -1,6 +1,12 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.util.Log;
+
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.SerializedName;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,7 +33,7 @@ public class Car implements Serializable {
     private String ownerId;
 
     @SerializedName("shop")
-    private String dealerShip;
+    private Dealership dealerShip;
     private boolean serviceDue;
 
     private List<String> scanner;
@@ -139,11 +145,11 @@ public class Car implements Serializable {
         this.ownerId = ownerId;
     }
 
-    public String getDealerShip() {
+    public Dealership getDealerShip() {
         return dealerShip;
     }
 
-    public void setDealerShip(String dealerShip) {
+    public void setDealerShip(Dealership dealerShip) {
         this.dealerShip = dealerShip;
     }
 
@@ -161,5 +167,29 @@ public class Car implements Serializable {
 
     public void setIssues(List<CarIssue> issues) {
         this.issues = issues;
+    }
+
+    public static Car jsonToCarObject(JSONObject jsonObject) {
+        Car car  = new Car();
+        String json;
+        try {
+            json = jsonObject.getString("data");
+            car = JsonUtil.json2object(json,Car.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return car;
+    }
+
+    public String objectToJson() {
+        String json = null;
+
+        try {
+            json = JsonUtil.object2Json(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  json;
     }
 }
