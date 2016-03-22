@@ -452,7 +452,7 @@ public class MainActivityMultiFragment extends Fragment {
             });
 
             if(shop!=null) {
-				setOnclickListenersForViews(shop,convertview);
+				setOnclickListenersForViews(shop,convertview,car);
 			}
 
             // Set connectedCar indicator
@@ -466,7 +466,7 @@ public class MainActivityMultiFragment extends Fragment {
             return convertview;
         }
 
-        private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
+        private void setOnclickListenersForViews(final DBModel shop, LinearLayout convertView, final Cars car) {
 
             final String garagePhoneNumber = shop.getValue("phoneNumber");
             final String garageAddress = shop.getValue("address");
@@ -494,8 +494,16 @@ public class MainActivityMultiFragment extends Fragment {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                    final HashMap<String, Object> customProperties = new HashMap<>();
+                    customProperties.put("VIN", car.getValue("VIN"));
+                    customProperties.put("Car Make",  car.getValue("make"));
+                    customProperties.put("Car Model", car.getValue("model"));
+                    customProperties.put("Car Year", car.getValue("year"));
+                    customProperties.put("Phone", ParseUser.getCurrentUser().get("phoneNumber"));
+                    customProperties.put("Email",shop.getValue("email"));
+                    User.getCurrentUser().addProperties(customProperties);
                     User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                     ConversationActivity.show(getContext());
                 }
             });                
