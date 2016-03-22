@@ -52,7 +52,7 @@ public class BluetoothChat {
 			mmDevice = device;
 			
 			try {
-				temp = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);//createRfcommSocketToServiceRecord(MY_UUID);
+				temp = mmDevice.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

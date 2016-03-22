@@ -520,7 +520,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public void getBluetoothState(int state) {
         if(state==BluetoothManage.DISCONNECTED) {
             Log.i(BluetoothAutoConnectService.R4_TAG,"Bluetooth disconnected");
-            //setUp();
         }
     }
 

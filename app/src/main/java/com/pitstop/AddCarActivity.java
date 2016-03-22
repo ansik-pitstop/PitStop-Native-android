@@ -191,7 +191,8 @@ public class AddCarActivity extends AppCompatActivity implements
         mixpanelAPI = ParseApplication.mixpanelAPI;
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'AddCarAcivity'}"));
+            ParseApplication.mixpanelAPI.track("View Appeared",
+                    new JSONObject("{'View':'AddCarAcivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -564,6 +565,10 @@ public class AddCarActivity extends AppCompatActivity implements
         if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS){
             /*hideLoading();
             service.startBluetoothSearch();*/
+            if(isLoading) {
+                hideLoading();
+            }
+            Log.i("Bluetooth","bluetooth not connected");
         }else{
             if(isGettingVin) {
                 loadingDetails.setText("Linking with Device, give it a few seconds");
