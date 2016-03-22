@@ -396,6 +396,8 @@ public class MainActivityFragment extends Fragment {
                         });
                     }
                 });
+
+                //Add connected car prompt
             }
         }
 
