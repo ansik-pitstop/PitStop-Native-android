@@ -346,6 +346,10 @@ public class MainActivityMultiFragment extends Fragment {
     }
 
     String tag = "ConnectedCar";
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     */
     public void linkDevice(final String deviceId) {
         Log.i(tag,"Linking device");
         int noIdCount = 0;
@@ -373,6 +377,10 @@ public class MainActivityMultiFragment extends Fragment {
             }
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
+
+            /**
+             * If device is associated with more than one car in the dashboard or
+             * */
 
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
                     noIdCount==array.size()) {

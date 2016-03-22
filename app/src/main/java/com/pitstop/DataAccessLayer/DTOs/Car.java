@@ -1,4 +1,4 @@
-package com.pitstop.database.DTOs;
+package com.pitstop.DataAccessLayer.DTOs;
 
 import java.io.Serializable;
 

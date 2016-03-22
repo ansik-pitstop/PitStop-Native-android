@@ -47,6 +47,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private TextView message;
 
     private boolean hadInternetConnection = false;
+    private List<ParseObject> cars = new ArrayList<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,15 +82,49 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        String userId = null;
+
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
-            startActivity(new Intent(this,MainActivity.class));
-        } else {
-            if(hadInternetConnection) {
-                Toast.makeText(SelectDealershipActivity.this,"Please select dealership",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                setup();
+            startActivity(new Intent(this, MainActivity.class));
+
+        } else if(ParseUser.getCurrentUser() != null) {
+
+            userId = ParseUser.getCurrentUser().getObjectId();
+
+            try {
+                if(new InternetChecker(this).execute().get()) {
+                    //hadInternetConnection = true;
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                    query.whereContains("owner", userId);
+                    progressBar.setVisibility(View.VISIBLE);
+                    query.findInBackground(new FindCallback<ParseObject>() {
+
+
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            progressBar.setVisibility(View.GONE);
+                            if(e == null) {
+                                if (!objects.isEmpty()) {
+                                    startActivity(new Intent(SelectDealershipActivity.this,
+                                            MainActivity.class));
+                                } else {
+                                    if(hadInternetConnection) {
+                                        Toast.makeText(SelectDealershipActivity.this,
+                                                "Please select dealership",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        setup();
+                                    }
+                                }
+                            } else {
+                                Log.i("ParseError",e.getMessage());
+                            }
+                        }
+                    });
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
     }
