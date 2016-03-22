@@ -98,7 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Details"
-                android:id="@+id/button5"
+                android:id="@+id/car_connected_ind_button"
                 android:layout_gravity="center_horizontal"
                 android:layout_alignWithParentIfMissing="false"
                 android:background="@drawable/color_button_primary_car"

@@ -19,6 +19,7 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -49,7 +50,6 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    private ParseApplication baseApplication;
 
     public static final String TAG = MainActivityFragment.class.getSimpleName();
     private static String currentGarage = "";
@@ -98,7 +98,7 @@ public class MainActivityFragment extends Fragment {
                 e.printStackTrace();
             }
             new ShowcaseView.Builder(getActivity())
-                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.button5)))
+                    .setTarget(new ViewTarget(getActivity().findViewById(R.id.car_connected_ind_button)))
                     .setContentTitle("View Your Car Information")
                     .setContentText("Click this button to see more detailed view of your car")
                     .setShowcaseEventListener(new SimpleShowcaseEventListener() {
@@ -138,7 +138,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public void setTextViews() {
+    private void setTextViews() {
         callGarageTextView = (TextView) getActivity().findViewById(R.id.call_garage);
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,7 +185,7 @@ public class MainActivityFragment extends Fragment {
     }
 
 
-    public void getGarage() {
+    private void getGarage() {
         final LocalDataRetriever ldr = new LocalDataRetriever(getContext());
         String shopId = array.get(0).getValue("dealership");
         Shops currShop = (Shops)ldr.getData("Shops", "ShopID", shopId);
@@ -216,7 +216,7 @@ public class MainActivityFragment extends Fragment {
                             shop.setValue("address", garageAddress);
                             shop.setValue("phoneNumber", garagePhoneNumber);
                             shop.setValue("email", garageEmailAddress);
-                            ldr.saveData("Shops",shop.getValues());
+                            ldr.saveData("Shops", shop.getValues());
                         }
                     } else {
                         Log.d("ERROR:", "" + e.getMessage());
@@ -232,7 +232,7 @@ public class MainActivityFragment extends Fragment {
     /**
      * Big setup for getting the display ready
      */
-    public void setUp(){
+    private void setUp(){
         setTextViews();
         getGarage();
         final DBModel car = array.get(0);
@@ -254,7 +254,7 @@ public class MainActivityFragment extends Fragment {
             (getActivity().findViewById(R.id.serviceCountBackgroundSingleCar)).setBackgroundColor(Color.rgb(93, 172, 129));
         }
 
-        getActivity().findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+        getActivity().findViewById(R.id.car_connected_ind_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -331,7 +331,7 @@ public class MainActivityFragment extends Fragment {
             }
             if(a.getValue("scannerId").equals(id)){
                 found = true;
-                getActivity().findViewById(R.id.button5).setBackgroundResource(R.drawable.color_button_car_connected);
+                getActivity().findViewById(R.id.car_connected_ind_button).setBackgroundResource(R.drawable.color_button_car_connected);
             }
         }
         // add device if a car has no linked device
@@ -342,21 +342,66 @@ public class MainActivityFragment extends Fragment {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    objects.get(0).put("scannerId",id);
+                    objects.get(0).put("scannerId", id);
                     objects.get(0).saveEventually(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
                             finalNoDevice.setValue("scannerId", id);
                             LocalDataRetriever ldr = new LocalDataRetriever(getContext());
-                            HashMap<String,String> map = new HashMap<String,String>();
-                            map.put("scannerId",id);
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("scannerId", id);
                             ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
-                            Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
-                            ((MainActivity)getActivity()).service.getDTCs();
+                            Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
+                            ((MainActivity) getActivity()).service.getDTCs();
                         }
                     });
                 }
             });
         }
+    }
+
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     *
+     * */
+    public void linkDevice(final String deviceId) {
+        String tag = "ConnectedCar";
+
+        Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
+        if(currentCar==null) {
+            Cars car = (Cars)array.get(0);
+            if(deviceId == car.getValue("scannerId")) {
+                ((MainActivity)getActivity()).service.setCurrentCar(car);
+            } else {
+                final Cars carToUpdate = car;
+                ParseQuery query = new ParseQuery("Car");
+                query.whereEqualTo("VIN",car.getValue("VIN"));
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        objects.get(0).put("scannerId",deviceId);
+                        objects.get(0).saveEventually(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                carToUpdate.setValue("scannerId",deviceId);
+                                LocalDataRetriever ldr = new LocalDataRetriever(getContext());
+                                HashMap<String,String> map = new HashMap<String,String>();
+                                map.put("scannerId",deviceId);
+                                ldr.updateData("Cars", "VIN", carToUpdate.getValue("VIN"), map);
+                                Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
+                                ((MainActivity)getActivity()).service.getDTCs();
+                                ((MainActivity)getActivity()).service.setCurrentCar(carToUpdate);
+                            }
+                        });
+                    }
+                });
+
+                //Add connected car prompt
+            }
+        }
+
+        getActivity().findViewById(R.id.car_connected_ind_button)
+                .setBackgroundResource(R.drawable.color_button_car_connected);
     }
 }
