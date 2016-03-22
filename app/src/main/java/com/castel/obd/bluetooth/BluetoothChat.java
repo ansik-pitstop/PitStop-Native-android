@@ -52,7 +52,7 @@ public class BluetoothChat {
 			mmDevice = device;
 			
 			try {
-				temp = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);//createRfcommSocketToServiceRecord(MY_UUID);
+				temp = mmDevice.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -67,16 +67,19 @@ public class BluetoothChat {
 
 			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
 			try {
-				mmSocket.connect();
+				if(mmSocket!=null) {
+					mmSocket.connect();
 
-				LogUtil.i("蓝牙连接成功");
+					LogUtil.i("蓝牙连接成功");
 
-				mHandler.sendMessage(mHandler.obtainMessage(
-						BluetoothManage.BLUETOOTH_CONNECT_SUCCESS,
-						mmDevice.getAddress()));
+					mHandler.sendMessage(mHandler.obtainMessage(
+							BluetoothManage.BLUETOOTH_CONNECT_SUCCESS,
+							mmDevice.getAddress()));
 
-				connectedThread = new ConnectedThread(mmSocket);
-				connectedThread.start();
+					connectedThread = new ConnectedThread(mmSocket);
+					connectedThread.start();
+				}
+
 			} catch (IOException connectException) {
 				connectException.printStackTrace();
 				try {
