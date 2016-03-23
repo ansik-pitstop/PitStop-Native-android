@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,7 +21,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
@@ -52,7 +55,8 @@ import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
 
-public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener,
+        IssuesFragment.OnFragmentInteractionListener{
     public static Intent serviceIntent;
 
 
@@ -76,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private String carId;
 
     private RelativeLayout loadingScreen;
+
+    private TextView carName, carYear, carMileage;
+    private Button carDetailsBtn;
 
     public BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
@@ -126,7 +133,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
-        loadingScreen = (RelativeLayout) findViewById(R.id.loading_section);
+
+        //setup toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+
+        setUpUIReferences(savedInstanceState);
 
         // check the intent action
         if (ACTION_UPDATE_MILEAGE.equals(getIntent().getStringExtra(EXTRA_ACTION))) {
@@ -140,13 +154,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
 
         array = new ArrayList<>();
-        refreshDatabase();
+        //refreshDatabase();
 
-        //setup toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
-        toolbar.setTitleTextColor(Color.WHITE);
-        setSupportActionBar(toolbar);
+
     }
 
     @Override
@@ -225,6 +235,34 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onDestroy() {
         connectedCarIndicatorHandler.removeCallbacks(runnable);
         super.onDestroy();
+    }
+
+    private void setUpUIReferences(Bundle savedInstanceState) {
+        carName = (TextView) findViewById(R.id.car_name);
+        carYear = (TextView) findViewById(R.id.car_year);
+        carMileage = (TextView) findViewById(R.id.car_mileage_value);
+
+        carDetailsBtn = (Button) findViewById(R.id.car_connected_ind_button);
+        carDetailsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        if(findViewById(R.id.fragment_container) != null) {
+            // If we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            IssuesFragment issuesFragment = new IssuesFragment();
+            issuesFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container,issuesFragment).commit();
+        }
     }
 
     /**
@@ -554,5 +592,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
             Log.i(BluetoothAutoConnectService.R4_TAG,"Device logout");
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

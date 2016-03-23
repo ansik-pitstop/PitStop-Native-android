@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,8 @@ public class SplashScreen extends AppCompatActivity {
     boolean signup  = false;
     boolean backPressed = false;
 
+    private ProgressDialog progressDialog;
+
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -61,6 +64,9 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         String email = settings.getString(pfCodeForID, "NA");
@@ -71,10 +77,27 @@ public class SplashScreen extends AppCompatActivity {
         }
         else {
             ParseApplication.setUpMixPanel();
-            Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+            //Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
+
+            progressDialog.setMessage("Loggin in...");
+            progressDialog.show();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1500);
+                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        progressDialog.dismiss();
+                        startActivity(intent);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
             Log.i(TAG, currentUser.getUsername());
         }
 
@@ -233,7 +256,8 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void login(View view) {
-        showLoading();
+        //showLoading();
+        progressDialog.setMessage("Logging in...");
         String username = ((TextView) findViewById(R.id.email)).getText().toString();
         String password = ((TextView) findViewById(R.id.password)).getText().toString();
 
@@ -244,6 +268,7 @@ public class SplashScreen extends AppCompatActivity {
                 if (e == null) {
                     Toast.makeText(SplashScreen.this, "Congrats, you have logged in!",
                             Toast.LENGTH_SHORT).show();
+                    progressDialog.setMessage("Congrats, you have logged in!");
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
                     SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
@@ -262,18 +287,22 @@ public class SplashScreen extends AppCompatActivity {
                     installation.saveInBackground();
                     ParseApplication.setUpMixPanel();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    progressDialog.dismiss();
                     startActivity(intent);
 
 
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
                     } catch (JSONException e2) {
                         e2.printStackTrace();
                     }
                 } else {
+                    progressDialog.dismiss();
                     Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                hideLoading();
+                //hideLoading();
 
             }
         });
