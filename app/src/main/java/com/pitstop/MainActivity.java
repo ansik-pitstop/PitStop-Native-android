@@ -1,62 +1,77 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
+import com.pitstop.database.models.DTCs;
+import com.pitstop.database.models.Recalls;
+import com.pitstop.database.models.Services;
 import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
-import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
-import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_CAR_ID;
-
-public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener,
-        IssuesFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
     public static Intent serviceIntent;
 
 
@@ -79,10 +94,25 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static String  hasCarsInDashboard = "HAS_CARS";
     private String carId;
 
-    private RelativeLayout loadingScreen;
+    private RecyclerView recyclerView;
+    private CustomAdapter carIssuesAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
-    private TextView carName, carYear, carMileage;
-    private Button carDetailsBtn;
+    private RelativeLayout loadingScreen;
+    private RelativeLayout serviceCountBackground;
+    private TextView serviceCountText;
+    private ProgressDialog progressDialog;
+
+    private TextView carName, carYear, carEngine;
+    private Button carScanButton;
+
+    private List<ParseObject> cars = new ArrayList<>();
+    private Car dashboardCar;
+    private ArrayList<CarIssue> carIssueList = new ArrayList<>();
+
+    private static String TAG = "MainActivity --> ";
+    public static String CAR_EXTRA = "car";
+    public static String CAR_ISSUE_EXTRA = "car_issue";
 
     public BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
@@ -108,25 +138,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     };
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        if(refresh){
-            refresh = false;
-            refreshDatabase();
-        }
-        if(refreshLocal){
-            refreshLocal = false;
-            setUp();
-        }
-
-        if(!refresh && !refreshLocal) {
-            connectedCarIndicatorHandler.postDelayed(runnable, 1000);
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mixpanelAPI = ParseApplication.mixpanelAPI;
@@ -134,29 +145,16 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
 
+        Log.i(TAG, "On create..");
+
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
 
-        setUpUIReferences(savedInstanceState);
-
-        // check the intent action
-        if (ACTION_UPDATE_MILEAGE.equals(getIntent().getStringExtra(EXTRA_ACTION))) {
-            isUpdatingMileage = true;
-            carId = getIntent().getStringExtra(EXTRA_CAR_ID);
-
-            // clear the action once we've recorded it
-            getIntent().putExtra(EXTRA_ACTION, (String)null);
-            getIntent().putExtra(EXTRA_CAR_ID, (String)null);
-        }
-
-
-        array = new ArrayList<>();
-        //refreshDatabase();
-
-
+        setUpUIReferences();
+        getCarDetails();
     }
 
     @Override
@@ -168,64 +166,34 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            ArrayList<String> ids = new ArrayList<>(),cars = new ArrayList<>(),origDealers = new ArrayList<>();
-            for (DBModel car : array){
-                cars.add(car.getValue("make") + " " + car.getValue("model"));
-                ids.add(car.getValue("CarID"));
-                origDealers.add(car.getValue("dealership"));
-            }
-            i.putStringArrayListExtra("cars", cars);
-            i.putStringArrayListExtra("ids",ids);
-            i.putStringArrayListExtra("dealerships",origDealers);
-            startActivity(i);
+        if(id == R.id.refresh_main) {
+            refreshUi();
             return true;
         }
-
-        //TODO remove once BLE is implemented
-        if(id == R.id.refresh && service!=null) {
-            service.startBluetoothSearch();
-        }
-        if(id==R.id.refresh&&!isRefresh){
-            try {
-                ParseApplication.mixpanelAPI.track("Button Clicked",
-                        new JSONObject("{'Button':'Refresh from Server','View':'MainActivity'}"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            refreshDatabase();
-        }
-        if(id==R.id.add&&!isRefresh){
-            try {
-                ParseApplication.mixpanelAPI.track("Button Clicked",
-                        new JSONObject("{'Button':'Add Car','View':'MainActivity'}"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            addCar(null);
-        }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.i(TAG, "Running on resume");
+        if(dashboardCar !=null) {
+            refreshUi();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==AddCarActivity.RESULT_ADDED){
-            refreshDatabase();
+
         }
     }
 
     @Override
     protected void onPause() {
-        connectedCarIndicatorHandler.removeCallbacks(runnable);
         unbindService(serviceConnection);
         ParseApplication.mixpanelAPI.flush();
         super.onPause();
@@ -233,63 +201,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     protected void onDestroy() {
-        connectedCarIndicatorHandler.removeCallbacks(runnable);
         super.onDestroy();
-    }
-
-    private void setUpUIReferences(Bundle savedInstanceState) {
-        carName = (TextView) findViewById(R.id.car_name);
-        carYear = (TextView) findViewById(R.id.car_year);
-        carMileage = (TextView) findViewById(R.id.car_mileage_value);
-
-        carDetailsBtn = (Button) findViewById(R.id.car_connected_ind_button);
-        carDetailsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        if(findViewById(R.id.fragment_container) != null) {
-            // If we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null) {
-                return;
-            }
-
-            IssuesFragment issuesFragment = new IssuesFragment();
-            issuesFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container,issuesFragment).commit();
-        }
-    }
-
-    /**
-     * Clears and refreshes the whole database
-     */
-    private void refreshDatabase() {
-        loadingScreen.setVisibility(View.VISIBLE);
-
-        // if wifi is on
-        boolean hasWifi = false;
-        try {
-            hasWifi = new InternetChecker(this).execute().get();
-            if (hasWifi) {
-                isRefresh = true;
-                final LocalDataRetriever ldr = new LocalDataRetriever(this);
-                SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-                String objectID = settings.getString(pfCodeForObjectID, "NA");
-                ldr.deleteData("Cars", "owner", objectID);
-            }else{
-                Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),
-                        "No internet connection to update.",Snackbar.LENGTH_SHORT);
-                snackbar.show();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        setUp();
     }
 
     @Override
@@ -300,259 +212,250 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startActivity(startMain);
     }
 
-    /**
-     * Add new Car
-     * @param view
-     */
-    public void addCar(View view) {
-        //check if already pending cars (you cannot add another car when you have one pending)
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
-        if(!settings.getString(PendingAddCarActivity.ADD_CAR_VIN,"").equals("")){
-            Intent intent = new Intent(MainActivity.this,PendingAddCarActivity.class);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-            if(!array.isEmpty()) {
-                intent.putExtra(hasCarsInDashboard,true);
+    private void setUpUIReferences() {
+
+        recyclerView = (RecyclerView) findViewById(R.id.car_issues_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        carIssuesAdapter = new CustomAdapter(carIssueList);
+        recyclerView.setAdapter(carIssuesAdapter);
+        setSwipeDeleteListener(recyclerView);
+
+        carName = (TextView) findViewById(R.id.car_name);
+        carYear = (TextView) findViewById(R.id.car_year);
+        carEngine = (TextView) findViewById(R.id.car_engine_value);
+        serviceCountText = (TextView) findViewById(R.id.service_count_text);
+
+        serviceCountBackground = (RelativeLayout) findViewById(R.id.service_count_background);
+
+        carScanButton = (Button) findViewById(R.id.car_scan_button);
+        carScanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO complete activity
+                startActivity(new Intent(MainActivity.this,CarScanActivity.class));
             }
-            startActivity(intent);
-        }
+        });
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+        
     }
 
     /**
-     * Reload screen without clearing database, using network when it exists!
+     * Detect Swipes on each list item
+     * @param //recyclerView
      */
-    private void setUp(){
-        loadingScreen.setVisibility(View.VISIBLE);
-        array.clear();
-        final LocalDataRetriever ldr = new LocalDataRetriever(this);
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
-        String userId = settings.getString(MainActivity.pfCodeForObjectID, "NA");
-        array = ldr.getDataSet("Cars", "owner", userId);
+    private void setSwipeDeleteListener(RecyclerView recyclerView) {
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(recyclerView,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
 
-        // if wifi is on
-        boolean hasWifi = false;
+                            @Override
+                            public boolean canSwipe(int position) {
+                                //--DTCS are disabled still TODO add DTCS Response
+                                if(carIssuesAdapter.getItemViewType(position)
+                                        == CustomAdapter.VIEW_TYPE_EMPTY) {
+                                    return false;
+                                }
+
+                                CarIssue carIssue = carIssuesAdapter.getItem(position);
+                                return !carIssue.getIssueType().equals("dtc");
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(RecyclerView recyclerView,
+                                                               final int[] reverseSortedPositions) {
+
+                                try {
+                                    ParseApplication.mixpanelAPI.track("Button Clicked",
+                                            new JSONObject("{'Button':'Swiped Away Service/Recall'," +
+                                                    "'View':'MainActivity'}"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                final CharSequence[] times = new CharSequence[]{
+                                        "Recently", "2 Weeks Ago", "A Month Ago",
+                                        "2 to 3 Months Ago", "3 to 6 Months Ago",
+                                        "6 to 12 Months Ago"
+                                };
+
+                                final int[] estimate = new int[]{0,2,3,10,18,32};
+
+                                Calendar cal = Calendar.getInstance();
+                                final Date currentLocalTime = cal.getTime();
+                                final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
+
+                                final int i = reverseSortedPositions[0];
+                                android.support.v7.app.AlertDialog setDoneDialog =
+                                        new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                                        .setItems(times, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, final int position) {
+
+                                                //----- services
+
+                                                CarIssue carIssue = carIssuesAdapter.getItem(i);
+                                                updateServiceHistoryOnParse(carIssue, position, estimate,
+                                                        times, date, currentLocalTime, reverseSortedPositions);
+                                                dialogInterface.dismiss();
+                                            }
+                                        }).setTitle("When did you complete this task?").show();
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView
+                                    , int[] reverseSortedPositions) {
+                                onDismissedBySwipeLeft(recyclerView,reverseSortedPositions);
+                            }
+                        });
+
+        recyclerView.addOnItemTouchListener(swipeTouchListener);
+    }
+
+    public void requestMultiService(View view) {
         try {
-            hasWifi = new InternetChecker(this).execute().get();
-        } catch (InterruptedException | ExecutionException e) {
+            ParseApplication.mixpanelAPI.track("Button Clicked",
+                    new JSONObject("{'Button':'Request Service','View':'MainActivity'}"));
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        //load from database if possible
-        if(array.size()>0){
-            openFragment();
-        }else if(hasWifi){
-            //search database
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-            if (ParseUser.getCurrentUser() != null) {
-                userId = ParseUser.getCurrentUser().getObjectId();
+
+        if(isFinishing()) {
+            return;
+        }
+
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        alertDialog.setTitle("Enter additional comment");
+
+        final String[] additionalComment = {""};
+        final EditText userInput = new EditText(MainActivity.this);
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        alertDialog.setView(userInput);
+
+        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                additionalComment[0] = userInput.getText().toString();
+                sendRequest(additionalComment[0]);
             }
-            query.whereContains("owner", userId);
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(final List<ParseObject> objects, ParseException e) {
-                    if(e==null){
-                        for (final ParseObject car : objects) {
-                            final Cars c = new Cars();
-                            c.setValue("CarID", car.getObjectId());
-                            c.setValue("owner", car.getString("owner"));
-                            c.setValue("scannerId", car.getString("scannerId"));
-                            c.setValue("VIN", car.getString("VIN"));
-                            c.setValue("baseMileage", String.valueOf(car.getInt("baseMileage")));
-                            c.setValue("totalMileage", String.valueOf(car.getInt("totalMileage")));
-                            c.setValue("cityMileage", car.getString("city_mileage"));
-                            c.setValue("highwayMileage", car.getString("highway_mileage"));
-                            c.setValue("engine", car.getString("engine"));
-                            c.setValue("dealership", car.getString("dealership"));
-                            c.setValue("make", car.getString("make"));
-                            c.setValue("model", car.getString("model"));
-                            c.setValue("year", ""+car.getInt("year"));
-                            c.setValue("tank_size", car.getString("tank_size"));
-                            c.setValue("trimLevel", car.getString("trim_level"));
-                            c.setValue("pendingEdmundServices",
-                                    (car.get("pendingEdmundServices") == null ? "" : car.get("pendingEdmundServices").toString()));
-                            c.setValue("pendingIntervalServices",
-                                    (car.get("pendingIntervalServices") == null ? "" : car.get("pendingIntervalServices").toString()));
-                            c.setValue("pendingFixedServices",
-                                    (car.get("pendingFixedServices") == null ? "" : car.get("pendingFixedServices").toString()));
-                            c.setValue("dtcs", (car.get("storedDTCs") == null ? "" : car.get("storedDTCs").toString()));
-                            c.setValue("numberOfRecalls", String.valueOf(car.getInt("numberOfRecalls")));
-                            c.setValue("numberOfServices",String.valueOf(car.getInt("numberOfServices")));
+        });
 
-                            //custom call for recall entry
-                            ParseQuery<ParseObject> recalls = ParseQuery.getQuery("RecallMasters");
-                            recalls.whereEqualTo("forCar", car);
-                            recalls.findInBackground(new FindCallback<ParseObject>() {
-                                @Override
-                                public void done(List<ParseObject> recallsList, ParseException e) {
-                                    if (e == null) {
-                                        String recalls = "[";
-                                        if (recallsList.size()>0) {
-                                            JSONArray arrayOfRecalls = recallsList.get(0).getJSONArray("recalls");
-                                            for (int i = 0; i < arrayOfRecalls.length(); i++) {
-                                                try {
-                                                    recalls += arrayOfRecalls.getJSONObject(i).getString("objectId") + ",";
-                                                } catch (JSONException e1) {
-                                                    e1.printStackTrace();
-                                                }
-                                            }
-                                            if (recalls.length() != 1) {
-                                                recalls = recalls.substring(0, recalls.length() - 1);
-                                            }
-                                        }
-                                        recalls += "]";
-                                        c.setValue("recalls", recalls);
-                                        ldr.saveData("Cars", c.getValues());
-                                        array.add(c);
-                                        if(array.size()==objects.size()){
-                                            openFragment();
-                                        }
-                                    }else{
-                                        Log.d("Recalls", e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-                        if(objects.size()==0){
-                            openFragment();
-                        }
-                    }
-                }
-            });
-        }else{
-            openFragment();
-        }
-        //if no bluetooth on, ask to turn it on
-        if (BluetoothAdapter.getDefaultAdapter()!=null&&!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.fragment_main),
-                    "Turn Bluetooth on to connect to car?",Snackbar.LENGTH_LONG);
-            snackbar.setActionTextColor(getResources().getColor(R.color.highlight));
-            snackbar.setAction("TURN ON", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    service.startBluetoothSearch();
-
-                }
-            });
-            snackbar.show();
-        }
-        if(service!=null && service.getCurrentCar()==null) {
-            connectedCarIndicatorHandler.postDelayed(runnable,2000);
-        }
-    }
-
-    String tag = "ConnectedCar";
-    public void setCurrentConnectedCar(Cars car) {
-        if(service!=null) {
-            service.setCurrentCar(car);
-            refreshDatabase();
-        }
-    }
-
-    public Cars getCurrentConnectedCar() {
-        if(service!=null) {
-            return service.getCurrentCar();
-        }
-        return null;
-    }
-
-    /**
-     * Update ui with car connection status
-     * @see BluetoothAutoConnectService#getDeviceConnState()
-     * */
-    private void connectedCarIndicator() {
-        if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&
-                getSupportFragmentManager().getFragments().size()>0) {
-            Log.i(tag,"MainActivity has fragments");
-            if (array.size() > 1&& getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_main) instanceof MainActivityMultiFragment) {
-                Log.i(tag,"running link device func");
-                Log.i(tag, "Device conn state "+service.getDeviceConnState());
-                ((MainActivityMultiFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.fragment_main))
-                        .linkDevice(service.getCurrentDeviceId());
-
-            } else if(array.size() == 1 && getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_main) instanceof MainActivityFragment) {
-                ((MainActivityFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.fragment_main))
-                        .linkDevice(service.getCurrentDeviceId());
-
+        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
             }
-        }
+        });
+
+        alertDialog.show();
     }
 
-    /**
-     * Determine the fragment to open
-     */
-    private void openFragment() {
-        loadingScreen.setVisibility(View.GONE);
+    private void sendRequest(String additionalComment) {
 
-        if (array.size() == 0) {
-            //if no car, go to add car screen
-            addCar(null);
-            isRefresh= false;
-        } else {
-            //choose between single and multi view
+        String userId = ParseUser.getCurrentUser().getObjectId();
+        HashMap<String,Object> output = new HashMap<>();
+        List<HashMap<String,String>> services = new ArrayList<>();
 
-            final Fragment fragment;
-            final String tag;
+        for(CarIssue carIssue : carIssueList ) {
+            if(carIssue.getIssueType().equals("recall")) {
 
-            if (array.size() == 1) {
-                fragment = new MainActivityFragment();
-                tag = "single_view";
+
+            } else if(carIssue.getIssueType().equals("dtc")) {
+
+                HashMap<String, String> dtc = new HashMap<>();
+                dtc.put("item", carIssue.getIssueDetail().getItem());
+                dtc.put("action", carIssue.getIssueDetail().getAction());
+                dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
+                dtc.put("priority", String.valueOf(carIssue.getPriority()));
+                services.add(dtc);
+
+                output.put("services", services);
+                output.put("carVin", dashboardCar.getVin());
+                output.put("userObjectId", userId);
+                output.put("comments", additionalComment);
+
+
             } else {
-                fragment = new MainActivityMultiFragment();
-                tag = "multi_view";
+                HashMap<String, String> service = new HashMap<>();
+                service.put("item",carIssue.getIssueDetail().getItem());
+                service.put("action",carIssue.getIssueDetail().getAction());
+                service.put("itemDescription",carIssue.getIssueDetail().getDescription());
+                service.put("priority",String.valueOf(carIssue.getPriority()));
+                services.add(service);
+
+                output.put("services", services);
+                output.put("carVin", dashboardCar.getVin());
+                output.put("userObjectId", userId);
+                output.put("comments",additionalComment);
             }
-
-            final Bundle args = new Bundle();
-            if (isUpdatingMileage) {
-                args.putString(EXTRA_ACTION, ACTION_UPDATE_MILEAGE);
-                args.putString(EXTRA_CAR_ID, carId);
-
-                // clear the data so that we don't update mileage again
-                isUpdatingMileage = false;
-                carId = null;
-            }
-
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragment.setArguments(args);
-            fragmentTransaction.replace(R.id.fragment_main, fragment, tag);
-            fragmentTransaction.commit();
-            isRefresh = false;
         }
+
+        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object object, ParseException e) {
+                if (e == null) {
+                    Toast.makeText(MainActivity.this,
+                            "Request sent", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-    /**
-     * @see BluetoothAutoConnectService#getCurrentCar()
-     * @see BluetoothAutoConnectService#getDeviceConnState()
-     * */
-    Handler connectedCarIndicatorHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.what==0) {
-                if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()==null) {
-                    connectedCarIndicator();
-                } else if(service!=null&&service.getDeviceConnState()&&service.getCurrentCar()!=null) {
-                    connectedCarIndicator();
-                    connectedCarIndicatorHandler.removeCallbacks(runnable);
+    private void getCarDetails() {
+        String userId = "";
+
+        progressDialog.setMessage("Retrieving car details");
+        progressDialog.show();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+        if (ParseUser.getCurrentUser() != null) {
+            userId = ParseUser.getCurrentUser().getObjectId();
+        }
+        query.whereContains("owner", userId);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    if (!objects.isEmpty()) {
+                        ParseObject car = objects.get(0);
+                        dashboardCar = Car.createCar(car);
+                        carName.setText(car.getString("make") + " " + car.getString("model"));
+                        carYear.setText(String.valueOf(car.getNumber("year")));
+                        carEngine.setText(car.getString("engine"));
+
+                        int recallCount = car.getInt("numberOfRecalls");
+                        int serviceCount = car.getInt("numberOfServices");
+                        int total = recallCount + serviceCount;
+
+                        serviceCountText.setText(String.valueOf(total));
+
+                        Drawable background = serviceCountBackground.getBackground();
+                        GradientDrawable gradientDrawable = (GradientDrawable) background;
+
+                        if (total > 0) {
+                            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+                        } else {
+                            gradientDrawable.setColor(Color.rgb(93, 172, 129));
+                        }
+
+                        populateCarIssuesAdapter(car);
+                    }
+
                 } else {
-                    connectedCarIndicatorHandler.postDelayed(runnable,1000);
+                    Toast.makeText(MainActivity.this,
+                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
                 }
-
+                progressDialog.dismiss();
             }
-        }
-    };
+        });
+    }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            connectedCarIndicatorHandler.sendEmptyMessage(0);
-        }
-    };
+
+
 
     @Override
     public void getBluetoothState(int state) {
@@ -562,40 +465,336 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
+    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
-
-    }
+    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-        //update the front end if data being received from a device!
-        /*if(getSupportFragmentManager()!=null&&getSupportFragmentManager().getFragments()!=null&&getSupportFragmentManager().getFragments().size()>0) {
-            if (array.size() == 1 && getSupportFragmentManager().findFragmentById(R.id.fragment_main) instanceof MainActivityFragment) {
-                ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_main)).indicateConnected(dataPackageInfo.deviceId);
-            }
-        }*/
-    }
+    public void getIOData(DataPackageInfo dataPackageInfo) {  }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if(loginPackageInfo.flag.
                 equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
-            Log.i(BluetoothAutoConnectService.R4_TAG,"Device logout");
+            Log.i(BluetoothAutoConnectService.R4_TAG, "Device logout");
         }
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
+    private void populateCarIssuesAdapter(ParseObject car) {
+        List<String> issueIds = new ArrayList<>();
 
+        issueIds = car.getList("pendingEdmundServices");
+        getIssues(issueIds, "EdmundsService", "edmunds");
+
+        issueIds = car.getList("pendingFixedServices");
+        getIssues(issueIds, "ServiceFixed", "fixed");
+
+        issueIds = car.getList("pendingIntervalServices");
+        getIssues(issueIds, "ServiceInterval", "interval");
+
+        /*issueIds = car.getList("recalls");
+        getIssues(issueIds, "RecallEntry", "recall");*/
+
+        List<String> dtcCodes = car.getList("storedDTCs");
+        getDTCs(dtcCodes, "DTC", "dtc");
+    }
+
+    int counter = 0; // Number of async getIssues request
+    private void getIssues(List<String> serviceIds, String resource, final String issueType) {
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(resource);
+        query.whereContainedIn("objectId", serviceIds);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    Log.i(TAG, "Parse objects count: " + objects.size());
+                    counter++;
+
+                    carIssueList.addAll(CarIssue.createCarIssues(objects, issueType));
+                    dashboardCar.getIssues().addAll(carIssueList);
+                    carIssuesAdapter.notifyDataSetChanged();
+                } else {
+                    Log.i(TAG, "Parse error: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void getDTCs(List<String> dtcCodes, String resource, final String issueType) {
+        if(dtcCodes!=null && !dtcCodes.isEmpty()) {
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(resource);
+            query.whereContainedIn("dtcCode", dtcCodes);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if (e == null) {
+                        Log.i(TAG, "Parse objects count: " + objects.size());
+
+                        carIssueList.addAll(CarIssue.createCarIssues(objects, issueType));
+                        dashboardCar.getIssues().addAll(carIssueList);
+                        carIssuesAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.i(TAG, "Parse error: " + e.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateServiceHistoryOnParse(final CarIssue carIssue, int position
+            , int[] estimate, CharSequence[] times
+            , DateFormat date, Date currentLocalTime, final int[] reverseSortedPositions ) {
+
+        double mileage = dashboardCar.getTotalMileage();
+        String type = carIssue.getIssueType();
+        final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
+
+        ParseObject saveCompletion = new ParseObject("ServiceHistory");
+        saveCompletion.put("carId", dashboardCar.getCardId());
+        saveCompletion.put("mileageSetByUser", mileage);
+        saveCompletion.put("mileage", mileage - estimate[position] * 375);
+        saveCompletion.put("serviceObjectId", carIssue.getParseId());
+        saveCompletion.put("shopId", dashboardCar.getShopId());
+        saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
+
+        if(!carIssue.getIssueType().equals("recall") || !carIssue.getIssueType().equals("dtc")) {
+            saveCompletion.put("type", typeService);
+            saveCompletion.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if(e == null) {
+                        Toast.makeText(MainActivity.this, "Updated Service History",
+                                Toast.LENGTH_SHORT).show();
+                        //update the car object on the server next
+                        updateCarOnParse(typeService,carIssue,  reverseSortedPositions);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Parse Error: "+e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            saveCompletion.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(MainActivity.this, "Updated Service History",
+                                Toast.LENGTH_SHORT).show();
+                        // Update recall object
+                        updateRecallOnParse(carIssue, reverseSortedPositions);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Parse Error: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateCarOnParse(final int typeService, final CarIssue carIssue
+            ,final int[] reverseSortedPositions) {
+        ParseQuery updateObject = new ParseQuery("Car");
+        try {
+            updateObject.get(dashboardCar.getCardId());
+            updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e==null) {
+
+                        String type = (typeService == 0 ? "pendingEdmundServices" :
+                                (typeService == 1 ? "pendingFixedServices" : "pendingIntervalServices"));
+
+                        JSONArray original = objects.get(0).getJSONArray(type);
+                        ArrayList<String> updatedTexts = new ArrayList<>();
+
+                        for (int j = 0; j < original.length(); j++) {
+                            try {
+                                if (!original.getString(j).equals(carIssue.getParseId())) {
+                                    updatedTexts.add(original.getString(j));
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+
+                        //update object on server for Car
+                        objects.get(0).put(type, updatedTexts);
+                        objects.get(0).saveEventually();
+
+                        for (int position : reverseSortedPositions) {
+                            CarIssue obj1 = carIssuesAdapter.getItem(position);
+                            CarIssue obj2 = carIssueList.get(position);
+
+                            Log.i("Car parse (Adapter)-->",obj1.getIssueDetail().getItem());
+                            Log.i("Car on parse -->", obj2.getIssueDetail().getItem());
+                            carIssueList.remove(position);
+                            carIssuesAdapter.notifyDataSetChanged();
+                        }
+                        refreshUi();
+                    } else {
+                        Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateRecallOnParse(CarIssue carIssue, final int[] reverseSortedPositions) {
+        ParseQuery updateObject = new ParseQuery("RecallEntry");
+        try {
+            updateObject.get(carIssue.getParseId());
+            updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e == null) {
+                        objects.get(0).put("state", "doneByUser");
+                        ((ParseObject)objects.get(0)).saveEventually();
+
+                        for (int position : reverseSortedPositions) {
+                            CarIssue obj1 = carIssuesAdapter.getItem(position);
+                            CarIssue obj2 = carIssueList.get(position);
+
+                            Log.i("Recall (Adapter)-->",obj1.getIssueDetail().getItem());
+                            Log.i("Recall parse -->", obj2.getIssueDetail().getItem());
+
+                            carIssueList.remove(position);
+                            carIssuesAdapter.notifyDataSetChanged();
+                        }
+                        refreshUi();
+                    } else {
+                        Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void refreshUi() {
+        carIssueList.clear();
+        getCarDetails();
+    }
+
+    /**
+     *
+     */
+    class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+
+        private List<CarIssue> carIssueList;
+        static final int VIEW_TYPE_EMPTY = 100;
+
+        public CustomAdapter(List<CarIssue> carIssues) {
+            carIssueList = carIssues;
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.car_details_list_item, parent, false);
+            ViewHolder viewHolder = new ViewHolder(v);
+            return viewHolder;
+        }
+
+        public CarIssue getItem(int position) {
+            return carIssueList.get(position);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            Log.i(TAG,"On bind view holder");
+
+            int viewType = getItemViewType(position);
+
+            if(viewType == VIEW_TYPE_EMPTY) {
+                holder.description.setMaxLines(2);
+                holder.description.setText("You have no pending Engine Code, Recalls or Services");
+                holder.title.setText("Congrats!");
+                holder.imageView.setImageDrawable(getResources()
+                        .getDrawable(R.drawable.ic_check_circle_green_400_36dp));
+            } else {
+                final CarIssue carIssue = carIssueList.get(position);
+
+                //holder.description.setSingleLine();
+                holder.description.setText(carIssue.getIssueDetail().getDescription());
+                holder.description.setEllipsize(TextUtils.TruncateAt.END);
+                if(carIssue.getIssueType().equals("recall")) {
+                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.imageView.setImageDrawable(getResources()
+                            .getDrawable(R.drawable.ic_error_red_600_24dp));
+
+                } else if(carIssue.getIssueType().equals("dtc")) {
+                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.imageView.setImageDrawable(getResources().
+                            getDrawable(R.drawable.ic_announcement_blue_600_24dp));
+
+                } else {
+                    holder.description.setText(carIssue.getIssueDetail().getDescription());
+                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.imageView.setImageDrawable(getResources()
+                            .getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                }
+
+                holder.container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(MainActivity.this, DisplayItemActivity.class);
+                        intent.putExtra(CAR_ISSUE_EXTRA, carIssueList.get(position));
+                        intent.putExtra(CAR_EXTRA,dashboardCar);
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if(carIssueList.isEmpty()) {
+                return VIEW_TYPE_EMPTY;
+            }
+            return super.getItemViewType(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            if(carIssueList.isEmpty()) {
+                return 1;
+            }
+            return carIssueList.size();
+        }
+
+
+
+        // Provide a reference to the views for each data item
+        // Complex data items may need more than one view per item, and
+        // you provide access to all the views for a data item in a view holder
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            // each data item is just a string in this case
+            public TextView title;
+            public TextView description;
+            public ImageView imageView;
+            public CardView container;
+
+            public ViewHolder(View v) {
+                super(v);
+                title = (TextView) v.findViewById(R.id.title);
+                description = (TextView) v.findViewById(R.id.description);
+                imageView = (ImageView) v.findViewById(R.id.image_icon);
+                container = (CardView) v.findViewById(R.id.list_car_item);
+            }
+        }
     }
 }

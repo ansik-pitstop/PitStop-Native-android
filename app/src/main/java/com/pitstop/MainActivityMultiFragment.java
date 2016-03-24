@@ -270,7 +270,7 @@ public class MainActivityMultiFragment extends Fragment {
     *
     * */
     private final List<DBModel> car = new ArrayList<>();
-    private void indicateCurrentCarDialog(final String deviceId) {
+    /*private void indicateCurrentCarDialog(final String deviceId) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
 
         dialog.setTitle("Select the car you are currently sitting in");
@@ -313,14 +313,14 @@ public class MainActivityMultiFragment extends Fragment {
             }
         });
         dialog.show();
-    }
+    }*/
 
 
     /**
      * Link car to device if device is new to user, and change colors of connected cars!
      * @param deviceId
      */
-    public void indicateConnected(final String deviceId) {
+    /*public void indicateConnected(final String deviceId) {
         boolean found = false;
         Cars noDevice = null;
         int i = 0;
@@ -343,14 +343,14 @@ public class MainActivityMultiFragment extends Fragment {
         if(!found&&noDevice!=null) {
             indicateCurrentCarDialog(deviceId);
         }
-    }
+    }*/
 
     String tag = "ConnectedCar";
     /**
      * Link car to device if device is new to user, and change colors of connected cars!
      * @param deviceId
      */
-    public void linkDevice(final String deviceId) {
+    /*public void linkDevice(final String deviceId) {
         Log.i(tag,"Linking device");
         int noIdCount = 0;
         int associationCount = 0;
@@ -378,9 +378,9 @@ public class MainActivityMultiFragment extends Fragment {
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
 
-            /**
+            *//**
              * If device is associated with more than one car in the dashboard or
-             * */
+             * *//*
 
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
                     noIdCount==array.size()) {
@@ -390,7 +390,7 @@ public class MainActivityMultiFragment extends Fragment {
             }
             Log.i(tag,"found position: "+foundPosition);
         }
-    }
+    }*/
 
     public class CarsListAdapter extends BaseAdapter{
         private ArrayList<DBModel> array;
@@ -459,14 +459,14 @@ public class MainActivityMultiFragment extends Fragment {
 				setOnclickListenersForViews(shop,convertview);
 			}
 
-            // Set connectedCar indicator
+            /*// Set connectedCar indicator
             Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
             if(currentCar!=null) {
                 if(car.getValue("VIN").equals(currentCar.getValue("VIN"))) {
                     convertview.findViewById(R.id.color)
                             .setBackgroundColor(getResources().getColor(R.color.evcheck));
                 }
-            }
+            }*/
             return convertview;
         }
 

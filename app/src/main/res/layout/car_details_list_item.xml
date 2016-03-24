@@ -15,7 +15,7 @@
         android:id="@+id/list_car_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="0.5dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
@@ -45,7 +45,7 @@
                     android:text="ISSUE"
                     android:textColor="@color/highlight"
                     android:textIsSelectable="false"
-                    android:textSize="22sp" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/description"
@@ -53,9 +53,8 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/title"
                     android:layout_marginRight="8dp"
-                    android:autoText="false"
-                    android:maxLines="3"
-                    android:singleLine="false"
+                    android:layout_marginEnd="8dp"
+                    android:lines="1"
                     android:text="labflasf asdfasdfas fasdfasd fdas fads fasd fasdfasdfasd fas fas dfas dfa sfadsa sdf asd fsa df" />
 
             </RelativeLayout>

@@ -4,7 +4,7 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/refresh"
+        android:id="@+id/refresh_main"
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="Refresh"
         app:showAsAction="always"

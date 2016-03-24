@@ -81,7 +81,8 @@ public class MainActivityFragment extends Fragment {
         showTutorial();
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'MainActivityFragment'}"));
+            ParseApplication.mixpanelAPI.track("View Appeared",
+                    new JSONObject("{'View':'MainActivityFragment'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -365,7 +366,7 @@ public class MainActivityFragment extends Fragment {
      * @param deviceId
      *
      * */
-    public void linkDevice(final String deviceId) {
+    /*public void linkDevice(final String deviceId) {
         String tag = "ConnectedCar";
 
         Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
@@ -403,5 +404,5 @@ public class MainActivityFragment extends Fragment {
 
         getActivity().findViewById(R.id.car_connected_ind_button)
                 .setBackgroundResource(R.drawable.color_button_car_connected);
-    }
+    }*/
 }

@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.DTCs;
@@ -43,54 +46,24 @@ import static com.pitstop.R.drawable.severity_medium_indicator;
 import static com.pitstop.R.drawable.severity_critical_indicator;
 
 public class DisplayItemActivity extends AppCompatActivity {
-    private static final String PRIORITY_KEY = "priority";
-    private static final String ITEM_KEY = "item";
-    private static final String ITEM_DESCRIPTION_KEY = "itemDescription";
-    private static final String ACTION_KEY = "action";
-    private static final String DTCCODE_KEY = "dtcCode";
-    private static final String RECALLS_ITEM_KEY = "name";
-    private static final String DESCRIPTION_KEY = "description";
 
-    private static final String RECALLS_PRIORITY_DEFAULT_VALUE = "6";
-    private static final String DTCS_PRIORITY_DEFAULT_VALUE = "5";
-    private static final String SERVICES_PRIORITY_DEFAULT_VALUE = "1";
-
+    private Car dashboardCar;
+    private CarIssue carIssue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
 
-        DBModel model = (DBModel)getIntent().getSerializableExtra("Model");
-        if(model instanceof Recalls){
-            Log.i("TYPE RECALLS", "Recalls");
-            setTitle("Recall");
+        Intent intent = getIntent();
+        dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
+        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
-            model.setValue(PRIORITY_KEY,RECALLS_PRIORITY_DEFAULT_VALUE);
-            model.setValue(ITEM_KEY, model.getValue(RECALLS_ITEM_KEY));
-            model.setValue(ITEM_DESCRIPTION_KEY, model.getValue(DESCRIPTION_KEY));
-            setUpDisplayItems(model, "Recall for ");
-
-        }else if(model instanceof DTCs){
-            setTitle("Engine Code");
-            Log.i("TYPE DTCS", "Engine Code");
-
-            model.setValue(PRIORITY_KEY,DTCS_PRIORITY_DEFAULT_VALUE);
-            model.setValue(ITEM_KEY,model.getValue(DTCCODE_KEY));
-            model.setValue(ITEM_DESCRIPTION_KEY, model.getValue(DESCRIPTION_KEY));
-
-			setUpDisplayItems(model, "Engine Issue: DTC code ");
-        }else{
-            setTitle("Service");
-            Log.i("TYPE Service", "Service");
-            if(model.getValue(PRIORITY_KEY) == null) {
-                model.setValue(PRIORITY_KEY,SERVICES_PRIORITY_DEFAULT_VALUE);
-            }
-            setUpDisplayItems(model,null);
-        }
+        setUpDisplayItems(carIssue);
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'DisplayItemActivity'}"));
+            ParseApplication.mixpanelAPI.track("View Appeared",
+                    new JSONObject("{'View':'DisplayItemActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -168,20 +141,17 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private void sendRequest(String additionalComment) {
         String userId = ParseUser.getCurrentUser().getObjectId();
-        HashMap<String,Object> output = new HashMap<String, Object>();
+        HashMap<String,Object> output = new HashMap<>();
         List<HashMap<String,String>> services = new ArrayList<>();
 
-        DBModel model = (DBModel)getIntent().getSerializableExtra("Model");
-        String VIN = getIntent().getStringExtra("VIN");
-
-        if(model instanceof Recalls) {
-            LocalDataRetriever dataRetriever = new LocalDataRetriever(this);
+        if(carIssue.getIssueType().equals("recall")) {
+            /*LocalDataRetriever dataRetriever = new LocalDataRetriever(this);
 
             Recalls recall =  new Recalls();
-            recall.setValue("item", model.getValue("name"));
-            recall.setValue("action","Recall For");
-            recall.setValue("itemDescription",model.getValue("description"));
-            recall.setValue("priority",""+ 6); // high priority for recall
+            recall.setValue("item", carIssue.getIssueDetail().getItem());
+            recall.setValue("action",carIssue.getIssueDetail().getAction());
+            recall.setValue("itemDescription",carIssue.getIssueDetail().getDescription());
+            recall.setValue("priority",String.valueOf(carIssue.getPriority())); // high priority for recall
             services.add(recall.getValues());
 
             //update db
@@ -206,29 +176,33 @@ public class DisplayItemActivity extends AppCompatActivity {
             output.put("services", services);
             output.put("carVin", VIN);
             output.put("userObjectId", userId);
-            output.put("comments", additionalComment);
+            output.put("comments", additionalComment);*/
 
+        } else if(carIssue.getIssueType().equals("dtc")) {
 
-
-        } else if(model instanceof DTCs) {
-            DTCs dtc = new DTCs();
-            dtc.setValue("item", model.getValue("dtcCode"));
-            dtc.setValue("action","Engine Issue: DTC Code");
-            dtc.setValue("itemDescription",model.getValue("description"));
-            dtc.setValue("priority", "" + 5); // must be 5
-            services.add(dtc.getValues());
+            HashMap<String, String> dtc = new HashMap<>();
+            dtc.put("item", carIssue.getIssueDetail().getItem());
+            dtc.put("action", carIssue.getIssueDetail().getAction());
+            dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
+            dtc.put("priority", String.valueOf(carIssue.getPriority()));
+            services.add(dtc);
 
             output.put("services", services);
-            output.put("carVin", VIN);
+            output.put("carVin", dashboardCar.getVin());
             output.put("userObjectId", userId);
             output.put("comments", additionalComment);
 
 
-        } else if(model instanceof Services) {
-            services.add(model.getValues());
+        } else {
+            HashMap<String, String> service = new HashMap<>();
+            service.put("item",carIssue.getIssueDetail().getItem());
+            service.put("action",carIssue.getIssueDetail().getAction());
+            service.put("itemDescription",carIssue.getIssueDetail().getDescription());
+            service.put("priority",String.valueOf(carIssue.getPriority()));
+            services.add(service);
 
             output.put("services", services);
-            output.put("carVin", VIN);
+            output.put("carVin", dashboardCar.getVin());
             output.put("userObjectId", userId);
             output.put("comments",additionalComment);
         }
@@ -243,13 +217,13 @@ public class DisplayItemActivity extends AppCompatActivity {
                     Toast.makeText(DisplayItemActivity.this,
                             e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                onBackPressed();
             }
         });
-        super.onBackPressed();
     }
 
-    private void setUpDisplayItems(DBModel model, String action) {
-        HashMap<String,String> info = model.getValues();
+    private void setUpDisplayItems(CarIssue carIssue) {
+
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.item_display);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -258,16 +232,10 @@ public class DisplayItemActivity extends AppCompatActivity {
         RelativeLayout rLayout = (RelativeLayout) view.findViewById(R.id.severity_indicator_layout);
         TextView severityTextView = (TextView) view.findViewById(R.id.severity_text);
 
-        String title = info.get(ITEM_KEY);
-        String description = info.get(ITEM_DESCRIPTION_KEY);
-        Log.i("RECALLS",info.get("item"));
-        int severity =  Integer.parseInt(info.get(PRIORITY_KEY));
-
-        if(action != null) {
-            title = action + title;
-        } else {
-            title = info.get(ACTION_KEY) +" "+ title;
-        }
+        String title = carIssue.getIssueDetail().getAction() +" "
+                + carIssue.getIssueDetail().getItem();
+        String description = carIssue.getIssueDetail().getDescription();
+        int severity =  carIssue.getPriority();
 
         ((TextView)view.findViewById(R.id.title)).setText(title);
         ((TextView) view.findViewById(R.id.description)).setText(description);
@@ -291,6 +259,8 @@ public class DisplayItemActivity extends AppCompatActivity {
                 break;
         }
 
-        linearLayout.addView(view, 0);
+        if (linearLayout != null) {
+            linearLayout.addView(view, 0);
+        }
     }
 }

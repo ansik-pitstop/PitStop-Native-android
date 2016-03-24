@@ -8,7 +8,7 @@
     <string name="title_activity_receive_debug">ReceiveDebugActivity</string>
     <string name="title_activity_piddebug">PIDDebugActivity</string>
     <string name="title_activity_enviornmental_check">EnviornmentalCheckActivity</string>
-    <string name="title_activity_display_item">DisplayItemActivity</string>
+    <string name="title_activity_display_item">Issue details</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="pref_logout_key">pref_logout</string>
     <string name="pref_logout_label">Log Out</string>
@@ -47,6 +47,7 @@
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature</string>
 
     <string name="appversion">app_version</string>
-    <string name="title_activity_select_dealership">SelectDealershipActivity</string>
+    <string name="title_activity_select_dealership">Select Dealership</string>
+    <string name="title_activity_car_scan">Car Scan</string>
 
 </resources>
