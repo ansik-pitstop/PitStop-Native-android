@@ -11,7 +11,7 @@
     </style>
 
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/highlight</item>
+        <item name="android:background">@color/primary</item>
     </style>
 
     <style name="AddCarButtonStyle" parent="Widget.AppCompat.Button.Colored">

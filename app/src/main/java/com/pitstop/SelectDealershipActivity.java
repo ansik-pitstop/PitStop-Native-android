@@ -130,8 +130,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.dealership_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         message_card = (CardView) findViewById(R.id.message_card);

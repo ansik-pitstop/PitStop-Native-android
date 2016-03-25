@@ -149,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.highlight));
-        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.primary));
+        //toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
 
         setUpUIReferences();
@@ -170,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(id == R.id.refresh_main) {
             refreshUi();
             return true;
+        } else if(id == R.id.add) {
+            //startActivityForResult();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -239,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCanceledOnTouchOutside(false);
-        
+
     }
 
     /**

@@ -4,16 +4,16 @@
     <!-- Base application theme. -->
     <style name="AppNoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:colorPrimary">@color/highlight</item>
-        <item name="colorPrimary">@color/highlight</item>
-        <item name="colorPrimaryDark">@color/highlight_dark</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
     </style>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:colorPrimary">@color/highlight</item>
-        <item name="colorPrimary">@color/highlight</item>
-        <item name="colorPrimaryDark">@color/highlight_dark</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
     </style>
     >
 

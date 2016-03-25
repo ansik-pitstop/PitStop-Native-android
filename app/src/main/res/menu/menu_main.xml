@@ -12,7 +12,7 @@
     <item
         android:id="@+id/add"
         android:icon="@drawable/ic_add_circle_white_48dp"
-        android:title="Refresh"
+        android:title="Add car"
         app:showAsAction="always"
         tools:context=".MainActivity" />
 

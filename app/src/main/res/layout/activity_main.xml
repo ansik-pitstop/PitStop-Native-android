@@ -100,7 +100,7 @@
                     android:layout_alignParentRight="true"
                     android:text="SCAN"
                     android:background="@drawable/color_button_primary_car"
-                    android:padding="16dp"
+                    android:padding="10dp"
                     android:textColor="#fff"
                     android:elevation="12dp" />
 
@@ -149,8 +149,9 @@
         android:paddingRight="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/color_button_add_car"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/color_button_primary_car"
         android:drawableRight="@drawable/request_service_button"
         android:textColor="#fff"
         android:layout_alignParentBottom="true"/>
