@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +16,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -26,7 +29,11 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Cars;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
@@ -40,23 +47,39 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
-    ArrayList<String> cars;
-    ArrayList<String> ids;
-    ArrayList<String> dealers;
+    ArrayList<String> cars = new ArrayList<>();
+    ArrayList<String> ids = new ArrayList<>();
+    ArrayList<String> dealers = new ArrayList<>();
+
+    private Car dashboardCar;
+
+    private List<Car> carList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_settings);
         if(getIntent().getExtras()!=null) {
-            cars = getIntent().getExtras().getStringArrayList("cars");
-            ids = getIntent().getStringArrayListExtra("ids");
-            dealers = getIntent().getStringArrayListExtra("dealerships");
-        }else{
-            cars = new ArrayList<>();
-            ids = new ArrayList<>();
-            dealers = new ArrayList<>();
+            populateCarNamesAndIdList();
         }
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment(cars,ids)).commit();
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content,
+                new SettingsFragment(cars,ids,carList)).commit();
+    }
+
+    private void populateCarNamesAndIdList() {
+        IntentProxyObject proxyObject = (IntentProxyObject) getIntent()
+                .getSerializableExtra(MainActivity.CAR_LIST_EXTRA);
+        carList = proxyObject.getCarList();
+
+        for(Car car : carList) {
+            if(car.isCurrentCar()) {
+                dashboardCar = car;
+            }
+
+            cars.add(car.getMake() + " " + car.getModel());
+            ids.add(car.getCardId());
+            dealers.add(car.getShopId());
+        }
     }
 
     @Override
@@ -65,6 +88,7 @@ public class SettingsActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         if (id == R.id.action_connect) {
             Intent i = new Intent(SettingsActivity.this, ReceiveDebugActivity.class);
             startActivity(i);
@@ -73,7 +97,6 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         if (id ==  android.R.id.home){
-            MainActivity.refreshLocal=true;
             finish();
             return true;
         }
@@ -82,7 +105,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        MainActivity.refreshLocal=true;
         super.onBackPressed();
     }
 
@@ -91,9 +113,14 @@ public class SettingsActivity extends AppCompatActivity {
         ArrayList<ListPreference> preferenceList;
         ArrayList<String> cars;
         ArrayList<String> ids;
-        public SettingsFragment(ArrayList<String> cars, ArrayList<String> ids){
+
+        List<Car> carList;
+        CarListAdapter listAdapter;
+
+        public SettingsFragment(ArrayList<String> cars, ArrayList<String> ids, List<Car> carList){
             this.cars  =cars;
             this.ids = ids;
+            this.carList = carList;
         }
 
         @Override
@@ -103,7 +130,22 @@ public class SettingsActivity extends AppCompatActivity {
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
 
-            (getPreferenceManager().findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
+            listAdapter = new CarListAdapter(carList);
+
+            (getPreferenceManager()
+                    .findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
+
+            if(dashboardCar != null) {
+                final Preference mainCarPreference = findPreference("current_car");
+                mainCarPreference.setTitle(dashboardCar.getMake() +" "+dashboardCar.getModel());
+                mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        switchCarDialog(dashboardCar, mainCarPreference);
+                        return true;
+                    }
+                });
+            }
 
             ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
             query.findInBackground(new FindCallback<ParseObject>() {
@@ -130,10 +172,10 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public boolean onPreferenceChange(Preference preference, Object newValue) {
                                 final String shopSelected = (String) newValue;
-                                LocalDataRetriever ldr = new LocalDataRetriever(getActivity());
+                                /*LocalDataRetriever ldr = new LocalDataRetriever(getActivity());
                                 HashMap<String, String> hm = new HashMap<String, String>();
                                 hm.put("dealership", shopSelected);
-                                ldr.updateData("Cars", "CarID", ids.get(index), hm);
+                                ldr.updateData("Cars", "CarID", ids.get(index), hm);*/
                                 //updateParse
                                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
                                 query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
@@ -149,7 +191,9 @@ public class SettingsActivity extends AppCompatActivity {
                                 return true;
                             }
                         });
-                        ((PreferenceCategory) getPreferenceManager().findPreference(getString(R.string.pref_vehicles))).addPreference(listPreference);
+                        ((PreferenceCategory) getPreferenceManager()
+                                .findPreference(getString(R.string.pref_vehicles)))
+                                .addPreference(listPreference);
                     }
                 }
             });
@@ -244,7 +288,8 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             try {
-                ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'SettingActivity'}"));
+                ParseApplication.mixpanelAPI.track("View Appeared",
+                        new JSONObject("{'View':'SettingActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -274,10 +319,106 @@ public class SettingsActivity extends AppCompatActivity {
                         namePreference.setTitle(updatedName);
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getActivity(),"Something went wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+        }
+
+        List<Car> selectedCar = new ArrayList<>();
+        private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+
+            dialog.setTitle("Switch Car");
+
+            dialog.setSingleChoiceItems(listAdapter, -1, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selectedCar.clear();
+                    //selectedCar.add(carList.get(which));
+                    selectedCar.add((Car) listAdapter.getItem(which));
+                }
+            });
+            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+
+                    if (selectedCar.isEmpty()) {
+                        return;
+                    }
+
+                    final Car newDashboardCar = selectedCar.get(0);
+                    final ParseQuery query = new ParseQuery("Car");
+                    query.whereEqualTo("VIN", newDashboardCar.getVin());
+                    query.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if (e == null) {
+                                objects.get(0).put("currentCar", true);
+                                objects.get(0).saveEventually(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        dashboardCar = newDashboardCar;
+                                        mainPreference.setTitle(dashboardCar.getMake()
+                                                +" "+dashboardCar.getModel());
+                                    }
+                                });
+
+                                //update the car object
+                                ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
+                                ParseObject car = null;
+                                try {
+                                    car = cars.get(formerDashboardCar.getCardId());
+                                    car.put("currentCar", false);
+                                    car.saveEventually();
+                                } catch (ParseException error) {
+                                    error.printStackTrace();
+                                }
+                            } else {
+                                Log.i(TAG,e.getMessage());
+                            }
+                        }
+                    });
+                }
+            });
+            dialog.show();
+        }
+
+        class CarListAdapter extends BaseAdapter {
+            private List<Car> ownedCars;
+
+            public CarListAdapter(List<Car> cars) {
+                ownedCars = cars;
+            }
+
+            @Override
+            public int getCount () {
+                return ownedCars.size();
+            }
+
+            @Override
+            public Object getItem (int position) {
+                return ownedCars.get(position);
+            }
+
+            @Override
+            public long getItemId (int position) {
+                return 0;
+            }
+
+            @Override
+            public View getView (int position, View convertView, ViewGroup parent) {
+                LayoutInflater inflater = (LayoutInflater) getActivity()
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View rowView = inflater
+                        .inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+                Car ownedCar = (Car) getItem(position);
+
+                TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
+                carName.setText(ownedCar.getMake() + " " + ownedCar.getModel());
+                return rowView;
+            }
         }
     }
 

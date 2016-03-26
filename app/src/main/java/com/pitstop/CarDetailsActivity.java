@@ -686,7 +686,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                                                     e.printStackTrace();
                                                 }
                                             }
-                                            MainActivity.refresh=true;
                                             dialogInterface.dismiss();
                                         }
                                     })
@@ -758,8 +757,6 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         // update the textview
         ((TextView)findViewById(R.id.mileage)).setText(mileage);
 
-        // set mainactivity to refresh
-        MainActivity.refresh = true;
     }
 
     /**

@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.pitstop.AddCarActivity" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.pitstop.AddCarActivity">
 
     <LinearLayout
         android:id="@+id/add_car_view"
@@ -195,8 +196,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#bfce6746"
-        android:id="@+id/loading"
+        android:background="#bfb7dcf6"
+        android:id="@+id/loading_view"
         android:visibility="gone">
 
         <LinearLayout
@@ -210,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Loading"
-                android:id="@+id/loading_details"
+                android:id="@+id/loading_text"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#fff" />
 

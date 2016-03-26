@@ -29,13 +29,19 @@ public class Car implements Serializable {
     private String tankSize;
     private String cityMileage;
     private String highwayMileage;
-    private double baseMileage;
-    private double totalMileage;
+    private int baseMileage;
+    private int totalMileage;
     private int numberOfRecalls;
     private int numberOfServices;
+    private boolean currentCar;
 
     private String ownerId;
-    private String shopId; // TODO remove once api integration is complete
+    // TODO remove once api integration is complete
+    private String shopId;
+    private List<String> pendingEdmundServicesIds = new ArrayList<>();
+    private List<String> pendingIntervalServicesIds = new ArrayList<>();
+    private List<String> pendingFixedServicesIds = new ArrayList<>();
+    private List<String> storedDTCs = new ArrayList<>();
 
     @SerializedName("shop")
     private Dealership dealerShip;
@@ -43,6 +49,8 @@ public class Car implements Serializable {
 
     private String scanner;
     private List<CarIssue> issues = new ArrayList<>();
+
+    private ParseObject parseObject;
 
     public Car() { }
 
@@ -126,19 +134,19 @@ public class Car implements Serializable {
         this.highwayMileage = highwayMileage;
     }
 
-    public double getBaseMileage() {
+    public int getBaseMileage() {
         return baseMileage;
     }
 
-    public void setBaseMileage(double baseMileage) {
+    public void setBaseMileage(int baseMileage) {
         this.baseMileage = baseMileage;
     }
 
-    public double getTotalMileage() {
+    public int getTotalMileage() {
         return totalMileage;
     }
 
-    public void setTotalMileage(double totalMileage) {
+    public void setTotalMileage(int totalMileage) {
         this.totalMileage = totalMileage;
     }
 
@@ -190,6 +198,14 @@ public class Car implements Serializable {
         this.scanner = scanner;
     }
 
+    public boolean isCurrentCar() {
+        return currentCar;
+    }
+
+    public void setCurrentCar(boolean currentCar) {
+        this.currentCar = currentCar;
+    }
+
     public String getShopId() {
         return shopId;
     }
@@ -204,6 +220,39 @@ public class Car implements Serializable {
 
     public void setIssues(List<CarIssue> issues) {
         this.issues = issues;
+    }
+
+    //Todo remove once api-integration is done
+    public List<String> getPendingEdmundServicesIds() {
+        return pendingEdmundServicesIds;
+    }
+
+    public void setPendingEdmundServicesIds(List<String> pendingEdmundServicesIds) {
+        this.pendingEdmundServicesIds = pendingEdmundServicesIds;
+    }
+
+    public List<String> getPendingIntervalServicesIds() {
+        return pendingIntervalServicesIds;
+    }
+
+    public void setPendingIntervalServicesIds(List<String> pendingIntervalServicesIds) {
+        this.pendingIntervalServicesIds = pendingIntervalServicesIds;
+    }
+
+    public List<String> getPendingFixedServicesIds() {
+        return pendingFixedServicesIds;
+    }
+
+    public void setPendingFixedServicesIds(List<String> pendingFixedServicesIds) {
+        this.pendingFixedServicesIds = pendingFixedServicesIds;
+    }
+
+    public List<String> getStoredDTCs() {
+        return storedDTCs;
+    }
+
+    public void setStoredDTCs(List<String> storedDTCs) {
+        this.storedDTCs = storedDTCs;
     }
 
     public static Car jsonToCarObject(JSONObject jsonObject) {
@@ -236,6 +285,7 @@ public class Car implements Serializable {
         if(parseObject != null) {
             car = new Car();
             car.setCardId(parseObject.getObjectId());
+            Log.i("MAIN_ACTIVITY-->", "ParseId: " + car.getCardId());
             car.setEngine(parseObject.getString("engine"));
             car.setMake(parseObject.getString("make"));
             car.setModel(parseObject.getString("model"));
@@ -243,13 +293,26 @@ public class Car implements Serializable {
             car.setNumberOfRecalls(parseObject.getInt("numberOfRecalls"));
             car.setNumberOfServices(parseObject.getInt("numberOfServices"));
             car.setScanner(parseObject.getString("scannerId"));
-            car.setTotalMileage(parseObject.getDouble("totalMileage"));
-            car.setBaseMileage(parseObject.getDouble("baseMileage"));
+            car.setTotalMileage(parseObject.getInt("totalMileage"));
+            car.setBaseMileage(parseObject.getInt("baseMileage"));
             car.setOwnerId(parseObject.getString("owner"));
             car.setShopId(parseObject.getString("dealership"));
             car.setVin(parseObject.getString("VIN"));
             car.setServiceDue(parseObject.getBoolean("serviceDue"));
+            car.setCurrentCar(parseObject.getBoolean("currentCar"));
+            car.setPendingEdmundServicesIds(parseObject.<String>getList("pendingEdmundServices"));
+            car.setPendingFixedServicesIds(parseObject.<String>getList("pendingFixedServices"));
+            car.setPendingIntervalServicesIds(parseObject.<String>getList("pendingIntervalServices"));
+            car.setStoredDTCs(parseObject.<String>getList("storedDTCs"));
         }
         return car;
+    }
+
+    public static List<Car> createCarsList(List<ParseObject> objects) {
+        List<Car> cars = new ArrayList<>();
+        for(ParseObject object : objects) {
+            cars.add(createCar(object));
+        }
+        return cars;
     }
 }

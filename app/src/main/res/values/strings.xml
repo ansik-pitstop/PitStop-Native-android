@@ -9,7 +9,7 @@
     <string name="title_activity_piddebug">PIDDebugActivity</string>
     <string name="title_activity_enviornmental_check">EnviornmentalCheckActivity</string>
     <string name="title_activity_display_item">Issue details</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="pref_logout_key">pref_logout</string>
     <string name="pref_logout_label">Log Out</string>
     <string name="pref_email_key">pref_email_key</string>
