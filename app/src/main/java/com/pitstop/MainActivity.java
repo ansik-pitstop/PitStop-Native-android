@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private static String TAG = "MainActivity --> ";
 
-    public BluetoothAutoConnectService service;
+    private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -248,7 +248,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             @Override
             public void onClick(View v) {
                 // TODO complete activity
-                startActivity(new Intent(MainActivity.this, CarScanActivity.class));
+                Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
+                intent.putExtra(CAR_EXTRA,dashboardCar);
+                startActivity(intent);
             }
         });
     }
@@ -518,10 +520,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {   }
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {  }

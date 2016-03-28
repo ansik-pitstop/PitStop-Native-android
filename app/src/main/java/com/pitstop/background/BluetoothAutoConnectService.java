@@ -25,7 +25,6 @@ import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
@@ -38,7 +37,6 @@ import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
-import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -148,7 +146,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * Gets the Car's VIN. Check if obd device is synced. If synced,
      * send command to device to retrieve vin info.
      * @see #getObdDeviceTime()
-     * @see #getParamaterData(ParameterPackageInfo)
+     * @see #getParameterData(ParameterPackageInfo)
      */
     public void getCarVIN() {
 
@@ -166,7 +164,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     /**
      * Send command to obd device to retrieve vin from the currently
      * connected car.
-     * @see #getParamaterData(ParameterPackageInfo) for info returned
+     * @see #getParameterData(ParameterPackageInfo) for info returned
      * on the vin query.
      * */
     private void getVinFromCar() {
@@ -176,7 +174,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     /**
      * Send command to obd device to retrieve the current device time.
-     * @see #getParamaterData(ParameterPackageInfo) for device time returned
+     * @see #getParameterData(ParameterPackageInfo) for device time returned
      * by obd device.
      */
     private void getObdDeviceTime() {
@@ -187,7 +185,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     /**
      * Sync obd device time with current mobile device time.
      * On successfully syncing device,  #setParameter() gets called
-     * @see #setParamaterResponse(ResponsePackageInfo)
+     * @see #setParameterResponse(ResponsePackageInfo)
      * */
     private void syncObdDevice() {
         Log.i(DTAG,"Resetting RTC time - BluetoothManage");
@@ -425,7 +423,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * If device time was set, save the id of the device.
      * */
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         if((responsePackageInfo.type+responsePackageInfo.value)
                 .equals(BluetoothAutoConnectService.RTC_TAG)) {
             // Once device time is reset, store deviceId
@@ -435,7 +433,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         if(serviceCallbacks!=null) {
             Log.i(DTAG, "Setting parameter response on service callbacks - auto-connect service");
-            serviceCallbacks.setParamaterResponse(responsePackageInfo);
+            serviceCallbacks.setParameterResponse(responsePackageInfo);
         }
 
 
@@ -450,7 +448,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * @see #syncObdDevice()
      * */
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         if(gettingPID){
             Log.i(DTAG,"Getting parameter data- auto-connect service");
             pids  =parameterPackageInfo.value.get(0).value.split(",");
@@ -474,7 +472,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         } else if(serviceCallbacks!=null) {
             Log.i(DTAG, "getting parameter data on service Callbacks - auto-connect service");
-            serviceCallbacks.getParamaterData(parameterPackageInfo);
+            serviceCallbacks.getParameterData(parameterPackageInfo);
         }
     }
 

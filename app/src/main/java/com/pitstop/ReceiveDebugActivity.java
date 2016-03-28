@@ -112,12 +112,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     }
 
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
 
     }
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
     }
 
     @Override

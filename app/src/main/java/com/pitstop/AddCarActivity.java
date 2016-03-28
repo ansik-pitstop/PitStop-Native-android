@@ -659,7 +659,7 @@ public class AddCarActivity extends AppCompatActivity implements
      * After resetting device time, the bluetooth connection is lost.
      * */
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         Log.i(ACTIVITY_TAG,"Set parameter");
         if((responsePackageInfo.type+responsePackageInfo.value)
                 .equals(BluetoothAutoConnectService.RTC_TAG)) {
@@ -670,7 +670,7 @@ public class AddCarActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         Log.i(ACTIVITY_TAG,"getParametData()");
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(BluetoothAutoConnectService.VIN_TAG)) {
