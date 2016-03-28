@@ -29,9 +29,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@color/highlight"
                 android:text="Dealership"
-                android:textColor="@color/cardview_light_background"
                 android:paddingTop="10dp"
                 android:paddingLeft="8dp"
                 android:id="@+id/dealership_name"
