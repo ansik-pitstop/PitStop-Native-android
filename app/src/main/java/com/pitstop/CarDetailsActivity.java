@@ -101,6 +101,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 service.startBluetoothSearch();
             }
+            connectedCarStatusUpdate();
         }
 
         @Override
@@ -168,11 +169,13 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             findViewById(R.id.update_mileage).performClick();
         }
 
-        LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
+        // Todo enable when PIDParser is fixed
+        /*LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.unconnected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
 
-        ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
+        ((LinearLayout)findViewById(R.id.carStatus)).addView(view);*/
+
 
         final LocalDataRetriever ldr = new LocalDataRetriever(this);
         //--------------------------GET SERVICES + RECALLS + DTCS--------------------------
@@ -208,30 +211,41 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        //connectedCarStatusUpdate();
     }
 
-    /*private void connectedCarStatusUpdate() {
+    private void connectedCarStatusUpdate() {
+        if(service==null) {
+            Log.i("SERVICE", "service is null");
+        }
+
+
         if(service!=null && service.getCurrentCar()!=null) {
             Cars connectedCar = service.getCurrentCar();
             if(connectedCar.getValue("VIN").equals(VIN)) {
-                ((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
+                //((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
                 LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
                         (Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.connected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
+                View view = inflater.inflate(R.layout.connected_car_display,
+                        ((LinearLayout)findViewById(R.id.carStatus)), false);
                 ((TextView)view.findViewById(R.id.make)).setText(make);
                 ((TextView)view.findViewById(R.id.model)).setText(model);
                 ((TextView)view.findViewById(R.id.year)).setText(year);
                 ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
             }
+        } else {
+            LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
+                    (Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.unconnected_car_display,
+                    ((LinearLayout)findViewById(R.id.carStatus)), false);
+
+            ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
         }
-    }*/
+    }
 
     @Override
     protected void onResume() {
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        //connectedCarStatusUpdate();
+        connectedCarStatusUpdate();
         super.onResume();
     }
 
@@ -912,7 +926,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getBluetoothState(int state) {
-
+        //connectedCarStatusUpdate();
     }
 
     @Override
@@ -931,7 +945,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(dataPackageInfo.deviceId.contains(scannerID)){
+        /*if(dataPackageInfo.deviceId.contains(scannerID)){
             if(connectedAdapter==null) {
                 ((LinearLayout)findViewById(R.id.carStatus)).removeAllViewsInLayout();
                 LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
@@ -950,7 +964,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             }
             if(dataPackageInfo.obdData.size()>0)
                 setUpConnectedCarDisplay(dataPackageInfo.obdData);
-        }
+        }*/
     }
 
     @Override

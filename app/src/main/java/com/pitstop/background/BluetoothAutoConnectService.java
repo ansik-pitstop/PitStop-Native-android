@@ -303,16 +303,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             //show a custom notification
             if (deviceConnected) {
-                try {// mixpanel stuff
-                    if(ParseApplication.mixpanelAPI!=null){
-                        ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Connected'}"));
-                        ParseApplication.mixpanelAPI.flush();
-                    }else{
-                        ParseApplication.setUpMixPanel();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                 Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -350,17 +340,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
         } else {// car not connected
-            try {// mixpanel stuff
-                if(ParseApplication.mixpanelAPI!=null){
-                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                            new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
-                    ParseApplication.mixpanelAPI.flush();
-                }else{
-                    ParseApplication.setUpMixPanel();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
             /**
              * Set device connection state for connected car indicator,
@@ -387,7 +366,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         } else {
                             /*Toast.makeText(getApplicationContext(),
                                     "Saved trip mileage",Toast.LENGTH_SHORT).show();*/
-                            Log.i(R4_TAG, "Saved trip mileage");
+                                    Log.i(R4_TAG, "Saved trip mileage");
                         }
 
                     }
@@ -488,11 +467,19 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         deviceConnState = true;
-
+        currentDeviceId = dataPackageInfo.deviceId;
         processPIDData(dataPackageInfo);
 
         if(dataPackageInfo.result == 4) {
             processResultFourData(dataPackageInfo);
+        }
+
+        if(dataPackageInfo.result == 5) {
+            processResultFiveData(dataPackageInfo);
+        }
+
+        if(dataPackageInfo.result == 6) {
+            processResultSixData(dataPackageInfo);
         }
 
         Log.i(DTAG, "getting io data - auto-connect service");
@@ -623,7 +610,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      *      The data returned from obd device for result 4
      */
     private void processResultFourData(DataPackageInfo data) {
-        Log.i(R4_TAG,"Receiving result 4");
+        /*Log.i(R4_TAG,"Receiving result 4");
         Log.i(R4_TAG,"result "+data.result);
         Log.i(R4_TAG,"DeviceId "+data.deviceId);
         Log.i(R4_TAG,"DataNumber "+data.dataNumber);
@@ -633,7 +620,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R4_TAG,"TripId "+data.tripId);
         Log.i(R4_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R4_TAG,"Trip fuel "+data.tripfuel);
-        Log.i(R4_TAG,"Vehicle state "+data.vState);
+        Log.i(R4_TAG,"Vehicle state "+data.vState);*/
 
         if(tripMileage==null) {
             tripMileage = new ParseObject("TripMileage");
@@ -669,7 +656,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     } else {
                         /*Toast.makeText(getApplicationContext(),
                                 "Saved trip mileage", Toast.LENGTH_SHORT).show();*/
-                        Log.i(R4_TAG, "Saved trip mileage");
+                                Log.i(R4_TAG, "Saved trip mileage");
                     }
 
                 }
@@ -679,10 +666,34 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     }
 
     private void processResultFiveData(DataPackageInfo data) {
+        /*String R5_TAG = "R5_Data";
+        Log.i(R5_TAG,"Receiving result 5");
+        Log.i(R5_TAG,"result "+data.result);
+        Log.i(R5_TAG,"DeviceId "+data.deviceId);
+        Log.i(R5_TAG,"DataNumber "+data.dataNumber);
+        Log.i(R5_TAG,"RTC "+data.rtcTime);
+        Log.i(R5_TAG,"ProtocolType "+data.protocolType);
+        Log.i(R5_TAG,"Trip flag "+data.tripFlag);
+        Log.i(R5_TAG,"TripId "+data.tripId);
+        Log.i(R5_TAG,"Trip mileage "+data.tripMileage);
+        Log.i(R5_TAG,"Trip fuel "+data.tripfuel);
+        Log.i(R5_TAG,"Vehicle state "+data.vState);*/
 
     }
 
     private void processResultSixData(DataPackageInfo data) {
+       /* String R6_TAG = "R6_Data";
+        Log.i(R6_TAG,"Receiving result 6");
+        Log.i(R6_TAG,"result "+data.result);
+        Log.i(R6_TAG,"DeviceId "+data.deviceId);
+        Log.i(R6_TAG,"DataNumber "+data.dataNumber);
+        Log.i(R6_TAG,"RTC "+data.rtcTime);
+        Log.i(R6_TAG,"ProtocolType "+data.protocolType);
+        Log.i(R6_TAG,"Trip flag "+data.tripFlag);
+        Log.i(R6_TAG,"TripId "+data.tripId);
+        Log.i(R6_TAG,"Trip mileage "+data.tripMileage);
+        Log.i(R6_TAG,"Trip fuel "+data.tripfuel);
+        Log.i(R6_TAG,"Vehicle state "+data.vState);*/
 
     }
 
@@ -697,9 +708,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      *
      */
     private void processPIDData(DataPackageInfo data) {
-        Log.i(PID_TAG,"Processing PID data");
+       /* Log.i(PID_TAG,"Processing PID data");
         Log.i(PID_TAG,"Result: "+data.result);
-        Log.i(PID_TAG,"DataNum: "+data.dataNumber);
+        Log.i(PID_TAG,"DataNum: "+data.dataNumber);*/
 
         if(data.obdData.isEmpty()) {
             Log.i(PID_TAG,"obdData is empty");
@@ -849,17 +860,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
 
     public void uploadRecords() {
-        try {// mixpanel stuff
-            if(ParseApplication.mixpanelAPI!=null){
-                ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                        new JSONObject("{'Status':'Uploading Data'}"));
-                ParseApplication.mixpanelAPI.flush();
-            }else{
-                ParseApplication.setUpMixPanel();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
         Log.i(DTAG, "Uploading database records");
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         DBModel entry = ldr.getLastRow("Uploads", "UploadID");

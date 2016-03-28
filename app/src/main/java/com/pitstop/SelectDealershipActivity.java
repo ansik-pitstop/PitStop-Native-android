@@ -7,6 +7,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +21,10 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.pitstop.utils.InternetChecker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -39,6 +42,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private TextView message;
 
     private boolean hadInternetConnection = false;
+    private List<ParseObject> cars = new ArrayList<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,27 +61,69 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.refresh) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.refresh) {
             setup();
         }
         if(item.getItemId() == R.id.action_settings) {
             Intent intent = new Intent(SelectDealershipActivity.this,SettingsActivity.class);
             startActivity(intent);
         }
+
+        if(id == R.id.log_out) {
+            ParseUser.logOut();
+            navigateToLogin();
+        }
         return true;
     }
 
     @Override
     public void onBackPressed() {
+        String userId = null;
+
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
-            startActivity(new Intent(this,MainActivity.class));
-        } else {
-            if(hadInternetConnection) {
-                Toast.makeText(SelectDealershipActivity.this,"Please select dealership",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                setup();
+            startActivity(new Intent(this, MainActivity.class));
+
+        } else if(ParseUser.getCurrentUser() != null) {
+
+            userId = ParseUser.getCurrentUser().getObjectId();
+
+            try {
+                if(new InternetChecker(this).execute().get()) {
+                    //hadInternetConnection = true;
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                    query.whereContains("owner", userId);
+                    progressBar.setVisibility(View.VISIBLE);
+                    query.findInBackground(new FindCallback<ParseObject>() {
+
+
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            progressBar.setVisibility(View.GONE);
+                            if(e == null) {
+                                if (!objects.isEmpty()) {
+                                    startActivity(new Intent(SelectDealershipActivity.this,
+                                            MainActivity.class));
+                                } else {
+                                    if(hadInternetConnection) {
+                                        Toast.makeText(SelectDealershipActivity.this,
+                                                "Please select dealership",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        setup();
+                                    }
+                                }
+                            } else {
+                                Log.i("ParseError",e.getMessage());
+                            }
+                        }
+                    });
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -126,6 +172,13 @@ public class SelectDealershipActivity extends AppCompatActivity {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, SplashScreen.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public class DealershipAdapter extends RecyclerView.Adapter<DealershipAdapter.ViewHolder> {
