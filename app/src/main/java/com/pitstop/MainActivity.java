@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +54,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
@@ -68,6 +71,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
     public static Intent serviceIntent;
@@ -101,9 +108,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private RelativeLayout mainView;
     private RelativeLayout loadingScreen;
     private RelativeLayout serviceCountBackground;
+    private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
     private TextView serviceCountText;
 
-    private TextView carName, carYear, carEngine, loadingText;
+    private TextView carName, carTrim, loadingText, dealershipName;
     private Button carScanButton;
 
     private List<ParseObject> cars = new ArrayList<>();
@@ -234,16 +242,48 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         setSwipeDeleteListener(recyclerView);
 
         carName = (TextView) findViewById(R.id.car_name);
-        carYear = (TextView) findViewById(R.id.car_year);
-        carEngine = (TextView) findViewById(R.id.car_engine_value);
+        carTrim= (TextView) findViewById(R.id.car_trim);
         loadingText = (TextView) findViewById(R.id.loading_text);
         serviceCountText = (TextView) findViewById(R.id.service_count_text);
+        dealershipName = (TextView) findViewById(R.id.dealership_name);
 
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         serviceCountBackground = (RelativeLayout) findViewById(R.id.service_count_background);
         loadingScreen = (RelativeLayout) findViewById(R.id.loading_view);
 
-        carScanButton = (Button) findViewById(R.id.car_scan_button);
+        addressLayout = (RelativeLayout) findViewById(R.id.address_layout);
+        addressLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String uri = String.format(Locale.ENGLISH,
+                        "http://maps.google.com/maps?daddr=%s",
+                        dashboardCar.getDealerShip().getAddress());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(intent);
+            }
+        });
+
+        phoneNumberLayout = (RelativeLayout) findViewById(R.id.phone_layout);
+        phoneNumberLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                        dashboardCar.getDealerShip().getPhone()));
+                startActivity(intent);
+            }
+        });
+
+        chatLayout = (RelativeLayout) findViewById(R.id.chat_layout);
+        chatLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                ConversationActivity.show(MainActivity.this);
+            }
+        });
+
+        /*carScanButton = (Button) findViewById(R.id.car_scan_button);
         carScanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 intent.putExtra(CAR_EXTRA,dashboardCar);
                 startActivity(intent);
             }
-        });
+        });*/
     }
 
     private void hideLoading() {
@@ -467,10 +507,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
                         carList = Car.createCarsList(objects);
                         setDashboardCar();
+                        setDealership();
 
-                        carName.setText(dashboardCar.getMake() + " " + dashboardCar.getModel());
-                        carYear.setText(String.valueOf(dashboardCar.getYear()));
-                        carEngine.setText(dashboardCar.getEngine());
+                        carName.setText(dashboardCar.getYear() + " "
+                                + dashboardCar.getMake() + " "
+                                + dashboardCar.getModel());
+                        carTrim.setText(dashboardCar.getTrim());
 
                         int recallCount = dashboardCar.getNumberOfRecalls();
                         int serviceCount = dashboardCar.getNumberOfServices();
@@ -506,7 +548,23 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         });
     }
 
+    private void setDealership() {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+        query.whereEqualTo("objectId", dashboardCar.getShopId());
 
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e == null) {
+                    dashboardCar.setDealerShip(Dealership.createDealership(objects.get(0)));
+                    dealershipName.setText(dashboardCar.getDealerShip().getName());
+                } else {
+                    Toast.makeText(MainActivity.this, "Failed to retrieve dealership info",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
 
     @Override

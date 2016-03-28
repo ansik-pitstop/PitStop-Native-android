@@ -290,6 +290,7 @@ public class Car implements Serializable {
             car.setMake(parseObject.getString("make"));
             car.setModel(parseObject.getString("model"));
             car.setYear(parseObject.getInt("year"));
+            car.setTrim(parseObject.getString("trim_level"));
             car.setNumberOfRecalls(parseObject.getInt("numberOfRecalls"));
             car.setNumberOfServices(parseObject.getInt("numberOfServices"));
             car.setScanner(parseObject.getString("scannerId"));

@@ -8,6 +8,7 @@
     <color name="evcheck_dark">#1f974a</color>
 
     <!-- Smooch chat -->
-    <color name="Smooch_accent">@color/highlight</color>
-    <color name="Smooch_accentDark">@color/highlight_dark</color>
+    <color name="Smooch_accent">@color/primary</color>
+    <color name="Smooch_accentDark">@color/primary</color>
+    <color name="line_break">#424242</color>
 </resources>

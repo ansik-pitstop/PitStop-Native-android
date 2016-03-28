@@ -193,46 +193,4 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#bfb7dcf6"
-        android:id="@+id/loading_view"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Loading"
-                android:id="@+id/loading_text"
-                android:layout_gravity="center_horizontal"
-                android:textColor="#fff" />
-
-            <ProgressBar
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/progressBar"
-                android:indeterminate="true"
-                android:layout_centerInParent="true"
-                android:layout_margin="16dp" />
-            <!--Cancelling loading screen does not stop background process-->
-            <!--<Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel"
-                android:id="@+id/button6"
-                android:layout_gravity="center_horizontal"
-                android:onClick="hideLoading" />-->
-        </LinearLayout>
-
-    </RelativeLayout>
-
 </RelativeLayout>

@@ -353,7 +353,7 @@ public class MainActivityFragment extends Fragment {
                             map.put("scannerId", id);
                             ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
                             Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
-                            ((MainActivity) getActivity()).service.getDTCs();
+                            //((MainActivity) getActivity()).service.getDTCs();
                         }
                     });
                 }

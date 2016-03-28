@@ -116,8 +116,8 @@
     <orderEntry type="library" exported="" name="mixpanel-android-4.8.0" level="project" />
     <orderEntry type="library" exported="" name="library-5.4.1" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.4.0" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-23.2.1" level="project" />
     <orderEntry type="library" exported="" name="okio-1.4.0" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-23.2.1" level="project" />
     <orderEntry type="library" exported="" name="animated-vector-drawable-23.2.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-23.2.1" level="project" />
     <orderEntry type="library" exported="" name="parse-android-1.13.0" level="project" />

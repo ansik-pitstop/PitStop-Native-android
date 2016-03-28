@@ -30,11 +30,10 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingTop="18dp"
-            android:paddingBottom="18dp"
             android:background="#FFF">
 
-            <LinearLayout
-                android:id="@+id/car_info_linear_layout"
+            <RelativeLayout
+                android:id="@+id/car_info_relative_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -53,7 +52,7 @@
                         android:layout_marginRight="8dp" />
 
                     <TextView
-                        android:id="@+id/car_year"
+                        android:id="@+id/car_trim"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/car_name"
@@ -61,21 +60,12 @@
                         android:text="Small Text"
                         android:layout_marginRight="8dp" />
 
-                    <TextView
-                        android:id="@+id/car_engine_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/car_year"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="1.8L L4 SOHC 16V"/>
-
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/car_details_components_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/car_details_layout"
                     android:layout_alignParentRight="true">
 
                     <RelativeLayout
@@ -84,9 +74,7 @@
                         android:layout_height="40dp"
                         android:background="@drawable/dark_circular_background"
                         android:layout_gravity="center"
-                        android:layout_centerVertical="true"
-                        android:layout_toLeftOf="@+id/car_scan_button"
-                        android:layout_marginRight="8dp">
+                        android:layout_centerVertical="true">
 
                         <TextView
                             android:id="@+id/service_count_text"
@@ -99,7 +87,7 @@
                             android:layout_centerInParent="true" />
                     </RelativeLayout>
 
-                    <Button
+                    <!--<Button
                         android:id="@+id/car_scan_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -108,29 +96,97 @@
                         android:background="@drawable/color_button_primary_car"
                         android:padding="10dp"
                         android:textColor="#fff"
-                        android:elevation="12dp" />
+                        android:elevation="12dp" />-->
 
                 </RelativeLayout>
-            </LinearLayout>
+            </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/connected_car_state_layout"
+                android:id="@+id/dealership_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:padding="8dp"
                 android:orientation="horizontal"
-                android:layout_below="@+id/car_info_linear_layout"
-                android:background="@drawable/rounded_red_background">
+                android:layout_below="@+id/car_info_relative_layout">
 
-                <TextView
-                    android:id="@+id/engine_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="Car is not connected"
-                    android:textColor="#fff"
-                    android:textSize="18sp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#EEEEEE"/>
+
+
+
+                <RelativeLayout
+                    android:id="@+id/dealership_info_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/dealership_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dealership"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:textSize="20sp"/>
+
+                    <RelativeLayout
+                        android:id="@+id/dealership_action_icons"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="15dp"
+                        android:paddingBottom="15dp"
+                        android:layout_alignParentRight="true">
+
+                        <RelativeLayout
+                            android:id="@+id/address_layout"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:elevation="3dp"
+                            android:background="@drawable/grey_circular_background">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_centerInParent="true"
+                                android:src="@drawable/ic_pin_drop_red_400_18dp"/>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/phone_layout"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:elevation="3dp"
+                            android:layout_toRightOf="@+id/address_layout"
+                            android:background="@drawable/grey_circular_background">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_centerInParent="true"
+                                android:src="@drawable/ic_phone_red_400_18dp"/>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/chat_layout"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:elevation="3dp"
+                            android:layout_toRightOf="@+id/phone_layout"
+                            android:background="@drawable/grey_circular_background">
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_centerInParent="true"
+                                android:src="@drawable/ic_message_red_400_18dp"/>
+                        </RelativeLayout>
+
+                    </RelativeLayout>
+
+                </RelativeLayout>
 
             </RelativeLayout>
         </RelativeLayout>
