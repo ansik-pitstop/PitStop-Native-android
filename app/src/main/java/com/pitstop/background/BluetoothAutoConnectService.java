@@ -330,16 +330,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             //show a custom notification
             if (deviceConnected) {
-                try {// mixpanel stuff
-                    if(ParseApplication.mixpanelAPI!=null){
-                        ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Connected'}"));
-                        ParseApplication.mixpanelAPI.flush();
-                    }else{
-                        ParseApplication.setUpMixPanel();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                 Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -377,17 +367,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
         } else {// car not connected
-            try {// mixpanel stuff
-                if(ParseApplication.mixpanelAPI!=null){
-                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                            new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
-                    ParseApplication.mixpanelAPI.flush();
-                }else{
-                    ParseApplication.setUpMixPanel();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
             /**
              * Set device connection state for connected car indicator,
@@ -905,17 +884,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
 
     public void uploadRecords() {
-        try {// mixpanel stuff
-            if(ParseApplication.mixpanelAPI!=null){
-                ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                        new JSONObject("{'Status':'Uploading Data'}"));
-                ParseApplication.mixpanelAPI.flush();
-            }else{
-                ParseApplication.setUpMixPanel();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
         Log.i(DTAG, "Uploading database records");
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         DBModel entry = ldr.getLastRow("Uploads", "UploadID");

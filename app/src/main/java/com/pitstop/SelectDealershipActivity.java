@@ -66,8 +66,16 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.refresh) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.refresh) {
             setup();
+        }
+
+        if(id == R.id.log_out) {
+            ParseUser.logOut();
+            navigateToLogin();
         }
         return true;
     }
@@ -165,6 +173,13 @@ public class SelectDealershipActivity extends AppCompatActivity {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, SplashScreen.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public class DealershipAdapter extends RecyclerView.Adapter<DealershipAdapter.ViewHolder> {
