@@ -8,7 +8,11 @@
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="Refresh"
         app:showAsAction="always"
-        tools:context=".SelectDealershipActivity" />
+        tools:context=".MainActivity" />
+	
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+	
     <item
         android:id="@+id/log_out"
         android:title="Log out"
