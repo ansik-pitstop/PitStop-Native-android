@@ -111,7 +111,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
@@ -170,7 +170,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
 
         // Todo enable when PIDParser is fixed
-        /*LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
+       /* LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.unconnected_car_display,((LinearLayout)findViewById(R.id.carStatus)), false);
 
@@ -245,7 +245,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     @Override
     protected void onResume() {
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        connectedCarStatusUpdate();
+        //connectedCarStatusUpdate();
         super.onResume();
     }
 
@@ -860,7 +860,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
-    public void setUpConnectedCarDisplay(List<PIDInfo> pids){
+    private void setUpConnectedCarDisplay(List<PIDInfo> pids){
         ArrayList<PIDParser.Pair<String,String>> carDetails = new ArrayList<>();
         for (PIDInfo pid :pids){
             PIDParser.Pair<String,String> tmp = PIDParser.ParsePID(pid.pidType,pid.intValues,pid.value);
@@ -926,7 +926,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getBluetoothState(int state) {
-        //connectedCarStatusUpdate();
+        connectedCarStatusUpdate();
     }
 
     @Override
