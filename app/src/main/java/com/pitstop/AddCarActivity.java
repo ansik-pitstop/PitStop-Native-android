@@ -558,7 +558,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 askForDTC=true;
                 Log.i(ACTIVITY_TAG,"Make car --- Getting DTCs");
                 service.getDTCs();
-
+                service.getPendingDTCs();
             } else {
                 try {
                     Log.i(ACTIVITY_TAG, "Device not connected");

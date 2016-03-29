@@ -306,6 +306,7 @@ public class MainActivityMultiFragment extends Fragment {
                                 Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).setCurrentConnectedCar(selectedCar);
                                 ((MainActivity) getActivity()).service.getDTCs();
+                                ((MainActivity) getActivity()).service.getPendingDTCs();
                             }
                         });
                     }

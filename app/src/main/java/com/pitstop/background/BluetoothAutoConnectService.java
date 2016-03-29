@@ -96,6 +96,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     public static int DEVICE_LOGIN = 1;
     public static int DEVICE_LOGOUT = 0;
+    private boolean askForPendingDTCs;
+
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -106,6 +108,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void onCreate() {
         super.onCreate();
         askforDtcs = false;
+        askForPendingDTCs = false;
         status5counter=0;
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
@@ -241,6 +244,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         if (!askforDtcs){
             askforDtcs = true;
             BluetoothManage.getInstance(this).obdSetMonitor(1, "");
+        }
+    }
+
+    public void getPendingDTCs() {
+        Log.i(DTAG, "Getting pending DTCs");
+        if (!askForPendingDTCs){
+            askForPendingDTCs = true;
+            BluetoothManage.getInstance(this).obdSetMonitor(2, "");
         }
     }
 
@@ -483,8 +494,11 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
 
         Log.i(DTAG, "getting io data - auto-connect service");
-        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
+        if (dataPackageInfo.result == 6 && askforDtcs ||
+                dataPackageInfo.result == 6 && askForPendingDTCs) {
+
             askforDtcs=false;
+            askForPendingDTCs = false;
             String dtcs = "";
             if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
@@ -580,6 +594,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
         if(counter%50==0){
             getDTCs();
+        }
+        if(counter%80==0) {
+            getPendingDTCs();
         }
         if(counter==100){
             counter = 1;
