@@ -353,6 +353,7 @@ public class MainActivityFragment extends Fragment {
                             ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
                             Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
                             ((MainActivity) getActivity()).service.getDTCs();
+                            ((MainActivity) getActivity()).service.getPendingDTCs();
                         }
                     });
                 }
@@ -391,6 +392,7 @@ public class MainActivityFragment extends Fragment {
                                 ldr.updateData("Cars", "VIN", carToUpdate.getValue("VIN"), map);
                                 Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).service.getDTCs();
+                                ((MainActivity)getActivity()).service.getPendingDTCs();
                                 ((MainActivity)getActivity()).service.setCurrentCar(carToUpdate);
                             }
                         });
