@@ -179,6 +179,17 @@ public class LocalDataRetriever {
         //Cursor cursor = db.rawQuery(selectQuery,null);
         return true;
     }
+    /**
+     *
+     * @param type "Cars", "Dtcs", "Recalls", "Services", "Responses" or "Uploads"
+     */
+    public boolean deleteData(String type) {
+        dbase.getReadableDatabase();
+        SQLiteDatabase db = dbase.getWritableDatabase();
+        db.delete(type,null,null);
+        //Cursor cursor = db.rawQuery(selectQuery,null);
+        return true;
+    }
 
     public ArrayList<DBModel> getResponse(String deviceId, String start, String end) {
         SQLiteDatabase db = dbase.getReadableDatabase();

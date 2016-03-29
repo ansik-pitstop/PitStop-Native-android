@@ -306,6 +306,7 @@ public class MainActivityMultiFragment extends Fragment {
                                 Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).setCurrentConnectedCar(selectedCar);
                                 ((MainActivity) getActivity()).service.getDTCs();
+                                ((MainActivity) getActivity()).service.getPendingDTCs();
                             }
                         });
                     }
@@ -328,7 +329,7 @@ public class MainActivityMultiFragment extends Fragment {
             if(a.getValue("scannerId").isEmpty()){
                 noDevice = (Cars) a;
             }
-            if(a.getValue("scannerId").equals(deviceId)&&
+            if(deviceId.contains(a.getValue("scannerId"))&&
                     ((ListView) getActivity().findViewById(R.id.listView)).getChildAt(i)!=null){
                 found = true;
                 TextView tv = (TextView) ((ListView) getActivity().findViewById(R.id.listView))
@@ -346,6 +347,10 @@ public class MainActivityMultiFragment extends Fragment {
     }
 
     String tag = "ConnectedCar";
+    /**
+     * Link car to device if device is new to user, and change colors of connected cars!
+     * @param deviceId
+     */
     public void linkDevice(final String deviceId) {
         Log.i(tag,"Linking device");
         int noIdCount = 0;
@@ -373,6 +378,10 @@ public class MainActivityMultiFragment extends Fragment {
             }
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
+
+            /**
+             * If device is associated with more than one car in the dashboard or
+             * */
 
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
                     noIdCount==array.size()) {
@@ -448,7 +457,7 @@ public class MainActivityMultiFragment extends Fragment {
             });
 
             if(shop!=null) {
-				setOnclickListenersForViews(shop,convertview);
+				setOnclickListenersForViews(shop,convertview,car);
 			}
 
             // Set connectedCar indicator
@@ -462,7 +471,7 @@ public class MainActivityMultiFragment extends Fragment {
             return convertview;
         }
 
-        private void setOnclickListenersForViews(DBModel shop, LinearLayout convertView) {
+        private void setOnclickListenersForViews(final DBModel shop, LinearLayout convertView, final Cars car) {
 
             final String garagePhoneNumber = shop.getValue("phoneNumber");
             final String garageAddress = shop.getValue("address");
@@ -472,7 +481,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -486,12 +496,21 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
+                    final HashMap<String, Object> customProperties = new HashMap<>();
+                    customProperties.put("VIN", car.getValue("VIN"));
+                    customProperties.put("Car Make",  car.getValue("make"));
+                    customProperties.put("Car Model", car.getValue("model"));
+                    customProperties.put("Car Year", car.getValue("year"));
+                    customProperties.put("Phone", ParseUser.getCurrentUser().get("phoneNumber"));
+                    customProperties.put("Email",shop.getValue("email"));
+                    User.getCurrentUser().addProperties(customProperties);
                     User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                    User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                     ConversationActivity.show(getContext());
                 }
             });                
@@ -501,7 +520,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
