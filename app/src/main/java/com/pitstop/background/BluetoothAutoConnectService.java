@@ -25,7 +25,6 @@ import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
@@ -39,6 +38,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.Responses;
 import com.pitstop.database.models.Uploads;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.PIDParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,6 +96,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     public static int DEVICE_LOGIN = 1;
     public static int DEVICE_LOGOUT = 0;
+    private boolean askForPendingDTCs;
+
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -106,6 +108,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
     public void onCreate() {
         super.onCreate();
         askforDtcs = false;
+        askForPendingDTCs = false;
         status5counter=0;
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
@@ -244,36 +247,17 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
+    public void getPendingDTCs() {
+        Log.i(DTAG, "Getting pending DTCs");
+        if (!askForPendingDTCs){
+            askForPendingDTCs = true;
+            BluetoothManage.getInstance(this).obdSetMonitor(2, "");
+        }
+    }
+
     public void getFreeze() {
         Log.i(DTAG, "Getting freeze data - auto-connect service");
         BluetoothManage.getInstance(this).obdSetMonitor(3, "");
-    }
-
-    public String parseDTCs(String hex){
-        Log.i(DTAG,"Parsing DTCs - auto-connect service");
-        int start = 1;
-        char head = hex.charAt(0);
-        HashMap<Character, String> map = new HashMap<Character, String>();
-        map.put('0',"P0");
-        map.put('1',"P1");
-        map.put('2',"P2");
-        map.put('3',"P3");
-
-        map.put('4',"C0");
-        map.put('5',"C1");
-        map.put('6',"C2");
-        map.put('7',"C3");
-
-        map.put('8',"B0");
-        map.put('9',"B1");
-        map.put('A',"B2");
-        map.put('B',"B3");
-
-        map.put('C',"U0");
-        map.put('D',"U1");
-        map.put('E',"U2");
-        map.put('F',"U3");
-        return map.get(head)+hex.substring(start);
     }
 
     private void sendForPIDS(){
@@ -319,7 +303,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
             }
-            boolean deviceConnected = false;
+            boolean deviceConnected = true;
             for (BluetoothDevice device : devices) {
                 Log.i(DTAG,"Iterating through bonded devices - auto-connect service");
                 //if device has name IDD-212
@@ -330,16 +314,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
             //show a custom notification
             if (deviceConnected) {
-                try {// mixpanel stuff
-                    if(ParseApplication.mixpanelAPI!=null){
-                        ParseApplication.mixpanelAPI.track("Peripheral Connection Status", new JSONObject("{'Status':'Connected'}"));
-                        ParseApplication.mixpanelAPI.flush();
-                    }else{
-                        ParseApplication.setUpMixPanel();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                 Log.i(DTAG,"Device is connected -  auto-connect service");
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
@@ -377,17 +351,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             }
 
         } else {// car not connected
-            try {// mixpanel stuff
-                if(ParseApplication.mixpanelAPI!=null){
-                    ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                            new JSONObject("{'Status':'Disconnected (Can be any device! May not be our hardware!)'}"));
-                    ParseApplication.mixpanelAPI.flush();
-                }else{
-                    ParseApplication.setUpMixPanel();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
             /**
              * Set device connection state for connected car indicator,
@@ -500,6 +463,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
+    public String parseDTCs(String input){
+        return PIDParser.parseDTCs(input);
+    }
 
     /**
      * result=4 --> trip data uploaded by terminal
@@ -528,29 +494,32 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
 
         Log.i(DTAG, "getting io data - auto-connect service");
-        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
-            askforDtcs=false;
-            String dtcs = "";
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    dtcs+=parseDTCs(dtc)+",";
+        if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.equals("")) {
+            if(askforDtcs || askForPendingDTCs) {
+                askforDtcs=false;
+                askForPendingDTCs = false;
+                String dtcs = "";
+                if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                    String[] DTCs = dataPackageInfo.dtcData.split(",");
+                    for(String dtc : DTCs) {
+                        dtcs+=parseDTCs(dtc)+",";
+                    }
                 }
+                //update DTC to online
+                ParseObject scansSave = new ParseObject("Scan");
+                scansSave.put("DTCs", dtcs);
+                scansSave.put("scannerId", dataPackageInfo.deviceId);
+                scansSave.put("runAfterSave", true);
+                scansSave.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d("DTC Saving", "DTCs saved");
+                    }
+                });
+                if (serviceCallbacks != null)
+                    serviceCallbacks.getIOData(dataPackageInfo);
+                return;
             }
-            //update DTC to online
-            ParseObject scansSave = new ParseObject("Scan");
-            scansSave.put("DTCs", dtcs);
-            scansSave.put("scannerId", dataPackageInfo.deviceId);
-            scansSave.put("runAfterSave", true);
-            scansSave.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("DTC Saving", "DTCs saved");
-                }
-            });
-            if (serviceCallbacks != null)
-                serviceCallbacks.getIOData(dataPackageInfo);
-            return;
         }
         counter ++;
         //keep looking for pids until all pids are recieved
@@ -625,6 +594,9 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
         if(counter%50==0){
             getDTCs();
+        }
+        if(counter%80==0) {
+            getPendingDTCs();
         }
         if(counter==100){
             counter = 1;
@@ -723,7 +695,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R5_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R5_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R5_TAG,"Vehicle state "+data.vState);*/
-
     }
 
     private void processResultSixData(DataPackageInfo data) {
@@ -739,7 +710,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R6_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R6_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R6_TAG,"Vehicle state "+data.vState);*/
-
     }
 
     /**
@@ -905,17 +875,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
 
     public void uploadRecords() {
-        try {// mixpanel stuff
-            if(ParseApplication.mixpanelAPI!=null){
-                ParseApplication.mixpanelAPI.track("Peripheral Connection Status",
-                        new JSONObject("{'Status':'Uploading Data'}"));
-                ParseApplication.mixpanelAPI.flush();
-            }else{
-                ParseApplication.setUpMixPanel();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
         Log.i(DTAG, "Uploading database records");
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         DBModel entry = ldr.getLastRow("Uploads", "UploadID");
