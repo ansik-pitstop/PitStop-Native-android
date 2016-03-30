@@ -494,32 +494,32 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
 
         Log.i(DTAG, "getting io data - auto-connect service");
-        if (dataPackageInfo.result == 6 && askforDtcs ||
-                dataPackageInfo.result == 6 && askForPendingDTCs) {
-
-            askforDtcs=false;
-            askForPendingDTCs = false;
-            String dtcs = "";
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    dtcs+=parseDTCs(dtc)+",";
+        if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.equals("")) {
+            if(askforDtcs || askForPendingDTCs) {
+                askforDtcs=false;
+                askForPendingDTCs = false;
+                String dtcs = "";
+                if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                    String[] DTCs = dataPackageInfo.dtcData.split(",");
+                    for(String dtc : DTCs) {
+                        dtcs+=parseDTCs(dtc)+",";
+                    }
                 }
+                //update DTC to online
+                ParseObject scansSave = new ParseObject("Scan");
+                scansSave.put("DTCs", dtcs);
+                scansSave.put("scannerId", dataPackageInfo.deviceId);
+                scansSave.put("runAfterSave", true);
+                scansSave.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d("DTC Saving", "DTCs saved");
+                    }
+                });
+                if (serviceCallbacks != null)
+                    serviceCallbacks.getIOData(dataPackageInfo);
+                return;
             }
-            //update DTC to online
-            ParseObject scansSave = new ParseObject("Scan");
-            scansSave.put("DTCs", dtcs);
-            scansSave.put("scannerId", dataPackageInfo.deviceId);
-            scansSave.put("runAfterSave", true);
-            scansSave.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("DTC Saving", "DTCs saved");
-                }
-            });
-            if (serviceCallbacks != null)
-                serviceCallbacks.getIOData(dataPackageInfo);
-            return;
         }
         counter ++;
         //keep looking for pids until all pids are recieved
@@ -695,7 +695,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R5_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R5_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R5_TAG,"Vehicle state "+data.vState);*/
-
     }
 
     private void processResultSixData(DataPackageInfo data) {
@@ -711,7 +710,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(R6_TAG,"Trip mileage "+data.tripMileage);
         Log.i(R6_TAG,"Trip fuel "+data.tripfuel);
         Log.i(R6_TAG,"Vehicle state "+data.vState);*/
-
     }
 
     /**
