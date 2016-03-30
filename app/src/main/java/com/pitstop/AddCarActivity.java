@@ -108,7 +108,6 @@ public class AddCarActivity extends AppCompatActivity implements
     private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
-
     //debugging storing TODO: Request permission for storage
     LogCatHelper mLogStore;
 
@@ -470,6 +469,7 @@ public class AddCarActivity extends AppCompatActivity implements
     }
 
     private void tryAgainDialog() {
+
         if(isLoading) {
             hideLoading();
         }
@@ -525,9 +525,9 @@ public class AddCarActivity extends AppCompatActivity implements
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
-           // Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 60 && (isSearching)
-                    && service.getState()!= BluetoothManage.BLUETOOTH_CONNECT_SUCCESS) {
+            //Log.i("AddCarString", "Timer Still Running");
+            if(seconds > 120 && (isSearching) && service.getState()
+                    != BluetoothManage.BLUETOOTH_CONNECT_SUCCESS) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
             } else if (!isSearching) {
@@ -535,7 +535,6 @@ public class AddCarActivity extends AppCompatActivity implements
             } else {
                 timerHandler.post(runnable);
             }
-
         }
     };
 
@@ -559,7 +558,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 askForDTC=true;
                 Log.i(ACTIVITY_TAG,"Make car --- Getting DTCs");
                 service.getDTCs();
-
+                service.getPendingDTCs();
             } else {
                 try {
                     Log.i(ACTIVITY_TAG, "Device not connected");
@@ -964,8 +963,10 @@ public class AddCarActivity extends AppCompatActivity implements
      * Hide the loading screen
      */
     private void hideLoading(){
-        Log.i(ACTIVITY_TAG,"hideLoading()--func");
+        Log.i(ACTIVITY_TAG, "hideLoading()--func");
         progressDialog.dismiss();
+		isSearching = false ;
+        isLoading = false;
     }
 
     /**
@@ -1007,6 +1008,23 @@ public class AddCarActivity extends AppCompatActivity implements
         vinHint = (TextView) findViewById(R.id.VIN_hint);
         searchForCarInfo = (TextView)findViewById(R.id.search_for_car_info);
         vinSection = (LinearLayout) findViewById(R.id.VIN_SECTION);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (vinDecoderApi != null &&
+                        vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                    vinDecoderApi.cancel(true);
+                    vinDecoderApi = null;
+                }
+
+                isGettingVin = false;
+                isSearching = false;
+                timerHandler.removeCallbacks(runnable);
+            }
+        });
     }
 
     private void scannerIdCheck(final JSONObject carInfo) {
@@ -1074,7 +1092,6 @@ public class AddCarActivity extends AppCompatActivity implements
 
     private void saveCarToServer(JSONObject carInfo) {
         Log.i("shop selected:", getDealership());
-
 
         showLoading("Saving car details");
 
