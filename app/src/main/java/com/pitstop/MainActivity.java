@@ -297,22 +297,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private void hideLoading() {
         loadingScreen.setVisibility(View.GONE);
-
-        // get the center for the clipping circle
-        int cx = mainView.getWidth()/2;
-        int cy = mainView.getHeight()/2;
-
-        // get the final radius for the clipping circle
-        float finalRadius = (float) Math.hypot(cx, cy);
-
-        // create the animator for this view (the start radius is zero)
-        Animator anim =
-                ViewAnimationUtils.createCircularReveal(mainView, cx, cy, 0, finalRadius);
-
-        // make the view visible and start the animation
         mainView.setVisibility(View.VISIBLE);
-        anim.start();
-
         isLoading = false;
     }
 
