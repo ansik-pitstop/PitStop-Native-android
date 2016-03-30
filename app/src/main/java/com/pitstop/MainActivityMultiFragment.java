@@ -306,6 +306,7 @@ public class MainActivityMultiFragment extends Fragment {
                                 Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).setCurrentConnectedCar(selectedCar);
                                 ((MainActivity) getActivity()).service.getDTCs();
+                                ((MainActivity) getActivity()).service.getPendingDTCs();
                             }
                         });
                     }
@@ -377,6 +378,10 @@ public class MainActivityMultiFragment extends Fragment {
             }
 
             Log.i(tag,"association count: "+associationCount+" no id count: "+noIdCount);
+
+            /**
+             * If device is associated with more than one car in the dashboard or
+             * */
 
             if(associationCount > 1 || (noIdCount > 1) && associationCount==0 ||
                     noIdCount==array.size()) {
@@ -476,7 +481,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Call Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -490,7 +496,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Message Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -513,7 +520,8 @@ public class MainActivityMultiFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':Directions Garage','View':'MainActivityMultiFragment'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

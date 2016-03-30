@@ -33,8 +33,12 @@ public class PIDParser {
      */
     public static Pair<String,String> ParsePID(String input, int[] values, String info){
         if (info.length()>2){
+
+            // TODO Fix Parse error
+
             values = new int[]{
-                    Integer.parseInt(info.substring(0,2),16), Integer.parseInt(info.substring(2),16)
+                    Integer.parseInt(info.substring(0,2),16),
+                    Integer.parseInt(info.substring(2),16)
             };
 
         }else{
