@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -14,10 +15,10 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class CarDataRetriever extends LocalDatabaseHelper {
+public class CarDataRetriever  {
 
     // CAR table create statement
-    private static final String CREATE_TABLE_CAR = "CREATE TABLE "
+    public static final String CREATE_TABLE_CAR = "CREATE TABLE IF NOT EXISTS "
             + TABLES.CAR.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.CAR.KEY_VIN + " TEXT, "
             + TABLES.CAR.KEY_MILEAGE + " INTEGER, "
@@ -34,27 +35,29 @@ public class CarDataRetriever extends LocalDatabaseHelper {
             + TABLES.COMMON.KEY_PARSE_ID + " TEXT, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
+    private LocalDatabaseHelper databaseHelper;
+
     public CarDataRetriever(Context context) {
-        super(context);
+        databaseHelper = new LocalDatabaseHelper(context);
+        Log.i("CarDataR", "Constructor");
     }
 
-    @Override
+    /*@Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_CAR);
+        Log.i("Car ", "onCreate");
+        super.onCreate(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
-        onCreate(db);
-        //super.onUpgrade(db, oldVersion, newVersion);
-    }
+        super.onUpgrade(db, oldVersion, newVersion);
+    }*/
 
     /**
      * Store car data
      */
-    public long storeCarData(Car car) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void storeCarData(Car car) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TABLES.COMMON.KEY_PARSE_ID, car.getParseId());
@@ -71,7 +74,8 @@ public class CarDataRetriever extends LocalDatabaseHelper {
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, car.isCurrentCar() ? 1 : 0);
 
-        return db.insert(TABLES.CAR.TABLE_NAME,null, values);
+        db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        db.close();
     }
 
     public void storeCars(List<Car> carList) {
@@ -88,7 +92,7 @@ public class CarDataRetriever extends LocalDatabaseHelper {
 
         String selectQuery = "SELECT * FROM " + TABLES.CAR.TABLE_NAME;
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);
 
         if(c.moveToFirst()) {
@@ -111,6 +115,7 @@ public class CarDataRetriever extends LocalDatabaseHelper {
 
             cars.add(car);
         }
+        db.close();
         return cars;
     }
 
@@ -119,7 +124,7 @@ public class CarDataRetriever extends LocalDatabaseHelper {
      */
     public int updateCar(Car car) {
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TABLES.COMMON.KEY_PARSE_ID, car.getParseId());
@@ -136,13 +141,17 @@ public class CarDataRetriever extends LocalDatabaseHelper {
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, car.isCurrentCar() ? 1 : 0);
 
-        return db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_PARSE_ID + " = ?",
+        int id = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_PARSE_ID + " = ?",
                 new String[] { String.valueOf(car.getParseId()) });
+
+        db.close();
+
+        return id;
     }
 
     /** Delete all cars*/
     public void deleteAllCars() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         List<Car> carEntries = getAllCars();
 
@@ -150,5 +159,7 @@ public class CarDataRetriever extends LocalDatabaseHelper {
             db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
                     new String[] { String.valueOf(car.getId()) });
         }
+
+        db.close();
     }
 }

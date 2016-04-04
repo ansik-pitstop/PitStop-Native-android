@@ -9,10 +9,10 @@ import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class DealershipDataRetriever extends LocalDatabaseHelper {
+public class DealershipDataRetriever {
 
     //DEALERSHIP table create statement
-    private static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE "
+    public static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE IF NOT EXISTS "
             + TABLES.DEALERSHIP.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.DEALERSHIP.KEY_NAME + " TEXT, "
             + TABLES.DEALERSHIP.KEY_ADDRESS + " TEXT, "
@@ -20,26 +20,27 @@ public class DealershipDataRetriever extends LocalDatabaseHelper {
             + TABLES.DEALERSHIP.KEY_EMAIL + " TEXT, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
+    private LocalDatabaseHelper databaseHelper;
+
     public DealershipDataRetriever(Context context) {
-        super(context);
+        databaseHelper = new LocalDatabaseHelper(context);
     }
 
-    @Override
+    /*@Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_DEALERSHIP);
+        super.onCreate(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.DEALERSHIP.TABLE_NAME);
-    }
+        super.onUpgrade(db, oldVersion, newVersion);
+    }*/
 
     /**
      * Dealership
      */
-    public int storeDealership(Dealership dealership) {
+    public void storeDealership(Dealership dealership) {
 
-        return 0;
     }
 
     public Dealership getDealership() {

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -14,10 +15,10 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 4/1/2016.
  */
-public class PidDataRetriever extends LocalDatabaseHelper{
+public class PidDataRetriever {
 
     // PID_DATA table create statement
-    private static final String CREATE_TABLE_PID_DATA = "CREATE TABLE "
+    public static final String CREATE_TABLE_PID_DATA = "CREATE TABLE IF NOT EXISTS "
             + TABLES.PID.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.PID.KEY_DATANUM + " TEXT,"
             + TABLES.PID.KEY_TIMESTAMP + " TEXT,"
@@ -25,27 +26,29 @@ public class PidDataRetriever extends LocalDatabaseHelper{
             + TABLES.PID.KEY_PIDS + " TEXT,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
+    private LocalDatabaseHelper databaseHelper;
+
 
     public PidDataRetriever(Context context) {
-        super(context);
+        databaseHelper = new LocalDatabaseHelper(context);
     }
 
-    @Override
+    /*@Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_PID_DATA);
+        Log.i("PID on create", "Running");
+        super.onCreate(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME);
-        onCreate(db);
-    }
+        super.onUpgrade(db, oldVersion, newVersion);
+    }*/
 
     /**
      * Create pid data
      */
-    public long createPIDData(Pid pidData) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void createPIDData(Pid pidData) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TABLES.PID.KEY_DATANUM, pidData.getDataNumber());
@@ -53,7 +56,8 @@ public class PidDataRetriever extends LocalDatabaseHelper{
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
 
-        return db.insert(TABLES.PID.TABLE_NAME, null,values);
+        db.insert(TABLES.PID.TABLE_NAME, null, values);
+        db.close();
     }
 
     /**
@@ -64,7 +68,7 @@ public class PidDataRetriever extends LocalDatabaseHelper{
 
         String selectQuery = "SELECT * FROM " + TABLES.PID.TABLE_NAME;
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);
 
         if(c.moveToFirst()) {
@@ -79,6 +83,7 @@ public class PidDataRetriever extends LocalDatabaseHelper{
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
         }
+        db.close();
         return pidDataEntries;
     }
 
@@ -88,8 +93,9 @@ public class PidDataRetriever extends LocalDatabaseHelper{
     public int getPidDataEntryCount() {
         String selectQuery = "SELECT * FROM " + TABLES.PID.TABLE_NAME;
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);
+        db.close();
         return c.getCount();
     }
 
@@ -97,7 +103,7 @@ public class PidDataRetriever extends LocalDatabaseHelper{
      * Clear all pid data entries
      */
     public void deleteAllPidDataEntries() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         List<Pid> pidDataEntries = getAllPidDataEntries();
 
@@ -105,5 +111,6 @@ public class PidDataRetriever extends LocalDatabaseHelper{
             db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
                     new String[] { String.valueOf(pid.getId()) });
         }
+        db.close();
     }
 }

@@ -8,7 +8,7 @@ import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 /**
  * Created by Paul Soladoye on 4/1/2016.
  */
-public class DtcDataRetriever extends LocalDatabaseHelper {
+public class DtcDataRetriever {
     //DTC table create statement
     private static final String CREATE_TABLE_DTC = "CREATE TABLE "
             + TABLES.DTC.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
@@ -17,17 +17,17 @@ public class DtcDataRetriever extends LocalDatabaseHelper {
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     public DtcDataRetriever(Context context) {
-        super(context);
+
     }
 
-    @Override
+    /*@Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_DTC);
+        *//*db.execSQL(CREATE_TABLE_DTC);*//*
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.DTC.TABLE_NAME);
-        onCreate(db);
-    }
+        *//*db.execSQL("DROP TABLE IF EXISTS " + TABLES.DTC.TABLE_NAME);
+        onCreate(db);*//*
+    }*/
 }

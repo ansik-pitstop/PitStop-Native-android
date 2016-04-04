@@ -28,6 +28,12 @@ public class CarIssue implements Serializable {
     private static final int DTCS_PRIORITY_DEFAULT_VALUE = 5;
     private static final int SERVICES_PRIORITY_DEFAULT_VALUE = 1;
 
+    public static String DTC = "dtc";
+    public static String RECALL = "recall";
+    public static String EDMUNDS = "edmunds";
+    public static String FIXED = "fixed";
+    public static String INTERVAL = "interval";
+
     @Expose(serialize = false, deserialize = false)
     private int id;
     private String parseId;
@@ -114,7 +120,7 @@ public class CarIssue implements Serializable {
             carIssue.setIssueType(issueType);
             carIssue.setCarId(carId);
 
-            if(issueType.equals("recall")) {
+            if(issueType.equals(RECALL)) {
                 carIssue.setPriority(RECALLS_PRIORITY_DEFAULT_VALUE);
 
                 carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
@@ -122,7 +128,7 @@ public class CarIssue implements Serializable {
                         parseObject.getString("description"),
                         "Recall for "
                 ));
-            } else if(issueType.equals("dtc")) {
+            } else if(issueType.equals(DTC)) {
                 carIssue.setPriority(DTCS_PRIORITY_DEFAULT_VALUE);
 
                 carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
@@ -131,7 +137,7 @@ public class CarIssue implements Serializable {
                         "Engine Issue: DTC code "
                 ));
             } else {
-                carIssue.setPriority(parseObject.getInt("priority"));
+                carIssue.setPriority(parseObject.getInt(PRIORITY_KEY));
                 carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
                         parseObject.getString(ITEM_KEY),
                         parseObject.getString(ITEM_DESCRIPTION_KEY),

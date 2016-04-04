@@ -5,14 +5,14 @@ package com.pitstop.DataAccessLayer.DataRetrievers;
  */
 public final class TABLES {
 
-    interface COMMON {
+    public interface COMMON {
         //Common column names
         String KEY_ID = "id";
         String KEY_PARSE_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
     }
 
-    interface PID {
+    public interface PID {
         String TABLE_NAME = "pidData";
 
         String KEY_DATANUM = "dataNum";
@@ -21,7 +21,7 @@ public final class TABLES {
         String KEY_PIDS = "pids";
     }
 
-    interface CAR {
+    public interface CAR {
         String TABLE_NAME = "car";
 
         String KEY_VIN = "vin";
@@ -38,7 +38,20 @@ public final class TABLES {
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
     }
 
-    interface DEALERSHIP {
+    public interface CAR_ISSUES {
+        String TABLE_NAME = "carIssues";
+
+        String KEY_CAR_ID = "carId";
+        String KEY_STATUS = "status";
+        String KEY_TIMESTAMP = "timestamp";
+        String KEY_PRIORITY = "priority";
+        String KEY_ISSUE_TYPE = "issueType";
+        String KEY_ITEM = "item";
+        String KEY_DESCRIPTION = "description";
+        String KEY_ACTION = "action";
+    }
+
+    public interface DEALERSHIP {
         String TABLE_NAME = "dealership";
 
         String KEY_NAME = "name";
@@ -48,7 +61,7 @@ public final class TABLES {
         String KEY_CAR_ID = "carId";
     }
 
-    interface DTC {
+    public interface DTC {
         String TABLE_NAME = "dtc";
 
         String KEY_CAR_ID = "carId";
@@ -56,7 +69,7 @@ public final class TABLES {
         String KEY_DESCRIPTION = "codeDescription";
     }
 
-    interface RECALL {
+    public interface RECALL {
         String TABLE_NAME = "recall";
 
         String KEY_CAR_ID = "carId";
@@ -71,7 +84,7 @@ public final class TABLES {
         String KEY_RISK_RANK = "riskRank";
     }
 
-    interface SERVICE {
+    public interface SERVICE {
         String TABLE_NAME = "service";
 
         String KEY_CAR_ID = "carId";

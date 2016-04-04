@@ -781,7 +781,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(PID_TAG,freezeData.toString());
 
         localPid.createPIDData(pidDataObject);
-        localPid.closeDB();
     }
 
     /**

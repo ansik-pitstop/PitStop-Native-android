@@ -54,6 +54,7 @@ import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataRetrievers.CarDataRetriever;
+import com.pitstop.DataAccessLayer.DataRetrievers.CarIssuesDataRetriever;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private List<CarIssue> carIssueList = new ArrayList<>();
 
     private CarDataRetriever carDb;
+    private CarIssuesDataRetriever carIssueDb;
 
     private static String TAG = "MainActivity --> ";
 
@@ -155,7 +157,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         Log.i(TAG, "On create..");
 
-        carDb = new CarDataRetriever(getApplicationContext());
+        carDb = new CarDataRetriever(this);
+        carIssueDb = new CarIssuesDataRetriever(this);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -496,6 +499,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private void setCarDetailsUI() {
         setDealership();
+        populateCarIssuesAdapter();
 
         carName.setText(dashboardCar.getYear() + " "
                 + dashboardCar.getMake() + " "
@@ -538,9 +542,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         setDashboardCar(carList);
                         carDb.storeCars(carList);
                         setCarDetailsUI();
-                        populateCarIssuesAdapter();
 
-                        carDb.closeDB();
                     } else {
                         startAddCarActivity();
                         if (isLoading) {
@@ -613,22 +615,34 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             hideLoading();
         }
 
-        List<String> issueIds;
+        // Try local store
+        List<CarIssue> carIssues = carIssueDb.getAllCarIssues(dashboardCar.getParseId());
+        if(carIssues.isEmpty()) {
+            List<String> issueIds;
 
-        issueIds = dashboardCar.getPendingEdmundServicesIds();
-        getIssues(issueIds, "EdmundsService", "edmunds");
+            issueIds = dashboardCar.getPendingEdmundServicesIds();
+            getIssues(issueIds, "EdmundsService", CarIssue.EDMUNDS);
 
-        issueIds = dashboardCar.getPendingFixedServicesIds();
-        getIssues(issueIds, "ServiceFixed", "fixed");
+            issueIds = dashboardCar.getPendingFixedServicesIds();
+            getIssues(issueIds, "ServiceFixed", CarIssue.FIXED);
 
-        issueIds = dashboardCar.getPendingIntervalServicesIds();
-        getIssues(issueIds, "ServiceInterval", "interval");
+            issueIds = dashboardCar.getPendingIntervalServicesIds();
+            getIssues(issueIds, "ServiceInterval", CarIssue.INTERVAL);
 
-        /*issueIds = car.getList("recalls");
-        getIssues(issueIds, "RecallEntry", "recall");*/
+            /*issueIds = car.getList("recalls");
+            getIssues(issueIds, "RecallEntry", "recall");*/
 
-        List<String> dtcCodes = dashboardCar.getStoredDTCs();
-        getDTCs(dtcCodes, "DTC", "dtc");
+            List<String> dtcCodes = dashboardCar.getStoredDTCs();
+            getDTCs(dtcCodes, "DTC", CarIssue.DTC);
+        } else {
+            Log.i(TAG,"CarIssues count: "+carIssues.size());
+            dashboardCar.setIssues(carIssues);
+            carIssueList.clear();
+            carIssueList.addAll(dashboardCar.getIssues());
+            carIssuesAdapter.notifyDataSetChanged();
+        }
+
+
     }
 
     private void getIssues(List<String> serviceIds, String resource, final String issueType) {
@@ -643,9 +657,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
                     dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId()));
+                    // Store in local
+                    carIssueDb.storeCarIssues(dashboardCar.getIssues());
+
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
                     carIssuesAdapter.notifyDataSetChanged();
+
                 } else {
                     Log.i(TAG, "Parse error: " + e.getMessage());
                 }
@@ -662,12 +680,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 if (e == null) {
                     Log.i(TAG, "Parse objects count: " + objects.size());
 
-                    dashboardCar.getIssues()
-                            .addAll(CarIssue.createCarIssues(objects, issueType,
-                                    dashboardCar.getParseId()));
+                    dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType,
+                            dashboardCar.getParseId()));
+                    // Store in local
+                    carIssueDb.storeCarIssues(dashboardCar.getIssues());
+
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
                     carIssuesAdapter.notifyDataSetChanged();
+
                 } else {
                     Log.i(TAG, "Parse error: " + e.getMessage());
                 }

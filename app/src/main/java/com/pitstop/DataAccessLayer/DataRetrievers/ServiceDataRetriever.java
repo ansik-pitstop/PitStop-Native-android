@@ -8,7 +8,7 @@ import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 /**
  * Created by psola on 4/1/2016.
  */
-public class ServiceDataRetriever extends LocalDatabaseHelper {
+public class ServiceDataRetriever {
 
     //SERVICE table create statement
     private static final String CREATE_TABLE_SERVICE = "CREATE TABLE "
@@ -19,19 +19,19 @@ public class ServiceDataRetriever extends LocalDatabaseHelper {
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     public ServiceDataRetriever(Context context) {
-        super(context);
+
     }
 
-    @Override
+    /*@Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_SERVICE);
-        super.onCreate(db);
+        *//*db.execSQL(CREATE_TABLE_SERVICE);
+        super.onCreate(db);*//*
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.SERVICE.TABLE_NAME);
+        *//*db.execSQL("DROP TABLE IF EXISTS " + TABLES.SERVICE.TABLE_NAME);
         onCreate(db);
-        super.onUpgrade(db, oldVersion, newVersion);
-    }
+        super.onUpgrade(db, oldVersion, newVersion);*//*
+    }*/
 }

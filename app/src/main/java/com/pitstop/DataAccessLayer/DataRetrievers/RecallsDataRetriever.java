@@ -30,13 +30,13 @@ public class RecallsDataRetriever extends LocalDatabaseHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_RECALL);
+        /*db.execSQL(CREATE_TABLE_RECALL);*/
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.RECALL.TABLE_NAME);
+        /*db.execSQL("DROP TABLE IF EXISTS " + TABLES.RECALL.TABLE_NAME);
 
-        onCreate(db);
+        onCreate(db);*/
     }
 }
