@@ -1,5 +1,6 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
 
@@ -12,7 +13,8 @@ import java.util.List;
  */
 public class Dealership implements Serializable {
 
-    private long id;
+    @Expose(serialize = false, deserialize = false)
+    private int id;
     private long dealershipId;
     private String parseId;
     private String name;
@@ -24,9 +26,11 @@ public class Dealership implements Serializable {
 
     public Dealership(){}
 
-    public long getId() {
+    public int getId() {
         return id;
     }
+
+    public void setId(int id) { this.id = id; }
 
     public long getDealershipId() {
         return dealershipId;
@@ -80,7 +84,7 @@ public class Dealership implements Serializable {
         this.parseId = parseId;
     }
 
-    public static Dealership createDealership(ParseObject parseObject) {
+    public static Dealership createDealership(ParseObject parseObject, String carId) {
         Dealership dealership = new Dealership();
         dealership.setParseId(parseObject.getObjectId());
         dealership.setName(parseObject.getString("name"));
@@ -93,7 +97,7 @@ public class Dealership implements Serializable {
     public static List<Dealership> createDealershipList(List<ParseObject> parseObjects) {
         List<Dealership> dealerships = new ArrayList<>();
         for( ParseObject parseObject : parseObjects) {
-            dealerships.add(createDealership(parseObject));
+            dealerships.add(createDealership(parseObject,""));
         }
         return dealerships;
     }

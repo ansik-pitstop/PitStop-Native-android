@@ -26,7 +26,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -236,7 +235,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
             if(!TextUtils.isEmpty(VIN) ) {
                 Log.i(ACTIVITY_TAG, "Vin is not empty");
-                 mileageEditText.setText(mileage);
+                mileageEditText.setText(mileage);
 
                 ParseConfig.getInBackground(new ConfigCallback() {
 
@@ -386,7 +385,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 resultCode == SelectDealershipActivity.RESULT_OK) {
             if(data != null) {
                 String selectedShopId =
-                                data.getStringExtra(SelectDealershipActivity.SELECTED_DEALERSHIP);
+                        data.getStringExtra(SelectDealershipActivity.SELECTED_DEALERSHIP);
                 setDealership(selectedShopId);
             }
 
@@ -417,8 +416,8 @@ public class AddCarActivity extends AppCompatActivity implements
                 if (isValidVin(vinEditText.getText().toString())) {
                     Log.i(ACTIVITY_TAG, "Vin is valid -- (searching for car)");
                     try {
-                            ParseApplication.mixpanelAPI.track("Button Clicked",
-                                    new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                                new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -432,7 +431,7 @@ public class AddCarActivity extends AppCompatActivity implements
                         }
                         vinSection.setVisibility(View.VISIBLE);
                         Toast.makeText(this, "Your device does not support bluetooth",
-                            Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT).show();
                     } else {
                         if (service.getState() != BluetoothManage.CONNECTED) {
 
@@ -475,7 +474,7 @@ public class AddCarActivity extends AppCompatActivity implements
         }
 
         if(isFinishing()) { // You don't want to add a dialog to a finished activity
-           return;
+            return;
         }
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddCarActivity.this);
@@ -629,7 +628,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         startActivityForResult(intent, RC_BARCODE_CAPTURE);
     }
-        
+
     @Override
     public void getBluetoothState(int state) {
         Log.i(ACTIVITY_TAG,"getBluetoothState func--");
@@ -833,7 +832,7 @@ public class AddCarActivity extends AppCompatActivity implements
         abstractButton.setText("ADD CAR");
 
         String vin = String.valueOf(vinEditText.getText());
-        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources()
+        ((ImageView) findViewById(R.id.obd_ports)).setImageDrawable(getResources()
                 .getDrawable(R.drawable.illustration_car));
 
         Log.d("isValidVin() result", String.valueOf(isValidVin(vin)));
@@ -856,7 +855,7 @@ public class AddCarActivity extends AppCompatActivity implements
         abstractButton.setEnabled(true);
         vinSection.setVisibility(View.GONE);
         searchForCarInfo.setText(getString(R.string.add_car_bluetooth));
-        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources()
+        ((ImageView) findViewById(R.id.obd_ports)).setImageDrawable(getResources()
                 .getDrawable(R.drawable.illustration_dashboard));
         abstractButton.setText("SEARCH FOR CAR");
 
@@ -965,7 +964,7 @@ public class AddCarActivity extends AppCompatActivity implements
     private void hideLoading(){
         Log.i(ACTIVITY_TAG, "hideLoading()--func");
         progressDialog.dismiss();
-		isSearching = false ;
+        isSearching = false ;
         isLoading = false;
     }
 
@@ -988,8 +987,8 @@ public class AddCarActivity extends AppCompatActivity implements
     private String getDealership() {
         return shopSelected;
     }
-	
-	@AfterPermissionGranted(RC_LOCATION_PERM)
+
+    @AfterPermissionGranted(RC_LOCATION_PERM)
     private void beginSearchForCar() {
         abstractButton.performClick();
     }
@@ -1045,7 +1044,7 @@ public class AddCarActivity extends AppCompatActivity implements
                         hideLoading();
                     }
                     Toast.makeText(AddCarActivity.this, "The device with Id: "
-                            +scannerID+" is already linked with another car",
+                                    +scannerID+" is already linked with another car",
                             Toast.LENGTH_SHORT).show();
                 } else {
                     Log.i(ACTIVITY_TAG, "Calling vinCheck()--func");
@@ -1164,7 +1163,7 @@ public class AddCarActivity extends AppCompatActivity implements
             ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
             ParseObject car = null;
             try {
-                car = cars.get(dashboardCar.getCardId());
+                car = cars.get(dashboardCar.getParseId());
                 car.put("currentCar",false);
                 car.saveEventually();
             } catch (ParseException e) {

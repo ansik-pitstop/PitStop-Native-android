@@ -29,6 +29,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
+import com.pitstop.DataAccessLayer.DataRetrievers.PidDataRetriever;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
@@ -59,7 +60,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private static Gson GSON = new Gson();
 
-    private LocalDatabaseHelper db;
+    private PidDataRetriever localPid;
 
     private ParseObject tripMileage = null;
     private HashMap<String, String> tripData = new HashMap<>();
@@ -68,6 +69,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private int counter;
     private boolean askforDtcs;
+    private boolean askForPendingDTCs;
     private int notifID= 1360119;
 
     String[] pids = new String[0];
@@ -108,7 +110,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
-        db = new LocalDatabaseHelper(getApplicationContext());
+        localPid = new PidDataRetriever(getApplicationContext());
     }
 
     /**
@@ -242,6 +244,14 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         }
     }
 
+    public void getPendingDTCs() {
+        Log.i(DTAG, "Getting pending DTCs");
+        if (!askForPendingDTCs){
+            askForPendingDTCs = true;
+            BluetoothManage.getInstance(this).obdSetMonitor(2, "");
+        }
+    }
+
     public void getFreeze() {
         Log.i(DTAG, "Getting freeze data - auto-connect service");
         BluetoothManage.getInstance(this).obdSetMonitor(3, "");
@@ -370,7 +380,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
              * once bluetooth connection is lost.
              * @see MainActivity#connectedCarIndicator()
              * */
-			deviceConnState = false;
+            deviceConnState = false;
             currentCar = null;
 
             /**
@@ -390,7 +400,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                         } else {
                             /*Toast.makeText(getApplicationContext(),
                                     "Saved trip mileage",Toast.LENGTH_SHORT).show();*/
-                                    Log.i(R4_TAG, "Saved trip mileage");
+                            Log.i(R4_TAG, "Saved trip mileage");
                         }
 
                     }
@@ -664,7 +674,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
         tripData.put("dataNumber", data.dataNumber);
         tripMileage.put("tripData",tripData);
-        
+
         if(data.tripFlag.equals(tripEnd)) {
 
             tripMileage.saveEventually(new SaveCallback() {
@@ -677,7 +687,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
                     } else {
                         /*Toast.makeText(getApplicationContext(),
                                 "Saved trip mileage", Toast.LENGTH_SHORT).show();*/
-                                Log.i(R4_TAG, "Saved trip mileage");
+                        Log.i(R4_TAG, "Saved trip mileage");
                     }
 
                 }
@@ -738,7 +748,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             return;
         }
 
-        if(db.getPidDataEntryCount() == 100) {
+        if(localPid.getPidDataEntryCount() == 100) {
             sendPidDataToServer(data);
         }
 
@@ -770,8 +780,8 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         Log.i(PID_TAG,"Freeze data --->Extract");
         Log.i(PID_TAG,freezeData.toString());
 
-        db.createPIDData(pidDataObject);
-        db.closeDB();
+        localPid.createPIDData(pidDataObject);
+        localPid.closeDB();
     }
 
     /**
@@ -788,7 +798,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         pidScanTable.put("mileage", tripMileage);
         pidScanTable.put("scannerId", data.deviceId);
 
-        List<Pid> pidDataEntries = db.getAllPidDataEntries();
+        List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
 
         JSONArray pidArray = null;
 
@@ -818,7 +828,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
             public void done(ParseException e) {
                 if (e == null) {
                     Log.i(PID_TAG, "Saved successfully");
-                    db.deleteAllPidDataEntries();
+                    localPid.deleteAllPidDataEntries();
                 } else {
                     Log.i(PID_TAG, e.getMessage());
                 }

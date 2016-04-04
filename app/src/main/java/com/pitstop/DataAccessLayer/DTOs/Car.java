@@ -3,10 +3,10 @@ package com.pitstop.DataAccessLayer.DTOs;
 import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -17,8 +17,11 @@ import java.util.List;
  * Created by Paul Soladoye on 2/11/2016.
  */
 public class Car implements Serializable {
+    @Expose(serialize = false, deserialize = false)
+    private int id;
+
     @SerializedName("id")
-    private String cardId;
+    private String parseId;
 
     private String make;
     private String model;
@@ -31,7 +34,7 @@ public class Car implements Serializable {
     private String highwayMileage;
     private int baseMileage;
     private int totalMileage;
-    private int numberOfRecalls;
+    private int numberOfRecalls = 0; //TODO fix recalls
     private int numberOfServices;
     private boolean currentCar;
 
@@ -54,12 +57,20 @@ public class Car implements Serializable {
 
     public Car() { }
 
-    public String getCardId() {
-        return cardId;
+    public int getId() {
+        return id;
     }
 
-    public void setCardId(String cardId) {
-        this.cardId = cardId;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getParseId() {
+        return parseId;
+    }
+
+    public void setParseId(String parseId) {
+        this.parseId = parseId;
     }
 
     public String getMake() {
@@ -284,8 +295,8 @@ public class Car implements Serializable {
         Car car = null;
         if(parseObject != null) {
             car = new Car();
-            car.setCardId(parseObject.getObjectId());
-            Log.i("MAIN_ACTIVITY-->", "ParseId: " + car.getCardId());
+            car.setParseId(parseObject.getObjectId());
+            Log.i("MAIN_ACTIVITY-->", "ParseId: " + car.getParseId());
             car.setEngine(parseObject.getString("engine"));
             car.setMake(parseObject.getString("make"));
             car.setModel(parseObject.getString("model"));

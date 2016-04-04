@@ -67,10 +67,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
         if(id == R.id.refresh) {
             setup();
         }
-        if(item.getItemId() == R.id.action_settings) {
-            Intent intent = new Intent(SelectDealershipActivity.this,SettingsActivity.class);
-            startActivity(intent);
-        }
 
         if(id == R.id.log_out) {
             ParseUser.logOut();

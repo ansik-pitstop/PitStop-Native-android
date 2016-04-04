@@ -198,11 +198,12 @@
             android:name=".SelectDealershipActivity"
             android:label="Select Dealership"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppNoActionBarTheme" />
         <activity
             android:name=".CarScanActivity"
             android:label="@string/title_activity_car_scan"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme"/>
     </application>
 
 </manifest>

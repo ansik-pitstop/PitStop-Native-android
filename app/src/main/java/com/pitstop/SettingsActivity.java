@@ -31,16 +31,12 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
-import com.pitstop.database.DBModel;
-import com.pitstop.database.LocalDataRetriever;
-import com.pitstop.database.models.Cars;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -77,7 +73,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             cars.add(car.getMake() + " " + car.getModel());
-            ids.add(car.getCardId());
+            ids.add(car.getParseId());
             dealers.add(car.getShopId());
         }
     }
@@ -369,7 +365,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
                                 ParseObject car = null;
                                 try {
-                                    car = cars.get(formerDashboardCar.getCardId());
+                                    car = cars.get(formerDashboardCar.getParseId());
                                     car.put("currentCar", false);
                                     car.saveEventually();
                                 } catch (ParseException error) {

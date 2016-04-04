@@ -1,16 +1,30 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 
 /**
  * Created by Paul Soladoye on 3/18/2016.
  */
 public class CarIssueDetail implements Serializable {
+
+    @Expose(serialize = false, deserialize = false)
+    private int id;
+
     private String item;
     private String description;
     private String action;
 
     public CarIssueDetail() {}
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getItem() {
         return item;

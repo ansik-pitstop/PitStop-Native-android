@@ -1,5 +1,6 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
 
@@ -27,8 +28,10 @@ public class CarIssue implements Serializable {
     private static final int DTCS_PRIORITY_DEFAULT_VALUE = 5;
     private static final int SERVICES_PRIORITY_DEFAULT_VALUE = 1;
 
-    private long id;
+    @Expose(serialize = false, deserialize = false)
+    private int id;
     private String parseId;
+    private String carId;
     private String status;
     @SerializedName("doneAt")
     private Date timestamp;
@@ -38,12 +41,20 @@ public class CarIssue implements Serializable {
 
     public CarIssue() {}
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getCarId() {
+        return carId;
+    }
+
+    public void setCarId(String carId) {
+        this.carId = carId;
     }
 
     public String getStatus() {
@@ -94,13 +105,14 @@ public class CarIssue implements Serializable {
         this.issueDetail = issueDetail;
     }
 
-    public static CarIssue createCarIssue(ParseObject parseObject, String issueType) {
+    public static CarIssue createCarIssue(ParseObject parseObject, String issueType, String carId) {
         CarIssue carIssue = null;
 
         if(parseObject != null) {
             carIssue = new CarIssue();
             carIssue.setParseId(parseObject.getObjectId());
             carIssue.setIssueType(issueType);
+            carIssue.setCarId(carId);
 
             if(issueType.equals("recall")) {
                 carIssue.setPriority(RECALLS_PRIORITY_DEFAULT_VALUE);
@@ -130,10 +142,11 @@ public class CarIssue implements Serializable {
         return carIssue;
     }
 
-    public static ArrayList<CarIssue> createCarIssues(List<ParseObject> parseObjects, String issueType) {
+    public static ArrayList<CarIssue> createCarIssues(List<ParseObject> parseObjects,
+                                                      String issueType, String carId) {
         ArrayList<CarIssue> carIssues = new ArrayList<>();
         for(ParseObject parseObject : parseObjects) {
-            carIssues.add(createCarIssue(parseObject,issueType));
+            carIssues.add(createCarIssue(parseObject,issueType, carId));
         }
 
         return carIssues;

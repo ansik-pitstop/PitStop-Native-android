@@ -185,7 +185,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/inidcation"
+                android:id="@+id/obd_ports"
                 android:src="@drawable/illustration_dashboard"
                 android:layout_gravity="center_horizontal"
                 android:elevation="2dp" />

@@ -1,8 +1,7 @@
 package com.pitstop;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,12 +26,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +53,8 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.DataAccessLayer.DataRetrievers.CarDataRetriever;
+import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
@@ -106,18 +105,20 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private RecyclerView.LayoutManager layoutManager;
 
     private RelativeLayout mainView;
-    private RelativeLayout loadingScreen;
     private RelativeLayout serviceCountBackground;
     private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
     private TextView serviceCountText;
 
-    private TextView carName, carTrim, loadingText, dealershipName;
-    private Button carScanButton;
+    private TextView carName, carTrim, dealershipName;
+
+    private ProgressDialog progressDialog;
 
     private List<ParseObject> cars = new ArrayList<>();
     private Car dashboardCar;
     private List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
+
+    private CarDataRetriever carDb;
 
     private static String TAG = "MainActivity --> ";
 
@@ -154,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         Log.i(TAG, "On create..");
 
+        carDb = new CarDataRetriever(getApplicationContext());
+
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.primary));
@@ -185,11 +188,17 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
             IntentProxyObject proxyObject = new IntentProxyObject();
+            //List<Car> carList = db.getAllCars();
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
             startActivity(intent);
 
             return true;
+        } else if(id == R.id.action_car_scan) {
+            Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
+            intent.putExtra(CAR_EXTRA,dashboardCar);
+
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -241,15 +250,16 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         recyclerView.setAdapter(carIssuesAdapter);
         setSwipeDeleteListener(recyclerView);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+
         carName = (TextView) findViewById(R.id.car_name);
         carTrim= (TextView) findViewById(R.id.car_trim);
-        loadingText = (TextView) findViewById(R.id.loading_text);
         serviceCountText = (TextView) findViewById(R.id.service_count_text);
         dealershipName = (TextView) findViewById(R.id.dealership_name);
 
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         serviceCountBackground = (RelativeLayout) findViewById(R.id.service_count_background);
-        loadingScreen = (RelativeLayout) findViewById(R.id.loading_view);
 
         addressLayout = (RelativeLayout) findViewById(R.id.address_layout);
         addressLayout.setOnClickListener(new View.OnClickListener() {
@@ -282,21 +292,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 ConversationActivity.show(MainActivity.this);
             }
         });
-
-        /*carScanButton = (Button) findViewById(R.id.car_scan_button);
-        carScanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO complete activity
-                Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
-                intent.putExtra(CAR_EXTRA,dashboardCar);
-                startActivity(intent);
-            }
-        });*/
     }
 
     private void hideLoading() {
-        loadingScreen.setVisibility(View.GONE);
+        progressDialog.dismiss();
         mainView.setVisibility(View.VISIBLE);
         isLoading = false;
     }
@@ -304,9 +303,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private void showLoading(String text) {
         isLoading = true;
 
+        progressDialog.setMessage(text);
+        if(!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+
         mainView.setVisibility(View.INVISIBLE);
-        loadingText.setText(text);
-        loadingScreen.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -357,18 +359,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                 final int i = reverseSortedPositions[0];
                                 android.support.v7.app.AlertDialog setDoneDialog =
                                         new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
-                                        .setItems(times, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, final int position) {
+                                                .setItems(times, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, final int position) {
 
-                                                //----- services
+                                                        //----- services
 
-                                                CarIssue carIssue = carIssuesAdapter.getItem(i);
-                                                updateServiceHistoryOnParse(carIssue, position, estimate,
-                                                        times, date, currentLocalTime, reverseSortedPositions);
-                                                dialogInterface.dismiss();
-                                            }
-                                        }).setTitle("When did you complete this task?").show();
+                                                        CarIssue carIssue = carIssuesAdapter.getItem(i);
+                                                        updateServiceHistoryOnParse(carIssue, position, estimate,
+                                                                times, date, currentLocalTime, reverseSortedPositions);
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                }).setTitle("When did you complete this task?").show();
                             }
 
                             @Override
@@ -474,13 +476,56 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     private void getCarDetails() {
-        String userId = "";
+
 
         showLoading("Retrieving car details");
+
+        // Try local store
+        List<Car> localCars = carDb.getAllCars();
+
+        if(localCars.isEmpty()) {
+            loadCarDetailsFromServer();
+        } else {
+            carList = localCars;
+
+            setDashboardCar(carList);
+            setCarDetailsUI();
+            hideLoading();
+        }
+    }
+
+    private void setCarDetailsUI() {
+        setDealership();
+
+        carName.setText(dashboardCar.getYear() + " "
+                + dashboardCar.getMake() + " "
+                + dashboardCar.getModel());
+        carTrim.setText(dashboardCar.getTrim());
+
+        int recallCount = dashboardCar.getNumberOfRecalls();
+        int serviceCount = dashboardCar.getNumberOfServices();
+        int total = recallCount + serviceCount;
+
+        serviceCountText.setText(String.valueOf(total));
+
+        Drawable background = serviceCountBackground.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) background;
+
+        if (total > 0) {
+            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+        } else {
+            gradientDrawable.setColor(Color.rgb(93, 172, 129));
+        }
+    }
+
+    private void loadCarDetailsFromServer() {
+        String userId = "";
+
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
         if (ParseUser.getCurrentUser() != null) {
             userId = ParseUser.getCurrentUser().getObjectId();
         }
+
         query.whereContains("owner", userId);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -488,33 +533,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 if (e == null) {
                     if (!objects.isEmpty()) {
 
-                        Log.i(TAG, "Car list Size: " + objects.size());
-
                         carList = Car.createCarsList(objects);
-                        setDashboardCar();
-                        setDealership();
 
-                        carName.setText(dashboardCar.getYear() + " "
-                                + dashboardCar.getMake() + " "
-                                + dashboardCar.getModel());
-                        carTrim.setText(dashboardCar.getTrim());
-
-                        int recallCount = dashboardCar.getNumberOfRecalls();
-                        int serviceCount = dashboardCar.getNumberOfServices();
-                        int total = recallCount + serviceCount;
-
-                        serviceCountText.setText(String.valueOf(total));
-
-                        Drawable background = serviceCountBackground.getBackground();
-                        GradientDrawable gradientDrawable = (GradientDrawable) background;
-
-                        if (total > 0) {
-                            gradientDrawable.setColor(Color.rgb(203, 77, 69));
-                        } else {
-                            gradientDrawable.setColor(Color.rgb(93, 172, 129));
-                        }
-
+                        setDashboardCar(carList);
+                        carDb.storeCars(carList);
+                        setCarDetailsUI();
                         populateCarIssuesAdapter();
+
+                        carDb.closeDB();
                     } else {
                         startAddCarActivity();
                         if (isLoading) {
@@ -534,6 +560,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     private void setDealership() {
+
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
         query.whereEqualTo("objectId", dashboardCar.getShopId());
 
@@ -541,7 +568,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e == null) {
-                    dashboardCar.setDealerShip(Dealership.createDealership(objects.get(0)));
+                    Dealership dealership = Dealership
+                            .createDealership(objects.get(0), dashboardCar.getParseId());
+                    dashboardCar.setDealerShip(dealership);
                     dealershipName.setText(dashboardCar.getDealerShip().getName());
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to retrieve dealership info",
@@ -612,7 +641,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 if (e == null) {
                     Log.i(TAG, "Parse objects count: " + objects.size());
 
-                    dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType));
+                    dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType,
+                            dashboardCar.getParseId()));
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
                     carIssuesAdapter.notifyDataSetChanged();
@@ -633,7 +663,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                     Log.i(TAG, "Parse objects count: " + objects.size());
 
                     dashboardCar.getIssues()
-                            .addAll(CarIssue.createCarIssues(objects, issueType));
+                            .addAll(CarIssue.createCarIssues(objects, issueType,
+                                    dashboardCar.getParseId()));
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
                     carIssuesAdapter.notifyDataSetChanged();
@@ -653,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
 
         ParseObject saveCompletion = new ParseObject("ServiceHistory");
-        saveCompletion.put("carId", dashboardCar.getCardId());
+        saveCompletion.put("carId", dashboardCar.getParseId());
         saveCompletion.put("mileageSetByUser", mileage);
         saveCompletion.put("mileage", mileage - estimate[position] * 375);
         saveCompletion.put("serviceObjectId", carIssue.getParseId());
@@ -698,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             ,final int[] reverseSortedPositions) {
         ParseQuery updateObject = new ParseQuery("Car");
         try {
-            updateObject.get(dashboardCar.getCardId());
+            updateObject.get(dashboardCar.getParseId());
             updateObject.findInBackground(new FindCallback<ParseObject>() {
 
                 @Override
@@ -794,7 +825,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startActivityForResult(intent, RC_ADD_CAR);
     }
 
-    private void setDashboardCar() {
+    private void setDashboardCar(List<Car> carList) {
         for(Car car : carList) {
             if(car.isCurrentCar()) {
                 dashboardCar = car;

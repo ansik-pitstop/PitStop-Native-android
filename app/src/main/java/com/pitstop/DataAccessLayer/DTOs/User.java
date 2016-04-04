@@ -1,12 +1,18 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 
 /**
  * Created by Paul Soladoye on 3/21/2016.
  */
 public class User implements Serializable {
-    private long id;
+
+    @Expose(serialize = false, deserialize = false)
+    private int id;
+
+    private String parseId;
     private String firstName;
     private String lastName;
     private String email;
@@ -20,11 +26,11 @@ public class User implements Serializable {
 
     public User() {}
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -98,5 +104,13 @@ public class User implements Serializable {
 
     public void setVerifiedEmail(boolean verifiedEmail) {
         this.verifiedEmail = verifiedEmail;
+    }
+
+    public String getParseId() {
+        return parseId;
+    }
+
+    public void setParseId(String parseId) {
+        this.parseId = parseId;
     }
 }
