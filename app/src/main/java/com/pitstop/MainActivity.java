@@ -13,7 +13,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private RecyclerView.LayoutManager layoutManager;
 
     private RelativeLayout mainView;
+    private RelativeLayout connectedCarIndicator;
     private RelativeLayout serviceCountBackground;
     private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
     private TextView serviceCountText;
@@ -151,6 +154,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         public void onServiceDisconnected(ComponentName arg0) {
 
             Log.i("Disconnecting","onServiceConnection");
+        }
+    };
+
+    Handler indicatorHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0) {
+                if(service != null && service.isCommunicatingWithDevice()) {
+                    updateConnectedCarIndicator(true);
+                } else {
+                    updateConnectedCarIndicator(false);
+                }
+                indicatorHandler.post(runnable);
+            }
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            indicatorHandler.sendEmptyMessage(0);
         }
     };
 
@@ -197,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
             IntentProxyObject proxyObject = new IntentProxyObject();
-            //List<Car> carList = db.getAllCars();
+
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
             startActivityForResult(intent, RC_SETTINGS);
@@ -211,10 +235,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onResume() {
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.i(TAG, "Running on resume");
+        Log.i(TAG, "onResume");
         /*if(dashboardCar !=null) {
             refreshUi();
         }*/
+
+        indicatorHandler.postDelayed(runnable, 1000);
     }
 
     @Override
@@ -240,13 +266,16 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     protected void onPause() {
+        indicatorHandler.removeCallbacks(runnable);
         unbindService(serviceConnection);
         ParseApplication.mixpanelAPI.flush();
+        Log.i(TAG, "onPause");
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
         super.onDestroy();
     }
 
@@ -258,6 +287,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         startActivity(startMain);
     }
 
+    /**
+     * UI update methods
+     */
     private void setUpUIReferences() {
 
         recyclerView = (RecyclerView) findViewById(R.id.car_issues_list);
@@ -319,6 +351,16 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 ConversationActivity.show(MainActivity.this);
             }
         });
+
+        connectedCarIndicator = (RelativeLayout) findViewById(R.id.car_connected_indicator_layout);
+    }
+
+    private void updateConnectedCarIndicator(boolean isConnected) {
+        if(isConnected) {
+            connectedCarIndicator.setBackgroundColor(getResources().getColor(R.color.evcheck));
+        } else {
+            connectedCarIndicator.setBackgroundColor(getResources().getColor(R.color.not_connected));
+        }
     }
 
     private void hideLoading() {

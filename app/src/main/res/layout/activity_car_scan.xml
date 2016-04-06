@@ -344,7 +344,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Scan Car"
-        android:onClick="scanCar"
         android:background="@drawable/color_button_primary_car"
         android:textColor="#fff"
         android:elevation="2dp"

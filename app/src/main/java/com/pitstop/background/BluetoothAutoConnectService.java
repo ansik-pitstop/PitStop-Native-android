@@ -81,7 +81,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private boolean deviceConnState = false;
     private String currentDeviceId = null;
-    private Cars currentCar = null;
 
     private static String DTAG = "BLUETOOTH_DEBUG";
     public static String R4_TAG = "R4_TRIP_MILEAGE";
@@ -118,7 +117,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
      * 3, then device is connected
      * @see #getIOData(DataPackageInfo)
      */
-    public boolean getDeviceConnState() {
+    public boolean isCommunicatingWithDevice() {
         return deviceConnState;
     }
 
@@ -129,19 +128,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         return currentDeviceId;
     }
 
-    /**
-     * A reference to the car the obd device is connected to
-     * */
-    public void setCurrentCar(Cars car) {
-        currentCar = car;
-    }
-
-    /**
-     * @return A reference to the current connected car
-     * */
-    public Cars getCurrentCar() {
-        return currentCar;
-    }
 
     /**
      * Gets the Car's VIN. Check if obd device is synced. If synced,
@@ -380,7 +366,6 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
              * @see MainActivity#connectedCarIndicator()
              * */
             deviceConnState = false;
-            currentCar = null;
 
             /**
              * Save current trip data when bluetooth gets disconnected from device

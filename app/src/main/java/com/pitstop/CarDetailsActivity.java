@@ -101,7 +101,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 service.startBluetoothSearch();
             }
-            connectedCarStatusUpdate();
+            //connectedCarStatusUpdate();
         }
 
         @Override
@@ -213,7 +213,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         }
     }
 
-    private void connectedCarStatusUpdate() {
+    /*private void connectedCarStatusUpdate() {
         if(service==null) {
             Log.i("SERVICE", "service is null");
         }
@@ -240,7 +240,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
             ((LinearLayout)findViewById(R.id.carStatus)).addView(view);
         }
-    }
+    }*/
 
     @Override
     protected void onResume() {
@@ -923,7 +923,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
 
     @Override
     public void getBluetoothState(int state) {
-        connectedCarStatusUpdate();
+        //connectedCarStatusUpdate();
     }
 
     @Override

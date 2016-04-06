@@ -126,6 +126,16 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         carMileage = (TextView) findViewById(R.id.car_mileage);
 
         carScanButton = (Button) findViewById(R.id.car_scan_btn);
+        carScanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(autoConnectService.isCommunicatingWithDevice()) {
+                    updateMileage();
+                } else {
+                    tryAgainDialog();
+                }
+            }
+        });
 
         recallsText = (TextView) findViewById(R.id.recalls_text);
         servicesText = (TextView) findViewById(R.id.services_text);
@@ -212,7 +222,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
                 } else {
                     Toast.makeText(CarScanActivity.this,
                             "failed to update mileage", Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "Parse Error: "+e.getMessage());
+                    Log.i(TAG, "Parse Error: " + e.getMessage());
 
                     carScanButton.setEnabled(true);
                     recallsCountLayout.setVisibility(View.VISIBLE);
@@ -229,10 +239,6 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
                 }
             }
         });
-    }
-
-    public void scanCar(View view) {
-        updateMileage();
     }
 
     private void startCarScan() {
@@ -305,6 +311,41 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         askingForDtcs = true;
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
+    }
+
+    private void tryAgainDialog() {
+
+        if(isFinishing()) { // You don't want to add a dialog to a finished activity
+            return;
+        }
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(CarScanActivity.this);
+        alertDialog.setTitle("Device not connected");
+
+        // Alert message
+        alertDialog.setMessage("Make sure your vehicle engine is on and " +
+                "OBD device is properly plugged in.\n\nTry again ?");
+        alertDialog.setCancelable(false);
+
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    autoConnectService.startBluetoothSearch();
+                }
+                (carScanButton).performClick();
+            }
+        });
+
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+            }
+        });
+        alertDialog.show();
     }
 
     private Car getMainCar(List<Car> cars) {

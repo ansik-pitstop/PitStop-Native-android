@@ -6,6 +6,7 @@
     <color name="highlight_dark">#d7223d</color>
     <color name="evcheck">#29d767</color>
     <color name="evcheck_dark">#1f974a</color>
+    <color name="not_connected">#eeeeee</color>
 
     <!-- Smooch chat -->
     <color name="Smooch_accent">@color/primary</color>
