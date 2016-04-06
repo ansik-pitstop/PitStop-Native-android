@@ -1,7 +1,6 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -9,7 +8,7 @@ import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class DealershipDataRetriever {
+public class DealershipAdapter {
 
     //DEALERSHIP table create statement
     public static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE IF NOT EXISTS "
@@ -22,19 +21,9 @@ public class DealershipDataRetriever {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public DealershipDataRetriever(Context context) {
+    public DealershipAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
-
-    /*@Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
-    }*/
 
     /**
      * Dealership

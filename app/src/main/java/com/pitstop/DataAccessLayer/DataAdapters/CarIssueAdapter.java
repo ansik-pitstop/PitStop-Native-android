@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.util.Log;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
+import com.pitstop.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 04/04/2016.
  */
-public class CarIssuesDataRetriever {
+public class CarIssueAdapter {
     // CAR_ISSUES table create statement
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
             + TABLES.CAR_ISSUES.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
@@ -33,23 +34,14 @@ public class CarIssuesDataRetriever {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public CarIssuesDataRetriever(Context context) {
+    public CarIssueAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
-        Log.i("CarIssueDataR", "constructor");
+        Log.i(MainActivity.TAG, "CarIssueAdapter::constructor");
     }
-
-    /*@Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
-    }*/
 
     public void storeCarIssue(CarIssue carIssue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        Log.i(MainActivity.TAG, "Storing carIssue");
 
         ContentValues values = new ContentValues();
         values.put(TABLES.COMMON.KEY_PARSE_ID, carIssue.getParseId());
@@ -61,18 +53,19 @@ public class CarIssuesDataRetriever {
         values.put(TABLES.CAR_ISSUES.KEY_DESCRIPTION, carIssue.getIssueDetail().getDescription());
         values.put(TABLES.CAR_ISSUES.KEY_ACTION, carIssue.getIssueDetail().getAction());
 
-        db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
+        long result = db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
+
+        Log.i(MainActivity.TAG, "Storing carIssue result: "+result);
         db.close();
     }
 
     public void storeCarIssues(List<CarIssue> carIssues) {
-        Log.i("CarIssues", "storing car issues");
         for(CarIssue carIssue : carIssues) {
             storeCarIssue(carIssue);
         }
     }
 
-    public List<CarIssue> getAllDtcs(String carId) {
+    /*public List<CarIssue> getAllDtcs(String carId) {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         List<CarIssue> carIssues = new ArrayList<>();
@@ -80,7 +73,7 @@ public class CarIssuesDataRetriever {
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
                 "carId=? and issueType=?", new String[]{carId, CarIssue.DTC}, null, null, null);
         if(c.moveToFirst()) {
-            carIssues.add(createCarIssue(c));
+            carIssues.add(cursorToCarIssue(c));
         }
 
         db.close();
@@ -95,7 +88,7 @@ public class CarIssuesDataRetriever {
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
                 "carId=? and issueType=?", new String[]{carId, CarIssue.RECALL}, null, null, null);
         if(c.moveToFirst()) {
-            carIssues.add(createCarIssue(c));
+            carIssues.add(cursorToCarIssue(c));
         }
 
         db.close();
@@ -111,23 +104,27 @@ public class CarIssuesDataRetriever {
                 "carId=? and issueType!=? and issueType!=?",
                 new String[]{carId, CarIssue.RECALL, CarIssue.DTC}, null, null, null);
         if(c.moveToFirst()) {
-            carIssues.add(createCarIssue(c));
+            carIssues.add(cursorToCarIssue(c));
         }
 
         db.close();
         return carIssues;
-    }
+    }*/
 
     public List<CarIssue> getAllCarIssues(String carId) {
         Log.i("CarIssues","CarId: "+carId);
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
                 "carId=?",new String[]{carId},null,null,null);
         if(c.moveToFirst()) {
-            carIssues.add(createCarIssue(c));
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
         }
 
         db.close();
@@ -135,20 +132,23 @@ public class CarIssuesDataRetriever {
     }
 
     private List<CarIssue> getAllCarIssues() {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
         List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,null,null,null,null,null);
         if(c.moveToFirst()) {
-            carIssues.add(createCarIssue(c));
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
         }
 
         db.close();
         return carIssues;
     }
 
-    private CarIssue createCarIssue(Cursor c) {
+    private CarIssue cursorToCarIssue(Cursor c) {
         CarIssue carIssue = new CarIssue();
         carIssue.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
         carIssue.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
@@ -168,9 +168,9 @@ public class CarIssuesDataRetriever {
     }
 
     public void deleteAllCarIssues() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         List<CarIssue> carIssueEntries = getAllCarIssues();
+
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(CarIssue issue : carIssueEntries) {
             db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",

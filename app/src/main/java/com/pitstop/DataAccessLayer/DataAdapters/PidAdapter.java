@@ -1,10 +1,9 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 4/1/2016.
  */
-public class PidDataRetriever {
+public class PidAdapter {
 
     // PID_DATA table create statement
     public static final String CREATE_TABLE_PID_DATA = "CREATE TABLE IF NOT EXISTS "
@@ -29,20 +28,9 @@ public class PidDataRetriever {
     private LocalDatabaseHelper databaseHelper;
 
 
-    public PidDataRetriever(Context context) {
+    public PidAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
-
-    /*@Override
-    public void onCreate(SQLiteDatabase db) {
-        Log.i("PID on create", "Running");
-        super.onCreate(db);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
-    }*/
 
     /**
      * Create pid data
@@ -94,18 +82,20 @@ public class PidDataRetriever {
         String selectQuery = "SELECT * FROM " + TABLES.PID.TABLE_NAME;
 
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(selectQuery,null);
+        Cursor c = db.rawQuery(selectQuery, null);
+        int count = c.getCount();
         db.close();
-        return c.getCount();
+
+        return count;
     }
 
     /**
      * Clear all pid data entries
      */
     public void deleteAllPidDataEntries() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         List<Pid> pidDataEntries = getAllPidDataEntries();
+
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Pid pid : pidDataEntries) {
             db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",

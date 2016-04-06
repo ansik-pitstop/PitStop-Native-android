@@ -53,9 +53,8 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
-import com.pitstop.DataAccessLayer.DataRetrievers.CarDataRetriever;
-import com.pitstop.DataAccessLayer.DataRetrievers.CarIssuesDataRetriever;
-import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
+import com.pitstop.DataAccessLayer.DataAdapters.CarAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.CarIssueAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
@@ -80,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static Intent serviceIntent;
 
     public static int RC_ADD_CAR = 50;
+    public static int RC_SCAN_CAR = 51;
+    public static int RC_SETTINGS = 52;
+
+    public static int RESULT_OK = 60;
 
 
     public ArrayList<DBModel> array;
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static String CAR_ISSUE_EXTRA = "car_issue";
     public static String CAR_LIST_EXTRA = "car_list";
     public static String HAS_CAR_IN_DASHBOARD = "has_car";
+    public static String REFRESH_LOCAL = "refresh_local";
 
     public static MixpanelAPI mixpanelAPI;
 
@@ -110,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
     private TextView serviceCountText;
 
-    private TextView carName, carTrim, dealershipName;
+    private TextView carName, dealershipName;
+    private Button carScan;
 
     private ProgressDialog progressDialog;
 
@@ -119,10 +124,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    private CarDataRetriever carDb;
-    private CarIssuesDataRetriever carIssueDb;
+    private CarAdapter carAdapter;
+    private CarIssueAdapter carIssueAdapter;
 
-    private static String TAG = "MainActivity --> ";
+
+
+    public static String TAG = "MainActivity --> ";
 
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
@@ -157,13 +164,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         Log.i(TAG, "On create..");
 
-        carDb = new CarDataRetriever(this);
-        carIssueDb = new CarIssuesDataRetriever(this);
+        carAdapter = new CarAdapter(this);
+        carIssueAdapter = new CarIssueAdapter(this);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.primary));
-        //toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
 
         setUpUIReferences();
@@ -194,14 +200,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             //List<Car> carList = db.getAllCars();
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
-            startActivity(intent);
+            startActivityForResult(intent, RC_SETTINGS);
 
             return true;
-        } else if(id == R.id.action_car_scan) {
-            Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
-            intent.putExtra(CAR_EXTRA,dashboardCar);
-
-            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -211,16 +212,29 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "Running on resume");
-        if(dashboardCar !=null) {
+        /*if(dashboardCar !=null) {
             refreshUi();
-        }
+        }*/
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
-            dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
+
+            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+                refreshUi();
+            } else {
+                dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
+            }
+        } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
+            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+                refreshUi();
+            }
+        } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
+            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+                refreshUi();
+            }
         }
     }
 
@@ -257,12 +271,22 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         progressDialog.setCanceledOnTouchOutside(false);
 
         carName = (TextView) findViewById(R.id.car_name);
-        carTrim= (TextView) findViewById(R.id.car_trim);
         serviceCountText = (TextView) findViewById(R.id.service_count_text);
         dealershipName = (TextView) findViewById(R.id.dealership_name);
 
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         serviceCountBackground = (RelativeLayout) findViewById(R.id.service_count_background);
+
+        carScan = (Button) findViewById(R.id.car_scan_btn);
+        carScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
+                intent.putExtra(CAR_EXTRA,dashboardCar);
+
+                startActivityForResult(intent, RC_SCAN_CAR);
+            }
+        });
 
         addressLayout = (RelativeLayout) findViewById(R.id.address_layout);
         addressLayout.setOnClickListener(new View.OnClickListener() {
@@ -484,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         showLoading("Retrieving car details");
 
         // Try local store
-        List<Car> localCars = carDb.getAllCars();
+        List<Car> localCars = carAdapter.getAllCars();
 
         if(localCars.isEmpty()) {
             loadCarDetailsFromServer();
@@ -504,7 +528,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         carName.setText(dashboardCar.getYear() + " "
                 + dashboardCar.getMake() + " "
                 + dashboardCar.getModel());
-        carTrim.setText(dashboardCar.getTrim());
 
         int recallCount = dashboardCar.getNumberOfRecalls();
         int serviceCount = dashboardCar.getNumberOfServices();
@@ -540,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         carList = Car.createCarsList(objects);
 
                         setDashboardCar(carList);
-                        carDb.storeCars(carList);
+                        carAdapter.storeCars(carList);
                         setCarDetailsUI();
 
                     } else {
@@ -616,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
 
         // Try local store
-        List<CarIssue> carIssues = carIssueDb.getAllCarIssues(dashboardCar.getParseId());
+        List<CarIssue> carIssues = carIssueAdapter.getAllCarIssues(dashboardCar.getParseId());
         if(carIssues.isEmpty()) {
             List<String> issueIds;
 
@@ -655,10 +678,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 if (e == null) {
                     Log.i(TAG, "Parse objects count: " + objects.size());
 
-                    dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType,
-                            dashboardCar.getParseId()));
+                    List<CarIssue> issues = CarIssue.createCarIssues(objects, issueType,
+                            dashboardCar.getParseId());
+                    dashboardCar.getIssues().addAll(issues);
                     // Store in local
-                    carIssueDb.storeCarIssues(dashboardCar.getIssues());
+                    carIssueAdapter.storeCarIssues(issues);
 
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
@@ -680,10 +704,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 if (e == null) {
                     Log.i(TAG, "Parse objects count: " + objects.size());
 
-                    dashboardCar.getIssues().addAll(CarIssue.createCarIssues(objects, issueType,
-                            dashboardCar.getParseId()));
+                    List<CarIssue> dtcs = CarIssue.createCarIssues(objects, issueType,
+                            dashboardCar.getParseId());
+                    dashboardCar.getIssues().addAll(dtcs);
                     // Store in local
-                    carIssueDb.storeCarIssues(dashboardCar.getIssues());
+                    carIssueAdapter.storeCarIssues(dtcs);
 
                     carIssueList.clear();
                     carIssueList.addAll(dashboardCar.getIssues());
@@ -834,6 +859,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private void refreshUi() {
         carIssueList.clear();
+        carAdapter.deleteAllCars();
+        carIssueAdapter.deleteAllCarIssues();
         getCarDetails();
     }
 

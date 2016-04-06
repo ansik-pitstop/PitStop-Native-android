@@ -29,8 +29,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
-import com.pitstop.DataAccessLayer.DataRetrievers.PidDataRetriever;
-import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
+import com.pitstop.DataAccessLayer.DataAdapters.PidAdapter;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.DBModel;
@@ -60,7 +59,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
 
     private static Gson GSON = new Gson();
 
-    private PidDataRetriever localPid;
+    private PidAdapter localPid;
 
     private ParseObject tripMileage = null;
     private HashMap<String, String> tripData = new HashMap<>();
@@ -110,7 +109,7 @@ public class BluetoothAutoConnectService extends Service implements BluetoothMan
         counter = 1;
         Log.i(DTAG,"Creating auto-connect bluetooth service");
         BluetoothManage.getInstance(this).setBluetoothDataListener(this);
-        localPid = new PidDataRetriever(getApplicationContext());
+        localPid = new PidAdapter(getApplicationContext());
     }
 
     /**

@@ -1,9 +1,6 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
-import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 /**
  * Created by Paul Soladoye on 4/1/2016.

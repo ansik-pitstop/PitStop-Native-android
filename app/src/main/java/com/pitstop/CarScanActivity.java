@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -24,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.info.DataPackageInfo;
@@ -32,6 +34,8 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.mikephil.charting.charts.PieChart;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -40,6 +44,7 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.R;
 import com.pitstop.background.BluetoothAutoConnectService;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class CarScanActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
@@ -62,6 +67,8 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     private Button carScanButton;
 
     private static String TAG = "CarScanActivity";
+
+    private boolean askingForDtcs = false;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -107,6 +114,14 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         super.onPause();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent data = new Intent();
+        data.putExtra(MainActivity.REFRESH_LOCAL, true);
+        setResult(MainActivity.RESULT_OK, data);
+        finish();
+    }
+
     private void setupUiReferences() {
         carMileage = (TextView) findViewById(R.id.car_mileage);
 
@@ -145,7 +160,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         engineIssuesState = (ImageView) findViewById(R.id.engine_issues_state_image_icon);
     }
 
-    public void updateMileage(View view) {
+    public void updateMileage() {
 
         final EditText input = new EditText(CarScanActivity.this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -158,6 +173,20 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
+                carScanButton.setEnabled(false);
+                recallsCountLayout.setVisibility(View.GONE);
+                loadingRecalls.setVisibility(View.VISIBLE);
+                recallsText.setText("Checking for recalls");
+
+                servicesCountLayout.setVisibility(View.GONE);
+                loadingServices.setVisibility(View.VISIBLE);
+                servicesText.setText("Checking for services");
+
+                engineIssuesCountLayout.setVisibility(View.GONE);
+                loadingEngineIssues.setVisibility(View.VISIBLE);
+                engineIssuesText.setText("Checking for engine issues");
+
                 updateMileage(input.getText().toString());
                 dialogInterface.dismiss();
             }
@@ -166,23 +195,52 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     private void updateMileage (String mileage) {
         Log.i(TAG, mileage);
+
+        carMileage.setText(mileage);
+        Car dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+
+        params.put("carVin", dashboardCar.getVin());
+        params.put("mileage", Integer.valueOf(mileage));
+
+        // update the server information
+        ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
+            public void done(Object o, ParseException e) {
+                if (e == null) {
+                    startCarScan();
+                } else {
+                    Toast.makeText(CarScanActivity.this,
+                            "failed to update mileage", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Parse Error: "+e.getMessage());
+
+                    carScanButton.setEnabled(true);
+                    recallsCountLayout.setVisibility(View.VISIBLE);
+                    loadingRecalls.setVisibility(View.GONE);
+                    recallsText.setText("Recalls");
+
+                    servicesCountLayout.setVisibility(View.VISIBLE);
+                    loadingServices.setVisibility(View.GONE);
+                    servicesText.setText("Services");
+
+                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                    loadingEngineIssues.setVisibility(View.GONE);
+                    engineIssuesText.setText("Engine issues");
+                }
+            }
+        });
     }
 
     public void scanCar(View view) {
-        carScanButton.setEnabled(false);
-        recallsCountLayout.setVisibility(View.GONE);
-        loadingRecalls.setVisibility(View.VISIBLE);
-        recallsText.setText("Checking for recalls");
+        updateMileage();
+    }
+
+    private void startCarScan() {
+
         checkForRecalls();
 
-        servicesCountLayout.setVisibility(View.GONE);
-        loadingServices.setVisibility(View.VISIBLE);
-        servicesText.setText("Checking for services");
         checkForServices();
 
-        engineIssuesCountLayout.setVisibility(View.GONE);
-        loadingEngineIssues.setVisibility(View.VISIBLE);
-        engineIssuesText.setText("Checking for engine issues");
         checkForEngineIssues();
     }
 
@@ -210,7 +268,12 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
                     if (currentCar != null) {
                         loadingServices.setVisibility(View.GONE);
 
-                        if (currentCar.getNumberOfServices() > 0) {
+                        int totalServiceCount = 0;
+                        totalServiceCount += currentCar.getPendingEdmundServicesIds().size();
+                        totalServiceCount += currentCar.getPendingFixedServicesIds().size();
+                        totalServiceCount += currentCar.getPendingIntervalServicesIds().size();
+
+                        if (totalServiceCount > 0) {
                             servicesCountLayout.setVisibility(View.VISIBLE);
                             servicesCount.setText(String.valueOf(currentCar.getNumberOfServices()));
                             servicesText.setText("Services");
@@ -239,6 +302,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     }
 
     private void checkForEngineIssues() {
+        askingForDtcs = true;
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
@@ -253,7 +317,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     }
 
     public void checkServices(View view) {
-        super.onBackPressed();
+        onBackPressed();
     }
 
     @Override
@@ -281,6 +345,27 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         Log.i(TAG, "Result "+dataPackageInfo.result);
         Log.i(TAG, "DTC "+dataPackageInfo.dtcData);
 
+        if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.equals("") && askingForDtcs) {
+
+            String[] dtcs = dataPackageInfo.dtcData.split(",");
+
+            engineIssuesCountLayout.setVisibility(View.VISIBLE);
+            engineIssuesCount.setText(String.valueOf(dtcs.length));
+            engineIssuesText.setText("Engine issues");
+
+            Drawable background = engineIssuesCountLayout.getBackground();
+            GradientDrawable gradientDrawable = (GradientDrawable) background;
+            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+
+            if (!servicesStateLayout.isShown() && !recallsStateLayout.isShown() &&
+                    !engineIssuesStateLayout.isShown()) {
+                carScanButton.setEnabled(true);
+            }
+
+            askingForDtcs = false;
+        } else if(askingForDtcs && (dataPackageInfo.dtcData == null || dataPackageInfo.dtcData.equals("") )) {
+            engineIssuesStateLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

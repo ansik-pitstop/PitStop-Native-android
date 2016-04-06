@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 /**
  * Created by psola on 3/31/2016.

@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

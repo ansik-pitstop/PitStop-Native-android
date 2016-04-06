@@ -38,30 +38,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:id="@+id/car_details_layout"
+                <TextView
+                    android:id="@+id/car_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/car_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="car name"
-                        android:layout_marginBottom="16dp"
-                        android:layout_marginRight="8dp" />
-
-                    <TextView
-                        android:id="@+id/car_trim"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/car_name"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="Small Text"
-                        android:layout_marginRight="8dp" />
-
-                </RelativeLayout>
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="car name"
+                    android:layout_marginRight="8dp"
+                    android:layout_toLeftOf="@+id/car_details_components_layout"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"/>
 
                 <RelativeLayout
                     android:id="@+id/car_details_components_layout"
@@ -69,12 +55,21 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true">
 
+                    <Button
+                        android:id="@+id/car_scan_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/color_button_primary_car"
+                        android:text="Scan"
+                        android:textColor="#fff"/>
+
                     <RelativeLayout
                         android:id="@+id/service_count_background"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@drawable/dark_circular_background"
-                        android:layout_gravity="center"
+                        android:layout_toRightOf="@+id/car_scan_btn"
                         android:layout_centerVertical="true">
 
                         <TextView
@@ -128,7 +123,7 @@
                         android:text="Dealership"
                         android:gravity="center_vertical"
                         android:layout_centerVertical="true"
-                        android:textSize="20sp"/>
+                        android:textSize="18sp"/>
 
                     <RelativeLayout
                         android:id="@+id/dealership_action_icons"

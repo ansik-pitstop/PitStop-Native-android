@@ -1,29 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.pitstop.CarScanActivity">
-
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_car_scan" />
-
-</android.support.design.widget.CoordinatorLayout>-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -55,63 +30,55 @@
         app:cardElevation="3dp">
 
         <RelativeLayout
+            android:id="@+id/mileage_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/mileage_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="25dp"
+                android:text="Mileage"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/car_mileage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="3000009"
+                android:layout_toRightOf="@+id/mileage_text"/>
+        </RelativeLayout>
+
+        <RelativeLayout
             android:id="@+id/car_scan_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
 
-            <ImageView
+            <!--<ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"/>-->
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"/>
+                android:layout_alignParentRight="true"
+                android:src="@drawable/car_scan"/>
 
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
-    <RelativeLayout
-        android:id="@+id/mileage_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_below="@+id/car_view_layout">
-
-        <TextView
-            android:id="@+id/mileage_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="25dp"
-            android:text="Mileage"
-            android:textSize="18sp"/>
-
-        <TextView
-            android:id="@+id/car_mileage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="3000009"
-            android:layout_toRightOf="@+id/mileage_text"/>
-
-        <Button
-            android:id="@+id/update_mileage_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="update mileage"
-            android:onClick="updateMileage"/>
-    </RelativeLayout>
-
     <RelativeLayout xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/scan_details_cards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/mileage_layout"
+        android:layout_below="@+id/car_view_layout"
         android:layout_above="@+id/car_scan_btn">
 
         <ScrollView
@@ -134,11 +101,21 @@
                         android:layout_height="wrap_content"
                         android:padding="16dp">
 
+                        <ImageView
+                            android:id="@+id/car_recall_image"
+                            android:layout_width="35dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/car_recall"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentLeft="true"/>
+
                         <TextView
                             android:id="@+id/recalls_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Recalls"
+                            android:layout_toRightOf="@+id/car_recall_image"
+                            android:layout_marginLeft="5dp"
                             android:layout_centerVertical="true"/>
 
                         <include layout="@layout/loading_layout"
@@ -210,17 +187,19 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:id="@+id/engine_oil_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/engine_oil"
+                            android:id="@+id/car_service_image"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:src="@drawable/car_service"
+                            android:layout_centerVertical="true"
                             android:layout_alignParentLeft="true"/>
                         <TextView
                             android:id="@+id/services_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Services"
-                            android:layout_toRightOf="@+id/engine_oil_image"
+                            android:layout_toRightOf="@+id/car_service_image"
+                            android:layout_marginLeft="5dp"
                             android:layout_centerVertical="true"/>
 
                         <include layout="@layout/loading_layout"
@@ -292,9 +271,10 @@
 
                         <ImageView
                             android:id="@+id/car_engine_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
                             android:src="@drawable/car_engine"
+                            android:layout_centerVertical="true"
                             android:layout_alignParentLeft="true"/>
 
                         <TextView
@@ -303,6 +283,7 @@
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/car_engine_image"
                             android:layout_centerVertical="true"
+                            android:layout_marginLeft="5dp"
                             android:text="Engine issues"/>
 
                         <include layout="@layout/loading_layout"

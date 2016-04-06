@@ -296,7 +296,6 @@ public class Car implements Serializable {
         if(parseObject != null) {
             car = new Car();
             car.setParseId(parseObject.getObjectId());
-            Log.i("MAIN_ACTIVITY-->", "ParseId: " + car.getParseId());
             car.setEngine(parseObject.getString("engine"));
             car.setMake(parseObject.getString("make"));
             car.setModel(parseObject.getString("model"));

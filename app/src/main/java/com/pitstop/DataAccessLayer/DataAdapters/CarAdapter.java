@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DataRetrievers;
+package com.pitstop.DataAccessLayer.DataAdapters;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
+import com.pitstop.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class CarDataRetriever  {
+public class CarAdapter {
 
     // CAR table create statement
     public static final String CREATE_TABLE_CAR = "CREATE TABLE IF NOT EXISTS "
@@ -37,26 +38,16 @@ public class CarDataRetriever  {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public CarDataRetriever(Context context) {
+    public CarAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
-        Log.i("CarDataR", "Constructor");
+        Log.i(MainActivity.TAG, "CarAdapter::Constructor");
     }
-
-    /*@Override
-    public void onCreate(SQLiteDatabase db) {
-        Log.i("Car ", "onCreate");
-        super.onCreate(db);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onUpgrade(db, oldVersion, newVersion);
-    }*/
 
     /**
      * Store car data
      */
     public void storeCarData(Car car) {
+        Log.i(MainActivity.TAG, "Storing car");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -74,7 +65,9 @@ public class CarDataRetriever  {
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, car.isCurrentCar() ? 1 : 0);
 
-        db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
+
+        Log.i(MainActivity.TAG, "Storing car Result: "+result);
         db.close();
     }
 
@@ -96,24 +89,27 @@ public class CarDataRetriever  {
         Cursor c = db.rawQuery(selectQuery,null);
 
         if(c.moveToFirst()) {
-            Car car = new Car();
-            car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-            car.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+            while(!c.isAfterLast()) {
+                Car car = new Car();
+                car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
+                car.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
 
-            car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
-            car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
-            car.setYear(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR)));
-            car.setTotalMileage(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
-            car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
-            car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
-            car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
-            car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
-            car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_OWNER_ID)));
-            car.setShopId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_DEALERSHIP_ID)));
-            car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
-            car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
+                car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
+                car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
+                car.setYear(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR)));
+                car.setTotalMileage(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
+                car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
+                car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
+                car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
+                car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
+                car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_OWNER_ID)));
+                car.setShopId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_DEALERSHIP_ID)));
+                car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
+                car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
 
-            cars.add(car);
+                cars.add(car);
+                c.moveToNext();
+            }
         }
         db.close();
         return cars;
@@ -151,9 +147,9 @@ public class CarDataRetriever  {
 
     /** Delete all cars*/
     public void deleteAllCars() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         List<Car> carEntries = getAllCars();
+
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Car car : carEntries) {
             db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
