@@ -42,6 +42,8 @@ public class SplashScreen extends AppCompatActivity {
 
     public static final String TAG = SplashScreen.class.getSimpleName();
 
+    ParseApplication application;
+
     boolean signup  = false;
     boolean backPressed = false;
 
@@ -63,6 +65,8 @@ public class SplashScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+
+        application = (ParseApplication) getApplicationContext();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCanceledOnTouchOutside(false);
@@ -243,7 +247,8 @@ public class SplashScreen extends AppCompatActivity {
             });
 
             try {
-                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -293,7 +298,7 @@ public class SplashScreen extends AppCompatActivity {
 
 
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                        application.getMixpanelAPI().track("Button Clicked",
                                 new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
                     } catch (JSONException e2) {
                         e2.printStackTrace();
@@ -322,7 +327,7 @@ public class SplashScreen extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        application.getMixpanelAPI().flush();
         super.onPause();
-        ParseApplication.mixpanelAPI.flush();
     }
 }

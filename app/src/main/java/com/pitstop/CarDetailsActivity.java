@@ -75,6 +75,8 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
 public class CarDetailsActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
 
+    private ParseApplication application;
+
     public static final String TAG = CarDetailsActivity.class.getSimpleName();
     private CustomAdapter customAdapter;
     private ConnectedCarRecyclerAdapter connectedAdapter;
@@ -115,6 +117,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
+
+        application = (ParseApplication) getApplicationContext();
 
         //------------------------------- setup constants
         carId = getIntent().getStringExtra("CarID");
@@ -207,7 +211,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
         });
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'CarDetailActivity'}"));
+            application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'CarDetailActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -554,11 +558,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                             @Override
                             public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
 
-                                try {
+                                /*try {
                                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Swiped Away Service/Recall','View':'CarDetailActivity'}"));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                }
+                                }*/
                                 final CharSequence[] times = new CharSequence[]{
                                         "Recently", "2 Weeks Ago", "A Month Ago", "2 to 3 Months Ago", "3 to 6 Months Ago", "6 to 12 Months Ago"
                                 };
@@ -709,11 +713,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      */
     private void updateMileage(CharSequence chsq) {
 
-        try {
+        /*try {
             ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Update Mileage','View':'CarDetailActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         String mileage = chsq.toString();
 
         // save to parse
@@ -767,12 +771,12 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
      */
     public void requestServiceButton(String additional) {
 
-        try {
+        /*try {
             ParseApplication.mixpanelAPI.track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'CarDetailsActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         if(requestSent){
             Toast.makeText(CarDetailsActivity.this,
                     "Already Sent Request for Car!", Toast.LENGTH_SHORT).show();
@@ -886,7 +890,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     protected void onPause() {
         // unbind service to prevent memory leaks
         unbindService(serviceConnection);
-        ParseApplication.mixpanelAPI.flush();
+        //ParseApplication.mixpanelAPI.flush();
         super.onPause();
     }
 
@@ -903,11 +907,11 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
             dialog.show(getSupportFragmentManager(),"sendSupportEmail");
         }
         if (id == R.id.history) {
-            try {
+            /*try {
                 ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open History View','View':'CarDetailActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
             Intent intent = new Intent(CarDetailsActivity.this, CarHistoryActivity.class);
             intent.putExtra("carId",carId);
             startActivity(intent);

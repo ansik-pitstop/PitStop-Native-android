@@ -80,12 +80,12 @@ public class MainActivityFragment extends Fragment {
         setUp();
         showTutorial();
 
-        try {
+        /*try {
             ParseApplication.mixpanelAPI.track("View Appeared",
                     new JSONObject("{'View':'MainActivityFragment'}"));
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     private void showTutorial() {
@@ -93,11 +93,11 @@ public class MainActivityFragment extends Fragment {
         SharedPreferences.Editor editor = settings.edit();
         if(settings.getBoolean("FirstAppOpen",false)==false) {
 
-            try {
+            /*try {
                 ParseApplication.mixpanelAPI.track("Showing Tutorial", new JSONObject("{'View':'MainActivity Fragment'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
             new ShowcaseView.Builder(getActivity())
                     .setTarget(new ViewTarget(getActivity().findViewById(R.id.car_connected_ind_button)))
                     .setContentTitle("View Your Car Information")
@@ -144,11 +144,11 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
             }
@@ -158,11 +158,11 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                 User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
@@ -173,11 +173,11 @@ public class MainActivityFragment extends Fragment {
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Directions Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
@@ -258,11 +258,11 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.car_connected_ind_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open Details for Car','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated

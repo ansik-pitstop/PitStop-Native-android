@@ -54,6 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_settings);
+
         if(getIntent().getExtras()!=null) {
             populateCarNamesAndIdList();
         }
@@ -122,6 +123,8 @@ public class SettingsActivity extends AppCompatActivity {
         List<Car> carList;
         CarListAdapter listAdapter;
 
+        ParseApplication application;
+
         public SettingsFragment(ArrayList<String> cars, ArrayList<String> ids, List<Car> carList){
             this.cars  =cars;
             this.ids = ids;
@@ -131,6 +134,8 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            application = (ParseApplication) getApplicationContext();
             preferenceList = new ArrayList<>();
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
@@ -293,7 +298,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             try {
-                ParseApplication.mixpanelAPI.track("View Appeared",
+                application.getMixpanelAPI().track("View Appeared",
                         new JSONObject("{'View':'SettingActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -304,6 +309,12 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             return super.onCreateView(inflater, container, savedInstanceState);
+        }
+
+        @Override
+        public void onPause() {
+            application.getMixpanelAPI().flush();
+            super.onPause();
         }
 
         private void navigateToLogin() {
@@ -436,6 +447,5 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ParseApplication.mixpanelAPI.flush();
     }
 }

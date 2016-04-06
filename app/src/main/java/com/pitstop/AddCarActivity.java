@@ -75,6 +75,8 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class AddCarActivity extends AppCompatActivity implements
         BluetoothManage.BluetoothDataListener, View.OnClickListener,
         EasyPermissions.PermissionCallbacks {
+
+    private ParseApplication application;
     public static int RESULT_ADDED = 10;
     public static int ADD_CAR_SUCCESS = 51;
     // TODO: Transferring data through intents is safer than using global variables
@@ -104,7 +106,6 @@ public class AddCarActivity extends AppCompatActivity implements
     //private static final int REQUEST_CAMERA = 0;
     private static final int RC_BARCODE_CAPTURE = 100;
 
-    private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
     //debugging storing TODO: Request permission for storage
@@ -143,6 +144,8 @@ public class AddCarActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
         Log.i(ACTIVITY_TAG, "onCreate()");
+
+        application = (ParseApplication) getApplicationContext();
 
         vinDecoderApi = new CallMashapeAsync();
 
@@ -191,10 +194,8 @@ public class AddCarActivity extends AppCompatActivity implements
             }
         });
 
-        mixpanelAPI = ParseApplication.mixpanelAPI;
-
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared",
+            application.getMixpanelAPI().track("View Appeared",
                     new JSONObject("{'View':'AddCarAcivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -274,7 +275,7 @@ public class AddCarActivity extends AppCompatActivity implements
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         }
         mLogStore.stop();
-        mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
         if(vinDecoderApi!=null && vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
@@ -416,7 +417,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 if (isValidVin(vinEditText.getText().toString())) {
                     Log.i(ACTIVITY_TAG, "Vin is valid -- (searching for car)");
                     try {
-                        ParseApplication.mixpanelAPI.track("Button Clicked",
+                        application.getMixpanelAPI().track("Button Clicked",
                                 new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -446,7 +447,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             isGettingVin = true;
                         } else {
                             try {
-                                ParseApplication.mixpanelAPI.track("Button Clicked",
+                                application.getMixpanelAPI().track("Button Clicked",
                                         new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -685,7 +686,7 @@ public class AddCarActivity extends AppCompatActivity implements
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                ParseApplication.mixpanelAPI.track("Scanned VIN",
+                application.getMixpanelAPI().track("Scanned VIN",
                         new JSONObject("{'VIN':'"+VIN+"'}"));
             } catch (JSONException e) {
                 e.printStackTrace();

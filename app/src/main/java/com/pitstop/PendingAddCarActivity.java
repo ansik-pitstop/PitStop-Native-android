@@ -28,11 +28,14 @@ public class PendingAddCarActivity extends AppCompatActivity{
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
     public static String PENDING = "PENDING";
 
+    ParseApplication application;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_pending_add_car);
+        application = (ParseApplication) getApplicationContext();
         // TODO: Transferring data through intents is safer than using global variables (bugs)
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         if(AddCarActivity.VIN!=null&&!AddCarActivity.VIN.equals("")) {
@@ -49,7 +52,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         handler.post(runnableCode);
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'PendingAddCarActivity'}"));
+            application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'PendingAddCarActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }

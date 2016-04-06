@@ -1,11 +1,13 @@
 package com.pitstop.parse;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.pitstop.MainActivity;
 import com.pitstop.R;
 
 import io.smooch.core.Smooch;
@@ -15,7 +17,7 @@ import io.smooch.core.Smooch;
  */
 public class ParseApplication extends Application {
 
-    public static MixpanelAPI mixpanelAPI;
+    private static MixpanelAPI mixpanelAPI;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -24,17 +26,26 @@ public class ParseApplication extends Application {
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
         ParseInstallation.getCurrentInstallation().saveInBackground();
-        Smooch.init(this, "0xs5j98mds1x8mn77ptw4knc5");
-        mixpanelAPI = MixpanelAPI.getInstance(this, "330c942ffad6819253501447810ad761");
+        Smooch.init(this, getString(R.string.smooch_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
         if(ParseUser.getCurrentUser()!=null) {
-            ParseApplication.mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().identify(ParseUser.getCurrentUser().getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().set("$phone", ParseUser.getCurrentUser().get("phoneNumber"));
-            ParseApplication.mixpanelAPI.getPeople().set("$firstname", ParseUser.getCurrentUser().get("name"));
-            ParseApplication.mixpanelAPI.getPeople().set("$email", ParseUser.getCurrentUser().getEmail());
+            Log.i(MainActivity.TAG, "Current parse user is not null");
+            Log.i(MainActivity.TAG, "Current user's name: "+ ParseUser.getCurrentUser().getString("name"));
+            mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
+            mixpanelAPI.getPeople().identify(ParseUser.getCurrentUser().getObjectId());
+            mixpanelAPI.getPeople().set("$phone", ParseUser.getCurrentUser().get("phoneNumber"));
+            mixpanelAPI.getPeople().set("$name", ParseUser.getCurrentUser().get("name"));
+            mixpanelAPI.getPeople().set("$email", ParseUser.getCurrentUser().getEmail());
         }
+    }
+
+    public MixpanelAPI getMixpanelAPI() {
+        if(mixpanelAPI == null) {
+            mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_api_token));
+        }
+        return mixpanelAPI;
     }
 }

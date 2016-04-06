@@ -29,10 +29,14 @@ import java.util.List;
 public class CarHistoryActivity extends AppCompatActivity {
     CustomAdapter customAdapter;
     ArrayList<Container> array;
+
+    ParseApplication application;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_history);
+        application = (ParseApplication) getApplicationContext();
         array = new ArrayList<>();
         // set up listview
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
@@ -94,7 +98,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(customAdapter);
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'CarHistoryActivity'}"));
+            application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'CarHistoryActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -103,7 +107,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ParseApplication.mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
     }
 
     private class Container{

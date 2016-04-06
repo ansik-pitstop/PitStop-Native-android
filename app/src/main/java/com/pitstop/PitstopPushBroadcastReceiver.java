@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.parse.Parse;
 import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.parse.ParseApplication;
 
@@ -42,11 +43,10 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
             if (ACTION_UPDATE_MILEAGE.equals(action)) {
                 String carId = data.getString(PARSE_DATA_CAR_ID);
+                ParseApplication application = (ParseApplication) context.getApplicationContext();
                 try {
-                    if(ParseApplication.mixpanelAPI!=null) {
-                        ParseApplication.mixpanelAPI.track("App Status",
-                                new JSONObject("{'Status':'App opened from Push Notif'}"));
-                    }
+                    application.getMixpanelAPI().track("App Status",
+                            new JSONObject("{'Status':'App opened from Push Notif'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

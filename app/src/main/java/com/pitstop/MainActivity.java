@@ -101,11 +101,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static String HAS_CAR_IN_DASHBOARD = "has_car";
     public static String REFRESH_LOCAL = "refresh_local";
 
-    public static MixpanelAPI mixpanelAPI;
-
     private boolean isLoading = false;
-
-    private boolean isUpdatingMileage = false;
 
     private RecyclerView recyclerView;
     private CustomAdapter carIssuesAdapter;
@@ -130,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private CarAdapter carAdapter;
     private CarIssueAdapter carIssueAdapter;
 
+    ParseApplication application;
 
 
     public static String TAG = "MainActivity --> ";
@@ -181,11 +178,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mixpanelAPI = ParseApplication.mixpanelAPI;
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
 
+        application = (ParseApplication) getApplicationContext();
         Log.i(TAG, "On create..");
 
         carAdapter = new CarAdapter(this);
@@ -198,6 +195,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         setUpUIReferences();
         getCarDetails();
+
+        try {
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'MainActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -268,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onPause() {
         indicatorHandler.removeCallbacks(runnable);
         unbindService(serviceConnection);
-        ParseApplication.mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
         Log.i(TAG, "onPause");
         super.onPause();
     }
@@ -324,6 +328,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         addressLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                try {
+                    application.getMixpanelAPI().track("Button Clicked",
+                            new JSONObject("{'Button':'Directions Garage','View':'MainActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 String uri = String.format(Locale.ENGLISH,
                         "http://maps.google.com/maps?daddr=%s",
                         dashboardCar.getDealerShip().getAddress());
@@ -336,6 +348,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         phoneNumberLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    application.getMixpanelAPI().track("Button Clicked",
+                            new JSONObject("{'Button':'Call Garage','View':'MainActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         dashboardCar.getDealerShip().getPhone()));
                 startActivity(intent);
@@ -346,6 +365,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         chatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    application.getMixpanelAPI().track("Button Clicked",
+                            new JSONObject("{'Button':'Message Garage','View':'MainActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
                 User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                 ConversationActivity.show(MainActivity.this);
@@ -406,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                                                final int[] reverseSortedPositions) {
 
                                 try {
-                                    ParseApplication.mixpanelAPI.track("Button Clicked",
+                                    application.getMixpanelAPI().track("Button Clicked",
                                             new JSONObject("{'Button':'Swiped Away Service/Recall'," +
                                                     "'View':'MainActivity'}"));
                                 } catch (JSONException e) {
@@ -454,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     public void requestMultiService(View view) {
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked",
+            application.getMixpanelAPI().track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'MainActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();

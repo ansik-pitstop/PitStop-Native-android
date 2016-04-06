@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
+import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -50,10 +51,14 @@ public class DisplayItemActivity extends AppCompatActivity {
     private Car dashboardCar;
     private CarIssue carIssue;
 
+    ParseApplication application;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
+
+        application = (ParseApplication) getApplicationContext();
 
         Intent intent = getIntent();
         dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
@@ -62,7 +67,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         setUpDisplayItems(carIssue);
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared",
+            application.getMixpanelAPI().track("View Appeared",
                     new JSONObject("{'View':'DisplayItemActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -72,7 +77,7 @@ public class DisplayItemActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ParseApplication.mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
     }
 
     @Override
@@ -103,7 +108,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     public void requestService(View view) {
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked",
+            application.getMixpanelAPI().track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'DisplayItemActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
