@@ -12,7 +12,9 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -45,7 +47,9 @@ import com.pitstop.R;
 import com.pitstop.background.BluetoothAutoConnectService;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CarScanActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
 
@@ -111,6 +115,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     @Override
     protected void onPause() {
         unbindService(serviceConnection);
+        dtcRequestTimer.removeCallbacks(runnable);
         super.onPause();
     }
 
@@ -296,8 +301,8 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
                         Log.i(TAG, "Main car is null");
                     }
 
-                    if (!servicesStateLayout.isShown() && !recallsStateLayout.isShown() &&
-                            !engineIssuesStateLayout.isShown()) {
+                    if (!loadingEngineIssues.isShown() && !loadingRecalls.isShown() &&
+                            !loadingServices.isShown()) {
                         carScanButton.setEnabled(true);
                     }
                 } else {
@@ -309,6 +314,8 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     private void checkForEngineIssues() {
         askingForDtcs = true;
+        startTime = System.currentTimeMillis();
+        dtcRequestTimer.post(runnable);
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
@@ -357,7 +364,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         return null;
     }
 
-    public void checkServices(View view) {
+    public void checkIssues(View view) {
         onBackPressed();
     }
 
@@ -381,33 +388,64 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     }
 
+    private Set<String> dtcCodes = new HashSet<>();
+
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(TAG, "Result "+dataPackageInfo.result);
-        Log.i(TAG, "DTC "+dataPackageInfo.dtcData);
+        Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
+        Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
 
         if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.equals("") && askingForDtcs) {
 
             String[] dtcs = dataPackageInfo.dtcData.split(",");
+            for(String dtc : dtcs) {
+                dtcCodes.add(dtc);
+            }
 
+            loadingEngineIssues.setVisibility(View.GONE);
+            engineIssuesStateLayout.setVisibility(View.GONE);
             engineIssuesCountLayout.setVisibility(View.VISIBLE);
-            engineIssuesCount.setText(String.valueOf(dtcs.length));
+            engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
             engineIssuesText.setText("Engine issues");
 
             Drawable background = engineIssuesCountLayout.getBackground();
             GradientDrawable gradientDrawable = (GradientDrawable) background;
             gradientDrawable.setColor(Color.rgb(203, 77, 69));
-
-            if (!servicesStateLayout.isShown() && !recallsStateLayout.isShown() &&
-                    !engineIssuesStateLayout.isShown()) {
-                carScanButton.setEnabled(true);
-            }
-
-            askingForDtcs = false;
-        } else if(askingForDtcs && (dataPackageInfo.dtcData == null || dataPackageInfo.dtcData.equals("") )) {
-            engineIssuesStateLayout.setVisibility(View.VISIBLE);
         }
     }
+
+    private long startTime = 0;
+    Handler dtcRequestTimer = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0 ) {
+                if(dtcCodes.isEmpty()) {
+                    loadingEngineIssues.setVisibility(View.GONE);
+                    engineIssuesCountLayout.setVisibility(View.GONE);
+                    engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                }
+                carScanButton.setEnabled(true);
+            }
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - startTime;
+            int seconds = (int) (timeDiff / 1000);
+
+            if(seconds > 10 && askingForDtcs) {
+                askingForDtcs = false;
+                dtcRequestTimer.sendEmptyMessage(0);
+                dtcRequestTimer.removeCallbacks(runnable);
+            } else {
+                dtcRequestTimer.post(runnable);
+            }
+
+        }
+    };
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {

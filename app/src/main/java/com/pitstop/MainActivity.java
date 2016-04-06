@@ -555,6 +555,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(localCars.isEmpty()) {
             loadCarDetailsFromServer();
         } else {
+            Log.i(MainActivity.TAG,"Trying local store for cars");
             carList = localCars;
 
             setDashboardCar(carList);
@@ -683,6 +684,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         // Try local store
         List<CarIssue> carIssues = carIssueAdapter.getAllCarIssues(dashboardCar.getParseId());
         if(carIssues.isEmpty()) {
+            Log.i(TAG, "No car issues in local store");
             List<String> issueIds;
 
             issueIds = dashboardCar.getPendingEdmundServicesIds();
@@ -700,6 +702,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             List<String> dtcCodes = dashboardCar.getStoredDTCs();
             getDTCs(dtcCodes, "DTC", CarIssue.DTC);
         } else {
+            Log.i(MainActivity.TAG, "Trying local store for carIssues");
             Log.i(TAG,"CarIssues count: "+carIssues.size());
             dashboardCar.setIssues(carIssues);
             carIssueList.clear();
@@ -738,6 +741,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     private void getDTCs(List<String> dtcCodes, String resource, final String issueType) {
+        Log.i(TAG, "Getting dtcs");
         ParseQuery<ParseObject> query = ParseQuery.getQuery(resource);
         query.whereContainedIn("dtcCode", dtcCodes);
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -748,6 +752,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
                     List<CarIssue> dtcs = CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId());
+                    Log.i(TAG, "DTC count: "+ dtcs.size());
                     dashboardCar.getIssues().addAll(dtcs);
                     // Store in local
                     carIssueAdapter.storeCarIssues(dtcs);

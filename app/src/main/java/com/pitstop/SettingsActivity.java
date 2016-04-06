@@ -101,10 +101,16 @@ public class SettingsActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
+
+        finish();
+    }
+
+    @Override
+    public void finish() {
         Intent intent = new Intent();
         intent.putExtra(MainActivity.REFRESH_LOCAL, true);
         setResult(MainActivity.RESULT_OK,intent);
-        finish();
+        super.finish();
     }
 
     public class SettingsFragment extends PreferenceFragment {

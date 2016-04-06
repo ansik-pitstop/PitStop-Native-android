@@ -156,6 +156,9 @@ public class CarAdapter {
                     new String[] { String.valueOf(car.getId()) });
         }
 
+        carEntries = getAllCars();
+        Log.i(MainActivity.TAG, "after deleting all cars. Count = "+carEntries.size());
+
         db.close();
     }
 }

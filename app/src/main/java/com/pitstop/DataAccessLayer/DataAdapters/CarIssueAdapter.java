@@ -112,7 +112,7 @@ public class CarIssueAdapter {
     }*/
 
     public List<CarIssue> getAllCarIssues(String carId) {
-        Log.i("CarIssues","CarId: "+carId);
+        Log.i(MainActivity.TAG,"Local store carIssues CarId: "+carId);
 
         List<CarIssue> carIssues = new ArrayList<>();
 
@@ -170,10 +170,15 @@ public class CarIssueAdapter {
     public void deleteAllCarIssues() {
         List<CarIssue> carIssueEntries = getAllCarIssues();
 
+        Log.i(MainActivity.TAG, "Issues count: "+carIssueEntries.size());
+
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(CarIssue issue : carIssueEntries) {
-            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
+            /*Log.i(MainActivity.TAG,"carIssueid: "+issue.getParseId());
+            Log.i(MainActivity.TAG, "Car Issue car id: "+issue.getCarId());
+            Log.i(MainActivity.TAG, "Car Issue object id: "+issue.getId());*/
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
                     new String[] { String.valueOf(issue.getId()) });
         }
 
