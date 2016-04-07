@@ -39,7 +39,6 @@
                 android:id="@+id/mileage_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_marginRight="25dp"
                 android:text="Mileage"
                 android:textSize="18sp"/>
@@ -48,20 +47,46 @@
                 android:id="@+id/car_mileage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:text="3000009"
+                android:textSize="18sp"
                 android:layout_toRightOf="@+id/mileage_text"/>
+
+            <RelativeLayout
+                android:id="@+id/car_health"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/mileage_text">
+
+                <com.hookedonplay.decoviewlib.DecoView
+                    android:id="@+id/dynamicArcView"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_margin="8dp">
+
+                </com.hookedonplay.decoviewlib.DecoView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:text="0%"
+                    android:id="@+id/textPercentage"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
+            </RelativeLayout>
         </RelativeLayout>
+
+
 
         <RelativeLayout
             android:id="@+id/car_scan_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:padding="15dp">
-
-            <!--<ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>-->
 
             <ImageView
                 android:layout_width="wrap_content"

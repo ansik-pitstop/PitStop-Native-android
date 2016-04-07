@@ -106,6 +106,19 @@ public class DisplayItemActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void finish() {
+        Intent intent = new Intent();
+        intent.putExtra(MainActivity.REFRESH_LOCAL, false);
+        setResult(MainActivity.RESULT_OK, intent);
+        super.finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
     public void requestService(View view) {
         try {
             application.getMixpanelAPI().track("Button Clicked",

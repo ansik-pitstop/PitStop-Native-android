@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static int RC_ADD_CAR = 50;
     public static int RC_SCAN_CAR = 51;
     public static int RC_SETTINGS = 52;
+    public static int RC_DISPLAY_ISSUE = 53;
 
     public static int RESULT_OK = 60;
 
@@ -256,23 +257,31 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+
+        boolean shouldRefresh = data.getBooleanExtra(REFRESH_LOCAL,false);
+
         if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
 
-            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+            if(shouldRefresh) {
                 refreshUi();
             } else {
                 dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
             }
         } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
-            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+            if(shouldRefresh) {
                 refreshUi();
             }
         } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
-            if(data.getBooleanExtra(REFRESH_LOCAL,false)) {
+            if(shouldRefresh) {
+                refreshUi();
+            }
+        } else if(requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
+            if(shouldRefresh) {
                 refreshUi();
             }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -1028,7 +1037,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         Intent intent = new Intent(MainActivity.this, DisplayItemActivity.class);
                         intent.putExtra(CAR_ISSUE_EXTRA, carIssueList.get(position));
                         intent.putExtra(CAR_EXTRA,dashboardCar);
-                        startActivity(intent);
+                        startActivityForResult(intent, RC_DISPLAY_ISSUE);
                     }
                 });
             }
