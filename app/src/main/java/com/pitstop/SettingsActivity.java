@@ -135,7 +135,6 @@ public class SettingsActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            application = (ParseApplication) getApplicationContext();
             preferenceList = new ArrayList<>();
             cars = ((SettingsActivity)getActivity()).cars;
             ids = ((SettingsActivity)getActivity()).ids;
@@ -213,6 +212,7 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
+            application = (ParseApplication) getApplicationContext();
             addPreferencesFromResource(R.xml.preferences);
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(ParseUser.getCurrentUser().getString("name"));

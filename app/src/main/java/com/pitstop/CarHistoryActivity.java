@@ -98,7 +98,8 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(customAdapter);
 
         try {
-            application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'CarHistoryActivity'}"));
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'CarHistoryActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }

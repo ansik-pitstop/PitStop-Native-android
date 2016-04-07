@@ -32,8 +32,6 @@ public class ParseApplication extends Application {
 
     public static void setUpMixPanel(){
         if(ParseUser.getCurrentUser()!=null) {
-            Log.i(MainActivity.TAG, "Current parse user is not null");
-            Log.i(MainActivity.TAG, "Current user's name: "+ ParseUser.getCurrentUser().getString("name"));
             mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
             mixpanelAPI.getPeople().identify(ParseUser.getCurrentUser().getObjectId());
             mixpanelAPI.getPeople().set("$phone", ParseUser.getCurrentUser().get("phoneNumber"));

@@ -687,7 +687,7 @@ public class AddCarActivity extends AppCompatActivity implements
             VIN = parameterValues.get(0).value;
             try {
                 application.getMixpanelAPI().track("Scanned VIN",
-                        new JSONObject("{'VIN':'"+VIN+"'}"));
+                        new JSONObject("{'VIN':'" + VIN + "'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1174,6 +1174,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);
+        data.putExtra(MainActivity.REFRESH_LOCAL, true);
         setResult(ADD_CAR_SUCCESS, data);
         finish();
     }

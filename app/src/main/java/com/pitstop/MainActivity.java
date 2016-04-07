@@ -217,10 +217,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         if(id == R.id.refresh_main) {
             refreshUi();
-            return true;
         } else if(id == R.id.add) {
             startAddCarActivity();
-            return true;
         } else if(id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
@@ -230,9 +228,18 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
             startActivityForResult(intent, RC_SETTINGS);
 
-            return true;
+        } else if(id == R.id.action_car_history) {
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Open History View','View':'MainActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
+            intent.putExtra("carId",dashboardCar.getParseId());
+            startActivity(intent);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
