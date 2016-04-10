@@ -40,14 +40,12 @@ public class CarAdapter {
 
     public CarAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
-        Log.i(MainActivity.TAG, "CarAdapter::Constructor");
     }
 
     /**
      * Store car data
      */
     public void storeCarData(Car car) {
-        Log.i(MainActivity.TAG, "Storing car");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -67,7 +65,6 @@ public class CarAdapter {
 
         long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
 
-        Log.i(MainActivity.TAG, "Storing car Result: "+result);
         db.close();
     }
 
@@ -155,9 +152,6 @@ public class CarAdapter {
             db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
                     new String[] { String.valueOf(car.getId()) });
         }
-
-        carEntries = getAllCars();
-        Log.i(MainActivity.TAG, "after deleting all cars. Count = "+carEntries.size());
 
         db.close();
     }

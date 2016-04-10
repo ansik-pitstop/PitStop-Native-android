@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class CarHistoryActivity extends AppCompatActivity {
     CustomAdapter customAdapter;
+    RecyclerView mRecyclerView;
     ArrayList<Container> array;
 
     ParseApplication application;
@@ -36,12 +37,14 @@ public class CarHistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_history);
+
         application = (ParseApplication) getApplicationContext();
         array = new ArrayList<>();
+
         // set up listview
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         //get all service history
         final ParseQuery query = new ParseQuery("ServiceHistory");
         query.whereEqualTo("carId",getIntent().getStringExtra("carId"));

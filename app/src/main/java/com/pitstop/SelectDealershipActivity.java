@@ -22,13 +22,21 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
+import com.pitstop.DataAccessLayer.DataAdapters.DealershipAdapter;
+import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class SelectDealershipActivity extends AppCompatActivity {
+
+    private ParseApplication application;
+
     public static String SELECTED_DEALERSHIP = "selected_dealership";
     public static int RESULT_OK = 103;
     public static int RC_DEALERSHIP = 104;
@@ -42,13 +50,16 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private TextView message;
 
     private boolean hadInternetConnection = false;
-    private List<ParseObject> cars = new ArrayList<>();
+    private DealershipAdapter localStore;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_dealership);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        application = (ParseApplication) getApplicationContext();
+        localStore = new DealershipAdapter(this);
         setup();
     }
 
@@ -130,6 +141,13 @@ public class SelectDealershipActivity extends AppCompatActivity {
     }
 
     private void setup() {
+        try {
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'SelectDealershipActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         recyclerView = (RecyclerView) findViewById(R.id.dealership_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -139,30 +157,42 @@ public class SelectDealershipActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         message_card = (CardView) findViewById(R.id.message_card);
         message = (TextView) findViewById(R.id.message);
-        progressBar.setVisibility(View.VISIBLE);
         message_card.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+
 
         try {
             if(new InternetChecker(this).execute().get()) {
                 hadInternetConnection = true;
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-                query.findInBackground(new FindCallback<ParseObject>() {
 
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        progressBar.setVisibility(View.GONE);
-                        if(e == null) {
-                            adapter = new DealershipAdapter(objects);
-                            recyclerView.setAdapter(adapter);
-                        } else {
-                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
-                                    Toast.LENGTH_SHORT).show();
+                List<Dealership> dealerships = localStore.getAllDealerships();
+                if(dealerships.isEmpty()) {
+                    query.findInBackground(new FindCallback<ParseObject>() {
+
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            progressBar.setVisibility(View.GONE);
+                            if(e == null) {
+                                List<Dealership> list = Dealership.createDealershipList(objects);
+                                localStore.storeDealerships(list);
+                                adapter = new CustomAdapter(list);
+                                recyclerView.setAdapter(adapter);
+                            } else {
+                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    adapter = new CustomAdapter(dealerships);
+                    recyclerView.setAdapter(adapter);
+                }
+
             } else {
+                localStore.deleteAllDealerships();
                 hadInternetConnection = false;
-                progressBar.setVisibility(View.GONE);
                 message_card.setVisibility(View.VISIBLE);
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -177,15 +207,15 @@ public class SelectDealershipActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public class DealershipAdapter extends RecyclerView.Adapter<DealershipAdapter.ViewHolder> {
-        private List<ParseObject> shops;
+    public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+        private List<Dealership> shops;
 
-        public DealershipAdapter(List<ParseObject> shops) {
+        public CustomAdapter(List<Dealership> shops) {
             this.shops = shops;
         }
 
         @Override
-        public DealershipAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public CustomAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.dealership_list_row, null);
 
@@ -193,16 +223,24 @@ public class SelectDealershipActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(DealershipAdapter.ViewHolder holder, int position) {
-            ParseObject shop = shops.get(position);
-            final String displayedShopId = shop.getObjectId();
+        public void onBindViewHolder(CustomAdapter.ViewHolder holder, int position) {
+            Dealership shop = shops.get(position);
+            final String displayedShopId = shop.getParseId();
 
-            holder.dealershipName.setText(shop.get("name").toString());
-            holder.dealershipAddress.setText(shop.get("addressText").toString());
-            holder.dealershipTel.setText(shop.get("phoneNumber").toString());
+            holder.dealershipName.setText(shop.getName());
+            holder.dealershipAddress.setText(shop.getAddress());
+            holder.dealershipTel.setText(shop.getPhone());
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    try {
+                        application.getMixpanelAPI().track("CardView Clicked",
+                                new JSONObject("{'CardView':'Dealership selected','View':'SelectDealershipActivity'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     Intent data = new Intent();
                     data.putExtra(SELECTED_DEALERSHIP, displayedShopId);
                     setResult(RESULT_OK, data);

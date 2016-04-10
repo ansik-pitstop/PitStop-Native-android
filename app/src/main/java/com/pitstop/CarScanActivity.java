@@ -45,14 +45,22 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.parse.ParseApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Created by Paul Soladoye  on 3/8/2016.
+ */
 public class CarScanActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
 
+    private ParseApplication application;
     private BluetoothAutoConnectService autoConnectService;
 
     private RelativeLayout loadingRecalls, recallsStateLayout, recallsCountLayout;
@@ -112,14 +120,20 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        application = (ParseApplication) getApplicationContext();
         bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
 
+        try {
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'CarScanActivity'}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         setupUiReferences();
         carMileage.setText(String.valueOf(dashboardCar.getTotalMileage()));
-
-
     }
 
     @Override
@@ -144,6 +158,13 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         carScanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    application.getMixpanelAPI().track("Button Clicked",
+                            new JSONObject("{'Button':'Start car scan','View':'CarScanActivity'}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 if(autoConnectService.isCommunicatingWithDevice()) {
                     updateMileage();
                 } else {

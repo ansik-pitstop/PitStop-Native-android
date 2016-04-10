@@ -150,6 +150,12 @@ public class SettingsActivity extends AppCompatActivity {
                 mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
+                        if(listAdapter.isEmpty()) {
+                            Toast.makeText(SettingsActivity.this,
+                                    "You have only added one vehicle.", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+
                         switchCarDialog(dashboardCar, mainCarPreference);
                         return true;
                     }
@@ -299,7 +305,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             try {
                 application.getMixpanelAPI().track("View Appeared",
-                        new JSONObject("{'View':'SettingActivity'}"));
+                        new JSONObject("{'View':'SettingsActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

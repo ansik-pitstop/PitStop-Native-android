@@ -758,10 +758,6 @@ public class AddCarActivity extends AppCompatActivity implements
                 e.printStackTrace();
             }
             askForDTC=false;
-        }else{
-            //TODO why ?
-            Log.i(ACTIVITY_TAG, "calling the strange get carVIN - --- Don't know why");
-            //service.getCarVIN();
         }
     }
 

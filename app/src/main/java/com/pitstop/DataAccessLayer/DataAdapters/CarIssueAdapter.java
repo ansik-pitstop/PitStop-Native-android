@@ -36,12 +36,10 @@ public class CarIssueAdapter {
 
     public CarIssueAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
-        Log.i(MainActivity.TAG, "CarIssueAdapter::constructor");
     }
 
     public void storeCarIssue(CarIssue carIssue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        Log.i(MainActivity.TAG, "Storing carIssue");
 
         ContentValues values = new ContentValues();
         values.put(TABLES.COMMON.KEY_PARSE_ID, carIssue.getParseId());
@@ -55,7 +53,6 @@ public class CarIssueAdapter {
 
         long result = db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
 
-        Log.i(MainActivity.TAG, "Storing carIssue result: "+result);
         db.close();
     }
 
@@ -112,7 +109,6 @@ public class CarIssueAdapter {
     }*/
 
     public List<CarIssue> getAllCarIssues(String carId) {
-        Log.i(MainActivity.TAG,"Local store carIssues CarId: "+carId);
 
         List<CarIssue> carIssues = new ArrayList<>();
 
@@ -170,14 +166,9 @@ public class CarIssueAdapter {
     public void deleteAllCarIssues() {
         List<CarIssue> carIssueEntries = getAllCarIssues();
 
-        Log.i(MainActivity.TAG, "Issues count: "+carIssueEntries.size());
-
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(CarIssue issue : carIssueEntries) {
-            /*Log.i(MainActivity.TAG,"carIssueid: "+issue.getParseId());
-            Log.i(MainActivity.TAG, "Car Issue car id: "+issue.getCarId());
-            Log.i(MainActivity.TAG, "Car Issue object id: "+issue.getId());*/
             db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
                     new String[] { String.valueOf(issue.getId()) });
         }
