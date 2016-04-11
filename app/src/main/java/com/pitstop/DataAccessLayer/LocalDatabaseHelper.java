@@ -24,12 +24,10 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     public LocalDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        Log.i(MainActivity.TAG, "LocalDataBaseHelper::constructor");
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i(MainActivity.TAG, "LocalDataHelper::onCreate");
         db.execSQL(PidAdapter.CREATE_TABLE_PID_DATA);
         db.execSQL(CarAdapter.CREATE_TABLE_CAR);
         db.execSQL(CarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
@@ -38,7 +36,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i(MainActivity.TAG, "LocalDataHelper::onUpgrade");
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_ISSUES.TABLE_NAME);

@@ -163,17 +163,21 @@ public class CarIssueAdapter {
         return carIssue;
     }
 
+    public void deleteCarIssue(CarIssue issue) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
+                new String[] { String.valueOf(issue.getId()) });
+
+        db.close();
+    }
+
     public void deleteAllCarIssues() {
         List<CarIssue> carIssueEntries = getAllCarIssues();
 
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         for(CarIssue issue : carIssueEntries) {
-            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
-                    new String[] { String.valueOf(issue.getId()) });
+            deleteCarIssue(issue);
         }
-
-        db.close();
     }
 }
 

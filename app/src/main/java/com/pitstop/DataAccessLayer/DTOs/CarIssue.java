@@ -122,6 +122,7 @@ public class CarIssue implements Serializable {
 
             if(issueType.equals(RECALL)) {
                 carIssue.setPriority(RECALLS_PRIORITY_DEFAULT_VALUE);
+                carIssue.setStatus(parseObject.getString("state"));
 
                 carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
                         parseObject.getString(RECALLS_ITEM_KEY),
@@ -152,7 +153,14 @@ public class CarIssue implements Serializable {
                                                       String issueType, String carId) {
         ArrayList<CarIssue> carIssues = new ArrayList<>();
         for(ParseObject parseObject : parseObjects) {
-            carIssues.add(createCarIssue(parseObject,issueType, carId));
+            if(issueType.equals(RECALL)) {
+                String status = parseObject.getString("state");
+                if( status != null && (status.equals("new") || status.equals("pending"))) {
+                    carIssues.add(createCarIssue(parseObject, issueType, carId));
+                }
+            } else {
+                carIssues.add(createCarIssue(parseObject, issueType, carId));
+            }
         }
 
         return carIssues;

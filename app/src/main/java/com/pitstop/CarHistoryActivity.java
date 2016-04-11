@@ -2,8 +2,10 @@ package com.pitstop;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,11 +29,13 @@ import java.util.List;
  * Created by David Liu on 1/30/2016.
  */
 public class CarHistoryActivity extends AppCompatActivity {
-    CustomAdapter customAdapter;
-    RecyclerView mRecyclerView;
-    ArrayList<Container> array;
+    private CustomAdapter customAdapter;
+    private RecyclerView mRecyclerView;
+    private CardView messageCard;
 
-    ParseApplication application;
+    private ArrayList<Container> array;
+
+    private ParseApplication application;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         application = (ParseApplication) getApplicationContext();
         array = new ArrayList<>();
 
+        messageCard = (CardView) findViewById(R.id.message_card);
         // set up listview
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -51,46 +56,64 @@ public class CarHistoryActivity extends AppCompatActivity {
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                ArrayList<HashSet<String>> storage = new ArrayList<HashSet<String>>();
-                storage.add(new HashSet<String>());
-                storage.add(new HashSet<String>());
-                storage.add(new HashSet<String>());
-                storage.add(new HashSet<String>());
-                for (ParseObject object : objects){
-                    if(object.get("type")==null){
-                        storage.get(3).add(object.getString("serviceObjectId"));
-                    }else if(object.getInt("type")==0){
-                        storage.get(0).add(object.getString("serviceObjectId"));
-                    }else if(object.getInt("type")==1){
-                        storage.get(2).add(object.getString("serviceObjectId"));
-                    }else{
-                        storage.get(1).add(object.getString("serviceObjectId"));
-                    }
-                }
-                String[] a = new String[]{"EdmundsService", "ServiceInterval", "ServiceFixed", "RecallEntry"};
-                for (int i = 0; i<a.length; i++) {
-                    ParseQuery intervalQuery = new ParseQuery(a[i]);
-                    intervalQuery.whereContainedIn("objectId", storage.get(i));
-                    intervalQuery.findInBackground(new FindCallback<ParseObject>() {
+                if( e == null) {
+                    ArrayList<HashSet<String>> storage = new ArrayList<HashSet<String>>();
+                    storage.add(new HashSet<String>());
+                    storage.add(new HashSet<String>());
+                    storage.add(new HashSet<String>());
+                    storage.add(new HashSet<String>());
 
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            for (ParseObject obj : objects) {
-                                Container con = new Container();
-                                if(obj.get("forRecallMasters")!=null) {
-                                    con.name = obj.getString("name");
-                                    con.description = obj.getString("description");
-                                }else{
-                                    con.name = obj.getString("item");
-                                    con.description = obj.getString("itemDescription");
-                                }
-                                array.add(con);
-                            }
-                            customAdapter.dataList.clear();
-                            customAdapter.dataList.addAll(array);
-                            customAdapter.notifyDataSetChanged();
+                    Log.i(MainActivity.TAG, "Parse objects service history: "+objects.size());
+                    if(objects.isEmpty()) {
+                        messageCard.setVisibility(View.VISIBLE);
+                    }
+
+                    for (ParseObject object : objects){
+                        Log.i(MainActivity.TAG, "Parse objects service history: "+object.getObjectId());
+                        if(object.get("type")==null){
+                            storage.get(3).add(object.getString("serviceObjectId"));
+                        }else if(object.getInt("type")==0){
+                            storage.get(0).add(object.getString("serviceObjectId"));
+                        }else if(object.getInt("type")==1){
+                            storage.get(1).add(object.getString("serviceObjectId"));
+                        }else if(object.getInt("type")==2) {
+                            storage.get(2).add(object.getString("serviceObjectId"));
                         }
-                    });
+                    }
+                    String[] a = new String[]{"EdmundsService", "ServiceFixed", "ServiceInterval","RecallEntry"};
+                    for (int i = 0; i<a.length; i++) {
+                        ParseQuery intervalQuery = ParseQuery.getQuery(a[i]);
+                        Log.i(MainActivity.TAG, a[i]+ " : " + storage.get(i).toString());
+                        intervalQuery.whereContainedIn("objectId", storage.get(i));
+                        intervalQuery.findInBackground(new FindCallback<ParseObject>() {
+
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                if( e == null) {
+                                    Log.i(MainActivity.TAG, "interval query result: "+objects.size());
+                                    for (ParseObject obj : objects) {
+                                        Container con = new Container();
+                                        if(obj.get("forRecallMasters")!=null) {
+                                            con.name = obj.getString("name");
+                                            con.description = obj.getString("description");
+                                        }else{
+                                            Log.i(MainActivity.TAG, "Object for recall masters is null");
+                                            con.name = obj.getString("item");
+                                            con.description = obj.getString("itemDescription");
+                                        }
+                                        array.add(con);
+                                    }
+                                    customAdapter.dataList.clear();
+                                    customAdapter.dataList.addAll(array);
+                                    customAdapter.notifyDataSetChanged();
+                                } else {
+                                    Log.i(MainActivity.TAG, "Parse error: "+e.getMessage());
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    Log.i(MainActivity.TAG, e.getMessage());
                 }
             }
 
@@ -145,8 +168,7 @@ public class CarHistoryActivity extends AppCompatActivity {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.car_details_list_item, parent, false);
-            ViewHolder vh = new ViewHolder(v);
-            return vh;
+            return new ViewHolder(v);
         }
 
         @Override

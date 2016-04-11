@@ -404,7 +404,6 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     selectedCar.clear();
-                    //selectedCar.add(carList.get(which));
                     selectedCar.add((Car) listAdapter.getItem(which));
                 }
             });
@@ -418,6 +417,11 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     final Car newDashboardCar = selectedCar.get(0);
+
+                    if(formerDashboardCar.getVin().equals(newDashboardCar.getVin())) {
+                        return;
+                    }
+
                     final ParseQuery query = new ParseQuery("Car");
                     query.whereEqualTo("VIN", newDashboardCar.getVin());
                     query.findInBackground(new FindCallback<ParseObject>() {

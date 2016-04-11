@@ -25,8 +25,12 @@
             android:id="@+id/car_connected_indicator_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:paddingLeft="10dp"
             android:clipToPadding="false"
+            android:elevation="3dp"
             android:background="@color/not_connected">
 
             <RelativeLayout

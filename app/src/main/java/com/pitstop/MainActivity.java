@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         setSupportActionBar(toolbar);
 
         setUpUIReferences();
-        getCarDetails();
+        //getCarDetails();
 
         try {
             application.getMixpanelAPI().track("View Appeared",
@@ -782,8 +782,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             issueIds = dashboardCar.getPendingIntervalServicesIds();
             getIssues(issueIds, "ServiceInterval", CarIssue.INTERVAL);
 
-            /*issueIds = car.getList("recalls");
-            getIssues(issueIds, "RecallEntry", "recall");*/
             getRecalls();
 
             List<String> dtcCodes = dashboardCar.getStoredDTCs();
@@ -867,49 +865,52 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             public void done(List<ParseObject> recallsList, ParseException e) {
                 if (e == null) {
 
-                    ParseObject firstMatch = recallsList.get(0);
-                    JSONArray recalls = firstMatch.getJSONArray("recalls");
-                    List<String> recallsIds = new ArrayList<String>();
+                    if(!recallsList.isEmpty()) {
+                        ParseObject firstMatch = recallsList.get(0);
+                        JSONArray recalls = firstMatch.getJSONArray("recalls");
+                        List<String> recallsIds = new ArrayList<String>();
 
-                    if(recalls != null && recalls.length() > 0) {
+                        if(recalls != null && recalls.length() > 0) {
 
-                        for(int i = 0; i < recalls.length(); i++) {
-                            try {
-                                recallsIds.add(recalls.getJSONObject(i).getString("objectId"));
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-
-                        ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
-                        query.whereContainedIn("objectId",recallsIds);
-                        query.findInBackground(new FindCallback<ParseObject>() {
-                            @Override
-                            public void done(List<ParseObject> objects, ParseException e) {
-                                if(e == null) {
-                                    Log.i(TAG, "Parse objects count (getRecalls()): " + objects.size());
-
-                                    List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
-                                            dashboardCar.getParseId());
-                                    Log.i(TAG, "Recalls count: "+ recalls.size());
-                                    dashboardCar.getIssues().addAll(recalls);
-                                    // Store in local
-                                    carIssueAdapter.storeCarIssues(recalls);
-
-                                    carIssueList.clear();
-                                    carIssueList.addAll(dashboardCar.getIssues());
-                                    carIssuesAdapter.notifyDataSetChanged();
-                                } else {
-                                    Log.i(TAG, e.getMessage());
+                            for(int i = 0; i < recalls.length(); i++) {
+                                try {
+                                    recallsIds.add(recalls.getJSONObject(i).getString("objectId"));
+                                } catch (JSONException e1) {
+                                    e1.printStackTrace();
                                 }
                             }
-                        });
+
+                            ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
+                            query.whereContainedIn("objectId",recallsIds);
+                            query.findInBackground(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+                                    if(e == null) {
+                                        Log.i(TAG, "Parse objects count (getRecalls()): " + objects.size());
+
+                                        List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
+                                                dashboardCar.getParseId());
+                                        Log.i(TAG, "Recalls count: "+ recalls.size());
+                                        dashboardCar.getIssues().addAll(recalls);
+                                        // Store in local
+                                        carIssueAdapter.storeCarIssues(recalls);
+
+                                        carIssueList.clear();
+                                        carIssueList.addAll(dashboardCar.getIssues());
+                                        carIssuesAdapter.notifyDataSetChanged();
+                                    } else {
+                                        Log.i(TAG, e.getMessage());
+                                    }
+                                }
+                            });
+                        }
+
+                        Log.i(TAG, recallsIds.toString());
+
+                        // Limit 100 TODO review
+                        Log.i(TAG, "recall list size: "+recallsList.size());
                     }
 
-                    Log.i(TAG, recallsIds.toString());
-
-                    // Limit 100 TODO review
-                    Log.i(TAG, "recall list size: "+recallsList.size());
                 }else{
                     Log.i(TAG,"Parse error on recalls");
                     Log.i(TAG, e.getMessage());
@@ -934,7 +935,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         saveCompletion.put("shopId", dashboardCar.getShopId());
         saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
 
-        if(!carIssue.getIssueType().equals("recall") || !carIssue.getIssueType().equals("dtc")) {
+        if(!carIssue.getIssueType().equals("recall") && !carIssue.getIssueType().equals("dtc")) {
             saveCompletion.put("type", typeService);
             saveCompletion.saveEventually(new SaveCallback() {
                 @Override
@@ -1035,16 +1036,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         ((ParseObject)objects.get(0)).saveEventually();
 
                         for (int position : reverseSortedPositions) {
-                            CarIssue obj1 = carIssuesAdapter.getItem(position);
-                            CarIssue obj2 = carIssueList.get(position);
+                            CarIssue objToRemove = carIssuesAdapter.getItem(position);
 
-                            Log.i(TAG, "Recall (Adapter)--> "+obj1.getIssueDetail().getItem());
-                            Log.i(TAG, "Recall parse --> "+obj2.getIssueDetail().getItem());
+                            Log.i(TAG, "Recall (Adapter)--> "+objToRemove.getIssueDetail().getItem());
 
                             carIssueList.remove(position);
+                            carIssueAdapter.deleteCarIssue(objToRemove);
                             carIssuesAdapter.notifyDataSetChanged();
                         }
-                        refreshUi();
                     } else {
                         Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
                                 Toast.LENGTH_SHORT).show();
@@ -1079,7 +1078,20 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 return;
             }
         }
+
+
         dashboardCar = carList.get(0);
+        dashboardCar.setCurrentCar(true);
+        carAdapter.updateCar(dashboardCar);
+        ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
+        ParseObject car = null;
+        try {
+            car = cars.get(dashboardCar.getParseId());
+            car.put("currentCar",true);
+            car.saveEventually();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
