@@ -27,8 +27,7 @@
         android:title="Main Car">
         <Preference
             android:key="current_car"
-            android:title="Toyota"
-            android:summary="Tap to switch car"/>
+            />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="My Vehicles" android:key="@string/pref_vehicles">

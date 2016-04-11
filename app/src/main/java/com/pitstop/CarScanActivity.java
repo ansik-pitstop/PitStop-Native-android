@@ -44,12 +44,15 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +65,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     private ParseApplication application;
     private BluetoothAutoConnectService autoConnectService;
+    private boolean serviceIsBound;
 
     private RelativeLayout loadingRecalls, recallsStateLayout, recallsCountLayout;
     private ImageView recallsState;
@@ -86,6 +90,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     private int recalls = 0, services = 0;
 
     private Car dashboardCar;
+    private boolean performedScan = false;
 
 
     private static String TAG = "CarScanActivity";
@@ -95,10 +100,11 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service1) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             Log.i(TAG, "onServiceConnection");
             // cast the IBinder and get MyService instance
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
+            serviceIsBound = true;
+            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service;
             autoConnectService = binder.getService();
             autoConnectService.setCallbacks(CarScanActivity.this); // register
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
@@ -109,6 +115,8 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
 
+            serviceIsBound = false;
+            autoConnectService = null;
             Log.i("Disconnecting","onServiceConnection");
         }
     };
@@ -121,7 +129,8 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
         setSupportActionBar(toolbar);
 
         application = (ParseApplication) getApplicationContext();
-        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, BluetoothAutoConnectService.class),
+                serviceConnection, BIND_AUTO_CREATE);
 
         dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
 
@@ -138,15 +147,23 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     @Override
     protected void onPause() {
-        unbindService(serviceConnection);
         dtcRequestTimer.removeCallbacks(runnable);
         super.onPause();
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(serviceIsBound) {
+            Log.i(TAG, "unbinding service");
+            unbindService(serviceConnection);
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_LOCAL, true);
+        data.putExtra(MainActivity.REFRESH_LOCAL, performedScan);
         setResult(MainActivity.RESULT_OK, data);
         finish();
     }
@@ -332,26 +349,18 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     private void startCarScan() {
 
-        checkForRecalls();
+        performedScan = true;
 
         checkForServices();
 
         checkForEngineIssues();
     }
 
-    private void checkForRecalls() {
-        recallsText.setText("No recalls");
-        loadingRecalls.setVisibility(View.GONE);
-        recallsStateLayout.setVisibility(View.VISIBLE);
-
-        numberOfIssues += recalls;
-        updateCarHealthMeter();
-    }
-
     private void checkForServices() {
 
         String userId = "";
         services = 0;
+        recalls = 0;
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
         if (ParseUser.getCurrentUser() != null) {
@@ -366,12 +375,16 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
                     if (currentCar != null) {
                         loadingServices.setVisibility(View.GONE);
+                        loadingRecalls.setVisibility(View.GONE);
+
+                        recalls += currentCar.getNumberOfRecalls();
 
                         services += currentCar.getPendingEdmundServicesIds().size();
                         services += currentCar.getPendingFixedServicesIds().size();
                         services += currentCar.getPendingIntervalServicesIds().size();
 
                         numberOfIssues += services;
+                        numberOfIssues += recalls;
                         updateCarHealthMeter();
 
                         if (services > 0) {
@@ -385,6 +398,21 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
                         } else {
                             servicesStateLayout.setVisibility(View.VISIBLE);
+                            servicesText.setText("No services due");
+                        }
+
+                        if (recalls > 0) {
+                            recallsCountLayout.setVisibility(View.VISIBLE);
+                            recallsCount.setText(String.valueOf(recalls));
+                            recallsText.setText("Recalls");
+
+                            Drawable background = recallsCountLayout.getBackground();
+                            GradientDrawable gradientDrawable = (GradientDrawable) background;
+                            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+
+                        } else {
+                            recallsStateLayout.setVisibility(View.VISIBLE);
+                            recallsText.setText("No recalls");
                         }
 
                     } else {
@@ -449,14 +477,14 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
     private void updateCarHealthMeter() {
 
         if(numberOfIssues >= 3) {
-            arcView.addEvent(new DecoEvent.Builder(10)
-                    .setIndex(seriesIndex).setDelay(500).build());
+            arcView.addEvent(new DecoEvent.Builder(30)
+                    .setIndex(seriesIndex).build());
         } else if(numberOfIssues < 3 && numberOfIssues > 0) {
             arcView.addEvent(new DecoEvent.Builder(65)
-                    .setIndex(seriesIndex).setDelay(500).build());
+                    .setIndex(seriesIndex).build());
         } else {
             arcView.addEvent(new DecoEvent.Builder(100)
-                    .setIndex(seriesIndex).setDelay(500).build());
+                    .setIndex(seriesIndex).build());
         }
     }
 
@@ -531,6 +559,7 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
                     loadingEngineIssues.setVisibility(View.GONE);
                     engineIssuesCountLayout.setVisibility(View.GONE);
                     engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                    engineIssuesText.setText("No Engine Issues");
                 }
                 updateCarHealthMeter();
                 carScanButton.setEnabled(true);

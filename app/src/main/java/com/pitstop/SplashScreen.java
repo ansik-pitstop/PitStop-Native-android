@@ -16,9 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +42,8 @@ public class SplashScreen extends AppCompatActivity {
     final static String pfCodeForPassword = "com.pitstop.login.passwd";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
 
+    public static String LOGIN_REFRESH = "login_refresh";
+
     public static final String TAG = SplashScreen.class.getSimpleName();
 
     ParseApplication application;
@@ -48,6 +52,15 @@ public class SplashScreen extends AppCompatActivity {
     boolean backPressed = false;
 
     private ProgressDialog progressDialog;
+
+    private EditText name;
+    private EditText password;
+    private EditText phoneNumber;
+    private EditText email;
+
+    private View splashLayout;
+    private LinearLayout radioLayout;
+    private Button loginButton, skipButton;
 
 
     /**
@@ -68,8 +81,7 @@ public class SplashScreen extends AppCompatActivity {
 
         application = (ParseApplication) getApplicationContext();
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCanceledOnTouchOutside(false);
+        setUpUIReferences();
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
@@ -81,10 +93,8 @@ public class SplashScreen extends AppCompatActivity {
         }
         else {
             ParseApplication.setUpMixPanel();
-            //Toast.makeText(getApplicationContext(), "Logging in" , Toast.LENGTH_SHORT).show();
 
-            progressDialog.setMessage("Loggin in...");
-            progressDialog.show();
+            showLoading("Logging in...");
 
             new Thread(new Runnable() {
                 @Override
@@ -93,6 +103,7 @@ public class SplashScreen extends AppCompatActivity {
                         Thread.sleep(1500);
                         Intent intent = new Intent(SplashScreen.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra(LOGIN_REFRESH, true);
                         progressDialog.dismiss();
                         startActivity(intent);
 
@@ -112,19 +123,20 @@ public class SplashScreen extends AppCompatActivity {
         mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                setUpUIReferences();
             }
 
             @Override
             public void onPageSelected(int position) {
+                setUpUIReferences();
                 if(position==3){
-                    findViewById(R.id.radio_layout).setVisibility(View.GONE);
-                    findViewById(R.id.button7).setVisibility(View.GONE);
-                    findViewById(R.id.login).setVisibility(View.VISIBLE);
-                    findViewById(R.id.name).setVisibility(View.GONE);
-                    findViewById(R.id.phone).setVisibility(View.GONE);
+                    radioLayout.setVisibility(View.GONE);
+                    skipButton.setVisibility(View.GONE);
+                    loginButton.setVisibility(View.VISIBLE);
+                    name.setVisibility(View.GONE);
+                    phoneNumber.setVisibility(View.GONE);
 
-                    ((EditText)findViewById(R.id.password)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                         @Override
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             boolean handled = false;
@@ -143,12 +155,12 @@ public class SplashScreen extends AppCompatActivity {
                         }
                     });
                 }else{
-                    findViewById(R.id.radio_layout).setVisibility(View.VISIBLE);
-                    findViewById(R.id.button7).setVisibility(View.VISIBLE);
+                    radioLayout.setVisibility(View.VISIBLE);
+                    skipButton.setVisibility(View.VISIBLE);
                     for(int i = 0; i<3; i++){
-                        ((RadioButton)((LinearLayout)findViewById(R.id.radio_layout)).getChildAt(i)).setChecked(false);
+                        ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
                     }
-                    ((RadioButton)((LinearLayout)findViewById(R.id.radio_layout)).getChildAt(position)).setChecked(true);
+                    ((RadioButton)radioLayout.getChildAt(position)).setChecked(true);
                 }
 
             }
@@ -183,9 +195,9 @@ public class SplashScreen extends AppCompatActivity {
             if(signup && backPressed) {
                 signup = !signup;
                 backPressed = !backPressed;
-                findViewById(R.id.login).setVisibility(View.VISIBLE);
-                findViewById(R.id.name).setVisibility(View.GONE);
-                findViewById(R.id.phone).setVisibility(View.GONE);
+                loginButton.setVisibility(View.VISIBLE);
+                name.setVisibility(View.GONE);
+                phoneNumber.setVisibility(View.GONE);
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
@@ -208,27 +220,43 @@ public class SplashScreen extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void setUpUIReferences() {
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+        name = (EditText) findViewById(R.id.name);
+        password = (EditText) findViewById(R.id.password);
+        phoneNumber = (EditText) findViewById(R.id.phone);
+        email = (EditText) findViewById(R.id.email);
+
+        splashLayout = findViewById(R.id.splash_layout);
+        radioLayout = (LinearLayout) findViewById(R.id.radio_layout);
+        loginButton = (Button) findViewById(R.id.login_btn);
+        skipButton = (Button) findViewById(R.id.skip_btn);
+    }
+
     public void signUp(final View view) {
         if (signup) {
-            showLoading();
-            if(((TextView)findViewById(R.id.password)).getText().toString().length()<6){
-                Snackbar.make(findViewById(R.id.splash_layout), "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+            showLoading("Loading");
+            if(password.getText().toString().length()<6){
+                Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
-            if(((TextView)findViewById(R.id.phone)).getText().toString().length()!=10){
-                Snackbar.make(findViewById(R.id.splash_layout), "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+            if(phoneNumber.getText().toString().length()!=10){
+                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
             ParseUser user = new ParseUser();
-            user.setUsername(((TextView)findViewById(R.id.email)).getText().toString());
-            user.setPassword(((TextView)findViewById(R.id.password)).getText().toString());
-            user.setEmail(((TextView)findViewById(R.id.email)).getText().toString());
+            user.setUsername(email.getText().toString());
+            user.setPassword(password.getText().toString());
+            user.setEmail(email.getText().toString());
 
-// other fields can be set just like with ParseObject
-            user.put("name", ((TextView)findViewById(R.id.name)).getText().toString());
-            user.put("phoneNumber", ((TextView)findViewById(R.id.phone)).getText().toString());
+            // other fields can be set just like with ParseObject
+            user.put("name", name.getText().toString());
+            user.put("phoneNumber", phoneNumber.getText().toString());
             user.put("role", "customer");
 
             user.signUpInBackground(new SignUpCallback() {
@@ -253,38 +281,36 @@ public class SplashScreen extends AppCompatActivity {
                 e.printStackTrace();
             }
         }else{
-            findViewById(R.id.name).setVisibility(View.VISIBLE);
-            findViewById(R.id.phone).setVisibility(View.VISIBLE);
-            findViewById(R.id.login).setVisibility(View.GONE);
+            name.setVisibility(View.VISIBLE);
+            phoneNumber.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.GONE);
             signup = !signup;
         }
     }
 
     public void login(View view) {
-        //showLoading();
-        progressDialog.setMessage("Logging in...");
-        String username = ((TextView) findViewById(R.id.email)).getText().toString();
-        String password = ((TextView) findViewById(R.id.password)).getText().toString();
 
-        ParseUser.logInInBackground(username, password, new LogInCallback() {
+        showLoading("Logging in...");
+        final String usernameInput = email.getText().toString();
+        final String passwordInput = password.getText().toString();
+
+        ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
 
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e == null) {
-                    Toast.makeText(SplashScreen.this, "Congrats, you have logged in!",
-                            Toast.LENGTH_SHORT).show();
-                    progressDialog.setMessage("Congrats, you have logged in!");
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
                     SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(pfCodeForID, ((TextView) findViewById(R.id.email)).getText().toString());
-                    editor.putString(pfCodeForPassword, ((TextView) findViewById(R.id.password)).getText().toString());
+                    editor.putString(pfCodeForID, usernameInput);
+                    editor.putString(pfCodeForPassword, passwordInput);
                     editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
                     if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                        editor.putString(MainActivity.pfCodeForShopObjectID,ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                        editor.putString(MainActivity.pfCodeForShopObjectID,
+                                ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
                     }
-                    editor.commit();
+                    editor.apply();
 
                     //save user data
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
@@ -292,8 +318,9 @@ public class SplashScreen extends AppCompatActivity {
                     installation.saveInBackground();
                     ParseApplication.setUpMixPanel();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra(LOGIN_REFRESH, true);
 
-                    progressDialog.dismiss();
+                    hideLoading();
                     startActivity(intent);
 
 
@@ -307,7 +334,6 @@ public class SplashScreen extends AppCompatActivity {
                     progressDialog.dismiss();
                     Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                //hideLoading();
 
             }
         });
@@ -317,12 +343,15 @@ public class SplashScreen extends AppCompatActivity {
         mPager.setCurrentItem(3);
     }
 
-    private void showLoading(){
-        findViewById(R.id.loading_section).setVisibility(View.VISIBLE);
+    private void showLoading(String text){
+        progressDialog.setMessage(text);
+        if(!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
     }
 
     private void hideLoading(){
-        findViewById(R.id.loading_section).setVisibility(View.GONE);
+        progressDialog.dismiss();
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -50,7 +51,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         BTSTATUS.setText("Bluetooth Getting Started");
         setTitle("Connect to Car");
         pendingUpload = false;
-        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, BluetoothAutoConnectService.class),
+                serviceConnection, BIND_AUTO_CREATE);
         clicked = false;
     }
 

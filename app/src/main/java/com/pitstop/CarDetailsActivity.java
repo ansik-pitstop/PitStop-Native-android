@@ -976,8 +976,8 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     /**
      * The dialog to display for clicking service request button
      */
-    public class ServiceDialog extends DialogFragment {
-        @Override
+    public static class ServiceDialog extends DialogFragment {
+        /*@Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(CarDetailsActivity.this);
             // Get the layout inflater
@@ -1000,7 +1000,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
                         }
                     });
             return builder.create();
-        }
+        }*/
     }
 
     /**

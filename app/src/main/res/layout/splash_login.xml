@@ -79,7 +79,7 @@
             android:textColor="#fff"
             android:onClick="login"
             android:background="@drawable/color_button_add_car"
-            android:id="@+id/login"
+            android:id="@+id/login_btn"
             android:elevation="6dp"
             android:layout_marginBottom="12dp"
             android:elegantTextHeight="true"

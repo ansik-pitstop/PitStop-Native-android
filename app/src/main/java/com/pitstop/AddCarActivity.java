@@ -50,6 +50,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DataAdapters.CarAdapter;
 import com.pitstop.Debug.PrintDebugThread;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
@@ -82,11 +83,13 @@ public class AddCarActivity extends AppCompatActivity implements
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
     private PrintDebugThread mLogDumper;
-    private boolean bound;
+
     boolean makingCar = false;
-    private BluetoothAutoConnectService service;
     private boolean askForDTC = false;
     private ArrayList<String> DTCData= new ArrayList<>();
+
+    private BluetoothAutoConnectService autoConnectService;
+    private boolean serviceIsBound;
 
     private ProgressDialog progressDialog;
 
@@ -117,24 +120,28 @@ public class AddCarActivity extends AppCompatActivity implements
     private static final int RC_LOCATION_PERM = 101;
 
     private CallMashapeAsync vinDecoderApi;
+    private CarAdapter localCarAdapter;
     private String ACTIVITY_TAG = "ADD_CAR_DEBUG_TAG";
+
+    private Intent intentFromMainActivity;
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service1) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             // cast the IBinder and get MyService instance
-            BluetoothBinder binder = (BluetoothBinder) service1;
-            service = binder.getService();
-            bound = true;
-            service.setCallbacks(AddCarActivity.this); // register
+            serviceIsBound = true;
+            BluetoothBinder binder = (BluetoothBinder) service;
+            autoConnectService = binder.getService();
+            autoConnectService.setCallbacks(AddCarActivity.this); // register
             Log.i("connecting", "onServiceConnection");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            bound = false;
+            serviceIsBound = false;
+            autoConnectService = null;
             Log.i("Disconnecting","onServiceConnection");
         }
     };
@@ -147,11 +154,15 @@ public class AddCarActivity extends AppCompatActivity implements
 
         application = (ParseApplication) getApplicationContext();
 
+        intentFromMainActivity = getIntent();
+
         vinDecoderApi = new CallMashapeAsync();
+        localCarAdapter = new CarAdapter(this);
 
         setupUIReferences();
 
-        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(AddCarActivity.this, BluetoothAutoConnectService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE);
 
         mLogStore = LogCatHelper.getInstance(this);
 
@@ -204,9 +215,8 @@ public class AddCarActivity extends AppCompatActivity implements
         // Select shop
         Log.i(ACTIVITY_TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        Intent intentMain = getIntent();
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentMain != null &&
-                intentMain.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD, false));
+        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent,
                 SelectDealershipActivity.RC_DEALERSHIP);
     }
@@ -286,7 +296,10 @@ public class AddCarActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(serviceConnection);
+        if(serviceIsBound) {
+            unbindService(serviceConnection);
+        }
+
         if(vinDecoderApi!=null && vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
@@ -295,9 +308,12 @@ public class AddCarActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
-            super.onBackPressed();
+        if(intentFromMainActivity!=null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+            Intent info = new Intent();
+            info.putExtra(MainActivity.REFRESH_LOCAL, false);
+            setResult(MainActivity.RESULT_OK, info);
+            finish();
         } else {
             Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
         }
@@ -434,12 +450,12 @@ public class AddCarActivity extends AppCompatActivity implements
                         Toast.makeText(this, "Your device does not support bluetooth",
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        if (service.getState() != BluetoothManage.CONNECTED) {
+                        if (autoConnectService.getState() != BluetoothManage.CONNECTED) {
 
                             showLoading("Searching for Car");
 
                             Log.i(ACTIVITY_TAG, "Searching for car but device not connected");
-                            service.startBluetoothSearch();
+                            autoConnectService.startBluetoothSearch();
 
                             startTime = System.currentTimeMillis();
                             timerHandler.post(runnable);
@@ -454,7 +470,7 @@ public class AddCarActivity extends AppCompatActivity implements
                             }
                             showLoading("Getting car vin");
                             Log.i(ACTIVITY_TAG, "Searching for car with device connected");
-                            service.getCarVIN();
+                            autoConnectService.getCarVIN();
                         }
                     }
                 }
@@ -526,7 +542,7 @@ public class AddCarActivity extends AppCompatActivity implements
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
             //Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 120 && (isSearching) && service.getState()
+            if(seconds > 120 && (isSearching) && autoConnectService.getState()
                     != BluetoothManage.BLUETOOTH_CONNECT_SUCCESS) {
                 timerHandler.sendEmptyMessage(0);
                 timerHandler.removeCallbacks(runnable);
@@ -551,14 +567,14 @@ public class AddCarActivity extends AppCompatActivity implements
             Log.i(ACTIVITY_TAG,"Making car -- make car function");
             VIN = vinEditText.getText().toString();
 
-            if(service.getState()==BluetoothManage.CONNECTED) {
+            if(autoConnectService.getState()==BluetoothManage.CONNECTED) {
 
                 Log.i(ACTIVITY_TAG, "Now connected to device");
                 showLoading("Loading Car Engine Code");
                 askForDTC=true;
                 Log.i(ACTIVITY_TAG,"Make car --- Getting DTCs");
-                service.getDTCs();
-                service.getPendingDTCs();
+                autoConnectService.getDTCs();
+                autoConnectService.getPendingDTCs();
             } else {
                 try {
                     Log.i(ACTIVITY_TAG, "Device not connected");
@@ -642,7 +658,7 @@ public class AddCarActivity extends AppCompatActivity implements
             }*/
             if(isLoading && !VIN.equals("")) {
                 Log.i(ACTIVITY_TAG,"Vin is empty -- starting bluetooth search");
-                service.startBluetoothSearch();
+                autoConnectService.startBluetoothSearch();
             }
             Log.i("GET BLUETOOTH STATE ","bluetooth not connected");
         }else{
@@ -650,7 +666,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 showLoading("Linking with Device, give it a few seconds");
 
                 Log.i(ACTIVITY_TAG,"Getting car vin --- getBluetoothState");
-                service.getCarVIN();
+                autoConnectService.getCarVIN();
             }
         }
     }
@@ -668,7 +684,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 .equals(BluetoothAutoConnectService.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
             Log.i(ACTIVITY_TAG, "Set parameter() device time is set-- starting bluetooth search");
-            service.startBluetoothSearch();
+            autoConnectService.startBluetoothSearch();
         }
     }
 
@@ -723,7 +739,7 @@ public class AddCarActivity extends AppCompatActivity implements
                 Log.i(ACTIVITY_TAG,"Parsing DTCs");
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
-                    dtcs+=service.parseDTCs(dtc)+",";
+                    dtcs+=autoConnectService.parseDTCs(dtc)+",";
                 }
             }
             try {
@@ -1120,7 +1136,7 @@ public class AddCarActivity extends AppCompatActivity implements
                         return;
                     }
 
-                    if(scannerID!=null) {
+                    if(scannerID!=null && !scannerID.equals("")) {
                         // upload the DTCs
                         ParseObject scansSave = new ParseObject("Scan");
                         scansSave.put("DTCs", dtcs);
@@ -1154,9 +1170,10 @@ public class AddCarActivity extends AppCompatActivity implements
 
     private void returnToMainActivity(Car addedCar) {
         Intent intent = getIntent();
-        if(intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+        if(intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
             //update the car object
-            Car dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
+            Car dashboardCar = (Car) intentFromMainActivity.getSerializableExtra(MainActivity.CAR_EXTRA);
             ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
             ParseObject car = null;
             try {

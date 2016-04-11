@@ -79,7 +79,6 @@ import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 
 public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
-    public static Intent serviceIntent;
 
     public static int RC_ADD_CAR = 50;
     public static int RC_SCAN_CAR = 51;
@@ -128,26 +127,31 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private CarIssueAdapter carIssueAdapter;
     private DealershipAdapter dealershipAdapter;
 
-    ParseApplication application;
+    private ParseApplication application;
+
+    private Intent splashScreenIntent;
 
 
     public static String TAG = "MainActivity --> ";
 
-    private BluetoothAutoConnectService service;
+    private BluetoothAutoConnectService autoConnectService;
+    private Intent serviceIntent;
+    private boolean serviceIsBound;
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service1) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             Log.i(TAG,"connecting: onServiceConnection");
             // cast the IBinder and get MyService instance
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
-            service = binder.getService();
-            service.setCallbacks(MainActivity.this); // register
+            serviceIsBound = true;
+            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service;
+            autoConnectService = binder.getService();
+            autoConnectService.setCallbacks(MainActivity.this); // register
 
             // TODO Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                service.startBluetoothSearch();
+                autoConnectService.startBluetoothSearch();
             }
         }
 
@@ -155,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         public void onServiceDisconnected(ComponentName arg0) {
 
             Log.i(TAG,"Disconnecting: onServiceConnection");
+            serviceIsBound = false;
+            autoConnectService = null;
         }
     };
 
@@ -162,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
-                if(service != null && service.isCommunicatingWithDevice()) {
+                if(autoConnectService != null && autoConnectService.isCommunicatingWithDevice()) {
                     updateConnectedCarIndicator(true);
                 } else {
                     updateConnectedCarIndicator(false);
@@ -188,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         setContentView(R.layout.activity_main);
 
         application = (ParseApplication) getApplicationContext();
+        splashScreenIntent =getIntent();
 
         carAdapter = new CarAdapter(this);
         carIssueAdapter = new CarIssueAdapter(this);
@@ -223,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         if(id == R.id.refresh_main) {
             refreshUi();
         } else if(id == R.id.add) {
-            startAddCarActivity();
+            startAddCarActivity(dashboardCar!=null);
         } else if(id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
@@ -252,6 +259,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onResume");
+
+        if(splashScreenIntent != null
+                && splashScreenIntent.getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+            Log.i(TAG, "refresh from login");
+            splashScreenIntent = null;
+            refreshUi();
+        }
 
         indicatorHandler.postDelayed(runnable, 1000);
     }
@@ -290,7 +304,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onPause() {
         Log.i(TAG, "onPause");
         indicatorHandler.removeCallbacks(runnable);
-        unbindService(serviceConnection);
         application.getMixpanelAPI().flush();
 
         super.onPause();
@@ -300,6 +313,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onDestroy() {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
+        if(serviceIsBound) {
+            unbindService(serviceConnection);
+        }
     }
 
     @Override
@@ -672,10 +688,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         setCarDetailsUI();
 
                     } else {
-                        startAddCarActivity();
                         if (isLoading) {
                             hideLoading();
                         }
+                        startAddCarActivity(false);
                     }
 
                 } else {
@@ -752,7 +768,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         // Try local store
         List<CarIssue> carIssues = carIssueAdapter.getAllCarIssues(dashboardCar.getParseId());
-        if(carIssues.isEmpty()) {
+        if(carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
+                || dashboardCar.getNumberOfRecalls() > 0)) {
             Log.i(TAG, "No car issues in local store");
             List<String> issueIds;
 
@@ -767,6 +784,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
             /*issueIds = car.getList("recalls");
             getIssues(issueIds, "RecallEntry", "recall");*/
+            getRecalls();
 
             List<String> dtcCodes = dashboardCar.getStoredDTCs();
             getDTCs(dtcCodes, "DTC", CarIssue.DTC);
@@ -831,6 +849,70 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
                 } else {
                     Log.i(TAG, "Parse error: (getDTCs)" + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void getRecalls() {
+        Log.i(TAG, "Getting recalls");
+
+        //custom call for recall entry
+        ParseObject car = ParseObject.createWithoutData("Car",dashboardCar.getParseId());
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallMasters");
+
+        query.whereEqualTo("forCar", car);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> recallsList, ParseException e) {
+                if (e == null) {
+
+                    ParseObject firstMatch = recallsList.get(0);
+                    JSONArray recalls = firstMatch.getJSONArray("recalls");
+                    List<String> recallsIds = new ArrayList<String>();
+
+                    if(recalls != null && recalls.length() > 0) {
+
+                        for(int i = 0; i < recalls.length(); i++) {
+                            try {
+                                recallsIds.add(recalls.getJSONObject(i).getString("objectId"));
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
+                        query.whereContainedIn("objectId",recallsIds);
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                if(e == null) {
+                                    Log.i(TAG, "Parse objects count (getRecalls()): " + objects.size());
+
+                                    List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
+                                            dashboardCar.getParseId());
+                                    Log.i(TAG, "Recalls count: "+ recalls.size());
+                                    dashboardCar.getIssues().addAll(recalls);
+                                    // Store in local
+                                    carIssueAdapter.storeCarIssues(recalls);
+
+                                    carIssueList.clear();
+                                    carIssueList.addAll(dashboardCar.getIssues());
+                                    carIssuesAdapter.notifyDataSetChanged();
+                                } else {
+                                    Log.i(TAG, e.getMessage());
+                                }
+                            }
+                        });
+                    }
+
+                    Log.i(TAG, recallsIds.toString());
+
+                    // Limit 100 TODO review
+                    Log.i(TAG, "recall list size: "+recallsList.size());
+                }else{
+                    Log.i(TAG,"Parse error on recalls");
+                    Log.i(TAG, e.getMessage());
                 }
             }
         });
@@ -981,9 +1063,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         getCarDetails();
     }
 
-    private void startAddCarActivity() {
+    private void startAddCarActivity(boolean hasCars) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        if(dashboardCar != null) {
+        if(hasCars) {
             intent.putExtra(HAS_CAR_IN_DASHBOARD, true);
             intent.putExtra(CAR_EXTRA, dashboardCar);
         }
@@ -994,9 +1076,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         for(Car car : carList) {
             if(car.isCurrentCar()) {
                 dashboardCar = car;
-                break;
+                return;
             }
         }
+        dashboardCar = carList.get(0);
     }
 
     /**
@@ -1026,7 +1109,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
-            Log.i(TAG,"On bind view holder");
+            //Log.i(TAG,"On bind view holder");
 
             int viewType = getItemViewType(position);
 

@@ -36,6 +36,7 @@ import com.pitstop.parse.ParseApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +44,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
-    ArrayList<String> cars = new ArrayList<>();
-    ArrayList<String> ids = new ArrayList<>();
-    ArrayList<String> dealers = new ArrayList<>();
+    private ArrayList<String> cars = new ArrayList<>();
+    private ArrayList<String> ids = new ArrayList<>();
+    private ArrayList<String> dealers = new ArrayList<>();
 
     private Car dashboardCar;
+    private boolean updatePerformed = false;
 
     private List<Car> carList = new ArrayList<>();
     @Override
@@ -59,8 +61,27 @@ public class SettingsActivity extends AppCompatActivity {
             populateCarNamesAndIdList();
         }
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new SettingsFragment(cars,ids,carList)).commit();
+        SettingsFragment settingsFragment =  new SettingsFragment();
+        settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
+            @Override
+            public void updatePerformed() {
+                updatePerformed = true;
+            }
+        });
+
+        IntentProxyObject carListProxyObject = (IntentProxyObject) getIntent()
+                .getSerializableExtra(MainActivity.CAR_LIST_EXTRA);
+
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("cars", cars);
+        bundle.putStringArrayList("ids", ids);
+        bundle.putStringArrayList("dealers",dealers);
+        bundle.putSerializable("mainCar",dashboardCar);
+        bundle.putSerializable("carList", carListProxyObject);
+
+        settingsFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, settingsFragment ).commit();
     }
 
     private void populateCarNamesAndIdList() {
@@ -109,54 +130,70 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_LOCAL, true);
+        intent.putExtra(MainActivity.REFRESH_LOCAL, updatePerformed);
         setResult(MainActivity.RESULT_OK,intent);
         super.finish();
     }
 
-    public class SettingsFragment extends PreferenceFragment {
+    public static class SettingsFragment extends PreferenceFragment {
 
-        ArrayList<ListPreference> preferenceList;
-        ArrayList<String> cars;
-        ArrayList<String> ids;
+        public interface OnInfoUpdated {
+            public void updatePerformed();
+        }
 
-        List<Car> carList;
-        CarListAdapter listAdapter;
+        private OnInfoUpdated listener;
+        private ArrayList<ListPreference> preferenceList;
+        private ArrayList<String> cars;
+        private ArrayList<String> ids;
+        private ArrayList<String> dealers;
 
-        ParseApplication application;
+        private List<Car> carList;
+        private CarListAdapter listAdapter;
 
-        public SettingsFragment(ArrayList<String> cars, ArrayList<String> ids, List<Car> carList){
-            this.cars  =cars;
-            this.ids = ids;
-            this.carList = carList;
+        private ParseApplication application;
+        private Car mainCar;
+
+        public SettingsFragment() {}
+
+        public void setOnInfoUpdatedListener (OnInfoUpdated listener) {
+            this.listener = listener;
         }
 
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
+            Bundle bundle = getArguments();
             preferenceList = new ArrayList<>();
-            cars = ((SettingsActivity)getActivity()).cars;
-            ids = ((SettingsActivity)getActivity()).ids;
+            cars = bundle.getStringArrayList("cars");
+            ids = bundle.getStringArrayList("ids");
+            dealers = bundle.getStringArrayList("dealers");
+            mainCar = (Car) bundle.getSerializable("mainCar");
+
+            IntentProxyObject listObject = (IntentProxyObject) bundle.getSerializable("carList");
+            if(listObject != null) {
+                carList = listObject.getCarList();
+            }
 
             listAdapter = new CarListAdapter(carList);
 
             (getPreferenceManager()
                     .findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
 
-            if(dashboardCar != null) {
+            if(mainCar != null) {
                 final Preference mainCarPreference = findPreference("current_car");
-                mainCarPreference.setTitle(dashboardCar.getMake() +" "+dashboardCar.getModel());
+                mainCarPreference.setSummary("Tap to switch car");
+                mainCarPreference.setTitle(mainCar.getMake() +" "+ mainCar.getModel());
                 mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if(listAdapter.isEmpty()) {
-                            Toast.makeText(SettingsActivity.this,
-                                    "You have only added one vehicle.", Toast.LENGTH_SHORT).show();
+                        if(listAdapter.getCount() == 1) {
+                            Toast.makeText(((SettingsActivity)getActivity()).getApplicationContext(),
+                                    "You have only one added vehicle.", Toast.LENGTH_SHORT).show();
                             return true;
                         }
 
-                        switchCarDialog(dashboardCar, mainCarPreference);
+                        switchCarDialog(mainCar, mainCarPreference);
                         return true;
                     }
                 });
@@ -199,7 +236,14 @@ public class SettingsActivity extends AppCompatActivity {
                                             // Now let's update it with some new data. In this case, only cheatMode and score
                                             // will get sent to the Parse Cloud. playerName hasn't changed.
                                             car.put("dealership", shopSelected);
-                                            car.saveInBackground();
+                                            car.saveInBackground(new SaveCallback() {
+                                                @Override
+                                                public void done(ParseException e) {
+                                                    if(e == null) {
+                                                        listener.updatePerformed();
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 });
@@ -218,7 +262,8 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-            application = (ParseApplication) getApplicationContext();
+            application = (ParseApplication) getActivity().getApplicationContext();
+
             addPreferencesFromResource(R.xml.preferences);
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(ParseUser.getCurrentUser().getString("name"));
@@ -283,6 +328,7 @@ public class SettingsActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             // Write your code here to invoke YES event
                             //Toast.makeText(getActivity().getApplication(), "You clicked on YES", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
                             ParseUser.logOut();
                             navigateToLogin();
                         }
@@ -339,6 +385,7 @@ public class SettingsActivity extends AppCompatActivity {
                 public void done(ParseException e) {
                     if (e == null) {
                         namePreference.setTitle(updatedName);
+                        listener.updatePerformed();
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -381,9 +428,10 @@ public class SettingsActivity extends AppCompatActivity {
                                 objects.get(0).saveEventually(new SaveCallback() {
                                     @Override
                                     public void done(ParseException e) {
-                                        dashboardCar = newDashboardCar;
-                                        mainPreference.setTitle(dashboardCar.getMake()
-                                                +" "+dashboardCar.getModel());
+                                        mainCar = newDashboardCar;
+                                        mainPreference.setTitle(mainCar.getMake()
+                                                +" "+mainCar.getModel());
+                                        listener.updatePerformed();
                                     }
                                 });
 
