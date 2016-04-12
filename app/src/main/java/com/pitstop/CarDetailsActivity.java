@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
@@ -73,7 +74,7 @@ import java.util.List;
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
-public class CarDetailsActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener{
+public class CarDetailsActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private ParseApplication application;
 

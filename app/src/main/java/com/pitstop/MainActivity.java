@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
@@ -77,13 +78,16 @@ import java.util.Locale;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
+        EasyPermissions.PermissionCallbacks {
 
-    public static int RC_ADD_CAR = 50;
-    public static int RC_SCAN_CAR = 51;
-    public static int RC_SETTINGS = 52;
-    public static int RC_DISPLAY_ISSUE = 53;
+    public static final int RC_ADD_CAR = 50;
+    public static final int RC_SCAN_CAR = 51;
+    public static final int RC_SETTINGS = 52;
+    public static final int RC_DISPLAY_ISSUE = 53;
+    private static final int RC_LOCATION_PERM = 101;
 
     public static int RESULT_OK = 60;
 
@@ -101,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static String CAR_LIST_EXTRA = "car_list";
     public static String HAS_CAR_IN_DASHBOARD = "has_car";
     public static String REFRESH_LOCAL = "refresh_local";
+
+    private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private boolean isLoading = false;
 
@@ -145,13 +152,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Log.i(TAG,"connecting: onServiceConnection");
             // cast the IBinder and get MyService instance
             serviceIsBound = true;
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service;
-            autoConnectService = binder.getService();
+
+            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.setCallbacks(MainActivity.this); // register
 
             // TODO Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                autoConnectService.startBluetoothSearch();
+                if(EasyPermissions.hasPermissions(MainActivity.this,perms)) {
+                    autoConnectService.startBluetoothSearch();
+                } else {
+                    EasyPermissions.requestPermissions(MainActivity.this,
+                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
+                }
+
             }
         }
 
@@ -756,7 +769,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if(loginPackageInfo.flag.
-                equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             Log.i(TAG, "Device logout");
         }
     }
@@ -1092,6 +1105,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, String[] permissions,
+                                            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        if(autoConnectService != null) {
+            autoConnectService.startBluetoothSearch();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+
     }
 
     /**

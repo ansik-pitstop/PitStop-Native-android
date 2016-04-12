@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
@@ -58,10 +59,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 /**
  * Created by Paul Soladoye  on 3/8/2016.
  */
-public class CarScanActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+public class CarScanActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
+        EasyPermissions.PermissionCallbacks {
+
+    private static final int RC_LOCATION_PERM = 101;
+    private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private ParseApplication application;
     private BluetoothAutoConnectService autoConnectService;
@@ -104,11 +112,14 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
             Log.i(TAG, "onServiceConnection");
             // cast the IBinder and get MyService instance
             serviceIsBound = true;
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service;
-            autoConnectService = binder.getService();
+
+            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.setCallbacks(CarScanActivity.this); // register
-            if (BluetoothAdapter.getDefaultAdapter()!=null) {
+            if(EasyPermissions.hasPermissions(CarScanActivity.this,perms)) {
                 autoConnectService.startBluetoothSearch();
+            } else {
+                EasyPermissions.requestPermissions(CarScanActivity.this,
+                        getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
             }
         }
 
@@ -587,6 +598,27 @@ public class CarScanActivity extends AppCompatActivity implements BluetoothManag
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, String[] permissions,
+                                            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        if(autoConnectService != null) {
+            autoConnectService.startBluetoothSearch();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
 
     }
 }
