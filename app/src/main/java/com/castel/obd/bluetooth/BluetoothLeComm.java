@@ -76,7 +76,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
     private static final UUID OBD_WRITE_CHAR =
             UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
-    private static UUID CONFIG_DESCRIPTOR;
+    private static final UUID CONFIG_DESCRIPTOR =
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private int btConnectionState = DISCONNECTED;
 
@@ -125,22 +126,37 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public int getState() {
-        return 0;
+        return btConnectionState;
     }
 
     @Override
     public void obdSetCtrl(int type) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
 
+        String payload = mObdManager.obdSetCtrl(type);
+        writeToObd(payload, 0);
     }
 
     @Override
     public void obdSetMonitor(int type, String valueList) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
 
+        String payload = mObdManager.obdSetMonitor(type, valueList);
+        writeToObd(payload, 0);
     }
 
     @Override
     public void obdSetParameter(String tlvTagList, String valueList) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
 
+        String payload = mObdManager.obdSetParameter(tlvTagList, valueList);
+        writeToObd(payload, 0);
     }
 
     @Override
@@ -149,21 +165,20 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             return;
         }
 
-        String result = mObdManager.obdGetParameter(tlvTag);
-        Log.i(MainActivity.TAG, "Obd get result before write : " + result);
-        writeToObd(result, 0);
+        String payload = mObdManager.obdGetParameter(tlvTag);
+        writeToObd(payload, 0);
     }
 
     @Override
-    public void sendCommandPassive(String instruction) {
+    public void sendCommandPassive(String payload) {
         if(btConnectionState != CONNECTED) {
             return;
         }
 
-        writeToObd(instruction, -1);
+        writeToObd(payload, -1);
     }
 
-    private void writeToObd(String payload, int type) {
+    private synchronized void writeToObd(String payload, int type) {
 
         byte[] bytes;
 
@@ -181,6 +196,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             Log.i(MainActivity.TAG, "Writing characteristic...");
             BluetoothGattCharacteristic obdWriteCharacteristic =
                     mainObdGattService.getCharacteristic(OBD_WRITE_CHAR);
+            obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
             mGatt.writeCharacteristic(obdWriteCharacteristic);
         }
@@ -229,7 +245,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
             // Previously connected device.  Try to reconnect.
             if(mGatt.connect()) {
-                Log.i(MainActivity.TAG,"Using macAddress "+macAddress+" to connect to device - BluetoothManage");
+                Log.i(MainActivity.TAG,"Using macAddress "+macAddress+" to connect to device - BluetoothLeComm");
                 btConnectionState = CONNECTING;
             }
 
@@ -282,11 +298,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
 
         @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult sr : results) {
-                Log.i(MainActivity.TAG, "ScanResult - Results: "+sr.toString());
-            }
-        }
+        public void onBatchScanResults(List<ScanResult> results) { }
 
         @Override
         public void onScanFailed(int errorCode) {
@@ -297,8 +309,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            Log.i(MainActivity.TAG, "Received broadcast");
 
             final String action = intent.getAction();
 
@@ -377,13 +387,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
                 case BluetoothProfile.STATE_CONNECTED:
                 {
-                    Log.i(MainActivity.TAG, "gattCallback STATE_CONNECTED");
                     btConnectionState = CONNECTED;
-                    broadcastUpdate(ACTION_GATT_CONNECTED);
-
                     BluetoothDevice device = gatt.getDevice();
                     OBDInfoSP.saveMacAddress(mContext, device.getAddress());
                     gatt.discoverServices();
+                    broadcastUpdate(ACTION_GATT_CONNECTED);
                     break;
                 }
 
@@ -395,7 +403,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
                 case BluetoothProfile.STATE_DISCONNECTED:
                 {
-                    Log.e(MainActivity.TAG, "gattCallback STATE_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     broadcastUpdate(ACTION_GATT_DISCONNECTED);
                     break;
@@ -429,29 +436,20 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-
-                Log.i(MainActivity.TAG, "onCharacteristicRead: "+characteristic.getUuid());
-                Log.i(MainActivity.TAG, "onCharacteristicRead service uuid: "+characteristic.getService().getUuid());
-                Log.i(MainActivity.TAG, "onCharacteristicRead properties flag: "+characteristic.getProperties());
-            } else {
-                Log.i(MainActivity.TAG, "onCharacteristicRead: "+characteristic.getUuid() + "Error: "+status);
-            }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.i(MainActivity.TAG, "onCharacteristicChanged: "+characteristic.getUuid());
-            //gatt.readCharacteristic(characteristic);
+
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.i(MainActivity.TAG, "onCharacteristicWrite: "+characteristic.getUuid() +" status: " + status);
+            if(status == BluetoothGatt.GATT_SUCCESS) {
+                Log.i(MainActivity.TAG, "onCharacteristicWrite: "+characteristic.getUuid());
+            }
         }
     };
 
@@ -464,11 +462,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mGatt.setCharacteristicNotification(characteristic, true);
 
             // Enable remote notification
-            for(BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                Log.i(MainActivity.TAG, "descriptor: " + descriptor.getUuid());
-                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                mGatt.writeDescriptor(descriptor);
-            }
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CONFIG_DESCRIPTOR);
+            Log.i(MainActivity.TAG, "descriptor: " + descriptor.getUuid());
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            mGatt.writeDescriptor(descriptor);
         }
     }
 }

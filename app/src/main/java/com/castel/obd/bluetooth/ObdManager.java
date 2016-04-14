@@ -113,7 +113,6 @@ public class ObdManager {
      * @param payload
      */
     public byte[] getBytesToSend(String payload) {
-        Log.i(MainActivity.TAG, "getBytesToSend()"+payload);
         if (Utils.isEmpty(payload)) {
             return null;
         }
@@ -122,9 +121,6 @@ public class ObdManager {
         if (null == sendPackageInfo) {
             return null;
         }
-
-        Log.i(MainActivity.TAG,"result:" + sendPackageInfo.result);
-        Log.i(MainActivity.TAG, "instruction:" + sendPackageInfo.instruction);
 
         if (sendPackageInfo.result != 0
                 || Utils.isEmpty(sendPackageInfo.instruction)) {
@@ -138,7 +134,6 @@ public class ObdManager {
      * @param payload
      */
     public byte[] getBytesToSendPassive(String payload) {
-        Log.i(MainActivity.TAG, "getBytesToSendPassive(): "+payload);
         if (Utils.isEmpty(payload)) {
             return null;
         }
@@ -156,8 +151,6 @@ public class ObdManager {
         String info = OBD.getIOData(receivedPayload);
         LogUtil.i("isParse:" + isParse);
         isParse = false;
-        Log.i(MainActivity.TAG, "receiveDataAndParse() raw : " + receivedPayload);
-        Log.i(MainActivity.TAG, "receiveDataAndParse() : " + info);
 
         info = info.replace("obdData\":]","obdData\":[]");
         String[] infos = info.split("&");
@@ -227,10 +220,6 @@ public class ObdManager {
             if ("0".equals(responsePackageInfo.flag)) {
                 dataListener.setCtrlResponse(responsePackageInfo);
             } else if ("1".equals(responsePackageInfo.flag)) {
-                Log.i(MainActivity.TAG,"result: "+responsePackageInfo.result);
-                Log.i(MainActivity.TAG,"value: "+responsePackageInfo.value);
-                Log.i(MainActivity.TAG, "type: " + responsePackageInfo.type);
-
                 dataListener.setParameterResponse(responsePackageInfo);
             }
         }
@@ -244,9 +233,6 @@ public class ObdManager {
     private void obdParameterPackageParse(String info) {
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
                 ParameterPackageInfo.class);
-        Log.i(MainActivity.TAG,"getting parameterData on dataListener - BluetoothManage");
-        Log.i(MainActivity.TAG,"result: "+parameterPackageInfo.result);
-        Log.i(MainActivity.TAG,"value: "+parameterPackageInfo.value);
         dataListener.getParameterData(parameterPackageInfo);
     }
 
@@ -267,10 +253,6 @@ public class ObdManager {
                         dataPackageInfo.dataNumber);
                 Log.i(MainActivity.TAG,"dataNumber:" + dataPackageInfo.dataNumber);
             }
-
-            Log.i(MainActivity.TAG,"data package: "+dataPackageInfo.result);
-            Log.i(MainActivity.TAG,"data package: "+dataPackageInfo.rtcTime);
-            Log.i(MainActivity.TAG,"data package: "+dataPackageInfo.tripMileage);
 
         }
 
@@ -297,6 +279,6 @@ public class ObdManager {
 
 
     public interface IPassiveCommandListener {
-        void sendCommandPassive(String instruction);
+        void sendCommandPassive(String payload);
     }
 }

@@ -100,11 +100,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     }
 
-    public void test() {
-        Log.i(MainActivity.TAG, "Getting rtc");
-        bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(MainActivity.TAG, "Running on start command - auto-connect service");
@@ -261,6 +256,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+
         if(gettingPID){
             Log.i(MainActivity.TAG,"Getting parameter data- auto-connect service");
             pids  =parameterPackageInfo.value.get(0).value.split(",");
@@ -519,7 +515,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #setParameterResponse(ResponsePackageInfo)
      * */
     private void syncObdDevice() {
-        Log.i(MainActivity.TAG,"Resetting RTC time - BluetoothManage");
+        Log.i(MainActivity.TAG,"Resetting RTC time - BluetoothAutoConn");
         Toast.makeText(this,"Resetting obd device time...", Toast.LENGTH_SHORT).show();
         long systemTime = System.currentTimeMillis();
         bluetoothCommunicator

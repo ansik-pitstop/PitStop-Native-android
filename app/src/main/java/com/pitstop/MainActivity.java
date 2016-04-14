@@ -544,9 +544,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void requestMultiService(View view) {
-        autoConnectService.test();
 
-        /*try {
+        try {
             application.getMixpanelAPI().track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'MainActivity'}"));
         } catch (JSONException e) {
@@ -580,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        alertDialog.show();*/
+        alertDialog.show();
     }
 
     private void sendRequest(String additionalComment) {
