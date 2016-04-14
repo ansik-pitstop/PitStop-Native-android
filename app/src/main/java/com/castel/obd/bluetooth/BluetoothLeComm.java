@@ -66,11 +66,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private ScanSettings settings;
     private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
-    private List<BluetoothGattService> services = new ArrayList<>();
 
     private BluetoothGattService mainObdGattService;
-    private BluetoothGattCharacteristic obdReadCharacteristic;
-    private BluetoothGattCharacteristic obdWriteCharacteristic;
 
 
     private static final UUID OBD_IDD_212_MAIN_SERVICE =
@@ -79,11 +76,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
     private static final UUID OBD_WRITE_CHAR =
             UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
+    private static UUID CONFIG_DESCRIPTOR;
 
     private int btConnectionState = DISCONNECTED;
 
     public BluetoothLeComm(Context context) {
-        Log.i(MainActivity.TAG, "BleComm Constructor");
 
         mContext = context;
         mHandler = new Handler();
@@ -154,24 +151,38 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         String result = mObdManager.obdGetParameter(tlvTag);
         Log.i(MainActivity.TAG, "Obd get result before write : " + result);
-        writeToObd(result);
+        writeToObd(result, 0);
     }
 
     @Override
     public void sendCommandPassive(String instruction) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
 
+        writeToObd(instruction, -1);
     }
 
-    private void writeToObd(String payload) {
-        byte[] bytes = mObdManager.getBytesToSend(payload);
+    private void writeToObd(String payload, int type) {
+
+        byte[] bytes;
+
+        if(type == 0) {
+            bytes = mObdManager.getBytesToSend(payload);
+        } else {
+            bytes = mObdManager.getBytesToSendPassive(payload);
+        }
+
         if(bytes == null) {
             return;
         }
 
-        if (btConnectionState == CONNECTED && mGatt != null && obdWriteCharacteristic != null) {
+        if (btConnectionState == CONNECTED && mGatt != null ) {
             Log.i(MainActivity.TAG, "Writing characteristic...");
+            BluetoothGattCharacteristic obdWriteCharacteristic =
+                    mainObdGattService.getCharacteristic(OBD_WRITE_CHAR);
             obdWriteCharacteristic.setValue(bytes);
-            mGatt.writeCharacteristic(obdReadCharacteristic);
+            mGatt.writeCharacteristic(obdWriteCharacteristic);
         }
     }
 
@@ -303,7 +314,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
             } else if (ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
-                displayGattServicesAndChars();
 
                 Log.i(MainActivity.TAG, "ACTION_GATT_SERVICES_DISCOVERED");
 
@@ -346,6 +356,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             intent.putExtra(EXTRA_DATA, hexData);
 
             mContext.sendBroadcast(intent);
+        } else {
+            Log.i(MainActivity.TAG, "Write characteristic received");
         }
 
     }
@@ -400,43 +412,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
-                services = gatt.getServices();
+                mainObdGattService = gatt.getService(OBD_IDD_212_MAIN_SERVICE);
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
 
+                BluetoothGattCharacteristic obdReadCharacteristic =
+                        mainObdGattService.getCharacteristic(OBD_READ_CHAR);
 
-
-                for(BluetoothGattService service : services) {
-
-                    UUID serviceUuid = service.getUuid();
-                    if(serviceUuid.equals(OBD_IDD_212_MAIN_SERVICE)) {
-
-                        mainObdGattService = service;
-
-                        for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-
-                            UUID characteristicUuid = characteristic.getUuid();
-
-                            if(characteristicUuid.equals(OBD_READ_CHAR)) {
-                                obdReadCharacteristic = characteristic;
-
-                                Log.i(MainActivity.TAG, "Descriptor size: " + characteristic.getDescriptors().size());
-                                for(BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                                    Log.i(MainActivity.TAG, "descriptor: " + descriptor);
-                                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                                    gatt.writeDescriptor(descriptor);
-                                }
-                            }
-
-                            if(characteristicUuid.equals(OBD_WRITE_CHAR)) {
-                                obdWriteCharacteristic = characteristic;
-                            }
-                        }
-
-                        gatt.setCharacteristicNotification(obdReadCharacteristic, true);
-                        return;
-                    }
-
-                }
+                setNotificationOnCharacteristic(obdReadCharacteristic);
 
             } else {
                 Log.i(MainActivity.TAG, "Error onServicesDiscovered received: " + status);
@@ -463,7 +445,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.i(MainActivity.TAG, "onCharacteristicChanged: "+characteristic.getUuid());
-            gatt.readCharacteristic(characteristic);
+            //gatt.readCharacteristic(characteristic);
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
@@ -473,30 +455,20 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
     };
 
-    private void displayGattServicesAndChars() {
+    private void setNotificationOnCharacteristic(BluetoothGattCharacteristic characteristic) {
 
-        if(mGatt != null) {
-            for(BluetoothGattService service : mGatt.getServices()) {
+        if(characteristic != null) {
+            Log.i(MainActivity.TAG, "Setting notification on: " + characteristic.getUuid());
 
-                UUID serviceUuid = service.getUuid();
-                if(serviceUuid.equals(OBD_IDD_212_MAIN_SERVICE)) {
-                    Log.i(MainActivity.TAG, "ServicesDiscovered ServiceUUID: "+ serviceUuid);
+            // Enable local notification
+            mGatt.setCharacteristicNotification(characteristic, true);
 
-                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-
-                        UUID characteristicUuid = characteristic.getUuid();
-                        Log.i(MainActivity.TAG, "Service Characteristics: "+ characteristicUuid);
-                        Log.i(MainActivity.TAG, "Characteristics properties: "+characteristic.getProperties());
-
-                        for(BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                            Log.i(MainActivity.TAG, "descriptor: " + descriptor);
-                        }
-                    }
-
-                    return;
-                }
+            // Enable remote notification
+            for(BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                Log.i(MainActivity.TAG, "descriptor: " + descriptor.getUuid());
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                mGatt.writeDescriptor(descriptor);
             }
         }
-
     }
 }
