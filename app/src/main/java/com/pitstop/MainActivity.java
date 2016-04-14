@@ -544,7 +544,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void requestMultiService(View view) {
-        try {
+        autoConnectService.test();
+
+        /*try {
             application.getMixpanelAPI().track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'MainActivity'}"));
         } catch (JSONException e) {
@@ -578,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        alertDialog.show();
+        alertDialog.show();*/
     }
 
     private void sendRequest(String additionalComment) {
@@ -818,7 +820,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Parse objects count (getIssues()): " + objects.size());
 
                     List<CarIssue> issues = CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId());
@@ -845,11 +846,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Parse objects count (getDTCs()): " + objects.size());
 
                     List<CarIssue> dtcs = CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId());
-                    Log.i(TAG, "DTC count: "+ dtcs.size());
                     dashboardCar.getIssues().addAll(dtcs);
                     // Store in local
                     carIssueAdapter.storeCarIssues(dtcs);
@@ -899,7 +898,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 @Override
                                 public void done(List<ParseObject> objects, ParseException e) {
                                     if(e == null) {
-                                        Log.i(TAG, "Parse objects count (getRecalls()): " + objects.size());
 
                                         List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
                                                 dashboardCar.getParseId());

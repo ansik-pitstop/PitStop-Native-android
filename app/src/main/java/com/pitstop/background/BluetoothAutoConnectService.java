@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -97,6 +98,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.setBluetoothDataListener(this);
         localPid = new PidAdapter(this);
 
+    }
+
+    public void test() {
+        Log.i(MainActivity.TAG, "Getting rtc");
+        bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
     }
 
     @Override
