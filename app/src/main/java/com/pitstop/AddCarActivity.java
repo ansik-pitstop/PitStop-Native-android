@@ -779,9 +779,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(MainActivity.TAG, "Device connected");
+            Log.i(MainActivity.TAG, "Device disconnected");
             if(isLoading) {
-                hideLoading();
+                //hideLoading();
             }
         }
     }
@@ -974,6 +974,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
      * Hide the loading screen
      */
     private void hideLoading(){
+        if(isFinishing()) {
+            return;
+        }
         Log.i(MainActivity.TAG, "hideLoading()--func");
         progressDialog.dismiss();
         isSearching = false ;
@@ -1188,6 +1191,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);
         data.putExtra(MainActivity.REFRESH_LOCAL, true);
         setResult(ADD_CAR_SUCCESS, data);
+        isLoading = false;
         finish();
     }
 

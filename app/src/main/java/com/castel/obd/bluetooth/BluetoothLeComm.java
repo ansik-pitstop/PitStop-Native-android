@@ -328,8 +328,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 Log.i(MainActivity.TAG, "ACTION_GATT_SERVICES_DISCOVERED");
 
             } else if (ACTION_DATA_AVAILABLE.equals(action)) {
-
-                Log.i(MainActivity.TAG, "ACTION_DATA_AVAILABLE");
                 mObdManager.receiveDataAndParse(intent.getStringExtra(EXTRA_DATA));
             }
         }
@@ -440,7 +438,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.i(MainActivity.TAG, "onCharacteristicChanged: "+characteristic.getUuid());
 
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
@@ -448,7 +445,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if(status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i(MainActivity.TAG, "onCharacteristicWrite: "+characteristic.getUuid());
             }
         }
     };

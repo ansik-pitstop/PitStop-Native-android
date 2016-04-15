@@ -234,6 +234,9 @@ public class ObdManager {
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
                 ParameterPackageInfo.class);
         dataListener.getParameterData(parameterPackageInfo);
+        Log.i(MainActivity.TAG,"result: "+ parameterPackageInfo.result);
+        Log.i(MainActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).tlvTag);
+        Log.i(MainActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).value);
     }
 
 

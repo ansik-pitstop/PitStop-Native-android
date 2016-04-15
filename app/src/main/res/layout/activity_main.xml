@@ -80,6 +80,7 @@
                             android:id="@+id/service_count_background"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
+                            android:layout_marginRight="3dp"
                             android:background="@drawable/dark_circular_background"
                             android:layout_toRightOf="@+id/car_scan_btn"
                             android:layout_centerVertical="true">
@@ -94,17 +95,6 @@
                                 android:layout_gravity="center"
                                 android:layout_centerInParent="true" />
                         </RelativeLayout>
-
-                        <!--<Button
-                            android:id="@+id/car_scan_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:text="SCAN"
-                            android:background="@drawable/color_button_primary_car"
-                            android:padding="10dp"
-                            android:textColor="#fff"
-                            android:elevation="12dp" />-->
 
                     </RelativeLayout>
                 </RelativeLayout>
@@ -149,7 +139,7 @@
                                 android:id="@+id/address_layout"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:layout_margin="10dp"
+                                android:layout_margin="6dp"
                                 android:elevation="3dp"
                                 android:background="@drawable/grey_circular_background">
                                 <ImageView
@@ -164,7 +154,7 @@
                                 android:id="@+id/phone_layout"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:layout_margin="10dp"
+                                android:layout_margin="6dp"
                                 android:elevation="3dp"
                                 android:layout_toRightOf="@+id/address_layout"
                                 android:background="@drawable/grey_circular_background">
@@ -180,7 +170,7 @@
                                 android:id="@+id/chat_layout"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:layout_margin="10dp"
+                                android:layout_margin="6dp"
                                 android:elevation="3dp"
                                 android:layout_toRightOf="@+id/phone_layout"
                                 android:background="@drawable/grey_circular_background">

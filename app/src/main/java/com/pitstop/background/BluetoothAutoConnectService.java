@@ -278,7 +278,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
 
-        } else if(callbacks != null) {
+        }
+
+        if(callbacks != null) {
             Log.i(MainActivity.TAG, "getting parameter data on service Callbacks - auto-connect service");
             callbacks.getParameterData(parameterPackageInfo);
         }
@@ -427,7 +429,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(MainActivity.TAG,"Device result: "+loginPackageInfo.result);
             Log.i(MainActivity.TAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
+        } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            currentDeviceId = null;
         }
+
         if(callbacks != null) {
             callbacks.deviceLogin(loginPackageInfo);
         }

@@ -101,10 +101,10 @@ public class SplashScreen extends AppCompatActivity {
                 public void run() {
                     try {
                         Thread.sleep(1500);
+                        hideLoading();
                         Intent intent = new Intent(SplashScreen.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         intent.putExtra(LOGIN_REFRESH, true);
-                        progressDialog.dismiss();
                         startActivity(intent);
 
                     } catch (InterruptedException e) {

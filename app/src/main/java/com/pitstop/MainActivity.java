@@ -181,7 +181,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
-                if(autoConnectService != null && autoConnectService.isCommunicatingWithDevice()) {
+                if(autoConnectService != null
+                        && autoConnectService.isCommunicatingWithDevice()
+                        && dashboardCar != null
+                        && dashboardCar.getScanner()
+                        .equals(autoConnectService.getCurrentDeviceId())) {
                     updateConnectedCarIndicator(true);
                 } else {
                     updateConnectedCarIndicator(false);
