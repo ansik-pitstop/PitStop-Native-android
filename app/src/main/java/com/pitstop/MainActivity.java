@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private static final int RC_DISPLAY_ISSUE = 53;
 
     private static final int RC_LOCATION_PERM = 101;
-    private static final int RC_ENABLE_BT= 102;
+    public static final int RC_ENABLE_BT= 102;
 
 
     public static int RESULT_OK = 60;
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.setCallbacks(MainActivity.this);
 
-            // TODO Send request to user to turn on bluetooth if disabled
+            // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
 
                 if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {

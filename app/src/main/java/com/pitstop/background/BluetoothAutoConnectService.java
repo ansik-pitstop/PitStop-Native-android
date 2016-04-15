@@ -3,6 +3,7 @@ package com.pitstop.background;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -101,6 +102,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         bluetoothCommunicator.setBluetoothDataListener(this);
+        if (BluetoothAdapter.getDefaultAdapter()!=null
+                && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            bluetoothCommunicator.startScan();
+        }
         localPid = new LocalPidAdapter(this);
 
     }

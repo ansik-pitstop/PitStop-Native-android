@@ -174,6 +174,16 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         finish();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == MainActivity.RC_ENABLE_BT
+                && resultCode == MainActivity.RC_ENABLE_BT) {
+            carScanButton.performClick();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     private void setupUiReferences() {
         carMileage = (TextView) findViewById(R.id.car_mileage);
 
@@ -186,6 +196,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                             new JSONObject("{'Button':'Start car scan','View':'CarScanActivity'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }
+
+                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+                    return;
                 }
 
                 if(autoConnectService.isCommunicatingWithDevice()) {

@@ -77,7 +77,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         EasyPermissions.PermissionCallbacks {
 
     private ParseApplication application;
-    public static int RESULT_ADDED = 10;
     public static int ADD_CAR_SUCCESS = 51;
     // TODO: Transferring data through intents is safer than using global variables
     public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
@@ -403,6 +402,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 setDealership(selectedShopId);
             }
 
+        } else if(requestCode == MainActivity.RC_ENABLE_BT
+                && resultCode == MainActivity.RC_ENABLE_BT) {
+            beginSearchForCar();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -423,6 +425,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         if(EasyPermissions.hasPermissions(AddCarActivity.this,perms)) {
             Log.i(MainActivity.TAG,"Has location permissions");
+            if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+                return;
+            }
 
             if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
                 Log.i(MainActivity.TAG, "Mileage is present");

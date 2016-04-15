@@ -66,6 +66,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private ScanSettings settings;
     private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
+    private boolean mIsScanning = false;
 
     private BluetoothGattService mainObdGattService;
 
@@ -113,7 +114,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(mLEScanner == null) {
+        if(mLEScanner == null || mIsScanning) {
             return;
         }
         connectBluetooth();
@@ -274,13 +275,16 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 @Override
                 public void run() {
                     Log.i(MainActivity.TAG, "Stopping scan");
+                    mIsScanning = false;
                     mLEScanner.stopScan(mScanCallback);
                 }
             }, SCAN_PERIOD);
 
             Log.i(MainActivity.TAG, "Starting le scan");
+            mIsScanning = true;
             mLEScanner.startScan(filters, settings, mScanCallback);
         } else {
+            mIsScanning = false;
             mLEScanner.stopScan(mScanCallback);
         }
 
