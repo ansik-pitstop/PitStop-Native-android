@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -74,9 +75,13 @@ public class SplashScreen extends AppCompatActivity {
      */
     private PagerAdapter mPagerAdapter;
 
+    Handler loginHandler = new Handler();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(MainActivity.TAG, "Calling on create");
         setContentView(R.layout.activity_splash_screen);
 
         application = (ParseApplication) getApplicationContext();
@@ -90,28 +95,35 @@ public class SplashScreen extends AppCompatActivity {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
             Log.i(TAG, "Current Parse user is null");
-        }
-        else {
+        } else {
             ParseApplication.setUpMixPanel();
 
-            showLoading("Logging in...");
+            final ProgressDialog loadingDialog = ProgressDialog.show(SplashScreen.this, "", "Logging in...", true, false);
 
-            new Thread(new Runnable() {
+            final Runnable loginRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        Thread.sleep(1500);
-                        hideLoading();
-                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra(LOGIN_REFRESH, true);
-                        startActivity(intent);
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    Log.i(MainActivity.TAG, "loginHandler login");
+                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra(LOGIN_REFRESH, true);
+                    startActivity(intent);
                 }
-            }).start();
+            };
+
+            loginHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(MainActivity.TAG, "Handler dismiss dialog");
+                            loadingDialog.dismiss();
+                        }
+                    });
+                    loginHandler.post(loginRunnable);
+                }
+            }, 2500);
 
             Log.i(TAG, currentUser.getUsername());
         }
@@ -149,7 +161,7 @@ public class SplashScreen extends AppCompatActivity {
                                 handled = true;
                                 View view = getCurrentFocus();
                                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                                imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
                             }
                             return handled;
                         }
@@ -222,7 +234,7 @@ public class SplashScreen extends AppCompatActivity {
 
     private void setUpUIReferences() {
 
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(SplashScreen.this);
         progressDialog.setCanceledOnTouchOutside(false);
 
         name = (EditText) findViewById(R.id.name);
@@ -331,7 +343,7 @@ public class SplashScreen extends AppCompatActivity {
                         e2.printStackTrace();
                     }
                 } else {
-                    progressDialog.dismiss();
+                    hideLoading();
                     Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
 
@@ -344,6 +356,9 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void showLoading(String text){
+        if(isFinishing())
+            return;
+
         progressDialog.setMessage(text);
         if(!progressDialog.isShowing()) {
             progressDialog.show();
@@ -351,12 +366,27 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void hideLoading(){
+        Log.i(MainActivity.TAG, "hiding loading");
         progressDialog.dismiss();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
     protected void onPause() {
         application.getMixpanelAPI().flush();
+        Log.i(MainActivity.TAG, "SplashScreen on pause");
+        progressDialog.cancel();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(MainActivity.TAG, "SplashScreen onDestroy");
+        progressDialog.cancel();
+        super.onDestroy();
     }
 }

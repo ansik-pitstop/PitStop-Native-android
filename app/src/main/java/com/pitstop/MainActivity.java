@@ -82,11 +82,14 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
         EasyPermissions.PermissionCallbacks {
 
-    public static final int RC_ADD_CAR = 50;
-    public static final int RC_SCAN_CAR = 51;
-    public static final int RC_SETTINGS = 52;
-    public static final int RC_DISPLAY_ISSUE = 53;
+    private static final int RC_ADD_CAR = 50;
+    private static final int RC_SCAN_CAR = 51;
+    private static final int RC_SETTINGS = 52;
+    private static final int RC_DISPLAY_ISSUE = 53;
+
     private static final int RC_LOCATION_PERM = 101;
+    private static final int RC_ENABLE_BT= 102;
+
 
     public static int RESULT_OK = 60;
 
@@ -154,10 +157,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(MainActivity.this); // register
+            autoConnectService.setCallbacks(MainActivity.this);
 
             // TODO Send request to user to turn on bluetooth if disabled
-            if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            if (BluetoothAdapter.getDefaultAdapter()!=null) {
+
+                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, RC_ENABLE_BT);
+                    return;
+                }
+
                 if(EasyPermissions.hasPermissions(MainActivity.this,perms)) {
                     autoConnectService.startBluetoothSearch();
                 } else {
@@ -290,7 +300,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
 
-        boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
+        boolean shouldRefreshFromServer = false;
+        if(data != null) {
+            shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
+        }
 
         if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
 
@@ -314,6 +327,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if(shouldRefreshFromServer) {
                 refreshFromServer();
             }
+        } else if(requestCode == RC_ENABLE_BT && resultCode == RC_ENABLE_BT) {
+            autoConnectService.startBluetoothSearch();
+
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -462,11 +478,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private void hideLoading() {
         progressDialog.dismiss();
-        mainView.setVisibility(View.VISIBLE);
         isLoading = false;
+
+        if(isFinishing()) {
+            return;
+        }
+
+        mainView.setVisibility(View.VISIBLE);
+
     }
 
     private void showLoading(String text) {
+        if(isFinishing()) {
+            return;
+        }
+
         isLoading = true;
 
         progressDialog.setMessage(text);

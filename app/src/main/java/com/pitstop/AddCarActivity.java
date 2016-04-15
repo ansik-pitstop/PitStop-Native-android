@@ -972,11 +972,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
      * Hide the loading screen
      */
     private void hideLoading(){
-        if(isFinishing()) {
-            return;
-        }
-        Log.i(MainActivity.TAG, "hideLoading()--func");
         progressDialog.dismiss();
+        Log.i(MainActivity.TAG, "hideLoading()--func");
+
         isSearching = false ;
         isLoading = false;
     }
@@ -986,6 +984,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
      */
     private void showLoading(String showText){
         Log.i(MainActivity.TAG, "show loading func----");
+        if(isFinishing()) {
+            return;
+        }
         isLoading = true;
         progressDialog.setMessage(showText);
         if(!progressDialog.isShowing()) {
