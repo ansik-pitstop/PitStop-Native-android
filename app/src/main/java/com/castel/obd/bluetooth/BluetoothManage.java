@@ -26,6 +26,7 @@ import com.castel.obd.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class BluetoothManage {
 	private final String BT_NAME = "IDD-212";// �������
 

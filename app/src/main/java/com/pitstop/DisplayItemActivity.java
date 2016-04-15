@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,21 +15,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
 import com.parse.FunctionCallback;
-import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.database.DBModel;
-import com.pitstop.database.LocalDataRetriever;
-import com.pitstop.database.models.DTCs;
-import com.pitstop.database.models.Recalls;
-import com.pitstop.database.models.Services;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
@@ -109,7 +98,7 @@ public class DisplayItemActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_LOCAL, false);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
     }

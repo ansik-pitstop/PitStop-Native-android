@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 4/1/2016.
  */
-public class PidAdapter {
+public class LocalPidAdapter {
 
     // PID_DATA table create statement
     public static final String CREATE_TABLE_PID_DATA = "CREATE TABLE IF NOT EXISTS "
@@ -28,7 +28,7 @@ public class PidAdapter {
     private LocalDatabaseHelper databaseHelper;
 
 
-    public PidAdapter(Context context) {
+    public LocalPidAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
 

@@ -42,7 +42,6 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -52,10 +51,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DataAdapters.CarAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.Debug.PrintDebugThread;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
@@ -121,7 +119,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private static final int RC_LOCATION_PERM = 101;
 
     private CallMashapeAsync vinDecoderApi;
-    private CarAdapter localCarAdapter;
+    private LocalCarAdapter localCarAdapter;
 
     private Intent intentFromMainActivity;
 
@@ -156,7 +154,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         intentFromMainActivity = getIntent();
 
         vinDecoderApi = new CallMashapeAsync();
-        localCarAdapter = new CarAdapter(this);
+        localCarAdapter = new LocalCarAdapter(this);
 
         setupUIReferences();
 
@@ -310,7 +308,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         if(intentFromMainActivity!=null
                 && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
             Intent info = new Intent();
-            info.putExtra(MainActivity.REFRESH_LOCAL, false);
+            info.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
             setResult(MainActivity.RESULT_OK, info);
             finish();
         } else {
@@ -1189,7 +1187,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);
-        data.putExtra(MainActivity.REFRESH_LOCAL, true);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
         isLoading = false;
         finish();

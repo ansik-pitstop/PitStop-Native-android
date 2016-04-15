@@ -3,7 +3,6 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -27,7 +26,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
@@ -45,15 +43,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -174,7 +169,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onBackPressed() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_LOCAL, performedScan);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, performedScan);
         setResult(MainActivity.RESULT_OK, data);
         finish();
     }

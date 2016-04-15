@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 04/04/2016.
  */
-public class CarIssueAdapter {
+public class LocalCarIssueAdapter {
     // CAR_ISSUES table create statement
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
             + TABLES.CAR_ISSUES.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
@@ -34,7 +34,7 @@ public class CarIssueAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public CarIssueAdapter(Context context) {
+    public LocalCarIssueAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
 
@@ -62,52 +62,6 @@ public class CarIssueAdapter {
         }
     }
 
-    /*public List<CarIssue> getAllDtcs(String carId) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-        List<CarIssue> carIssues = new ArrayList<>();
-
-        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                "carId=? and issueType=?", new String[]{carId, CarIssue.DTC}, null, null, null);
-        if(c.moveToFirst()) {
-            carIssues.add(cursorToCarIssue(c));
-        }
-
-        db.close();
-        return carIssues;
-    }
-
-    public List<CarIssue> getAllRecalls(String carId) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-        List<CarIssue> carIssues = new ArrayList<>();
-
-        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                "carId=? and issueType=?", new String[]{carId, CarIssue.RECALL}, null, null, null);
-        if(c.moveToFirst()) {
-            carIssues.add(cursorToCarIssue(c));
-        }
-
-        db.close();
-        return carIssues;
-    }
-
-    public List<CarIssue> getAllServices(String carId) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-        List<CarIssue> carIssues = new ArrayList<>();
-
-        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                "carId=? and issueType!=? and issueType!=?",
-                new String[]{carId, CarIssue.RECALL, CarIssue.DTC}, null, null, null);
-        if(c.moveToFirst()) {
-            carIssues.add(cursorToCarIssue(c));
-        }
-
-        db.close();
-        return carIssues;
-    }*/
-
     public List<CarIssue> getAllCarIssues(String carId) {
 
         List<CarIssue> carIssues = new ArrayList<>();
@@ -115,7 +69,7 @@ public class CarIssueAdapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                "carId=?",new String[]{carId},null,null,null);
+                TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",new String[]{carId},null,null,null);
         if(c.moveToFirst()) {
             while(!c.isAfterLast()) {
                 carIssues.add(cursorToCarIssue(c));

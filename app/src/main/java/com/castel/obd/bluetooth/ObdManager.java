@@ -33,6 +33,9 @@ public class ObdManager {
 
     public final static int DEVICE_LOGIN_FLAG = 1;
     public final static int DEVICE_LOGOUT_FLAG = 0;
+    public final static int TYPE_DTC = 1;
+    public final static int TYPE_PENDING_DTC = 2;
+    public final static int TYPE_FREEZE_DATA = 3;
 
     private Context mContext;
     private IBluetoothDataListener dataListener;
@@ -251,7 +254,7 @@ public class ObdManager {
             //dataPackages.add(dataPackageInfo);
 
             if (!Utils.isEmpty(dataPackageInfo.dataNumber)) {
-                Log.i(MainActivity.TAG, "Saving OBDInfo (DeviceId and DataNumber) - BluetoothManage");
+                Log.i(MainActivity.TAG, "Saving OBDInfo (DeviceId and DataNumber) - ObdManager");
                 OBDInfoSP.saveInfo(mContext, dataPackageInfo.deviceId,
                         dataPackageInfo.dataNumber);
                 Log.i(MainActivity.TAG,"dataNumber:" + dataPackageInfo.dataNumber);

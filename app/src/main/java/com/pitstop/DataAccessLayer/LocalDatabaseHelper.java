@@ -3,14 +3,12 @@ package com.pitstop.DataAccessLayer;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import com.pitstop.DataAccessLayer.DataAdapters.CarAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.CarIssueAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.DealershipAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.PidAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.TABLES;
-import com.pitstop.MainActivity;
 
 /**
  * Created by Paul Soladoye on 3/16/2016.
@@ -28,10 +26,10 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(PidAdapter.CREATE_TABLE_PID_DATA);
-        db.execSQL(CarAdapter.CREATE_TABLE_CAR);
-        db.execSQL(CarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
-        db.execSQL(DealershipAdapter.CREATE_TABLE_DEALERSHIP);
+        db.execSQL(LocalPidAdapter.CREATE_TABLE_PID_DATA);
+        db.execSQL(LocalCarAdapter.CREATE_TABLE_CAR);
+        db.execSQL(LocalCarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
+        db.execSQL(LocalDealershipAdapter.CREATE_TABLE_DEALERSHIP);
     }
 
     @Override

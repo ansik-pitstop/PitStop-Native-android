@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class DealershipAdapter {
+public class LocalDealershipAdapter {
 
     //DEALERSHIP table create statement
     public static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE IF NOT EXISTS "
@@ -30,7 +30,7 @@ public class DealershipAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public DealershipAdapter(Context context) {
+    public LocalDealershipAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
 

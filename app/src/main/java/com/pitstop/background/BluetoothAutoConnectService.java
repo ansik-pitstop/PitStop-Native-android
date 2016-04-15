@@ -9,7 +9,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -35,16 +35,21 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
-import com.pitstop.DataAccessLayer.DataAdapters.PidAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
+import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
+import com.pitstop.database.models.Uploads;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,7 +87,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     String[] pids = new String[0];
     int pidI = 0;
 
-    private PidAdapter localPid;
+    private LocalPidAdapter localPid;
 
     @Override
     public void onCreate() {
@@ -96,7 +101,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         bluetoothCommunicator.setBluetoothDataListener(this);
-        localPid = new PidAdapter(this);
+        localPid = new LocalPidAdapter(this);
 
     }
 
@@ -314,6 +319,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //processResultSixData(dataPackageInfo);
         }
 
+        // TODO : This sections needs to be refactored it's not clear what is been done
         Log.i(MainActivity.TAG, "getting io data - auto-connect service");
         if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
             askforDtcs=false;
@@ -417,7 +423,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         if(counter==100){
             counter = 1;
-            //uploadRecords();
+            uploadRecords();
         }
 
     }
@@ -566,7 +572,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(MainActivity.TAG, "calling getting DTCs - auto-connect service");
         if (!askforDtcs){
             askforDtcs = true;
-            bluetoothCommunicator.obdSetMonitor(1, "");
+            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
         }
     }
 
@@ -575,14 +581,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(MainActivity.TAG, "Getting pending DTCs");
         if (!askForPendingDTCs){
             askForPendingDTCs = true;
-            bluetoothCommunicator.obdSetMonitor(2, "");
+            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
         }
     }
 
 
     public void getFreeze() {
         Log.i(MainActivity.TAG, "Getting freeze data - auto-connect service");
-        bluetoothCommunicator.obdSetMonitor(3, "");
+        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_FREEZE_DATA, "");
     }
 
 
@@ -797,5 +803,89 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         return jsonObject;
+    }
+
+    public void uploadRecords() {
+
+        Log.i(MainActivity.TAG, "Uploading database records");
+        LocalDataRetriever ldr = new LocalDataRetriever(this);
+        DBModel entry = ldr.getLastRow("Uploads", "UploadID");
+        if(entry==null){
+            ArrayList<DBModel> array  = ldr.getAllDataSet("Responses");
+            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
+            uploadInfoOnline.execute(array.get(0).getValue("ResponseID"),
+                    array.get(array.size()-1).getValue("ResponseID"));
+        }else{
+            DBModel lastResponse = ldr.getLastRow("Responses", "ResponseID");
+            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
+            uploadInfoOnline.execute(entry.getValue("EntriesEnd"),
+                    lastResponse.getValue("ResponseID"));
+        }
+    }
+
+    //Todo: Once getIOData is refactored, this class shouldn't be needed anymore
+    private class UploadInfoOnline extends AsyncTask<String,Void,Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            Log.i(MainActivity.TAG,"Uploading info online (async task) - auto-connect service");
+            final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
+            ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
+            for (final String device : devices) {
+                ParseObject object = ParseObject.create("Scan");
+                String pid = "{", freeze = "{", dtc = "{";
+                final ArrayList<DBModel> responses = ldr.getResponse(device, params[0],params[1]);
+                boolean firstp = false, firstf = false, firstd = false;
+                for (DBModel model : responses) {
+                    if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
+                        pid += (firstp ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("OBD") + "";
+                        firstp = true;
+                    }
+                    if ((model.getValue("Freeze") != null) && (!model.getValue("Freeze").equals("{}"))) {
+                        freeze += (firstf ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("Freeze");
+                        firstf = true;
+                    }
+                    if ((model.getValue("dtcData") != null) && (!model.getValue("dtcData").equals(""))) {
+                        dtc += (firstd ? "," : "") + "'" + model.getValue("rtcTime") + "':'" + model.getValue("dtcData") + "'";
+                        firstd = true;
+                    }
+                }
+                pid += "}";
+                freeze += "}";
+                dtc += "}";
+                final int count = responses.size();
+                if (count > 0) {
+
+                    final Uploads upload = new Uploads();
+                    upload.setValue("EntriesStart", responses.get(0).getValue("ResponseID"));
+                    upload.setValue("EntriesEnd", responses.get(responses.size()-1).getValue("ResponseID"));
+                    final long index = ldr.saveData("Uploads", upload.getValues());
+                    try {
+                        object.put("DTCArray", new JSONObject(dtc));
+                        object.put("runAfterSave",false);
+                        object.put("freezeDataArray", new JSONObject(pid));
+                        object.put("scannerId", device);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    object.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
+                                ldr.deleteData("Responses", "deviceId", device);
+                                final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+                                upload.setValue("UploadedAt", timeStamp);
+                                ldr.updateData("Uploads", "UploadID",""+index, upload.getValues());
+                            } else {
+                                Log.d("Cant upload", e.getMessage());
+                            }
+                        }
+                    });
+                }else{
+                }
+            }
+            return null;
+        }
     }
 }
