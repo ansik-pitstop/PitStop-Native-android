@@ -117,6 +117,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         if(mLEScanner == null || mIsScanning) {
             return;
         }
+
         connectBluetooth();
     }
 
@@ -179,6 +180,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         writeToObd(payload, -1);
     }
 
+
+    /**
+     *
+     *
+     */
     private synchronized void writeToObd(String payload, int type) {
 
         byte[] bytes;
@@ -230,6 +236,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
     }
 
+
+
+    /**
+     *
+     *
+     */
     private void connectBluetooth() {
 
         if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()
@@ -243,10 +255,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         if (macAddress != null && !macAddress.equals("") && mGatt != null) {
 
-            //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
+            // BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
             // Previously connected device.  Try to reconnect.
             if(mGatt.connect()) {
-                Log.i(MainActivity.TAG,"Using macAddress "+macAddress+" to connect to device - BluetoothLeComm");
+                Log.i(MainActivity.TAG,"Trying to connect to device - BluetoothLeComm");
                 btConnectionState = CONNECTING;
             }
 
@@ -281,15 +293,21 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             }, SCAN_PERIOD);
 
             Log.i(MainActivity.TAG, "Starting le scan");
-            mIsScanning = true;
             mLEScanner.startScan(filters, settings, mScanCallback);
+            mIsScanning = true;
         } else {
-            mIsScanning = false;
             mLEScanner.stopScan(mScanCallback);
+            mIsScanning = false;
         }
 
     }
 
+
+
+    /**
+     *
+     *
+     */
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -310,6 +328,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
     };
 
+
+
+    /**
+     *
+     *
+     */
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -351,6 +375,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         mContext.sendBroadcast(intent);
     }
 
+
+
+    /**
+     *
+     *
+     */
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
 
@@ -374,6 +404,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     }
 
+
+
+    /**
+     *
+     *
+     */
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -453,6 +489,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
     };
 
+
+    /**
+     *
+     *
+     */
     private void setNotificationOnCharacteristic(BluetoothGattCharacteristic characteristic) {
 
         if(characteristic != null) {

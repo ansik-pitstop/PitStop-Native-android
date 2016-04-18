@@ -198,7 +198,7 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/car_connected_indicator_layout"
             android:layout_above="@+id/request_service_btn"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="23dp"
             android:scrollbars="vertical">
 
         </android.support.v7.widget.RecyclerView>
@@ -211,9 +211,9 @@
             android:onClick="requestMultiService"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginLeft="16dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginRight="11dp"
+            android:layout_marginLeft="11dp"
             android:background="@drawable/color_button_primary_car"
             android:drawableRight="@drawable/request_service_button"
             android:textColor="#fff"
@@ -221,6 +221,7 @@
 
             android:layout_alignParentBottom="true"/>
         <!--android:background="@drawable/color_button_primary_car"-->
+        <!---->
 
     </RelativeLayout>
 
