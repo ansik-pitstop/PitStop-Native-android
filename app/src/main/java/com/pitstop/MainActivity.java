@@ -37,12 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -55,9 +55,9 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
-import com.pitstop.DataAccessLayer.DataAdapters.CarAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.CarIssueAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.DealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
@@ -77,13 +77,19 @@ import java.util.Locale;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
+        EasyPermissions.PermissionCallbacks {
 
-    public static int RC_ADD_CAR = 50;
-    public static int RC_SCAN_CAR = 51;
-    public static int RC_SETTINGS = 52;
-    public static int RC_DISPLAY_ISSUE = 53;
+    private static final int RC_ADD_CAR = 50;
+    private static final int RC_SCAN_CAR = 51;
+    private static final int RC_SETTINGS = 52;
+    private static final int RC_DISPLAY_ISSUE = 53;
+
+    private static final int RC_LOCATION_PERM = 101;
+    public static final int RC_ENABLE_BT= 102;
+
 
     public static int RESULT_OK = 60;
 
@@ -100,7 +106,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     public static String CAR_ISSUE_EXTRA = "car_issue";
     public static String CAR_LIST_EXTRA = "car_list";
     public static String HAS_CAR_IN_DASHBOARD = "has_car";
-    public static String REFRESH_LOCAL = "refresh_local";
+    public static String REFRESH_FROM_SERVER = "_server";
+    public static String REFRESH_FROM_LOCAL = "_local";
+
+    private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private boolean isLoading = false;
 
@@ -123,9 +133,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     private List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    private CarAdapter carAdapter;
-    private CarIssueAdapter carIssueAdapter;
-    private DealershipAdapter dealershipAdapter;
+    private LocalCarAdapter carAdapter;
+    private LocalCarIssueAdapter carIssueAdapter;
+    private LocalDealershipAdapter dealershipAdapter;
 
     private ParseApplication application;
 
@@ -145,13 +155,26 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             Log.i(TAG,"connecting: onServiceConnection");
             // cast the IBinder and get MyService instance
             serviceIsBound = true;
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service;
-            autoConnectService = binder.getService();
-            autoConnectService.setCallbacks(MainActivity.this); // register
 
-            // TODO Send request to user to turn on bluetooth if disabled
-            if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                autoConnectService.startBluetoothSearch();
+            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
+            autoConnectService.setCallbacks(MainActivity.this);
+
+            // Send request to user to turn on bluetooth if disabled
+            if (BluetoothAdapter.getDefaultAdapter()!=null) {
+
+                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, RC_ENABLE_BT);
+                    return;
+                }
+
+                if(EasyPermissions.hasPermissions(MainActivity.this,perms)) {
+                    autoConnectService.startBluetoothSearch();
+                } else {
+                    EasyPermissions.requestPermissions(MainActivity.this,
+                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
+                }
+
             }
         }
 
@@ -168,7 +191,11 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
-                if(autoConnectService != null && autoConnectService.isCommunicatingWithDevice()) {
+                if(autoConnectService != null
+                        && autoConnectService.isCommunicatingWithDevice()
+                        && dashboardCar != null
+                        && dashboardCar.getScanner()
+                        .equals(autoConnectService.getCurrentDeviceId())) {
                     updateConnectedCarIndicator(true);
                 } else {
                     updateConnectedCarIndicator(false);
@@ -196,9 +223,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         application = (ParseApplication) getApplicationContext();
         splashScreenIntent =getIntent();
 
-        carAdapter = new CarAdapter(this);
-        carIssueAdapter = new CarIssueAdapter(this);
-        dealershipAdapter = new DealershipAdapter(this);
+        carAdapter = new LocalCarAdapter(this);
+        carIssueAdapter = new LocalCarIssueAdapter(this);
+        dealershipAdapter = new LocalDealershipAdapter(this);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -206,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         setSupportActionBar(toolbar);
 
         setUpUIReferences();
-        //getCarDetails();
 
         try {
             application.getMixpanelAPI().track("View Appeared",
@@ -228,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         int id = item.getItemId();
 
         if(id == R.id.refresh_main) {
-            refreshUi();
+            refreshFromServer();
         } else if(id == R.id.add) {
             startAddCarActivity(dashboardCar!=null);
         } else if(id == R.id.action_settings) {
@@ -264,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                 && splashScreenIntent.getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
             Log.i(TAG, "refresh from login");
             splashScreenIntent = null;
-            refreshUi();
+            refreshFromServer();
         }
 
         indicatorHandler.postDelayed(runnable, 1000);
@@ -274,30 +300,39 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
 
-        boolean shouldRefresh = data.getBooleanExtra(REFRESH_LOCAL,false);
+        boolean shouldRefreshFromServer = false;
+        if(data != null) {
+            shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
+        }
 
         if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
 
-            if(shouldRefresh) {
-                refreshUi();
+            if(shouldRefreshFromServer) {
+                refreshFromServer();
             } else {
                 dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
             }
         } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
-            if(shouldRefresh) {
-                refreshUi();
+            if(shouldRefreshFromServer) {
+                refreshFromServer();
             }
         } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
-            if(shouldRefresh) {
-                refreshUi();
+            boolean refreshFromLocal = data.getBooleanExtra(REFRESH_FROM_LOCAL,false);
+            if(shouldRefreshFromServer) {
+                refreshFromServer();
+            } else if(refreshFromLocal) {
+                refreshFromLocal();
             }
         } else if(requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
-            if(shouldRefresh) {
-                refreshUi();
+            if(shouldRefreshFromServer) {
+                refreshFromServer();
             }
-        }
+        } else if(requestCode == RC_ENABLE_BT && resultCode == RC_ENABLE_BT) {
+            autoConnectService.startBluetoothSearch();
 
-        super.onActivityResult(requestCode, resultCode, data);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
@@ -443,11 +478,21 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
 
     private void hideLoading() {
         progressDialog.dismiss();
-        mainView.setVisibility(View.VISIBLE);
         isLoading = false;
+
+        if(isFinishing()) {
+            return;
+        }
+
+        mainView.setVisibility(View.VISIBLE);
+
     }
 
     private void showLoading(String text) {
+        if(isFinishing()) {
+            return;
+        }
+
         isLoading = true;
 
         progressDialog.setMessage(text);
@@ -531,6 +576,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     }
 
     public void requestMultiService(View view) {
+
         try {
             application.getMixpanelAPI().track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'MainActivity'}"));
@@ -756,7 +802,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if(loginPackageInfo.flag.
-                equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
+                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             Log.i(TAG, "Device logout");
         }
     }
@@ -805,7 +851,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Parse objects count (getIssues()): " + objects.size());
 
                     List<CarIssue> issues = CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId());
@@ -832,11 +877,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Parse objects count (getDTCs()): " + objects.size());
 
                     List<CarIssue> dtcs = CarIssue.createCarIssues(objects, issueType,
                             dashboardCar.getParseId());
-                    Log.i(TAG, "DTC count: "+ dtcs.size());
                     dashboardCar.getIssues().addAll(dtcs);
                     // Store in local
                     carIssueAdapter.storeCarIssues(dtcs);
@@ -886,7 +929,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                                 @Override
                                 public void done(List<ParseObject> objects, ParseException e) {
                                     if(e == null) {
-                                        Log.i(TAG, "Parse objects count (getRecalls()): " + objects.size());
 
                                         List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
                                                 dashboardCar.getParseId());
@@ -1011,7 +1053,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
                         }
 
                         // TODO check
-                        refreshUi();
+                        refreshFromServer();
                     } else {
                         Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
                                 Toast.LENGTH_SHORT).show();
@@ -1055,10 +1097,15 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         }
     }
 
-    private void refreshUi() {
+    private void refreshFromServer() {
         carIssueList.clear();
         carAdapter.deleteAllCars();
         carIssueAdapter.deleteAllCarIssues();
+        getCarDetails();
+    }
+
+    private void refreshFromLocal() {
+        carIssueList.clear();
         getCarDetails();
     }
 
@@ -1092,6 +1139,27 @@ public class MainActivity extends AppCompatActivity implements BluetoothManage.B
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, String[] permissions,
+                                            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        if(autoConnectService != null) {
+            autoConnectService.startBluetoothSearch();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+
     }
 
     /**

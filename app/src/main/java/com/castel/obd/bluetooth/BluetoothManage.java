@@ -26,6 +26,7 @@ import com.castel.obd.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class BluetoothManage {
 	private final String BT_NAME = "IDD-212";// �������
 
@@ -193,7 +194,7 @@ public class BluetoothManage {
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
 				if(device.getName()!=null && device.getName().contains(BT_NAME)) {
-					Log.i(DTAG, "Connected to devce: " + device.getName());
+					Log.i(DTAG, "Connected to device: " + device.getName());
 					btConnectionState = CONNECTED;
 					LogUtil.i("Bluetooth state:CONNECTED");
 					dataListener.getBluetoothState(btConnectionState);

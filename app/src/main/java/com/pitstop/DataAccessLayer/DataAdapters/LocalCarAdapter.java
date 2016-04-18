@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class CarAdapter {
+public class LocalCarAdapter {
 
     // CAR table create statement
     public static final String CREATE_TABLE_CAR = "CREATE TABLE IF NOT EXISTS "
@@ -38,7 +38,7 @@ public class CarAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public CarAdapter(Context context) {
+    public LocalCarAdapter(Context context) {
         databaseHelper = new LocalDatabaseHelper(context);
     }
 
@@ -87,29 +87,31 @@ public class CarAdapter {
 
         if(c.moveToFirst()) {
             while(!c.isAfterLast()) {
-                Car car = new Car();
-                car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-                car.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
-
-                car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
-                car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
-                car.setYear(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR)));
-                car.setTotalMileage(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
-                car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
-                car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
-                car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
-                car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
-                car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_OWNER_ID)));
-                car.setShopId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_DEALERSHIP_ID)));
-                car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
-                car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
-
-                cars.add(car);
+                cars.add(cursorToCar(c));
                 c.moveToNext();
             }
         }
         db.close();
         return cars;
+    }
+
+    /**
+     * Get car by parse id
+     */
+
+    public Car getCar(String parseId) {
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR.TABLE_NAME,null,
+                TABLES.COMMON.KEY_PARSE_ID+"=?", new String[] {parseId},null,null,null);
+        Car car = null;
+        if(c.moveToFirst()) {
+            car = cursorToCar(c);
+        }
+
+        db.close();
+        return car;
     }
 
     /**
@@ -149,10 +151,30 @@ public class CarAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Car car : carEntries) {
-            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
+            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID +"=?",
                     new String[] { String.valueOf(car.getId()) });
         }
 
         db.close();
+    }
+
+    private Car cursorToCar(Cursor c) {
+        Car car = new Car();
+        car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
+        car.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+
+        car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
+        car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
+        car.setYear(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR)));
+        car.setTotalMileage(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
+        car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
+        car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
+        car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
+        car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
+        car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_OWNER_ID)));
+        car.setShopId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_DEALERSHIP_ID)));
+        car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
+        car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
+        return car;
     }
 }

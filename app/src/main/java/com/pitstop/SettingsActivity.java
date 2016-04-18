@@ -31,12 +31,12 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
     private ArrayList<String> dealers = new ArrayList<>();
 
     private Car dashboardCar;
-    private boolean updatePerformed = false;
+    private boolean localUpdatePerformed = false;
 
     private List<Car> carList = new ArrayList<>();
     @Override
@@ -64,8 +64,8 @@ public class SettingsActivity extends AppCompatActivity {
         SettingsFragment settingsFragment =  new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
             @Override
-            public void updatePerformed() {
-                updatePerformed = true;
+            public void localUpdatePerformed() {
+                localUpdatePerformed = true;
             }
         });
 
@@ -130,7 +130,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_LOCAL, updatePerformed);
+        intent.putExtra(MainActivity.REFRESH_FROM_LOCAL, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK,intent);
         super.finish();
     }
@@ -138,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragment {
 
         public interface OnInfoUpdated {
-            public void updatePerformed();
+            void localUpdatePerformed();
         }
 
         private OnInfoUpdated listener;
@@ -152,6 +152,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private ParseApplication application;
         private Car mainCar;
+        private LocalCarAdapter localCarAdapter;
 
         public SettingsFragment() {}
 
@@ -162,6 +163,8 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            localCarAdapter = new LocalCarAdapter(getActivity().getApplicationContext());
 
             Bundle bundle = getArguments();
             preferenceList = new ArrayList<>();
@@ -224,11 +227,18 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public boolean onPreferenceChange(Preference preference, Object newValue) {
                                 final String shopSelected = (String) newValue;
-                                /*LocalDataRetriever ldr = new LocalDataRetriever(getActivity());
-                                HashMap<String, String> hm = new HashMap<String, String>();
-                                hm.put("dealership", shopSelected);
-                                ldr.updateData("Cars", "CarID", ids.get(index), hm);*/
-                                //updateParse
+
+                                // Update car in local database
+                                Car itemCar = localCarAdapter.getCar(ids.get(index));
+                                itemCar.setShopId(shopSelected);
+                                int result = localCarAdapter.updateCar(itemCar);
+
+                                if(result != 0) {
+                                    // Car shop was updated
+                                    listener.localUpdatePerformed();
+                                }
+
+                                // Update car on server
                                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
                                 query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
                                     public void done(ParseObject car, ParseException e) {
@@ -236,14 +246,7 @@ public class SettingsActivity extends AppCompatActivity {
                                             // Now let's update it with some new data. In this case, only cheatMode and score
                                             // will get sent to the Parse Cloud. playerName hasn't changed.
                                             car.put("dealership", shopSelected);
-                                            car.saveInBackground(new SaveCallback() {
-                                                @Override
-                                                public void done(ParseException e) {
-                                                    if(e == null) {
-                                                        listener.updatePerformed();
-                                                    }
-                                                }
-                                            });
+                                            car.saveInBackground();
                                         }
                                     }
                                 });
@@ -385,7 +388,7 @@ public class SettingsActivity extends AppCompatActivity {
                 public void done(ParseException e) {
                     if (e == null) {
                         namePreference.setTitle(updatedName);
-                        listener.updatePerformed();
+                        //listener.localUpdatePerformed(); // UserName update
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -422,6 +425,20 @@ public class SettingsActivity extends AppCompatActivity {
                         return;
                     }
 
+                    // Update car on local database
+                    formerDashboardCar.setCurrentCar(false);
+                    int result1 = localCarAdapter.updateCar(formerDashboardCar);
+
+                    newDashboardCar.setCurrentCar(true);
+                    int result2 = localCarAdapter.updateCar(newDashboardCar);
+
+                    if(result1 == 1 && result2 == 1) {
+                        mainCar = newDashboardCar;
+                        mainPreference.setTitle(mainCar.getMake()
+                                +" "+mainCar.getModel());
+                        listener.localUpdatePerformed();
+                    }
+
                     final ParseQuery query = new ParseQuery("Car");
                     query.whereEqualTo("VIN", newDashboardCar.getVin());
                     query.findInBackground(new FindCallback<ParseObject>() {
@@ -429,15 +446,7 @@ public class SettingsActivity extends AppCompatActivity {
                         public void done(List<ParseObject> objects, ParseException e) {
                             if (e == null) {
                                 objects.get(0).put("currentCar", true);
-                                objects.get(0).saveEventually(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        mainCar = newDashboardCar;
-                                        mainPreference.setTitle(mainCar.getMake()
-                                                +" "+mainCar.getModel());
-                                        listener.updatePerformed();
-                                    }
-                                });
+                                objects.get(0).saveEventually();
 
                                 //update the car object
                                 ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
