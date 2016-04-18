@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -420,6 +421,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     public void searchForCar(View view) {
         Log.i(MainActivity.TAG,"Searching for car");
+
+        // Hide keyboard
+        View v = getCurrentFocus();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
+
         String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
