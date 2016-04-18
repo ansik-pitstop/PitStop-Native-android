@@ -42,6 +42,7 @@ public class SplashScreen extends AppCompatActivity {
     final static String pfCodeForID = "com.pitstop.login.id";
     final static String pfCodeForPassword = "com.pitstop.login.passwd";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
+    public static String ACTIVITY_NAME = "splash_screen";
 
     public static String LOGIN_REFRESH = "login_refresh";
 
@@ -107,6 +108,7 @@ public class SplashScreen extends AppCompatActivity {
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra(LOGIN_REFRESH, true);
+                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
                     startActivity(intent);
                 }
             };
@@ -331,6 +333,7 @@ public class SplashScreen extends AppCompatActivity {
                     ParseApplication.setUpMixPanel();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra(LOGIN_REFRESH, true);
+                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
 
                     hideLoading();
                     startActivity(intent);

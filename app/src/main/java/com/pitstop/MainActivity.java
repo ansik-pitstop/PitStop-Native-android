@@ -61,6 +61,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.ToolbarActionItemTarget;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,6 +79,9 @@ import java.util.Locale;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 import pub.devrel.easypermissions.EasyPermissions;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
         EasyPermissions.PermissionCallbacks {
@@ -89,9 +93,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private static final int RC_LOCATION_PERM = 101;
     public static final int RC_ENABLE_BT= 102;
+    public static final int RESULT_OK = 60;
 
-
-    public static int RESULT_OK = 60;
+    private static final String SHOWCASE_ID = "main_activity_sequence_01";
 
 
     public ArrayList<DBModel> array;
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static String HAS_CAR_IN_DASHBOARD = "has_car";
     public static String REFRESH_FROM_SERVER = "_server";
     public static String REFRESH_FROM_LOCAL = "_local";
+    public static String FROM_ACTIVITY = "from_activity";
 
     private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -121,7 +126,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private RelativeLayout mainView;
     private RelativeLayout connectedCarIndicator;
     private RelativeLayout serviceCountBackground;
+    private RelativeLayout dealershipLayout;
     private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
+    private Toolbar toolbar;
     private TextView serviceCountText;
 
     private TextView carName, dealershipName;
@@ -286,11 +293,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onResume");
 
+        Intent intent = getIntent();
+
         if(splashScreenIntent != null
                 && splashScreenIntent.getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
             Log.i(TAG, "refresh from login");
             splashScreenIntent = null;
             refreshFromServer();
+        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(intent.getStringExtra(FROM_ACTIVITY))) {
+            refreshFromLocal();
         }
 
         indicatorHandler.postDelayed(runnable, 1000);
@@ -300,32 +311,39 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
 
-        boolean shouldRefreshFromServer = false;
         if(data != null) {
-            shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
-        }
+            boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
 
-        if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
+            if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
 
-            if(shouldRefreshFromServer) {
-                refreshFromServer();
-            } else {
-                dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
-            }
-        } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
-            if(shouldRefreshFromServer) {
-                refreshFromServer();
-            }
-        } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
-            boolean refreshFromLocal = data.getBooleanExtra(REFRESH_FROM_LOCAL,false);
-            if(shouldRefreshFromServer) {
-                refreshFromServer();
-            } else if(refreshFromLocal) {
-                refreshFromLocal();
-            }
-        } else if(requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
-            if(shouldRefreshFromServer) {
-                refreshFromServer();
+                if(shouldRefreshFromServer) {
+                    refreshFromServer();
+                    toolbar.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(!isLoading) {
+                                presentShowcaseSequence();
+                            }
+                        }
+                    },2500);
+                } else {
+                    dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
+                }
+            } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
+                if(shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
+            } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
+                boolean refreshFromLocal = data.getBooleanExtra(REFRESH_FROM_LOCAL,false);
+                if(shouldRefreshFromServer) {
+                    refreshFromServer();
+                } else if(refreshFromLocal) {
+                    refreshFromLocal();
+                }
+            } else if(requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
+                if(shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
             }
         } else if(requestCode == RC_ENABLE_BT && resultCode == RC_ENABLE_BT) {
             autoConnectService.startBluetoothSearch();
@@ -367,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void setUpUIReferences() {
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.car_issues_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
@@ -383,6 +402,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         serviceCountBackground = (RelativeLayout) findViewById(R.id.service_count_background);
+        dealershipLayout = (RelativeLayout) findViewById(R.id.dealership_info_layout);
 
         carScan = (Button) findViewById(R.id.car_scan_btn);
         carScan.setOnClickListener(new View.OnClickListener() {
@@ -398,7 +418,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
                 intent.putExtra(CAR_EXTRA,dashboardCar);
 
-                startActivityForResult(intent, RC_SCAN_CAR);
+                //startActivityForResult(intent, RC_SCAN_CAR);
+                MaterialShowcaseView.resetSingleUse(MainActivity.this, SHOWCASE_ID);
             }
         });
 
@@ -1159,6 +1180,55 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
+
+    }
+
+
+    /**
+     * Tutorial
+     */
+    private void presentShowcaseSequence() {
+
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView itemView, int position) {
+            }
+        });
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(toolbar.findViewById(R.id.add),
+                "Click here to add a new car", "GOT IT");
+
+        sequence.addSequenceItem(carScan, "Click to scan car for issues", "GOT IT");
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(dealershipLayout)
+                        .setDismissText("GOT IT")
+                        .setContentText("Your Dealership. Feel free to click these to " +
+                                "message/call/get directions to your dealership. " +
+                                "You can edit this in your settings.")
+                        .withRectangleShape(true)
+                        .build()
+        );
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(recyclerView)
+                        .setDismissText("GOT IT")
+                        .setContentText("If there are any issues that have been fixed, " +
+                                "please swipe the issue card to indicate when the issue was fixed.")
+                        .withRectangleShape(true)
+                        .build()
+        );
+
+        sequence.start();
 
     }
 

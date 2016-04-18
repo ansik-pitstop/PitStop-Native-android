@@ -38,6 +38,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private ParseApplication application;
 
     public static String SELECTED_DEALERSHIP = "selected_dealership";
+    public static String ACTIVITY_NAME = "select_dealership";
     public static int RESULT_OK = 103;
     public static int RC_DEALERSHIP = 104;
 
@@ -92,7 +93,10 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
-            startActivity(new Intent(this, MainActivity.class));
+
+            Intent mainActivity = new Intent(this, MainActivity.class);
+            mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+            startActivity(mainActivity);
 
         } else if(ParseUser.getCurrentUser() != null) {
 

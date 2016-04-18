@@ -30,8 +30,10 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
@@ -153,6 +155,7 @@ public class SettingsActivity extends AppCompatActivity {
         private ParseApplication application;
         private Car mainCar;
         private LocalCarAdapter localCarAdapter;
+        private LocalDealershipAdapter shopAdapter;
 
         public SettingsFragment() {}
 
@@ -165,6 +168,7 @@ public class SettingsActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
 
             localCarAdapter = new LocalCarAdapter(getActivity().getApplicationContext());
+            shopAdapter = new LocalDealershipAdapter(getActivity().getApplicationContext());
 
             Bundle bundle = getArguments();
             preferenceList = new ArrayList<>();
@@ -202,63 +206,83 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if (e != null) {
-                        return;
+            List<Dealership> dealerships = shopAdapter.getAllDealerships();
+            final List<String> shops = new ArrayList<String>(), shopIds = new ArrayList<String>();
+
+            // Try local store for dealerships
+            if(dealerships.isEmpty()) {
+                Log.i(TAG, "Local store has no dealerships");
+
+                ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e != null) {
+                            return;
+                        }
+
+                        for (ParseObject object : objects) {
+                            shops.add(object.getString("name"));
+                            shopIds.add(object.getObjectId());
+                        }
+
+                        setUpCarListPreference(shops, shopIds);
                     }
-                    ArrayList<String> shops = new ArrayList<String>(), shopIds = new ArrayList<String>();
-                    for (ParseObject object : objects) {
-                        shops.add(object.getString("name"));
-                        shopIds.add(object.getObjectId());
-                    }
+                });
+            } else {
+                for (Dealership shop : dealerships) {
+                    shops.add(shop.getName());
+                    shopIds.add(shop.getParseId());
+                }
 
-                    for (int i = 0; i < cars.size(); i++) {
-                        ListPreference listPreference = new ListPreference(getActivity());
-                        listPreference.setTitle(cars.get(i));
-                        listPreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
-                        listPreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
-                        listPreference.setValue(dealers.get(i));
-                        listPreference.setDialogTitle("Choose Shop for: " + cars.get(i));
-                        final int index = i;
-                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                            @Override
-                            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                                final String shopSelected = (String) newValue;
+                setUpCarListPreference(shops, shopIds);
+            }
 
-                                // Update car in local database
-                                Car itemCar = localCarAdapter.getCar(ids.get(index));
-                                itemCar.setShopId(shopSelected);
-                                int result = localCarAdapter.updateCar(itemCar);
+        }
 
-                                if(result != 0) {
-                                    // Car shop was updated
-                                    listener.localUpdatePerformed();
+        private void setUpCarListPreference(List<String> shops, List<String> shopIds) {
+            for (int i = 0; i < cars.size(); i++) {
+                ListPreference listPreference = new ListPreference(getActivity());
+                listPreference.setTitle(cars.get(i));
+                listPreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
+                listPreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+                listPreference.setValue(dealers.get(i));
+                listPreference.setDialogTitle("Choose Shop for: " + cars.get(i));
+                final int index = i;
+                listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        final String shopSelected = (String) newValue;
+
+                        // Update car in local database
+                        Car itemCar = localCarAdapter.getCar(ids.get(index));
+                        itemCar.setShopId(shopSelected);
+                        int result = localCarAdapter.updateCar(itemCar);
+
+                        if(result != 0) {
+                            // Car shop was updated
+                            listener.localUpdatePerformed();
+                        }
+
+                        // Update car on server
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                        query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
+                            public void done(ParseObject car, ParseException e) {
+                                if (e == null) {
+                                    // Now let's update it with some new data. In this case, only cheatMode and score
+                                    // will get sent to the Parse Cloud. playerName hasn't changed.
+                                    car.put("dealership", shopSelected);
+                                    car.saveInBackground();
                                 }
-
-                                // Update car on server
-                                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                                query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
-                                    public void done(ParseObject car, ParseException e) {
-                                        if (e == null) {
-                                            // Now let's update it with some new data. In this case, only cheatMode and score
-                                            // will get sent to the Parse Cloud. playerName hasn't changed.
-                                            car.put("dealership", shopSelected);
-                                            car.saveInBackground();
-                                        }
-                                    }
-                                });
-                                return true;
                             }
                         });
-                        ((PreferenceCategory) getPreferenceManager()
-                                .findPreference(getString(R.string.pref_vehicles)))
-                                .addPreference(listPreference);
+                        return true;
                     }
-                }
-            });
+                });
+                ((PreferenceCategory) getPreferenceManager()
+                        .findPreference(getString(R.string.pref_vehicles)))
+                        .addPreference(listPreference);
+            }
         }
 
         @Override
