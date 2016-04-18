@@ -418,8 +418,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
                 intent.putExtra(CAR_EXTRA,dashboardCar);
 
-                //startActivityForResult(intent, RC_SCAN_CAR);
-                MaterialShowcaseView.resetSingleUse(MainActivity.this, SHOWCASE_ID);
+                startActivityForResult(intent, RC_SCAN_CAR);
+                //MaterialShowcaseView.resetSingleUse(MainActivity.this, SHOWCASE_ID);
             }
         });
 
