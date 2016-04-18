@@ -753,6 +753,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         setDashboardCar(carList);
                         carAdapter.storeCars(carList);
                         setCarDetailsUI();
+                        toolbar.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                presentShowcaseSequence();
+                            }
+                        }, 700);
 
                     } else {
                         if (isLoading) {
@@ -1202,16 +1208,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         sequence.setConfig(config);
 
-        sequence.addSequenceItem(toolbar.findViewById(R.id.add),
+        sequence.addSequenceItem(toolbar.findViewById(R.id.add), "Add Car",
                 "Click here to add a new car", "GOT IT");
 
-        sequence.addSequenceItem(carScan, "Click to scan car for issues", "GOT IT");
+        sequence.addSequenceItem(carScan, "Scan Car","Click to scan car for issues", "GOT IT");
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(dealershipLayout)
                         .setDismissText("GOT IT")
-                        .setContentText("Your Dealership. Feel free to click these to " +
+                        .setTitleText("Your Dealership")
+                        .setContentText("Feel free to click these to " +
                                 "message/call/get directions to your dealership. " +
                                 "You can edit this in your settings.")
                         .withRectangleShape(true)
@@ -1222,6 +1229,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(recyclerView)
                         .setDismissText("GOT IT")
+                        .setTitleText("Car Issues")
                         .setContentText("If there are any issues that have been fixed, " +
                                 "please swipe the issue card to indicate when the issue was fixed.")
                         .withRectangleShape(true)

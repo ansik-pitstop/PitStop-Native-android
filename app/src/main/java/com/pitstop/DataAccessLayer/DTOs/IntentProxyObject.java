@@ -10,6 +10,9 @@ import java.util.List;
 public class IntentProxyObject implements Serializable {
     private List<Car> carList = new ArrayList<>();
 
+    public IntentProxyObject() {
+    }
+
     public List<Car> getCarList() {
         return carList;
     }

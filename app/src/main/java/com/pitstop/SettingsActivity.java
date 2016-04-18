@@ -39,6 +39,7 @@ import com.pitstop.parse.ParseApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,16 +53,16 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Car dashboardCar;
     private boolean localUpdatePerformed = false;
-
+    private LocalCarAdapter localCarAdapter;
     private List<Car> carList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_settings);
 
-        if(getIntent().getExtras()!=null) {
-            populateCarNamesAndIdList();
-        }
+        localCarAdapter = new LocalCarAdapter(this);
+        populateCarNamesAndIdList();
 
         SettingsFragment settingsFragment =  new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
@@ -71,15 +72,15 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        IntentProxyObject carListProxyObject = (IntentProxyObject) getIntent()
-                .getSerializableExtra(MainActivity.CAR_LIST_EXTRA);
-
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("cars", cars);
         bundle.putStringArrayList("ids", ids);
         bundle.putStringArrayList("dealers",dealers);
         bundle.putSerializable("mainCar",dashboardCar);
-        bundle.putSerializable("carList", carListProxyObject);
+
+        IntentProxyObject intentProxyObject = new IntentProxyObject();
+        intentProxyObject.setCarList(carList);
+        bundle.putSerializable("carList", intentProxyObject);
 
         settingsFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -87,9 +88,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void populateCarNamesAndIdList() {
-        IntentProxyObject proxyObject = (IntentProxyObject) getIntent()
-                .getSerializableExtra(MainActivity.CAR_LIST_EXTRA);
-        carList = proxyObject.getCarList();
+        carList = localCarAdapter.getAllCars();
 
         for(Car car : carList) {
             if(car.isCurrentCar()) {
@@ -180,6 +179,8 @@ public class SettingsActivity extends AppCompatActivity {
             IntentProxyObject listObject = (IntentProxyObject) bundle.getSerializable("carList");
             if(listObject != null) {
                 carList = listObject.getCarList();
+            } else {
+                carList = localCarAdapter.getAllCars();
             }
 
             listAdapter = new CarListAdapter(carList);
@@ -221,6 +222,8 @@ public class SettingsActivity extends AppCompatActivity {
                             return;
                         }
 
+
+                        shopAdapter.storeDealerships(Dealership.createDealershipList(objects));
                         for (ParseObject object : objects) {
                             shops.add(object.getString("name"));
                             shopIds.add(object.getObjectId());
