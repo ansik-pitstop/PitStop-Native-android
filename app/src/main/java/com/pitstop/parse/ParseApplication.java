@@ -22,6 +22,8 @@ import io.smooch.core.Smooch;
  */
 public class ParseApplication extends Application {
 
+    private static String TAG = "ParseApplication";
+
     private static MixpanelAPI mixpanelAPI;
     @Override
     public void onCreate() {
@@ -75,11 +77,11 @@ public class ParseApplication extends Application {
             appStart = checkAppStart(currentVersionCode, lastVersionCode);
             // Update version in preferences
             sharedPreferences.edit()
-                    .putInt(LAST_APP_VERSION, currentVersionCode).commit();
+                    .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException e) {
-            Log.w(Constants.LOG,
-                    "Unable to determine current app version from pacakge manager." +
-                            " Defenisvely assuming normal app start.");
+            Log.i(TAG,
+                    "Unable to determine current app version from package manager." +
+                            " Defensively assuming normal app start.");
         }
         return appStart;
     }
@@ -91,10 +93,10 @@ public class ParseApplication extends Application {
         } else if (lastVersionCode < currentVersionCode) {
             return AppStart.FIRST_TIME_VERSION;
         } else if (lastVersionCode > currentVersionCode) {
-            Log.w(Constants.LOG, "Current version code (" + currentVersionCode
+            Log.i(TAG, "Current version code (" + currentVersionCode
                     + ") is less then the one recognized on last startup ("
                     + lastVersionCode
-                    + "). Defenisvely assuming normal app start.");
+                    + "). Defensively assuming normal app start.");
             return AppStart.NORMAL;
         } else {
             return AppStart.NORMAL;
