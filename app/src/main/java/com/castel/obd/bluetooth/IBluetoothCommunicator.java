@@ -23,5 +23,6 @@ public interface IBluetoothCommunicator {
     void obdSetParameter(String tlvTagList, String valueList);
     void obdGetParameter(String tlvTag);
     void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener);
+    boolean hasDiscoveredServices();
     void close();
 }

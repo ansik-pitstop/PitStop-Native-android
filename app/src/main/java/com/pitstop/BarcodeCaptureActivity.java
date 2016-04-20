@@ -98,8 +98,8 @@ public class BarcodeCaptureActivity extends Activity
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        /*Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG).show();*/
+        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
+                Snackbar.LENGTH_LONG).show();
 
         try {
             application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'BarcodeCaptureActivity'}"));

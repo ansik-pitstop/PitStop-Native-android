@@ -287,6 +287,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
         }
+        servicesHandler.removeCallbacks(servicesRunnable);
         super.onPause();
     }
 
@@ -438,6 +439,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 return;
             }
 
+            if(!autoConnectService.hasDiscoveredServices()) {
+                showLoading("Discovering services...");
+                servicesHandler.post(servicesRunnable);
+                return;
+            }
+
             if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
                 Log.i(MainActivity.TAG, "Mileage is present");
                 mileage = mileageEditText.getText().toString();
@@ -532,6 +539,28 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         });
         alertDialog.show();
     }
+
+    private Handler servicesHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0) {
+                hideLoading();
+                abstractButton.performClick();
+            }
+        }
+    };
+
+    private Runnable servicesRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(autoConnectService!=null && !autoConnectService.hasDiscoveredServices()) {
+                servicesHandler.postDelayed(servicesRunnable,500);
+            } else {
+                servicesHandler.sendEmptyMessage(0);
+                servicesHandler.removeCallbacks(servicesRunnable);
+            }
+        }
+    };
     /**
      *  Car search timer handler
      */
@@ -707,6 +736,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             Log.i(MainActivity.TAG,"VIN response received");
             isSearching = false;
             isGettingVin = false;
+            scannerID = parameterPackageInfo.deviceId;
             LogUtil.i("parameterPackage.size():"
                     + parameterPackageInfo.value.size());
 
@@ -723,6 +753,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 Log.i(MainActivity.TAG,"VIN is valid");
                 vinEditText.setText(VIN);
                 showLoading("Loaded car VIN");
+                makeCar();
 
             } else {
                 // same as in manual input plus vin hint
@@ -732,9 +763,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 showManualEntryUI();
                 vinHint.setVisibility(View.VISIBLE);
             }
-            scannerID = parameterPackageInfo.deviceId;
+
             Log.i(MainActivity.TAG,"Calling make car--- getParameter()");
-            makeCar();
+
         }
     }
 

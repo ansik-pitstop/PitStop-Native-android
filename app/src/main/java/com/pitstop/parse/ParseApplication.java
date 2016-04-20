@@ -1,6 +1,11 @@
 package com.pitstop.parse;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
+import android.provider.SyncStateContract;
 import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -46,4 +51,54 @@ public class ParseApplication extends Application {
         }
         return mixpanelAPI;
     }
+
+    public enum AppStart {
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+    }
+
+    /**
+     * The app version code (not the version name!) that was used on the last
+     * start of the app.
+     */
+    private static final String LAST_APP_VERSION = "last_app_version";
+
+    public AppStart checkAppStart() {
+        PackageInfo pInfo;
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        AppStart appStart = AppStart.NORMAL;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            int lastVersionCode = sharedPreferences
+                    .getInt(LAST_APP_VERSION, -1);
+            int currentVersionCode = pInfo.versionCode;
+            appStart = checkAppStart(currentVersionCode, lastVersionCode);
+            // Update version in preferences
+            sharedPreferences.edit()
+                    .putInt(LAST_APP_VERSION, currentVersionCode).commit();
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w(Constants.LOG,
+                    "Unable to determine current app version from pacakge manager." +
+                            " Defenisvely assuming normal app start.");
+        }
+        return appStart;
+    }
+
+
+    public AppStart checkAppStart(int currentVersionCode, int lastVersionCode) {
+        if (lastVersionCode == -1) {
+            return AppStart.FIRST_TIME;
+        } else if (lastVersionCode < currentVersionCode) {
+            return AppStart.FIRST_TIME_VERSION;
+        } else if (lastVersionCode > currentVersionCode) {
+            Log.w(Constants.LOG, "Current version code (" + currentVersionCode
+                    + ") is less then the one recognized on last startup ("
+                    + lastVersionCode
+                    + "). Defenisvely assuming normal app start.");
+            return AppStart.NORMAL;
+        } else {
+            return AppStart.NORMAL;
+        }
+    }
+
 }

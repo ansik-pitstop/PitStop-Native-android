@@ -149,10 +149,8 @@ public class ObdManager {
      */
     public void receiveDataAndParse(String receivedPayload) {
 
-        LogUtil.i("isParse:" + isParse);
         isParse = true;
         String info = OBD.getIOData(receivedPayload);
-        LogUtil.i("isParse:" + isParse);
         isParse = false;
 
         info = info.replace("obdData\":]","obdData\":[]");

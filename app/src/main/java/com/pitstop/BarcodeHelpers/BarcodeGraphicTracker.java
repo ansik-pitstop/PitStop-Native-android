@@ -30,14 +30,14 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
-        if(ActivitySource.caller!=null && item!=null && item.displayValue!= null &&
+        /*if(ActivitySource.caller!=null && item!=null && item.displayValue!= null &&
                 item.displayValue.length()==17) {
             Intent data = new Intent();
             data.putExtra(BarcodeCaptureActivity.BarcodeObject,item);
             ActivitySource.caller.setResult(CommonStatusCodes.SUCCESS, data);
             ActivitySource.caller.finish();
             ActivitySource.caller =null;
-        }
+        }*/
     }
 
     /**

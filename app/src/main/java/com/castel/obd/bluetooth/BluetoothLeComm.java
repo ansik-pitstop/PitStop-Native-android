@@ -29,8 +29,12 @@ import com.castel.obd.util.Utils;
 import com.pitstop.MainActivity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Paul Soladoye on 12/04/2016.
@@ -58,6 +62,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private Context mContext;
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager mObdManager;
+    private final LinkedList<BluetoothCommand> mCommandQueue = new LinkedList<>();
+    //Command Operation executor - will only run one at a time
+    Executor mCommandExecutor = Executors.newSingleThreadExecutor();
+    //Semaphore lock to coordinate command executions, to ensure only one is
+    //currently started and waiting on a response.
+    Semaphore mCommandLock = new Semaphore(1,true);
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
@@ -67,17 +77,18 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
     private boolean mIsScanning = false;
+    private boolean hasDiscoveredServices = false;
 
     private BluetoothGattService mainObdGattService;
 
 
-    private static final UUID OBD_IDD_212_MAIN_SERVICE =
+    public static final UUID OBD_IDD_212_MAIN_SERVICE =
             UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
-    private static final UUID OBD_READ_CHAR =
+    public static final UUID OBD_READ_CHAR =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
-    private static final UUID OBD_WRITE_CHAR =
+    public static final UUID OBD_WRITE_CHAR =
             UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
-    private static final UUID CONFIG_DESCRIPTOR =
+    public static final UUID CONFIG_DESCRIPTOR =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private int btConnectionState = DISCONNECTED;
@@ -110,6 +121,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         this.dataListener = dataListener;
         mObdManager.setDataListener(this.dataListener);
         mObdManager.setPassiveCommandListener(this);
+    }
+
+    @Override
+    public boolean hasDiscoveredServices() {
+        return hasDiscoveredServices;
     }
 
     @Override
@@ -180,12 +196,26 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         writeToObd(payload, -1);
     }
 
+    /**
+     * After using a given BLE device, the app must call this method to ensure resources are
+     * released properly.
+     */
+    @Override
+    public void close() {
+        if (mGatt == null) {
+            return;
+        }
+        mContext.unregisterReceiver(mGattUpdateReceiver);
+        mGatt.close();
+        mGatt = null;
+    }
+
 
     /**
      *
      *
      */
-    private synchronized void writeToObd(String payload, int type) {
+    private void writeToObd(String payload, int type) {
 
         byte[] bytes;
 
@@ -199,29 +229,30 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             return;
         }
 
+        Log.i(MainActivity.TAG, "btConnstate: "+btConnectionState + " mGatt value: "+ (mGatt!=null));
         if (btConnectionState == CONNECTED && mGatt != null ) {
-            Log.i(MainActivity.TAG, "Writing characteristic...");
-            BluetoothGattCharacteristic obdWriteCharacteristic =
-                    mainObdGattService.getCharacteristic(OBD_WRITE_CHAR);
-            obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            obdWriteCharacteristic.setValue(bytes);
-            mGatt.writeCharacteristic(obdWriteCharacteristic);
+            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
         }
     }
 
 
-    /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
-     */
-    @Override
-    public void close() {
-        if (mGatt == null) {
-            return;
+    private void queueCommand(BluetoothCommand command) {
+        synchronized (mCommandQueue) {
+            Log.i(MainActivity.TAG,"Queue command");
+            mCommandQueue.add(command);
+            //Schedule a new runnable to process that command (one command at a time executed only)
+            ExecuteCommandRunnable runnable = new ExecuteCommandRunnable(command, mGatt);
+            mCommandExecutor.execute(runnable);
         }
-        mContext.unregisterReceiver(mGattUpdateReceiver);
-        mGatt.close();
-        mGatt = null;
+    }
+
+
+    //Remove the current command from the queue, and release the lock
+    //signalling the next queued command (if any) that it can start
+    protected void dequeueCommand(){
+        Log.i(MainActivity.TAG, "dequeue command");
+        mCommandQueue.pop();
+        mCommandLock.release();
     }
 
     /**
@@ -426,9 +457,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 case BluetoothProfile.STATE_CONNECTED:
                 {
                     btConnectionState = CONNECTED;
+                    gatt.discoverServices();
                     BluetoothDevice device = gatt.getDevice();
                     OBDInfoSP.saveMacAddress(mContext, device.getAddress());
-                    gatt.discoverServices();
                     broadcastUpdate(ACTION_GATT_CONNECTED);
                     break;
                 }
@@ -463,7 +494,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 BluetoothGattCharacteristic obdReadCharacteristic =
                         mainObdGattService.getCharacteristic(OBD_READ_CHAR);
 
-                setNotificationOnCharacteristic(obdReadCharacteristic);
+                queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION));
+                hasDiscoveredServices = true;
 
             } else {
                 Log.i(MainActivity.TAG, "Error onServicesDiscovered received: " + status);
@@ -484,8 +516,14 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if(status == BluetoothGatt.GATT_SUCCESS) {
-            }
+            Log.i(MainActivity.TAG, "OnCharacteristicWrite " + status);
+            dequeueCommand();
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            Log.i(MainActivity.TAG, "Descriptor written");
+            dequeueCommand();
         }
     };
 
@@ -509,4 +547,25 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mGatt.writeDescriptor(descriptor);
         }
     }
+
+    //Runnable to execute a command from the queue
+    class ExecuteCommandRunnable implements Runnable{
+
+        private BluetoothCommand mCommand;
+        private BluetoothGatt mGatt;
+
+        public ExecuteCommandRunnable(BluetoothCommand command, BluetoothGatt gatt) {
+            mCommand = command;
+            mGatt = gatt;
+
+        }
+
+        @Override
+        public void run() {
+            //Acquire semaphore lock to ensure no other operations can run until this one completed
+            mCommandLock.acquireUninterruptibly();
+            //Tell the command to start itself.
+            mCommand.execute(mGatt);
+        }
+    };
 }

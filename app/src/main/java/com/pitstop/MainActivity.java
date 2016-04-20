@@ -307,6 +307,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         indicatorHandler.postDelayed(runnable, 1000);
     }
 
+
+    // TODO: Switch to fragments
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
@@ -318,14 +320,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
-                    toolbar.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(!isLoading) {
-                                presentShowcaseSequence();
-                            }
-                        }
-                    },2500);
                 } else {
                     dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
                 }
@@ -753,12 +747,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         setDashboardCar(carList);
                         carAdapter.storeCars(carList);
                         setCarDetailsUI();
-                        toolbar.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                presentShowcaseSequence();
-                            }
-                        }, 700);
 
                     } else {
                         if (isLoading) {
@@ -1208,19 +1196,35 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         sequence.setConfig(config);
 
-        sequence.addSequenceItem(toolbar.findViewById(R.id.add), "Add Car",
-                "Click here to add a new car", "GOT IT");
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(toolbar.findViewById(R.id.add))
+                        .setTitleText("Add Car")
+                        .setContentText("Click to add a new car")
+                        .setDismissText("GOT IT")
+                        .setDismissOnTouch(true)
+                        .build()
+        );
 
-        sequence.addSequenceItem(carScan, "Scan Car","Click to scan car for issues", "GOT IT");
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(carScan)
+                        .setTitleText("Scan Car")
+                        .setContentText("Click to scan car for issues")
+                        .setDismissText("GOT IT")
+                        .setDismissOnTouch(true)
+                        .build()
+        );
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(dealershipLayout)
-                        .setDismissText("GOT IT")
                         .setTitleText("Your Dealership")
                         .setContentText("Feel free to click these to " +
                                 "message/call/get directions to your dealership. " +
                                 "You can edit this in your settings.")
+                        .setDismissText("GOT IT")
+                        .setDismissOnTouch(true)
                         .withRectangleShape(true)
                         .build()
         );
@@ -1228,10 +1232,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(recyclerView)
-                        .setDismissText("GOT IT")
                         .setTitleText("Car Issues")
                         .setContentText("If there are any issues that have been fixed, " +
                                 "please swipe the issue card to indicate when the issue was fixed.")
+                        .setDismissText("GOT IT")
+                        .setDismissOnTouch(true)
                         .withRectangleShape(true)
                         .build()
         );

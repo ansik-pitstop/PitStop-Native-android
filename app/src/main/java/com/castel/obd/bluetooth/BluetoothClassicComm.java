@@ -57,6 +57,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     }
 
     @Override
+    public boolean hasDiscoveredServices() {
+        return true;
+    }
+
+    @Override
     public void startScan() {
         connectBluetooth();
     }

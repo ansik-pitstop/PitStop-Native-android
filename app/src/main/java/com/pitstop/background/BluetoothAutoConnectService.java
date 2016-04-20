@@ -474,6 +474,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return deviceConnState;
     }
 
+    public boolean hasDiscoveredServices() {
+        return bluetoothCommunicator.hasDiscoveredServices();
+    }
+
 
     /**
      * @return The device id of the currently connected obd device
@@ -562,7 +566,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public int getState() {
-        Log.i(MainActivity.TAG, "getting bluetooth state - auto-connect service");
         return bluetoothCommunicator.getState();
     }
 
