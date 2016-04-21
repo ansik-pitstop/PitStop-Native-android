@@ -35,17 +35,17 @@ public class WriteCommand extends BluetoothCommand {
                     mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_WRITE_CHAR);
             obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
-            Log.i(MainActivity.TAG, "Writing characteristic...");
+            Log.i("WriteCommandDebug", "Writing characteristic...");
             boolean result =  gatt.writeCharacteristic(obdWriteCharacteristic);
 
-            Log.i(MainActivity.TAG, "Write result "+result);
+            Log.i("WriteCommandDebug", "Write result "+result);
 
         } else if( type == WRITE_TYPE.NOTIFICATION) {
 
             BluetoothGattCharacteristic obdReadCharacteristic =
                     mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_READ_CHAR);
 
-            Log.i(MainActivity.TAG, "Setting notification on: " + obdReadCharacteristic.getUuid());
+            Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 
             // Enable local notification
             gatt.setCharacteristicNotification(obdReadCharacteristic, true);
@@ -53,10 +53,10 @@ public class WriteCommand extends BluetoothCommand {
             // Enable remote notification
             BluetoothGattDescriptor descriptor =
                     obdReadCharacteristic.getDescriptor(BluetoothLeComm.CONFIG_DESCRIPTOR);
-            Log.i(MainActivity.TAG, "descriptor: " + descriptor.getUuid());
+            Log.i("WriteCommandDebug", "descriptor: " + descriptor.getUuid());
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             boolean result = gatt.writeDescriptor(descriptor);
-            Log.i(MainActivity.TAG, "Writing descriptor... result: "+result);
+            Log.i("WriteCommandDebug", "Writing descriptor... result: "+result);
 
         }
 

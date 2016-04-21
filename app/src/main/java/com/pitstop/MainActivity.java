@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static String REFRESH_FROM_LOCAL = "_local";
     public static String FROM_ACTIVITY = "from_activity";
 
-    private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+    public static String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private boolean isLoading = false;
