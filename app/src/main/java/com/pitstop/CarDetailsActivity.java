@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -975,6 +976,7 @@ public class CarDetailsActivity extends AppCompatActivity implements BluetoothMa
     /**
      * The dialog to display for clicking service request button
      */
+    @SuppressLint("ValidFragment")
     public class ServiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {

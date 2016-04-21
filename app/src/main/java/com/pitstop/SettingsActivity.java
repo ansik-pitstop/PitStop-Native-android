@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -86,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @SuppressLint("ValidFragment")
     public class SettingsFragment extends PreferenceFragment {
 
         ArrayList<ListPreference> preferenceList;
