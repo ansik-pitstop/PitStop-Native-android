@@ -1,6 +1,8 @@
 package com.pitstop.parse;
 
 import android.app.Application;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
@@ -16,6 +18,11 @@ import io.smooch.core.Smooch;
 public class ParseApplication extends Application {
 
     public static MixpanelAPI mixpanelAPI;
+    // Build a RemoteInput for receiving voice input in a Car Notification
+    public static RemoteInput remoteInput = new RemoteInput.Builder("PITSTOP_VOICE_FEEDBACK_AUTO")
+            .setLabel("PITSTOP MESSAGE")
+            .build();
+
     @Override
     public void onCreate() {
         super.onCreate();

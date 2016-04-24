@@ -172,6 +172,23 @@
             </intent-filter>
         </receiver>
 
+
+        <receiver android:name=".auto.AndroidAutoHeardReceiver">
+            <intent-filter>
+                <action android:name="com.pitstop.auto.MESSAGE_HEARD"/>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name.-->
+                <category android:name="com.ansik.pitstop" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".auto.AndroidAutoReplyReceiver">
+            <intent-filter>
+                <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
+            </intent-filter>
+        </receiver>
+
         <service android:name="io.smooch.core.service.SmoochService" />
         <service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
@@ -196,6 +213,10 @@
             android:label="Select Dealership"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"></activity>
+
+
+        <meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/android_auto" />
     </application>
 
 </manifest>
