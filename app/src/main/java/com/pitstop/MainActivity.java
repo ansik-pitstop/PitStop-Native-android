@@ -57,11 +57,10 @@ import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.ToolbarActionItemTarget;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -142,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private LocalCarAdapter carAdapter;
     private LocalCarIssueAdapter carIssueAdapter;
-    private LocalDealershipAdapter dealershipAdapter;
+    private LocalShopAdapter dealershipAdapter;
 
     private ParseApplication application;
 
@@ -232,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         carAdapter = new LocalCarAdapter(this);
         carIssueAdapter = new LocalCarIssueAdapter(this);
-        dealershipAdapter = new LocalDealershipAdapter(this);
+        dealershipAdapter = new LocalShopAdapter(this);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -308,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
 
-    // TODO: Switch to fragments
+    // TODO: Switch to fragments, ass opposed to starting child activities
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");

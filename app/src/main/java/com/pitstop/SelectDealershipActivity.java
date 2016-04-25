@@ -23,7 +23,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
@@ -51,7 +51,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private TextView message;
 
     private boolean hadInternetConnection = false;
-    private LocalDealershipAdapter localStore;
+    private LocalShopAdapter localStore;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +60,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         application = (ParseApplication) getApplicationContext();
-        localStore = new LocalDealershipAdapter(this);
+        localStore = new LocalShopAdapter(this);
         setup();
     }
 

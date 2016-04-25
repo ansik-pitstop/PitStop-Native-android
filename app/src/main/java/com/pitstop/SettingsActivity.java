@@ -33,13 +33,12 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.parse.ParseApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,7 +153,7 @@ public class SettingsActivity extends AppCompatActivity {
         private ParseApplication application;
         private Car mainCar;
         private LocalCarAdapter localCarAdapter;
-        private LocalDealershipAdapter shopAdapter;
+        private LocalShopAdapter shopAdapter;
 
         public SettingsFragment() {}
 
@@ -167,7 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
 
             localCarAdapter = new LocalCarAdapter(getActivity().getApplicationContext());
-            shopAdapter = new LocalDealershipAdapter(getActivity().getApplicationContext());
+            shopAdapter = new LocalShopAdapter(getActivity().getApplicationContext());
 
             Bundle bundle = getArguments();
             preferenceList = new ArrayList<>();

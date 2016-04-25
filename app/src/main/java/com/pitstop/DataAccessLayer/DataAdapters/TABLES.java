@@ -25,7 +25,7 @@ public final class TABLES {
         String TABLE_NAME = "car";
 
         String KEY_VIN = "vin";
-        String KEY_DEALERSHIP_ID = "shopId";
+        String KEY_SHOP_ID = "shopId";
         String KEY_MILEAGE = "totalMileage";
         String KEY_SCANNER_ID = "scannerId";
         String KEY_MAKE = "make";
@@ -33,7 +33,7 @@ public final class TABLES {
         String KEY_YEAR = "year";
         String KEY_ENGINE = "engine";
         String KEY_TRIM = "trimLevel";
-        String KEY_OWNER_ID = "ownerId";
+        String KEY_USER_ID = "ownerId";
         String KEY_NUM_SERVICES = "numberOfServices";
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
     }
@@ -49,53 +49,16 @@ public final class TABLES {
         String KEY_ITEM = "item";
         String KEY_DESCRIPTION = "description";
         String KEY_ACTION = "action";
+        String KEY_CAR_ISSUE_ID = "carIssueId";
     }
 
-    public interface DEALERSHIP {
+    public interface SHOP {
         String TABLE_NAME = "dealership";
 
         String KEY_NAME = "name";
         String KEY_ADDRESS = "address";
         String KEY_PHONE = "phone";
         String KEY_EMAIL = "email";
-        String KEY_CAR_ID = "carId";
-    }
-
-    public interface DTC {
-        String TABLE_NAME = "dtc";
-
-        String KEY_CAR_ID = "carId";
-        String KEY_CODE = "dtcCode";
-        String KEY_DESCRIPTION = "codeDescription";
-    }
-
-    public interface RECALL {
-        String TABLE_NAME = "recall";
-
-        String KEY_CAR_ID = "carId";
-        String KEY_NAME = "name";
-        String KEY_DESCRIPTION = "description";
-        String KEY_REMEDY = "remedy";
-        String KEY_RISK = "risk";
-        String KEY_EFFECTIVE_DATE = "effectiveDate";
-        String KEY_OEM_ID = "oemId";
-        String KEY_REIMBURSEMENT = "reimbursement";
-        String KEY_STATE = "state";
-        String KEY_RISK_RANK = "riskRank";
-    }
-
-    public interface SERVICE {
-        String TABLE_NAME = "service";
-
-        String KEY_CAR_ID = "carId";
-        String KEY_TYPE = "serviceType";
-        String KEY_DESCRIPTION = "description";
-        String KEY_ITEM = "item";
-        String KEY_ACTION = "action";
-        String KEY_INTERVAL_MONTH = "intervalMonth";
-        String KEY_INTERVAL_MILEAGE = "intervalMileage";
-        String KEY_INTERVAL_FIXED = "intervalFixed";
-        String KEY_PRIORITY = "priority";
-        String KEY_DEALERSHIP = "dealership";
+        String KEY_SHOP_ID = "shopId";
     }
 }

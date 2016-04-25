@@ -3,17 +3,17 @@ package com.pitstop.background;
 import android.content.Context;
 import android.os.Handler;
 
-import com.pitstop.DataAccessLayer.DataAdapters.LocalDealershipAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 
 /**
  * Created by Paul Soladoye on 18/04/2016.
  */
 public class LocalDbSyncManager {
-    private LocalDealershipAdapter dealershipAdapter;
+    private LocalShopAdapter dealershipAdapter;
     private Handler mHandler;
 
     public LocalDbSyncManager(Context context) {
-        dealershipAdapter = new LocalDealershipAdapter(context);
+        dealershipAdapter = new LocalShopAdapter(context);
         mHandler = new Handler();
     }
 

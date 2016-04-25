@@ -60,7 +60,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
-    private static final long SCAN_PERIOD = 15000;
+    private static final long SCAN_PERIOD = 12000;
     private BluetoothLeScanner mLEScanner;
     private ScanSettings settings;
     private List<ScanFilter> filters;
@@ -202,6 +202,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      *
      */
     private void writeToObd(String payload, int type) {
+        if(!hasDiscoveredServices) {
+            return;
+        }
 
         byte[] bytes;
 
@@ -270,7 +273,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         Log.i(TAG,"Getting saved macAddress - BluetoothLeComm");
         String macAddress = OBDInfoSP.getMacAddress(mContext);
 
-        if (macAddress != null && !macAddress.equals("") && mGatt != null) {
+        if (mGatt != null) {
 
             // BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
             // Previously connected device.  Try to reconnect.
@@ -279,15 +282,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 btConnectionState = CONNECTING;
             }
 
-        } else {
+        } else  {
 
-            Log.i(TAG, "macAddress is null or empty or mGatt is null");
-            if(mGatt != null) {
-
-                Log.i(TAG, "closing mGatt connection");
-                mGatt.close();
-                mGatt = null;
-            }
+            Log.i(TAG, "mGatt is null");
+            Log.i(TAG, "closing mGatt connection");
 
             scanLeDevice(true);
         }
@@ -331,7 +329,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             Log.i(TAG, "Result: "+result.toString());
             BluetoothDevice btDevice = result.getDevice();
 
-            if(btDevice.getName() != null && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+            if(btDevice.getName() != null
+                    && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                 connectToDevice(btDevice);
             }
         }
@@ -360,14 +359,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 case BluetoothProfile.STATE_CONNECTING:
                 {
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
+                    btConnectionState = CONNECTING;
                     break;
                 }
 
                 case BluetoothProfile.STATE_CONNECTED:
                 {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
-                    btConnectionState = CONNECTED;
-                    dataListener.getBluetoothState(btConnectionState);
 
                     gatt.discoverServices();
                     BluetoothDevice device = gatt.getDevice();
@@ -403,6 +401,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 Log.i(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
                 queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION));
                 hasDiscoveredServices = true;
+
+                // Setting bluetooth state as connected because, you can't communicate with
+                // device until services have been discovered
+                btConnectionState = CONNECTED;
+                dataListener.getBluetoothState(btConnectionState);
 
             } else {
                 Log.i(TAG, "Error onServicesDiscovered received: " + status);
