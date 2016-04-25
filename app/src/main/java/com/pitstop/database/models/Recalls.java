@@ -11,7 +11,7 @@ public class Recalls extends DBModel {
     }
 
     @Override
-    protected void setUpTable() {
+    protected void setUpTable()     {
         columns.put("RecallID","Text");
         columns.put("name","Text");
         columns.put("description","Text");

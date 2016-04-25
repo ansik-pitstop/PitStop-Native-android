@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.castel.obd.util.Utils;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
@@ -21,27 +22,37 @@ import java.util.concurrent.ExecutionException;
  */
 public class PendingAddCarActivity extends AppCompatActivity{
 
-    // TODO: Transferring data through intents is safer than using global variables (bugs)
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
     public static String ADD_CAR_SCANNER = "PENDING_ADD_CAR_SCANNER_ID";
     public static String ADD_CAR_DTCS = "PENDING_ADD_CAR_DTCS";
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
-    public static String PENDING = "PENDING";
+
+    ParseApplication application;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_pending_add_car);
-        // TODO: Transferring data through intents is safer than using global variables (bugs)
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
-        if(AddCarActivity.VIN!=null&&!AddCarActivity.VIN.equals("")) {
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString(ADD_CAR_DTCS, AddCarActivity.dtcs);
-            editor.putString(ADD_CAR_SCANNER, AddCarActivity.scannerID);
-            editor.putString(ADD_CAR_MILEAGE, AddCarActivity.mileage);
-            editor.putString(ADD_CAR_VIN, AddCarActivity.VIN);
-            editor.apply();
+        application = (ParseApplication) getApplicationContext();
+        SharedPreferences settings =
+                getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+        Intent intentFromMainActivity = getIntent();
+        if(intentFromMainActivity != null) {
+            String vin = intentFromMainActivity.getStringExtra(ADD_CAR_VIN);
+            String scannerId = intentFromMainActivity.getStringExtra(ADD_CAR_SCANNER);
+            String mileage = intentFromMainActivity.getStringExtra(ADD_CAR_MILEAGE);
+            String dtcs = intentFromMainActivity.getStringExtra(ADD_CAR_DTCS);
+
+            if(!Utils.isEmpty(vin)) {
+
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(ADD_CAR_DTCS, dtcs);
+                editor.putString(ADD_CAR_SCANNER, scannerId);
+                editor.putString(ADD_CAR_MILEAGE, mileage);
+                editor.putString(ADD_CAR_VIN, vin);
+                editor.apply();
+            }
         }
 
         ((TextView)findViewById(R.id.vin)).setText("VIN: " + settings.getString(ADD_CAR_VIN,""));
@@ -49,7 +60,8 @@ public class PendingAddCarActivity extends AppCompatActivity{
         handler.post(runnableCode);
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'PendingAddCarActivity'}"));
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'PendingAddCarActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -62,15 +74,13 @@ public class PendingAddCarActivity extends AppCompatActivity{
         @Override
         public void run() {
             try {
-                if (new InternetChecker(getBaseContext()).execute().get()){
+                if (new InternetChecker(getBaseContext()).execute().get()) {
                     goBackToAddCar();
-                }else{
+                } else {
                     // Repeat this the same runnable code block again another 3 seconds
                     handler.postDelayed(runnableCode, 3000);
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -78,19 +88,20 @@ public class PendingAddCarActivity extends AppCompatActivity{
 
     private void goBackToAddCar() {
         SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
-        AddCarActivity.dtcs = settings.getString(ADD_CAR_DTCS,"");
-        AddCarActivity.VIN = settings.getString(ADD_CAR_VIN,"");
-        AddCarActivity.scannerID = settings.getString(ADD_CAR_SCANNER,"");
-        AddCarActivity.mileage = settings.getString(ADD_CAR_MILEAGE,"");
+
+        Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
+        intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
+        intent.putExtra(ADD_CAR_DTCS,settings.getString(ADD_CAR_DTCS,""));
+        intent.putExtra(ADD_CAR_SCANNER,settings.getString(ADD_CAR_SCANNER,""));
+        intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,""));
+        setResult(MainActivity.RESULT_OK,intent);
+
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(ADD_CAR_DTCS, "");
         editor.putString(ADD_CAR_SCANNER, "");
         editor.putString(ADD_CAR_MILEAGE, "");
         editor.putString(ADD_CAR_VIN, "");
         editor.apply();
-        Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
-        intent.putExtra(PENDING,true);
-        startActivity(intent);
         finish();
     }
 

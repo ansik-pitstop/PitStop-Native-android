@@ -80,11 +80,12 @@ public class MainActivityFragment extends Fragment {
         setUp();
         showTutorial();
 
-        try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'MainActivityFragment'}"));
+        /*try {
+            ParseApplication.mixpanelAPI.track("View Appeared",
+                    new JSONObject("{'View':'MainActivityFragment'}"));
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     private void showTutorial() {
@@ -92,11 +93,11 @@ public class MainActivityFragment extends Fragment {
         SharedPreferences.Editor editor = settings.edit();
         if(settings.getBoolean("FirstAppOpen",false)==false) {
 
-            try {
+            /*try {
                 ParseApplication.mixpanelAPI.track("Showing Tutorial", new JSONObject("{'View':'MainActivity Fragment'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
             new ShowcaseView.Builder(getActivity())
                     .setTarget(new ViewTarget(getActivity().findViewById(R.id.car_connected_ind_button)))
                     .setContentTitle("View Your Car Information")
@@ -143,11 +144,11 @@ public class MainActivityFragment extends Fragment {
         callGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Call Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + garagePhoneNumber));
                 startActivity(intent);
             }
@@ -157,21 +158,13 @@ public class MainActivityFragment extends Fragment {
         messageGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Message Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
-                final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", array.get(0).getValue("VIN"));
-                customProperties.put("Car Make",  array.get(0).getValue("make"));
-                customProperties.put("Car Model", array.get(0).getValue("model"));
-                customProperties.put("Car Year", array.get(0).getValue("year"));
-                customProperties.put("Phone", ParseUser.getCurrentUser().get("phoneNumber"));
-                customProperties.put("Email",garageEmailAddress);
-                User.getCurrentUser().addProperties(customProperties);
                 User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
                 ConversationActivity.show(getContext());
             }
@@ -180,11 +173,11 @@ public class MainActivityFragment extends Fragment {
         directionsToGarageTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Directions Garage','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s", garageAddress);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
@@ -265,11 +258,11 @@ public class MainActivityFragment extends Fragment {
         getActivity().findViewById(R.id.car_connected_ind_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
+                /*try {
                     ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open Details for Car','View':'MainActivityFragment'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Intent intent = new Intent(getActivity(), CarDetailsActivity.class);
                 if (getArguments() != null && ACTION_UPDATE_MILEAGE.equals(getArguments().getString(EXTRA_ACTION))) {
                     // clear the action so it's not repeated
@@ -337,7 +330,7 @@ public class MainActivityFragment extends Fragment {
             if(a.getValue("scannerId").equals("")){
                 noDevice = (Cars) a;
             }
-            if(id.contains(a.getValue("scannerId"))){
+            if(a.getValue("scannerId").equals(id)){
                 found = true;
                 getActivity().findViewById(R.id.car_connected_ind_button).setBackgroundResource(R.drawable.color_button_car_connected);
             }
@@ -360,8 +353,7 @@ public class MainActivityFragment extends Fragment {
                             map.put("scannerId", id);
                             ldr.updateData("Cars", "VIN", finalNoDevice.getValue("VIN"), map);
                             Toast.makeText(getContext(), "Car successfully linked", Toast.LENGTH_SHORT).show();
-                            ((MainActivity) getActivity()).service.getDTCs();
-                            ((MainActivity) getActivity()).service.getPendingDTCs();
+                            //((MainActivity) getActivity()).service.getDTCs();
                         }
                     });
                 }
@@ -374,7 +366,7 @@ public class MainActivityFragment extends Fragment {
      * @param deviceId
      *
      * */
-    public void linkDevice(final String deviceId) {
+    /*public void linkDevice(final String deviceId) {
         String tag = "ConnectedCar";
 
         Cars currentCar = ((MainActivity)getActivity()).getCurrentConnectedCar();
@@ -400,7 +392,6 @@ public class MainActivityFragment extends Fragment {
                                 ldr.updateData("Cars", "VIN", carToUpdate.getValue("VIN"), map);
                                 Toast.makeText(getContext(),"Car successfully linked",Toast.LENGTH_SHORT).show();
                                 ((MainActivity)getActivity()).service.getDTCs();
-                                ((MainActivity)getActivity()).service.getPendingDTCs();
                                 ((MainActivity)getActivity()).service.setCurrentCar(carToUpdate);
                             }
                         });
@@ -413,5 +404,5 @@ public class MainActivityFragment extends Fragment {
 
         getActivity().findViewById(R.id.car_connected_ind_button)
                 .setBackgroundResource(R.drawable.color_button_car_connected);
-    }
+    }*/
 }

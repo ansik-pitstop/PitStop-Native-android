@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="highlight">#ff2848</color>
-    <color name="primary">#4dbeff</color>
+    <color name="primary">#5D9CEC</color>
     <color name="primary_dark">#4ba9ff</color>
     <color name="highlight_dark">#d7223d</color>
     <color name="evcheck">#29d767</color>
     <color name="evcheck_dark">#1f974a</color>
+    <color name="not_connected">#eeeeee</color>
 
     <!-- Smooch chat -->
-    <color name="Smooch_accent">@color/highlight</color>
-    <color name="Smooch_accentDark">@color/highlight_dark</color>
+    <color name="Smooch_accent">@color/primary</color>
+    <color name="Smooch_accentDark">@color/primary</color>
+    <color name="line_break">#424242</color>
 </resources>
