@@ -34,7 +34,7 @@ public class ParseApplication extends Application {
         Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
         ParseInstallation.getCurrentInstallation().saveInBackground();
         Smooch.init(this, getString(R.string.smooch_token));
-        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_api_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
@@ -49,7 +49,7 @@ public class ParseApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
         }
         return mixpanelAPI;
     }
@@ -62,7 +62,7 @@ public class ParseApplication extends Application {
      * The app version code (not the version name!) that was used on the last
      * start of the app.
      */
-    private static final String LAST_APP_VERSION = "last_app_version";
+    private static final String LAST_APP_VERSION = "com.pitstop.last_app_version";
 
     public AppStart checkAppStart() {
         PackageInfo pInfo;

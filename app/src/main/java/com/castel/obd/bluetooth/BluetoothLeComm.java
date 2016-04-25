@@ -117,7 +117,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(mLEScanner == null || mIsScanning) {
+        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null || mIsScanning) {
             return;
         }
 

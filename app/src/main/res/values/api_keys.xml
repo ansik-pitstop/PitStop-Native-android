@@ -5,5 +5,6 @@
     <!--<string name="parse_appID">NdSgPCykUoMT6jQd35LVYjf4MjayAL1PcSvSCxUo</string>
     <string name="parse_clientID">dkLeQT0VbB5G5eF6qbwjnUM0km6iou5LVcf7uxEs</string>-->
     <string name="smooch_token">0xs5j98mds1x8mn77ptw4knc5</string>
-    <string name="mixpanel_api_token">330c942ffad6819253501447810ad761</string>
+    <string name="dev_mixpanel_api_token">330c942ffad6819253501447810ad761</string>
+    <string name="prod_mixpanel_api_token">330c942ffad6819253501447810ad761</string>
 </resources>

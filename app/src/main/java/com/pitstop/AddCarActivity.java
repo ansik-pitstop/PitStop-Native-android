@@ -412,6 +412,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             return;
         }
 
+        showLoading("Adding car");
+
         mileage = mileageEditText.getText().toString();
         if (isValidVin(vinEditText.getText().toString())) {
 
@@ -425,7 +427,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
             Log.i(TAG, "Vin is valid -- (searching for car)");
             VIN = vinEditText.getText().toString();
-            showLoading("Adding car");
             makeCar();
 
         } else {
@@ -467,6 +468,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private void tryAgainDialog() {
 
         hideLoading();
+        isSearchingForCar = false;
 
         if(isFinishing()) { // You don't want to add a dialog to a finished activity
             return;
@@ -492,7 +494,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                isSearchingForCar = false;
                 dialog.cancel();
 
             }
@@ -510,14 +511,17 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 20 && isGettingVinAndCarIsConnected) {
+            if(seconds > 15 && isGettingVinAndCarIsConnected) {
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
             }
 
             if(!isGettingVinAndCarIsConnected) {
                 mHandler.removeCallbacks(vinDetectionRunnable);
+                return;
             }
+
+            mHandler.post(vinDetectionRunnable);
 
         }
     };
@@ -565,58 +569,51 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private void makeCar() {
         Log.i(TAG,"makeCar() -- function");
 
-        if(!makingCar) {
+        Log.i(TAG,"Making car -- make car function");
 
-            Log.i(TAG,"makingCar");
-            makingCar = true;
-            Log.i(TAG,"Making car -- make car function");
+        if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
 
-            if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+            Log.i(TAG, "Now connected to device");
 
-                Log.i(TAG, "Now connected to device");
+            showLoading("Loading car engine codes");
+            askForDTC=true;
+            Log.i(TAG,"Make car --- Getting DTCs");
+            autoConnectService.getDTCs();
+            autoConnectService.getPendingDTCs();
+        } else {
+            try {
+                Log.i(TAG, "Device not connected");
+                Log.i(TAG, "Checking internet connection");
 
-                Toast.makeText(this, "Show loading - Loading car engine codes",
-                        Toast.LENGTH_SHORT).show();
-                showLoading("Loading car engine codes");
-                askForDTC=true;
-                Log.i(TAG,"Make car --- Getting DTCs");
-                autoConnectService.getDTCs();
-                autoConnectService.getPendingDTCs();
-            } else {
-                try {
-                    Log.i(TAG, "Device not connected");
-                    Log.i(TAG, "Checking internet connection");
+                if(new InternetChecker(this).execute().get()) {
 
-                    if(new InternetChecker(this).execute().get()) {
+                    ParseConfig.getInBackground(new ConfigCallback() {
+                        @Override
+                        public void done(ParseConfig config, ParseException e) {
 
-                        ParseConfig.getInBackground(new ConfigCallback() {
-                            @Override
-                            public void done(ParseConfig config, ParseException e) {
+                            Log.i(TAG, "Adding car --- make car func");
 
-                                Log.i(TAG, "Adding car --- make car func");
-
-                                if(vinDecoderApi == null) {
-                                    vinDecoderApi = new CallMashapeAsync();
-                                } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                    Log.i("VIN DECODER","Pending TASK");
-                                } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                    vinDecoderApi.cancel(true);
-                                    vinDecoderApi = null;
-                                    vinDecoderApi = new CallMashapeAsync();
-                                } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                    vinDecoderApi = null;
-                                    vinDecoderApi  = new CallMashapeAsync();
-                                }
-                                vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                            if(vinDecoderApi == null) {
+                                vinDecoderApi = new CallMashapeAsync();
+                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                                Log.i("VIN DECODER","Pending TASK");
+                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                                vinDecoderApi.cancel(true);
+                                vinDecoderApi = null;
+                                vinDecoderApi = new CallMashapeAsync();
+                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                                vinDecoderApi = null;
+                                vinDecoderApi  = new CallMashapeAsync();
                             }
-                        });
-                    } else {
-                        hideLoading();
-                        startPendingAddCarActivity();
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        }
+                    });
+                } else {
+                    hideLoading();
+                    startPendingAddCarActivity();
                 }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -653,32 +650,21 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     public void getBluetoothState(int state) {
         Log.i(TAG,"getBluetoothState func--");
         if(state == IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
-
-            /*if(isGettingVinButCarNotConnected) {
-                Toast.makeText(this, " Loading-->Linking with Device, give it a few seconds",
-                        Toast.LENGTH_SHORT ).show();
-                Log.i(TAG,"Getting car vin --- getBluetoothState");
-                autoConnectService.getCarVIN();
-            }*/
-
             if(isSearchingForCar) {
                 isSearchingForCar = false;
-                showLoading("Linking with Device, give it a few seconds");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLoading("Linking with Device, give it a few seconds");
+                    }
+                });
                 Log.i(TAG,"Getting car vin --- getBluetoothState");
                 autoConnectService.getCarVIN();
                 vinRetrievalStartTime = System.currentTimeMillis();
                 isGettingVinAndCarIsConnected = true;
                 mHandler.post(vinDetectionRunnable);
             }
-        } /*else {
-
-            Log.i(TAG, "Device is not connected");
-            if(isLoading && !VIN.equals("")) {
-                Log.i(TAG,"Vin is empty -- starting bluetooth search");
-                autoConnectService.startBluetoothSearch();
-            }
-            Log.i("GET BLUETOOTH STATE ","bluetooth not connected");
-        }*/
+        }
     }
 
     @Override
@@ -726,9 +712,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     public void run() {
                         vinEditText.setText(VIN);
                         showLoading("Loaded car vin");
+                        makeCar();
                     }
                 });
-                makeCar();
 
             } else {
                 // same as in manual input plus vin hint
@@ -786,8 +772,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         }
                     });
                 } else {
-                    hideLoading();
-                    startPendingAddCarActivity();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideLoading();
+                            startPendingAddCarActivity();
+                        }
+                    });
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -1000,9 +991,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 public void done(List<ParseObject> objects, ParseException e) {
                     if(e!=null) {
                         hideLoading();
+                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
-                    } else if(!objects.isEmpty() && !"".equals(scannerID) ) {
+                    } else if(!objects.isEmpty() && !Utils.isEmpty(scannerID) ) {
                         hideLoading();
+                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, "The device with Id: "
                                         +scannerID+" is already linked with another car",
                                 Toast.LENGTH_SHORT).show();
@@ -1033,6 +1026,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e!=null) {
                     hideLoading();
+                    makingCar = false;
                     Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
                 } else if(!objects.isEmpty()) {
                     //see if car already exists!
@@ -1086,6 +1080,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     showLoading("Final Touches");
                     if(e!=null){
                         hideLoading();
+                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -1149,6 +1144,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         }
 
+        hideLoading();
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);

@@ -479,9 +479,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                    autoConnectService.startBluetoothSearch();
-                }
+                autoConnectService.startBluetoothSearch();
                 (carScanButton).performClick();
             }
         });
@@ -557,18 +555,23 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 dtcCodes.add(dtc);
             }
 
-            numberOfIssues = services + recalls + dtcCodes.size();
-            updateCarHealthMeter();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    numberOfIssues = services + recalls + dtcCodes.size();
+                    updateCarHealthMeter();
 
-            loadingEngineIssues.setVisibility(View.GONE);
-            engineIssuesStateLayout.setVisibility(View.GONE);
-            engineIssuesCountLayout.setVisibility(View.VISIBLE);
-            engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
-            engineIssuesText.setText("Engine issues");
+                    loadingEngineIssues.setVisibility(View.GONE);
+                    engineIssuesStateLayout.setVisibility(View.GONE);
+                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    engineIssuesText.setText("Engine issues");
 
-            Drawable background = engineIssuesCountLayout.getBackground();
-            GradientDrawable gradientDrawable = (GradientDrawable) background;
-            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+                    Drawable background = engineIssuesCountLayout.getBackground();
+                    GradientDrawable gradientDrawable = (GradientDrawable) background;
+                    gradientDrawable.setColor(Color.rgb(203, 77, 69));
+                }
+            });
         }
     }
 

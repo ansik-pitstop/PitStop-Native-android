@@ -877,7 +877,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
-                                Toast.makeText(getBaseContext(), "Uploaded data online", Toast.LENGTH_SHORT).show();
                                 ldr.deleteData("Responses", "deviceId", device);
                                 final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
                                 upload.setValue("UploadedAt", timeStamp);

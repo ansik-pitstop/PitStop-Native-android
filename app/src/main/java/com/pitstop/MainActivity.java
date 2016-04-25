@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public ArrayList<DBModel> array;
 
     final static String pfName = "com.pitstop.login.name";
+    private final static String pfTutorial = "com.pitstop.tutorial";
     final static String pfCodeForObjectID = "com.pitstop.login.objectID";
 
     final static String pfShopName = "com.pitstop.shop.name";
@@ -167,12 +170,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
-
-                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, RC_ENABLE_BT);
-                    return;
-                }
 
                 if(EasyPermissions.hasPermissions(MainActivity.this,perms)) {
                     autoConnectService.startBluetoothSearch();
@@ -338,9 +335,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     refreshFromServer();
                 }
             }
-        } else if(requestCode == RC_ENABLE_BT && resultCode == RC_ENABLE_BT) {
-            autoConnectService.startBluetoothSearch();
-
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -412,7 +406,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 intent.putExtra(CAR_EXTRA,dashboardCar);
 
                 startActivityForResult(intent, RC_SCAN_CAR);
-                //MaterialShowcaseView.resetSingleUse(MainActivity.this, SHOWCASE_ID);
             }
         });
 
@@ -634,37 +627,54 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         HashMap<String,Object> output = new HashMap<>();
         List<HashMap<String,String>> services = new ArrayList<>();
 
-        for(CarIssue carIssue : carIssueList ) {
-            if(carIssue.getIssueType().equals("recall")) {
+        if(carIssueList.isEmpty()) {
+            output.put("services", services);
+            output.put("carVin", dashboardCar.getVin());
+            output.put("userObjectId", userId);
+            output.put("comments",additionalComment);
+        } else {
+            for(CarIssue carIssue : carIssueList ) {
+                if(carIssue.getIssueType().equals("recall")) {
+                    HashMap<String, String> recall = new HashMap<>();
+                    recall.put("item", carIssue.getIssueDetail().getItem());
+                    recall.put("action", carIssue.getIssueDetail().getAction());
+                    recall.put("itemDescription", carIssue.getIssueDetail().getDescription());
+                    recall.put("priority", String.valueOf(carIssue.getPriority()));
+                    services.add(recall);
+
+                    output.put("services", services);
+                    output.put("carVin", dashboardCar.getVin());
+                    output.put("userObjectId", userId);
+                    output.put("comments", additionalComment);
+
+                } else if(carIssue.getIssueType().equals("dtc")) {
+
+                    HashMap<String, String> dtc = new HashMap<>();
+                    dtc.put("item", carIssue.getIssueDetail().getItem());
+                    dtc.put("action", carIssue.getIssueDetail().getAction());
+                    dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
+                    dtc.put("priority", String.valueOf(carIssue.getPriority()));
+                    services.add(dtc);
+
+                    output.put("services", services);
+                    output.put("carVin", dashboardCar.getVin());
+                    output.put("userObjectId", userId);
+                    output.put("comments", additionalComment);
 
 
-            } else if(carIssue.getIssueType().equals("dtc")) {
+                } else {
+                    HashMap<String, String> service = new HashMap<>();
+                    service.put("item",carIssue.getIssueDetail().getItem());
+                    service.put("action",carIssue.getIssueDetail().getAction());
+                    service.put("itemDescription",carIssue.getIssueDetail().getDescription());
+                    service.put("priority",String.valueOf(carIssue.getPriority()));
+                    services.add(service);
 
-                HashMap<String, String> dtc = new HashMap<>();
-                dtc.put("item", carIssue.getIssueDetail().getItem());
-                dtc.put("action", carIssue.getIssueDetail().getAction());
-                dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
-                dtc.put("priority", String.valueOf(carIssue.getPriority()));
-                services.add(dtc);
-
-                output.put("services", services);
-                output.put("carVin", dashboardCar.getVin());
-                output.put("userObjectId", userId);
-                output.put("comments", additionalComment);
-
-
-            } else {
-                HashMap<String, String> service = new HashMap<>();
-                service.put("item",carIssue.getIssueDetail().getItem());
-                service.put("action",carIssue.getIssueDetail().getAction());
-                service.put("itemDescription",carIssue.getIssueDetail().getDescription());
-                service.put("priority",String.valueOf(carIssue.getPriority()));
-                services.add(service);
-
-                output.put("services", services);
-                output.put("carVin", dashboardCar.getVin());
-                output.put("userObjectId", userId);
-                output.put("comments",additionalComment);
+                    output.put("services", services);
+                    output.put("carVin", dashboardCar.getVin());
+                    output.put("userObjectId", userId);
+                    output.put("comments",additionalComment);
+                }
             }
         }
 
@@ -676,7 +686,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             "Request sent", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this,
-                            e.getMessage(), Toast.LENGTH_SHORT).show();
+                            "Error sending request", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, e.getMessage());
                 }
             }
         });
@@ -705,6 +716,18 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void setCarDetailsUI() {
         setDealership();
         populateCarIssuesAdapter();
+
+        //
+        if(application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME
+                || application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME_VERSION) {
+
+            toolbar.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    presentShowcaseSequence();
+                }
+            }, 2000);
+        }
 
         carName.setText(dashboardCar.getYear() + " "
                 + dashboardCar.getMake() + " "
@@ -827,6 +850,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         // Try local store
+        Log.i(TAG, "DashboardCar id: (Try local store)"+dashboardCar.getParseId());
         List<CarIssue> carIssues = carIssueAdapter.getAllCarIssues(dashboardCar.getParseId());
         if(carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
@@ -1181,15 +1205,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Tutorial
      */
     private void presentShowcaseSequence() {
+        final SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean hasSeenTutorial = sharedPreferences.getBoolean(pfTutorial,false);
+        if(hasSeenTutorial) {
+            return;
+        }
+
+        Log.i(TAG, "running present show case");
 
         ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(500); // half second between each showcase view
 
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
 
         sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView itemView, int position) {
+                sharedPreferences.edit().putBoolean(pfTutorial,true).apply();
             }
         });
 
@@ -1200,7 +1233,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setTarget(toolbar.findViewById(R.id.add))
                         .setTitleText("Add Car")
                         .setContentText("Click to add a new car")
-                        .setDismissText("GOT IT")
                         .setDismissOnTouch(true)
                         .build()
         );
@@ -1210,7 +1242,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setTarget(carScan)
                         .setTitleText("Scan Car")
                         .setContentText("Click to scan car for issues")
-                        .setDismissText("GOT IT")
                         .setDismissOnTouch(true)
                         .build()
         );
@@ -1222,7 +1253,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setContentText("Feel free to click these to " +
                                 "message/call/get directions to your dealership. " +
                                 "You can edit this in your settings.")
-                        .setDismissText("GOT IT")
                         .setDismissOnTouch(true)
                         .withRectangleShape(true)
                         .build()
@@ -1234,7 +1264,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setTitleText("Car Issues")
                         .setContentText("If there are any issues that have been fixed, " +
                                 "please swipe the issue card to indicate when the issue was fixed.")
-                        .setDismissText("GOT IT")
                         .setDismissOnTouch(true)
                         .withRectangleShape(true)
                         .build()
