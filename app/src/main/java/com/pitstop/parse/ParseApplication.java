@@ -29,12 +29,13 @@ public class ParseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-//        ParseCrashReporting.enable(this);
+        // ParseCrashReporting.enable(this);
         Parse.enableLocalDatastore(this);
-        Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
+        Parse.initialize(this, getString(R.string.parse_appID),
+                getString(R.string.parse_clientID));
         ParseInstallation.getCurrentInstallation().saveInBackground();
         Smooch.init(this, getString(R.string.smooch_token));
-        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.prod_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
