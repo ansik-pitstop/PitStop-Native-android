@@ -1,5 +1,9 @@
 package com.castel.obd;
 
+import android.util.Log;
+
+import com.pitstop.MainActivity;
+
 public class OBD {
 	static {
 		System.loadLibrary("212B");

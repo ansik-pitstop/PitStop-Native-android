@@ -22,26 +22,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.log.LogCatHelper;
 import com.castel.obd.util.LogUtil;
+import com.castel.obd.util.ObdDataUtil;
+import com.castel.obd.util.Utils;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
 import com.parse.ParseConfig;
@@ -50,9 +51,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.pitstop.Debug.PrintDebugThread;
+import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.background.BluetoothAutoConnectService.BluetoothBinder;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
 
@@ -67,35 +68,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class AddCarActivity extends AppCompatActivity implements
-        BluetoothManage.BluetoothDataListener, View.OnClickListener,
-        EasyPermissions.PermissionCallbacks {
-    public static int RESULT_ADDED = 10;
-    // TODO: Transferring data through intents is safer than using global variables
-    public static String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
-    private PrintDebugThread mLogDumper;
-    private boolean bound;
-    boolean makingCar = false;
-    private BluetoothAutoConnectService service;
+public class AddCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
+        View.OnClickListener, EasyPermissions.PermissionCallbacks {
+
+    private ParseApplication application;
+    public static int ADD_CAR_SUCCESS = 51;
+    private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
+
     private boolean askForDTC = false;
-    private ArrayList<String> DTCData= new ArrayList<>();
 
-    private ProgressDialog progressDialog;
+    private BluetoothAutoConnectService autoConnectService;
+    private boolean serviceIsBound;
 
-    private ToggleButton yesButton;
-    private ToggleButton noButton;
-    private Button scannerButton;
-    private Button abstractButton;
+    private ProgressDialog dialog;
 
-    private EditText vinEditText;
-    private EditText mileageEditText;
-    private TextView vinHint;
-    private TextView searchForCarInfo;
+    private ToggleButton yesButton, noButton;
+    private Button scannerButton, abstractButton;
+
+    private EditText vinEditText, mileageEditText;
+    private TextView vinHint, searchForCarInfo;
 
     private LinearLayout vinSection;
 
@@ -103,37 +98,57 @@ public class AddCarActivity extends AppCompatActivity implements
     //private static final int REQUEST_CAMERA = 0;
     private static final int RC_BARCODE_CAPTURE = 100;
 
-    private MixpanelAPI mixpanelAPI;
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
-    //debugging storing TODO: Request permission for storage
-    LogCatHelper mLogStore;
-
-    private boolean isLoading = false;
-    private boolean isGettingVin = false;
+    private boolean isSearchingForCar = false, isGettingVinAndCarIsConnected = false;
 
     private static final int RC_LOCATION_PERM = 101;
+    private static final int RC_PENDING_ADD_CAR = 102;
 
-    private CallMashapeAsync vinDecoderApi = null;
-    private String ACTIVITY_TAG = "ADD_CAR_DEBUG_TAG";
+    private CallMashapeAsync vinDecoderApi;
+    private LocalCarAdapter localCarAdapter;
+
+    private Intent intentFromMainActivity;
+
+    private static String TAG = "AddCarActivityDebug";
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service1) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             // cast the IBinder and get MyService instance
-            BluetoothBinder binder = (BluetoothBinder) service1;
-            service = binder.getService();
-            bound = true;
-            service.setCallbacks(AddCarActivity.this); // register
-            Log.i("connecting", "onServiceConnection");
+            serviceIsBound = true;
+            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
+            autoConnectService.setCallbacks(AddCarActivity.this); // register
+            Log.i(TAG, "connecting: onServiceConnection");
+
+            if (BluetoothAdapter.getDefaultAdapter()!=null) {
+
+                if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+                    return;
+                }
+
+                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.perms)) {
+                    autoConnectService.startBluetoothSearch();
+                } else {
+                    EasyPermissions.requestPermissions(AddCarActivity.this,
+                            getString(R.string.location_request_rationale),
+                            RC_LOCATION_PERM, MainActivity.perms);
+                }
+
+            }
+
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            bound = false;
+            serviceIsBound = false;
+            autoConnectService = null;
             Log.i("Disconnecting","onServiceConnection");
         }
     };
@@ -142,15 +157,17 @@ public class AddCarActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
-        Log.i(ACTIVITY_TAG, "onCreate()");
+        Log.i(TAG, "onCreate()");
 
+        application = (ParseApplication) getApplicationContext();
+        intentFromMainActivity = getIntent();
         vinDecoderApi = new CallMashapeAsync();
+        localCarAdapter = new LocalCarAdapter(this);
 
         setupUIReferences();
 
-        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-
-        mLogStore = LogCatHelper.getInstance(this);
+        bindService(new Intent(AddCarActivity.this, BluetoothAutoConnectService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE);
 
         //watch the number of characters in the textbox for VIN
         vinEditText.addTextChangedListener(new TextWatcher() {
@@ -174,38 +191,35 @@ public class AddCarActivity extends AppCompatActivity implements
 
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
                     if (isValidVin(vin.toString())) {
-                        Log.i(ACTIVITY_TAG,"AfterTextChanged -- valid vin");
+                        Log.i(TAG,"AfterTextChanged -- valid vin");
                         abstractButton.setVisibility(View.VISIBLE);
                         scannerButton.setVisibility(View.GONE);
                         abstractButton.setEnabled(true);
                     } else {
-                        Log.i(ACTIVITY_TAG,"AfterTextChanged -- Vin not valid");
+                        Log.i(TAG,"AfterTextChanged -- Vin not valid");
                         abstractButton.setVisibility(View.GONE);
                         scannerButton.setVisibility(View.VISIBLE);
                         abstractButton.setEnabled(false);
                     }
                 } else {
-                    Log.i(ACTIVITY_TAG, "whitespace in VIN input removed. Original input: " + vin);
+                    Log.i(TAG, "whitespace in VIN input removed. Original input: " + vin);
                     vinEditText.setText(whitespaceRemoved);
                 }
             }
         });
 
-        mixpanelAPI = ParseApplication.mixpanelAPI;
-
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared",
-                    new JSONObject("{'View':'AddCarAcivity'}"));
+            application.getMixpanelAPI().track("View Appeared",
+                    new JSONObject("{'View':'AddCarActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         // Select shop
-        Log.i(ACTIVITY_TAG,"Select dealership");
+        Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        Intent intentMain = getIntent();
-        intent.putExtra(MainActivity.hasCarsInDashboard, intentMain != null &&
-                intentMain.getBooleanExtra(MainActivity.hasCarsInDashboard, false));
+        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent,
                 SelectDealershipActivity.RC_DEALERSHIP);
     }
@@ -220,107 +234,47 @@ public class AddCarActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if(BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
-            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-        }
-        mLogStore.start();
-        //setup restore possibilities for pending activity
-        Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(PendingAddCarActivity.PENDING,false)) {
-            Log.i(ACTIVITY_TAG, "OnResume from pending--");
-            if(TextUtils.isEmpty(mileage)) {
-                Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if(!TextUtils.isEmpty(VIN) ) {
-                Log.i(ACTIVITY_TAG, "Vin is not empty");
-                 mileageEditText.setText(mileage);
-
-                ParseConfig.getInBackground(new ConfigCallback() {
-
-                    @Override
-                    public void done(ParseConfig config, ParseException e) {
-                        // TODO: Why is config returning null ?
-                        if(config == null) {
-                            return;
-                        }
-
-                        Log.i(ACTIVITY_TAG,"Adding car from pending ---");
-                        showLoading("Adding car");
-
-                        if(vinDecoderApi == null) {
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                            Log.i("VIN DECODER","Pending TASK");
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                            vinDecoderApi.cancel(true);
-                            vinDecoderApi = null;
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                            vinDecoderApi = null;
-                            vinDecoderApi  = new CallMashapeAsync();
-                        }
-                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
-                    }
-                });
-            }
-        }
     }
 
     @Override
     protected void onPause() {
-        if(BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
-            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-        }
-        mLogStore.stop();
-        mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
         if(vinDecoderApi!=null && vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
         }
+
+        hideLoading();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        unbindService(serviceConnection);
+        hideLoading();
+
+        if(serviceIsBound) {
+            unbindService(serviceConnection);
+        }
+
         if(vinDecoderApi!=null && vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
         }
+
+        super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)) {
-            super.onBackPressed();
+        if(intentFromMainActivity!=null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+            Intent info = new Intent();
+            info.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
+            setResult(MainActivity.RESULT_OK, info);
+            finish();
         } else {
             Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public void finish(boolean forceReset) {
-        Log.i(ACTIVITY_TAG,"finishing activity");
-        if(forceReset){
-            VIN="";
-            mileage="";
-            scannerID="";
-            dtcs="";
-
-        }
-        super.finish();
-    }
-
-    @Override
-    public void finish() {
-        VIN="";
-        mileage="";
-        scannerID="";
-        dtcs="";
-        super.finish();
     }
 
     @Override
@@ -339,7 +293,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
         if(id == android.R.id.home) {
             Intent intent = getIntent();
-            if(intent!=null && intent.getBooleanExtra(MainActivity.hasCarsInDashboard,false)){
+            if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)){
                 super.onBackPressed();
             } else {
                 Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
@@ -365,7 +319,7 @@ public class AddCarActivity extends AppCompatActivity implements
 
                     vinEditText.setText(VIN);
                     vinSection.setVisibility(View.VISIBLE);
-                    Log.i(DTAG, "Barcode read: " + barcode.displayValue);
+                    Log.i(TAG, "Barcode read: " + barcode.displayValue);
 
                     if (isValidVin(VIN)) { // show add car button iff vin is valid
                         abstractButton.setVisibility(View.VISIBLE);
@@ -377,23 +331,65 @@ public class AddCarActivity extends AppCompatActivity implements
                         Toast.makeText(this,"Invalid VIN",Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    //statusMessage.setText(R.string.barcode_failure);
-                    Log.i(DTAG, "No barcode captured, intent data is null");
+                    Log.i(TAG, "No barcode captured, intent data is null");
                 }
-            }/* else {
-                //statusMessage.setText(String.format(getString(R.string.barcode_error),
-                //        CommonStatusCodes.getStatusCodeString(resultCode)));
-            }*/
-        } else if(requestCode == SelectDealershipActivity.RC_DEALERSHIP &&
-                resultCode == SelectDealershipActivity.RESULT_OK) {
+            }
+        } else if(requestCode == SelectDealershipActivity.RC_DEALERSHIP
+                && resultCode == SelectDealershipActivity.RESULT_OK) {
             if(data != null) {
                 String selectedShopId =
-                                data.getStringExtra(SelectDealershipActivity.SELECTED_DEALERSHIP);
+                        data.getStringExtra(SelectDealershipActivity.SELECTED_DEALERSHIP);
                 setDealership(selectedShopId);
             }
 
+        } else if(requestCode == MainActivity.RC_ENABLE_BT
+                && resultCode == MainActivity.RC_ENABLE_BT) {
+            beginSearchForCar();
+        } else if(requestCode == RC_PENDING_ADD_CAR
+                && resultCode == MainActivity.RESULT_OK) {
+            resumeFromPendingAddCar(data);
+
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void resumeFromPendingAddCar(Intent intent) {
+        //setup restore possibilities for pending activity
+        Log.i(TAG, "Resume from pending--");
+
+        if(Utils.isEmpty(mileage)) {
+            Toast.makeText(this,"Please enter mileage",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!TextUtils.isEmpty(VIN) ) {
+            Log.i(TAG, "Vin is not empty");
+
+            ParseConfig.getInBackground(new ConfigCallback() {
+
+                @Override
+                public void done(ParseConfig config, ParseException e) {
+
+                    Log.i(TAG,"Adding car from pending ---");
+
+                    showLoading("Adding car");
+
+                    if(vinDecoderApi == null) {
+                        vinDecoderApi = new CallMashapeAsync();
+                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                        Log.i("VIN DECODER","Pending TASK");
+                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                        vinDecoderApi.cancel(true);
+                        vinDecoderApi = null;
+                        vinDecoderApi = new CallMashapeAsync();
+                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                        vinDecoderApi = null;
+                        vinDecoderApi  = new CallMashapeAsync();
+                    }
+                    vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                }
+            });
         }
     }
 
@@ -401,81 +397,80 @@ public class AddCarActivity extends AppCompatActivity implements
      * Button clicked for getting VIN
      * @param view
      */
-    private long startTime = 0;
-    private boolean isSearching = false;
-    private String DTAG = "ADD_CAR";
+    private long searchTime = 0;
 
     public void searchForCar(View view) {
-        Log.i(ACTIVITY_TAG,"Searching for car");
-        String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION};
+        Log.i(TAG,"Searching for car");
 
-        if(EasyPermissions.hasPermissions(AddCarActivity.this,perms)) {
-            Log.i(ACTIVITY_TAG,"Has location permissions");
+        // Hide keyboard
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
-            if(!TextUtils.isEmpty(mileageEditText.getText().toString())) {
-                Log.i(ACTIVITY_TAG, "Mileage is present");
-                mileage = mileageEditText.getText().toString();
-                if (isValidVin(vinEditText.getText().toString())) {
-                    Log.i(ACTIVITY_TAG, "Vin is valid -- (searching for car)");
+        if(TextUtils.isEmpty(mileageEditText.getText().toString())) {
+            Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showLoading("Adding car");
+
+        mileage = mileageEditText.getText().toString();
+        if (isValidVin(vinEditText.getText().toString())) {
+
+            // Vin is manually entered or retrieved using the barcode scanner
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Log.i(TAG, "Vin is valid -- (searching for car)");
+            VIN = vinEditText.getText().toString();
+            makeCar();
+
+        } else {
+            if (BluetoothAdapter.getDefaultAdapter() == null) {
+                hideLoading();
+                vinSection.setVisibility(View.VISIBLE);
+                Toast.makeText(this, "Your device does not support bluetooth",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+
                     try {
-                            ParseApplication.mixpanelAPI.track("Button Clicked",
-                                    new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                        application.getMixpanelAPI().track("Button Clicked",
+                                new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    //showLoading();
-                    Log.i(ACTIVITY_TAG,"Calling make car --search for car");
-                    makeCar();
+
+                    showLoading("Getting car vin");
+                    Log.i(TAG, "Getting car vin with device connected");
+                    autoConnectService.getCarVIN();
+                    vinRetrievalStartTime = System.currentTimeMillis();
+                    isGettingVinAndCarIsConnected = true;
+                    mHandler.postDelayed(vinDetectionRunnable, 3000);
+
                 } else {
-                    if (BluetoothAdapter.getDefaultAdapter() == null) {
-                        if(isLoading) {
-                            hideLoading();
-                        }
-                        vinSection.setVisibility(View.VISIBLE);
-                        Toast.makeText(this, "Your device does not support bluetooth",
-                            Toast.LENGTH_SHORT).show();
-                    } else {
-                        if (service.getState() != BluetoothManage.CONNECTED) {
-                            showLoading("Searching for Car");
-                            Log.i(ACTIVITY_TAG, "Searching for car but device not connected");
-                            service.startBluetoothSearch();
+                    showLoading("Searching for Car");
 
-                            startTime = System.currentTimeMillis();
-                            timerHandler.post(runnable);
-                            isSearching = true;
-                            isGettingVin = true;
-                        } else {
-                            try {
-                                ParseApplication.mixpanelAPI.track("Button Clicked",
-                                        new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            showLoading("Getting car vin");
-                            Log.i(ACTIVITY_TAG, "Searching for car with device connected");
-                            service.getCarVIN();
-                        }
-                    }
+                    Log.i(TAG, "Searching for car but device not connected");
+                    autoConnectService.startBluetoothSearch();
+                    isSearchingForCar = true;
+                    searchTime = System.currentTimeMillis();
+                    mHandler.postDelayed(carSearchRunnable, 3000);
                 }
-            } else {
-                Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
             }
-
-        } else {
-            EasyPermissions.requestPermissions(AddCarActivity.this,
-                    getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
         }
     }
 
     private void tryAgainDialog() {
 
-        if(isLoading) {
-            hideLoading();
-        }
+        hideLoading();
+        isSearchingForCar = false;
 
         if(isFinishing()) { // You don't want to add a dialog to a finished activity
-           return;
+            return;
         }
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddCarActivity.this);
@@ -498,42 +493,71 @@ public class AddCarActivity extends AppCompatActivity implements
         alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                isSearching= false;
                 dialog.cancel();
 
             }
         });
         alertDialog.show();
     }
-    /**
-     *  Car search timer handler
-     */
 
-    private Handler timerHandler = new Handler() {
+    long vinRetrievalStartTime = 0;
+
+
+    private Runnable vinDetectionRunnable = new Runnable() {
         @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.what == 0) {
-                tryAgainDialog();
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - vinRetrievalStartTime;
+            int seconds = (int) (timeDiff / 1000);
+
+            if(seconds > 15 && isGettingVinAndCarIsConnected) {
+                mHandler.sendEmptyMessage(1);
+                mHandler.post(vinDetectionRunnable);
+            }
+
+            if(!isGettingVinAndCarIsConnected) {
+                mHandler.removeCallbacks(vinDetectionRunnable);
+                return;
+            }
+
+            mHandler.post(vinDetectionRunnable);
+
+        }
+    };
+
+
+    private Runnable carSearchRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - searchTime;
+            int seconds = (int) (timeDiff / 1000);
+            if(seconds > 120 && (isSearchingForCar) && autoConnectService.getState()
+                    != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
+                mHandler.sendEmptyMessage(0);
+                mHandler.removeCallbacks(carSearchRunnable);
+            } else if (!isSearchingForCar) {
+                mHandler.removeCallbacks(carSearchRunnable);
+            } else {
+                mHandler.post(carSearchRunnable);
             }
         }
     };
 
-    private Runnable runnable = new Runnable() {
+    private Handler mHandler = new Handler() {
         @Override
-        public void run() {
-            long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - startTime;
-            int seconds = (int) (timeDiff / 1000);
-            //Log.i("AddCarString", "Timer Still Running");
-            if(seconds > 120 && (isSearching) && service.getState()
-                    != BluetoothManage.BLUETOOTH_CONNECT_SUCCESS) {
-                timerHandler.sendEmptyMessage(0);
-                timerHandler.removeCallbacks(runnable);
-            } else if (!isSearching) {
-                timerHandler.removeCallbacks(runnable);
-            } else {
-                timerHandler.post(runnable);
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0: {
+                    tryAgainDialog();
+                    break;
+                }
+
+                case 1: {
+                    autoConnectService.getCarVIN();
+                    vinRetrievalStartTime = System.currentTimeMillis();
+                    break;
+                }
             }
         }
     };
@@ -542,63 +566,53 @@ public class AddCarActivity extends AppCompatActivity implements
      * Create a new Car
      */
     private void makeCar() {
-        Log.i(ACTIVITY_TAG,"makeCar() -- function");
+        Log.i(TAG,"makeCar() -- function");
 
-        if(isValidVin(vinEditText.getText().toString())&&!makingCar) {
+        Log.i(TAG,"Making car -- make car function");
 
-            Log.i(ACTIVITY_TAG,"isValidVin(vinEditText.getText().toString())&&!makingCar");
-            makingCar = true;
-            Log.i(ACTIVITY_TAG,"Making car -- make car function");
-            VIN = vinEditText.getText().toString();
+        if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
 
-            if(service.getState()==BluetoothManage.CONNECTED) {
+            Log.i(TAG, "Now connected to device");
 
-                Log.i(ACTIVITY_TAG, "Now connected to device");
-                showLoading("Loading Car Engine Code");
-                askForDTC=true;
-                Log.i(ACTIVITY_TAG,"Make car --- Getting DTCs");
-                service.getDTCs();
-                service.getPendingDTCs();
-            } else {
-                try {
-                    Log.i(ACTIVITY_TAG, "Device not connected");
-                    Log.i(ACTIVITY_TAG, "Checking internet connection");
+            showLoading("Loading car engine codes");
+            askForDTC=true;
+            Log.i(TAG,"Make car --- Getting DTCs");
+            autoConnectService.getDTCs();
+            autoConnectService.getPendingDTCs();
+        } else {
+            try {
+                Log.i(TAG, "Device not connected");
+                Log.i(TAG, "Checking internet connection");
 
-                    showLoading("Checking internet connection");
+                if(new InternetChecker(this).execute().get()) {
 
-                    if(new InternetChecker(this).execute().get()){
+                    ParseConfig.getInBackground(new ConfigCallback() {
+                        @Override
+                        public void done(ParseConfig config, ParseException e) {
 
-                        ParseConfig.getInBackground(new ConfigCallback() {
-                            @Override
-                            public void done(ParseConfig config, ParseException e) {
+                            Log.i(TAG, "Adding car --- make car func");
 
-                                showLoading("Adding Car");
-                                Log.i(ACTIVITY_TAG, "Adding car --- make car func");
-
-                                if(vinDecoderApi == null) {
-                                    vinDecoderApi = new CallMashapeAsync();
-                                } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                    Log.i("VIN DECODER","Pending TASK");
-                                } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                    vinDecoderApi.cancel(true);
-                                    vinDecoderApi = null;
-                                    vinDecoderApi = new CallMashapeAsync();
-                                } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                    vinDecoderApi = null;
-                                    vinDecoderApi  = new CallMashapeAsync();
-                                }
-                                vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                            if(vinDecoderApi == null) {
+                                vinDecoderApi = new CallMashapeAsync();
+                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                                Log.i("VIN DECODER","Pending TASK");
+                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                                vinDecoderApi.cancel(true);
+                                vinDecoderApi = null;
+                                vinDecoderApi = new CallMashapeAsync();
+                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                                vinDecoderApi = null;
+                                vinDecoderApi  = new CallMashapeAsync();
                             }
-                        });
-                    } else {
-                        hideLoading();
-                        Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
-                        startActivity(intent);
-                        finish(false);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        }
+                    });
+                } else {
+                    hideLoading();
+                    startPendingAddCarActivity();
                 }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -622,34 +636,32 @@ public class AddCarActivity extends AppCompatActivity implements
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.i(ACTIVITY_TAG,"Starting barcode scanner");
+
+        Log.i(TAG,"Starting barcode scanner");
         Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
-        intent.putExtra(BarcodeCaptureActivity.UseFlash, false); //If night use flash
+        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
 
         startActivityForResult(intent, RC_BARCODE_CAPTURE);
     }
-        
+
     @Override
     public void getBluetoothState(int state) {
-        Log.i(ACTIVITY_TAG,"getBluetoothState func--");
-        if(state!=BluetoothManage.BLUETOOTH_CONNECT_SUCCESS) {
-            Log.i(ACTIVITY_TAG, "Device is disconnected");
-            /*hideLoading();
-            service.startBluetoothSearch();*/
-            /*if(isLoading) {
-                hideLoading();
-            }*/
-            if(isLoading && !VIN.equals("")) {
-                Log.i(ACTIVITY_TAG,"Vin is empty -- starting bluetooth search");
-                service.startBluetoothSearch();
-            }
-            Log.i("GET BLUETOOTH STATE ","bluetooth not connected");
-        }else{
-            if(isGettingVin) {
-                showLoading("Linking with Device, give it a few seconds");
-                Log.i(ACTIVITY_TAG,"Getting car vin --- getBluetoothState");
-                service.getCarVIN();
+        Log.i(TAG,"getBluetoothState func--");
+        if(state == IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
+            if(isSearchingForCar) {
+                isSearchingForCar = false;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLoading("Linking with Device, give it a few seconds");
+                    }
+                });
+                Log.i(TAG,"Getting car vin --- getBluetoothState");
+                autoConnectService.getCarVIN();
+                vinRetrievalStartTime = System.currentTimeMillis();
+                isGettingVinAndCarIsConnected = true;
+                mHandler.post(vinDetectionRunnable);
             }
         }
     }
@@ -661,78 +673,87 @@ public class AddCarActivity extends AppCompatActivity implements
      * After resetting device time, the bluetooth connection is lost.
      * */
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(ACTIVITY_TAG,"Set parameter");
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+        Log.i(TAG,"Set parameter");
         if((responsePackageInfo.type+responsePackageInfo.value)
-                .equals(BluetoothAutoConnectService.RTC_TAG)) {
+                .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
-            Log.i(ACTIVITY_TAG, "Set parameter() device time is set-- starting bluetooth search");
-            service.startBluetoothSearch();
+            Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
+            autoConnectService.startBluetoothSearch();
         }
     }
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
-        Log.i(ACTIVITY_TAG,"getParametData()");
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+        Log.i(TAG,"getParameterData()");
 
-        if(parameterPackageInfo.value.get(0).tlvTag.equals(BluetoothAutoConnectService.VIN_TAG)) {
-            Log.i(ACTIVITY_TAG,"VIN response received");
-            isSearching = false;
-            isGettingVin = false;
+        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
+            Log.i(TAG,"VIN response received");
+
+            isGettingVinAndCarIsConnected = false;
+            scannerID = parameterPackageInfo.deviceId;
             LogUtil.i("parameterPackage.size():"
                     + parameterPackageInfo.value.size());
 
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                ParseApplication.mixpanelAPI.track("Scanned VIN",
-                        new JSONObject("{'VIN':'"+VIN+"'}"));
+                application.getMixpanelAPI().track("Retrieved VIN",
+                        new JSONObject("{'VIN':'" + VIN + "'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             if (isValidVin(VIN)) {
 
-                Log.i(ACTIVITY_TAG,"VIN is valid");
-                vinEditText.setText(VIN);
-                showLoading("Loaded car VIN");
+                Log.i(TAG,"VIN is valid");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vinEditText.setText(VIN);
+                        showLoading("Loaded car vin");
+                        makeCar();
+                    }
+                });
 
             } else {
                 // same as in manual input plus vin hint
-                Log.i(ACTIVITY_TAG, "Vin value returned not valid");
-                Log.i(ACTIVITY_TAG,"VIN: "+VIN);
-                hideLoading();
-                showManualEntryUI();
-                vinHint.setVisibility(View.VISIBLE);
+                Log.i(TAG, "Vin value returned not valid");
+                Log.i(TAG,"VIN: "+VIN);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLoading();
+                        showManualEntryUI();
+                        vinHint.setVisibility(View.VISIBLE);
+                    }
+                });
             }
-            scannerID = parameterPackageInfo.deviceId;
-            Log.i(ACTIVITY_TAG,"Calling make car--- getParameter()");
-            makeCar();
         }
     }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(ACTIVITY_TAG, "getIOData()");
+        Log.i(TAG, "getIOData()");
+        Log.i(TAG, "result: "+dataPackageInfo.result);
 
-        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askForDTC) {
-            showLoading("");
-            Log.i(ACTIVITY_TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");
+
+        if (dataPackageInfo.result == 6 && askForDTC) {
+            Log.i(TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");
             dtcs = "";
             if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                Log.i(ACTIVITY_TAG,"Parsing DTCs");
+                Log.i(TAG,"Parsing DTCs");
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
                 for(String dtc : DTCs) {
-                    dtcs+=service.parseDTCs(dtc)+",";
+                    dtcs+= ObdDataUtil.parseDTCs(dtc)+",";
                 }
             }
+
             try {
-                Log.i(ACTIVITY_TAG, "getIOData --- Adding car");
+                Log.i(MainActivity.TAG, "getIOData --- Adding car");
                 if(new InternetChecker(this).execute().get()){
                     ParseConfig.getInBackground(new ConfigCallback() {
                         @Override
                         public void done(ParseConfig config, ParseException e) {
-
-                            showLoading("Adding Car");
 
                             if(vinDecoderApi == null) {
                                 vinDecoderApi = new CallMashapeAsync();
@@ -749,29 +770,26 @@ public class AddCarActivity extends AppCompatActivity implements
                             vinDecoderApi.execute(config.getString("MashapeAPIKey"));
                         }
                     });
-                }else{
-                    Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
-                    startActivity(intent);
-                    finish(false);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideLoading();
+                            startPendingAddCarActivity();
+                        }
+                    });
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
             askForDTC=false;
-        }else{
-            //TODO why ?
-            Log.i(ACTIVITY_TAG, "calling the strange get carVIN - --- Don't know why");
-            //service.getCarVIN();
         }
     }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if(loginPackageInfo.flag.equals(String.valueOf(BluetoothAutoConnectService.DEVICE_LOGOUT))) {
-            Log.i(ACTIVITY_TAG, "Device connected");
-            if(isLoading) {
-                hideLoading();
-            }
+        if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            Log.i(TAG, "Device disconnected");
         }
     }
 
@@ -812,7 +830,7 @@ public class AddCarActivity extends AppCompatActivity implements
     }
 
     private String checkVinForInvalidCharacter(String vin) {
-        Log.i(ACTIVITY_TAG,"checkVinForInvalidCharacter--");
+        Log.i(TAG,"checkVinForInvalidCharacter--");
         if(vin!=null && vin.length() == 18 && vin.startsWith("I")) {
             return vin.substring(1,vin.length()-1);
         }
@@ -820,20 +838,20 @@ public class AddCarActivity extends AppCompatActivity implements
     }
 
     boolean isValidVin(String vin) {
-        Log.i(ACTIVITY_TAG,"isValidVin()-- func");
+        Log.i(TAG,"isValidVin()-- func");
         return vin != null && vin.length() == 17;
     }
     /**
      * show Manual VIN UI
      */
     void showManualEntryUI() {
-        Log.i(ACTIVITY_TAG, "showManual");
+        Log.i(TAG, "showManual");
         vinSection.setVisibility(View.VISIBLE);
         searchForCarInfo.setText(getString(R.string.add_car_manual));
         abstractButton.setText("ADD CAR");
 
         String vin = String.valueOf(vinEditText.getText());
-        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources()
+        ((ImageView) findViewById(R.id.obd_ports)).setImageDrawable(getResources()
                 .getDrawable(R.drawable.illustration_car));
 
         Log.d("isValidVin() result", String.valueOf(isValidVin(vin)));
@@ -856,7 +874,7 @@ public class AddCarActivity extends AppCompatActivity implements
         abstractButton.setEnabled(true);
         vinSection.setVisibility(View.GONE);
         searchForCarInfo.setText(getString(R.string.add_car_bluetooth));
-        ((ImageView) findViewById(R.id.inidcation)).setImageDrawable(getResources()
+        ((ImageView) findViewById(R.id.obd_ports)).setImageDrawable(getResources()
                 .getDrawable(R.drawable.illustration_dashboard));
         abstractButton.setText("SEARCH FOR CAR");
 
@@ -886,6 +904,246 @@ public class AddCarActivity extends AppCompatActivity implements
                 Toast.LENGTH_SHORT).show();
     }
 
+
+    /**
+     * Hide the loading screen
+     */
+    private void hideLoading() {
+        if(dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
+
+    /**
+     * Show the loading screen
+     */
+    private void showLoading(String text) {
+        dialog.setMessage(text);
+        if(!dialog.isShowing()) {
+            dialog.show();
+        }
+    }
+
+
+    private void setDealership(String shopId) {
+        shopSelected = shopId;
+    }
+
+    private String getDealership() {
+        return shopSelected;
+    }
+
+    @AfterPermissionGranted(RC_LOCATION_PERM)
+    private void beginSearchForCar() {
+        abstractButton.performClick();
+    }
+
+    private void setupUIReferences() {
+        Log.i(TAG,"Setting up ui...");
+        yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
+        noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
+        yesButton.setOnClickListener(this);
+        noButton.setOnClickListener(this);
+
+        abstractButton = (Button) findViewById(R.id.button);
+        scannerButton = (Button) findViewById(R.id.scannerButton);
+        vinEditText = (EditText) findViewById(R.id.VIN);
+        mileageEditText = (EditText) findViewById(R.id.mileage);
+        vinHint = (TextView) findViewById(R.id.VIN_hint);
+        searchForCarInfo = (TextView)findViewById(R.id.search_for_car_info);
+        vinSection = (LinearLayout) findViewById(R.id.VIN_SECTION);
+
+        dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (vinDecoderApi != null &&
+                        vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                    vinDecoderApi.cancel(true);
+                    vinDecoderApi = null;
+                }
+
+                isSearchingForCar = false;
+                mHandler.removeCallbacks(carSearchRunnable);
+                mHandler.removeCallbacks(vinDetectionRunnable);
+            }
+        });
+    }
+
+    private void scannerIdCheck(final JSONObject carInfo) {
+        Log.i(TAG,"ScannerIdCheck() -- func");
+
+        if(Utils.isEmpty(scannerID)) {
+            vinCheck(carInfo);
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showLoading("Checking car scanner Id");
+                }
+            });
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+            query.whereEqualTo("scannerId",scannerID);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e!=null) {
+                        hideLoading();
+                        Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
+                    } else if(!objects.isEmpty() && !Utils.isEmpty(scannerID) ) {
+                        hideLoading();
+                        Toast.makeText(AddCarActivity.this, "The device with Id: "
+                                        +scannerID+" is already linked with another car",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.i(TAG, "Calling vinCheck()--func");
+                        vinCheck(carInfo);
+                    }
+                }
+            });
+
+        }
+    }
+
+    private void vinCheck(final JSONObject carInfo) {
+        Log.i(TAG, "vinCheck()");
+        //check if car already exists!
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showLoading("Checking car vin");
+            }
+        });
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+        query.whereEqualTo("VIN",VIN);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e!=null) {
+                    hideLoading();
+                    Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
+                } else if(!objects.isEmpty()) {
+                    //see if car already exists!
+                    hideLoading();
+
+                    Toast.makeText(AddCarActivity.this,"Car Already Exists!",
+                            Toast.LENGTH_SHORT).show();
+
+                    vinEditText.setText("");
+                } else {
+                    Log.i(TAG,"Calling save car to parse");
+                    saveCarToServer(carInfo);
+                }
+            }
+        });
+    }
+
+    private void saveCarToServer(JSONObject carInfo) {
+        Log.i("shop selected:", getDealership());
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showLoading("Saving car details");
+            }
+        });
+
+        try {
+            //Make Car
+            ParseObject newCar = new ParseObject("Car");
+            newCar.put("VIN", VIN);
+            newCar.put("year", carInfo.getInt("year"));
+            newCar.put("model", carInfo.getString("model"));
+            newCar.put("make", carInfo.getString("make"));
+            newCar.put("tank_size", carInfo.getString("tank_size"));
+            newCar.put("trim_level", carInfo.getString("trim_level"));
+            newCar.put("engine", carInfo.getString("engine"));
+            newCar.put("city_mileage", carInfo.getString("city_mileage"));
+            newCar.put("highway_mileage", carInfo.getString("highway_mileage"));
+            newCar.put("scannerId", scannerID == null ? "" : scannerID);
+            newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
+            newCar.put("baseMileage", mileage.equals("") ? 0 : Integer.valueOf(mileage));
+            newCar.put("dealership", shopSelected);
+            newCar.put("currentCar",true);
+            final Car addedCar = Car.createCar(newCar);
+            newCar.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+
+                    showLoading("Final Touches");
+                    if(e!=null){
+                        hideLoading();
+                        Toast.makeText(AddCarActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if(!Utils.isEmpty(scannerID)) {
+                        // upload the DTCs
+                        ParseObject scansSave = new ParseObject("Scan");
+                        scansSave.put("DTCs", dtcs);
+                        scansSave.put("scannerId", scannerID);
+                        scansSave.put("runAfterSave", true);
+                        scansSave.saveEventually(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    //finished!
+                                    returnToMainActivity(addedCar);
+                                } else {
+                                    hideLoading();
+                                    Toast.makeText(AddCarActivity.this, e.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }else{
+                        Log.i(TAG,"ScannerId is null -- MainActivity refresh");
+                        returnToMainActivity(addedCar);
+                    }
+                }
+            });
+        } catch (JSONException e1) {
+            e1.printStackTrace();
+            hideLoading();
+        }
+    }
+
+    private void startPendingAddCarActivity() {
+        Intent intent = new Intent(AddCarActivity.this,PendingAddCarActivity.class);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_MILEAGE, mileage);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_DTCS, dtcs);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, scannerID);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_VIN, VIN);
+        startActivityForResult(intent, RC_PENDING_ADD_CAR);
+    }
+
+    private void returnToMainActivity(Car addedCar) {
+
+        if(intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+            //update the car object
+            Car dashboardCar = (Car) intentFromMainActivity.getSerializableExtra(MainActivity.CAR_EXTRA);
+            ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
+            ParseObject car = null;
+            try {
+                car = cars.get(dashboardCar.getParseId());
+                car.put("currentCar",false);
+                car.saveEventually();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        hideLoading();
+        Intent data = new Intent();
+        data.putExtra(MainActivity.CAR_EXTRA, addedCar);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
+        setResult(ADD_CAR_SUCCESS, data);
+        finish();
+    }
+
     /**
      * Complex call in adding car.
      * First it goes to Mashape and get info based on VIN -> determines if valid
@@ -893,24 +1151,22 @@ public class AddCarActivity extends AppCompatActivity implements
      * Third it shows the Shops to choose from and add it to Parse.
      * Fourth uploads the DTCs to server (where server code will run to link to car)
      */
-    private class CallMashapeAsync extends AsyncTask<String, Void,String>{
+    private class CallMashapeAsync extends AsyncTask<String, Void, String>{
+
+
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.i(ACTIVITY_TAG, "on pre execute -- CallMashapeAsync");
-            showLoading("Checking car scanner Id");
         }
 
         @Override
         protected void onPostExecute(String error) {
 
-            Log.i(ACTIVITY_TAG, "On post execute");
+            Log.i(TAG, "On post execute");
 
-            if(!error.equals("")) {
-                if(isLoading) {
-                    hideLoading();
-                }
-                makingCar = false;
+            if(!Utils.isEmpty(error)) {
+                hideLoading();
                 Toast.makeText(AddCarActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         }
@@ -941,7 +1197,7 @@ public class AddCarActivity extends AppCompatActivity implements
                     input.close();
                 }
                 if(new JSONObject(response.toString()).getBoolean("success")) {
-                    Log.i(ACTIVITY_TAG, "Call to mashape succeed");
+                    Log.i(TAG, "Call to mashape succeed");
                     //load mashape info
                     final JSONObject jsonObject =
                             new JSONObject(response.toString()).getJSONObject("specification");
@@ -957,205 +1213,4 @@ public class AddCarActivity extends AppCompatActivity implements
             return error;
         }
     }
-
-
-    /**
-     * Hide the loading screen
-     */
-    private void hideLoading(){
-        Log.i(ACTIVITY_TAG, "hideLoading()--func");
-        //loadingScreen.setVisibility(View.GONE);
-        progressDialog.dismiss();
-//        findViewById(R.id.VIN_SECTION).setVisibility(View.VISIBLE);
-        isSearching = false ;
-        isLoading = false;
-    }
-
-    /**
-     * Show the loading screen
-     */
-    private void showLoading(String showText){
-        Log.i(ACTIVITY_TAG, "show loading func----");
-        isLoading = true;
-        //loadingScreen.setVisibility(View.VISIBLE);
-        progressDialog.setMessage(showText);
-        if(!progressDialog.isShowing()) {
-            progressDialog.show();
-        }
-    }
-
-    private void setDealership(String shopId) {
-        shopSelected = shopId;
-    }
-
-    private String getDealership() {
-        return shopSelected;
-    }
-	
-	@AfterPermissionGranted(RC_LOCATION_PERM)
-    private void beginSearchForCar() {
-        abstractButton.performClick();
-    }
-
-    private void setupUIReferences() {
-        Log.i(ACTIVITY_TAG,"Setting up ui...");
-        yesButton = (ToggleButton)findViewById(R.id.yes_i_do_button);
-        noButton = (ToggleButton)findViewById(R.id.no_i_dont_button);
-        yesButton.setOnClickListener(this);
-        noButton.setOnClickListener(this);
-
-        abstractButton = (Button) findViewById(R.id.button);
-        scannerButton = (Button) findViewById(R.id.scannerButton);
-        vinEditText = (EditText) findViewById(R.id.VIN);
-        mileageEditText = (EditText) findViewById(R.id.mileage);
-        vinHint = (TextView) findViewById(R.id.VIN_hint);
-        searchForCarInfo = (TextView)findViewById(R.id.search_for_car_info);
-        vinSection = (LinearLayout) findViewById(R.id.VIN_SECTION);
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (vinDecoderApi != null &&
-                        vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                    vinDecoderApi.cancel(true);
-                    vinDecoderApi = null;
-                }
-
-                isGettingVin = false;
-                isSearching = false;
-                timerHandler.removeCallbacks(runnable);
-            }
-        });
-    }
-
-    private void scannerIdCheck(final JSONObject carInfo) {
-        Log.i(ACTIVITY_TAG,"ScannerIdCheck() -- func");
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-        query.whereEqualTo("scannerId",scannerID);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e!=null) {
-                    if(isLoading) {
-                        hideLoading();
-                    }
-                    Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
-                } else if(!objects.isEmpty() && !"".equals(scannerID) ) {
-                    if(isLoading) {
-                        hideLoading();
-                    }
-                    Toast.makeText(AddCarActivity.this, "The device with Id: "
-                            +scannerID+" is already linked with another car",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.i(ACTIVITY_TAG, "Calling vinCheck()--func");
-                    vinCheck(carInfo);
-                }
-            }
-        });
-    }
-
-    private void vinCheck(final JSONObject carInfo) {
-        Log.i(ACTIVITY_TAG, "vinCheck()");
-        //check if car already exists!
-        showLoading("Checking car vin");
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-        query.whereEqualTo("VIN",VIN);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e!=null) {
-                    if(isLoading) {
-                        hideLoading();
-                    }
-                    Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
-                } else if(!objects.isEmpty()) {
-                    //see if car already exists!
-                    if(isLoading) {
-                        hideLoading();
-                    }
-
-                    Toast.makeText(AddCarActivity.this,"Car Already Exists",
-                            Toast.LENGTH_SHORT).show();
-
-                    makingCar = false;
-                    VIN="";
-                    vinEditText.setText("");
-                } else {
-                    Log.i(ACTIVITY_TAG,"Calling save car to parse");
-                    saveCarToServer(carInfo);
-                }
-            }
-        });
-    }
-
-    private void saveCarToServer(JSONObject carInfo) {
-        Log.i("shop selected:", getDealership());
-
-        showLoading("Saving car details");
-        try {
-            //Make Car
-            ParseObject newCar = new ParseObject("Car");
-            newCar.put("VIN", VIN);
-            newCar.put("year", carInfo.getInt("year"));
-            newCar.put("model", carInfo.getString("model"));
-            newCar.put("make", carInfo.getString("make"));
-            newCar.put("tank_size", carInfo.getString("tank_size"));
-            newCar.put("trim_level", carInfo.getString("trim_level"));
-            newCar.put("engine", carInfo.getString("engine"));
-            newCar.put("city_mileage", carInfo.getString("city_mileage"));
-            newCar.put("highway_mileage", carInfo.getString("highway_mileage"));
-            newCar.put("scannerId", scannerID == null ? "" : scannerID);
-            newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-            newCar.put("baseMileage", mileage.equals("") ? 0 : Integer.valueOf(mileage));
-            newCar.put("dealership", shopSelected);
-            newCar.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-
-                    showLoading("Final touches");
-                    if(e!=null){
-                        hideLoading();
-                        Toast.makeText(AddCarActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if(scannerID!=null) {
-                        // upload the DTCs
-                        ParseObject scansSave = new ParseObject("Scan");
-                        scansSave.put("DTCs", dtcs);
-                        scansSave.put("scannerId", scannerID);
-                        scansSave.put("runAfterSave", true);
-                        scansSave.saveEventually(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    //finished!
-                                    MainActivity.refresh = true;
-                                    finish();
-                                } else {
-                                    hideLoading();
-                                    makingCar = false;
-                                    Toast.makeText(AddCarActivity.this, e.getMessage(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }else{
-                        Log.i(ACTIVITY_TAG,"ScannerId is null -- MainActivity refresh");
-                        MainActivity.refresh = true;
-                        finish();
-                    }
-                }
-            });
-        } catch (JSONException e1) {
-            e1.printStackTrace();
-            makingCar = false;
-        }
-    }
-
 }

@@ -47,6 +47,8 @@ import static android.Manifest.permission.CAMERA;
 public class BarcodeCaptureActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
 
+    private ParseApplication application;
+
     private static final String TAG = "Barcode-reader";
 
     // intent request code to handle updating play services if needed.
@@ -75,6 +77,7 @@ public class BarcodeCaptureActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_capture);
         ActivitySource.caller = this;
+        application = (ParseApplication) getApplicationContext();
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
@@ -95,11 +98,11 @@ public class BarcodeCaptureActivity extends Activity
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        /*Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG).show();*/
+        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
+                Snackbar.LENGTH_LONG).show();
 
         try {
-            ParseApplication.mixpanelAPI.track("View Appeared", new JSONObject("{'View':'BarcodeCaptureActivity'}"));
+            application.getMixpanelAPI().track("View Appeared", new JSONObject("{'View':'BarcodeCaptureActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -134,7 +137,7 @@ public class BarcodeCaptureActivity extends Activity
     @Override
     protected void onPause() {
         super.onPause();
-        ParseApplication.mixpanelAPI.flush();
+        application.getMixpanelAPI().flush();
         if (mPreview != null) {
             mPreview.stop();
         }
@@ -252,7 +255,7 @@ public class BarcodeCaptureActivity extends Activity
     private boolean onTap(float rawX, float rawY) {
 
         try {
-            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Scan Barcode','View':'BarcodeCaptureActivity'}"));
+            application.getMixpanelAPI().track("Button Clicked", new JSONObject("{'Button':'Scan Barcode','View':'BarcodeCaptureActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
