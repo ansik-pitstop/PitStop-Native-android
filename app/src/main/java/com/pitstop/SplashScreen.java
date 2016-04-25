@@ -25,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.castel.obd.util.Utils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -253,6 +254,11 @@ public class SplashScreen extends AppCompatActivity {
     public void signUp(final View view) {
         if (signup) {
             showLoading("Loading");
+            if(Utils.isEmpty(name.getText().toString())) {
+                Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
+                hideLoading();
+                return;
+            }
             if(password.getText().toString().length()<6){
                 Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
