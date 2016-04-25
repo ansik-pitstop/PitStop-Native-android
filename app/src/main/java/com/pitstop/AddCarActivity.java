@@ -79,7 +79,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     public static int ADD_CAR_SUCCESS = 51;
     private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
 
-    boolean makingCar = false;
     private boolean askForDTC = false;
 
     private BluetoothAutoConnectService autoConnectService;
@@ -991,11 +990,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 public void done(List<ParseObject> objects, ParseException e) {
                     if(e!=null) {
                         hideLoading();
-                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
                     } else if(!objects.isEmpty() && !Utils.isEmpty(scannerID) ) {
                         hideLoading();
-                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, "The device with Id: "
                                         +scannerID+" is already linked with another car",
                                 Toast.LENGTH_SHORT).show();
@@ -1026,7 +1023,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e!=null) {
                     hideLoading();
-                    makingCar = false;
                     Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
                 } else if(!objects.isEmpty()) {
                     //see if car already exists!
@@ -1035,7 +1031,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     Toast.makeText(AddCarActivity.this,"Car Already Exists!",
                             Toast.LENGTH_SHORT).show();
 
-                    makingCar = false;
                     vinEditText.setText("");
                 } else {
                     Log.i(TAG,"Calling save car to parse");
@@ -1080,7 +1075,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     showLoading("Final Touches");
                     if(e!=null){
                         hideLoading();
-                        makingCar = false;
                         Toast.makeText(AddCarActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -1099,7 +1093,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                     returnToMainActivity(addedCar);
                                 } else {
                                     hideLoading();
-                                    makingCar = false;
                                     Toast.makeText(AddCarActivity.this, e.getMessage(),
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -1113,7 +1106,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             });
         } catch (JSONException e1) {
             e1.printStackTrace();
-            makingCar = false;
             hideLoading();
         }
     }
@@ -1175,7 +1167,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
             if(!Utils.isEmpty(error)) {
                 hideLoading();
-                makingCar = false;
                 Toast.makeText(AddCarActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         }
