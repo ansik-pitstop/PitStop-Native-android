@@ -400,6 +400,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void navigateToLogin() {
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Log out', 'View':'SettingsActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Intent intent = new Intent(this.getActivity(), SplashScreen.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -408,6 +415,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void updateUsersName(final String updatedName, final Preference namePreference) {
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Update name', 'View':'SettingsActivity'}"));
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+
             ParseUser currentUser = ParseUser.getCurrentUser();
             currentUser.put("name", updatedName);
             currentUser.saveInBackground(new SaveCallback() {
@@ -416,6 +430,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (e == null) {
                         namePreference.setTitle(updatedName);
                         //listener.localUpdatePerformed(); // UserName update
+
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -426,6 +441,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         List<Car> selectedCar = new ArrayList<>();
         private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
+
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Switch Car', 'View':'SettingsActivity'}"));
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
 
             dialog.setTitle("Switch Car");

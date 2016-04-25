@@ -152,38 +152,17 @@ public class DisplayItemActivity extends AppCompatActivity {
         List<HashMap<String,String>> services = new ArrayList<>();
 
         if(carIssue.getIssueType().equals("recall")) {
-            /*LocalDataRetriever dataRetriever = new LocalDataRetriever(this);
-
-            Recalls recall =  new Recalls();
-            recall.setValue("item", carIssue.getIssueDetail().getItem());
-            recall.setValue("action",carIssue.getIssueDetail().getAction());
-            recall.setValue("itemDescription",carIssue.getIssueDetail().getDescription());
-            recall.setValue("priority",String.valueOf(carIssue.getPriority())); // high priority for recall
-            services.add(recall.getValues());
-
-            //update db
-            model.setValue("state","pending");
-            HashMap<String,String> tmp = new HashMap<>();
-            tmp.put("state","pending");
-            dataRetriever.updateData("Recalls", "RecallID", model.getValue("RecallID"),tmp);
-
-            ParseQuery query = new ParseQuery("RecallEntry");
-            query.whereEqualTo("objectId",model.getValue("RecallID"));
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if (e == null && !objects.isEmpty()) {
-                        ParseObject objToUpdate = objects.get(0);
-                        objToUpdate.put("state", "pending");
-                        objToUpdate.saveEventually();
-                    }
-                }
-            });
+            HashMap<String, String> recall = new HashMap<>();
+            recall.put("item", carIssue.getIssueDetail().getItem());
+            recall.put("action", carIssue.getIssueDetail().getAction());
+            recall.put("itemDescription", carIssue.getIssueDetail().getDescription());
+            recall.put("priority", String.valueOf(carIssue.getPriority()));
+            services.add(recall);
 
             output.put("services", services);
-            output.put("carVin", VIN);
+            output.put("carVin", dashboardCar.getVin());
             output.put("userObjectId", userId);
-            output.put("comments", additionalComment);*/
+            output.put("comments", additionalComment);
 
         } else if(carIssue.getIssueType().equals("dtc")) {
 

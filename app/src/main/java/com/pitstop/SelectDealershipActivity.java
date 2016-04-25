@@ -240,7 +240,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
                     try {
                         application.getMixpanelAPI().track("CardView Clicked",
-                                new JSONObject("{'CardView':'Dealership selected','View':'SelectDealershipActivity'}"));
+                                new JSONObject("{'CardView':'Dealership selected'," +
+                                        "'View':'SelectDealershipActivity'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

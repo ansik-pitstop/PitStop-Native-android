@@ -253,6 +253,13 @@ public class SplashScreen extends AppCompatActivity {
 
     public void signUp(final View view) {
         if (signup) {
+            try {
+                application.getMixpanelAPI().track("Button Clicked",
+                        new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             showLoading("Loading");
             if(Utils.isEmpty(name.getText().toString())) {
                 Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
@@ -293,13 +300,6 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 }
             });
-
-            try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }else{
             name.setVisibility(View.VISIBLE);
             phoneNumber.setVisibility(View.VISIBLE);
@@ -309,6 +309,12 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void login(View view) {
+        try {
+            application.getMixpanelAPI().track("Button Clicked",
+                    new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
+        } catch (JSONException e2) {
+            e2.printStackTrace();
+        }
 
         showLoading("Logging in...");
         final String usernameInput = email.getText().toString();
@@ -343,14 +349,6 @@ public class SplashScreen extends AppCompatActivity {
 
                     hideLoading();
                     startActivity(intent);
-
-
-                    try {
-                        application.getMixpanelAPI().track("Button Clicked",
-                                new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
-                    } catch (JSONException e2) {
-                        e2.printStackTrace();
-                    }
                 } else {
                     hideLoading();
                     Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();

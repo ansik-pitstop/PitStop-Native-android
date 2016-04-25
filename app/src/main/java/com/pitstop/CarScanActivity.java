@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -31,6 +32,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.util.Utils;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
@@ -94,6 +96,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private Car dashboardCar;
     private boolean performedScan = false;
+    private ProgressDialog progressDialog;
 
 
     private static String TAG = "CarScanActivity";
@@ -153,7 +156,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     protected void onPause() {
-        dtcRequestTimer.removeCallbacks(runnable);
+        handler.removeCallbacks(runnable);
         super.onPause();
     }
 
@@ -185,6 +188,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private void setupUiReferences() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
         carMileage = (TextView) findViewById(R.id.car_mileage);
 
         carScanButton = (Button) findViewById(R.id.car_scan_btn);
@@ -207,7 +212,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 if(autoConnectService.isCommunicatingWithDevice()) {
                     updateMileage();
                 } else {
-                    tryAgainDialog();
+                    progressDialog.setMessage("Connecting to car");
+                    progressDialog.show();
+                    carSearchStartTime = System.currentTimeMillis();
+                    handler.post(connectCar);
                 }
             }
         });
@@ -456,7 +464,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         dtcCodes.clear();
         askingForDtcs = true;
         startTime = System.currentTimeMillis();
-        dtcRequestTimer.post(runnable);
+        handler.post(runnable);
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
@@ -548,7 +556,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
 
-        if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.equals("") && askingForDtcs) {
+        if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
 
             String[] dtcs = dataPackageInfo.dtcData.split(",");
             for(String dtc : dtcs) {
@@ -576,18 +584,34 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private long startTime = 0;
-    Handler dtcRequestTimer = new Handler() {
+    private long carSearchStartTime = 0;
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if(msg.what == 0 ) {
-                if(dtcCodes.isEmpty()) {
-                    loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesCountLayout.setVisibility(View.GONE);
-                    engineIssuesStateLayout.setVisibility(View.VISIBLE);
-                    engineIssuesText.setText("No Engine Issues");
+            switch (msg.what) {
+                case 0: {
+                    if(dtcCodes.isEmpty()) {
+                        loadingEngineIssues.setVisibility(View.GONE);
+                        engineIssuesCountLayout.setVisibility(View.GONE);
+                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                        engineIssuesText.setText("No Engine Issues");
+                    }
+                    updateCarHealthMeter();
+                    carScanButton.setEnabled(true);
+                    break;
                 }
-                updateCarHealthMeter();
-                carScanButton.setEnabled(true);
+
+                case 1: {
+                    progressDialog.dismiss();
+                    updateMileage();
+                    break;
+                }
+
+                case 2: {
+                    progressDialog.dismiss();
+                    tryAgainDialog();
+                    break;
+                }
             }
         }
     };
@@ -601,12 +625,30 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             if(seconds > 10 && askingForDtcs) {
                 askingForDtcs = false;
-                dtcRequestTimer.sendEmptyMessage(0);
-                dtcRequestTimer.removeCallbacks(runnable);
+                handler.sendEmptyMessage(0);
+                handler.removeCallbacks(runnable);
             } else {
-                dtcRequestTimer.post(runnable);
+                handler.post(runnable);
             }
 
+        }
+    };
+
+    Runnable connectCar = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - carSearchStartTime;
+            int seconds = (int) (timeDiff / 1000);
+            if(autoConnectService.isCommunicatingWithDevice()) {
+                handler.sendEmptyMessage(1);
+                handler.removeCallbacks(connectCar);
+            } else if(seconds > 10) {
+                handler.sendEmptyMessage(2);
+                handler.removeCallbacks(connectCar);
+            } else {
+                handler.post(connectCar);
+            }
         }
     };
 

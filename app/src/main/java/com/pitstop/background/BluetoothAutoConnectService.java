@@ -424,6 +424,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(counter%50==0){
             getDTCs();
         }
+        if(counter%70==0){
+            getPendingDTCs();
+        }
         if(counter==100){
             counter = 1;
             uploadRecords();
