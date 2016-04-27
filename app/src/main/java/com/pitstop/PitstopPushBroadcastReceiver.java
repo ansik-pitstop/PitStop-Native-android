@@ -103,6 +103,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
         NotificationCompat.Builder notificationSummary = new NotificationCompat.Builder(context)
                 .setContentTitle("Pitstop")
+                .setContentText("New Alert")
                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                 .setColor(context.getResources().getColor(R.color.highlight))
                 .setLargeIcon(icon)
