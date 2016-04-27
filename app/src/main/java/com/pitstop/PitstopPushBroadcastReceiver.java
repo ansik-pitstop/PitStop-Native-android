@@ -52,16 +52,16 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         }
 
         ParseNotificationStore localStore = new ParseNotificationStore(context);
-        ParseNotification notification = new ParseNotification();
+        ParseNotification parseNotification = new ParseNotification();
 
         ApplicationInfo appInfo = context.getApplicationInfo();
         String fallbackTitle = context.getPackageManager().getApplicationLabel(appInfo).toString();
-        notification.setTitle(pushData.optString("title", fallbackTitle));
-        notification.setAlert(pushData.optString("alert", "Notification received."));
-        notification.setParsePushId(pushData.optString(KEY_PARSE_ID, ""));
-        String tickerText = String.format(Locale.getDefault(), "%s: %s", notification.getTitle(),
-                notification.getAlert());
-        localStore.storeNotification(notification);
+        parseNotification.setTitle(pushData.optString("title", fallbackTitle));
+        parseNotification.setAlert(pushData.optString("alert", "Notification received."));
+        parseNotification.setParsePushId(pushData.optString(KEY_PARSE_ID, ""));
+        String tickerText = String.format(Locale.getDefault(), "%s: %s", parseNotification.getTitle(),
+                parseNotification.getAlert());
+        localStore.storeNotification(parseNotification);
 
         Bundle extras = intent.getExtras();
 
@@ -90,35 +90,45 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.mipmap.ic_push);
 
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+
 
 
         List<ParseNotification> notificationList = localStore.getAllNotifications();
-        for(ParseNotification notification1 : notificationList) {
-            inboxStyle.addLine(notification1.getAlert());
-        }
-        inboxStyle.setBigContentTitle("Pitstop").setSummaryText("Alerts");
-
-
-
-        NotificationCompat.Builder notificationSummary = new NotificationCompat.Builder(context)
-                .setContentTitle("Pitstop")
-                .setContentText("New Alert")
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
+        notification
                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                 .setColor(context.getResources().getColor(R.color.highlight))
                 .setLargeIcon(icon)
-                .setStyle(inboxStyle)
-                .setNumber(notificationList.size())
+                .setAutoCancel(true)
                 .setContentIntent(pContentIntent)
                 .setDeleteIntent(pDeleteIntent)
-                .setGroup(GROUP_KEY_ALERTS)
-                .setGroupSummary(true)
-                .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL);
 
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(0, notificationSummary.build());
+
+        if(notificationList.size() == 1) {
+            notification
+                    .setContentTitle(parseNotification.getTitle())
+                    .setContentText(parseNotification.getAlert());
+            nm.notify(0, notification.build());
+
+        } else {
+            NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+            for(ParseNotification notification1 : notificationList) {
+                inboxStyle.addLine(notification1.getAlert());
+            }
+            inboxStyle.setBigContentTitle("Pitstop").setSummaryText("Alerts");
+            notification
+                    .setContentTitle("Pitstop")
+                    .setContentText("New Alert")
+                    .setStyle(inboxStyle)
+                    .setNumber(notificationList.size())
+                    .setGroup(GROUP_KEY_ALERTS)
+                    .setGroupSummary(true);
+
+            nm.notify(0, notification.build());
+        }
     }
 
     @Override
@@ -139,6 +149,10 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             target.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(target);
             openedActivity = true;
+
+            ParseApplication application = (ParseApplication) context.getApplicationContext();
+                    application.getMixpanelAPI().track("App Status",
+                    new JSONObject("{'Status':'App opened from Push Notification'}"));
         } catch (JSONException e) {
             Log.e(TAG, "Unexpected JSONException when receiving push data: ", e);
         }

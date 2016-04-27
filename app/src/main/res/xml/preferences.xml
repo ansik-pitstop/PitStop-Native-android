@@ -36,7 +36,7 @@
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">
         <Preference android:title="Privacy policy" >
             <intent android:action="android.intent.action.VIEW"
-                android:data="http://getpitstop.io/privacypolicy/" />
+                android:data="http://getpitstop.io/privacypolicy/PrivacyPolicy.pdf" />
         </Preference>
         <Preference
             android:key="@string/pref_logout_key"
