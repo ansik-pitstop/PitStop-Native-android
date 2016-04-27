@@ -97,16 +97,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothCommunicator = new BluetoothLeComm(this);
-        } else {
-            bluetoothCommunicator = new BluetoothClassicComm(this);
-        }
+        if(BluetoothAdapter.getDefaultAdapter() != null) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                bluetoothCommunicator = new BluetoothLeComm(this);
+            } else {
+                bluetoothCommunicator = new BluetoothClassicComm(this);
+            }
 
-        bluetoothCommunicator.setBluetoothDataListener(this);
-        if (BluetoothAdapter.getDefaultAdapter()!=null
-                && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            bluetoothCommunicator.startScan();
+            bluetoothCommunicator.setBluetoothDataListener(this);
+            if (BluetoothAdapter.getDefaultAdapter()!=null
+                    && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                bluetoothCommunicator.startScan();
+            }
         }
         localPid = new LocalPidAdapter(this);
 

@@ -61,4 +61,11 @@ public final class TABLES {
         String KEY_EMAIL = "email";
         String KEY_SHOP_ID = "shopId";
     }
+
+    public interface NOTIFICATION {
+        String TABLE_NAME = "notifications";
+
+        String KEY_ALERT = "alert";
+        String KEY_TITLE = "title";
+    }
 }

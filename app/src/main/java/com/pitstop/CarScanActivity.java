@@ -643,7 +643,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             if(autoConnectService.isCommunicatingWithDevice()) {
                 handler.sendEmptyMessage(1);
                 handler.removeCallbacks(connectCar);
-            } else if(seconds > 10) {
+            } else if(seconds > 15) {
                 handler.sendEmptyMessage(2);
                 handler.removeCallbacks(connectCar);
             } else {

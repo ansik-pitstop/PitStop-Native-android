@@ -44,6 +44,10 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
@@ -57,12 +61,15 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,6 +83,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
@@ -149,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private ParseApplication application;
 
     private Intent splashScreenIntent;
+    private Intent pushIntent;
 
 
     public static String TAG = "MainActivity --> ";
@@ -225,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         application = (ParseApplication) getApplicationContext();
         splashScreenIntent =getIntent();
+        pushIntent =getIntent();
 
         carLocalStore = new LocalCarAdapter(this);
         carIssueLocalStore = new LocalCarIssueAdapter(this);
@@ -317,8 +327,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             Log.i(TAG, "refresh from login");
             splashScreenIntent = null;
             refreshFromServer();
-        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(intent.getStringExtra(FROM_ACTIVITY))) {
+        } else if(intent != null
+                && SelectDealershipActivity.ACTIVITY_NAME.equals(intent.getStringExtra(FROM_ACTIVITY))) {
             refreshFromLocal();
+        } else if(pushIntent != null
+                && PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(pushIntent.getStringExtra(FROM_ACTIVITY))) {
+            refreshFromLocal();
+            pushIntent = null;
         }
 
         indicatorHandler.postDelayed(runnable, 1000);
@@ -738,7 +753,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         setDealership();
         populateCarIssuesAdapter();
 
-        //
         if(application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME
                 || application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME_VERSION) {
 
@@ -1242,8 +1256,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'Tutorial'}"));
+            application.getMixpanelAPI().track("Showing Tutorial",
+                    new JSONObject("{'View':'MainActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1263,6 +1277,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setTitleText("Add Car")
                         .setContentText("Click to add a new car")
                         .setDismissOnTouch(true)
+                        .setDismissText("OK")
                         .build()
         );
 
@@ -1272,6 +1287,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .setTitleText("Scan Car")
                         .setContentText("Click to scan car for issues")
                         .setDismissOnTouch(true)
+                        .setDismissText("OK")
                         .build()
         );
 
@@ -1283,6 +1299,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 "message/call/get directions to your dealership. " +
                                 "You can edit this in your settings.")
                         .setDismissOnTouch(true)
+                        .setDismissText("OK")
                         .withRectangleShape(true)
                         .build()
         );
@@ -1291,9 +1308,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(recyclerView)
                         .setTitleText("Car Issues")
-                        .setContentText("If there are any issues that have been fixed, " +
-                                "please swipe the issue card to indicate when the issue was fixed.")
+                        .setContentText("Swipe to dismiss issues.")
                         .setDismissOnTouch(true)
+                        .setDismissText("OK")
                         .withRectangleShape(true)
                         .build()
         );
