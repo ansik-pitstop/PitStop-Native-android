@@ -44,10 +44,6 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
@@ -61,15 +57,12 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
-import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
 import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +76,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
@@ -199,7 +191,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     };
 
-    Handler indicatorHandler = new Handler() {
+    /**
+     * Monitor app connection to device, so that ui can be updated
+     * appropriately.
+     * */
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
@@ -212,15 +208,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } else {
                     updateConnectedCarIndicator(false);
                 }
-                indicatorHandler.post(runnable);
+                handler.post(carConnectedRunnable);
             }
         }
     };
 
-    Runnable runnable = new Runnable() {
+
+    Runnable carConnectedRunnable = new Runnable() {
         @Override
         public void run() {
-            indicatorHandler.sendEmptyMessage(0);
+            handler.sendEmptyMessage(0);
         }
     };
 
@@ -236,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         splashScreenIntent =getIntent();
         pushIntent =getIntent();
 
+        // Local db adapters
         carLocalStore = new LocalCarAdapter(this);
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
@@ -322,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         Intent intent = getIntent();
 
+        // Always refresh from the server if resuming from log in activity
         if(splashScreenIntent != null
                 && splashScreenIntent.getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
             Log.i(TAG, "refresh from login");
@@ -329,18 +328,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             refreshFromServer();
         } else if(intent != null
                 && SelectDealershipActivity.ACTIVITY_NAME.equals(intent.getStringExtra(FROM_ACTIVITY))) {
+            // In the event the user pressed back button while in the select dealership activity
+            // then load required data from local db.
             refreshFromLocal();
         } else if(pushIntent != null
                 && PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(pushIntent.getStringExtra(FROM_ACTIVITY))) {
-            refreshFromLocal();
+            // On opening a push notification, load required data from server
+            refreshFromServer();
             pushIntent = null;
         }
 
-        indicatorHandler.postDelayed(runnable, 1000);
+        handler.postDelayed(carConnectedRunnable, 1000);
     }
 
 
-    // TODO: Switch to fragments, ass opposed to starting child activities
+    // TODO: Switch to fragments, as opposed to starting child activities
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
@@ -379,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     protected void onPause() {
         Log.i(TAG, "onPause");
-        indicatorHandler.removeCallbacks(runnable);
+        handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
 
         super.onPause();
@@ -618,6 +620,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         recyclerView.addOnItemTouchListener(swipeTouchListener);
     }
 
+
+    /**
+     * Request service for all issues currently displayed or custom request
+     * */
     public void requestMultiService(View view) {
 
         try {
@@ -657,6 +663,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         alertDialog.show();
     }
 
+
+    /**
+     * Request service for all issues currently displayed or custom request
+     * @see #requestMultiService(View)
+     * */
     private void sendRequest(String additionalComment) {
 
         String userId = ParseUser.getCurrentUser().getObjectId();
@@ -729,6 +740,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         });
     }
 
+
+    /**
+     * Get list of cars associated with current user
+     * */
     private void getCarDetails() {
 
 
@@ -749,6 +764,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
+
+    /**
+     * Update ui with current car info
+     * And retrieve available car issues
+     * */
     private void setCarDetailsUI() {
         setDealership();
         populateCarIssuesAdapter();
@@ -784,6 +804,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
+    /** Call function to retrieve live data from parse
+     * @see #getCarDetails()
+     * */
     private void loadCarDetailsFromServer() {
         String userId = "";
 

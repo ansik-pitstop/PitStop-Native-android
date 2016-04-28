@@ -77,7 +77,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
                 if (new InternetChecker(getBaseContext()).execute().get()) {
                     goBackToAddCar();
                 } else {
-                    // Repeat this the same runnable code block again another 3 seconds
+                    // Repeat this the same carConnectedRunnable code block again another 3 seconds
                     handler.postDelayed(runnableCode, 3000);
                 }
             } catch (InterruptedException | ExecutionException e) {
