@@ -80,6 +80,7 @@ import java.util.Locale;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 import pub.devrel.easypermissions.EasyPermissions;
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -442,7 +443,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
                 intent.putExtra(CAR_EXTRA,dashboardCar);
-
                 startActivityForResult(intent, RC_SCAN_CAR);
             }
         });
@@ -776,7 +776,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if(application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME
                 || application.checkAppStart() == ParseApplication.AppStart.FIRST_TIME_VERSION) {
 
-            toolbar.postDelayed(new Runnable() {
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     presentShowcaseSequence();
@@ -1276,7 +1276,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(500); // half second between each showcase view
 
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
+        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
 
         try {
             application.getMixpanelAPI().track("Showing Tutorial",
@@ -1285,23 +1285,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             e.printStackTrace();
         }
 
+        sequence.setConfig(config);
+
         sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
-            public void onShow(MaterialShowcaseView itemView, int position) {
+            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 sharedPreferences.edit().putBoolean(pfTutorial,true).apply();
             }
         });
 
-        sequence.setConfig(config);
-
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(this)
-                        .setTarget(toolbar.findViewById(R.id.add))
-                        .setTitleText("Add Car")
-                        .setContentText("Click to add a new car")
-                        .setDismissOnTouch(true)
-                        .setDismissText("OK")
-                        .build()
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
+                .setTarget(toolbar.findViewById(R.id.add))
+                .setTitleText("Add Car")
+                .setContentText("Click to add a new car")
+                .setDismissOnTouch(true)
+                .setDismissText("OK")
+                .build()
         );
 
         sequence.addSequenceItem(
@@ -1327,15 +1326,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .build()
         );
 
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(this)
-                        .setTarget(recyclerView)
-                        .setTitleText("Car Issues")
-                        .setContentText("Swipe to dismiss issues.")
-                        .setDismissOnTouch(true)
-                        .setDismissText("OK")
-                        .withRectangleShape(true)
-                        .build()
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
+                .setTarget(recyclerView)
+                .setTitleText("Car Issues")
+                .setContentText("Swipe to dismiss issues.")
+                .setDismissOnTouch(true)
+                .setDismissText("OK")
+                .withRectangleShape(true)
+                .build()
         );
 
         sequence.start();

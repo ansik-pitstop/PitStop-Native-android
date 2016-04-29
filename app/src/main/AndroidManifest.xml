@@ -136,11 +136,11 @@
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".CarDetailsActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.CarDetailsActivity" />
+                android:value="com.pitstop.MainActivity" />
         </activity>
         <activity
             android:name=".BarcodeCaptureActivity"
