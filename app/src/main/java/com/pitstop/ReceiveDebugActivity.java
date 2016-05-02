@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
@@ -22,7 +24,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 /**
  * TODO move to DEBUG folder
  */
-public class ReceiveDebugActivity extends AppCompatActivity implements BluetoothManage.BluetoothDataListener {
+public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     TextView BTSTATUS;
     boolean pendingUpload, clicked;
@@ -34,7 +36,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         public void onServiceConnected(ComponentName className, IBinder service1) {
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
-            service = binder.getService();
+            service = ((BluetoothAutoConnectService.BluetoothBinder) service1).getService();
             service.setCallbacks(ReceiveDebugActivity.this); // register
         }
 
@@ -50,7 +52,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
         BTSTATUS.setText("Bluetooth Getting Started");
         setTitle("Connect to Car");
         pendingUpload = false;
-        bindService(MainActivity.serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, BluetoothAutoConnectService.class),
+                serviceConnection, BIND_AUTO_CREATE);
         clicked = false;
     }
 
@@ -83,7 +86,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     }
 
     public void uploadRecords() {
-        service.uploadRecords();
+        //TODO
+        //service.uploadRecords();
     }
 
 
@@ -112,12 +116,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements Bluetooth
     }
 
     @Override
-    public void setParamaterResponse(ResponsePackageInfo responsePackageInfo) {
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
 
     }
 
     @Override
-    public void getParamaterData(ParameterPackageInfo parameterPackageInfo) {
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
     }
 
     @Override

@@ -1,13 +1,18 @@
 package com.pitstop.parse;
 
 import android.app.Application;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
+import android.provider.SyncStateContract;
+import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.pitstop.MainActivity;
 import com.pitstop.R;
 
 import io.smooch.core.Smooch;
@@ -17,31 +22,86 @@ import io.smooch.core.Smooch;
  */
 public class ParseApplication extends Application {
 
-    public static MixpanelAPI mixpanelAPI;
-    // Build a RemoteInput for receiving voice input in a Car Notification
-    public static RemoteInput remoteInput = new RemoteInput.Builder("PITSTOP_VOICE_FEEDBACK_AUTO")
-            .setLabel("PITSTOP MESSAGE")
-            .build();
+    private static String TAG = "ParseApplication";
 
+    private static MixpanelAPI mixpanelAPI;
     @Override
     public void onCreate() {
         super.onCreate();
 
-//        ParseCrashReporting.enable(this);
+        // ParseCrashReporting.enable(this);
         Parse.enableLocalDatastore(this);
-        Parse.initialize(this, getString(R.string.parse_appID), getString(R.string.parse_clientID));
+        Parse.initialize(this, getString(R.string.parse_appID),
+                getString(R.string.parse_clientID));
         ParseInstallation.getCurrentInstallation().saveInBackground();
-        Smooch.init(this, "0xs5j98mds1x8mn77ptw4knc5");
-        mixpanelAPI = MixpanelAPI.getInstance(this, "330c942ffad6819253501447810ad761");
+        Smooch.init(this, getString(R.string.smooch_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
         if(ParseUser.getCurrentUser()!=null) {
-            ParseApplication.mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().identify(ParseUser.getCurrentUser().getObjectId());
-            ParseApplication.mixpanelAPI.getPeople().set("$phone", ParseUser.getCurrentUser().get("phoneNumber"));
-            ParseApplication.mixpanelAPI.getPeople().set("$firstname", ParseUser.getCurrentUser().get("name"));
-            ParseApplication.mixpanelAPI.getPeople().set("$email", ParseUser.getCurrentUser().getEmail());
+            mixpanelAPI.identify(ParseUser.getCurrentUser().getObjectId());
+            mixpanelAPI.getPeople().identify(ParseUser.getCurrentUser().getObjectId());
+            mixpanelAPI.getPeople().set("$phone", ParseUser.getCurrentUser().get("phoneNumber"));
+            mixpanelAPI.getPeople().set("$name", ParseUser.getCurrentUser().get("name"));
+            mixpanelAPI.getPeople().set("$email", ParseUser.getCurrentUser().getEmail());
         }
     }
+
+    public MixpanelAPI getMixpanelAPI() {
+        if(mixpanelAPI == null) {
+            mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
+        }
+        return mixpanelAPI;
+    }
+
+    public enum AppStart {
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+    }
+
+    /**
+     * The app version code (not the version name!) that was used on the last
+     * start of the app.
+     */
+    private static final String LAST_APP_VERSION = "com.pitstop.last_app_version";
+
+    public AppStart checkAppStart() {
+        PackageInfo pInfo;
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        AppStart appStart = AppStart.NORMAL;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            int lastVersionCode = sharedPreferences
+                    .getInt(LAST_APP_VERSION, -1);
+            int currentVersionCode = pInfo.versionCode;
+            appStart = checkAppStart(currentVersionCode, lastVersionCode);
+            // Update version in preferences
+            sharedPreferences.edit()
+                    .putInt(LAST_APP_VERSION, currentVersionCode).apply();
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.i(TAG,
+                    "Unable to determine current app version from package manager." +
+                            " Defensively assuming normal app start.");
+        }
+        return appStart;
+    }
+
+
+    public AppStart checkAppStart(int currentVersionCode, int lastVersionCode) {
+        if (lastVersionCode == -1) {
+            return AppStart.FIRST_TIME;
+        } else if (lastVersionCode < currentVersionCode) {
+            return AppStart.FIRST_TIME_VERSION;
+        } else if (lastVersionCode > currentVersionCode) {
+            Log.i(TAG, "Current version code (" + currentVersionCode
+                    + ") is less then the one recognized on last startup ("
+                    + lastVersionCode
+                    + "). Defensively assuming normal app start.");
+            return AppStart.NORMAL;
+        } else {
+            return AppStart.NORMAL;
+        }
+    }
+
 }

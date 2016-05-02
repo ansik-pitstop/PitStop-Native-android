@@ -140,11 +140,11 @@
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".CarDetailsActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.CarDetailsActivity" />
+                android:value="com.pitstop.MainActivity" />
         </activity>
         <activity
             android:name=".BarcodeCaptureActivity"
@@ -152,6 +152,7 @@
             android:screenOrientation="portrait" />
 
         <service android:name="com.parse.PushService" />
+
         <receiver
             android:name=".PitstopPushBroadcastReceiver"
             android:exported="false">
@@ -167,7 +168,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name.-->
+                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
                 <category android:name="com.ansik.pitstop" />
             </intent-filter>
         </receiver>
@@ -211,12 +212,13 @@
         <activity
             android:name=".SelectDealershipActivity"
             android:label="Select Dealership"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait"></activity>
-
-
-        <meta-data android:name="com.google.android.gms.car.application"
-            android:resource="@xml/android_auto" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
+        <activity
+            android:name=".CarScanActivity"
+            android:label="@string/title_activity_car_scan"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme"/>
     </application>
 
 </manifest>

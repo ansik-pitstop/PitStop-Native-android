@@ -26,6 +26,7 @@ import com.castel.obd.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class BluetoothManage {
 	private final String BT_NAME = "IDD-212";// �������
 
@@ -193,7 +194,7 @@ public class BluetoothManage {
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
 				if(device.getName()!=null && device.getName().contains(BT_NAME)) {
-					Log.i(DTAG, "Connected to devce: " + device.getName());
+					Log.i(DTAG, "Connected to device: " + device.getName());
 					btConnectionState = CONNECTED;
 					LogUtil.i("Bluetooth state:CONNECTED");
 					dataListener.getBluetoothState(btConnectionState);
@@ -539,9 +540,9 @@ public class BluetoothManage {
 				ResponsePackageInfo.class);
 
 		if (null == responsePackageInfo) {
-			Log.i(DTAG,"obd response package setting ctrl and parameter response dataListeners (null data)");
+			Log.i(DTAG, "obd response package setting ctrl and parameter response dataListeners (null data)");
 			dataListener.setCtrlResponse(null);
-			dataListener.setParamaterResponse(null);
+			dataListener.setParameterResponse(null);
 		} else {
 			if ("0".equals(responsePackageInfo.flag)) {
 				Log.i(DTAG,"obd response package set ctrl resp dataListener - BluetoothManage");
@@ -552,7 +553,7 @@ public class BluetoothManage {
 				Log.i(OBDTAG,"value: "+responsePackageInfo.value);
 				Log.i(OBDTAG, "type: " + responsePackageInfo.type);
 
-				dataListener.setParamaterResponse(responsePackageInfo);
+				dataListener.setParameterResponse(responsePackageInfo);
 			}
 		}
 	}
@@ -569,7 +570,7 @@ public class BluetoothManage {
 		Log.i(DTAG,"getting parameterData on dataListener - BluetoothManage");
 		Log.i(OBDTAG,"result: "+parameterPackageInfo.result);
 		Log.i(OBDTAG,"value: "+parameterPackageInfo.value);
-		dataListener.getParamaterData(parameterPackageInfo);
+		dataListener.getParameterData(parameterPackageInfo);
 	}
 
 	/**
@@ -619,9 +620,9 @@ public class BluetoothManage {
 
 		public void setCtrlResponse(ResponsePackageInfo responsePackageInfo);
 
-		public void setParamaterResponse(ResponsePackageInfo responsePackageInfo);
+		public void setParameterResponse(ResponsePackageInfo responsePackageInfo);
 
-		public void getParamaterData(ParameterPackageInfo parameterPackageInfo);
+		public void getParameterData(ParameterPackageInfo parameterPackageInfo);
 
 		public void getIOData(DataPackageInfo dataPackageInfo);
 

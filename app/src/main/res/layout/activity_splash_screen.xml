@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     style="@style/AppNoActionBarTheme"
     android:id="@+id/splash_layout"
-    tools:context="com.pitstop.SplashScreen">
+    tools:context=".SplashScreen">
 
 
     <android.support.v4.view.ViewPager
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skip"
-        android:id="@+id/button7"
+        android:id="@+id/skip_btn"
         android:background="@drawable/color_button_add_car"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
@@ -55,22 +55,4 @@
         android:onClick="goToLogin"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#bfce6746"
-        android:clickable="true"
-        android:id="@+id/loading_section"
-        android:visibility="gone"
-        android:elevation="10dp">
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar3"
-            android:indeterminate="true"
-            android:layout_centerInParent="true" />
-    </RelativeLayout>
 </RelativeLayout>
