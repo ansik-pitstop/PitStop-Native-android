@@ -44,10 +44,10 @@
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
     <permission
-        android:name="com.ansik.pitstop.permission.C2D_MESSAGE"
+        android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.ansik.pitstop.permission.C2D_MESSAGE" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 
     <application
         android:name=".parse.ParseApplication"
@@ -62,9 +62,6 @@
             </intent-filter>
         </receiver>
 
-        <meta-data
-            android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
-            android:value="true" />
         <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
             android:value="true" />
@@ -165,7 +162,7 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
-                <category android:name="com.ansik.pitstop" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
