@@ -110,7 +110,7 @@
             android:name=".Debug.PIDDebugActivity"
             android:label="@string/title_activity_piddebug" />
         <activity
-            android:name=".EnviornmentalCheckActivity"
+            android:name=".EnvironmentalCheckActivity"
             android:label="@string/title_activity_enviornmental_check" />
         <activity
             android:name=".DisplayItemActivity"
