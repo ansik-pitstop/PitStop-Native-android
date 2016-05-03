@@ -12,7 +12,7 @@
         android:lineSpacingMultiplier="1.2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What is Needed from You"
+        android:text="@string/whatneeded"
         android:id="@+id/textView4"
         android:textSize="20sp"
         android:textColor="@color/highlight"
@@ -50,14 +50,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Bluetooth for Module"
+                    android:text="@string/bluetooth_header"
                     android:id="@+id/textView34"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Turn on your bluetooth connection in order to connect to the module."
+                    android:text="@string/bluetooth_desc"
                     android:id="@+id/textView35" />
             </LinearLayout>
         </LinearLayout>
@@ -85,14 +85,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Internet Connection"
+                    android:text="@string/internet_header"
                     android:id="@+id/textView38"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Turn on your internet connection in order for us to tell you what&apos;s going on with your car"
+                    android:text="@string/internet_desc"
                     android:id="@+id/textView39" />
             </LinearLayout>
         </LinearLayout>
@@ -120,14 +120,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Car for Diagnostics"
+                    android:text="@string/car_header"
                     android:id="@+id/textView36"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Turn your car on in order for the module to send data back to the app"
+                    android:text="@string/car_desc"
                     android:id="@+id/textView37" />
             </LinearLayout>
         </LinearLayout>
