@@ -41,6 +41,8 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
+import com.edwardvanraak.materialbarcodescanner.MaterialBarcodeScanner;
+import com.edwardvanraak.materialbarcodescanner.MaterialBarcodeScannerBuilder;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.parse.ConfigCallback;
@@ -110,6 +112,10 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private LocalCarAdapter localCarAdapter;
 
     private Intent intentFromMainActivity;
+
+    private Barcode barcodeResult;
+
+    private String result;
 
     private static String TAG = "AddCarActivityDebug";
 
@@ -638,11 +644,48 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Log.i(TAG,"Starting barcode scanner");
-        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+        /*Intent intent = new Intent(this, BarcodeCaptureActivity.class);
         intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
         intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
 
-        startActivityForResult(intent, RC_BARCODE_CAPTURE);
+        startActivityForResult(intent, RC_BARCODE_CAPTURE);*/
+        final MaterialBarcodeScanner materialBarcodeScanner = new MaterialBarcodeScannerBuilder()
+                .withActivity(AddCarActivity.this)
+                .withEnableAutoFocus(true)
+                .withBleepEnabled(true)
+                .withBackfacingCamera()
+                .withCenterTracker(R.drawable.scanner_tracker_scanning, R.drawable.scanner_tracker_found)
+                .withText("Scanning for barcode...")
+                .withResultListener(new MaterialBarcodeScanner.OnResultListener() {
+                    @Override
+                    public void onResult(Barcode barcode) {
+                        VIN = barcode.displayValue;
+
+                        String possibleEditedVin = checkVinForInvalidCharacter(VIN);
+                        if(possibleEditedVin!=null) {
+                            VIN = possibleEditedVin;
+                        }
+
+                        vinEditText.setText(VIN);
+                        vinSection.setVisibility(View.VISIBLE);
+                        Log.i(TAG, "Barcode read: " + barcode.displayValue);
+
+                        if (isValidVin(VIN)) { // show add car button iff vin is valid
+                            abstractButton.setVisibility(View.VISIBLE);
+                            scannerButton.setVisibility(View.GONE);
+                            abstractButton.setEnabled(true);
+                        } else {
+                            abstractButton.setVisibility(View.GONE);
+                            scannerButton.setVisibility(View.VISIBLE);
+                            Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                        }
+
+                        /*barcodeResult = barcode;
+                        result = barcode.rawValue;*/
+                    }
+                })
+                .build();
+        materialBarcodeScanner.startScan();
     }
 
     @Override

@@ -12,4 +12,7 @@
     <color name="Smooch_accent">@color/primary</color>
     <color name="Smooch_accentDark">@color/primary</color>
     <color name="line_break">#424242</color>
+
+    <color name="scanner_scanning">#d50000</color>
+    <color name="scanner_found">#64dd17</color>
 </resources>
