@@ -50,4 +50,18 @@
     <string name="title_activity_select_dealership">Select Dealership</string>
     <string name="title_activity_car_scan">Car Scan</string>
 
+    <!-- Strings for welcome screen -->
+    <string name="welcome">Welcome to Pitstop</string>
+    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="whathappen">What\'s About to Happen?</string>
+    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="whatneeded">What is needed from you</string>
+    <string name="bluetooth_header">Bluetooth for Module</string>
+    <string name="internet_header">Internet Connection</string>
+    <string name="car_header">Car for Diagnostics</string>
+    <string name="bluetooth_desc">Turn on your bluetooth connection in order to connect to the module.</string>
+    <string name="internet_desc">Turn on your internet connection in order for us to tell you what\'s going on with your car</string>
+    <string name="car_desc">Turn your car on in order for the module to send data back to the app</string>
+
+
 </resources>

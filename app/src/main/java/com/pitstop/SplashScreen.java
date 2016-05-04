@@ -86,6 +86,10 @@ public class SplashScreen extends AppCompatActivity {
         Log.i(MainActivity.TAG, "Calling on create");
         setContentView(R.layout.activity_splash_screen);
 
+        if(BuildConfig.DEBUG) {
+            Toast.makeText(this, "This is a debug build", Toast.LENGTH_LONG).show();
+        }
+
         application = (ParseApplication) getApplicationContext();
 
         setUpUIReferences();
