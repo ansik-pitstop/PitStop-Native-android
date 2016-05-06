@@ -407,7 +407,10 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
         if(TextUtils.isEmpty(mileageEditText.getText().toString())) {
-            Toast.makeText(this, "Please enter Mileage", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter mileage", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(mileageEditText.getText().toString().length() > 9) {
+            Toast.makeText(this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
             return;
         }
 
