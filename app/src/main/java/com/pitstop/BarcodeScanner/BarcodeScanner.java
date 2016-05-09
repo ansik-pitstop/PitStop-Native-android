@@ -4,14 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.vision.barcode.Barcode;
 import com.pitstop.BarcodeScannerActivity;
-import com.pitstop.R;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -82,19 +79,7 @@ public class BarcodeScanner {
 
     private void requestCameraPermission() {
         final String[] mPermissions = new String[]{Manifest.permission.CAMERA};
-        if (!ActivityCompat.shouldShowRequestPermissionRationale(mBarcodeScannerBuilder.getActivity(), Manifest.permission.CAMERA)) {
-            ActivityCompat.requestPermissions(mBarcodeScannerBuilder.getActivity(), mPermissions, CAM_PERM_REQ);
-        }
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ActivityCompat.requestPermissions(mBarcodeScannerBuilder.getActivity(), mPermissions, CAM_PERM_REQ);
-            }
-        };
-        Snackbar.make(mBarcodeScannerBuilder.mRootView, R.string.camera_request_rationale,
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(android.R.string.ok, listener)
-                .show();
+        ActivityCompat.requestPermissions(mBarcodeScannerBuilder.getActivity(), mPermissions, CAM_PERM_REQ);
     }
 
     public BarcodeScannerBuilder getMaterialBarcodeScannerBuilder() {

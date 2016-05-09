@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -15,7 +16,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -642,8 +644,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         }
                     }
                 })
-                .build()
-                .startScan();
+                .build().startScan();
     }
 
     @Override
@@ -893,6 +894,18 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         if(requestCode == BarcodeScanner.CAM_PERM_REQ) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startScanner(null);
+            } else {
+                Snackbar.make(findViewById(R.id.add_car_root), R.string.camera_request_rationale,
+                        Snackbar.LENGTH_LONG)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(AddCarActivity.this,
+                                        new String[]{android.Manifest.permission.CAMERA},
+                                        BarcodeScanner.CAM_PERM_REQ);
+                            }
+                        })
+                        .show();
             }
         } else {
             // Forward results to EasyPermissions
