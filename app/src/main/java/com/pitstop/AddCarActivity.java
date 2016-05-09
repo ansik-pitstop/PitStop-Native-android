@@ -1,6 +1,5 @@
 package com.pitstop;
 
-import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -132,12 +131,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     return;
                 }
 
-                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.perms)) {
+                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.LOC_PERMS)) {
                     autoConnectService.startBluetoothSearch();
                 } else {
                     EasyPermissions.requestPermissions(AddCarActivity.this,
                             getString(R.string.location_request_rationale),
-                            RC_LOCATION_PERM, MainActivity.perms);
+                            RC_LOCATION_PERM, MainActivity.LOC_PERMS);
                 }
 
             }

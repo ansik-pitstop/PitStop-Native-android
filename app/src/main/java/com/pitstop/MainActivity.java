@@ -80,7 +80,6 @@ import java.util.Locale;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 import pub.devrel.easypermissions.EasyPermissions;
-import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -109,16 +108,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     final static String pfShopName = "com.pitstop.shop.name";
     final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
-    public static String CAR_EXTRA = "car";
-    public static String CAR_ISSUE_EXTRA = "car_issue";
-    public static String CAR_LIST_EXTRA = "car_list";
-    public static String HAS_CAR_IN_DASHBOARD = "has_car";
-    public static String REFRESH_FROM_SERVER = "_server";
-    public static String REFRESH_FROM_LOCAL = "_local";
-    public static String FROM_ACTIVITY = "from_activity";
+    public static final String CAR_EXTRA = "car";
+    public static final String CAR_ISSUE_EXTRA = "car_issue";
+    public static final String CAR_LIST_EXTRA = "car_list";
+    public static final String HAS_CAR_IN_DASHBOARD = "has_car";
+    public static final String REFRESH_FROM_SERVER = "_server";
+    public static final String REFRESH_FROM_LOCAL = "_local";
+    public static final String FROM_ACTIVITY = "from_activity";
 
-    public static String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
+    private static final int LOC_PERM_REQ = 112;
 
     private boolean isLoading = false;
 
@@ -172,14 +172,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
-
-                if(EasyPermissions.hasPermissions(MainActivity.this,perms)) {
+                if(EasyPermissions.hasPermissions(MainActivity.this, LOC_PERMS)) {
                     autoConnectService.startBluetoothSearch();
                 } else {
                     EasyPermissions.requestPermissions(MainActivity.this,
-                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
+                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, LOC_PERMS);
                 }
-
             }
         }
 
@@ -1107,8 +1105,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
-    private void updateCarOnParse(final int typeService, final CarIssue carIssue
-            ,final int[] reverseSortedPositions) {
+    private void updateCarOnParse(final int typeService, final CarIssue carIssue,
+                                  final int[] reverseSortedPositions) {
         ParseQuery updateObject = new ParseQuery("Car");
         try {
             updateObject.get(dashboardCar.getParseId());

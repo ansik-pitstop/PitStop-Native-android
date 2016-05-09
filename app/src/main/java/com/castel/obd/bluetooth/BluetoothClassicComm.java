@@ -276,7 +276,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG,"A device found - BluetoothClassicComm");
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG,device.getName() + device.getAddress());
+                Log.i(TAG,device.getName() + " " + device.getAddress());
 
                 if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");

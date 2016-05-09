@@ -113,6 +113,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.setCallbacks(CarScanActivity.this); // register
+
             if(EasyPermissions.hasPermissions(CarScanActivity.this,perms)) {
                 autoConnectService.startBluetoothSearch();
             } else {

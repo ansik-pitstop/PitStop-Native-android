@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -96,11 +97,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
+            bluetoothCommunicator = new BluetoothClassicComm(this);
+
             /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bluetoothCommunicator = new BluetoothLeComm(this);
-            } else {*/
+            } else {
                 bluetoothCommunicator = new BluetoothClassicComm(this);
-            //}
+            }*/
 
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
