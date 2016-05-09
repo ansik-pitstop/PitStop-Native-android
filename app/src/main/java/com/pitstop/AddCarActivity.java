@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -8,12 +9,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -41,7 +45,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.parse.ConfigCallback;
 import com.parse.FindCallback;
@@ -51,6 +54,8 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.pitstop.BarcodeScanner.BarcodeScanner;
+import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -64,7 +69,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -93,10 +97,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private TextView vinHint, searchForCarInfo;
 
     private LinearLayout vinSection;
-
-    // Id to identify CAMERA permission request.
-    //private static final int REQUEST_CAMERA = 0;
-    private static final int RC_BARCODE_CAPTURE = 100;
 
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
@@ -306,35 +306,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == RC_BARCODE_CAPTURE) {
-            if (resultCode == CommonStatusCodes.SUCCESS) {
-                if (data != null) {
-                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    VIN = barcode.displayValue;
-
-                    String possibleEditedVin = checkVinForInvalidCharacter(VIN);
-                    if(possibleEditedVin!=null) {
-                        VIN = possibleEditedVin;
-                    }
-
-                    vinEditText.setText(VIN);
-                    vinSection.setVisibility(View.VISIBLE);
-                    Log.i(TAG, "Barcode read: " + barcode.displayValue);
-
-                    if (isValidVin(VIN)) { // show add car button iff vin is valid
-                        abstractButton.setVisibility(View.VISIBLE);
-                        scannerButton.setVisibility(View.GONE);
-                        abstractButton.setEnabled(true);
-                    } else {
-                        abstractButton.setVisibility(View.GONE);
-                        scannerButton.setVisibility(View.VISIBLE);
-                        Toast.makeText(this,"Invalid VIN",Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Log.i(TAG, "No barcode captured, intent data is null");
-                }
-            }
-        } else if(requestCode == SelectDealershipActivity.RC_DEALERSHIP
+        if(requestCode == SelectDealershipActivity.RC_DEALERSHIP
                 && resultCode == SelectDealershipActivity.RESULT_OK) {
             if(data != null) {
                 String selectedShopId =
@@ -411,6 +383,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             return;
         } else if(mileageEditText.getText().toString().length() > 9) {
             Toast.makeText(this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(mileageEditText.getText().toString().length() > 9) {
+            Toast.makeText(this, "Please enter valid Mileage", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -641,11 +616,38 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Log.i(TAG,"Starting barcode scanner");
-        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
-        intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
-        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
+        new BarcodeScannerBuilder()
+                .withActivity(AddCarActivity.this)
+                .withEnableAutoFocus(true)
+                .withCenterTracker()
+                .withBackfacingCamera()
+                .withText("Scanning for barcode...")
+                .withResultListener(new BarcodeScanner.OnResultListener() {
+                    @Override
+                    public void onResult(Barcode barcode) {
+                        VIN = barcode.displayValue;
 
-        startActivityForResult(intent, RC_BARCODE_CAPTURE);
+                        String possibleEditedVin = checkVinForInvalidCharacter(VIN);
+                        if(possibleEditedVin!=null) {
+                            VIN = possibleEditedVin;
+                        }
+
+                        vinEditText.setText(VIN);
+                        vinSection.setVisibility(View.VISIBLE);
+                        Log.i(TAG, "Barcode read: " + barcode.displayValue);
+
+                        if (isValidVin(VIN)) { // show add car button iff vin is valid
+                            abstractButton.setVisibility(View.VISIBLE);
+                            scannerButton.setVisibility(View.GONE);
+                            abstractButton.setEnabled(true);
+                        } else {
+                            abstractButton.setVisibility(View.GONE);
+                            scannerButton.setVisibility(View.VISIBLE);
+                            Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .build().startScan();
     }
 
     @Override
@@ -892,8 +894,26 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                             int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        if(requestCode == BarcodeScanner.CAM_PERM_REQ) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startScanner(null);
+            } else {
+                Snackbar.make(findViewById(R.id.add_car_root), R.string.camera_request_rationale,
+                        Snackbar.LENGTH_LONG)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(AddCarActivity.this,
+                                        new String[]{android.Manifest.permission.CAMERA},
+                                        BarcodeScanner.CAM_PERM_REQ);
+                            }
+                        })
+                        .show();
+            }
+        } else {
+            // Forward results to EasyPermissions
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        }
     }
 
     @Override

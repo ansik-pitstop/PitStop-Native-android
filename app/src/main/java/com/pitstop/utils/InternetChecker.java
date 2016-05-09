@@ -23,7 +23,7 @@ public class InternetChecker extends AsyncTask<Void,Void,Boolean>{
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
     @Override
     protected Boolean doInBackground(Void[] params) {

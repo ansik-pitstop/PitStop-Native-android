@@ -139,10 +139,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.MainActivity" />
         </activity>
-        <activity
-            android:name=".BarcodeCaptureActivity"
-            android:label="Read Barcode"
-            android:screenOrientation="portrait" />
 
         <service android:name="com.parse.PushService" />
 
@@ -194,6 +190,9 @@
             android:name=".CarScanActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme"/>
+        <activity
+            android:name=".BarcodeScannerActivity"
             android:theme="@style/AppNoActionBarTheme"/>
     </application>
 
