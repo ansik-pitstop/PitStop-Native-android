@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pitstop.BarcodeHelpers.camera;
+package com.pitstop.BarcodeScanner;
 
 import android.Manifest;
 import android.content.Context;
@@ -80,7 +80,6 @@ public class CameraSourcePreview extends ViewGroup {
     public void release() {
         if (mCameraSource != null) {
             mCameraSource.release();
-            mCameraSource = null;
         }
     }
 
@@ -130,53 +129,62 @@ public class CameraSourcePreview extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int width = right - left;
-        int height = bottom - top;
+        int previewWidth = 320;
+        int previewHeight = 240;
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();
             if (size != null) {
-                float ratioH, ratioW;
-                if(size.getHeight() < height) {
-                    ratioH = (float) height / size.getHeight();
-                } else {
-                    ratioH = (float) size.getHeight() / height;
-                }
-                if(size.getWidth() < width) {
-                    ratioW = (float) width / size.getWidth();
-                } else {
-                    ratioW = (float) size.getWidth() / width;
-                }
-                if(ratioH > ratioW) {
-                    height = (int) Math.abs(size.getHeight() * ratioH);
-                    width = (int) Math.abs(size.getWidth() * ratioH);
-                } else {
-                    height = (int) Math.abs(size.getHeight() * ratioW);
-                    width = (int) Math.abs(size.getWidth() * ratioW);
-                }
+                previewWidth = size.getWidth();
+                previewHeight = size.getHeight();
             }
         }
 
         // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
-        if (!isPortraitMode()) {
-            int tmp = width;
-            width = height;
-            height = tmp;
+        if (isPortraitMode()) {
+            int tmp = previewWidth;
+            previewWidth = previewHeight;
+            previewHeight = tmp;
         }
 
-        final int layoutWidth = width;
-        final int layoutHeight = height;
+        final int viewWidth = right - left;
+        final int viewHeight = bottom - top;
+
+        int childWidth;
+        int childHeight;
+        int childXOffset = 0;
+        int childYOffset = 0;
+        float widthRatio = (float) viewWidth / (float) previewWidth;
+        float heightRatio = (float) viewHeight / (float) previewHeight;
+
+        // To fill the view with the camera preview, while also preserving the correct aspect ratio,
+        // it is usually necessary to slightly oversize the child and to crop off portions along one
+        // of the dimensions.  We scale up based on the dimension requiring the most correction, and
+        // compute a crop offset for the other dimension.
+        if (widthRatio > heightRatio) {
+            childWidth = viewWidth;
+            childHeight = (int) ((float) previewHeight * widthRatio);
+            childYOffset = (childHeight - viewHeight) / 2;
+        } else {
+            childWidth = (int) ((float) previewWidth * heightRatio);
+            childHeight = viewHeight;
+            childXOffset = (childWidth - viewWidth) / 2;
+        }
+
         for (int i = 0; i < getChildCount(); ++i) {
-            getChildAt(i).layout(0, 0, layoutWidth, layoutHeight);
+            // One dimension will be cropped.  We shift child over or up by this offset and adjust
+            // the size to maintain the proper aspect ratio.
+            getChildAt(i).layout(
+                    -1 * childXOffset, -1 * childYOffset,
+                    childWidth - childXOffset, childHeight - childYOffset);
         }
 
         try {
             startIfReady();
-        } catch (SecurityException se) {
-            Log.e(TAG, "Do not have permission to start the camera", se);
         } catch (IOException e) {
             Log.e(TAG, "Could not start camera source.", e);
         }
     }
+
 
     private boolean isPortraitMode() {
         int orientation = mContext.getResources().getConfiguration().orientation;
