@@ -279,7 +279,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
+            //Intent intent = new Intent(this, SelectDealershipActivity.class);
+            //startActivity(intent);
             startAddCarActivity(dashboardCar!=null);
         } else if(id == R.id.action_settings) {
             try {

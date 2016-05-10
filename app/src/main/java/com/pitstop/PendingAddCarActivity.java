@@ -73,15 +73,11 @@ public class PendingAddCarActivity extends AppCompatActivity{
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            try {
-                if (new InternetChecker(getBaseContext()).execute().get()) {
-                    goBackToAddCar();
-                } else {
-                    // Repeat this the same carConnectedRunnable code block again another 3 seconds
-                    handler.postDelayed(runnableCode, 3000);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            if (InternetChecker.isConnected(PendingAddCarActivity.this)) {
+                goBackToAddCar();
+            } else {
+                // Repeat this the same carConnectedRunnable code block again another 3 seconds
+                handler.postDelayed(runnableCode, 3000);
             }
         }
     };

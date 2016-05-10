@@ -557,39 +557,37 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             autoConnectService.getDTCs();
             autoConnectService.getPendingDTCs();
         } else {
-            try {
-                Log.i(TAG, "Device not connected");
-                Log.i(TAG, "Checking internet connection");
+            Log.i(TAG, "Device not connected");
+            Log.i(TAG, "Checking internet connection");
 
-                if(new InternetChecker(this).execute().get()) {
+            if(InternetChecker.isConnected(this)) {
+                Log.i(TAG, "Internet connection found");
 
-                    ParseConfig.getInBackground(new ConfigCallback() {
-                        @Override
-                        public void done(ParseConfig config, ParseException e) {
+                ParseConfig.getInBackground(new ConfigCallback() {
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
 
-                            Log.i(TAG, "Adding car --- make car func");
+                        Log.i(TAG, "Adding car --- make car func");
 
-                            if(vinDecoderApi == null) {
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                Log.i("VIN DECODER","Pending TASK");
-                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                vinDecoderApi.cancel(true);
-                                vinDecoderApi = null;
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                vinDecoderApi = null;
-                                vinDecoderApi  = new CallMashapeAsync();
-                            }
-                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        if(vinDecoderApi == null) {
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                            Log.i("VIN DECODER","Pending TASK");
+                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                            vinDecoderApi.cancel(true);
+                            vinDecoderApi = null;
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                            vinDecoderApi = null;
+                            vinDecoderApi  = new CallMashapeAsync();
                         }
-                    });
-                } else {
-                    hideLoading();
-                    startPendingAddCarActivity();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                    }
+                });
+            } else {
+                Log.i(TAG, "No Internet");
+                hideLoading();
+                startPendingAddCarActivity();
             }
         }
     }
@@ -752,39 +750,37 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             }
 
-            try {
-                Log.i(MainActivity.TAG, "getIOData --- Adding car");
-                if(new InternetChecker(this).execute().get()){
-                    ParseConfig.getInBackground(new ConfigCallback() {
-                        @Override
-                        public void done(ParseConfig config, ParseException e) {
+            Log.i(MainActivity.TAG, "getIOData --- Adding car");
+            if(InternetChecker.isConnected(this)){
+                Log.i(TAG, "Internet connection found");
+                ParseConfig.getInBackground(new ConfigCallback() {
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
 
-                            if(vinDecoderApi == null) {
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                Log.i("VIN DECODER","Pending TASK");
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                vinDecoderApi.cancel(true);
-                                vinDecoderApi = null;
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                vinDecoderApi = null;
-                                vinDecoderApi  = new CallMashapeAsync();
-                            }
-                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        if(vinDecoderApi == null) {
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                            Log.i("VIN DECODER","Pending TASK");
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                            vinDecoderApi.cancel(true);
+                            vinDecoderApi = null;
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                            vinDecoderApi = null;
+                            vinDecoderApi  = new CallMashapeAsync();
                         }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideLoading();
-                            startPendingAddCarActivity();
-                        }
-                    });
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                    }
+                });
+            } else {
+                Log.i(TAG, "No internet");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLoading();
+                        startPendingAddCarActivity();
+                    }
+                });
             }
             askForDTC=false;
         }

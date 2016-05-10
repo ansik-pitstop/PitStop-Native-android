@@ -53,6 +53,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private boolean hadInternetConnection = false;
     private LocalShopAdapter localStore;
 
+    private static final String TAG = SelectDealershipActivity.class.getSimpleName();
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_dealership);
@@ -102,39 +104,36 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
             userId = ParseUser.getCurrentUser().getObjectId();
 
-            try {
-                if(new InternetChecker(this).execute().get()) {
-                    //hadInternetConnection = true;
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                    query.whereContains("owner", userId);
-                    progressBar.setVisibility(View.VISIBLE);
-                    query.findInBackground(new FindCallback<ParseObject>() {
+            if(InternetChecker.isConnected(this)) {
+                Log.i(TAG, "Internet connection found");
+                //hadInternetConnection = true;
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                query.whereContains("owner", userId);
+                progressBar.setVisibility(View.VISIBLE);
+                query.findInBackground(new FindCallback<ParseObject>() {
 
 
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            progressBar.setVisibility(View.GONE);
-                            if(e == null) {
-                                if (!objects.isEmpty()) {
-                                    startActivity(new Intent(SelectDealershipActivity.this,
-                                            MainActivity.class));
-                                } else {
-                                    if(hadInternetConnection) {
-                                        Toast.makeText(SelectDealershipActivity.this,
-                                                "Please select dealership",
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        setup();
-                                    }
-                                }
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        progressBar.setVisibility(View.GONE);
+                        if(e == null) {
+                            if (!objects.isEmpty()) {
+                                startActivity(new Intent(SelectDealershipActivity.this,
+                                        MainActivity.class));
                             } else {
-                                Log.i("ParseError",e.getMessage());
+                                if(hadInternetConnection) {
+                                    Toast.makeText(SelectDealershipActivity.this,
+                                            "Please select dealership",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    setup();
+                                }
                             }
+                        } else {
+                            Log.i("ParseError",e.getMessage());
                         }
-                    });
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                    }
+                });
             }
         }
     }
@@ -165,42 +164,40 @@ public class SelectDealershipActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
 
-        try {
-            if(new InternetChecker(this).execute().get()) {
-                hadInternetConnection = true;
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+        if(InternetChecker.isConnected(this)) {
+            Log.i(TAG, "Internet connection found");
+            hadInternetConnection = true;
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
 
-                List<Dealership> dealerships = localStore.getAllDealerships();
-                if(dealerships.isEmpty()) {
-                    query.findInBackground(new FindCallback<ParseObject>() {
+            List<Dealership> dealerships = localStore.getAllDealerships();
+            if(dealerships.isEmpty()) {
+                query.findInBackground(new FindCallback<ParseObject>() {
 
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            progressBar.setVisibility(View.GONE);
-                            if(e == null) {
-                                List<Dealership> list = Dealership.createDealershipList(objects);
-                                localStore.storeDealerships(list);
-                                adapter = new CustomAdapter(list);
-                                recyclerView.setAdapter(adapter);
-                            } else {
-                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        progressBar.setVisibility(View.GONE);
+                        if(e == null) {
+                            List<Dealership> list = Dealership.createDealershipList(objects);
+                            localStore.storeDealerships(list);
+                            adapter = new CustomAdapter(list);
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    });
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    adapter = new CustomAdapter(dealerships);
-                    recyclerView.setAdapter(adapter);
-                }
-
+                    }
+                });
             } else {
-                localStore.deleteAllDealerships();
-                hadInternetConnection = false;
-                message_card.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+                adapter = new CustomAdapter(dealerships);
+                recyclerView.setAdapter(adapter);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+
+        } else {
+            Log.i(TAG, "No internet");
+            localStore.deleteAllDealerships();
+            hadInternetConnection = false;
+            message_card.setVisibility(View.VISIBLE);
         }
     }
 
