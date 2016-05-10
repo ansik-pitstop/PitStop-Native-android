@@ -303,6 +303,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
+    public void updateMileage(View view) {
+        updateMileage();
+    }
+
     public void updateMileage() {
 
         final EditText input = new EditText(CarScanActivity.this);
@@ -310,34 +314,45 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         input.setRawInputType(Configuration.KEYBOARD_12KEY);
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(CarScanActivity.this);
+        new AlertDialog.Builder(CarScanActivity.this)
+                .setTitle("Update Mileage")
+                .setView(input)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-        alertDialog.setTitle("Update Mileage");
-        alertDialog.setView(input);
-        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+                        if(input.getText().toString().length() > 9) {
+                            Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
+                        } else {
 
-                carScanButton.setEnabled(false);
-                recallsStateLayout.setVisibility(View.GONE);
-                recallsCountLayout.setVisibility(View.GONE);
-                loadingRecalls.setVisibility(View.VISIBLE);
-                recallsText.setText("Checking for recalls");
+                            carScanButton.setEnabled(false);
+                            recallsStateLayout.setVisibility(View.GONE);
+                            recallsCountLayout.setVisibility(View.GONE);
+                            loadingRecalls.setVisibility(View.VISIBLE);
+                            recallsText.setText("Checking for recalls");
 
-                servicesStateLayout.setVisibility(View.GONE);
-                servicesCountLayout.setVisibility(View.GONE);
-                loadingServices.setVisibility(View.VISIBLE);
-                servicesText.setText("Checking for services");
+                            servicesStateLayout.setVisibility(View.GONE);
+                            servicesCountLayout.setVisibility(View.GONE);
+                            loadingServices.setVisibility(View.VISIBLE);
+                            servicesText.setText("Checking for services");
 
-                engineIssuesStateLayout.setVisibility(View.GONE);
-                engineIssuesCountLayout.setVisibility(View.GONE);
-                loadingEngineIssues.setVisibility(View.VISIBLE);
-                engineIssuesText.setText("Checking for engine issues");
+                            engineIssuesStateLayout.setVisibility(View.GONE);
+                            engineIssuesCountLayout.setVisibility(View.GONE);
+                            loadingEngineIssues.setVisibility(View.VISIBLE);
+                            engineIssuesText.setText("Checking for engine issues");
 
-                updateMileage(input.getText().toString());
-                dialogInterface.dismiss();
-            }
-        }).show();
+                            updateMileage(input.getText().toString());
+                            dialogInterface.dismiss();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
     }
 
     private void updateMileage (String mileage) {
