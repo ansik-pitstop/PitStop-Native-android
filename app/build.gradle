@@ -65,6 +65,5 @@ dependencies {
     compile 'pub.devrel:easypermissions:0.1.5'
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
-    compile 'com.github.amlcurran.showcaseview:library:5.4.3'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
 }
