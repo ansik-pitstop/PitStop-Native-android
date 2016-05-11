@@ -124,6 +124,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     @Override
     public void startScan() {
         if(!mBluetoothAdapter.isEnabled() || mLEScanner == null || mIsScanning) {
+            Log.i(TAG, "Scan unable to start");
             return;
         }
 
@@ -286,6 +287,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if(mGatt.connect()) {
                 Log.i(TAG,"Trying to connect to device - BluetoothLeComm");
                 btConnectionState = CONNECTING;
+            } else {
+                Log.i(TAG,"Could not connect to preivous device, scanning...");
+                scanLeDevice(true);
             }
 
         } else  {
@@ -314,7 +318,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             }, SCAN_PERIOD);
 
             Log.i(TAG, "Starting le scan");
-            mLEScanner.startScan(filters, settings, mScanCallback);
+            mLEScanner.startScan(new ArrayList<ScanFilter>(), settings, mScanCallback);
             mIsScanning = true;
         } else {
             mLEScanner.stopScan(mScanCallback);
@@ -332,8 +336,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            Log.i(TAG, "Result: "+result.toString());
             BluetoothDevice btDevice = result.getDevice();
+            Log.i(TAG, "Result: "+result.toString());
 
             if(btDevice.getName() != null
                     && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {

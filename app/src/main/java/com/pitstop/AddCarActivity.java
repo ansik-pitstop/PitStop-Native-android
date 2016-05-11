@@ -383,15 +383,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         } else if(mileageEditText.getText().toString().length() > 9) {
             Toast.makeText(this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
             return;
-        } else if(mileageEditText.getText().toString().length() > 9) {
-            Toast.makeText(this, "Please enter valid Mileage", Toast.LENGTH_SHORT).show();
-            return;
         }
 
         showLoading("Adding car");
 
         mileage = mileageEditText.getText().toString();
-        if (isValidVin(vinEditText.getText().toString())) {
+        if (isValidVin(vinEditText.getText().toString())) { // valid VIN is already entered
 
             // Vin is manually entered or retrieved using the barcode scanner
             try {
@@ -406,13 +403,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             makeCar();
 
         } else {
-            if (BluetoothAdapter.getDefaultAdapter() == null) {
+            if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
                 hideLoading();
                 vinSection.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Your device does not support bluetooth",
                         Toast.LENGTH_SHORT).show();
             } else {
-                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) { // Already connected to module
 
                     try {
                         application.getMixpanelAPI().track("Button Clicked",
@@ -428,7 +425,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     isGettingVinAndCarIsConnected = true;
                     mHandler.postDelayed(vinDetectionRunnable, 3000);
 
-                } else {
+                } else { // Need to search for module
                     showLoading("Searching for Car");
 
                     Log.i(TAG, "Searching for car but device not connected");
@@ -490,6 +487,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if(seconds > 15 && isGettingVinAndCarIsConnected) {
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
+                return;
             }
 
             if(!isGettingVinAndCarIsConnected) {
@@ -509,7 +507,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
-            if(seconds > 120 && (isSearchingForCar) && autoConnectService.getState()
+            if(seconds > 60 && (isSearchingForCar) && autoConnectService.getState()
                     != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);

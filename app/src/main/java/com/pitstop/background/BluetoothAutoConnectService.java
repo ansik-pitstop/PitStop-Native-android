@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
@@ -97,13 +98,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
-            bluetoothCommunicator = new BluetoothClassicComm(this);
+            //bluetoothCommunicator = new BluetoothClassicComm(this);
 
-            /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                 bluetoothCommunicator = new BluetoothLeComm(this);
             } else {
                 bluetoothCommunicator = new BluetoothClassicComm(this);
-            }*/
+            }
 
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
@@ -498,7 +500,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #getParameterData(ParameterPackageInfo)
      */
     public void getCarVIN() {
-
+        Log.i(TAG, "getCarVin");
         String savedDeviceId = getSavedSyncedDeviceId();
         if(savedDeviceId == null) {
             isGettingVin = true;
