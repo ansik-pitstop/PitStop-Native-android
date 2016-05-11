@@ -32,8 +32,10 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
@@ -101,7 +103,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //bluetoothCommunicator = new BluetoothClassicComm(this);
 
             //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                 bluetoothCommunicator = new BluetoothLeComm(this);
             } else {
                 bluetoothCommunicator = new BluetoothClassicComm(this);
@@ -326,33 +329,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(dataPackageInfo.result == 6) {
             //processResultSixData(dataPackageInfo);
         }
-
-        // TODO : This sections needs to be refactored it's not clear what is been done
-        Log.i(TAG, "getting io data - auto-connect service");
-        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
-            askforDtcs=false;
-            String dtcs = "";
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    dtcs+= ObdDataUtil.parseDTCs(dtc)+",";
-                }
-            }
-            //update DTC to online
-            ParseObject scansSave = new ParseObject("Scan");
-            scansSave.put("DTCs", dtcs);
-            scansSave.put("scannerId", dataPackageInfo.deviceId);
-            scansSave.put("runAfterSave", true);
-            scansSave.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("DTC Saving", "DTCs saved");
-                }
-            });
-            if (callbacks != null)
-                callbacks.getIOData(dataPackageInfo);
-            return;
+        //save dtcs
+        if (dataPackageInfo.tripFlag.equals("5")) {
+            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
+        } else if (dataPackageInfo.tripFlag.equals("6")) {
+            saveDtcs(dataPackageInfo, "pendingDtcs", dataPackageInfo.deviceId);
         }
+
         counter ++;
         //keep looking for pids until all pids are recieved
         if(pidI!=pids.length&&dataPackageInfo.result!=5){
@@ -363,7 +346,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             status5counter++;
         }
 
-        //TODO refactor:
         LocalDataRetriever ldr = new LocalDataRetriever(this);
         Responses response = new Responses();
 
@@ -437,6 +419,61 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             uploadRecords();
         }
 
+    }
+
+    private void saveDtcs(DataPackageInfo dataPackageInfo, final String dtcMonitor, String deviceId) {
+        Log.i(TAG, "save DTCs - auto-connect service");
+//        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
+        if (dataPackageInfo.result==4&&askforDtcs) {
+            askforDtcs=false;
+            String dtcs = "";
+            final ArrayList<String> dtcArr = new ArrayList<>();
+            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                String[] DTCs = dataPackageInfo.dtcData.split(",");
+                for(String dtc : DTCs) {
+                    String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+                    dtcs+= parsedDtc+",";
+                    dtcArr.add(parsedDtc);
+                }
+            }
+
+            Log.i(TAG, "DTCs found: " + dtcs);
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+            query.whereEqualTo("scannerId", deviceId);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> cars, ParseException e) {
+                    if(e == null) {
+                        if(cars.size() > 0) {
+                            ParseObject car = cars.get(0);
+                            for(String dtc : dtcArr) {
+                                Log.i(TAG, "DTC to add: " + dtc);
+                                car.addUnique(dtcMonitor, dtc);
+                            }
+                            car.saveEventually();
+                        }
+                    } else {
+                       Log.d(TAG, "Parse query, " + e.getMessage());
+                    }
+                }
+            });
+
+            //update DTC to online
+            ParseObject scansSave = new ParseObject("Scan");
+            scansSave.put("DTCs", dtcs);
+            scansSave.put("scannerId", dataPackageInfo.deviceId);
+            scansSave.put("runAfterSave", true);
+            scansSave.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    Log.d("DTC Saving", "DTCs saved");
+                }
+            });
+            if (callbacks != null)
+                callbacks.getIOData(dataPackageInfo);
+            return;
+        }
     }
 
     @Override
