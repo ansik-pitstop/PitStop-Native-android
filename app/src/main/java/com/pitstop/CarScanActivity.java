@@ -363,34 +363,47 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
         final HashMap<String, Object> params = new HashMap<String, Object>();
 
-        params.put("carVin", dashboardCar.getVin());
-        params.put("mileage", Integer.valueOf(mileage));
+        try {
 
-        // update the server information
-        ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
-            public void done(Object o, ParseException e) {
-                if (e == null) {
-                    startCarScan();
-                } else {
-                    Toast.makeText(CarScanActivity.this,
-                            "failed to update mileage", Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "Parse Error: " + e.getMessage());
+            params.put("carVin", dashboardCar.getVin());
+            params.put("mileage", Integer.valueOf(mileage));
 
-                    carScanButton.setEnabled(true);
-                    recallsCountLayout.setVisibility(View.VISIBLE);
-                    loadingRecalls.setVisibility(View.GONE);
-                    recallsText.setText("Recalls");
+            // update the server information
+            ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
+                public void done(Object o, ParseException e) {
+                    if (e == null) {
+                        startCarScan();
+                    } else {
+                        Toast.makeText(CarScanActivity.this,
+                                "failed to update mileage", Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "Parse Error: " + e.getMessage());
 
-                    servicesCountLayout.setVisibility(View.VISIBLE);
-                    loadingServices.setVisibility(View.GONE);
-                    servicesText.setText("Services");
+                        carScanButton.setEnabled(true);
+                        recallsCountLayout.setVisibility(View.VISIBLE);
+                        loadingRecalls.setVisibility(View.GONE);
+                        recallsText.setText("Recalls");
 
-                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                    loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesText.setText("Engine issues");
+                        servicesCountLayout.setVisibility(View.VISIBLE);
+                        loadingServices.setVisibility(View.GONE);
+                        servicesText.setText("Services");
+
+                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                        loadingEngineIssues.setVisibility(View.GONE);
+                        engineIssuesText.setText("Engine issues");
+                    }
                 }
-            }
-        });
+            });
+
+            // update the car object in the backend
+            ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
+            ParseObject car = cars.get(dashboardCar.getParseId());
+            car.put("totalMileage", Integer.parseInt(mileage));
+            car.saveEventually();
+        } catch (ParseException e) {
+            Log.e(TAG, "Parse exception: ", e);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void startCarScan() {
