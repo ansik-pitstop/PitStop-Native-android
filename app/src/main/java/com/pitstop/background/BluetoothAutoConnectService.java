@@ -329,11 +329,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(dataPackageInfo.result == 6) {
             //processResultSixData(dataPackageInfo);
         }
+
+        Log.i(TAG, "getting io data - auto-connect service");
+
         //save dtcs
-        if (dataPackageInfo.tripFlag.equals("5")) {
+        if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
             saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
-        } else if (dataPackageInfo.tripFlag.equals("6")) {
+            return;
+        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {
             saveDtcs(dataPackageInfo, "pendingDtcs", dataPackageInfo.deviceId);
+            return;
         }
 
         counter ++;
@@ -472,7 +477,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             });
             if (callbacks != null)
                 callbacks.getIOData(dataPackageInfo);
-            return;
         }
     }
 

@@ -432,6 +432,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     autoConnectService.startBluetoothSearch();
                     isSearchingForCar = true;
                     searchTime = System.currentTimeMillis();
+                    if(view != null) {
+                        connectionAttempts = 0;
+                    }
                     mHandler.postDelayed(carSearchRunnable, 3000);
                 }
             }
@@ -500,6 +503,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
     };
 
+    private int connectionAttempts = 0;
 
     private Runnable carSearchRunnable = new Runnable() {
         @Override
@@ -507,7 +511,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
-            if(seconds > 60 && (isSearchingForCar) && autoConnectService.getState()
+            if(seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
                     != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);
@@ -524,7 +528,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    tryAgainDialog();
+                    if(connectionAttempts++ == 2) {
+                        tryAgainDialog();
+                    } else {
+                        Log.i(TAG, "connection reattempt: " + connectionAttempts);
+                        searchForCar(null);
+                    }
                     break;
                 }
 
