@@ -47,9 +47,9 @@ import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +69,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
 
@@ -99,7 +100,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private ProgressDialog progressDialog;
 
 
-    private static String TAG = "CarScanActivity";
+    private static String TAG = CarScanActivity.class.getSimpleName();
 
     private boolean askingForDtcs = false;
 
@@ -139,14 +140,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         setSupportActionBar(toolbar);
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         bindService(new Intent(this, BluetoothAutoConnectService.class),
                 serviceConnection, BIND_AUTO_CREATE);
 
         dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'CarScanActivity'}"));
+            mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -198,8 +199,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             @Override
             public void onClick(View v) {
                 try {
-                    application.getMixpanelAPI().track("Button Clicked",
-                            new JSONObject("{'Button':'Start car scan','View':'CarScanActivity'}"));
+                    mixpanelHelper.trackButtonTapped("Start car scan", TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -18,6 +18,7 @@ import com.castel.obd.util.Utils;
 import com.parse.Parse;
 import com.pitstop.MainActivity;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -294,8 +295,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App is connected to bluetooth device'}"));
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -322,8 +322,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App disconnected from bluetooth device'}"));
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
