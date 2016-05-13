@@ -60,6 +60,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +80,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
+
     public static int ADD_CAR_SUCCESS = 51;
     private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
 
@@ -110,7 +113,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private Intent intentFromMainActivity;
 
-    private static String TAG = "AddCarActivityDebug";
+    private static String TAG = AddCarActivity.class.getSimpleName();
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -159,6 +162,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         Log.i(TAG, "onCreate()");
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         intentFromMainActivity = getIntent();
         vinDecoderApi = new CallMashapeAsync();
         localCarAdapter = new LocalCarAdapter(this);
@@ -207,13 +211,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'AddCarActivity'}"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         // Select shop
         Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
@@ -232,6 +229,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     @Override
     protected void onResume() {
+        try {
+            mixpanelHelper.trackViewAppeared(TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         super.onResume();
     }
 
@@ -265,6 +267,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     @Override
     public void onBackPressed() {
+        try {
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if(intentFromMainActivity!=null
                 && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
             Intent info = new Intent();
@@ -392,8 +399,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
             // Vin is manually entered or retrieved using the barcode scanner
             try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                mixpanelHelper.trackCarAdded(TAG, mileage, MixpanelHelper.ADDED_MANUALLY);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -412,8 +418,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) { // Already connected to module
 
                     try {
-                        application.getMixpanelAPI().track("Button Clicked",
-                                new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                        mixpanelHelper.trackCarAdded(TAG, mileage, MixpanelHelper.ADDED_WITH_DEVICE);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -613,6 +618,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     public void startScanner(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Scan VIN Barcode", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         if(!checkBackCamera()) {
             Toast.makeText(this,"This device does not have a back facing camera",
                     Toast.LENGTH_SHORT).show();
@@ -634,6 +645,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         String possibleEditedVin = checkVinForInvalidCharacter(VIN);
                         if(possibleEditedVin!=null) {
                             VIN = possibleEditedVin;
+                        }
+
+                        try {
+                            application.getMixpanelAPI().track("Scanned VIN",
+                                    new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
                         vinEditText.setText(VIN);
@@ -707,8 +725,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                application.getMixpanelAPI().track("Retrieved VIN",
-                        new JSONObject("{'VIN':'" + VIN + "'}"));
+                application.getMixpanelAPI().track("Retrieved VIN from device",
+                        new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -828,8 +846,18 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if (newAction) {
                 // don't hide the manual entry UI if we're showing it after bluetooth failure
                 if (yesButton.isChecked() && !hasBluetoothVinEntryFailed) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Yes I have Pitstop Hardware", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     showBluetoothEntryUI();
                 } else if (noButton.isChecked()) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     showManualEntryUI();
                 }
             }

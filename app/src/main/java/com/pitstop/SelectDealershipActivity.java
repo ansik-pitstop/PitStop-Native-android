@@ -26,6 +26,7 @@ import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 public class SelectDealershipActivity extends AppCompatActivity {
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
 
     public static String SELECTED_DEALERSHIP = "selected_dealership";
     public static String ACTIVITY_NAME = "select_dealership";
@@ -62,8 +64,20 @@ public class SelectDealershipActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         localStore = new LocalShopAdapter(this);
         setup();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try {
+            mixpanelHelper.trackViewAppeared(TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -95,6 +109,12 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+
+            try {
+                mixpanelHelper.trackButtonTapped("Back", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             Intent mainActivity = new Intent(this, MainActivity.class);
             mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
@@ -144,13 +164,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
     }
 
     private void setup() {
-        try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'SelectDealershipActivity'}"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         recyclerView = (RecyclerView) findViewById(R.id.dealership_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -225,7 +238,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(CustomAdapter.ViewHolder holder, int position) {
-            Dealership shop = shops.get(position);
+            final Dealership shop = shops.get(position);
             final String displayedShopId = shop.getParseId();
 
             holder.dealershipName.setText(shop.getName());
@@ -234,15 +247,12 @@ public class SelectDealershipActivity extends AppCompatActivity {
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Log.i(TAG, "Dealership selected: " + shop.getName());
                     try {
-                        application.getMixpanelAPI().track("CardView Clicked",
-                                new JSONObject("{'CardView':'Dealership selected'," +
-                                        "'View':'SelectDealershipActivity'}"));
+                        mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), TAG);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     Intent data = new Intent();
                     data.putExtra(SELECTED_DEALERSHIP, displayedShopId);
                     setResult(RESULT_OK, data);

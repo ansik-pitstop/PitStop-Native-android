@@ -115,7 +115,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
         localPid = new LocalPidAdapter(this);
-
     }
 
     @Override
@@ -326,6 +325,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(dataPackageInfo.result == 6) {
             //processResultSixData(dataPackageInfo);
+            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
+            return;
         }
 
         Log.i(TAG, "getting io data - auto-connect service");

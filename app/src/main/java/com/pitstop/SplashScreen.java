@@ -33,10 +33,10 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -51,6 +51,7 @@ public class SplashScreen extends AppCompatActivity {
     public static final String TAG = SplashScreen.class.getSimpleName();
 
     ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
 
     boolean signup  = false;
     boolean backPressed = false;
@@ -155,6 +156,11 @@ public class SplashScreen extends AppCompatActivity {
             public void onPageSelected(int position) {
                 setUpUIReferences();
                 if(position==3){
+                    try {
+                        mixpanelHelper.trackViewAppeared("Login");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     radioLayout.setVisibility(View.GONE);
                     skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
@@ -197,6 +203,13 @@ public class SplashScreen extends AppCompatActivity {
         });
         mPager.setAdapter(mPagerAdapter);
 
+        mixpanelHelper = new MixpanelHelper(application);
+
+        try {
+            mixpanelHelper.trackAppStatus(MixpanelHelper.APP_LAUNCHED);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -264,8 +277,7 @@ public class SplashScreen extends AppCompatActivity {
     public void signUp(final View view) {
         if (signup) {
             try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Sign Up','View':'SplashActivity'}"));
+                mixpanelHelper.trackButtonTapped("Register", TAG);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -311,6 +323,12 @@ public class SplashScreen extends AppCompatActivity {
                 }
             });
         }else{
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             name.setVisibility(View.VISIBLE);
             phoneNumber.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);
@@ -320,8 +338,7 @@ public class SplashScreen extends AppCompatActivity {
 
     public void login(View view) {
         try {
-            application.getMixpanelAPI().track("Button Clicked",
-                    new JSONObject("{'Button':'Log In','View':'SplashActivity'}"));
+            mixpanelHelper.trackButtonTapped("Login with Email", TAG);
         } catch (JSONException e2) {
             e2.printStackTrace();
         }
