@@ -344,7 +344,7 @@ public class SplashScreen extends AppCompatActivity {
         }
 
         showLoading("Logging in...");
-        final String usernameInput = email.getText().toString();
+        final String usernameInput = email.getText().toString().toLowerCase();
         final String passwordInput = password.getText().toString();
 
         ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
