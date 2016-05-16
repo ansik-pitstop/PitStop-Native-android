@@ -323,16 +323,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //processResultFiveData(dataPackageInfo);
         }
 
-        if(dataPackageInfo.result == 6) {
-            //processResultSixData(dataPackageInfo);
-            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
-            return;
-        }
-
         Log.i(TAG, "getting io data - auto-connect service");
 
-        //save dtcs
-        if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
+        if(dataPackageInfo.result == 6) { //save dtcs
+            //processResultSixData(dataPackageInfo);
+            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
+        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
             saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
             return;
         } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {

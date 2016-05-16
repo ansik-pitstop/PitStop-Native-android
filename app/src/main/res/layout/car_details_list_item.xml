@@ -57,7 +57,7 @@
                     android:layout_below="@+id/title"
 
                     android:lines="1"
-                    android:text="labflasf asdfasdfas fasdfasd fdas fads fasd fasdfasdfasd fas fas dfas dfa sfadsa sdf asd fsa df" />
+                    android:text="Description" />
 
             </RelativeLayout>
 

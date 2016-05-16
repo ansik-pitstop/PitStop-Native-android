@@ -122,8 +122,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null || mIsScanning) {
+        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
             Log.i(TAG, "Scan unable to start");
+            return;
+        }
+
+        if(mIsScanning) {
+            Log.i(TAG, "Already scanning");
             return;
         }
 
@@ -270,9 +275,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private void connectBluetooth() {
 
-        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()
-                || btConnectionState == CONNECTED) {
-            Log.i(TAG, "Bluetooth connected or Bluetooth not enabled or BluetoothAdapt is null");
+        if(btConnectionState == CONNECTED) {
+            Log.i(TAG, "Bluetooth connected");
+            return;
+        }
+
+        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
             return;
         }
         //scanLeDevice(true);
@@ -381,6 +390,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         e.printStackTrace();
                     }
 
+                    btConnectionState = CONNECTED;
                     gatt.discoverServices();
                     BluetoothDevice device = gatt.getDevice();
                     OBDInfoSP.saveMacAddress(mContext, device.getAddress());
@@ -423,7 +433,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
-                btConnectionState = CONNECTED;
+                //btConnectionState = CONNECTED;
                 dataListener.getBluetoothState(btConnectionState);
 
             } else {

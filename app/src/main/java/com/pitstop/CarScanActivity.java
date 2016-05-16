@@ -27,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
@@ -50,7 +51,6 @@ import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -116,7 +116,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             autoConnectService.setCallbacks(CarScanActivity.this); // register
 
             if(EasyPermissions.hasPermissions(CarScanActivity.this,perms)) {
-                autoConnectService.startBluetoothSearch();
+                //autoConnectService.startBluetoothSearch();
             } else {
                 EasyPermissions.requestPermissions(CarScanActivity.this,
                         getString(R.string.location_request_rationale), RC_LOCATION_PERM, perms);
@@ -210,12 +210,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     return;
                 }
 
-                if(autoConnectService.isCommunicatingWithDevice()) {
+                if(IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
                     updateMileage();
                 } else {
                     progressDialog.setMessage("Connecting to car");
                     progressDialog.show();
                     carSearchStartTime = System.currentTimeMillis();
+                    autoConnectService.startBluetoothSearch();
                     handler.post(connectCar);
                 }
             }
@@ -516,7 +517,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                autoConnectService.startBluetoothSearch();
                 (carScanButton).performClick();
             }
         });
@@ -669,7 +669,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - carSearchStartTime;
             int seconds = (int) (timeDiff / 1000);
-            if(autoConnectService.isCommunicatingWithDevice()) {
+            if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED || autoConnectService.isCommunicatingWithDevice()) {
                 handler.sendEmptyMessage(1);
                 handler.removeCallbacks(connectCar);
             } else if(seconds > 15) {
@@ -698,7 +698,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
         if(autoConnectService != null) {
-            autoConnectService.startBluetoothSearch();
+            //autoConnectService.startBluetoothSearch();
         }
     }
 

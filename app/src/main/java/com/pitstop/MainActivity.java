@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
                 if(autoConnectService != null
-                        && autoConnectService.isCommunicatingWithDevice()
+                        && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                         && dashboardCar != null
                         && dashboardCar.getScanner()
                         .equals(autoConnectService.getCurrentDeviceId())) {
@@ -937,6 +938,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             getRecalls();
 
             List<String> dtcCodes = dashboardCar.getStoredDTCs();
+
             getDTCs(dtcCodes, "DTC", CarIssue.DTC);
         } else {
             Log.i(TAG, "Trying local store for carIssues");

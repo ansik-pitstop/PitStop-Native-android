@@ -45,6 +45,7 @@ public class Car implements Serializable {
     private List<String> pendingIntervalServicesIds = new ArrayList<>();
     private List<String> pendingFixedServicesIds = new ArrayList<>();
     private List<String> storedDTCs = new ArrayList<>();
+    private List<String> pendingDTCs = new ArrayList<>();
 
     @SerializedName("shop")
     private Dealership dealerShip;
@@ -262,8 +263,16 @@ public class Car implements Serializable {
         return storedDTCs;
     }
 
+    public List<String> getPendingDTCs() {
+        return pendingDTCs;
+    }
+
     public void setStoredDTCs(List<String> storedDTCs) {
         this.storedDTCs = storedDTCs;
+    }
+
+    public void setPendingDTCs(List<String> pendingDTCs) {
+        this.pendingDTCs = pendingDTCs;
     }
 
     public static Car jsonToCarObject(JSONObject jsonObject) {
@@ -315,6 +324,7 @@ public class Car implements Serializable {
             car.setPendingFixedServicesIds(parseObject.<String>getList("pendingFixedServices"));
             car.setPendingIntervalServicesIds(parseObject.<String>getList("pendingIntervalServices"));
             car.setStoredDTCs(parseObject.<String>getList("storedDTCs"));
+            car.setPendingDTCs(parseObject.<String>getList("pendingDTCs"));
         }
         return car;
     }
