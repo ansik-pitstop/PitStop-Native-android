@@ -940,6 +940,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             List<String> dtcCodes = dashboardCar.getStoredDTCs();
 
             getDTCs(dtcCodes, "DTC", CarIssue.DTC);
+
+            List<String> pendingDtcs = dashboardCar.getPendingDTCs();
+
+            getDTCs(pendingDtcs, "DTC", CarIssue.PENDING_DTC);
         } else {
             Log.i(TAG, "Trying local store for carIssues");
             dashboardCar.setIssues(carIssues);
@@ -1399,9 +1403,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             .getDrawable(R.drawable.ic_error_red_600_24dp));
 
                 } else if(carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.title.setText(String.format("Engine issue: Code %s", carIssue.getIssueDetail().getItem()));
                     holder.imageView.setImageDrawable(getResources().
-                            getDrawable(R.drawable.ic_announcement_blue_600_24dp));
+                            getDrawable(R.drawable.car_engine_red));
+
+                } else if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                    holder.title.setText(String.format("Potential engine issue: Code %s", carIssue.getIssueDetail().getItem()));
+                    holder.imageView.setImageDrawable(getResources().
+                            getDrawable(R.drawable.car_engine_yellow));
 
                 } else {
                     holder.description.setText(carIssue.getIssueDetail().getDescription());
