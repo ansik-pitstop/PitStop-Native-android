@@ -10,6 +10,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -516,6 +517,8 @@ public class SettingsActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
                     final ParseQuery query = new ParseQuery("Car");
                     query.whereEqualTo("VIN", newDashboardCar.getVin());

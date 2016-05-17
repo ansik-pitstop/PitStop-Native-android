@@ -345,7 +345,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice btDevice = result.getDevice();
-            Log.i(TAG, "Result: "+result.toString());
+            Log.v(TAG, "Result: "+result.toString());
 
             if(btDevice.getName() != null
                     && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {

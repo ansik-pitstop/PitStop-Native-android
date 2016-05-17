@@ -342,7 +342,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             refreshFromServer();
             pushIntent = null;
         } else {
-            refreshFromServer();
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            if(sharedPreferences.getBoolean(REFRESH_FROM_SERVER, true)) {
+                refreshFromServer();
+                sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, false).apply();
+            }
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);
@@ -568,9 +572,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         == CustomAdapter.VIEW_TYPE_EMPTY) {
                                     return false;
                                 }
-                                return true;
-                                /*CarIssue carIssue = carIssuesAdapter.getItem(position);
-                                return !carIssue.getIssueType().equals("dtc");*/
+
+                                CarIssue carIssue = carIssuesAdapter.getItem(position);
+                                return !carIssue.getIssueType().equals(CarIssue.DTC) && !carIssue.getIssueType().equals(CarIssue.PENDING_DTC);
                             }
 
                             @Override
