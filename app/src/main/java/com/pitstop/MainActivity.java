@@ -46,6 +46,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -340,6 +341,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             // On opening a push notification, load required data from server
             refreshFromServer();
             pushIntent = null;
+        } else {
+            refreshFromServer();
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);
@@ -439,7 +442,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onClick(View v) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Scan", TAG);
+                    application.getMixpanelAPI().track("Button Tapped",
+                            new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
+                                    TAG, dashboardCar.getMake(), dashboardCar.getModel())));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -559,14 +564,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                             @Override
                             public boolean canSwipe(int position) {
-                                //--DTCS are disabled still TODO add DTCS Response
                                 if(carIssuesAdapter.getItemViewType(position)
                                         == CustomAdapter.VIEW_TYPE_EMPTY) {
                                     return false;
                                 }
-
-                                CarIssue carIssue = carIssuesAdapter.getItem(position);
-                                return !carIssue.getIssueType().equals("dtc");
+                                return true;
+                                /*CarIssue carIssue = carIssuesAdapter.getItem(position);
+                                return !carIssue.getIssueType().equals("dtc");*/
                             }
 
                             @Override
@@ -594,7 +598,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                                         //----- services
                                                         try {
-                                                            mixpanelHelper.trackButtonTapped("Completed Service: " + times[position], TAG);
+                                                            mixpanelHelper.trackButtonTapped("Completed Service: "
+                                                                    + carIssueList.get(i).getIssueDetail().getItem() + " " + times[position], TAG);
                                                         } catch (JSONException e) {
                                                             e.printStackTrace();
                                                         }
@@ -1274,7 +1279,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     }
 
-
     /**
      * Tutorial
      */
@@ -1341,15 +1345,29 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         .build()
         );
 
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
+        final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(recyclerView)
                 .setTitleText("Car Issues")
                 .setContentText("Swipe to dismiss issues.")
                 .setDismissOnTouch(true)
-                .setDismissText("OK")
+                .setDismissText("Get Started")
                 .withRectangleShape(true)
-                .build()
-        );
+                .build();
+
+        sequence.addSequenceItem(finalShowcase);
+
+        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+            @Override
+            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+                if(materialShowcaseView.equals(finalShowcase)) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
+                    } catch (JSONException e) {
+                       e.printStackTrace();
+                    }
+                }
+            }
+        });
 
         sequence.start();
 
@@ -1422,6 +1440,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        try {
+                            mixpanelHelper.trackButtonTapped(carIssueList.get(position).getIssueDetail().getItem(), TAG);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                         Intent intent = new Intent(MainActivity.this, DisplayItemActivity.class);
                         intent.putExtra(CAR_ISSUE_EXTRA, carIssueList.get(position));
                         intent.putExtra(CAR_EXTRA,dashboardCar);

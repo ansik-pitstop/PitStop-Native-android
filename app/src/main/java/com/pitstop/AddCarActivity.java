@@ -292,6 +292,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            try {
+                mixpanelHelper.trackButtonTapped("Settings", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Intent i = new Intent(AddCarActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
@@ -476,7 +482,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-
             }
         });
         alertDialog.show();

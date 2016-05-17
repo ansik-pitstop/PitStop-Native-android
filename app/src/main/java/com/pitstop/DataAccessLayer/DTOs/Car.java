@@ -264,6 +264,9 @@ public class Car implements Serializable {
     }
 
     public List<String> getPendingDTCs() {
+        if(pendingDTCs == null) {
+            pendingDTCs = new ArrayList<>();
+        }
         return pendingDTCs;
     }
 

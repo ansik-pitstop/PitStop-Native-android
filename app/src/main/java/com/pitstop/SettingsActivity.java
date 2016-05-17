@@ -1,15 +1,16 @@
 package com.pitstop;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,7 +126,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-
+        try {
+            new MixpanelHelper((ParseApplication) getApplicationContext()).trackButtonTapped("Back", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         finish();
     }
 
@@ -156,6 +162,8 @@ public class SettingsActivity extends AppCompatActivity {
         private LocalCarAdapter localCarAdapter;
         private LocalShopAdapter shopAdapter;
 
+        private MixpanelHelper mixpanelHelper;
+
         public SettingsFragment() {}
 
         public void setOnInfoUpdatedListener (OnInfoUpdated listener) {
@@ -165,6 +173,14 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            mixpanelHelper = new MixpanelHelper((ParseApplication) getActivity().getApplicationContext());
+
+            try {
+                mixpanelHelper.trackViewAppeared(TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             localCarAdapter = new LocalCarAdapter(getActivity().getApplicationContext());
             shopAdapter = new LocalShopAdapter(getActivity().getApplicationContext());
@@ -262,6 +278,14 @@ public class SettingsActivity extends AppCompatActivity {
                         itemCar.setShopId(shopSelected);
                         int result = localCarAdapter.updateCar(itemCar);
 
+                        try {
+                            ((ParseApplication) getActivity().getApplicationContext()).getMixpanelAPI().track("Button Tapped",
+                                    new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
+                                            TAG, itemCar.getMake(), itemCar.getModel())));
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+
                         if(result != 0) {
                             // Car shop was updated
                             listener.localUpdatePerformed();
@@ -272,8 +296,6 @@ public class SettingsActivity extends AppCompatActivity {
                         query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
                             public void done(ParseObject car, ParseException e) {
                                 if (e == null) {
-                                    // Now let's update it with some new data. In this case, only cheatMode and score
-                                    // will get sent to the Parse Cloud. playerName hasn't changed.
                                     car.put("dealership", shopSelected);
                                     car.saveInBackground();
                                 }
@@ -300,6 +322,7 @@ public class SettingsActivity extends AppCompatActivity {
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
 
                     alertDialog.setTitle("Edit name");
@@ -337,6 +360,19 @@ public class SettingsActivity extends AppCompatActivity {
 
             Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
             phoneNumberPreference.setTitle(ParseUser.getCurrentUser().getString("phoneNumber"));
+
+            findPreference(getString(R.string.pref_privacy_policy)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Privacy Policy", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/PrivacyPolicy.pdf")));
+                    return true;
+                }
+            });
 
 
             //logging out
@@ -379,13 +415,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
-            try {
-                application.getMixpanelAPI().track("View Appeared",
-                        new JSONObject("{'View':'SettingsActivity'}"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
         }
 
         @Override
@@ -401,8 +430,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void navigateToLogin() {
             try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Log out', 'View':'SettingsActivity'}"));
+                mixpanelHelper.trackButtonTapped("Logout", TAG);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -416,8 +444,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void updateUsersName(final String updatedName, final Preference namePreference) {
             try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Update name', 'View':'SettingsActivity'}"));
+                mixpanelHelper.trackButtonTapped("Name", TAG);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
@@ -441,13 +468,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         List<Car> selectedCar = new ArrayList<>();
         private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
-
-            try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Switch Car', 'View':'SettingsActivity'}"));
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
 
@@ -487,6 +507,14 @@ public class SettingsActivity extends AppCompatActivity {
                         mainPreference.setTitle(mainCar.getMake()
                                 +" "+mainCar.getModel());
                         listener.localUpdatePerformed();
+                    }
+
+                    try {
+                        ((ParseApplication) getActivity().getApplicationContext()).getMixpanelAPI().track("Button Tapped",
+                                new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
+                                        TAG, newDashboardCar.getMake(), newDashboardCar.getModel())));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
                     final ParseQuery query = new ParseQuery("Car");
