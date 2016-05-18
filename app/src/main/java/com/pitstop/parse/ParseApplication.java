@@ -5,14 +5,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import android.provider.SyncStateContract;
 import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.pitstop.MainActivity;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 
 import io.smooch.core.Smooch;
@@ -31,11 +30,11 @@ public class ParseApplication extends Application {
 
         // ParseCrashReporting.enable(this);
         Parse.enableLocalDatastore(this);
-        Parse.initialize(this, getString(R.string.parse_appID),
-                getString(R.string.parse_clientID));
+        Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
+                BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
         ParseInstallation.getCurrentInstallation().saveInBackground();
         Smooch.init(this, getString(R.string.smooch_token));
-        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
@@ -50,7 +49,7 @@ public class ParseApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.dev_mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
         }
         return mixpanelAPI;
     }
