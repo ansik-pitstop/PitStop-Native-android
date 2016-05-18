@@ -24,10 +24,13 @@ import com.pitstop.BarcodeScanner.BarcodeTrackerFactory;
 import com.pitstop.BarcodeScanner.CameraSource;
 import com.pitstop.BarcodeScanner.CameraSourcePreview;
 import com.pitstop.BarcodeScanner.GraphicOverlay;
+import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
 
 import java.io.IOException;
 
@@ -37,12 +40,14 @@ public class BarcodeScannerActivity extends AppCompatActivity {
 
     private static final int RC_HANDLE_GMS = 9001;
 
-    private static final String TAG = "BarcodeScanner";
+    private static final String TAG = BarcodeScannerActivity.class.getSimpleName();
 
     private BarcodeScanner mBarcodeScanner;
     private BarcodeScannerBuilder mBarcodeScannerBuilder;
 
     private BarcodeDetector barcodeDetector;
+
+    private MixpanelHelper mixpanelHelper;
 
     private CameraSourcePreview mCameraSourcePreview;
 
@@ -64,6 +69,8 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             Log.e(TAG, "Barcode scanner could not go into fullscreen mode!");
         }
         setContentView(R.layout.activity_barcode_scanner);
+
+        mixpanelHelper = new MixpanelHelper((ParseApplication) getApplicationContext());
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
@@ -175,6 +182,13 @@ public class BarcodeScannerActivity extends AppCompatActivity {
     }
 
     private void enableTorch() throws SecurityException{
+
+        try {
+            mixpanelHelper.trackButtonTapped("Flash On", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         mBarcodeScannerBuilder.getCameraSource().setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
         try {
             mBarcodeScannerBuilder.getCameraSource().start();
@@ -184,6 +198,13 @@ public class BarcodeScannerActivity extends AppCompatActivity {
     }
 
     private void disableTorch() throws SecurityException{
+
+        try {
+            mixpanelHelper.trackButtonTapped("Flash Off", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         mBarcodeScannerBuilder.getCameraSource().setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
         try {
             mBarcodeScannerBuilder.getCameraSource().start();
@@ -196,6 +217,16 @@ public class BarcodeScannerActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            mixpanelHelper.trackViewAppeared(TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -233,5 +264,16 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             mCameraSourcePreview.release();
             mCameraSourcePreview = null;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        try {
+            mixpanelHelper.trackButtonTapped("Cancel", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        super.onBackPressed();
     }
 }

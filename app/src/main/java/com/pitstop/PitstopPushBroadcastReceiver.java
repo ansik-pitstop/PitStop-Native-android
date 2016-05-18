@@ -18,6 +18,7 @@ import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
 import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -151,8 +152,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             openedActivity = true;
 
             ParseApplication application = (ParseApplication) context.getApplicationContext();
-                    application.getMixpanelAPI().track("App Status",
-                    new JSONObject("{'Status':'App opened from Push Notification'}"));
+            new MixpanelHelper(application).trackAppStatus(MixpanelHelper.APP_LAUNCHED_FROM_PUSH);
         } catch (JSONException e) {
             Log.e(TAG, "Unexpected JSONException when receiving push data: ", e);
         }

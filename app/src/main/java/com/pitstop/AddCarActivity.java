@@ -1,6 +1,5 @@
 package com.pitstop;
 
-import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -61,6 +60,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,6 +80,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
+
     public static int ADD_CAR_SUCCESS = 51;
     private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
 
@@ -111,7 +113,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private Intent intentFromMainActivity;
 
-    private static String TAG = "AddCarActivityDebug";
+    private static String TAG = AddCarActivity.class.getSimpleName();
 
     /** Callbacks for service binding, passed to bindService() */
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -132,12 +134,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     return;
                 }
 
-                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.perms)) {
+                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.LOC_PERMS)) {
                     autoConnectService.startBluetoothSearch();
                 } else {
                     EasyPermissions.requestPermissions(AddCarActivity.this,
                             getString(R.string.location_request_rationale),
-                            RC_LOCATION_PERM, MainActivity.perms);
+                            RC_LOCATION_PERM, MainActivity.LOC_PERMS);
                 }
 
             }
@@ -160,6 +162,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         Log.i(TAG, "onCreate()");
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         intentFromMainActivity = getIntent();
         vinDecoderApi = new CallMashapeAsync();
         localCarAdapter = new LocalCarAdapter(this);
@@ -208,13 +211,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'AddCarActivity'}"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         // Select shop
         Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
@@ -233,6 +229,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     @Override
     protected void onResume() {
+        try {
+            mixpanelHelper.trackViewAppeared(TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         super.onResume();
     }
 
@@ -266,6 +267,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     @Override
     public void onBackPressed() {
+        try {
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if(intentFromMainActivity!=null
                 && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
             Intent info = new Intent();
@@ -286,6 +292,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            try {
+                mixpanelHelper.trackButtonTapped("Settings", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Intent i = new Intent(AddCarActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
@@ -384,20 +396,16 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         } else if(mileageEditText.getText().toString().length() > 9) {
             Toast.makeText(this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
             return;
-        } else if(mileageEditText.getText().toString().length() > 9) {
-            Toast.makeText(this, "Please enter valid Mileage", Toast.LENGTH_SHORT).show();
-            return;
         }
 
         showLoading("Adding car");
 
         mileage = mileageEditText.getText().toString();
-        if (isValidVin(vinEditText.getText().toString())) {
+        if (isValidVin(vinEditText.getText().toString())) { // valid VIN is already entered
 
             // Vin is manually entered or retrieved using the barcode scanner
             try {
-                application.getMixpanelAPI().track("Button Clicked",
-                        new JSONObject("{'Button':'Add Car (Manual)','View':'AddCarActivity'}"));
+                mixpanelHelper.trackCarAdded(TAG, mileage, MixpanelHelper.ADDED_MANUALLY);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -407,17 +415,16 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             makeCar();
 
         } else {
-            if (BluetoothAdapter.getDefaultAdapter() == null) {
+            if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
                 hideLoading();
                 vinSection.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Your device does not support bluetooth",
                         Toast.LENGTH_SHORT).show();
             } else {
-                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) { // Already connected to module
 
                     try {
-                        application.getMixpanelAPI().track("Button Clicked",
-                                new JSONObject("{'Button':'Add Car (BT)','View':'AddCarActivity'}"));
+                        mixpanelHelper.trackCarAdded(TAG, mileage, MixpanelHelper.ADDED_WITH_DEVICE);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -429,13 +436,16 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     isGettingVinAndCarIsConnected = true;
                     mHandler.postDelayed(vinDetectionRunnable, 3000);
 
-                } else {
+                } else { // Need to search for module
                     showLoading("Searching for Car");
 
                     Log.i(TAG, "Searching for car but device not connected");
                     autoConnectService.startBluetoothSearch();
                     isSearchingForCar = true;
                     searchTime = System.currentTimeMillis();
+                    if(view != null) {
+                        connectionAttempts = 0;
+                    }
                     mHandler.postDelayed(carSearchRunnable, 3000);
                 }
             }
@@ -472,7 +482,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-
             }
         });
         alertDialog.show();
@@ -491,6 +500,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if(seconds > 15 && isGettingVinAndCarIsConnected) {
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
+                return;
             }
 
             if(!isGettingVinAndCarIsConnected) {
@@ -503,6 +513,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
     };
 
+    private int connectionAttempts = 0;
 
     private Runnable carSearchRunnable = new Runnable() {
         @Override
@@ -510,7 +521,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
-            if(seconds > 120 && (isSearchingForCar) && autoConnectService.getState()
+            if(seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
                     != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);
@@ -527,7 +538,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    tryAgainDialog();
+                    if(connectionAttempts++ == 2) {
+                        tryAgainDialog();
+                    } else {
+                        Log.i(TAG, "connection reattempt: " + connectionAttempts);
+                        searchForCar(null);
+                    }
                     break;
                 }
 
@@ -558,39 +574,37 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             autoConnectService.getDTCs();
             autoConnectService.getPendingDTCs();
         } else {
-            try {
-                Log.i(TAG, "Device not connected");
-                Log.i(TAG, "Checking internet connection");
+            Log.i(TAG, "Device not connected");
+            Log.i(TAG, "Checking internet connection");
 
-                if(new InternetChecker(this).execute().get()) {
+            if(InternetChecker.isConnected(this)) {
+                Log.i(TAG, "Internet connection found");
 
-                    ParseConfig.getInBackground(new ConfigCallback() {
-                        @Override
-                        public void done(ParseConfig config, ParseException e) {
+                ParseConfig.getInBackground(new ConfigCallback() {
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
 
-                            Log.i(TAG, "Adding car --- make car func");
+                        Log.i(TAG, "Adding car --- make car func");
 
-                            if(vinDecoderApi == null) {
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                Log.i("VIN DECODER","Pending TASK");
-                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                vinDecoderApi.cancel(true);
-                                vinDecoderApi = null;
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                vinDecoderApi = null;
-                                vinDecoderApi  = new CallMashapeAsync();
-                            }
-                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        if(vinDecoderApi == null) {
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                            Log.i("VIN DECODER","Pending TASK");
+                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                            vinDecoderApi.cancel(true);
+                            vinDecoderApi = null;
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                            vinDecoderApi = null;
+                            vinDecoderApi  = new CallMashapeAsync();
                         }
-                    });
-                } else {
-                    hideLoading();
-                    startPendingAddCarActivity();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                    }
+                });
+            } else {
+                Log.i(TAG, "No Internet");
+                hideLoading();
+                startPendingAddCarActivity();
             }
         }
     }
@@ -609,6 +623,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     public void startScanner(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Scan VIN Barcode", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         if(!checkBackCamera()) {
             Toast.makeText(this,"This device does not have a back facing camera",
                     Toast.LENGTH_SHORT).show();
@@ -630,6 +650,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         String possibleEditedVin = checkVinForInvalidCharacter(VIN);
                         if(possibleEditedVin!=null) {
                             VIN = possibleEditedVin;
+                        }
+
+                        try {
+                            application.getMixpanelAPI().track("Scanned VIN",
+                                    new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
                         vinEditText.setText(VIN);
@@ -703,8 +730,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                application.getMixpanelAPI().track("Retrieved VIN",
-                        new JSONObject("{'VIN':'" + VIN + "'}"));
+                application.getMixpanelAPI().track("Retrieved VIN from device",
+                        new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -753,39 +780,37 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             }
 
-            try {
-                Log.i(MainActivity.TAG, "getIOData --- Adding car");
-                if(new InternetChecker(this).execute().get()){
-                    ParseConfig.getInBackground(new ConfigCallback() {
-                        @Override
-                        public void done(ParseConfig config, ParseException e) {
+            Log.i(MainActivity.TAG, "getIOData --- Adding car");
+            if(InternetChecker.isConnected(this)){
+                Log.i(TAG, "Internet connection found");
+                ParseConfig.getInBackground(new ConfigCallback() {
+                    @Override
+                    public void done(ParseConfig config, ParseException e) {
 
-                            if(vinDecoderApi == null) {
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                                Log.i("VIN DECODER","Pending TASK");
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                                vinDecoderApi.cancel(true);
-                                vinDecoderApi = null;
-                                vinDecoderApi = new CallMashapeAsync();
-                            } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                                vinDecoderApi = null;
-                                vinDecoderApi  = new CallMashapeAsync();
-                            }
-                            vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                        if(vinDecoderApi == null) {
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+                            Log.i("VIN DECODER","Pending TASK");
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                            vinDecoderApi.cancel(true);
+                            vinDecoderApi = null;
+                            vinDecoderApi = new CallMashapeAsync();
+                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                            vinDecoderApi = null;
+                            vinDecoderApi  = new CallMashapeAsync();
                         }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideLoading();
-                            startPendingAddCarActivity();
-                        }
-                    });
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                    }
+                });
+            } else {
+                Log.i(TAG, "No internet");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLoading();
+                        startPendingAddCarActivity();
+                    }
+                });
             }
             askForDTC=false;
         }
@@ -826,8 +851,18 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if (newAction) {
                 // don't hide the manual entry UI if we're showing it after bluetooth failure
                 if (yesButton.isChecked() && !hasBluetoothVinEntryFailed) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Yes I have Pitstop Hardware", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     showBluetoothEntryUI();
                 } else if (noButton.isChecked()) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     showManualEntryUI();
                 }
             }

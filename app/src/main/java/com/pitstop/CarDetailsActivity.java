@@ -71,6 +71,10 @@ import java.util.List;
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
+/**
+ *  Not being used right now
+ */
+@Deprecated
 public class CarDetailsActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private ParseApplication application;

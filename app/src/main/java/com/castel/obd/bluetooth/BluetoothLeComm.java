@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -15,10 +14,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -26,8 +22,8 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.MainActivity;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +50,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     private Context mContext;
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager mObdManager;
     private final LinkedList<BluetoothCommand> mCommandQueue = new LinkedList<>();
@@ -91,6 +88,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         mContext = context;
         application = (ParseApplication) context.getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
+
         mHandler = new Handler();
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -123,7 +122,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null || mIsScanning) {
+        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
+            Log.i(TAG, "Scan unable to start");
+            return;
+        }
+
+        if(mIsScanning) {
+            Log.i(TAG, "Already scanning");
             return;
         }
 
@@ -270,12 +275,16 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private void connectBluetooth() {
 
-        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()
-                || btConnectionState == CONNECTED) {
-            Log.i(TAG, "Bluetooth connected or Bluetooth not enabled or BluetoothAdapt is null");
+        if(btConnectionState == CONNECTED) {
+            Log.i(TAG, "Bluetooth connected");
             return;
         }
 
+        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
+            return;
+        }
+        //scanLeDevice(true);
         Log.i(TAG,"Getting saved macAddress - BluetoothLeComm");
         String macAddress = OBDInfoSP.getMacAddress(mContext);
 
@@ -286,6 +295,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if(mGatt.connect()) {
                 Log.i(TAG,"Trying to connect to device - BluetoothLeComm");
                 btConnectionState = CONNECTING;
+            } else {
+                Log.i(TAG,"Could not connect to previous device, scanning...");
+                scanLeDevice(true);
             }
 
         } else  {
@@ -314,7 +326,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             }, SCAN_PERIOD);
 
             Log.i(TAG, "Starting le scan");
-            mLEScanner.startScan(filters, settings, mScanCallback);
+            mLEScanner.startScan(new ArrayList<ScanFilter>(), settings, mScanCallback);
             mIsScanning = true;
         } else {
             mLEScanner.stopScan(mScanCallback);
@@ -332,8 +344,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            Log.i(TAG, "Result: "+result.toString());
             BluetoothDevice btDevice = result.getDevice();
+            Log.v(TAG, "Result: "+result.toString());
 
             if(btDevice.getName() != null
                     && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
@@ -373,12 +385,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App is connected to bluetooth device (BLE)'}"));
+                        mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
+                    btConnectionState = CONNECTED;
                     gatt.discoverServices();
                     BluetoothDevice device = gatt.getDevice();
                     OBDInfoSP.saveMacAddress(mContext, device.getAddress());
@@ -396,8 +408,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App disconnected from bluetooth device (BLE)'}"));
+                        mixpanelHelper.trackConnectionStatus(MixpanelHelper.DISCONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -422,7 +433,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
-                btConnectionState = CONNECTED;
+                //btConnectionState = CONNECTED;
                 dataListener.getBluetoothState(btConnectionState);
 
             } else {

@@ -57,7 +57,7 @@
                     android:layout_below="@+id/title"
 
                     android:lines="1"
-                    android:text="labflasf asdfasdfas fasdfasd fdas fads fasd fasdfasdfasd fas fas dfas dfa sfadsa sdf asd fsa df" />
+                    android:text="Description" />
 
             </RelativeLayout>
 
@@ -71,9 +71,11 @@
 
                 <ImageView
                     android:id="@+id/image_icon"
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"/>
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/car_engine_red"
+                    android:scaleType="centerInside"/>
             </RelativeLayout>
         </RelativeLayout>
     </android.support.v7.widget.CardView>

@@ -26,6 +26,7 @@ import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.InternetChecker;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 public class SelectDealershipActivity extends AppCompatActivity {
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
 
     public static String SELECTED_DEALERSHIP = "selected_dealership";
     public static String ACTIVITY_NAME = "select_dealership";
@@ -53,6 +55,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private boolean hadInternetConnection = false;
     private LocalShopAdapter localStore;
 
+    private static final String TAG = SelectDealershipActivity.class.getSimpleName();
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_dealership);
@@ -60,8 +64,20 @@ public class SelectDealershipActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         localStore = new LocalShopAdapter(this);
         setup();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try {
+            mixpanelHelper.trackViewAppeared(TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -94,6 +110,12 @@ public class SelectDealershipActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
 
+            try {
+                mixpanelHelper.trackButtonTapped("Back", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Intent mainActivity = new Intent(this, MainActivity.class);
             mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
             startActivity(mainActivity);
@@ -102,39 +124,36 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
             userId = ParseUser.getCurrentUser().getObjectId();
 
-            try {
-                if(new InternetChecker(this).execute().get()) {
-                    //hadInternetConnection = true;
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                    query.whereContains("owner", userId);
-                    progressBar.setVisibility(View.VISIBLE);
-                    query.findInBackground(new FindCallback<ParseObject>() {
+            if(InternetChecker.isConnected(this)) {
+                Log.i(TAG, "Internet connection found");
+                //hadInternetConnection = true;
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+                query.whereContains("owner", userId);
+                progressBar.setVisibility(View.VISIBLE);
+                query.findInBackground(new FindCallback<ParseObject>() {
 
 
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            progressBar.setVisibility(View.GONE);
-                            if(e == null) {
-                                if (!objects.isEmpty()) {
-                                    startActivity(new Intent(SelectDealershipActivity.this,
-                                            MainActivity.class));
-                                } else {
-                                    if(hadInternetConnection) {
-                                        Toast.makeText(SelectDealershipActivity.this,
-                                                "Please select dealership",
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        setup();
-                                    }
-                                }
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        progressBar.setVisibility(View.GONE);
+                        if(e == null) {
+                            if (!objects.isEmpty()) {
+                                startActivity(new Intent(SelectDealershipActivity.this,
+                                        MainActivity.class));
                             } else {
-                                Log.i("ParseError",e.getMessage());
+                                if(hadInternetConnection) {
+                                    Toast.makeText(SelectDealershipActivity.this,
+                                            "Please select dealership",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    setup();
+                                }
                             }
+                        } else {
+                            Log.i("ParseError",e.getMessage());
                         }
-                    });
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                    }
+                });
             }
         }
     }
@@ -145,13 +164,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
     }
 
     private void setup() {
-        try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'SelectDealershipActivity'}"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         recyclerView = (RecyclerView) findViewById(R.id.dealership_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -165,42 +177,40 @@ public class SelectDealershipActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
 
-        try {
-            if(new InternetChecker(this).execute().get()) {
-                hadInternetConnection = true;
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
+        if(InternetChecker.isConnected(this)) {
+            Log.i(TAG, "Internet connection found");
+            hadInternetConnection = true;
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
 
-                List<Dealership> dealerships = localStore.getAllDealerships();
-                if(dealerships.isEmpty()) {
-                    query.findInBackground(new FindCallback<ParseObject>() {
+            List<Dealership> dealerships = localStore.getAllDealerships();
+            if(dealerships.isEmpty()) {
+                query.findInBackground(new FindCallback<ParseObject>() {
 
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            progressBar.setVisibility(View.GONE);
-                            if(e == null) {
-                                List<Dealership> list = Dealership.createDealershipList(objects);
-                                localStore.storeDealerships(list);
-                                adapter = new CustomAdapter(list);
-                                recyclerView.setAdapter(adapter);
-                            } else {
-                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        progressBar.setVisibility(View.GONE);
+                        if(e == null) {
+                            List<Dealership> list = Dealership.createDealershipList(objects);
+                            localStore.storeDealerships(list);
+                            adapter = new CustomAdapter(list);
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    });
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    adapter = new CustomAdapter(dealerships);
-                    recyclerView.setAdapter(adapter);
-                }
-
+                    }
+                });
             } else {
-                localStore.deleteAllDealerships();
-                hadInternetConnection = false;
-                message_card.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+                adapter = new CustomAdapter(dealerships);
+                recyclerView.setAdapter(adapter);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+
+        } else {
+            Log.i(TAG, "No internet");
+            localStore.deleteAllDealerships();
+            hadInternetConnection = false;
+            message_card.setVisibility(View.VISIBLE);
         }
     }
 
@@ -228,7 +238,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(CustomAdapter.ViewHolder holder, int position) {
-            Dealership shop = shops.get(position);
+            final Dealership shop = shops.get(position);
             final String displayedShopId = shop.getParseId();
 
             holder.dealershipName.setText(shop.getName());
@@ -237,15 +247,12 @@ public class SelectDealershipActivity extends AppCompatActivity {
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Log.i(TAG, "Dealership selected: " + shop.getName());
                     try {
-                        application.getMixpanelAPI().track("CardView Clicked",
-                                new JSONObject("{'CardView':'Dealership selected'," +
-                                        "'View':'SelectDealershipActivity'}"));
+                        mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), TAG);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     Intent data = new Intent();
                     data.putExtra(SELECTED_DEALERSHIP, displayedShopId);
                     setResult(RESULT_OK, data);
