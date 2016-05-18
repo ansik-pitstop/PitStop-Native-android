@@ -26,13 +26,15 @@ public class CarIssue implements Serializable {
 
     private static final int RECALLS_PRIORITY_DEFAULT_VALUE = 6;
     private static final int DTCS_PRIORITY_DEFAULT_VALUE = 5;
+    private static final int PENDING_DTC_PRIORITY = 2;
     private static final int SERVICES_PRIORITY_DEFAULT_VALUE = 1;
 
-    public static String DTC = "dtc";
-    public static String RECALL = "recall";
-    public static String EDMUNDS = "edmunds";
-    public static String FIXED = "fixed";
-    public static String INTERVAL = "interval";
+    public static final String DTC = "dtc"; // stored only
+    public static final String PENDING_DTC = "pending_dtc";
+    public static final String RECALL = "recall";
+    public static final String EDMUNDS = "edmunds";
+    public static final String FIXED = "fixed";
+    public static final String INTERVAL = "interval";
 
     @Expose(serialize = false, deserialize = false)
     private int id;
@@ -136,6 +138,14 @@ public class CarIssue implements Serializable {
                         parseObject.getString(DTCCODE_KEY),
                         parseObject.getString("description"),
                         "Engine Issue: DTC code "
+                ));
+            } else if(issueType.equals(PENDING_DTC)) {
+                carIssue.setPriority(PENDING_DTC_PRIORITY);
+
+                carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
+                        parseObject.getString(DTCCODE_KEY),
+                        parseObject.getString("description"),
+                        "Potential Engine Issue: DTC code "
                 ));
             } else {
                 carIssue.setPriority(parseObject.getInt(PRIORITY_KEY));

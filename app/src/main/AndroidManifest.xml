@@ -29,6 +29,8 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth_le"
+        android:required="false"/>
 
     <meta-data
         android:name="com.google.android.gms.vision.DEPENDENCIES"
@@ -44,10 +46,10 @@
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
     <permission
-        android:name="com.ansik.pitstop.permission.C2D_MESSAGE"
+        android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.ansik.pitstop.permission.C2D_MESSAGE" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 
     <application
         android:name=".parse.ParseApplication"
@@ -62,9 +64,6 @@
             </intent-filter>
         </receiver>
 
-        <meta-data
-            android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
-            android:value="true" />
         <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
             android:value="true" />
@@ -113,7 +112,7 @@
             android:name=".Debug.PIDDebugActivity"
             android:label="@string/title_activity_piddebug" />
         <activity
-            android:name=".EnviornmentalCheckActivity"
+            android:name=".EnvironmentalCheckActivity"
             android:label="@string/title_activity_enviornmental_check" />
         <activity
             android:name=".DisplayItemActivity"
@@ -136,16 +135,12 @@
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".CarDetailsActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.CarDetailsActivity" />
+                android:value="com.pitstop.MainActivity" />
         </activity>
-        <activity
-            android:name=".BarcodeCaptureActivity"
-            android:label="Read Barcode"
-            android:screenOrientation="portrait" />
 
         <service android:name="com.parse.PushService" />
 
@@ -165,7 +160,7 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
-                <category android:name="com.ansik.pitstop" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
@@ -197,6 +192,9 @@
             android:name=".CarScanActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme"/>
+        <activity
+            android:name=".BarcodeScannerActivity"
             android:theme="@style/AppNoActionBarTheme"/>
     </application>
 

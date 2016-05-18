@@ -15,7 +15,13 @@ import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
+import com.parse.Parse;
 import com.pitstop.MainActivity;
+import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +33,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;
+    private ParseApplication application;
     private ObdManager mObdManager;
 
     private BluetoothChat mBluetoothChat;
@@ -42,6 +49,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public BluetoothClassicComm(Context context) {
         Log.i(TAG, "classicComm Constructor");
         mContext = context;
+        application = (ParseApplication) context.getApplicationContext();
         mObdManager = new ObdManager(context);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
@@ -269,7 +277,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG,"A device found - BluetoothClassicComm");
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG,device.getName() + device.getAddress());
+                Log.i(TAG,device.getName() + " " + device.getAddress());
 
                 if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
@@ -286,6 +294,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.i(TAG, "Connected to device: " + device.getName());
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
+                    try {
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     dataListener.getBluetoothState(btConnectionState);
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
@@ -308,6 +321,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 if(device.getName()!= null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
+                    try {
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     dataListener.getBluetoothState(btConnectionState);
                 }
 

@@ -22,6 +22,7 @@ import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +42,9 @@ public class DisplayItemActivity extends AppCompatActivity {
     private CarIssue carIssue;
 
     ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
+
+    private static final String TAG = DisplayItemActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_item);
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
         dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
@@ -56,8 +61,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         setUpDisplayItems(carIssue);
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'DisplayItemActivity'}"));
+            mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -110,8 +114,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     public void requestService(View view) {
         try {
-            application.getMixpanelAPI().track("Button Clicked",
-                    new JSONObject("{'Button':'Request Service','View':'DisplayItemActivity'}"));
+            mixpanelHelper.trackButtonTapped("Request Service", TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -131,6 +134,13 @@ public class DisplayItemActivity extends AppCompatActivity {
         alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                try {
+                    application.getMixpanelAPI().track("Button Tapped",
+                            new JSONObject("'Button':'Confirm Service Request','View':'" + TAG
+                                    + "','Device':'Android','Number of Services Requested','1'"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 additionalComment[0] = userInput.getText().toString();
                 sendRequest(additionalComment[0]);
             }
@@ -139,6 +149,11 @@ public class DisplayItemActivity extends AppCompatActivity {
         alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                try {
+                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 dialog.cancel();
             }
         });
