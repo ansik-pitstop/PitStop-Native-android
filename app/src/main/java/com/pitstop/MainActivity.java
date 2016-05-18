@@ -347,12 +347,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             // On opening a push notification, load required data from server
             refreshFromServer();
             pushIntent = null;
-        } else {
-            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            if(sharedPreferences.getBoolean(REFRESH_FROM_SERVER, true)) {
-                refreshFromServer();
-                sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, false).apply();
-            }
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);

@@ -96,7 +96,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private int recalls = 0, services = 0;
 
     private Car dashboardCar;
-    private boolean performedScan = false;
+    private boolean updatedMileage = false;
     private ProgressDialog progressDialog;
 
 
@@ -174,7 +174,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onBackPressed() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, performedScan);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileage);
         setResult(MainActivity.RESULT_OK, data);
         finish();
     }
@@ -211,7 +211,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
 
                 if(IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
-                    updateMileage();
+                    updateMileage(true);
                 } else {
                     progressDialog.setMessage("Connecting to car");
                     progressDialog.show();
@@ -305,12 +305,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     public void updateMileage(View view) {
-        updateMileage();
+        updateMileage(false);
     }
 
     private boolean showingDialog = false;
 
-    public void updateMileage() {
+    public void updateMileage(final boolean performScan) {
 
         final EditText input = new EditText(CarScanActivity.this);
         input.setText(carMileage.getText().toString());
@@ -346,7 +346,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                 loadingEngineIssues.setVisibility(View.VISIBLE);
                                 engineIssuesText.setText("Checking for engine issues");
 
-                                updateMileage(input.getText().toString());
+                                updateMileage(input.getText().toString(), performScan);
                                 showingDialog = false;
                                 dialogInterface.dismiss();
                             }
@@ -363,13 +363,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     }
 
-    private void updateMileage (String mileage) {
+    private void updateMileage (String mileage, final boolean performScan) {
         Log.i(TAG, mileage);
 
         carMileage.setText(mileage);
         Car dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
 
         final HashMap<String, Object> params = new HashMap<String, Object>();
+
+        updatedMileage = true;
 
         try {
 
@@ -379,12 +381,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             // update the server information
             ParseCloud.callFunctionInBackground("carServicesUpdate", params, new FunctionCallback<Object>() {
                 public void done(Object o, ParseException e) {
-                    if (e == null) {
-                        startCarScan();
+                    if (e == null && performScan) {
+                            startCarScan();
                     } else {
-                        Toast.makeText(CarScanActivity.this,
-                                "failed to update mileage", Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "Parse Error: " + e.getMessage());
+                        if(performScan) {
+                            Toast.makeText(CarScanActivity.this,
+                                    "Failed to update mileage", Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Parse Error: " + e.getMessage());
+                        }
 
                         carScanButton.setEnabled(true);
                         recallsCountLayout.setVisibility(View.VISIBLE);
@@ -415,8 +419,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private void startCarScan() {
-
-        performedScan = true;
 
         checkForServices();
 
@@ -653,7 +655,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
                 case 1: {
                     progressDialog.dismiss();
-                    updateMileage();
+                    updateMileage(true);
                     break;
                 }
 
