@@ -95,7 +95,7 @@ public class SplashScreen extends AppCompatActivity {
         String deviceId = Settings.Secure.getString(this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-        Log.i(TAG, "Device id: " + deviceId);
+        //Log.i(TAG, "Device id: " + deviceId);
 
         application = (ParseApplication) getApplicationContext();
 

@@ -156,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private Intent splashScreenIntent;
     private Intent pushIntent;
 
+    private SharedPreferences sharedPreferences;
+
 
     public static String TAG = MainActivity.class.getSimpleName();
 
@@ -242,6 +244,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.primary));
@@ -289,6 +293,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
@@ -452,6 +458,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
                 Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
                 intent.putExtra(CAR_EXTRA,dashboardCar);
@@ -1288,8 +1296,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void presentShowcaseSequence() {
 
-        final SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
         boolean hasSeenTutorial = sharedPreferences.getBoolean(pfTutorial,false);
         if(hasSeenTutorial) {
             return;

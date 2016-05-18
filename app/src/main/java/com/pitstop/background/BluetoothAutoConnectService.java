@@ -326,14 +326,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "getting io data - auto-connect service");
 
         if(dataPackageInfo.result == 6) { //save dtcs
-            //processResultSixData(dataPackageInfo);
-            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
+            saveDtcs(dataPackageInfo, "storedDTCs", dataPackageInfo.deviceId);
         } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
-            saveDtcs(dataPackageInfo, "storedDtcs", dataPackageInfo.deviceId);
-            return;
+            saveDtcs(dataPackageInfo, "storedDTCs", dataPackageInfo.deviceId);
+            //return;
         } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {
-            saveDtcs(dataPackageInfo, "pendingDtcs", dataPackageInfo.deviceId);
-            return;
+            saveDtcs(dataPackageInfo, "pendingDTCs", dataPackageInfo.deviceId);
+            //return;
         }
 
         counter ++;
@@ -424,55 +423,54 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void saveDtcs(DataPackageInfo dataPackageInfo, final String dtcMonitor, String deviceId) {
         Log.i(TAG, "save DTCs - auto-connect service");
 //        if (dataPackageInfo.result != 5&&dataPackageInfo.result!=4&&askforDtcs) {
-        if (dataPackageInfo.result==4&&askforDtcs) {
-            askforDtcs=false;
-            String dtcs = "";
-            final ArrayList<String> dtcArr = new ArrayList<>();
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-                    dtcs+= parsedDtc+",";
-                    dtcArr.add(parsedDtc);
+        //if (dataPackageInfo.result==4&&askforDtcs) {
+        askforDtcs=false;
+        String dtcs = "";
+        final ArrayList<String> dtcArr = new ArrayList<>();
+        if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+            String[] DTCs = dataPackageInfo.dtcData.split(",");
+            for(String dtc : DTCs) {
+                String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+                dtcs+= parsedDtc+",";
+                dtcArr.add(parsedDtc);
+            }
+        }
+
+        Log.i(TAG, "DTCs found: " + dtcs);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+        query.whereEqualTo("scannerId", deviceId);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> cars, ParseException e) {
+                if(e == null) {
+                    if(cars.size() > 0) {
+                        ParseObject car = cars.get(0);
+                        for(String dtc : dtcArr) {
+                            Log.i(TAG, "DTC to add: " + dtc);
+                            car.addUnique(dtcMonitor, dtc);
+                        }
+                        car.saveEventually();
+                    }
+                } else {
+                    Log.d(TAG, "Parse query, " + e.getMessage());
                 }
             }
+        });
 
-            Log.i(TAG, "DTCs found: " + dtcs);
-
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-            query.whereEqualTo("scannerId", deviceId);
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> cars, ParseException e) {
-                    if(e == null) {
-                        if(cars.size() > 0) {
-                            ParseObject car = cars.get(0);
-                            for(String dtc : dtcArr) {
-                                Log.i(TAG, "DTC to add: " + dtc);
-                                car.addUnique(dtcMonitor, dtc);
-                            }
-                            car.saveEventually();
-                        }
-                    } else {
-                       Log.d(TAG, "Parse query, " + e.getMessage());
-                    }
-                }
-            });
-
-            //update DTC to online
-            ParseObject scansSave = new ParseObject("Scan");
-            scansSave.put("DTCs", dtcs);
-            scansSave.put("scannerId", dataPackageInfo.deviceId);
-            scansSave.put("runAfterSave", true);
-            scansSave.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("DTC Saving", "DTCs saved");
-                }
-            });
-            if (callbacks != null)
-                callbacks.getIOData(dataPackageInfo);
-        }
+        //update DTC to online
+        ParseObject scansSave = new ParseObject("Scan");
+        scansSave.put("DTCs", dtcs);
+        scansSave.put("scannerId", dataPackageInfo.deviceId);
+        scansSave.put("runAfterSave", true);
+        scansSave.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("DTC Saving", "DTCs saved");
+            }
+        });
+        if (callbacks != null)
+            callbacks.getIOData(dataPackageInfo);
     }
 
     @Override
@@ -619,19 +617,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void getDTCs() {
         Log.i(TAG, "calling getting DTCs - auto-connect service");
-        if (!askforDtcs){
-            askforDtcs = true;
-            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
-        }
+        //if (!askforDtcs){
+        askforDtcs = true;
+        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
+        //}
     }
 
 
     public void getPendingDTCs() {
         Log.i(TAG, "Getting pending DTCs");
-        if (!askForPendingDTCs){
-            askForPendingDTCs = true;
-            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
-        }
+        //if (!askForPendingDTCs){
+        askForPendingDTCs = true;
+        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
+        //}
     }
 
 
