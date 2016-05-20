@@ -152,6 +152,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
 
         String payload = mObdManager.obdSetCtrl(type);
+        Log.i(TAG, "Set ctrl result: " + payload);
         writeToObd(payload, 0);
     }
 

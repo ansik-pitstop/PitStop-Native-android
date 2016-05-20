@@ -623,7 +623,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //}
     }
 
-
     public void getPendingDTCs() {
         Log.i(TAG, "Getting pending DTCs");
         //if (!askForPendingDTCs){
@@ -632,6 +631,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //}
     }
 
+    public void clearDTCs() {
+        Log.i(TAG, "Clearing DTCs");
+        bluetoothCommunicator.obdSetCtrl(ObdManager.TYPE_DTC);
+    }
 
     public void getFreeze() {
         Log.i(TAG, "Getting freeze data - auto-connect service");

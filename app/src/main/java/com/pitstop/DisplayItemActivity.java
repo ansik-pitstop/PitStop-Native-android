@@ -1,11 +1,16 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,18 +20,25 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.parse.ParseApplication;
 import com.pitstop.utils.MixpanelHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +57,30 @@ public class DisplayItemActivity extends AppCompatActivity {
     private MixpanelHelper mixpanelHelper;
 
     private static final String TAG = DisplayItemActivity.class.getSimpleName();
+
+
+    private BluetoothAutoConnectService autoConnectService;
+    private Intent serviceIntent;
+
+    private boolean needToRefresh = false;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.i(TAG,"connecting: onServiceConnection");
+            // cast the IBinder and get MyService instance
+
+            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+            Log.i(TAG,"Disconnecting: onServiceConnection");
+            autoConnectService = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +101,22 @@ public class DisplayItemActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        serviceIntent = new Intent(this, BluetoothAutoConnectService.class);
+        startService(serviceIntent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         application.getMixpanelAPI().flush();
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -102,7 +148,7 @@ public class DisplayItemActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
     }
@@ -233,6 +279,25 @@ public class DisplayItemActivity extends AppCompatActivity {
         RelativeLayout rLayout = (RelativeLayout) view.findViewById(R.id.severity_indicator_layout);
         TextView severityTextView = (TextView) view.findViewById(R.id.severity_text);
 
+        // clear DTCs will clear all DTCs in module and backend
+        if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC) || carIssue.getIssueType().equals(CarIssue.DTC)) {
+            View clearDtcButton = view.findViewById(R.id.btnClearDtc);
+            clearDtcButton.setVisibility(View.VISIBLE);
+            clearDtcButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    autoConnectService.clearDTCs();
+                    clearDtcs();
+                    if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
+                        Toast.makeText(DisplayItemActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
+                    } else {
+                        autoConnectService.clearDTCs();
+                        clearDtcs();
+                    }
+                }
+            });
+        }
+
         String title = carIssue.getIssueDetail().getAction() +" "
                 + carIssue.getIssueDetail().getItem();
         String description = carIssue.getIssueDetail().getDescription();
@@ -262,6 +327,56 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         if (linearLayout != null) {
             linearLayout.addView(view, 0);
+        }
+    }
+
+    private void clearDtcs() {
+
+        ParseQuery updateObject = new ParseQuery("Car");
+        try {
+            updateObject.get(dashboardCar.getParseId());
+            updateObject.findInBackground(new FindCallback<ParseObject>() {
+
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e==null) {
+
+                        needToRefresh = true;
+
+                        // clearing dtcs from backend
+                        objects.get(0).removeAll("storedDTCs", dashboardCar.getStoredDTCs());
+                        objects.get(0).removeAll("pendingDTCs", dashboardCar.getPendingDTCs());
+                        objects.get(0).saveEventually();
+
+                        // saving service history to backend
+                        for(CarIssue dtc : dashboardCar.getIssues()) {
+                            if(dtc.getIssueType().equals(CarIssue.DTC) || dtc.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
+                                saveCompletion.put("carId", dashboardCar.getParseId());
+                                saveCompletion.put("mileageSetByUser", dashboardCar.getTotalMileage());
+                                saveCompletion.put("mileage", dashboardCar.getTotalMileage());
+                                saveCompletion.put("shopId", dashboardCar.getShopId());
+                                saveCompletion.put("userMarkedDoneOn", "Recently from " + new SimpleDateFormat("yyy-MM-dd HH:mm:ss z"));
+                                saveCompletion.put("serviceId", 123);
+                                saveCompletion.put("serviceObjectId", dtc.getParseId());
+                                saveCompletion.saveEventually();
+                            }
+                        }
+                        // clearing dtcs locally
+                        dashboardCar.setPendingDTCs(new ArrayList<String>());
+                        dashboardCar.setStoredDTCs(new ArrayList<String>());
+
+                        Log.i(TAG, "Engine codes cleared");
+                        Toast.makeText(DisplayItemActivity.this, "Engine codes cleared", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(DisplayItemActivity.this,"Parse error: "+e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 }
