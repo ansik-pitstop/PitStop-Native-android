@@ -256,8 +256,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         setUpUIReferences();
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'MainActivity'}"));
+            mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
