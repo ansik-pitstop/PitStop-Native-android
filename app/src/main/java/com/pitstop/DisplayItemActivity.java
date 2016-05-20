@@ -286,8 +286,6 @@ public class DisplayItemActivity extends AppCompatActivity {
             clearDtcButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    autoConnectService.clearDTCs();
-                    clearDtcs();
                     if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
                         Toast.makeText(DisplayItemActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
                     } else {
