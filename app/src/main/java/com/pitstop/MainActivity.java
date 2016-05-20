@@ -74,7 +74,9 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -254,8 +256,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         setUpUIReferences();
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'MainActivity'}"));
+            mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -575,8 +576,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                     return false;
                                 }
 
-                                CarIssue carIssue = carIssuesAdapter.getItem(position);
-                                return !carIssue.getIssueType().equals(CarIssue.DTC) && !carIssue.getIssueType().equals(CarIssue.PENDING_DTC);
+                                return true;
                             }
 
                             @Override
@@ -1099,8 +1099,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         saveCompletion.put("serviceObjectId", carIssue.getParseId());
         saveCompletion.put("shopId", dashboardCar.getShopId());
         saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
+        if(carIssue.getIssueType().equals(CarIssue.DTC) || carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+            saveCompletion.put("serviceId", 123);
+        } else if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
+            saveCompletion.put("serviceId", 124);
+        } else {
+            saveCompletion.put("serviceId", 125);
+        }
 
-        if(!carIssue.getIssueType().equals("recall") && !carIssue.getIssueType().equals("dtc")) {
+        if(!carIssue.getIssueType().equals(CarIssue.RECALL) && !carIssue.getIssueType().equals(CarIssue.DTC)
+                && !carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
             saveCompletion.put("type", typeService);
             saveCompletion.saveEventually(new SaveCallback() {
                 @Override
@@ -1116,7 +1124,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
                 }
             });
-        } else {
+        } else if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
             saveCompletion.saveEventually(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -1131,7 +1139,54 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
                 }
             });
+        } else {
+            ParseQuery car = new ParseQuery("Car");
+            try {
+                car.get(dashboardCar.getParseId());
+                car.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            if (objects.size() == 0) {
+                                return;
+                            }
+
+                            dashboardCar.setStoredDTCs(new ArrayList<String>());
+                            dashboardCar.setPendingDTCs(new ArrayList<String>());
+
+                            List dtcCode = Arrays.asList(carIssue.getIssueDetail().getItem());
+                            if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                                objects.get(0).removeAll("pendingDTCs", dtcCode);
+                                dashboardCar.setPendingDTCs(new ArrayList<String>());
+                            } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
+                                objects.get(0).removeAll("storedDTCs", dtcCode);
+                                dashboardCar.setStoredDTCs(new ArrayList<String>());
+                            }
+                            objects.get(0).saveEventually();
+                        } else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                saveCompletion.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Toast.makeText(MainActivity.this, "Updated Service History",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
+
+        refreshFromServer();
     }
 
     private void updateCarOnParse(final int typeService, final CarIssue carIssue,
@@ -1245,6 +1300,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         for(Car car : carList) {
             if(car.isCurrentCar()) {
                 dashboardCar = car;
+                dashboardCar.setStoredDTCs(car.getStoredDTCs());
+                dashboardCar.setPendingDTCs(car.getPendingDTCs());
                 return;
             }
         }
@@ -1257,6 +1314,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         ParseObject car = null;
         try {
             car = cars.get(dashboardCar.getParseId());
+
+            dashboardCar.setStoredDTCs(car.<String>getList("storedDTCs"));
+            dashboardCar.setPendingDTCs(car.<String>getList("pendingDTCs"));
+
             car.put("currentCar",true);
             car.saveEventually();
         } catch (ParseException e) {

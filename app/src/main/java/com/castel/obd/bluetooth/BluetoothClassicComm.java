@@ -92,6 +92,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         }
 
         String result = mObdManager.obdSetCtrl(type);
+        Log.i(TAG, "Set ctrl result: " + result);
         writeToObd(result);
     }
 
