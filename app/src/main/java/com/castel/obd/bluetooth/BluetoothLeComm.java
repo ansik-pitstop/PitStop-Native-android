@@ -22,11 +22,10 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,7 +48,7 @@ import java.util.concurrent.Semaphore;
 public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
 
     private Context mContext;
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager mObdManager;
@@ -87,7 +86,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     public BluetoothLeComm(Context context) {
 
         mContext = context;
-        application = (ParseApplication) context.getApplicationContext();
+        application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
         mHandler = new Handler();

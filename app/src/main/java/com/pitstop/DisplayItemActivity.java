@@ -31,10 +31,9 @@ import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +52,7 @@ public class DisplayItemActivity extends AppCompatActivity {
     private Car dashboardCar;
     private CarIssue carIssue;
 
-    ParseApplication application;
+    GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     private static final String TAG = DisplayItemActivity.class.getSimpleName();
@@ -87,7 +86,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();

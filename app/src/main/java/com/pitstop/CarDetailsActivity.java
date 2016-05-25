@@ -51,7 +51,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.ConnectedCarRecyclerAdapter;
 import com.pitstop.utils.PIDParser;
 
@@ -77,7 +77,7 @@ import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 @Deprecated
 public class CarDetailsActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
-    private ParseApplication application;
+    private GlobalApplication application;
 
     public static final String TAG = CarDetailsActivity.class.getSimpleName();
     private CustomAdapter customAdapter;
@@ -120,7 +120,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         setContentView(R.layout.activity_car_details);
         setTitle(getIntent().getExtras().getString("title").toUpperCase());
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
 
         //------------------------------- setup constants
         carId = getIntent().getStringExtra("CarID");
@@ -561,7 +561,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
                             public void onDismissedBySwipeLeft(RecyclerView recyclerView, final int[] reverseSortedPositions) {
 
                                 /*try {
-                                    ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Swiped Away Service/Recall','View':'CarDetailActivity'}"));
+                                    GlobalApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Swiped Away Service/Recall','View':'CarDetailActivity'}"));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }*/
@@ -716,7 +716,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
     private void updateMileage(CharSequence chsq) {
 
         /*try {
-            ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Update Mileage','View':'CarDetailActivity'}"));
+            GlobalApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Update Mileage','View':'CarDetailActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
         }*/
@@ -774,7 +774,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
     public void requestServiceButton(String additional) {
 
         /*try {
-            ParseApplication.mixpanelAPI.track("Button Clicked",
+            GlobalApplication.mixpanelAPI.track("Button Clicked",
                     new JSONObject("{'Button':'Request Service','View':'CarDetailsActivity'}"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -892,7 +892,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
     protected void onPause() {
         // unbind service to prevent memory leaks
         unbindService(serviceConnection);
-        //ParseApplication.mixpanelAPI.flush();
+        //GlobalApplication.mixpanelAPI.flush();
         super.onPause();
     }
 
@@ -910,7 +910,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         }
         if (id == R.id.history) {
             /*try {
-                ParseApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open History View','View':'CarDetailActivity'}"));
+                GlobalApplication.mixpanelAPI.track("Button Clicked", new JSONObject("{'Button':'Open History View','View':'CarDetailActivity'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }*/

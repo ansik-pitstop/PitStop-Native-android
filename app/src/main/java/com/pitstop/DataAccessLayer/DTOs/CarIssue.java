@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -39,10 +40,10 @@ public class CarIssue implements Serializable {
     @Expose(serialize = false, deserialize = false)
     private int id;
     private String parseId;
-    private String carId;
+    private int carId;
     private String status;
     @SerializedName("doneAt")
-    private Date timestamp;
+    private String timestamp;
     private int priority;
     private String issueType;
     private CarIssueDetail issueDetail;
@@ -57,11 +58,11 @@ public class CarIssue implements Serializable {
         this.id = id;
     }
 
-    public String getCarId() {
+    public int getCarId() {
         return carId;
     }
 
-    public void setCarId(String carId) {
+    public void setCarId(int carId) {
         this.carId = carId;
     }
 
@@ -73,11 +74,11 @@ public class CarIssue implements Serializable {
         this.status = status;
     }
 
-    public Date getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -113,7 +114,7 @@ public class CarIssue implements Serializable {
         this.issueDetail = issueDetail;
     }
 
-    public static CarIssue createCarIssue(ParseObject parseObject, String issueType, String carId) {
+    /*public static CarIssue createCarIssue(ParseObject parseObject, String issueType, String carId) {
         CarIssue carIssue = null;
 
         if(parseObject != null) {
@@ -157,9 +158,23 @@ public class CarIssue implements Serializable {
             }
         }
         return carIssue;
+    }*/
+
+    public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
+        CarIssue carIssue = new CarIssue();
+
+        carIssue.setId(issueObject.getInt("id"));
+        carIssue.setCarId(carId);
+        carIssue.setStatus(issueObject.getString("status"));
+        carIssue.setTimestamp(issueObject.getString("doneAt"));
+        carIssue.setPriority(Integer.parseInt(issueObject.getString("priority")));
+        carIssue.setIssueType(issueObject.getString("issueType"));
+        carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(issueObject.getJSONObject("issueDetail")));
+
+        return carIssue;
     }
 
-    public static ArrayList<CarIssue> createCarIssues(List<ParseObject> parseObjects,
+    /*public static ArrayList<CarIssue> createCarIssues(List<ParseObject> parseObjects,
                                                       String issueType, String carId) {
         ArrayList<CarIssue> carIssues = new ArrayList<>();
         for(ParseObject parseObject : parseObjects) {
@@ -171,6 +186,16 @@ public class CarIssue implements Serializable {
             } else {
                 carIssues.add(createCarIssue(parseObject, issueType, carId));
             }
+        }
+
+        return carIssues;
+    }*/
+
+    public static ArrayList<CarIssue> createCarIssues(JSONArray issueArr, int carId) throws JSONException {
+        ArrayList<CarIssue> carIssues = new ArrayList<>();
+
+        for(int i = 0 ; i < issueArr.length() ; i++) {
+            carIssues.add(createCarIssue(issueArr.getJSONObject(i), carId));
         }
 
         return carIssues;

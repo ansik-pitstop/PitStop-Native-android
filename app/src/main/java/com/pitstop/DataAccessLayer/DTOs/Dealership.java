@@ -1,8 +1,15 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.widget.Toast;
+
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -84,7 +91,7 @@ public class Dealership implements Serializable {
         this.parseId = parseId;
     }
 
-    public static Dealership createDealership(ParseObject parseObject, String carId) {
+    public static Dealership createDealership(ParseObject parseObject) {
         Dealership dealership = new Dealership();
         dealership.setParseId(parseObject.getObjectId());
         dealership.setName(parseObject.getString("name"));
@@ -97,8 +104,40 @@ public class Dealership implements Serializable {
     public static List<Dealership> createDealershipList(List<ParseObject> parseObjects) {
         List<Dealership> dealerships = new ArrayList<>();
         for( ParseObject parseObject : parseObjects) {
-            dealerships.add(createDealership(parseObject,""));
+            dealerships.add(createDealership(parseObject));
         }
         return dealerships;
+    }
+
+    public static List<Dealership> createDealershipList(String shopsListJson) throws JSONException {
+        ArrayList<Dealership> dealerships = new ArrayList<>();
+
+        JSONArray shopArr = new JSONArray(shopsListJson);
+
+        for (int i = 0; i < shopArr.length() ; i++) {
+            dealerships.add(jsonToDealershipObject(shopArr.getJSONObject(i).toString()));
+        }
+        return dealerships;
+    }
+
+    public static Dealership jsonToDealershipObject(String json) {
+        Dealership dealership = null;
+        try {
+            dealership = JsonUtil.json2object(json, Dealership.class);
+
+            if(dealership.getId() == 0) {
+                dealership = new Dealership();
+                JSONObject dealershipJson = new JSONObject(json).getJSONObject("dealership");
+                dealership.setId(dealershipJson.getInt("id"));
+                dealership.setName(dealershipJson.getString("name"));
+                dealership.setAddress(dealershipJson.getString("address"));
+                dealership.setEmail(dealershipJson.getString("email"));
+                dealership.setPhoneNumber(dealershipJson.getString("phone"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dealership;
     }
 }

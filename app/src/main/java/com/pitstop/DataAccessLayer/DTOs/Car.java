@@ -1,12 +1,12 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
-import android.util.Log;
-
 import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -39,8 +39,9 @@ public class Car implements Serializable {
     private boolean currentCar;
 
     private String ownerId;
+    private int userId;
     // TODO remove once api integration is complete
-    private String shopId;
+    private int shopId;
     private List<String> pendingEdmundServicesIds = new ArrayList<>();
     private List<String> pendingIntervalServicesIds = new ArrayList<>();
     private List<String> pendingFixedServicesIds = new ArrayList<>();
@@ -48,7 +49,7 @@ public class Car implements Serializable {
     private List<String> pendingDTCs = new ArrayList<>();
 
     @SerializedName("shop")
-    private Dealership dealerShip;
+    private Dealership dealership;
     private boolean serviceDue;
 
     private String scanner;
@@ -170,12 +171,20 @@ public class Car implements Serializable {
         this.ownerId = ownerId;
     }
 
-    public Dealership getDealerShip() {
-        return dealerShip;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setDealerShip(Dealership dealerShip) {
-        this.dealerShip = dealerShip;
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public Dealership getDealership() {
+        return dealership;
+    }
+
+    public void setDealership(Dealership dealership) {
+        this.dealership = dealership;
     }
 
     public boolean isServiceDue() {
@@ -218,11 +227,11 @@ public class Car implements Serializable {
         this.currentCar = currentCar;
     }
 
-    public String getShopId() {
+    public int getShopId() {
         return shopId;
     }
 
-    public void setShopId(String shopId) {
+    public void setShopId(int shopId) {
         this.shopId = shopId;
     }
 
@@ -302,8 +311,7 @@ public class Car implements Serializable {
         return  json;
     }
 
-    // TODO update param once api integration is complete
-    public static Car createCar(ParseObject parseObject) {
+    /*public static Car createCar(ParseObject parseObject) {
         Car car = null;
         if(parseObject != null) {
             car = new Car();
@@ -330,13 +338,83 @@ public class Car implements Serializable {
             car.setPendingDTCs(parseObject.<String>getList("pendingDTCs"));
         }
         return car;
+    }*/
+
+    // create car from json object (this is for the response from POST car)
+    public static Car createNewCar(JSONObject jsonObject) throws JSONException {
+        Car car = new Car();
+
+        car.setId(jsonObject.getInt("id"));
+        car.setEngine(jsonObject.getString("car_engine"));
+        car.setMake(jsonObject.getString("car_make"));
+        car.setModel(jsonObject.getString("car_model"));
+        car.setYear(jsonObject.getInt("car_year"));
+        car.setTrim(jsonObject.getString("car_trim"));
+        car.setScanner(jsonObject.optString("scannerId"));
+        car.setTotalMileage(jsonObject.getInt("mileage_total"));
+        car.setBaseMileage(jsonObject.getInt("mileage_base"));
+        car.setUserId(jsonObject.getInt("id_user"));
+        car.setShopId(jsonObject.getJSONObject("shop").getInt("id_shop"));
+        car.setVin(jsonObject.getString("vin"));
+
+        //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+
+        return car;
     }
 
-    public static List<Car> createCarsList(List<ParseObject> objects) {
+    // create car from json object (this is for GET from api)
+    public static Car createCar(JSONObject jsonObject) throws JSONException {
+        Car car = new Car();
+
+        car.setId(jsonObject.getInt("id"));
+        car.setEngine(jsonObject.getString("engine"));
+        car.setMake(jsonObject.getString("make"));
+        car.setModel(jsonObject.getString("model"));
+        car.setYear(jsonObject.getInt("year"));
+        car.setTrim(jsonObject.getString("trim"));
+        car.setScanner(jsonObject.optString("scannerId"));
+        car.setTotalMileage(jsonObject.getInt("totalMileage"));
+        car.setBaseMileage(jsonObject.getInt("baseMileage"));
+        car.setUserId(jsonObject.getInt("userId"));
+        car.setShopId(jsonObject.getJSONObject("shop").getInt("id"));
+        car.setVin(jsonObject.getString("vin"));
+
+        Object issues = jsonObject.get("issues");
+
+        if(issues instanceof JSONArray) {
+            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+        }
+
+        if(jsonObject.get("shop") != null) {
+            car.setDealership(Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString()));
+        }
+
+        return car;
+    }
+
+   /* public static List<Car> createCarsList(List<ParseObject> objects) {
         List<Car> cars = new ArrayList<>();
         for(ParseObject object : objects) {
             cars.add(createCar(object));
         }
+        return cars;
+    }*/
+
+    // create list of cars from api response
+    public static List<Car> createCarsList(String jsonRoot) throws JSONException {
+        List<Car> cars = new ArrayList<>();
+        JSONArray carArr;
+
+        try {
+            carArr = new JSONArray(jsonRoot);
+        } catch (JSONException e) {
+            return cars;
+        }
+
+        for(int i = 0 ; i < carArr.length() ; i++) {
+            cars.add(createCar(carArr.getJSONObject(i)));
+        }
+
         return cars;
     }
 }

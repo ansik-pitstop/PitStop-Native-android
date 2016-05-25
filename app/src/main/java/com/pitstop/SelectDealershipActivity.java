@@ -24,19 +24,19 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class SelectDealershipActivity extends AppCompatActivity {
 
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     public static String SELECTED_DEALERSHIP = "selected_dealership";
@@ -63,7 +63,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         localStore = new LocalShopAdapter(this);
         setup();
@@ -97,8 +97,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
         }
 
         if(id == R.id.log_out) {
-            ParseUser.logOut();
             navigateToLogin();
+            application.logOutUser();
         }
         return true;
     }
@@ -124,7 +124,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
             userId = ParseUser.getCurrentUser().getObjectId();
 
-            if(InternetChecker.isConnected(this)) {
+            if(NetworkHelper.isConnected(this)) {
                 Log.i(TAG, "Internet connection found");
                 //hadInternetConnection = true;
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
@@ -177,13 +177,36 @@ public class SelectDealershipActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
 
-        if(InternetChecker.isConnected(this)) {
+        if(NetworkHelper.isConnected(this)) {
             Log.i(TAG, "Internet connection found");
             hadInternetConnection = true;
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
 
             List<Dealership> dealerships = localStore.getAllDealerships();
             if(dealerships.isEmpty()) {
+                NetworkHelper.getShops(new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            progressBar.setVisibility(View.GONE);
+                            Log.i(TAG, "Get shops response: " + response);
+                            try {
+                                List<Dealership> list = Dealership.createDealershipList(response);
+                                localStore.deleteAllDealerships();
+                                localStore.storeDealerships(list);
+                                adapter = new CustomAdapter(list);
+                                recyclerView.setAdapter(adapter);
+                            } catch (JSONException e) {
+                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
                 query.findInBackground(new FindCallback<ParseObject>() {
 
                     @Override
@@ -199,7 +222,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
-                });
+                });*/
             } else {
                 progressBar.setVisibility(View.GONE);
                 adapter = new CustomAdapter(dealerships);
@@ -239,7 +262,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(CustomAdapter.ViewHolder holder, int position) {
             final Dealership shop = shops.get(position);
-            final String displayedShopId = shop.getParseId();
+            final int displayedShopId = shop.getId();
 
             holder.dealershipName.setText(shop.getName());
             holder.dealershipAddress.setText(shop.getAddress());

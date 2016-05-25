@@ -47,7 +47,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -68,7 +68,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private String[] perms = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
@@ -139,7 +139,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         bindService(new Intent(this, BluetoothAutoConnectService.class),
                 serviceConnection, BIND_AUTO_CREATE);
@@ -427,7 +427,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private void checkForServices() {
 
-        String userId = "";
+        /*String userId = "";
         services = 0;
         recalls = 0;
 
@@ -496,7 +496,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     Log.i(TAG, e.getMessage());
                 }
             }
-        });
+        });*/
     }
 
     private void checkForEngineIssues() {

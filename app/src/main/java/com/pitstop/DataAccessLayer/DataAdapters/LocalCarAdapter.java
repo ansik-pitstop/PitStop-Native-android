@@ -31,7 +31,7 @@ public class LocalCarAdapter {
             + TABLES.CAR.KEY_SCANNER_ID + " TEXT, "
             + TABLES.CAR.KEY_NUM_SERVICES + " INTEGER, "
             + TABLES.CAR.KEY_IS_DASHBOARD_CAR + " INTEGER, "
-            + TABLES.COMMON.KEY_PARSE_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -87,7 +87,26 @@ public class LocalCarAdapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.CAR.TABLE_NAME,null,
-                TABLES.COMMON.KEY_PARSE_ID+"=?", new String[] {parseId},null,null,null);
+                TABLES.COMMON.KEY_OBJECT_ID +"=?", new String[] {parseId},null,null,null);
+        Car car = null;
+        if(c.moveToFirst()) {
+            car = cursorToCar(c);
+        }
+
+        db.close();
+        return car;
+    }
+
+    /**
+     * Get car by id
+     */
+
+    public Car getCar(int carId) {
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR.TABLE_NAME,null,
+                TABLES.COMMON.KEY_OBJECT_ID +"=?", new String[] {String.valueOf(carId)},null,null,null);
         Car car = null;
         if(c.moveToFirst()) {
             car = cursorToCar(c);
@@ -106,7 +125,7 @@ public class LocalCarAdapter {
 
         ContentValues values = carObjectToContentValues(car);
 
-        int rows = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_PARSE_ID + "=?",
+        int rows = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { car.getParseId() });
 
         db.close();
@@ -130,8 +149,7 @@ public class LocalCarAdapter {
 
     private Car cursorToCar(Cursor c) {
         Car car = new Car();
-        car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-        car.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+        car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
 
         car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
         car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
@@ -142,7 +160,7 @@ public class LocalCarAdapter {
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
         car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
         car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
-        car.setShopId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
+        car.setShopId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
         car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
         car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
         return car;
@@ -151,7 +169,7 @@ public class LocalCarAdapter {
 
     private ContentValues carObjectToContentValues(Car car) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_PARSE_ID, car.getParseId());
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, car.getId());
         values.put(TABLES.CAR.KEY_MAKE, car.getMake());
         values.put(TABLES.CAR.KEY_MODEL, car.getModel());
         values.put(TABLES.CAR.KEY_YEAR, car.getYear());

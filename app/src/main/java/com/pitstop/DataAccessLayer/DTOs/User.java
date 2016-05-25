@@ -1,6 +1,10 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -13,6 +17,7 @@ public class User implements Serializable {
     private int id;
 
     private String parseId;
+    private int userId;
     private String firstName;
     private String lastName;
     private String email;
@@ -106,11 +111,32 @@ public class User implements Serializable {
         this.verifiedEmail = verifiedEmail;
     }
 
-    public String getParseId() {
-        return parseId;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public static User jsonToUserObject(String json) {
+        User user = null;
+        try {
+            user = JsonUtil.json2object(json, User.class);
+
+            if(user.getUserId() == 0) {
+                user = new User();
+                JSONObject userJson = new JSONObject(json).getJSONObject("user");
+                user.setUserId(userJson.getInt("id"));
+                user.setFirstName(userJson.getString("firstName"));
+                user.setLastName(userJson.getString("lastName"));
+                user.setEmail(userJson.getString("email"));
+                user.setPhoneNumber(userJson.getString("phone"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 }

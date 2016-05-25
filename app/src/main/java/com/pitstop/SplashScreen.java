@@ -22,21 +22,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
 import com.parse.ParseInstallation;
-import com.parse.ParseUser;
-import com.parse.SignUpCallback;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -50,7 +51,7 @@ public class SplashScreen extends AppCompatActivity {
 
     public static final String TAG = SplashScreen.class.getSimpleName();
 
-    ParseApplication application;
+    GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     boolean signup  = false;
@@ -66,7 +67,6 @@ public class SplashScreen extends AppCompatActivity {
     private View splashLayout;
     private LinearLayout radioLayout;
     private Button loginButton, skipButton;
-
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -97,49 +97,22 @@ public class SplashScreen extends AppCompatActivity {
 
         //Log.i(TAG, "Device id: " + deviceId);
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
 
         setUpUIReferences();
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        String email = settings.getString(pfCodeForID, "NA");
+        final SharedPreferences settings = getSharedPreferences(GlobalApplication.pfName, MODE_PRIVATE);
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser == null) {
-            Log.i(TAG, "Current Parse user is null");
+        //ParseUser currentUser = ParseUser.getCurrentUser();
+
+        if (!application.isLoggedIn()) {
+            Log.i(TAG, "Not logged in");
         } else {
-            ParseApplication.setUpMixPanel();
-
             final ProgressDialog loadingDialog = ProgressDialog.show(SplashScreen.this, "", "Logging in...", true, false);
 
-            final Runnable loginRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(MainActivity.TAG, "loginHandler login");
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-                    startActivity(intent);
-                }
-            };
+            login(settings.getString(GlobalApplication.pfUserName, ""), settings.getString(GlobalApplication.pfPassword, ""));
 
-            loginHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i(MainActivity.TAG, "Handler dismiss dialog");
-                            loadingDialog.dismiss();
-                        }
-                    });
-                    loginHandler.post(loginRunnable);
-                }
-            }, 2500);
-
-            Log.i(TAG, currentUser.getUsername());
         }
 
 
@@ -282,6 +255,18 @@ public class SplashScreen extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            if(!NetworkHelper.isConnected(this)) {
+                Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                login(null);
+                            }
+                        })
+                        .show();
+                return;
+            }
+
             showLoading("Loading");
             if(Utils.isEmpty(name.getText().toString())) {
                 Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
@@ -298,7 +283,37 @@ public class SplashScreen extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            ParseUser user = new ParseUser();
+
+            // creating json to post
+            JSONObject json = new JSONObject();
+            try {
+                json.put("firstName", name.getText().toString());
+                json.put("lastName", "");
+                json.put("email", email.getText().toString());
+                json.put("username", email.getText().toString());
+                json.put("phone", phoneNumber.getText().toString());
+                json.put("password", password.getText().toString());
+                json.put("facebookId", "");
+                json.put("isSocial", false);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            HttpRequest.signUpAsync(json, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        Log.i(TAG, "Signup response: " + response);
+
+                        hideLoading();
+                        login(email.getText().toString(), password.getText().toString());
+                    }
+                }
+            });
+
+            /*ParseUser user = new ParseUser();
             user.setUsername(email.getText().toString());
             user.setPassword(password.getText().toString());
             user.setEmail(email.getText().toString());
@@ -321,7 +336,7 @@ public class SplashScreen extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
+            });*/
         }else{
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
@@ -336,6 +351,40 @@ public class SplashScreen extends AppCompatActivity {
         }
     }
 
+    private void login(final String username, final String password) {
+        Log.wtf(TAG, "username: " + username + " password: " + password); // TODO remove
+        HttpRequest.loginAsync(username, password, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                hideLoading();
+                if(requestError == null) {
+                    Log.i(TAG, "Login response: " + response);
+
+                    User user = User.jsonToUserObject(response);
+                    application.logInUser(username, password, user);
+
+                    GlobalApplication.setUpMixPanel();
+
+                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra(LOGIN_REFRESH, true);
+                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+                    startActivity(intent);
+                } else {
+                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                    Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    login(null);
+                                }
+                            })
+                            .show();
+                }
+            }
+        });
+    }
+
     public void login(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Login with Email", TAG);
@@ -343,11 +392,25 @@ public class SplashScreen extends AppCompatActivity {
             e2.printStackTrace();
         }
 
+        if(!NetworkHelper.isConnected(this)) {
+            Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                    .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            login(null);
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         showLoading("Logging in...");
         final String usernameInput = email.getText().toString().toLowerCase();
         final String passwordInput = password.getText().toString();
 
-        ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
+        login(usernameInput, passwordInput);
+
+        /*ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
 
             @Override
             public void done(ParseUser user, ParseException e) {
@@ -369,7 +432,7 @@ public class SplashScreen extends AppCompatActivity {
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("userId", ParseUser.getCurrentUser().getObjectId());
                     installation.saveInBackground();
-                    ParseApplication.setUpMixPanel();
+                    GlobalApplication.setUpMixPanel();
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra(LOGIN_REFRESH, true);
                     intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
@@ -382,7 +445,7 @@ public class SplashScreen extends AppCompatActivity {
                 }
 
             }
-        });
+        });*/
     }
 
     public void goToLogin(View view) {

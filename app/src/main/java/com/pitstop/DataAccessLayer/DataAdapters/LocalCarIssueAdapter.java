@@ -4,12 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
-import com.pitstop.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,7 @@ public class LocalCarIssueAdapter {
             + TABLES.CAR_ISSUES.KEY_ITEM + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_DESCRIPTION + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_ACTION+ " TEXT, "
-            + TABLES.COMMON.KEY_PARSE_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " TEXT, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -122,9 +120,9 @@ public class LocalCarIssueAdapter {
     private CarIssue cursorToCarIssue(Cursor c) {
         CarIssue carIssue = new CarIssue();
         carIssue.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-        carIssue.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+        carIssue.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
 
-        carIssue.setCarId(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAR_ID)));
+        carIssue.setCarId(c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAR_ID)));
         carIssue.setStatus(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_STATUS)));
         carIssue.setIssueType(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ISSUE_TYPE)));
         carIssue.setPriority(c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_PRIORITY)));
@@ -141,7 +139,7 @@ public class LocalCarIssueAdapter {
 
     private ContentValues carIssueObjectToContentValues(CarIssue carIssue) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_PARSE_ID, carIssue.getParseId());
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, carIssue.getParseId());
         values.put(TABLES.CAR_ISSUES.KEY_CAR_ID, carIssue.getCarId());
         values.put(TABLES.CAR_ISSUES.KEY_STATUS, carIssue.getStatus());
         values.put(TABLES.CAR_ISSUES.KEY_ISSUE_TYPE, carIssue.getIssueType());

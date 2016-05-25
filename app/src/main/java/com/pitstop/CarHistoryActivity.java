@@ -16,15 +16,13 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,7 +35,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     private ArrayList<Container> array;
 
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     private static final String TAG = CarHistoryActivity.class.getSimpleName();
@@ -47,8 +45,8 @@ public class CarHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_history);
 
-        application = (ParseApplication) getApplicationContext();
-        mixpanelHelper = new MixpanelHelper((ParseApplication) getApplicationContext());
+        application = (GlobalApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         array = new ArrayList<>();
 

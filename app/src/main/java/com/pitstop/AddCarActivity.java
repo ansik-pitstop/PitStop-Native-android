@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -57,10 +58,12 @@ import com.pitstop.BarcodeScanner.BarcodeScanner;
 import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
+import com.pitstop.parse.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +73,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -79,11 +81,13 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class AddCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
         View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     public static int ADD_CAR_SUCCESS = 51;
-    private String VIN = "", scannerID = "", mileage = "", shopSelected = "", dtcs ="";
+    private String VIN = "", scannerID = "", mileage = "", dtcs ="";
+
+    private int shopSelected = 1;
 
     private boolean askForDTC = false;
 
@@ -161,7 +165,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         setContentView(R.layout.activity_add_car);
         Log.i(TAG, "onCreate()");
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         intentFromMainActivity = getIntent();
         vinDecoderApi = new CallMashapeAsync();
@@ -321,8 +325,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         if(requestCode == SelectDealershipActivity.RC_DEALERSHIP
                 && resultCode == SelectDealershipActivity.RESULT_OK) {
             if(data != null) {
-                String selectedShopId =
-                        data.getStringExtra(SelectDealershipActivity.SELECTED_DEALERSHIP);
+                int selectedShopId =
+                        data.getIntExtra(SelectDealershipActivity.SELECTED_DEALERSHIP, 1);
                 setDealership(selectedShopId);
             }
 
@@ -577,7 +581,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             Log.i(TAG, "Device not connected");
             Log.i(TAG, "Checking internet connection");
 
-            if(InternetChecker.isConnected(this)) {
+            if(NetworkHelper.isConnected(this)) {
                 Log.i(TAG, "Internet connection found");
 
                 ParseConfig.getInBackground(new ConfigCallback() {
@@ -781,7 +785,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
 
             Log.i(MainActivity.TAG, "getIOData --- Adding car");
-            if(InternetChecker.isConnected(this)){
+            if(NetworkHelper.isConnected(this)){
                 Log.i(TAG, "Internet connection found");
                 ParseConfig.getInBackground(new ConfigCallback() {
                     @Override
@@ -983,11 +987,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
 
-    private void setDealership(String shopId) {
+    private void setDealership(int shopId) {
         shopSelected = shopId;
     }
 
-    private String getDealership() {
+    private int getDealership() {
         return shopSelected;
     }
 
@@ -1099,7 +1103,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     private void saveCarToServer(JSONObject carInfo) {
-        Log.i("shop selected:", getDealership());
+        Log.i("shop selected:", String.valueOf(getDealership()));
 
         runOnUiThread(new Runnable() {
             @Override
@@ -1108,7 +1112,47 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        try {
+        NetworkHelper.createNewCar(application.getCurrentUserId(),
+                mileage.equals("") ? 0 : Integer.valueOf(mileage),
+                VIN,
+                scannerID == null ? "" : scannerID,
+                shopSelected,
+                new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        showLoading("Final Touches");
+
+                        if(requestError == null) {
+                            Log.i(TAG, "Create car response: " + response);
+                            try {
+                                returnToMainActivity(Car.createCar(new JSONObject(response)));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                hideLoading();
+                                Toast.makeText(AddCarActivity.this, "There was an error adding your car, please try again", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            hideLoading();
+                            Log.e(TAG, "Create new car: " + requestError.getMessage());
+                            Toast.makeText(AddCarActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        /*try {
+
+            NetworkHelper.createNewCar(application.getCurrentUserId(),
+                    mileage.equals("") ? 0 : Integer.valueOf(mileage),
+                    VIN,
+                    scannerID == null ? "" : scannerID,
+                    shopSelected,
+                    new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+
+                        }
+                    });
+
             //Make Car
             ParseObject newCar = new ParseObject("Car");
             newCar.put("VIN", VIN);
@@ -1165,7 +1209,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         } catch (JSONException e1) {
             e1.printStackTrace();
             hideLoading();
-        }
+        }*/
     }
 
     private void startPendingAddCarActivity() {
@@ -1179,7 +1223,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        if(intentFromMainActivity != null
+        /*if(intentFromMainActivity != null
                 && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
             //update the car object
             Car dashboardCar = (Car) intentFromMainActivity.getSerializableExtra(MainActivity.CAR_EXTRA);
@@ -1192,7 +1236,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
+
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
 
         hideLoading();
         Intent data = new Intent();

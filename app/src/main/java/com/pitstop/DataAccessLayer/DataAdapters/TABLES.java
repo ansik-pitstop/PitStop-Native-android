@@ -8,7 +8,7 @@ public final class TABLES {
     public interface COMMON {
         //Common column names
         String KEY_ID = "id";
-        String KEY_PARSE_ID = "parseId";
+        String KEY_OBJECT_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
     }
 
