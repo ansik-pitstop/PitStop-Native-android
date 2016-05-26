@@ -130,4 +130,29 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
+    public static void loginAsync(String userName, String password, RequestCallback callback) {
+
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("username", userName);
+            credentials.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("login")
+                .requestType(RequestType.POST)
+                .body(credentials)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void signUpAsync(JSONObject newUser, RequestCallback callback) {
+        new HttpRequest.Builder().uri("user")
+                .requestType(RequestType.POST)
+                .body(newUser)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
 }

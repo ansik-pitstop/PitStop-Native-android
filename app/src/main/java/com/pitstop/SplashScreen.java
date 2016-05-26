@@ -79,8 +79,6 @@ public class SplashScreen extends AppCompatActivity {
      */
     private PagerAdapter mPagerAdapter;
 
-    Handler loginHandler = new Handler();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +97,9 @@ public class SplashScreen extends AppCompatActivity {
 
         application = (GlobalApplication) getApplicationContext();
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+
         setUpUIReferences();
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
@@ -109,10 +110,9 @@ public class SplashScreen extends AppCompatActivity {
         if (!application.isLoggedIn()) {
             Log.i(TAG, "Not logged in");
         } else {
-            final ProgressDialog loadingDialog = ProgressDialog.show(SplashScreen.this, "", "Logging in...", true, false);
+            showLoading("Logging in...");
 
             login(settings.getString(GlobalApplication.pfUserName, ""), settings.getString(GlobalApplication.pfPassword, ""));
-
         }
 
 
@@ -233,9 +233,6 @@ public class SplashScreen extends AppCompatActivity {
 
     private void setUpUIReferences() {
 
-        progressDialog = new ProgressDialog(SplashScreen.this);
-        progressDialog.setCanceledOnTouchOutside(false);
-
         name = (EditText) findViewById(R.id.name);
         password = (EditText) findViewById(R.id.password);
         phoneNumber = (EditText) findViewById(R.id.phone);
@@ -301,13 +298,10 @@ public class SplashScreen extends AppCompatActivity {
                 return;
             }
 
-            HttpRequest.signUpAsync(json, new RequestCallback() {
+            NetworkHelper.signUpAsync(json, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
-                        Log.i(TAG, "Signup response: " + response);
-
-                        hideLoading();
                         login(email.getText().toString(), password.getText().toString());
                     }
                 }
@@ -352,14 +346,10 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void login(final String username, final String password) {
-        Log.wtf(TAG, "username: " + username + " password: " + password); // TODO remove
-        HttpRequest.loginAsync(username, password, new RequestCallback() {
+        NetworkHelper.loginAsync(username, password, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                hideLoading();
                 if(requestError == null) {
-                    Log.i(TAG, "Login response: " + response);
-
                     User user = User.jsonToUserObject(response);
                     application.logInUser(username, password, user);
 
@@ -453,6 +443,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void showLoading(String text){
+        Log.i(TAG, "Show loading: " + text);
         if(isFinishing())
             return;
 
@@ -476,14 +467,13 @@ public class SplashScreen extends AppCompatActivity {
     protected void onPause() {
         application.getMixpanelAPI().flush();
         Log.i(MainActivity.TAG, "SplashScreen on pause");
-        progressDialog.cancel();
+        hideLoading();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         Log.i(MainActivity.TAG, "SplashScreen onDestroy");
-        progressDialog.cancel();
         super.onDestroy();
     }
 }

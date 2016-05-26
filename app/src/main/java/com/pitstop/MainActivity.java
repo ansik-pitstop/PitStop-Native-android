@@ -514,12 +514,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 customProperties.put("Car Make",  dashboardCar.getMake());
                 customProperties.put("Car Model", dashboardCar.getModel());
                 customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Phone", ParseUser.getCurrentUser().get("phoneNumber"));
+                customProperties.put("Phone", GlobalApplication.getCurrentUser().getPhoneNumber());
                 Log.i(TAG, dashboardCar.getDealership().getEmail());
                 customProperties.put("Email",dashboardCar.getDealership().getEmail());
                 User.getCurrentUser().addProperties(customProperties);
-                User.getCurrentUser().setFirstName(ParseUser.getCurrentUser().getString("name"));
-                User.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                User.getCurrentUser().setFirstName(GlobalApplication.getCurrentUser().getFirstName());
+                User.getCurrentUser().setEmail(GlobalApplication.getCurrentUser().getEmail());
                 ConversationActivity.show(MainActivity.this);
             }
         });

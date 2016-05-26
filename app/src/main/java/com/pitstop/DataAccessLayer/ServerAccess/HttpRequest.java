@@ -61,33 +61,6 @@ public class HttpRequest {
         asyncRequest.execute(uri, requestType, body, headers);
     }
 
-    public static void loginAsync(String userName, String password, RequestCallback callback) {
-
-        JSONObject credentials = new JSONObject();
-        try {
-            credentials.put("username", userName);
-            credentials.put("password", password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        Builder builder = new Builder();
-        builder.uri("login")
-                .requestType(RequestType.POST)
-                .body(credentials)
-                .requestCallBack(callback);
-        builder.createRequest().executeAsync();
-    }
-
-    public static void signUpAsync(JSONObject newUser, RequestCallback callback) {
-        Builder builder = new Builder();
-        builder.uri("user/")
-                .requestType(RequestType.POST)
-                .body(newUser)
-                .requestCallBack(callback);
-        builder.createRequest().executeAsync();
-    }
-
     public static class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String> > {
         private RequestCallback listener;
 

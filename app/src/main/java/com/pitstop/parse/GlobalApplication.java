@@ -135,7 +135,6 @@ public class GlobalApplication extends Application {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         boolean a = settings.getString(pfUserName, null) == null;
         boolean b = settings.getString(pfPassword, null) == null;
-        Log.wtf(TAG, "a: " + (a ? "null" : settings.getString(pfUserName, null)) + " b: " + (b ? "null" : settings.getString(pfPassword, null)));
         return !(a || b);
     }
 
