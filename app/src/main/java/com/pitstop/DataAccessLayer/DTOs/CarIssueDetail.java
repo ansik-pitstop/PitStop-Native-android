@@ -67,7 +67,7 @@ public class CarIssueDetail implements Serializable {
 
         carIssueDetail.setItem(detailObject.getString("item"));
         carIssueDetail.setDescription(detailObject.getString("description"));
-        carIssueDetail.setAction(detailObject.optString("acton"));
+        carIssueDetail.setAction(detailObject.optString("action"));
 
         return carIssueDetail;
     }

@@ -172,6 +172,10 @@ public class CarIssue implements Serializable {
         carIssue.setIssueType(issueObject.getString("issueType"));
         carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(issueObject.getJSONObject("issueDetail")));
 
+        if(carIssue.getIssueType().equals(DTC) && issueObject.getJSONObject("issueDetail").getBoolean("isPending")) {
+            carIssue.setIssueType(PENDING_DTC);
+        }
+
         return carIssue;
     }
 

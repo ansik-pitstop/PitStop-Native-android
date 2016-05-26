@@ -152,4 +152,27 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
+    public static void addNewDtc(int carId, int mileage, int rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+        // TODO: put actual freeze data
+        try {
+            body.put("carId", carId);
+            body.put("issueType", "dtc");
+            body.put("data",
+                    new JSONObject().put("mileage", mileage)
+                            .put("rtcTime", rtcTime)
+                            .put("dtcCode", dtcCode)
+                            .put("isPending", isPending)
+                            .put("freezeData", new JSONObject().put("data", "data")));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("issue")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
 }
