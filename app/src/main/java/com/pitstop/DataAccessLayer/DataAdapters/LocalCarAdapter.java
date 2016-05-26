@@ -140,7 +140,7 @@ public class LocalCarAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Car car : carEntries) {
-            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_ID +"=?",
+            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID +"=?",
                     new String[] { String.valueOf(car.getId()) });
         }
 
