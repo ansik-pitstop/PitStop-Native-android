@@ -239,7 +239,11 @@ public class Car implements Serializable {
         return issues;
     }
 
-    public List<CarIssue> getActiveIssues() {
+    public void setIssues(List<CarIssue> issues) {
+        this.issues = issues;
+    }
+
+    public ArrayList<CarIssue> getActiveIssues() {
         ArrayList<CarIssue> activeIssues = new ArrayList<>();
 
         for(CarIssue issue : issues) {
@@ -251,8 +255,16 @@ public class Car implements Serializable {
         return activeIssues;
     }
 
-    public void setIssues(List<CarIssue> issues) {
-        this.issues = issues;
+    public ArrayList<CarIssue> getDoneIssues() {
+        ArrayList<CarIssue> activeIssues = new ArrayList<>();
+
+        for(CarIssue issue : issues) {
+            if(issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                activeIssues.add(issue);
+            }
+        }
+
+        return activeIssues;
     }
 
     //Todo remove once api-integration is done

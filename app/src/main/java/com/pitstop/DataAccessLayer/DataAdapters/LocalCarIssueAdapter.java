@@ -19,7 +19,7 @@ public class LocalCarIssueAdapter {
     // CAR_ISSUES table create statement
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
             + TABLES.CAR_ISSUES.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-            + TABLES.CAR_ISSUES.KEY_CAR_ID + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_CAR_ID + " INTEGER, "
             + TABLES.CAR_ISSUES.KEY_STATUS+ " TEXT, "
             + TABLES.CAR_ISSUES.KEY_TIMESTAMP + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_ISSUE_TYPE + " TEXT, "
@@ -27,7 +27,7 @@ public class LocalCarIssueAdapter {
             + TABLES.CAR_ISSUES.KEY_ITEM + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_DESCRIPTION + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_ACTION+ " TEXT, "
-            + TABLES.COMMON.KEY_OBJECT_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -41,7 +41,7 @@ public class LocalCarIssueAdapter {
 
         ContentValues values = carIssueObjectToContentValues(carIssue);
 
-        long result = db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
+        db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
         db.close();
     }
 
@@ -63,14 +63,14 @@ public class LocalCarIssueAdapter {
         return rows;
     }
 
-    public List<CarIssue> getAllCarIssues(String carId) {
+    public ArrayList<CarIssue> getAllCarIssues(int carId) {
 
-        List<CarIssue> carIssues = new ArrayList<>();
+        ArrayList<CarIssue> carIssues = new ArrayList<>();
 
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",new String[]{carId},null,null,null);
+                TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",new String[]{String.valueOf(carId)},null,null,null);
         if(c.moveToFirst()) {
             while(!c.isAfterLast()) {
                 carIssues.add(cursorToCarIssue(c));
@@ -103,7 +103,7 @@ public class LocalCarIssueAdapter {
     public void deleteCarIssue(CarIssue issue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
+        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(issue.getId()) });
 
         db.close();
@@ -119,8 +119,7 @@ public class LocalCarIssueAdapter {
 
     private CarIssue cursorToCarIssue(Cursor c) {
         CarIssue carIssue = new CarIssue();
-        carIssue.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-        carIssue.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
+        carIssue.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
 
         carIssue.setCarId(c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAR_ID)));
         carIssue.setStatus(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_STATUS)));
@@ -139,7 +138,7 @@ public class LocalCarIssueAdapter {
 
     private ContentValues carIssueObjectToContentValues(CarIssue carIssue) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_OBJECT_ID, carIssue.getParseId());
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, carIssue.getId());
         values.put(TABLES.CAR_ISSUES.KEY_CAR_ID, carIssue.getCarId());
         values.put(TABLES.CAR_ISSUES.KEY_STATUS, carIssue.getStatus());
         values.put(TABLES.CAR_ISSUES.KEY_ISSUE_TYPE, carIssue.getIssueType());

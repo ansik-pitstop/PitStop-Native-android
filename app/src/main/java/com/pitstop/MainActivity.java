@@ -313,7 +313,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 e.printStackTrace();
             }
             Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
-            intent.putExtra("carId",dashboardCar.getId());
+            //intent.putExtra("carId",dashboardCar.getId());
+            intent.putExtra("dashboardCar", dashboardCar);
             startActivity(intent);
         }
         return true;
@@ -616,7 +617,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                                         CarIssue carIssue = carIssuesAdapter.getItem(i);
 
-                                                        NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(), timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                        NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
+                                                                timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
                                                             @Override
                                                             public void done(String response, RequestError requestError) {
                                                                 if(requestError == null) {
@@ -826,9 +828,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 + dashboardCar.getMake() + " "
                 + dashboardCar.getModel());
 
-        int recallCount = dashboardCar.getNumberOfRecalls();
-        int serviceCount = dashboardCar.getNumberOfServices();
-        int total = recallCount + serviceCount;
+        int total = dashboardCar.getActiveIssues().size();
 
         serviceCountText.setText(String.valueOf(total));
 
@@ -1006,7 +1006,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
-        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(String.valueOf(dashboardCar.getId()));
+        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
         if(carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
             Log.i(TAG, "No car issues in local store");
@@ -1182,7 +1182,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         });
     }*/
 
-    private void updateServiceHistoryOnParse(final CarIssue carIssue, int position
+    /*private void updateServiceHistoryOnParse(final CarIssue carIssue, int position
             , int[] estimate, CharSequence[] times
             , DateFormat date, Date currentLocalTime, final int[] reverseSortedPositions ) {
 
@@ -1331,7 +1331,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             carIssuesAdapter.notifyDataSetChanged();
                         }
 
-                        // TODO check
                         refreshFromServer();
                     } else {
                         Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
@@ -1374,7 +1373,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (ParseException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     private void refreshFromServer() {
         carIssueList.clear();
