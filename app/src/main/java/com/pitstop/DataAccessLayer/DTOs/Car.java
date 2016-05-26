@@ -239,6 +239,18 @@ public class Car implements Serializable {
         return issues;
     }
 
+    public List<CarIssue> getActiveIssues() {
+        ArrayList<CarIssue> activeIssues = new ArrayList<>();
+
+        for(CarIssue issue : issues) {
+            if(!issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                activeIssues.add(issue);
+            }
+        }
+
+        return activeIssues;
+    }
+
     public void setIssues(List<CarIssue> issues) {
         this.issues = issues;
     }

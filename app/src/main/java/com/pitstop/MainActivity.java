@@ -591,6 +591,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         "6 to 12 Months Ago"
                                 };
 
+                                final int[] timesInDays = new int[] {1, 14, 30, 75, 135, 240};
+
                                 final int[] estimate = new int[]{0,2,3,10,18,32};
 
                                 Calendar cal = Calendar.getInstance();
@@ -613,8 +615,20 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                                         }
 
                                                         CarIssue carIssue = carIssuesAdapter.getItem(i);
-                                                        updateServiceHistoryOnParse(carIssue, position, estimate,
-                                                                times, date, currentLocalTime, reverseSortedPositions);
+
+                                                        NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(), timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                            @Override
+                                                            public void done(String response, RequestError requestError) {
+                                                                if(requestError == null) {
+                                                                    Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
+                                                                    carIssueList.remove(i);
+                                                                    carIssuesAdapter.notifyDataSetChanged();
+                                                                }
+                                                            }
+                                                        });
+
+                                                        /*updateServiceHistoryOnParse(carIssue, position, estimate,
+                                                                times, date, currentLocalTime, reverseSortedPositions);*/
                                                         dialogInterface.dismiss();
                                                     }
                                                 }).setTitle("When did you complete this task?").show();
@@ -661,7 +675,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     application.getMixpanelAPI().track("Button Tapped",
                             new JSONObject("'Button':'Confirm Service Request','View':'" + TAG
                                     + "','Device':'Android','Number of Services Requested',"
-                                    + dashboardCar.getIssues().size()));
+                                    + dashboardCar.getActiveIssues().size()));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1004,7 +1018,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         try {
                             dashboardCar.setIssues(CarIssue.createCarIssues(
                                     new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
-                            carIssueList.addAll(dashboardCar.getIssues());
+                            carIssueList.addAll(dashboardCar.getActiveIssues());
                             carIssuesAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1043,7 +1057,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             Log.i(TAG, "Trying local store for carIssues");
             dashboardCar.setIssues(carIssues);
             carIssueList.clear();
-            carIssueList.addAll(dashboardCar.getIssues());
+            carIssueList.addAll(dashboardCar.getActiveIssues());
             carIssuesAdapter.notifyDataSetChanged();
         }
 
@@ -1174,6 +1188,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         double mileage = dashboardCar.getTotalMileage();
         String type = carIssue.getIssueType();
+
+
+
         final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
 
         ParseObject saveCompletion = new ParseObject("ServiceHistory");
@@ -1201,7 +1218,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         Toast.makeText(MainActivity.this, "Updated Service History",
                                 Toast.LENGTH_SHORT).show();
                         //update the car object on the server next
-                        updateCarOnParse(typeService,carIssue,  reverseSortedPositions);
+                        updateCarOnParse(typeService, carIssue, reverseSortedPositions);
                     } else {
                         Toast.makeText(MainActivity.this, "Parse Error: "+e.getMessage(),
                                 Toast.LENGTH_SHORT).show();

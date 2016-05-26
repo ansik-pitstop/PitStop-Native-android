@@ -38,6 +38,10 @@ public class CarIssue implements Serializable {
     public static final String FIXED = "fixed";
     public static final String INTERVAL = "interval";
 
+    public static final String ISSUE_DONE = "done";
+    public static final String ISSUE_NEW = "new";
+    public static final String ISSUE_PENDING = "pending";
+
     @Expose(serialize = false, deserialize = false)
     private int id;
     private String parseId;

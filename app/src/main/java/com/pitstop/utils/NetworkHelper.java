@@ -152,7 +152,7 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void addNewDtc(int carId, int mileage, int rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
+    public static void addNewDtc(int carId, int mileage, String dtcCode, boolean isPending, RequestCallback callback) {
         JSONObject body = new JSONObject();
         // TODO: put actual freeze data
         try {
@@ -160,7 +160,7 @@ public class NetworkHelper {
             body.put("issueType", "dtc");
             body.put("data",
                     new JSONObject().put("mileage", mileage)
-                            .put("rtcTime", rtcTime)
+                            .put("rtcTime", System.currentTimeMillis() / 1000)
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending)
                             .put("freezeData", new JSONObject().put("data", "data")));
@@ -170,6 +170,26 @@ public class NetworkHelper {
 
         new HttpRequest.Builder().uri("issue")
                 .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void serviceDone(int carId, int issueId, int daysAgo, int mileage, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("carId", carId);
+            body.put("issueId", issueId);
+            body.put("daysAgo", daysAgo);
+            body.put("mileage", mileage);
+            body.put("status", "done");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("issue")
+                .requestType(RequestType.PUT)
                 .body(body)
                 .requestCallBack(callback)
                 .createRequest().executeAsync();
