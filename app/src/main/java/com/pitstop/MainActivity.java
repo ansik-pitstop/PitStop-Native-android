@@ -65,7 +65,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.database.DBModel;
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 e.printStackTrace();
             }
             Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
-            intent.putExtra("carId",dashboardCar.getParseId());
+            intent.putExtra("carId",dashboardCar.getId());
             startActivity(intent);
         }
         return true;
@@ -1156,7 +1156,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                         Log.i(TAG, recallsIds.toString());
 
-                        // Limit 100 TODO review
+                        // Limit 100
                         Log.i(TAG, "recall list size: "+recallsList.size());
                     }
 

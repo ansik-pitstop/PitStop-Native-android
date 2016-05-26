@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
@@ -26,12 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
-import com.parse.ParseInstallation;
 import com.pitstop.DataAccessLayer.DTOs.User;
-import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SplashSlidePagerAdapter;
@@ -102,7 +99,7 @@ public class SplashScreen extends AppCompatActivity {
 
         setUpUIReferences();
 
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         final SharedPreferences settings = getSharedPreferences(GlobalApplication.pfName, MODE_PRIVATE);
 
         //ParseUser currentUser = ParseUser.getCurrentUser();

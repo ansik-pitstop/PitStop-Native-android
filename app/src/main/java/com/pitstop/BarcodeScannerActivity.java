@@ -24,7 +24,7 @@ import com.pitstop.BarcodeScanner.BarcodeTrackerFactory;
 import com.pitstop.BarcodeScanner.CameraSource;
 import com.pitstop.BarcodeScanner.CameraSourcePreview;
 import com.pitstop.BarcodeScanner.GraphicOverlay;
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;

@@ -32,8 +32,9 @@ public class CarIssue implements Serializable {
 
     public static final String DTC = "dtc"; // stored only
     public static final String PENDING_DTC = "pending_dtc";
-    public static final String RECALL = "recall";
-    public static final String EDMUNDS = "edmunds";
+    public static final String RECALL = "recall_recallmasters";
+    public static final String SERVICE = "service";
+    public static final String EDMUNDS = "service_edmunds";
     public static final String FIXED = "fixed";
     public static final String INTERVAL = "interval";
 

@@ -1,4 +1,4 @@
-package com.pitstop.parse;
+package com.pitstop.application;
 
 import android.app.Application;
 import android.content.SharedPreferences;

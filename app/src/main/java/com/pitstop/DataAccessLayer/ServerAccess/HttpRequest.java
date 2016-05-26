@@ -9,7 +9,6 @@ import com.goebl.david.Response;
 import com.goebl.david.Webb;
 import com.pitstop.MainActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;

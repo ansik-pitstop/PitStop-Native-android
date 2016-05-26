@@ -51,7 +51,7 @@ import com.pitstop.database.models.Cars;
 import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.ConnectedCarRecyclerAdapter;
 import com.pitstop.utils.PIDParser;
 

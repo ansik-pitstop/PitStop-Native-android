@@ -1,6 +1,6 @@
 package com.pitstop.utils;
 
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -383,6 +383,7 @@ public class Car implements Serializable {
 
         if(issues instanceof JSONArray) {
             car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+            car.setNumberOfServices(((JSONArray) issues).length());
         }
 
         if(jsonObject.get("shop") != null) {

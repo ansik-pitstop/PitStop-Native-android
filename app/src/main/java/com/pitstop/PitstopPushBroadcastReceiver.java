@@ -16,7 +16,7 @@ import com.parse.ParseAnalytics;
 import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
 import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
-import com.pitstop.parse.GlobalApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
