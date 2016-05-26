@@ -1574,6 +1574,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             int viewType = getItemViewType(position);
 
+            holder.date.setVisibility(View.GONE);
+
             if(viewType == VIEW_TYPE_EMPTY) {
                 holder.description.setMaxLines(2);
                 holder.description.setText("You have no pending Engine Code, Recalls or Services");
@@ -1599,7 +1601,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     holder.title.setText(String.format("Potential engine issue: Code %s", carIssue.getIssueDetail().getItem()));
                     holder.imageView.setImageDrawable(getResources().
                             getDrawable(R.drawable.car_engine_yellow));
-
                 } else {
                     holder.description.setText(carIssue.getIssueDetail().getDescription());
                     holder.title.setText(carIssue.getIssueDetail().getItem());
@@ -1651,6 +1652,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             public TextView description;
             public ImageView imageView;
             public CardView container;
+            public View date; // Not used here so it is set to GONE
 
             public ViewHolder(View v) {
                 super(v);
@@ -1658,6 +1660,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 description = (TextView) v.findViewById(R.id.description);
                 imageView = (ImageView) v.findViewById(R.id.image_icon);
                 container = (CardView) v.findViewById(R.id.list_car_item);
+                date = v.findViewById(R.id.date);
             }
         }
     }
