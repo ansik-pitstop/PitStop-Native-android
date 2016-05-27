@@ -116,7 +116,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
             startActivity(mainActivity);
 
         } else {
-            super.onBackPressed();
+            Toast.makeText(SelectDealershipActivity.this, "There are no cars in you dashboard", Toast.LENGTH_SHORT).show();
         }
     }
 

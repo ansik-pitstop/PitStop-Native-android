@@ -317,6 +317,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                     if(requestError == null) {
                                                         Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
                                                         Toast.makeText(getActivity(), "Car dealership updated", Toast.LENGTH_SHORT).show();
+                                                        listener.localUpdatePerformed();
                                                     } else {
                                                         Log.e(TAG, "Dealership update error: " + requestError.getError());
                                                         Toast.makeText(getActivity(), "There was an error, please try again", Toast.LENGTH_SHORT).show();
