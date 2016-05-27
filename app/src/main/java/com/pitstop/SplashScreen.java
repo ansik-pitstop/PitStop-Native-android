@@ -346,6 +346,7 @@ public class SplashScreen extends AppCompatActivity {
         NetworkHelper.loginAsync(username, password, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                hideLoading();
                 if(requestError == null) {
                     User user = User.jsonToUserObject(response);
                     application.logInUser(username, password, user);

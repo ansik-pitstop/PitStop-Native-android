@@ -828,6 +828,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 + dashboardCar.getMake() + " "
                 + dashboardCar.getModel());
 
+        setIssuesCount();
+    }
+
+    private void setIssuesCount() { // sets the number of active issues to display
         int total = dashboardCar.getActiveIssues().size();
 
         serviceCountText.setText(String.valueOf(total));
@@ -1020,6 +1024,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                     new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
                             carIssueList.addAll(dashboardCar.getActiveIssues());
                             carIssuesAdapter.notifyDataSetChanged();
+                            setIssuesCount();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(MainActivity.this,

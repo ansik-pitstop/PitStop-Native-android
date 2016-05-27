@@ -17,11 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -120,41 +115,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
             mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
             startActivity(mainActivity);
 
-        } else if(ParseUser.getCurrentUser() != null) {
-
-            userId = ParseUser.getCurrentUser().getObjectId();
-
-            if(NetworkHelper.isConnected(this)) {
-                Log.i(TAG, "Internet connection found");
-                //hadInternetConnection = true;
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                query.whereContains("owner", userId);
-                progressBar.setVisibility(View.VISIBLE);
-                query.findInBackground(new FindCallback<ParseObject>() {
-
-
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        progressBar.setVisibility(View.GONE);
-                        if(e == null) {
-                            if (!objects.isEmpty()) {
-                                startActivity(new Intent(SelectDealershipActivity.this,
-                                        MainActivity.class));
-                            } else {
-                                if(hadInternetConnection) {
-                                    Toast.makeText(SelectDealershipActivity.this,
-                                            "Please select dealership",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    setup();
-                                }
-                            }
-                        } else {
-                            Log.i("ParseError",e.getMessage());
-                        }
-                    }
-                });
-            }
+        } else {
+            super.onBackPressed();
         }
     }
 
