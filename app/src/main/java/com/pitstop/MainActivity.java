@@ -281,6 +281,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
 
             refreshFromServer();
+
+            if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                autoConnectService.startBluetoothSearch();
+            }
         } else if(id == R.id.add) {
             try {
                 mixpanelHelper.trackButtonTapped("Add Car", TAG);

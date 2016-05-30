@@ -39,6 +39,7 @@ import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalPidResult4Adapter;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.DBModel;
@@ -91,7 +92,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     int pidI = 0;
 
     private LocalPidAdapter localPid;
-    private LocalPidAdapter localPidResult4;
+    private LocalPidResult4Adapter localPidResult4;
 
     private static String TAG = "BtAutoConnectDebug";
 
@@ -116,6 +117,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
         localPid = new LocalPidAdapter(this);
+        localPidResult4 = new LocalPidResult4Adapter(this);
     }
 
     @Override
@@ -578,7 +580,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     private void syncObdDevice() {
         Log.i(TAG,"Resetting RTC time - BluetoothAutoConn");
-        Toast.makeText(this,"Resetting obd device time...", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,"Resetting obd device time...", Toast.LENGTH_SHORT).show();
         long systemTime = System.currentTimeMillis();
         bluetoothCommunicator
                 .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
@@ -728,11 +730,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        if(localPid.getPidDataEntryCount() == 100) {
+        Log.wtf(TAG, "5: " + localPid.getPidDataEntryCount() + ", 4: " + localPidResult4.getPidDataEntryCount());
+
+        if(localPid.getPidDataEntryCount() >= 100) {
             sendPidDataToServer(data);
         }
 
-        if(localPidResult4.getPidDataEntryCount() == 50) {
+        if(localPidResult4.getPidDataEntryCount() >= 50) {
             sendPidDataResult4ToServer(data);
         }
 
@@ -765,8 +769,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG,freezeData.toString());
 
         if(data.result == 4) {
+            Log.i(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
             localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
+            Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             localPid.createPIDData(pidDataObject);
         }
     }
@@ -814,7 +820,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Saved successfully");
+                    Log.i(TAG, "PID result 5 Saved successfully");
                     localPid.deleteAllPidDataEntries();
                 } else {
                     Log.i(TAG, e.getMessage());
@@ -866,8 +872,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Saved successfully");
-                    localPid.deleteAllPidDataEntries();
+                    Log.i(TAG, "PID result 4 Saved successfully");
+                    localPidResult4.deleteAllPidDataEntries();
                 } else {
                     Log.i(TAG, e.getMessage());
                 }
