@@ -279,7 +279,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             setResult(MainActivity.RESULT_OK, info);
             finish();
         } else {
-            Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
+            // Select shop
+            Log.i(TAG,"Select dealership");
+            Intent intent = new Intent(this,SelectDealershipActivity.class);
+            intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                    && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
+            startActivityForResult(intent,
+                    SelectDealershipActivity.RC_DEALERSHIP);
         }
     }
 
