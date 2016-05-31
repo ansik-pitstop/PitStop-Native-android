@@ -359,16 +359,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setColor(getResources().getColor(R.color.highlight))
-                        .setContentTitle("Car is Connected")
-                        .setContentText("Click here to check out more");
-        // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.putExtra(FROM_NOTIF, true);
     }
 
 
@@ -612,29 +602,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                 final int[] estimate = new int[]{0,2,3,10,18,32};
 
-                                Calendar cal = Calendar.getInstance();
-                                final Date currentLocalTime = cal.getTime();
-                                final DateFormat date = new SimpleDateFormat("yyy-MM-dd HH:mm:ss z");
-
                                 final int i = reverseSortedPositions[0];
-                                android.support.v7.app.AlertDialog setDoneDialog =
-                                        new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
-                                                .setItems(times, new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialogInterface, final int position) {
+                                new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                                        .setItems(times, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, final int position) {
 
-                                                        //----- services
-                                                        try {
-                                                            mixpanelHelper.trackButtonTapped("Completed Service: "
-                                                                    + carIssueList.get(i).getIssueDetail().getItem() + " " + times[position], TAG);
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
+                                                //----- services
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped("Completed Service: "
+                                                            + carIssueList.get(i).getIssueDetail().getItem() + " " + times[position], TAG);
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
 
-                                                        CarIssue carIssue = carIssuesAdapter.getItem(i);
+                                                CarIssue carIssue = carIssuesAdapter.getItem(i);
 
-                                                        NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
-                                                                timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
+                                                        timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
                                                             @Override
                                                             public void done(String response, RequestError requestError) {
                                                                 if(requestError == null) {
@@ -647,9 +632,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                                         /*updateServiceHistoryOnParse(carIssue, position, estimate,
                                                                 times, date, currentLocalTime, reverseSortedPositions);*/
-                                                        dialogInterface.dismiss();
-                                                    }
-                                                }).setTitle("When did you complete this task?").show();
+                                                dialogInterface.dismiss();
+                                            }
+                                        }).setTitle("When did you complete this task?").show();
                             }
 
                             @Override

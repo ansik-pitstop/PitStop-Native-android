@@ -261,7 +261,7 @@ public class NetworkHelper {
 
     public static void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
         JSONObject body = new JSONObject();
-        // TODO: Freeze data
+
         try {
             body.put("scannerId", scannerId);
             body.put("pidArray", pidArr);

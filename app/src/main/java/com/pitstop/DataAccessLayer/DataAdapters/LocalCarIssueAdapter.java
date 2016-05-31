@@ -58,7 +58,7 @@ public class LocalCarIssueAdapter {
 
         int rows = db.update(TABLES.CAR_ISSUES.TABLE_NAME, values,
                 TABLES.CAR_ISSUES.KEY_CAR_ISSUE_ID+"=?",
-                new String[] {carIssue.getParseId()});
+                new String[] {String.valueOf(carIssue.getId())});
         db.close();
         return rows;
     }

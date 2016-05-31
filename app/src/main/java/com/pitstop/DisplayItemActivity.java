@@ -30,6 +30,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -54,6 +55,8 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private Car dashboardCar;
     private CarIssue carIssue;
+
+    private LocalCarIssueAdapter carIssueAdapter;
 
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -358,7 +361,43 @@ public class DisplayItemActivity extends AppCompatActivity {
         }
     }
 
+    private class ErrorIndicator { // because boolean needs to be used in inner class
+        boolean wasError = false;
+    }
+
     private void clearDtcs() {
+
+        carIssueAdapter = new LocalCarIssueAdapter(this);
+
+        // marking each dtc as done in the backend and locally
+        final ErrorIndicator errorIndicator = new ErrorIndicator();
+        for(int i = 0 ; i < dashboardCar.getActiveIssues().size() ; i++) {
+            final CarIssue issue = dashboardCar.getActiveIssues().get(i);
+            final int index = i;
+            if(issue.getIssueType().equals(CarIssue.DTC) || issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                NetworkHelper.serviceDone(dashboardCar.getId(), issue.getId(), 0, dashboardCar.getTotalMileage(),
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(requestError != null) {
+                                    issue.setStatus("done");
+                                    dashboardCar.getActiveIssues().set(index, issue);
+                                    carIssueAdapter.updateCarIssue(issue);
+                                    errorIndicator.wasError = true;
+                                }
+                            }
+                        });
+            }
+        }
+
+        if(errorIndicator.wasError) {
+            Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+        }
+
+        needToRefresh = true;
+
+        /*dashboardCar.setStoredDTCs(new ArrayList<String>());
+        dashboardCar.setPendingDTCs(new ArrayList<String>());
 
         ParseQuery updateObject = new ParseQuery("Car");
         try {
@@ -405,6 +444,6 @@ public class DisplayItemActivity extends AppCompatActivity {
             });
         } catch (ParseException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
