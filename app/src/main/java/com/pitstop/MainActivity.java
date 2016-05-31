@@ -107,12 +107,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public ArrayList<DBModel> array;
 
-    final static String pfName = "com.pitstop.login.name";
+    public final static String pfName = "com.pitstop.login.name";
     private final static String pfTutorial = "com.pitstop.tutorial";
-    final static String pfCodeForObjectID = "com.pitstop.login.objectID";
-    final static String pfCurrentCar = "ccom.pitstop.currentcar";
-    final static String pfShopName = "com.pitstop.shop.name";
-    final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
+    public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
+    public final static String pfCurrentCar = "ccom.pitstop.currentcar";
+    public final static String pfShopName = "com.pitstop.shop.name";
+    public final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
     public static final String CAR_EXTRA = "car";
     public static final String CAR_ISSUE_EXTRA = "car_issue";

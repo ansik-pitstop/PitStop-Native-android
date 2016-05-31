@@ -10,6 +10,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +53,14 @@ public class NetworkHelper {
     public static void getCarsByUserId(int userId, RequestCallback callback) {
         Log.i(TAG, "getCarsByUserId: " + userId);
         new HttpRequest.Builder().uri("car/?userId=" + userId)
+                .requestType(RequestType.GET)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void getCarsByVin(String vin, RequestCallback callback) {
+        Log.i(TAG, "getCarsByUserId: " + vin);
+        new HttpRequest.Builder().uri("car/?vin=" + vin)
                 .requestType(RequestType.GET)
                 .requestCallBack(callback)
                 .createRequest().executeAsync();
@@ -152,15 +161,16 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void addNewDtc(int carId, int mileage, String dtcCode, boolean isPending, RequestCallback callback) {
+    public static void addNewDtc(int carId, String scannerId, int mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
         JSONObject body = new JSONObject();
         // TODO: put actual freeze data
         try {
             body.put("carId", carId);
             body.put("issueType", "dtc");
+            body.put("scannerId", scannerId);
             body.put("data",
                     new JSONObject().put("mileage", mileage)
-                            .put("rtcTime", System.currentTimeMillis() / 1000)
+                            .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending)
                             .put("freezeData", new JSONObject().put("data", "data")));
@@ -195,4 +205,74 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
+    public static void createNewScanner(int carId, String scannerId, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("carId", carId);
+            body.put("scannerId", scannerId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("scanner")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("scannerId", scannerId);
+            body.put("serviceType", serviceType);
+            body.put("data", new JSONObject());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("scan/freezeData")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("scannerId", scannerId);
+            body.put("tripId", Long.parseLong(tripId));
+            body.put("mileage", Long.parseLong(mileage));
+            body.put("rtcTime", Long.parseLong(rtcTime));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("scan/tripMileage")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+        // TODO: Freeze data
+        try {
+            body.put("scannerId", scannerId);
+            body.put("pidArray", pidArr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("scan/pids")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
 }

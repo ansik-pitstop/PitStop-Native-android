@@ -362,7 +362,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         if(!TextUtils.isEmpty(VIN) ) {
             Log.i(TAG, "Vin is not empty");
 
-            ParseConfig.getInBackground(new ConfigCallback() {
+            Log.i(TAG,"Adding car from pending ---");
+
+            showLoading("Adding car");
+
+            runVinTask();
+
+            /*ParseConfig.getInBackground(new ConfigCallback() {
 
                 @Override
                 public void done(ParseConfig config, ParseException e) {
@@ -383,9 +389,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         vinDecoderApi = null;
                         vinDecoderApi  = new CallMashapeAsync();
                     }
-                    vinDecoderApi.execute(config.getString("MashapeAPIKey"));
+                    vinDecoderApi.execute(Parseconfignifgn);
                 }
-            });
+            });*/
         }
     }
 
@@ -592,7 +598,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if(NetworkHelper.isConnected(this)) {
                 Log.i(TAG, "Internet connection found");
 
-                ParseConfig.getInBackground(new ConfigCallback() {
+                Log.i(TAG, "Adding car --- make car func");
+
+                runVinTask();
+
+                /*ParseConfig.getInBackground(new ConfigCallback() {
                     @Override
                     public void done(ParseConfig config, ParseException e) {
 
@@ -612,7 +622,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         }
                         vinDecoderApi.execute(config.getString("MashapeAPIKey"));
                     }
-                });
+                });*/
             } else {
                 Log.i(TAG, "No Internet");
                 hideLoading();
@@ -795,7 +805,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             Log.i(MainActivity.TAG, "getIOData --- Adding car");
             if(NetworkHelper.isConnected(this)){
                 Log.i(TAG, "Internet connection found");
-                ParseConfig.getInBackground(new ConfigCallback() {
+                runVinTask();
+
+                /*ParseConfig.getInBackground(new ConfigCallback() {
                     @Override
                     public void done(ParseConfig config, ParseException e) {
 
@@ -813,7 +825,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         }
                         vinDecoderApi.execute(config.getString("MashapeAPIKey"));
                     }
-                });
+                });*/
             } else {
                 Log.i(TAG, "No internet");
                 runOnUiThread(new Runnable() {
@@ -1044,10 +1056,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private void scannerIdCheck(final JSONObject carInfo) {
         Log.i(TAG,"ScannerIdCheck() -- func");
 
-        if(Utils.isEmpty(scannerID)) {
+        vinCheck(carInfo);
+
+        /*if(Utils.isEmpty(scannerID)) {
             vinCheck(carInfo);
         } else {
-            runOnUiThread(new Runnable() {
+            (runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     showLoading("Checking car scanner Id");
@@ -1073,7 +1087,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             });
 
-        }
+        }*/
     }
 
     private void vinCheck(final JSONObject carInfo) {
@@ -1086,7 +1100,29 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
+        NetworkHelper.getCarsByVin(VIN, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null) {
+                    if(response.equals("{}")) {
+                        saveCarToServer(carInfo);
+                    } else {
+                        hideLoading();
+
+                        Toast.makeText(AddCarActivity.this,"Car Already Exists!",
+                                Toast.LENGTH_SHORT).show();
+
+                        vinEditText.setText("");
+                    }
+                } else {
+                    hideLoading();
+                    Log.e(TAG, "Check vin: " + requestError.getMessage());
+                    Toast.makeText(AddCarActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
         query.whereEqualTo("VIN",VIN);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -1107,7 +1143,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     saveCarToServer(carInfo);
                 }
             }
-        });
+        });*/
     }
 
     private void saveCarToServer(JSONObject carInfo) {
@@ -1133,7 +1169,18 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         if(requestError == null) {
                             Log.i(TAG, "Create car response: " + response);
                             try {
-                                returnToMainActivity(Car.createCar(new JSONObject(response)));
+                                Car newCar = Car.createCar(new JSONObject(response));
+
+                                if(scannerID != null) {
+                                    NetworkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
+                                        @Override
+                                        public void done(String response, RequestError requestError) {
+
+                                        }
+                                    });
+                                }
+
+                                returnToMainActivity(newCar);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 hideLoading();
@@ -1256,6 +1303,22 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         finish();
     }
 
+    private void runVinTask() {
+        if(vinDecoderApi == null) {
+            vinDecoderApi = new CallMashapeAsync();
+        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
+            Log.i("VIN DECODER","Pending TASK");
+        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            vinDecoderApi.cancel(true);
+            vinDecoderApi = null;
+            vinDecoderApi = new CallMashapeAsync();
+        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            vinDecoderApi = null;
+            vinDecoderApi  = new CallMashapeAsync();
+        }
+        vinDecoderApi.execute();
+    }
+
     /**
      * Complex call in adding car.
      * First it goes to Mashape and get info based on VIN -> determines if valid
@@ -1295,7 +1358,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
                 HttpURLConnection httpconn = (HttpURLConnection)url.openConnection();
                 httpconn.addRequestProperty("Content-Type", "application/x-zip");
-                httpconn.addRequestProperty("X-Mashape-Key", msg[0]);
+                httpconn.addRequestProperty("X-Mashape-Key", getString(R.string.mashape_key));
                 httpconn.addRequestProperty("Accept", "application/json");
                 if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK)
                 {
