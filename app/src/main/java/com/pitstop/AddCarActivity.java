@@ -1169,7 +1169,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         if(requestError == null) {
                             Log.i(TAG, "Create car response: " + response);
                             try {
-                                Car newCar = Car.createCar(new JSONObject(response));
+                                Car newCar = Car.createCar(response);
 
                                 if(scannerID != null) {
                                     NetworkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {

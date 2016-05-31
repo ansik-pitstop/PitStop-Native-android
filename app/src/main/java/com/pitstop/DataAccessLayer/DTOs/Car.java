@@ -17,10 +17,9 @@ import java.util.List;
  * Created by Paul Soladoye on 2/11/2016.
  */
 public class Car implements Serializable {
-    @Expose(serialize = false, deserialize = false)
+
     private int id;
 
-    @SerializedName("id")
     private String parseId;
 
     private String make;
@@ -34,28 +33,19 @@ public class Car implements Serializable {
     private String highwayMileage;
     private int baseMileage;
     private int totalMileage;
-    private int numberOfRecalls = 0; //TODO fix recalls
+    private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;
 
     private String ownerId;
     private int userId;
-    // TODO remove once api integration is complete
     private int shopId;
-    private List<String> pendingEdmundServicesIds = new ArrayList<>();
-    private List<String> pendingIntervalServicesIds = new ArrayList<>();
-    private List<String> pendingFixedServicesIds = new ArrayList<>();
-    private List<String> storedDTCs = new ArrayList<>();
-    private List<String> pendingDTCs = new ArrayList<>();
 
-    @SerializedName("shop")
     private Dealership dealership;
     private boolean serviceDue;
 
     private String scanner;
     private List<CarIssue> issues = new ArrayList<>();
-
-    private ParseObject parseObject;
 
     public Car() { }
 
@@ -267,50 +257,6 @@ public class Car implements Serializable {
         return activeIssues;
     }
 
-    //Todo remove once api-integration is done
-    public List<String> getPendingEdmundServicesIds() {
-        return pendingEdmundServicesIds;
-    }
-
-    public void setPendingEdmundServicesIds(List<String> pendingEdmundServicesIds) {
-        this.pendingEdmundServicesIds = pendingEdmundServicesIds;
-    }
-
-    public List<String> getPendingIntervalServicesIds() {
-        return pendingIntervalServicesIds;
-    }
-
-    public void setPendingIntervalServicesIds(List<String> pendingIntervalServicesIds) {
-        this.pendingIntervalServicesIds = pendingIntervalServicesIds;
-    }
-
-    public List<String> getPendingFixedServicesIds() {
-        return pendingFixedServicesIds;
-    }
-
-    public void setPendingFixedServicesIds(List<String> pendingFixedServicesIds) {
-        this.pendingFixedServicesIds = pendingFixedServicesIds;
-    }
-
-    public List<String> getStoredDTCs() {
-        return storedDTCs;
-    }
-
-    public List<String> getPendingDTCs() {
-        if(pendingDTCs == null) {
-            pendingDTCs = new ArrayList<>();
-        }
-        return pendingDTCs;
-    }
-
-    public void setStoredDTCs(List<String> storedDTCs) {
-        this.storedDTCs = storedDTCs;
-    }
-
-    public void setPendingDTCs(List<String> pendingDTCs) {
-        this.pendingDTCs = pendingDTCs;
-    }
-
     public static Car jsonToCarObject(JSONObject jsonObject) {
         Car car  = new Car();
         String json;
@@ -322,17 +268,6 @@ public class Car implements Serializable {
         }
 
         return car;
-    }
-
-    public String objectToJson() {
-        String json = null;
-
-        try {
-            json = JsonUtil.object2Json(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  json;
     }
 
     /*public static Car createCar(ParseObject parseObject) {
@@ -382,6 +317,26 @@ public class Car implements Serializable {
         car.setVin(jsonObject.getString("vin"));
 
         //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+
+        return car;
+    }
+
+    // create car from json response (this is for GET from api)
+    public static Car createCar(String response) throws JSONException {
+        Car car = JsonUtil.json2object(response, Car.class);
+
+        JSONObject jsonObject = new JSONObject(response);
+
+        Object issues = jsonObject.get("issues");
+
+        if(issues instanceof JSONArray) {
+            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+            car.setNumberOfServices(((JSONArray) issues).length());
+        }
+
+        if(jsonObject.get("shop") != null) {
+            car.setDealership(Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString()));
+        }
 
         return car;
     }
@@ -437,7 +392,7 @@ public class Car implements Serializable {
         }
 
         for(int i = 0 ; i < carArr.length() ; i++) {
-            cars.add(createCar(carArr.getJSONObject(i)));
+            cars.add(createCar(carArr.getString(i)));
         }
 
         return cars;

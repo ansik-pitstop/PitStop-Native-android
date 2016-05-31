@@ -478,7 +478,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
                     try {
-                        Car car = Car.createCar(new JSONObject(response));
+                        Car car = Car.createCar(response);
                         for(final String dtc : dtcArr) {
                             NetworkHelper.addNewDtc(car.getId(), deviceId, car.getTotalMileage(), dataPackageInfo.rtcTime, dtc, isPendingDtc, new RequestCallback() {
                                 @Override

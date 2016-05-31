@@ -44,7 +44,6 @@ public class CarIssue implements Serializable {
 
     @Expose(serialize = false, deserialize = false)
     private int id;
-    private String parseId;
     private int carId;
     private String status;
     @SerializedName("doneAt")
@@ -101,14 +100,6 @@ public class CarIssue implements Serializable {
 
     public void setIssueType(String issueType) {
         this.issueType = issueType;
-    }
-
-    public String getParseId() {
-        return parseId;
-    }
-
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
     }
 
     public CarIssueDetail getIssueDetail() {

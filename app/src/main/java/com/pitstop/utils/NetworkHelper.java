@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
@@ -193,7 +194,7 @@ public class NetworkHelper {
             body.put("issueId", issueId);
             body.put("daysAgo", daysAgo);
             body.put("mileage", mileage);
-            body.put("status", "done");
+            body.put("status", CarIssue.ISSUE_DONE);
         } catch (JSONException e) {
             e.printStackTrace();
         }

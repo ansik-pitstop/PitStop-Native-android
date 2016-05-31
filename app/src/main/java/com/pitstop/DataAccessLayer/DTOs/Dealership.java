@@ -20,16 +20,14 @@ import java.util.List;
  */
 public class Dealership implements Serializable {
 
-    @Expose(serialize = false, deserialize = false)
     private int id;
-    private long dealershipId;
-    private String parseId;
     private String name;
     private String address;
     private String phone;
     private String email;
-    private double latitude;
-    private double longitude;
+    private String longitude;
+    private String latitude;
+
 
     public Dealership(){}
 
@@ -38,10 +36,6 @@ public class Dealership implements Serializable {
     }
 
     public void setId(int id) { this.id = id; }
-
-    public long getDealershipId() {
-        return dealershipId;
-    }
 
     public String getName() {
         return name;
@@ -73,40 +67,6 @@ public class Dealership implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public String getParseId() {
-        return parseId;
-    }
-
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
-    }
-
-    public static Dealership createDealership(ParseObject parseObject) {
-        Dealership dealership = new Dealership();
-        dealership.setParseId(parseObject.getObjectId());
-        dealership.setName(parseObject.getString("name"));
-        dealership.setPhoneNumber(parseObject.getString("phoneNumber"));
-        dealership.setEmail(parseObject.getString("email"));
-        dealership.setAddress(parseObject.getString("addressText"));
-        return dealership;
-    }
-
-    public static List<Dealership> createDealershipList(List<ParseObject> parseObjects) {
-        List<Dealership> dealerships = new ArrayList<>();
-        for( ParseObject parseObject : parseObjects) {
-            dealerships.add(createDealership(parseObject));
-        }
-        return dealerships;
     }
 
     public static List<Dealership> createDealershipList(String shopsListJson) throws JSONException {

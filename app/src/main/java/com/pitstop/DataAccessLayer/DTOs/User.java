@@ -16,7 +16,6 @@ public class User implements Serializable {
     @Expose(serialize = false, deserialize = false)
     private int id;
 
-    private String parseId;
     private int userId;
     private String firstName;
     private String lastName;

@@ -23,7 +23,7 @@ public class LocalShopAdapter {
             + TABLES.SHOP.KEY_ADDRESS + " TEXT, "
             + TABLES.SHOP.KEY_PHONE + " TEXT, "
             + TABLES.SHOP.KEY_EMAIL + " TEXT, "
-            + TABLES.COMMON.KEY_OBJECT_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -97,7 +97,7 @@ public class LocalShopAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Dealership dealership : dealerships) {
-            db.delete(TABLES.SHOP.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
+            db.delete(TABLES.SHOP.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                     new String[] { String.valueOf(dealership.getId()) });
         }
 
@@ -106,8 +106,7 @@ public class LocalShopAdapter {
 
     private Dealership cursorToDealership(Cursor c) {
         Dealership dealership = new Dealership();
-        dealership.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-        dealership.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
+        dealership.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
 
         dealership.setName(c.getString(c.getColumnIndex(TABLES.SHOP.KEY_NAME)));
         dealership.setAddress(c.getString(c.getColumnIndex(TABLES.SHOP.KEY_ADDRESS)));

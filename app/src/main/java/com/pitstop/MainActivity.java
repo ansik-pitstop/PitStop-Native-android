@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String CAR_LIST_EXTRA = "car_list";
     public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
-    public static final String REFRESH_FROM_LOCAL = "_local";
     public static final String FROM_ACTIVITY = "from_activity";
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
@@ -383,11 +382,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     refreshFromServer();
                 }
             } else if(requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
-                boolean refreshFromLocal = data.getBooleanExtra(REFRESH_FROM_LOCAL,false);
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
-                } else if(refreshFromLocal) {
-                    refreshFromLocal();
                 }
             } else if(requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if(shouldRefreshFromServer) {
@@ -884,6 +880,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             startAddCarActivity(false);
                         } else {
                             setDashboardCar(carList);
+                            carLocalStore.deleteAllCars();
                             carLocalStore.storeCars(carList);
                             setCarDetailsUI();
                         }
@@ -1036,6 +1033,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         try {
                             dashboardCar.setIssues(CarIssue.createCarIssues(
                                     new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
+                            carIssueList.clear();
                             carIssueList.addAll(dashboardCar.getActiveIssues());
                             carIssuesAdapter.notifyDataSetChanged();
                             setIssuesCount();
@@ -1421,8 +1419,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         for(Car car : carList) {
             if(car.getId() == currentCarId) {
                 dashboardCar = car;
-                dashboardCar.setStoredDTCs(car.getStoredDTCs());
-                dashboardCar.setPendingDTCs(car.getPendingDTCs());
                 return;
             }
         }
