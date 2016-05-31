@@ -14,6 +14,7 @@ public final class TABLES {
 
     public interface PID {
         String TABLE_NAME = "pidData";
+        String TABLE_NAME_RESULT_4 = "pidResult4";
 
         String KEY_DATANUM = "dataNum";
         String KEY_RTCTIME = "rtcTime";

@@ -288,8 +288,23 @@ public class DisplayItemActivity extends AppCompatActivity {
                     if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
                         Toast.makeText(DisplayItemActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
                     } else {
-                        autoConnectService.clearDTCs();
-                        clearDtcs();
+                        new AlertDialog.Builder(DisplayItemActivity.this)
+                                .setTitle("Are you sure you want to clear all engine codes?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        autoConnectService.clearDTCs();
+                                        clearDtcs();
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .show();
                     }
                 }
             });

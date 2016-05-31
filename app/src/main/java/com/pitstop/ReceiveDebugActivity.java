@@ -7,10 +7,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.bluetooth.ObdManager;
@@ -30,6 +32,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     boolean pendingUpload, clicked;
     private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
+    private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
+
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -94,7 +98,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     @Override
     public void getBluetoothState(int state) {
         if(!pendingUpload) {
-            findViewById(R.id.loading).setVisibility(View.GONE);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.loading).setVisibility(View.GONE);
+                }
+            });
         }
         if (state == BluetoothManage.CONNECTED) {
             BTSTATUS.setText(R.string.bluetooth_connected);
@@ -112,23 +121,26 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
+        Log.i(TAG, "setCtrlResponse");
     }
 
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
+        Log.i(TAG, "setParameterResponse");
     }
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+        Log.i(TAG, "getParameterData");
     }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-        if(!pendingUpload) {
+    public void getIOData(final DataPackageInfo dataPackageInfo) {
+        Log.i(TAG, "getIOData");
+
+        /*if(!pendingUpload) {
             findViewById(R.id.loading).setVisibility(View.GONE);
-        }
+        }*/
 
         //display out
         String out = "";
@@ -153,7 +165,17 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         out += "surportPid : " + dataPackageInfo.surportPid + "\n";
         out += "dtcData : " + dataPackageInfo.dtcData + "\n";
 
-        ((TextView) findViewById(R.id.debug_log)).setText(out);
+        final String output = out;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView) findViewById(R.id.debug_log)).setText(output);
+            }
+        });
+
+        Log.e(TAG, output);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -18,6 +20,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String REFRESH_FROM_LOCAL = "_local";
     public static final String FROM_ACTIVITY = "from_activity";
+    public static final String FROM_NOTIF = "from_notfftfttfttf";
 
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -282,6 +287,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
 
             refreshFromServer();
+
+            if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                autoConnectService.startBluetoothSearch();
+            }
         } else if(id == R.id.add) {
             try {
                 mixpanelHelper.trackButtonTapped("Add Car", TAG);
@@ -335,24 +344,31 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         // Always refresh from the server if resuming from log in activity
-        if(splashScreenIntent != null
-                && splashScreenIntent.getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
             Log.i(TAG, "refresh from login");
-            splashScreenIntent = null;
             refreshFromServer();
-        } else if(intent != null
-                && SelectDealershipActivity.ACTIVITY_NAME.equals(intent.getStringExtra(FROM_ACTIVITY))) {
+        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
             // In the event the user pressed back button while in the select dealership activity
             // then load required data from local db.
             refreshFromLocal();
-        } else if(pushIntent != null
-                && PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(pushIntent.getStringExtra(FROM_ACTIVITY))) {
+        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
             // On opening a push notification, load required data from server
             refreshFromServer();
-            pushIntent = null;
+        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+            refreshFromServer();
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                        .setColor(getResources().getColor(R.color.highlight))
+                        .setContentTitle("Car is Connected")
+                        .setContentText("Click here to check out more");
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtra(FROM_NOTIF, true);
     }
 
 

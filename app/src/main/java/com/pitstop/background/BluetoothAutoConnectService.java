@@ -41,6 +41,7 @@ import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalPidResult4Adapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
@@ -97,7 +98,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     int pidI = 0;
 
     private LocalPidAdapter localPid;
-    private LocalPidAdapter localPidResult4;
+    private LocalPidResult4Adapter localPidResult4;
 
     private static String TAG = "BtAutoConnectDebug";
 
@@ -122,7 +123,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
         localPid = new LocalPidAdapter(this);
-        localPidResult4 = new LocalPidAdapter(this);
+        localPidResult4 = new LocalPidResult4Adapter(this);
     }
 
     @Override
@@ -169,6 +170,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 .setContentText("Click here to check out more");
                 // Creates an explicit intent for an Activity in your app
                 Intent resultIntent = new Intent(this, MainActivity.class);
+                resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
 
                 // The stack builder object will contain an artificial back stack for the
                 // started Activity.
@@ -241,6 +243,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 tripMileage = null;
             }*/
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.cancel(notifID);
 
         }
 
@@ -626,7 +632,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     private void syncObdDevice() {
         Log.i(TAG,"Resetting RTC time - BluetoothAutoConn");
-        Toast.makeText(this,"Resetting obd device time...", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,"Resetting obd device time...", Toast.LENGTH_SHORT).show();
         long systemTime = System.currentTimeMillis();
         bluetoothCommunicator
                 .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
@@ -826,8 +832,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG,freezeData.toString());
 
         if(data.result == 4) {
+            Log.i(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
             localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
+            Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             localPid.createPIDData(pidDataObject);
         }
     }
@@ -905,7 +913,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.i(TAG, "Saved successfully");
+                    Log.i(TAG, "PID result 5 Saved successfully");
                     localPid.deleteAllPidDataEntries();
                 } else {
                     Log.i(TAG, e.getMessage());
@@ -1010,7 +1018,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return jsonObject;
     }
 
-
     public void uploadRecords() {
 
         Log.i(TAG, "Uploading database records");
@@ -1087,7 +1094,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         }
                     });
-                }else{
                 }
             }
             return null;
