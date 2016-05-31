@@ -164,6 +164,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 .setContentText("Click here to check out more");
                 // Creates an explicit intent for an Activity in your app
                 Intent resultIntent = new Intent(this, MainActivity.class);
+                resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
 
                 // The stack builder object will contain an artificial back stack for the
                 // started Activity.
@@ -218,6 +219,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 tripMileage = null;
             }
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.cancel(notifID);
 
         }
 
