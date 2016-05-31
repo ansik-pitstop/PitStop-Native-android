@@ -30,9 +30,12 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -207,7 +210,20 @@ public class DisplayItemActivity extends AppCompatActivity {
     }
 
     private void sendRequest(String additionalComment) {
-        String userId = ParseUser.getCurrentUser().getObjectId();
+        NetworkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
+                additionalComment, carIssue.getId(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(DisplayItemActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(DisplayItemActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        /*String userId = ParseUser.getCurrentUser().getObjectId();
         HashMap<String,Object> output = new HashMap<>();
         List<HashMap<String,String>> services = new ArrayList<>();
 
@@ -265,7 +281,7 @@ public class DisplayItemActivity extends AppCompatActivity {
                 }
                 onBackPressed();
             }
-        });
+        });*/
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {

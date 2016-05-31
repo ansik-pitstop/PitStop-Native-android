@@ -275,4 +275,43 @@ public class NetworkHelper {
                 .requestCallBack(callback)
                 .createRequest().executeAsync();
     }
+
+    public static void requestService(int userId, int carId, int shopId, String comments,
+                                      RequestCallback callback) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("userId", userId);
+            body.put("carId", carId);
+            body.put("shopId", shopId);
+            body.put("comments", comments);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("utility/serviceRequest")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void requestService(int userId, int carId, int shopId, String comments,
+                                      int issueId, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("userId", userId);
+            body.put("carId", carId);
+            body.put("shopId", shopId);
+            body.put("comments", comments);
+            body.put("issueId", issueId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("utility/serviceRequest")
+                .requestType(RequestType.POST)
+                .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
 }

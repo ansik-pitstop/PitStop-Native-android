@@ -726,7 +726,20 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * */
     private void sendRequest(String additionalComment) {
 
-        String userId = ParseUser.getCurrentUser().getObjectId();
+        NetworkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
+                dashboardCar.getShopId(), additionalComment, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(MainActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        /*String userId = ParseUser.getCurrentUser().getObjectId();
         HashMap<String,Object> output = new HashMap<>();
         List<HashMap<String,String>> services = new ArrayList<>();
 
@@ -793,7 +806,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     Log.i(TAG, e.getMessage());
                 }
             }
-        });
+        });*/
     }
 
 
