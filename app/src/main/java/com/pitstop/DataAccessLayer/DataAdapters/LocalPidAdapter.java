@@ -101,6 +101,6 @@ public class LocalPidAdapter {
             db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
                     new String[] { String.valueOf(pid.getId()) });
         }
-        //db.close();
+        db.close();
     }
 }

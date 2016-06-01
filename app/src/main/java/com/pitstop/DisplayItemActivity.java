@@ -103,7 +103,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         }
 
         serviceIntent = new Intent(this, BluetoothAutoConnectService.class);
-        startService(serviceIntent);
+        //startService(serviceIntent);
     }
 
     @Override

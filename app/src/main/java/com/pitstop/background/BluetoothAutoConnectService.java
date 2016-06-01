@@ -94,7 +94,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
 
-    private static String TAG = "BtAutoConnectDebug";
+    private static String TAG = BluetoothAutoConnectService.class.getSimpleName();
 
     @Override
     public void onCreate() {
@@ -136,7 +136,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(TAG, "Service bound");
         return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.i(TAG, "Service unbound");
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -402,9 +409,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
             response.setValue("supportPid", dataPackageInfo.surportPid);
-            //response.setValue("surportPid", dataPackageInfo.surportPid);
             response.setValue("dtcData", dataPackageInfo.dtcData);
-            //response.setValue("dtcdDta", dataPackageInfo.dtcData);
             Log.i(TAG, "IO data saving to local db - auto-connect service");
             ldr.saveData("Responses", response.getValues());
 
