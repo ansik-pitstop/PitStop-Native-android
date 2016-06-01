@@ -99,10 +99,7 @@ public class SplashScreen extends AppCompatActivity {
 
         setUpUIReferences();
 
-        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         final SharedPreferences settings = getSharedPreferences(GlobalApplication.pfName, MODE_PRIVATE);
-
-        //ParseUser currentUser = ParseUser.getCurrentUser();
 
         if (!application.isLoggedIn()) {
             Log.i(TAG, "Not logged in");
@@ -304,30 +301,6 @@ public class SplashScreen extends AppCompatActivity {
                 }
             });
 
-            /*ParseUser user = new ParseUser();
-            user.setUsername(email.getText().toString());
-            user.setPassword(password.getText().toString());
-            user.setEmail(email.getText().toString());
-
-            // other fields can be set just like with ParseObject
-            user.put("name", name.getText().toString());
-            user.put("phoneNumber", phoneNumber.getText().toString());
-            user.put("role", "customer");
-
-            user.signUpInBackground(new SignUpCallback() {
-                public void done(ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(SplashScreen.this, "Congrats, you have signed up!",
-                                Toast.LENGTH_SHORT).show();
-                        login(view);
-                    } else {
-                        hideLoading();
-                        Toast.makeText(SplashScreen.this,
-                                "Failed, please double check your information!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });*/
         }else{
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
@@ -397,43 +370,6 @@ public class SplashScreen extends AppCompatActivity {
         final String passwordInput = password.getText().toString();
 
         login(usernameInput, passwordInput);
-
-        /*ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
-
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e == null) {
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-
-                    SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(pfCodeForID, usernameInput);
-                    editor.putString(pfCodeForPassword, passwordInput);
-                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
-                    if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                        editor.putString(MainActivity.pfCodeForShopObjectID,
-                                ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
-                    }
-                    editor.apply();
-
-                    //save user data
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                    installation.put("userId", ParseUser.getCurrentUser().getObjectId());
-                    installation.saveInBackground();
-                    GlobalApplication.setUpMixPanel();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-
-                    hideLoading();
-                    startActivity(intent);
-                } else {
-                    hideLoading();
-                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });*/
     }
 
     public void goToLogin(View view) {

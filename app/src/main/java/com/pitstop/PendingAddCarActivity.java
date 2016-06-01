@@ -18,6 +18,7 @@ import org.json.JSONObject;
 /**
  * Created by David Liu on 2/21/2016.
  */
+@Deprecated
 public class PendingAddCarActivity extends AppCompatActivity{
 
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";

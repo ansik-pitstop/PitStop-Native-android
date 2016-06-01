@@ -279,20 +279,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
                 && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent, SelectDealershipActivity.RC_DEALERSHIP);
-
-        /*if(intentFromMainActivity!=null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
-            Intent info = new Intent();
-            info.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
-            setResult(MainActivity.RESULT_OK, info);
-            finish();
-        } else {
-            Intent intent = new Intent(this,SelectDealershipActivity.class);
-            intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                    && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
-            startActivityForResult(intent,
-                    SelectDealershipActivity.RC_DEALERSHIP);
-        }*/
     }
 
     @Override
@@ -367,31 +353,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             showLoading("Adding car");
 
             runVinTask();
-
-            /*ParseConfig.getInBackground(new ConfigCallback() {
-
-                @Override
-                public void done(ParseConfig config, ParseException e) {
-
-                    Log.i(TAG,"Adding car from pending ---");
-
-                    showLoading("Adding car");
-
-                    if(vinDecoderApi == null) {
-                        vinDecoderApi = new CallMashapeAsync();
-                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                        Log.i("VIN DECODER","Pending TASK");
-                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                        vinDecoderApi.cancel(true);
-                        vinDecoderApi = null;
-                        vinDecoderApi = new CallMashapeAsync();
-                    } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                        vinDecoderApi = null;
-                        vinDecoderApi  = new CallMashapeAsync();
-                    }
-                    vinDecoderApi.execute(Parseconfignifgn);
-                }
-            });*/
         }
     }
 
@@ -601,28 +562,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 Log.i(TAG, "Adding car --- make car func");
 
                 runVinTask();
-
-                /*ParseConfig.getInBackground(new ConfigCallback() {
-                    @Override
-                    public void done(ParseConfig config, ParseException e) {
-
-                        Log.i(TAG, "Adding car --- make car func");
-
-                        if(vinDecoderApi == null) {
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                            Log.i("VIN DECODER","Pending TASK");
-                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                            vinDecoderApi.cancel(true);
-                            vinDecoderApi = null;
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if (vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                            vinDecoderApi = null;
-                            vinDecoderApi  = new CallMashapeAsync();
-                        }
-                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
-                    }
-                });*/
             } else {
                 Log.i(TAG, "No Internet");
                 hideLoading();
@@ -806,26 +745,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if(NetworkHelper.isConnected(this)){
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
-
-                /*ParseConfig.getInBackground(new ConfigCallback() {
-                    @Override
-                    public void done(ParseConfig config, ParseException e) {
-
-                        if(vinDecoderApi == null) {
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.PENDING)) {
-                            Log.i("VIN DECODER","Pending TASK");
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                            vinDecoderApi.cancel(true);
-                            vinDecoderApi = null;
-                            vinDecoderApi = new CallMashapeAsync();
-                        } else if(vinDecoderApi.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                            vinDecoderApi = null;
-                            vinDecoderApi  = new CallMashapeAsync();
-                        }
-                        vinDecoderApi.execute(config.getString("MashapeAPIKey"));
-                    }
-                });*/
             } else {
                 Log.i(TAG, "No internet");
                 runOnUiThread(new Runnable() {
@@ -1057,37 +976,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         Log.i(TAG,"ScannerIdCheck() -- func");
 
         vinCheck(carInfo);
-
-        /*if(Utils.isEmpty(scannerID)) {
-            vinCheck(carInfo);
-        } else {
-            (runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showLoading("Checking car scanner Id");
-                }
-            });
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-            query.whereEqualTo("scannerId",scannerID);
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e!=null) {
-                        hideLoading();
-                        Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
-                    } else if(!objects.isEmpty() && !Utils.isEmpty(scannerID) ) {
-                        hideLoading();
-                        Toast.makeText(AddCarActivity.this, "The device with Id: "
-                                        +scannerID+" is already linked with another car",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Log.i(TAG, "Calling vinCheck()--func");
-                        vinCheck(carInfo);
-                    }
-                }
-            });
-
-        }*/
     }
 
     private void vinCheck(final JSONObject carInfo) {
@@ -1121,29 +1009,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             }
         });
-
-        /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-        query.whereEqualTo("VIN",VIN);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e!=null) {
-                    hideLoading();
-                    Toast.makeText(AddCarActivity.this, e.getMessage(),Toast.LENGTH_SHORT).show();
-                } else if(!objects.isEmpty()) {
-                    //see if car already exists!
-                    hideLoading();
-
-                    Toast.makeText(AddCarActivity.this,"Car Already Exists!",
-                            Toast.LENGTH_SHORT).show();
-
-                    vinEditText.setText("");
-                } else {
-                    Log.i(TAG,"Calling save car to parse");
-                    saveCarToServer(carInfo);
-                }
-            }
-        });*/
     }
 
     private void saveCarToServer(JSONObject carInfo) {
@@ -1193,78 +1058,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         }
                     }
                 });
-
-        /*try {
-
-            NetworkHelper.createNewCar(application.getCurrentUserId(),
-                    mileage.equals("") ? 0 : Integer.valueOf(mileage),
-                    VIN,
-                    scannerID == null ? "" : scannerID,
-                    shopSelected,
-                    new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-
-                        }
-                    });
-
-            //Make Car
-            ParseObject newCar = new ParseObject("Car");
-            newCar.put("VIN", VIN);
-            newCar.put("year", carInfo.getInt("year"));
-            newCar.put("model", carInfo.getString("model"));
-            newCar.put("make", carInfo.getString("make"));
-            newCar.put("tank_size", carInfo.getString("tank_size"));
-            newCar.put("trim_level", carInfo.getString("trim_level"));
-            newCar.put("engine", carInfo.getString("engine"));
-            newCar.put("city_mileage", carInfo.getString("city_mileage"));
-            newCar.put("highway_mileage", carInfo.getString("highway_mileage"));
-            newCar.put("scannerId", scannerID == null ? "" : scannerID);
-            newCar.put("owner", ParseUser.getCurrentUser().getObjectId());
-            newCar.put("baseMileage", mileage.equals("") ? 0 : Integer.valueOf(mileage));
-            newCar.put("dealership", shopSelected);
-            newCar.put("currentCar",true);
-            final Car addedCar = Car.createCar(newCar);
-            newCar.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-
-                    showLoading("Final Touches");
-                    if(e!=null){
-                        hideLoading();
-                        Toast.makeText(AddCarActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if(!Utils.isEmpty(scannerID)) {
-                        // upload the DTCs
-                        ParseObject scansSave = new ParseObject("Scan");
-                        scansSave.put("DTCs", dtcs);
-                        scansSave.put("scannerId", scannerID);
-                        scansSave.put("runAfterSave", true);
-                        scansSave.saveEventually(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    //finished!
-                                    returnToMainActivity(addedCar);
-                                } else {
-                                    hideLoading();
-                                    Toast.makeText(AddCarActivity.this, e.getMessage(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }else{
-                        Log.i(TAG,"ScannerId is null -- MainActivity refresh");
-                        returnToMainActivity(addedCar);
-                    }
-                }
-            });
-        } catch (JSONException e1) {
-            e1.printStackTrace();
-            hideLoading();
-        }*/
     }
 
     private void startPendingAddCarActivity() {
@@ -1277,21 +1070,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     private void returnToMainActivity(Car addedCar) {
-
-        /*if(intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
-            //update the car object
-            Car dashboardCar = (Car) intentFromMainActivity.getSerializableExtra(MainActivity.CAR_EXTRA);
-            ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
-            ParseObject car = null;
-            try {
-                car = cars.get(dashboardCar.getParseId());
-                car.put("currentCar",false);
-                car.saveEventually();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }*/
 
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
 

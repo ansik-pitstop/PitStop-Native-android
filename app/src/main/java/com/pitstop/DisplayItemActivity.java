@@ -225,66 +225,6 @@ public class DisplayItemActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        /*String userId = ParseUser.getCurrentUser().getObjectId();
-        HashMap<String,Object> output = new HashMap<>();
-        List<HashMap<String,String>> services = new ArrayList<>();
-
-        if(carIssue.getIssueType().equals("recall")) {
-            HashMap<String, String> recall = new HashMap<>();
-            recall.put("item", carIssue.getIssueDetail().getItem());
-            recall.put("action", carIssue.getIssueDetail().getAction());
-            recall.put("itemDescription", carIssue.getIssueDetail().getDescription());
-            recall.put("priority", String.valueOf(carIssue.getPriority()));
-            services.add(recall);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments", additionalComment);
-
-        } else if(carIssue.getIssueType().equals("dtc")) {
-
-            HashMap<String, String> dtc = new HashMap<>();
-            dtc.put("item", carIssue.getIssueDetail().getItem());
-            dtc.put("action", carIssue.getIssueDetail().getAction());
-            dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
-            dtc.put("priority", String.valueOf(carIssue.getPriority()));
-            services.add(dtc);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments", additionalComment);
-
-
-        } else {
-            HashMap<String, String> service = new HashMap<>();
-            service.put("item",carIssue.getIssueDetail().getItem());
-            service.put("action",carIssue.getIssueDetail().getAction());
-            service.put("itemDescription",carIssue.getIssueDetail().getDescription());
-            service.put("priority",String.valueOf(carIssue.getPriority()));
-            services.add(service);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments",additionalComment);
-        }
-
-        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
-            @Override
-            public void done(Object object, ParseException e) {
-                if (e == null) {
-                    Toast.makeText(DisplayItemActivity.this,
-                            "Request sent", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(DisplayItemActivity.this,
-                            e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                onBackPressed();
-            }
-        });*/
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {
@@ -395,55 +335,5 @@ public class DisplayItemActivity extends AppCompatActivity {
         }
 
         needToRefresh = true;
-
-        /*dashboardCar.setStoredDTCs(new ArrayList<String>());
-        dashboardCar.setPendingDTCs(new ArrayList<String>());
-
-        ParseQuery updateObject = new ParseQuery("Car");
-        try {
-            updateObject.get(dashboardCar.getParseId());
-            updateObject.findInBackground(new FindCallback<ParseObject>() {
-
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e==null) {
-
-                        needToRefresh = true;
-
-                        // clearing dtcs from backend
-                        objects.get(0).removeAll("storedDTCs", dashboardCar.getStoredDTCs());
-                        objects.get(0).removeAll("pendingDTCs", dashboardCar.getPendingDTCs());
-                        objects.get(0).saveEventually();
-
-                        // saving service history to backend
-                        for(CarIssue dtc : dashboardCar.getIssues()) {
-                            if(dtc.getIssueType().equals(CarIssue.DTC) || dtc.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
-                                saveCompletion.put("carId", dashboardCar.getParseId());
-                                saveCompletion.put("mileageSetByUser", dashboardCar.getTotalMileage());
-                                saveCompletion.put("mileage", dashboardCar.getTotalMileage());
-                                saveCompletion.put("shopId", dashboardCar.getShopId());
-                                saveCompletion.put("userMarkedDoneOn", "Recently from " + new SimpleDateFormat("yyy-MM-dd HH:mm:ss z"));
-                                saveCompletion.put("serviceId", 123);
-                                saveCompletion.put("serviceObjectId", dtc.getParseId());
-                                saveCompletion.saveEventually();
-                            }
-                        }
-                        // clearing dtcs locally
-                        dashboardCar.setPendingDTCs(new ArrayList<String>());
-                        dashboardCar.setStoredDTCs(new ArrayList<String>());
-
-                        Log.i(TAG, "Engine codes cleared");
-                        Toast.makeText(DisplayItemActivity.this, "Engine codes cleared", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        Toast.makeText(DisplayItemActivity.this,"Parse error: "+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
     }
 }

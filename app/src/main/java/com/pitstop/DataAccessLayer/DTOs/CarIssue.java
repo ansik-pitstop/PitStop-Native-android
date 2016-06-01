@@ -110,52 +110,6 @@ public class CarIssue implements Serializable {
         this.issueDetail = issueDetail;
     }
 
-    /*public static CarIssue createCarIssue(ParseObject parseObject, String issueType, String carId) {
-        CarIssue carIssue = null;
-
-        if(parseObject != null) {
-            carIssue = new CarIssue();
-            carIssue.setParseId(parseObject.getObjectId());
-            carIssue.setIssueType(issueType);
-            carIssue.setCarId(carId);
-
-            if(issueType.equals(RECALL)) {
-                carIssue.setPriority(RECALLS_PRIORITY_DEFAULT_VALUE);
-                carIssue.setStatus(parseObject.getString("state"));
-
-                carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
-                        parseObject.getString(RECALLS_ITEM_KEY),
-                        parseObject.getString("description"),
-                        "Recall for "
-                ));
-            } else if(issueType.equals(DTC)) {
-                carIssue.setPriority(DTCS_PRIORITY_DEFAULT_VALUE);
-
-                carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
-                        parseObject.getString(DTCCODE_KEY),
-                        parseObject.getString("description"),
-                        "Engine Issue: DTC code "
-                ));
-            } else if(issueType.equals(PENDING_DTC)) {
-                carIssue.setPriority(PENDING_DTC_PRIORITY);
-
-                carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
-                        parseObject.getString(DTCCODE_KEY),
-                        parseObject.getString("description"),
-                        "Potential Engine Issue: DTC code "
-                ));
-            } else {
-                carIssue.setPriority(parseObject.getInt(PRIORITY_KEY));
-                carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(
-                        parseObject.getString(ITEM_KEY),
-                        parseObject.getString(ITEM_DESCRIPTION_KEY),
-                        parseObject.getString(ACTION_KEY)
-                ));
-            }
-        }
-        return carIssue;
-    }*/
-
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
         CarIssue carIssue = new CarIssue();
 
@@ -173,23 +127,6 @@ public class CarIssue implements Serializable {
 
         return carIssue;
     }
-
-    /*public static ArrayList<CarIssue> createCarIssues(List<ParseObject> parseObjects,
-                                                      String issueType, String carId) {
-        ArrayList<CarIssue> carIssues = new ArrayList<>();
-        for(ParseObject parseObject : parseObjects) {
-            if(issueType.equals(RECALL)) {
-                String status = parseObject.getString("state");
-                if( status != null && (status.equals("new") || status.equals("pending"))) {
-                    carIssues.add(createCarIssue(parseObject, issueType, carId));
-                }
-            } else {
-                carIssues.add(createCarIssue(parseObject, issueType, carId));
-            }
-        }
-
-        return carIssues;
-    }*/
 
     public static ArrayList<CarIssue> createCarIssues(JSONArray issueArr, int carId) throws JSONException {
         ArrayList<CarIssue> carIssues = new ArrayList<>();

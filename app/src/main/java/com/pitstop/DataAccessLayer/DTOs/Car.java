@@ -257,48 +257,6 @@ public class Car implements Serializable {
         return activeIssues;
     }
 
-    public static Car jsonToCarObject(JSONObject jsonObject) {
-        Car car  = new Car();
-        String json;
-        try {
-            json = jsonObject.getString("data");
-            car = JsonUtil.json2object(json,Car.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return car;
-    }
-
-    /*public static Car createCar(ParseObject parseObject) {
-        Car car = null;
-        if(parseObject != null) {
-            car = new Car();
-            car.setParseId(parseObject.getObjectId());
-            car.setEngine(parseObject.getString("engine"));
-            car.setMake(parseObject.getString("make"));
-            car.setModel(parseObject.getString("model"));
-            car.setYear(parseObject.getInt("year"));
-            car.setTrim(parseObject.getString("trim_level"));
-            car.setNumberOfRecalls(parseObject.getInt("numberOfRecalls"));
-            car.setNumberOfServices(parseObject.getInt("numberOfServices"));
-            car.setScanner(parseObject.getString("scannerId"));
-            car.setTotalMileage(parseObject.getInt("totalMileage"));
-            car.setBaseMileage(parseObject.getInt("baseMileage"));
-            car.setOwnerId(parseObject.getString("owner"));
-            car.setShopId(parseObject.getString("dealership"));
-            car.setVin(parseObject.getString("VIN"));
-            car.setServiceDue(parseObject.getBoolean("serviceDue"));
-            car.setCurrentCar(parseObject.getBoolean("currentCar"));
-            car.setPendingEdmundServicesIds(parseObject.<String>getList("pendingEdmundServices"));
-            car.setPendingFixedServicesIds(parseObject.<String>getList("pendingFixedServices"));
-            car.setPendingIntervalServicesIds(parseObject.<String>getList("pendingIntervalServices"));
-            car.setStoredDTCs(parseObject.<String>getList("storedDTCs"));
-            car.setPendingDTCs(parseObject.<String>getList("pendingDTCs"));
-        }
-        return car;
-    }*/
-
     // create car from json object (this is for the response from POST car)
     public static Car createNewCar(JSONObject jsonObject) throws JSONException {
         Car car = new Car();
@@ -371,14 +329,6 @@ public class Car implements Serializable {
 
         return car;
     }
-
-   /* public static List<Car> createCarsList(List<ParseObject> objects) {
-        List<Car> cars = new ArrayList<>();
-        for(ParseObject object : objects) {
-            cars.add(createCar(object));
-        }
-        return cars;
-    }*/
 
     // create list of cars from api response
     public static List<Car> createCarsList(String jsonRoot) throws JSONException {

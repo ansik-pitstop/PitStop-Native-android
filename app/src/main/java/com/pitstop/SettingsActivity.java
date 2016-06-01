@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -57,7 +58,6 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_settings);
 
         localCarAdapter = new LocalCarAdapter(this);
         populateCarNamesAndIdList();
@@ -182,7 +182,6 @@ public class SettingsActivity extends AppCompatActivity {
             shopAdapter = new LocalShopAdapter(getActivity().getApplicationContext());
 
             Bundle bundle = getArguments();
-            preferenceList = new ArrayList<>();
             cars = bundle.getStringArrayList("cars");
             ids = bundle.getIntegerArrayList("ids");
             dealers = bundle.getStringArrayList("dealers");
@@ -249,25 +248,6 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-                /*ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Shop");
-                query.findInBackground(new FindCallback<ParseObject>() {
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        if (e != null) {
-                            return;
-                        }
-
-
-                        shopAdapter.storeDealerships(Dealership.createDealershipList(objects));
-                        for (ParseObject object : objects) {
-                            shops.add(object.getString("name"));
-                            shopIds.add(object.getObjectId());
-                        }
-
-                        setUpCarListPreference(shops, shopIds);
-                    }
-                });*/
             } else {
                 for (Dealership shop : dealerships) {
                     shops.add(shop.getName());
@@ -336,17 +316,6 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
                             }
                         });
-
-                        /*// Update car on server
-                        ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                        query.getInBackground(ids.get(index), new GetCallback<ParseObject>() {
-                            public void done(ParseObject car, ParseException e) {
-                                if (e == null) {
-                                    car.put("dealership", shopSelected);
-                                    car.saveInBackground();
-                                }
-                            }
-                        });*/
                         return true;
                     }
                 });
@@ -502,27 +471,15 @@ public class SettingsActivity extends AppCompatActivity {
                         namePreference.setTitle(updatedName);
 
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
+
+                        User updatedUser = GlobalApplication.getCurrentUser();
+                        updatedUser.setFirstName(updatedName);
+                        application.setCurrentUser(updatedUser);
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-
-            /*ParseUser currentUser = ParseUser.getCurrentUser();
-            currentUser.put("name", updatedName);
-            currentUser.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        namePreference.setTitle(updatedName);
-                        //listener.localUpdatePerformed(); // UserName update
-
-                        Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });*/
         }
 
         List<Car> selectedCar = new ArrayList<>();
@@ -568,30 +525,6 @@ public class SettingsActivity extends AppCompatActivity {
 
                     PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainActivity.pfCurrentCar, newDashboardCar.getId()).apply();
 
-                    /*final ParseQuery query = new ParseQuery("Car");
-                    query.whereEqualTo("VIN", newDashboardCar.getVin());
-                    query.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            if (e == null) {
-                                objects.get(0).put("currentCar", true);
-                                objects.get(0).saveEventually();
-
-                                //update the car object
-                                ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
-                                ParseObject car = null;
-                                try {
-                                    car = cars.get(formerDashboardCar.getParseId());
-                                    car.put("currentCar", false);
-                                    car.saveEventually();
-                                } catch (ParseException error) {
-                                    error.printStackTrace();
-                                }
-                            } else {
-                                Log.i(TAG,e.getMessage());
-                            }
-                        }
-                    });*/
                 }
             });
             dialog.show();

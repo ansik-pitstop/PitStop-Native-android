@@ -1,8 +1,6 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -20,8 +18,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,14 +46,6 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
-import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
@@ -73,16 +61,10 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -159,9 +141,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-
-    private Intent splashScreenIntent;
-    private Intent pushIntent;
 
     private SharedPreferences sharedPreferences;
 
@@ -244,8 +223,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-        splashScreenIntent = getIntent();
-        pushIntent = getIntent();
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(this);
@@ -334,8 +311,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onResume");
-
-        Intent intent = getIntent();
 
         try {
             mixpanelHelper.trackViewAppeared(TAG);
@@ -720,75 +695,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         }
                     }
                 });
-
-        /*String userId = ParseUser.getCurrentUser().getObjectId();
-        HashMap<String,Object> output = new HashMap<>();
-        List<HashMap<String,String>> services = new ArrayList<>();
-
-        if(carIssueList.isEmpty()) {
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments",additionalComment);
-        } else {
-            for(CarIssue carIssue : carIssueList ) {
-                if(carIssue.getIssueType().equals("recall")) {
-                    HashMap<String, String> recall = new HashMap<>();
-                    recall.put("item", carIssue.getIssueDetail().getItem());
-                    recall.put("action", carIssue.getIssueDetail().getAction());
-                    recall.put("itemDescription", carIssue.getIssueDetail().getDescription());
-                    recall.put("priority", String.valueOf(carIssue.getPriority()));
-                    services.add(recall);
-
-                    output.put("services", services);
-                    output.put("carVin", dashboardCar.getVin());
-                    output.put("userObjectId", userId);
-                    output.put("comments", additionalComment);
-
-                } else if(carIssue.getIssueType().equals("dtc")) {
-
-                    HashMap<String, String> dtc = new HashMap<>();
-                    dtc.put("item", carIssue.getIssueDetail().getItem());
-                    dtc.put("action", carIssue.getIssueDetail().getAction());
-                    dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
-                    dtc.put("priority", String.valueOf(carIssue.getPriority()));
-                    services.add(dtc);
-
-                    output.put("services", services);
-                    output.put("carVin", dashboardCar.getVin());
-                    output.put("userObjectId", userId);
-                    output.put("comments", additionalComment);
-
-
-                } else {
-                    HashMap<String, String> service = new HashMap<>();
-                    service.put("item",carIssue.getIssueDetail().getItem());
-                    service.put("action",carIssue.getIssueDetail().getAction());
-                    service.put("itemDescription",carIssue.getIssueDetail().getDescription());
-                    service.put("priority",String.valueOf(carIssue.getPriority()));
-                    services.add(service);
-
-                    output.put("services", services);
-                    output.put("carVin", dashboardCar.getVin());
-                    output.put("userObjectId", userId);
-                    output.put("comments",additionalComment);
-                }
-            }
-        }
-
-        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
-            @Override
-            public void done(Object object, ParseException e) {
-                if (e == null) {
-                    Toast.makeText(MainActivity.this,
-                            "Request sent", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this,
-                            "Error sending request", Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, e.getMessage());
-                }
-            }
-        });*/
     }
 
 
@@ -897,41 +803,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             }
         });
-
-        /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-        if (ParseUser.getCurrentUser() != null) {
-            userId = ParseUser.getCurrentUser().getObjectId();
-        }
-
-        query.whereContains("owner", userId);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
-                    if (!objects.isEmpty()) {
-
-                        carList = Car.createCarsList(objects);
-
-                        setDashboardCar(carList);
-                        carLocalStore.storeCars(carList);
-                        setCarDetailsUI();
-
-                    } else {
-                        if (isLoading) {
-                            hideLoading();
-                        }
-                        startAddCarActivity(false);
-                    }
-
-                } else {
-                    if (isLoading) {
-                        hideLoading();
-                    }
-                    Toast.makeText(MainActivity.this,
-                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });*/
     }
 
     private void setDealership() {
@@ -1051,26 +922,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             });
 
-            /*List<String> issueIds;
-
-            issueIds = dashboardCar.getPendingEdmundServicesIds();
-            getIssues(issueIds, "EdmundsService", CarIssue.EDMUNDS);
-
-            issueIds = dashboardCar.getPendingFixedServicesIds();
-            getIssues(issueIds, "ServiceFixed", CarIssue.FIXED);
-
-            issueIds = dashboardCar.getPendingIntervalServicesIds();
-            getIssues(issueIds, "ServiceInterval", CarIssue.INTERVAL);
-
-            getRecalls();
-
-            List<String> dtcCodes = dashboardCar.getStoredDTCs();
-
-            getDTCs(dtcCodes, "DTC", CarIssue.DTC);
-
-            List<String> pendingDtcs = dashboardCar.getPendingDTCs();
-
-            getDTCs(pendingDtcs, "DTC", CarIssue.PENDING_DTC);*/
         } else {
             Log.i(TAG, "Trying local store for carIssues");
             dashboardCar.setIssues(carIssues);
@@ -1081,317 +932,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
 
     }
-
-    /*private void getIssues(List<String> serviceIds, String resource, final String issueType) {
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(resource);
-        query.whereContainedIn("objectId", serviceIds);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
-
-                    List<CarIssue> issues = CarIssue.createCarIssues(objects, issueType,
-                            dashboardCar.getParseId());
-                    dashboardCar.getIssues().addAll(issues);
-                    // Store in local
-                    carIssueLocalStore.storeCarIssues(issues);
-
-                    carIssueList.clear();
-                    carIssueList.addAll(dashboardCar.getIssues());
-                    carIssuesAdapter.notifyDataSetChanged();
-
-                } else {
-                    Log.i(TAG, "Parse error: " + e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void getDTCs(List<String> dtcCodes, String resource, final String issueType) {
-        Log.i(TAG, "Getting dtcs");
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(resource);
-        query.whereContainedIn("dtcCode", dtcCodes);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
-
-                    List<CarIssue> dtcs = CarIssue.createCarIssues(objects, issueType,
-                            dashboardCar.getParseId());
-                    dashboardCar.getIssues().addAll(dtcs);
-                    // Store in local
-                    carIssueLocalStore.storeCarIssues(dtcs);
-
-                    carIssueList.clear();
-                    carIssueList.addAll(dashboardCar.getIssues());
-                    carIssuesAdapter.notifyDataSetChanged();
-
-                } else {
-                    Log.i(TAG, "Parse error: (getDTCs)" + e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void getRecalls() {
-        Log.i(TAG, "Getting recalls");
-
-        //custom call for recall entry
-        ParseObject car = ParseObject.createWithoutData("Car",dashboardCar.getParseId());
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallMasters");
-
-        query.whereEqualTo("forCar", car);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> recallsList, ParseException e) {
-                if (e == null) {
-
-                    if(!recallsList.isEmpty()) {
-                        ParseObject firstMatch = recallsList.get(0);
-                        JSONArray recalls = firstMatch.getJSONArray("recalls");
-                        List<String> recallsIds = new ArrayList<String>();
-
-                        if(recalls != null && recalls.length() > 0) {
-
-                            for(int i = 0; i < recalls.length(); i++) {
-                                try {
-                                    recallsIds.add(recalls.getJSONObject(i).getString("objectId"));
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-
-                            ParseQuery<ParseObject> query = ParseQuery.getQuery("RecallEntry");
-                            query.whereContainedIn("objectId",recallsIds);
-                            query.findInBackground(new FindCallback<ParseObject>() {
-                                @Override
-                                public void done(List<ParseObject> objects, ParseException e) {
-                                    if(e == null) {
-
-                                        List<CarIssue> recalls = CarIssue.createCarIssues(objects, CarIssue.RECALL,
-                                                dashboardCar.getParseId());
-                                        Log.i(TAG, "Recalls count: "+ recalls.size());
-                                        dashboardCar.getIssues().addAll(recalls);
-                                        // Store in local
-                                        carIssueLocalStore.storeCarIssues(recalls);
-
-                                        carIssueList.clear();
-                                        carIssueList.addAll(dashboardCar.getIssues());
-                                        carIssuesAdapter.notifyDataSetChanged();
-                                    } else {
-                                        Log.i(TAG, e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-
-                        Log.i(TAG, recallsIds.toString());
-
-                        // Limit 100
-                        Log.i(TAG, "recall list size: "+recallsList.size());
-                    }
-
-                }else{
-                    Log.i(TAG,"Parse error on recalls");
-                    Log.i(TAG, e.getMessage());
-                }
-            }
-        });
-    }*/
-
-    /*private void updateServiceHistoryOnParse(final CarIssue carIssue, int position
-            , int[] estimate, CharSequence[] times
-            , DateFormat date, Date currentLocalTime, final int[] reverseSortedPositions ) {
-
-        double mileage = dashboardCar.getTotalMileage();
-        String type = carIssue.getIssueType();
-
-
-
-        final int typeService = (type.equals("edmunds") ? 0 : (type.equals("fixed") ? 1 : 2));
-
-        ParseObject saveCompletion = new ParseObject("ServiceHistory");
-        saveCompletion.put("carId", dashboardCar.getParseId());
-        saveCompletion.put("mileageSetByUser", mileage);
-        saveCompletion.put("mileage", mileage - estimate[position] * 375);
-        saveCompletion.put("serviceObjectId", carIssue.getParseId());
-        saveCompletion.put("shopId", dashboardCar.getShopId());
-        saveCompletion.put("userMarkedDoneOn", times[position] + " from " + date.format(currentLocalTime));
-        if(carIssue.getIssueType().equals(CarIssue.DTC) || carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-            saveCompletion.put("serviceId", 123);
-        } else if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
-            saveCompletion.put("serviceId", 124);
-        } else {
-            saveCompletion.put("serviceId", 125);
-        }
-
-        if(!carIssue.getIssueType().equals(CarIssue.RECALL) && !carIssue.getIssueType().equals(CarIssue.DTC)
-                && !carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-            saveCompletion.put("type", typeService);
-            saveCompletion.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e == null) {
-                        Toast.makeText(MainActivity.this, "Updated Service History",
-                                Toast.LENGTH_SHORT).show();
-                        //update the car object on the server next
-                        updateCarOnParse(typeService, carIssue, reverseSortedPositions);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Parse Error: "+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } else if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
-            saveCompletion.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(MainActivity.this, "Updated Service History",
-                                Toast.LENGTH_SHORT).show();
-                        // Update recall object
-                        updateRecallOnParse(carIssue, reverseSortedPositions);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Parse Error: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } else {
-            ParseQuery car = new ParseQuery("Car");
-            try {
-                car.get(dashboardCar.getParseId());
-                car.findInBackground(new FindCallback<ParseObject>() {
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        if (e == null) {
-                            if (objects.size() == 0) {
-                                return;
-                            }
-
-                            dashboardCar.setStoredDTCs(new ArrayList<String>());
-                            dashboardCar.setPendingDTCs(new ArrayList<String>());
-
-                            List dtcCode = Arrays.asList(carIssue.getIssueDetail().getItem());
-                            if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                                objects.get(0).removeAll("pendingDTCs", dtcCode);
-                                dashboardCar.setPendingDTCs(new ArrayList<String>());
-                            } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
-                                objects.get(0).removeAll("storedDTCs", dtcCode);
-                                dashboardCar.setStoredDTCs(new ArrayList<String>());
-                            }
-                            objects.get(0).saveEventually();
-                        } else {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                saveCompletion.saveEventually(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e == null) {
-                            Toast.makeText(MainActivity.this, "Updated Service History",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-            catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        refreshFromServer();
-    }
-
-    private void updateCarOnParse(final int typeService, final CarIssue carIssue,
-                                  final int[] reverseSortedPositions) {
-        ParseQuery updateObject = new ParseQuery("Car");
-        try {
-            updateObject.get(dashboardCar.getParseId());
-            updateObject.findInBackground(new FindCallback<ParseObject>() {
-
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e==null) {
-
-                        String type = (typeService == 0 ? "pendingEdmundServices" :
-                                (typeService == 1 ? "pendingFixedServices" : "pendingIntervalServices"));
-
-                        JSONArray original = objects.get(0).getJSONArray(type);
-                        ArrayList<String> updatedTexts = new ArrayList<>();
-
-                        for (int j = 0; j < original.length(); j++) {
-                            try {
-                                if (!original.getString(j).equals(carIssue.getParseId())) {
-                                    updatedTexts.add(original.getString(j));
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-
-                        //update object on server for Car
-                        objects.get(0).put(type, updatedTexts);
-                        objects.get(0).saveEventually();
-
-                        for (int position : reverseSortedPositions) {
-                            CarIssue obj1 = carIssuesAdapter.getItem(position);
-                            CarIssue obj2 = carIssueList.get(position);
-
-                            Log.i(TAG, "Car parse (Adapter)--> "+obj1.getIssueDetail().getItem());
-                            Log.i(TAG, "Car on parse --> "+obj2.getIssueDetail().getItem());
-                            carIssueList.remove(position);
-                            carIssuesAdapter.notifyDataSetChanged();
-                        }
-
-                        refreshFromServer();
-                    } else {
-                        Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateRecallOnParse(CarIssue carIssue, final int[] reverseSortedPositions) {
-        ParseQuery updateObject = new ParseQuery("RecallEntry");
-        try {
-            updateObject.get(carIssue.getParseId());
-            updateObject.findInBackground(new FindCallback<ParseObject>() {
-
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e == null) {
-                        objects.get(0).put("state", "doneByUser");
-                        ((ParseObject)objects.get(0)).saveEventually();
-
-                        for (int position : reverseSortedPositions) {
-                            CarIssue objToRemove = carIssuesAdapter.getItem(position);
-
-                            Log.i(TAG, "Recall (Adapter)--> "+objToRemove.getIssueDetail().getItem());
-
-                            carIssueList.remove(position);
-                            carIssueLocalStore.deleteCarIssue(objToRemove);
-                            carIssuesAdapter.notifyDataSetChanged();
-                        }
-                    } else {
-                        Toast.makeText(MainActivity.this,"Parse error: "+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     private void refreshFromServer() {
         carIssueList.clear();
@@ -1429,21 +969,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carLocalStore.updateCar(dashboardCar);
 
         sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
-
-        /*ParseQuery<ParseObject> cars = ParseQuery.getQuery("Car");
-        ParseObject car = null;
-
-        try {
-            car = cars.get(dashboardCar.getParseId());
-
-            dashboardCar.setStoredDTCs(car.<String>getList("storedDTCs"));
-            dashboardCar.setPendingDTCs(car.<String>getList("pendingDTCs"));
-
-            car.put("currentCar",true);
-            car.saveEventually();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
     }
 
     @Override

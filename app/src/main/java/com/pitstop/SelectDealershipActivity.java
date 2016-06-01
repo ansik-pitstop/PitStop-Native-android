@@ -100,7 +100,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        String userId = null;
 
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
@@ -168,23 +167,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
                     }
                 });
 
-                /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-                query.findInBackground(new FindCallback<ParseObject>() {
-
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        progressBar.setVisibility(View.GONE);
-                        if(e == null) {
-                            List<Dealership> list = Dealership.createDealershipList(objects);
-                            localStore.storeDealerships(list);
-                            adapter = new CustomAdapter(list);
-                            recyclerView.setAdapter(adapter);
-                        } else {
-                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });*/
             } else {
                 progressBar.setVisibility(View.GONE);
                 adapter = new CustomAdapter(dealerships);
