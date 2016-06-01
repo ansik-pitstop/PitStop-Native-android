@@ -26,6 +26,7 @@ public class AndroidAutoHeardReceiver extends BroadcastReceiver {
     public static final int conversationID = 123123123;
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d("asdfas",intent.getAction());
         if(intent.getAction().equals("com.google.android.c2dm.intent.RECEIVE")){
             Bundle extras = intent.getExtras();
             String msg = intent.getStringExtra("message");
@@ -53,6 +54,7 @@ public class AndroidAutoHeardReceiver extends BroadcastReceiver {
                     conversationID,
                     msgReplyIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
+
 
             // Create an unread conversation object to organize a group of messages
             // from a particular sender.

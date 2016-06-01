@@ -49,5 +49,6 @@
     <string name="appversion">app_version</string>
     <string name="title_activity_select_dealership">Select Dealership</string>
     <string name="title_activity_car_scan">Car Scan</string>
+    <string name="notification_reply">Feel Free to Reply</string>
 
 </resources>
