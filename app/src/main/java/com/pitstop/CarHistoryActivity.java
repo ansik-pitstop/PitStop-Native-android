@@ -17,12 +17,14 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -36,6 +38,9 @@ public class CarHistoryActivity extends AppCompatActivity {
     private ArrayList<Container> array;
 
     private ParseApplication application;
+    private MixpanelHelper mixpanelHelper;
+
+    private static final String TAG = CarHistoryActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +48,8 @@ public class CarHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_car_history);
 
         application = (ParseApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper((ParseApplication) getApplicationContext());
+
         array = new ArrayList<>();
 
         messageCard = (CardView) findViewById(R.id.message_card);
@@ -55,9 +62,10 @@ public class CarHistoryActivity extends AppCompatActivity {
         query.whereEqualTo("carId",getIntent().getStringExtra("carId"));
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
+            public void done(final List<ParseObject> objects, ParseException e) {
                 if( e == null) {
                     ArrayList<HashSet<String>> storage = new ArrayList<HashSet<String>>();
+                    storage.add(new HashSet<String>());
                     storage.add(new HashSet<String>());
                     storage.add(new HashSet<String>());
                     storage.add(new HashSet<String>());
@@ -70,8 +78,12 @@ public class CarHistoryActivity extends AppCompatActivity {
 
                     for (ParseObject object : objects){
                         Log.i(MainActivity.TAG, "Parse objects service history: "+object.getObjectId());
-                        if(object.get("type")==null){
-                            storage.get(3).add(object.getString("serviceObjectId"));
+                        if(object.get("type")==null && object.get("serviceId") != null){
+                            if(object.get("serviceId").equals("124")) {
+                                storage.get(3).add(object.getString("serviceObjectId"));
+                            } else {
+                                storage.get(4).add(object.getString("serviceObjectId"));
+                            }
                         }else if(object.getInt("type")==0){
                             storage.get(0).add(object.getString("serviceObjectId"));
                         }else if(object.getInt("type")==1){
@@ -80,7 +92,7 @@ public class CarHistoryActivity extends AppCompatActivity {
                             storage.get(2).add(object.getString("serviceObjectId"));
                         }
                     }
-                    String[] a = new String[]{"EdmundsService", "ServiceFixed", "ServiceInterval","RecallEntry"};
+                    String[] a = new String[]{"EdmundsService", "ServiceFixed", "ServiceInterval","RecallEntry","DTC"};
                     for (int i = 0; i<a.length; i++) {
                         ParseQuery intervalQuery = ParseQuery.getQuery(a[i]);
                         Log.i(MainActivity.TAG, a[i]+ " : " + storage.get(i).toString());
@@ -88,15 +100,18 @@ public class CarHistoryActivity extends AppCompatActivity {
                         intervalQuery.findInBackground(new FindCallback<ParseObject>() {
 
                             @Override
-                            public void done(List<ParseObject> objects, ParseException e) {
+                            public void done(List<ParseObject> descObjects, ParseException e) {
                                 if( e == null) {
-                                    Log.i(MainActivity.TAG, "interval query result: "+objects.size());
-                                    for (ParseObject obj : objects) {
+                                    Log.i(MainActivity.TAG, "interval query result: "+descObjects.size());
+                                    for (ParseObject obj : descObjects) {
                                         Container con = new Container();
                                         if(obj.get("forRecallMasters")!=null) {
                                             con.name = obj.getString("name");
                                             con.description = obj.getString("description");
-                                        }else{
+                                        } else if(obj.get("dtcCode") != null) {
+                                            con.name = obj.getString("dtcCode");
+                                            con.description = obj.getString("description");
+                                        } else {
                                             Log.i(MainActivity.TAG, "Object for recall masters is null");
                                             con.name = obj.getString("item");
                                             con.description = obj.getString("itemDescription");
@@ -124,8 +139,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(customAdapter);
 
         try {
-            application.getMixpanelAPI().track("View Appeared",
-                    new JSONObject("{'View':'CarHistoryActivity'}"));
+            mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -138,7 +152,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private class Container{
-        public String name, description;
+        public String name, description, date;
     }
 
     @Override
@@ -175,6 +189,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.title.setText(dataList.get(position).name);
             holder.desc.setText(dataList.get(position).description);
+            //holder.date.setText(String.format("Last done on %s", dataList.get(position).date));
         }
 
         @Override
@@ -185,10 +200,12 @@ public class CarHistoryActivity extends AppCompatActivity {
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView title;
             TextView desc;
+            TextView date;
             public ViewHolder(View itemView) {
                 super(itemView);
                 title = (TextView)itemView.findViewById(R.id.title);
                 desc = (TextView)itemView.findViewById(R.id.description);
+                //date = (TextView)itemView.findViewById(R.id.date);
             }
         }
     }

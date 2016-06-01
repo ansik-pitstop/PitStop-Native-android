@@ -61,54 +61,63 @@
                 android:layout_marginRight="1dp"
                 android:background="#ffffff">
 
-                <me.grantland.widget.AutofitTextView
+                <TextView
                     android:id="@+id/title"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ISSUE"
                     android:maxLines="3"
                     android:textSize="20sp"
-                    autofit:minTextSize="18sp"
                     android:textColor="@color/highlight"
                     android:fontFamily="sans-serif-light"
-                    android:textIsSelectable="false"
+                    android:text="ISSUE"
                     android:padding="10dp"
-                    android:layout_gravity="center"
-                    />
+                    android:layout_gravity="center"/>
             </LinearLayout>
-
-
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         >
         <TextView
             android:id="@+id/description"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:textSize="15sp"
             android:background="#ffffff"/>
+
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:paddingBottom="15dp">
+
             <Button
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Request Service"
-            android:id="@+id/btnRequestService"
-            android:onClick="requestService"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/color_button_add_car"
-            android:drawableRight="@drawable/request_service_button"
-            android:textColor="#fff" />
+                android:id="@+id/btnClearDtc"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/color_button_add_car"
+                android:text="Clear All Engine Codes"
+                android:textColor="#fff"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Request Service"
+                android:id="@+id/btnRequestService"
+                android:onClick="requestService"
+                android:layout_below="@id/btnClearDtc"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@drawable/color_button_add_car"
+                android:drawableRight="@drawable/request_service_button"
+                android:textColor="#fff" />
 
         </RelativeLayout>
     </RelativeLayout>

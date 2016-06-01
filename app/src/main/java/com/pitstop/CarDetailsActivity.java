@@ -1,6 +1,5 @@
 package com.pitstop;
 
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,11 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
@@ -74,6 +71,10 @@ import java.util.List;
 import static com.pitstop.PitstopPushBroadcastReceiver.ACTION_UPDATE_MILEAGE;
 import static com.pitstop.PitstopPushBroadcastReceiver.EXTRA_ACTION;
 
+/**
+ *  Not being used right now
+ */
+@Deprecated
 public class CarDetailsActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private ParseApplication application;
@@ -206,7 +207,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         findViewById(R.id.evcheck_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(CarDetailsActivity.this, EnviornmentalCheckActivity.class);
+                Intent intent = new Intent(CarDetailsActivity.this, EnvironmentalCheckActivity.class);
                 startActivity(intent);
             }
         });

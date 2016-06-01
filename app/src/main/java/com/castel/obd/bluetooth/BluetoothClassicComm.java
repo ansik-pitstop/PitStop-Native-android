@@ -18,6 +18,7 @@ import com.castel.obd.util.Utils;
 import com.parse.Parse;
 import com.pitstop.MainActivity;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,6 +92,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         }
 
         String result = mObdManager.obdSetCtrl(type);
+        Log.i(TAG, "Set ctrl result: " + result);
         writeToObd(result);
     }
 
@@ -276,7 +278,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG,"A device found - BluetoothClassicComm");
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG,device.getName() + device.getAddress());
+                Log.i(TAG,device.getName() + " " + device.getAddress());
 
                 if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
@@ -294,8 +296,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App is connected to bluetooth device'}"));
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -322,8 +323,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     try {
-                        application.getMixpanelAPI().track("Peripheral Connection Status",
-                                new JSONObject("{'Status':'App disconnected from bluetooth device'}"));
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
