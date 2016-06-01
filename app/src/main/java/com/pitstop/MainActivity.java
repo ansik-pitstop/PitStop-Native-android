@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if(autoConnectService != null
                         && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                         && dashboardCar != null
+                        && dashboardCar.getScanner() != null
                         && dashboardCar.getScanner()
                         .equals(autoConnectService.getCurrentDeviceId())) {
                     updateConnectedCarIndicator(true);
@@ -935,7 +936,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private void setDealership() {
 
-        Dealership shop = shopLocalStore.getDealership(dashboardCar.getShopId());
+        Dealership shop = dashboardCar.getDealership();
         if(shop == null) {
 
             NetworkHelper.getShops(new RequestCallback() {

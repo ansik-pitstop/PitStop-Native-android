@@ -284,9 +284,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
             return;
         }
-        //scanLeDevice(true);
-        Log.i(TAG,"Getting saved macAddress - BluetoothLeComm");
-        String macAddress = OBDInfoSP.getMacAddress(mContext);
+
+        /*Log.i(TAG,"Getting saved macAddress - BluetoothLeComm");
+        String macAddress = OBDInfoSP.getMacAddress(mContext);*/
 
         if (mGatt != null) {
 

@@ -162,13 +162,12 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void addNewDtc(int carId, String scannerId, int mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
+    public static void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
         JSONObject body = new JSONObject();
         // TODO: put actual freeze data
         try {
             body.put("carId", carId);
-            body.put("issueType", "dtc");
-            body.put("scannerId", scannerId);
+            body.put("issueType", CarIssue.DTC);
             body.put("data",
                     new JSONObject().put("mileage", mileage)
                             .put("rtcTime", Long.parseLong(rtcTime))
