@@ -886,7 +886,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private void setDealership() {
 
-        Dealership shop = shopLocalStore.getDealership(dashboardCar.getShopId());
+        Dealership shop = dashboardCar.getDealerShip();
         if(shop == null) {
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
             query.whereEqualTo("objectId", dashboardCar.getShopId());
