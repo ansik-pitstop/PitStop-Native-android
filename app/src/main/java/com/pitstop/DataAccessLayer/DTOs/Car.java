@@ -298,11 +298,15 @@ public class Car implements Serializable {
             car.setShopId(dealer.getId());
         }
 
+        if(jsonObject.get("scanner") != null) {
+            car.setScanner(jsonObject.getJSONObject("scanner").getString("scannerId"));
+        }
+
         return car;
     }
 
     // create car from json object (this is for GET from api)
-    public static Car createCar(JSONObject jsonObject) throws JSONException {
+    public static Car createCar(JSONObject jsonObject) throws JSONException { // THIS IS OUTDATED
         Car car = new Car();
 
         car.setId(jsonObject.getInt("id"));

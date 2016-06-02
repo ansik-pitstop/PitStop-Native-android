@@ -741,11 +741,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     private void sendPidDataToServer(DataPackageInfo data) {
 
-        int tripMileage = 0;
-        if(data.tripMileage != null && !"".equals(data.tripMileage)) {
-            tripMileage = Integer.parseInt(data.tripMileage)/1000;
-        }
-
         List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
         JSONArray pidArray = new JSONArray();
 

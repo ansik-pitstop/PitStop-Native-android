@@ -46,12 +46,6 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.parse.ConfigCallback;
-import com.parse.FindCallback;
-import com.parse.ParseConfig;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.pitstop.BarcodeScanner.BarcodeScanner;
 import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -728,7 +722,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.i(TAG, "getIOData()");
         Log.i(TAG, "result: "+dataPackageInfo.result);
-
 
         if (dataPackageInfo.result == 6 && askForDTC) {
             Log.i(TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");

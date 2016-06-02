@@ -29,7 +29,7 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public static void createNewCar(int userId, int mileage, String vin, @Nullable String scannerId,
+    public static void createNewCar(int userId, int mileage, String vin, String scannerId,
                                     int shopId, RequestCallback callback) {
         Log.i(TAG, "createNewCar");
         JSONObject body = new JSONObject();
@@ -264,7 +264,7 @@ public class NetworkHelper {
 
         try {
             body.put("scannerId", scannerId);
-            body.put("pidArray", pidArr);
+            body.put("pidArray", pidArr); // TODO: fix format (should be object)
         } catch (JSONException e) {
             e.printStackTrace();
         }
