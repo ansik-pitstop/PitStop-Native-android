@@ -895,6 +895,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
                     if(e == null) {
+                        if(objects.size() == 0) {
+                            return;
+                        }
                         Dealership dealership = Dealership
                                 .createDealership(objects.get(0), dashboardCar.getParseId());
                         dashboardCar.setDealerShip(dealership);
