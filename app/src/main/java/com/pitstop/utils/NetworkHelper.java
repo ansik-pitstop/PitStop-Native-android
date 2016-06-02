@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.castel.obd.info.PIDInfo;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -14,6 +15,8 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by Ben Wu on 2016-05-20.
@@ -60,7 +63,7 @@ public class NetworkHelper {
     }
 
     public static void getCarsByVin(String vin, RequestCallback callback) {
-        Log.i(TAG, "getCarsByUserId: " + vin);
+        Log.i(TAG, "getCarsByVin: " + vin);
         new HttpRequest.Builder().uri("car/?vin=" + vin)
                 .requestType(RequestType.GET)
                 .requestCallBack(callback)
@@ -162,10 +165,18 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
+    public static void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending,
+                                 List<PIDInfo> freezeData, RequestCallback callback) {
         JSONObject body = new JSONObject();
         // TODO: put actual freeze data
+
+        JSONArray data = new JSONArray();
+
         try {
+            for(PIDInfo info : freezeData) {
+                data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
+            }
+
             body.put("carId", carId);
             body.put("issueType", CarIssue.DTC);
             body.put("data",
@@ -173,7 +184,7 @@ public class NetworkHelper {
                             .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending)
-                            .put("freezeData", new JSONObject().put("data", "data")));
+                            .put("freezeData", new JSONObject().put("data", data)));
         } catch (JSONException e) {
             e.printStackTrace();
         }

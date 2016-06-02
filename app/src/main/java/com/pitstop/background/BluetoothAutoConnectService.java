@@ -369,7 +369,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             response.setValue("tripMileage", dataPackageInfo.tripMileage);
             response.setValue("tripfuel", dataPackageInfo.tripfuel);
             response.setValue("vState", dataPackageInfo.vState);
-            // TOdo
+
             String OBD = "{";
             boolean recordedOnce = false;
             for (PIDInfo i : dataPackageInfo.obdData) {
@@ -449,7 +449,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     try {
                         Car car = Car.createCar(response);
                         for(final String dtc : dtcArr) {
-                            NetworkHelper.addNewDtc(car.getId(), car.getTotalMileage(), dataPackageInfo.rtcTime, dtc, isPendingDtc, new RequestCallback() {
+                            NetworkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                    dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                                    new RequestCallback() {
                                 @Override
                                 public void done(String response, RequestError requestError) {
                                     Log.i(TAG, "DTC added: " + dtc);

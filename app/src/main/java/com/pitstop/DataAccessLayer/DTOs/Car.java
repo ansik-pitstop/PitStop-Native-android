@@ -287,18 +287,18 @@ public class Car implements Serializable {
 
         Object issues = jsonObject.get("issues");
 
-        if(issues instanceof JSONArray) {
+        if(!jsonObject.isNull("issues")) {
             car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
             car.setNumberOfServices(((JSONArray) issues).length());
         }
 
-        if(jsonObject.get("shop") != null) {
+        if(!jsonObject.isNull("shop")) {
             Dealership dealer = Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString());
             car.setDealership(dealer);
             car.setShopId(dealer.getId());
         }
 
-        if(jsonObject.get("scanner") != null) {
+        if(!jsonObject.isNull("scanner")) {
             car.setScanner(jsonObject.getJSONObject("scanner").getString("scannerId"));
         }
 
