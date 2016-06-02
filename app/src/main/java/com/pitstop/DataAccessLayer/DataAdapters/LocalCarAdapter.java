@@ -3,7 +3,9 @@ package com.pitstop.DataAccessLayer.DataAdapters;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -22,7 +24,7 @@ public class LocalCarAdapter {
             + TABLES.CAR.KEY_VIN + " TEXT, "
             + TABLES.CAR.KEY_MILEAGE + " INTEGER, "
             + TABLES.CAR.KEY_ENGINE + " TEXT, "
-            + TABLES.CAR.KEY_SHOP_ID + " TEXT, "
+            + TABLES.CAR.KEY_SHOP_ID + " INTEGER, "
             + TABLES.CAR.KEY_TRIM + " TEXT, "
             + TABLES.CAR.KEY_MAKE + " TEXT, "
             + TABLES.CAR.KEY_MODEL+ " TEXT, "

@@ -293,7 +293,9 @@ public class Car implements Serializable {
         }
 
         if(jsonObject.get("shop") != null) {
-            car.setDealership(Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString()));
+            Dealership dealer = Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString());
+            car.setDealership(dealer);
+            car.setShopId(dealer.getId());
         }
 
         return car;

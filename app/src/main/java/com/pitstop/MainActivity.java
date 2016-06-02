@@ -90,9 +90,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private static final String SHOWCASE_ID = "main_activity_sequence_01";
 
-
-    public ArrayList<DBModel> array;
-
     public final static String pfName = "com.pitstop.login.name";
     private final static String pfTutorial = "com.pitstop.tutorial";
     public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
@@ -143,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private MixpanelHelper mixpanelHelper;
 
     private SharedPreferences sharedPreferences;
-
 
     public static String TAG = MainActivity.class.getSimpleName();
 
@@ -336,8 +332,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
-
-    // TODO: Switch to fragments, as opposed to starting child activities
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivity");
@@ -570,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         "6 to 12 Months Ago"
                                 };
 
-                                final int[] timesInDays = new int[] {1, 14, 30, 75, 135, 240};
+                                final int[] timesInDays = new int[] {0, 14, 30, 75, 135, 240};
 
                                 final int[] estimate = new int[]{0,2,3,10,18,32};
 
@@ -598,12 +592,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                                                     Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
                                                                     carIssueList.remove(i);
                                                                     carIssuesAdapter.notifyDataSetChanged();
+                                                                    refreshFromServer();
                                                                 }
                                                             }
                                                         });
-
-                                                        /*updateServiceHistoryOnParse(carIssue, position, estimate,
-                                                                times, date, currentLocalTime, reverseSortedPositions);*/
                                                 dialogInterface.dismiss();
                                             }
                                         }).setTitle("When did you complete this task?").show();
@@ -767,11 +759,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @see #getCarDetails()
      * */
     private void loadCarDetailsFromServer() {
-        int userId = 0;
-
-        if (GlobalApplication.getCurrentUser() != null) {
-            userId = GlobalApplication.getCurrentUser().getUserId();
-        }
+        int userId = application.getCurrentUserId();
 
         NetworkHelper.getCarsByUserId(userId, new RequestCallback() {
             @Override
@@ -819,7 +807,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             shopLocalStore.deleteAllDealerships();
                             shopLocalStore.storeDealerships(dl);
 
-                            Dealership d = shopLocalStore.getDealership(dashboardCar.getShopId());
+                            Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
 
                             dashboardCar.setDealership(d);
                             if(dashboardCar.getDealership() != null) {
@@ -833,27 +821,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
                 }
             });
-
-            /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
-            query.whereEqualTo("objectId", dashboardCar.getShopId());
-
-            query.findInBackground(new FindCallback<ParseObject>() {
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e == null) {
-                        Dealership dealership = Dealership
-                                .createDealership(objects.get(0), dashboardCar.getParseId());
-                        dashboardCar.setDealership(dealership);
-                        dealershipName.setText(dashboardCar.getDealership().getName());
-                    } else {
-                        Toast.makeText(MainActivity.this, "Failed to retrieve dealership info",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });*/
         } else {
             dashboardCar.setDealership(shop);
-            dealershipName.setText(dashboardCar.getDealership().getName());
+            dealershipName.setText(shop.getName());
         }
 
     }
