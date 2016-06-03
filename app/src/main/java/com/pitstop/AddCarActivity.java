@@ -241,7 +241,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             vinDecoderApi = null;
         }
 
-        hideLoading();
+        //hideLoading();
         super.onPause();
     }
 
@@ -263,6 +263,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     @Override
     public void onBackPressed() {
+        if(dialog.isShowing()) {
+            hideLoading();
+            return;
+        }
+
         try {
             mixpanelHelper.trackButtonTapped("Back", TAG);
         } catch (JSONException e) {

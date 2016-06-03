@@ -257,7 +257,7 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("tripId", Long.parseLong(tripId));
-            body.put("mileage", Long.parseLong(mileage));
+            body.put("mileage", Double.parseDouble(mileage));
             body.put("rtcTime", Long.parseLong(rtcTime));
         } catch (JSONException e) {
             e.printStackTrace();
