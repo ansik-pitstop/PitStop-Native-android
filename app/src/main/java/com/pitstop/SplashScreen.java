@@ -297,6 +297,10 @@ public class SplashScreen extends AppCompatActivity {
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
                         login(email.getText().toString(), password.getText().toString());
+                    } else {
+                        Log.e(TAG, "Sign up error: " + requestError.getMessage());
+                        Toast.makeText(SplashScreen.this, "This email is already in use", Toast.LENGTH_SHORT).show();
+                        hideLoading();
                     }
                 }
             });
