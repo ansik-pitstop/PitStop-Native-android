@@ -56,7 +56,8 @@ public class SplashScreen extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
-    private EditText name;
+    private EditText firstName;
+    private EditText lastName;
     private EditText password;
     private EditText phoneNumber;
     private EditText email;
@@ -131,7 +132,8 @@ public class SplashScreen extends AppCompatActivity {
                     radioLayout.setVisibility(View.GONE);
                     skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
-                    name.setVisibility(View.GONE);
+                    firstName.setVisibility(View.GONE);
+                    lastName.setVisibility(View.GONE);
                     phoneNumber.setVisibility(View.GONE);
 
                     password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -201,7 +203,8 @@ public class SplashScreen extends AppCompatActivity {
                 signup = !signup;
                 backPressed = !backPressed;
                 loginButton.setVisibility(View.VISIBLE);
-                name.setVisibility(View.GONE);
+                firstName.setVisibility(View.GONE);
+                lastName.setVisibility(View.GONE);
                 phoneNumber.setVisibility(View.GONE);
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
@@ -227,7 +230,8 @@ public class SplashScreen extends AppCompatActivity {
 
     private void setUpUIReferences() {
 
-        name = (EditText) findViewById(R.id.name);
+        firstName = (EditText) findViewById(R.id.firstName);
+        lastName = (EditText) findViewById(R.id.lastName);
         password = (EditText) findViewById(R.id.password);
         phoneNumber = (EditText) findViewById(R.id.phone);
         email = (EditText) findViewById(R.id.email);
@@ -259,8 +263,8 @@ public class SplashScreen extends AppCompatActivity {
             }
 
             showLoading("Loading");
-            if(Utils.isEmpty(name.getText().toString())) {
-                Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
+            if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
+                Snackbar.make(splashLayout, "First and last name are required",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
@@ -278,8 +282,8 @@ public class SplashScreen extends AppCompatActivity {
             // creating json to post
             JSONObject json = new JSONObject();
             try {
-                json.put("firstName", name.getText().toString());
-                json.put("lastName", "");
+                json.put("firstName", firstName.getText().toString());
+                json.put("lastName", lastName.getText().toString());
                 json.put("email", email.getText().toString());
                 json.put("username", email.getText().toString());
                 json.put("phone", phoneNumber.getText().toString());
@@ -312,7 +316,8 @@ public class SplashScreen extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            name.setVisibility(View.VISIBLE);
+            firstName.setVisibility(View.VISIBLE);
+            lastName.setVisibility(View.VISIBLE);
             phoneNumber.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);
             signup = !signup;

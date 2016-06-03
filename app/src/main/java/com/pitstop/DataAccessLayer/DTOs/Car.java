@@ -1,9 +1,6 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.parse.ParseObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +41,7 @@ public class Car implements Serializable {
     private Dealership dealership;
     private boolean serviceDue;
 
-    private String scanner;
+    private String scannerId;
     private List<CarIssue> issues = new ArrayList<>();
 
     public Car() { }
@@ -201,12 +198,12 @@ public class Car implements Serializable {
         this.numberOfServices = numberOfServices;
     }
 
-    public String getScanner() {
-        return scanner;
+    public String getScannerId() {
+        return scannerId;
     }
 
-    public void setScanner(String scanner) {
-        this.scanner = scanner;
+    public void setScannerId(String scannerId) {
+        this.scannerId = scannerId;
     }
 
     public boolean isCurrentCar() {
@@ -267,7 +264,7 @@ public class Car implements Serializable {
         car.setModel(jsonObject.getString("car_model"));
         car.setYear(jsonObject.getInt("car_year"));
         car.setTrim(jsonObject.getString("car_trim"));
-        car.setScanner(jsonObject.optString("scannerId"));
+        car.setScannerId(jsonObject.optString("scannerId"));
         car.setTotalMileage(jsonObject.getInt("mileage_total"));
         car.setBaseMileage(jsonObject.getInt("mileage_base"));
         car.setUserId(jsonObject.getInt("id_user"));
@@ -299,7 +296,7 @@ public class Car implements Serializable {
         }
 
         if(!jsonObject.isNull("scanner")) {
-            car.setScanner(jsonObject.getJSONObject("scanner").getString("scannerId"));
+            car.setScannerId(jsonObject.getJSONObject("scanner").getString("scannerId"));
         }
 
         return car;
@@ -315,7 +312,7 @@ public class Car implements Serializable {
         car.setModel(jsonObject.getString("model"));
         car.setYear(jsonObject.getInt("year"));
         car.setTrim(jsonObject.getString("trim"));
-        car.setScanner(jsonObject.optString("scannerId"));
+        car.setScannerId(jsonObject.optString("scannerId"));
         car.setTotalMileage(jsonObject.getInt("totalMileage"));
         car.setBaseMileage(jsonObject.getInt("baseMileage"));
         car.setUserId(jsonObject.getInt("userId"));

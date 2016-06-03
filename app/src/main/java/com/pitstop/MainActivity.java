@@ -56,7 +56,6 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.database.DBModel;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -189,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if(autoConnectService != null
                         && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                         && dashboardCar != null
-                        && dashboardCar.getScanner() != null
-                        && dashboardCar.getScanner()
+                        && dashboardCar.getScannerId() != null
+                        && dashboardCar.getScannerId()
                         .equals(autoConnectService.getCurrentDeviceId())) {
                     updateConnectedCarIndicator(true);
                 } else {

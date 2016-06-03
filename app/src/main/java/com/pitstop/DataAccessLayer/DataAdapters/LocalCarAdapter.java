@@ -3,9 +3,7 @@ package com.pitstop.DataAccessLayer.DataAdapters;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -160,7 +158,7 @@ public class LocalCarAdapter {
         car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
         car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
-        car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
+        car.setScannerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
         car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
         car.setShopId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
         car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
@@ -179,7 +177,7 @@ public class LocalCarAdapter {
         values.put(TABLES.CAR.KEY_TRIM, car.getTrim());
         values.put(TABLES.CAR.KEY_ENGINE, car.getEngine());
         values.put(TABLES.CAR.KEY_VIN, car.getVin());
-        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScanner());
+        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScannerId());
         values.put(TABLES.CAR.KEY_USER_ID, car.getOwnerId());
         values.put(TABLES.CAR.KEY_SHOP_ID, car.getShopId());
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());
