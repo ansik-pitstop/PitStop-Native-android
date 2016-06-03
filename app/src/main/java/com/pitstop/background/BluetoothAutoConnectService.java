@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -32,9 +31,6 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
@@ -43,19 +39,16 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
-import com.pitstop.database.DBModel;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
-import com.pitstop.database.models.Uploads;
+import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -702,6 +695,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
+        pidDataObject.setMileage(String.valueOf(Double.parseDouble(data.tripMileage)
+                + CarDataManager.getInstance().getDashboardCar().getTotalMileage()));
         pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
@@ -753,6 +748,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 jsonObject.put("rtcTime",pidDataObject.getRtcTime());
                 jsonObject.put("timestamp",pidDataObject.getTimeStamp());
                 jsonObject.put("pids",new JSONArray(pidDataObject.getPids()));
+                jsonObject.put("mileage",Double.parseDouble(pidDataObject.getMileage()));
                 pidArray.put(jsonObject);
             }
         } catch (JSONException e) {

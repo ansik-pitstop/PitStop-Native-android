@@ -45,6 +45,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -145,7 +146,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         bindService(new Intent(this, BluetoothAutoConnectService.class),
                 serviceConnection, BIND_AUTO_CREATE);
 
-        dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
+        dashboardCar = CarDataManager.getInstance().getDashboardCar();
 
         try {
             mixpanelHelper.trackViewAppeared(TAG);
@@ -368,7 +369,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, mileage);
 
         carMileage.setText(mileage);
-        Car dashboardCar = (Car) getIntent().getSerializableExtra(MainActivity.CAR_EXTRA);
+        Car dashboardCar = CarDataManager.getInstance().getDashboardCar();
 
         updatedMileage = true;
 
