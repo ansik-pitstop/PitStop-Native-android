@@ -155,14 +155,15 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 setUpUIReferences();
-                if(position==3){
+                if(position==2){
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.GONE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     radioLayout.setVisibility(View.GONE);
-                    skipButton.setVisibility(View.GONE);
+//                    skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
                     name.setVisibility(View.GONE);
                     phoneNumber.setVisibility(View.GONE);
@@ -172,11 +173,8 @@ public class SplashScreen extends AppCompatActivity {
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             boolean handled = false;
                             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                if(signup){
-                                    signUp(null);
-                                }else{
-                                    login(null);
-                                }
+                                loginOrSignUp(null);
+
                                 handled = true;
                                 View view = getCurrentFocus();
                                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -186,8 +184,9 @@ public class SplashScreen extends AppCompatActivity {
                         }
                     });
                 }else{
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
                     radioLayout.setVisibility(View.VISIBLE);
-                    skipButton.setVisibility(View.VISIBLE);
+//                    skipButton.setVisibility(View.VISIBLE);
                     for(int i = 0; i<3; i++){
                         ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
                     }
@@ -271,11 +270,39 @@ public class SplashScreen extends AppCompatActivity {
         splashLayout = findViewById(R.id.splash_layout);
         radioLayout = (LinearLayout) findViewById(R.id.radio_layout);
         loginButton = (Button) findViewById(R.id.login_btn);
-        skipButton = (Button) findViewById(R.id.skip_btn);
+        skipButton = (Button) findViewById(R.id.sign_up_skip);
     }
 
-    public void signUp(final View view) {
+    public void signUpSwitcher(final View view) {
         if (signup) {
+            name.setVisibility(View.GONE);
+            phoneNumber.setVisibility(View.GONE);
+            ((Button)findViewById(R.id.login_btn)).setText("LOG IN");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
+            signup = !signup;
+        }else{
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
+            name.setVisibility(View.VISIBLE);
+            phoneNumber.setVisibility(View.VISIBLE);
+            signup = !signup;
+        }
+    }
+
+    public void loginOrSignUp(final View view) {
+        if (signup) {
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
             } catch (JSONException e) {
@@ -283,18 +310,18 @@ public class SplashScreen extends AppCompatActivity {
             }
 
             showLoading("Loading");
-            if(Utils.isEmpty(name.getText().toString())) {
-                Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
+            if (Utils.isEmpty(name.getText().toString())) {
+                Snackbar.make(splashLayout, "Name is required", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
-            if(password.getText().toString().length()<6){
-                Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+            if (password.getText().toString().length() < 6) {
+                Snackbar.make(splashLayout, "Password length must be greater than 6", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
-            if(phoneNumber.getText().toString().length()!=10){
-                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+            if (phoneNumber.getText().toString().length() != 10) {
+                Snackbar.make(splashLayout, "Invalid phone number", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
@@ -313,7 +340,7 @@ public class SplashScreen extends AppCompatActivity {
                     if (e == null) {
                         Toast.makeText(SplashScreen.this, "Congrats, you have signed up!",
                                 Toast.LENGTH_SHORT).show();
-                        login(view);
+                        loginOrSignUp(view);
                     } else {
                         hideLoading();
                         Toast.makeText(SplashScreen.this,
@@ -322,67 +349,54 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 }
             });
-        }else{
+        }else {
+
             try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
-                mixpanelHelper.trackViewAppeared("Register");
-            } catch (JSONException e) {
-                e.printStackTrace();
+                mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+            } catch (JSONException e2) {
+                e2.printStackTrace();
             }
-            name.setVisibility(View.VISIBLE);
-            phoneNumber.setVisibility(View.VISIBLE);
-            loginButton.setVisibility(View.GONE);
-            signup = !signup;
-        }
-    }
+            showLoading("Logging in...");
+            final String usernameInput = email.getText().toString().toLowerCase();
+            final String passwordInput = password.getText().toString();
 
-    public void login(View view) {
-        try {
-            mixpanelHelper.trackButtonTapped("Login with Email", TAG);
-        } catch (JSONException e2) {
-            e2.printStackTrace();
-        }
+            ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
 
-        showLoading("Logging in...");
-        final String usernameInput = email.getText().toString().toLowerCase();
-        final String passwordInput = password.getText().toString();
+                @Override
+                public void done(ParseUser user, ParseException e) {
+                    if (e == null) {
+                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
-        ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
+                        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(pfCodeForID, usernameInput);
+                        editor.putString(pfCodeForPassword, passwordInput);
+                        editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
+                        if (ParseUser.getCurrentUser().getParseObject("subscribedShopPointer") != null) {
+                            editor.putString(MainActivity.pfCodeForShopObjectID,
+                                    ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                        }
+                        editor.apply();
 
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e == null) {
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                        //save user data
+                        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                        installation.put("userId", ParseUser.getCurrentUser().getObjectId());
+                        installation.saveInBackground();
+                        ParseApplication.setUpMixPanel();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra(LOGIN_REFRESH, true);
+                        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
 
-                    SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(pfCodeForID, usernameInput);
-                    editor.putString(pfCodeForPassword, passwordInput);
-                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
-                    if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                        editor.putString(MainActivity.pfCodeForShopObjectID,
-                                ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                        hideLoading();
+                        startActivity(intent);
+                    } else {
+                        hideLoading();
+                        Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    editor.apply();
 
-                    //save user data
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                    installation.put("userId", ParseUser.getCurrentUser().getObjectId());
-                    installation.saveInBackground();
-                    ParseApplication.setUpMixPanel();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-
-                    hideLoading();
-                    startActivity(intent);
-                } else {
-                    hideLoading();
-                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-
-            }
-        });
+            });
+        }
     }
 
     public void goToLogin(View view) {

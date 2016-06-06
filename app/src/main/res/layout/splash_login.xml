@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bg"
+        android:src="@drawable/slider3"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -19,20 +25,10 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:id="@+id/imageView5"
-            android:layout_gravity="center_horizontal"
-            android:background="@mipmap/ic_launcher" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome to Pitstop"
-            android:id="@+id/textView2"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/abc_primary_text_material_light"
-            android:textSize="24dp"
-            android:fontFamily="sans-serif-light" />
+            android:layout_margin="32dp"
+            android:src="@drawable/whitelogo" />
 
         <EditText
             android:layout_width="match_parent"
@@ -42,7 +38,12 @@
             android:id="@+id/name"
             android:singleLine="true"
             android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:backgroundTint="#fff"
+            android:textColor="#fff"
+            android:textColorHighlight="@color/primary"
+            android:textColorHint="#fff"
+            android:textIsSelectable="false" />
 
         <EditText
             android:layout_width="match_parent"
@@ -52,7 +53,12 @@
             android:hint="Phone Number"
             android:id="@+id/phone"
             android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:backgroundTint="#fff"
+            android:textColor="#fff"
+            android:textColorHighlight="@color/primary"
+            android:textColorHint="#fff"
+            android:textIsSelectable="false" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -60,7 +66,11 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:hint="Email"
-            android:id="@+id/email" />
+            android:id="@+id/email"
+            android:textColor="#fff"
+            android:textColorHighlight="@color/primary"
+            android:textColorHint="#fff"
+            android:backgroundTint="#fff" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -70,14 +80,18 @@
             android:layout_marginBottom="12dp"
             android:ems="10"
             android:imeOptions="actionSend"
-            android:id="@+id/password" />
+            android:id="@+id/password"
+            android:textColor="#fff"
+            android:textColorHighlight="@color/primary"
+            android:textColorHint="#fff"
+            android:backgroundTint="#fff" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Log In"
             android:textColor="#fff"
-            android:onClick="login"
+            android:onClick="loginOrSignUp"
             android:background="@drawable/color_button_add_car"
             android:id="@+id/login_btn"
             android:elevation="6dp"
@@ -85,17 +99,21 @@
             android:elegantTextHeight="true"
             android:layout_gravity="center_horizontal" />
 
-        <Button
-            android:layout_width="fill_parent"
-            android:textColor="#fff"
-            android:layout_height="wrap_content"
-            android:background="@drawable/color_button_add_car"
-            android:text="Sign Up"
-            android:elegantTextHeight="true"
-            android:id="@+id/button2"
-            android:elevation="6dp"
-            android:onClick="signUp"
-            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 
-</LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:textColor="#fff"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:elegantTextHeight="true"
+        android:id="@+id/sign_log_switcher_button"
+        android:elevation="6dp"
+        android:onClick="signUpSwitcher"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="#00ffffff"
+        android:layout_margin="6dp" />
+
+</RelativeLayout>
