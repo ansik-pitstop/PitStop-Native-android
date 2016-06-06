@@ -695,8 +695,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
-        pidDataObject.setMileage(String.valueOf(Double.parseDouble(data.tripMileage)
-                + CarDataManager.getInstance().getDashboardCar().getTotalMileage()));
+        double mileage = Double.parseDouble(data.tripMileage) +
+                (CarDataManager.getInstance().getDashboardCar() == null ? 0 :
+                        CarDataManager.getInstance().getDashboardCar().getTotalMileage());
+
+        pidDataObject.setMileage(mileage);
         pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
@@ -737,18 +740,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @param data
      */
     private void sendPidDataToServer(DataPackageInfo data) {
-
+        Log.i(TAG, "sending PID data");
         List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
         JSONArray pidArray = new JSONArray();
 
         try {
             for(Pid pidDataObject : pidDataEntries) {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("dataNum",pidDataObject.getDataNumber());
-                jsonObject.put("rtcTime",pidDataObject.getRtcTime());
-                jsonObject.put("timestamp",pidDataObject.getTimeStamp());
-                jsonObject.put("pids",new JSONArray(pidDataObject.getPids()));
-                jsonObject.put("mileage",Double.parseDouble(pidDataObject.getMileage()));
+                jsonObject.put("dataNum", pidDataObject.getDataNumber());
+                jsonObject.put("rtcTime", pidDataObject.getRtcTime());
+                jsonObject.put("mileage", 0);
+                jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                 pidArray.put(jsonObject);
             }
         } catch (JSONException e) {
@@ -759,9 +761,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
-                        if(requestError != null) {
+                        if(requestError == null) {
                             Log.i(TAG, "PIDS saved");
                             localPid.deleteAllPidDataEntries();
+                        } else {
+                            Log.e(TAG, "save pid error: " + requestError.getMessage());
                         }
                     }
                 });

@@ -333,7 +333,8 @@ public class SettingsActivity extends AppCompatActivity {
 
             addPreferencesFromResource(R.xml.preferences);
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
-            namePreference.setTitle(GlobalApplication.getCurrentUser().getFirstName());
+            namePreference.setTitle(String.format("%s %s",
+                    GlobalApplication.getCurrentUser().getFirstName(), GlobalApplication.getCurrentUser().getLastName()));
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -341,20 +342,32 @@ public class SettingsActivity extends AppCompatActivity {
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
 
                     alertDialog.setTitle("Edit name");
-                    final EditText nameInput = new EditText(getActivity());
+                    final LinearLayout changeNameLayout = new LinearLayout(getActivity());
+                    changeNameLayout.setOrientation(LinearLayout.VERTICAL);
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.MATCH_PARENT
                     );
-                    nameInput.setLayoutParams(lp);
-                    alertDialog.setView(nameInput);
+                    changeNameLayout.setLayoutParams(lp);
+
+                    final EditText firstNameInput = new EditText(getActivity());
+                    firstNameInput.setText(GlobalApplication.getCurrentUser().getFirstName());
+
+                    final EditText lastNameInput = new EditText(getActivity());
+                    lastNameInput.setText(GlobalApplication.getCurrentUser().getLastName());
+
+                    changeNameLayout.addView(firstNameInput);
+                    changeNameLayout.addView(lastNameInput);
+
+                    alertDialog.setView(changeNameLayout);
 
                     alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            String updatedName = nameInput.getText().toString();
-                            updateUsersName(updatedName,namePreference);
+                            String firstName = firstNameInput.getText().toString();
+                            String lastName = lastNameInput.getText().toString();
+                            updateUserName(firstName, lastName, namePreference);
                         }
                     });
 
@@ -457,23 +470,24 @@ public class SettingsActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        private void updateUsersName(final String updatedName, final Preference namePreference) {
+        private void updateUserName(final String firstName, final String lastName, final Preference namePreference) {
             try {
                 mixpanelHelper.trackButtonTapped("Name", TAG);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
 
-            NetworkHelper.updateUserName(application.getCurrentUserId(), updatedName, new RequestCallback() {
+            NetworkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
-                        namePreference.setTitle(updatedName);
+                        namePreference.setTitle(String.format("%s %s", firstName, lastName));
 
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
 
                         User updatedUser = GlobalApplication.getCurrentUser();
-                        updatedUser.setFirstName(updatedName);
+                        updatedUser.setFirstName(firstName);
+                        updatedUser.setLastName(lastName);
                         application.setCurrentUser(updatedUser);
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();

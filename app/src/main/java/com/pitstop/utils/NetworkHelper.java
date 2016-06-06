@@ -122,13 +122,32 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void updateUserName(int userId, String newName, RequestCallback callback) {
-        Log.i(TAG, "updateUserName: userId: " + userId + " newName: " + newName);
+    public static void updateFirstName(int userId, String firstName, String lastName, RequestCallback callback) {
+        Log.i(TAG, "updateFirstName: userId: " + userId + " firstName: " + firstName + " lastName: " + lastName);
         JSONObject body = new JSONObject();
 
         try {
             body.put("userId", userId);
-            body.put("firstName", newName);
+            body.put("firstName", firstName);
+            body.put("lastName", lastName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("user")
+                .requestType(RequestType.PUT)
+                .requestCallBack(callback)
+                .body(body)
+                .createRequest().executeAsync();
+    }
+
+    public static void updateLastName(int userId, String newName, RequestCallback callback) {
+        Log.i(TAG, "updateLastName: userId: " + userId + " newName: " + newName);
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("userId", userId);
+            body.put("lastName", newName);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -322,6 +341,14 @@ public class NetworkHelper {
         new HttpRequest.Builder().uri("utility/serviceRequest")
                 .requestType(RequestType.POST)
                 .body(body)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
+    public static void getUser(int userId, RequestCallback callback) {
+        Log.i(TAG, "getUser: " + userId);
+        new HttpRequest.Builder().uri("user/" + userId)
+                .requestType(RequestType.GET)
                 .requestCallBack(callback)
                 .createRequest().executeAsync();
     }

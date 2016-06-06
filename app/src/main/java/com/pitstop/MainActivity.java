@@ -284,13 +284,28 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
             IntentProxyObject proxyObject = new IntentProxyObject();
 
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
-            startActivityForResult(intent, RC_SETTINGS);
+
+            if(GlobalApplication.getCurrentUser() == null) {
+                NetworkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
+                            startActivityForResult(intent, RC_SETTINGS);
+                        } else {
+                            Log.e(TAG, "Get user error: " + requestError.getMessage());
+                        }
+                    }
+                });
+            } else {
+                startActivityForResult(intent, RC_SETTINGS);
+            }
 
         } else if(id == R.id.action_car_history) {
             try {
@@ -372,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     protected void onPause() {
         Log.i(TAG, "onPause");
+        carDataManager.setDashboardCar(dashboardCar);
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
 
