@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
@@ -40,9 +41,6 @@ import org.json.JSONObject;
 public class SplashScreen extends AppCompatActivity {
 
     final static String pfName = "com.pitstop.login.name";
-    final static String pfCodeForID = "com.pitstop.login.id";
-    final static String pfCodeForPassword = "com.pitstop.login.passwd";
-    final static String pfCodeForObjectID = "com.pitstop.login.objectID";
     public static String ACTIVITY_NAME = "splash_screen";
 
     public static String LOGIN_REFRESH = "login_refresh";

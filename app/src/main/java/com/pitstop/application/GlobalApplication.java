@@ -10,6 +10,7 @@ import android.util.Log;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.R;
@@ -181,6 +182,8 @@ public class GlobalApplication extends Application {
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
         editor.apply();
+
+        ParseUser.logOut();
 
         currentUser = null;
     }
