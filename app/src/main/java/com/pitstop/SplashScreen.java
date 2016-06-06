@@ -344,6 +344,7 @@ public class SplashScreen extends AppCompatActivity {
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
+                        ParseUser.logOut();
                         application.logInUser(accessToken, refreshToken, user);
                     } catch (JSONException e) {
                         e.printStackTrace();
