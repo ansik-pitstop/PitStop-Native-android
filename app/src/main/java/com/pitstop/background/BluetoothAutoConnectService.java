@@ -694,10 +694,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
+        Car dashboardCar = CarDataManager.getInstance().getDashboardCar();
 
-        double mileage = Double.parseDouble(data.tripMileage) +
-                (CarDataManager.getInstance().getDashboardCar() == null ? 0 :
-                        CarDataManager.getInstance().getDashboardCar().getTotalMileage());
+        double mileage = data.tripMileage == null || data.tripMileage.equals("0") || data.tripMileage.isEmpty()
+                ? 0.0 : Double.parseDouble(data.tripMileage) +
+                (dashboardCar == null ? 0 : dashboardCar.getTotalMileage());
+
+        Log.wtf(TAG, "mileage " + data.tripMileage + " and " +
+                (CarDataManager.getInstance().getDashboardCar() == null ? "null" : CarDataManager.getInstance().getDashboardCar().getTotalMileage()));
 
         pidDataObject.setMileage(mileage);
         pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
