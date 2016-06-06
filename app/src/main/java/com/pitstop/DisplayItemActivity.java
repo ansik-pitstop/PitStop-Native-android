@@ -35,6 +35,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -96,7 +97,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
-        dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
+        dashboardCar = CarDataManager.getInstance().getDashboardCar();
         carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);

@@ -57,6 +57,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -126,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private Button carScan;
 
     private ProgressDialog progressDialog;
+
+    private CarDataManager carDataManager;
 
     private Car dashboardCar;
     private List<Car> carList = new ArrayList<>();
@@ -233,6 +236,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         setUpUIReferences();
 
+        carDataManager = CarDataManager.getInstance();
+
         try {
             mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
@@ -279,13 +284,28 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
             IntentProxyObject proxyObject = new IntentProxyObject();
 
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
-            startActivityForResult(intent, RC_SETTINGS);
+
+            if(GlobalApplication.getCurrentUser() == null) {
+                NetworkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
+                            startActivityForResult(intent, RC_SETTINGS);
+                        } else {
+                            Log.e(TAG, "Get user error: " + requestError.getMessage());
+                        }
+                    }
+                });
+            } else {
+                startActivityForResult(intent, RC_SETTINGS);
+            }
 
         } else if(id == R.id.action_car_history) {
             try {
@@ -343,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 } else {
-                    dashboardCar = (Car) data.getSerializableExtra(CAR_EXTRA);
+                    dashboardCar = carDataManager.getDashboardCar();
                     sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
                 }
             } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
@@ -367,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     protected void onPause() {
         Log.i(TAG, "onPause");
+        carDataManager.setDashboardCar(dashboardCar);
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
 
@@ -430,8 +451,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
+                carDataManager.setDashboardCar(dashboardCar);
                 Intent intent = new Intent(MainActivity.this, CarScanActivity.class);
-                intent.putExtra(CAR_EXTRA,dashboardCar);
                 startActivityForResult(intent, RC_SCAN_CAR);
             }
         });
@@ -918,7 +939,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         if(hasCars) {
             intent.putExtra(HAS_CAR_IN_DASHBOARD, true);
-            intent.putExtra(CAR_EXTRA, dashboardCar);
+            CarDataManager.getInstance().setDashboardCar(dashboardCar);
         }
         startActivityForResult(intent, RC_ADD_CAR);
     }
@@ -928,12 +949,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         for(Car car : carList) {
             if(car.getId() == currentCarId) {
-                dashboardCar = car;
+                carDataManager.setDashboardCar(car);
+                dashboardCar = carDataManager.getDashboardCar();
                 return;
             }
         }
 
-        dashboardCar = carList.get(0);
+        carDataManager.setDashboardCar(carList.get(0));
+        dashboardCar = carDataManager.getDashboardCar();
         dashboardCar.setCurrentCar(true);
         carLocalStore.updateCar(dashboardCar);
 
@@ -1127,9 +1150,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             e.printStackTrace();
                         }
 
+                        carDataManager.setDashboardCar(dashboardCar);
+
                         Intent intent = new Intent(MainActivity.this, DisplayItemActivity.class);
                         intent.putExtra(CAR_ISSUE_EXTRA, carIssueList.get(position));
-                        intent.putExtra(CAR_EXTRA,dashboardCar);
                         startActivityForResult(intent, RC_DISPLAY_ISSUE);
                     }
                 });
