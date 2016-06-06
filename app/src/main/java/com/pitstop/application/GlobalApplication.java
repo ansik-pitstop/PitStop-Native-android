@@ -27,6 +27,9 @@ public class GlobalApplication extends Application {
     public final static String pfUserName = "com.pitstop.user_name";
     public final static String pfPassword = "com.pitstop.password";
     public final static String pfUserId = "com.pitstop.user_id";
+    public final static String pfAccessToken = "com.pitstop.access";
+    public final static String pfRefreshToken = "com.pitstop.refresh";
+    public final static String pfLoggedIn = "com.pitstop.logged_in";
 
     private static MixpanelAPI mixpanelAPI;
 
@@ -110,12 +113,13 @@ public class GlobalApplication extends Application {
         }
     }
 
-    public void logInUser(String userName, String userPassword, User currentUser) {
+    public void logInUser(String accessToken, String refreshToken, User currentUser) {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putString(pfUserName, userName);
-        editor.putString(pfPassword, userPassword);
+        editor.putString(pfAccessToken, accessToken);
+        editor.putString(pfRefreshToken, refreshToken);
+        editor.putBoolean(pfLoggedIn, true);
         editor.apply();
         setCurrentUser(currentUser);
     }
@@ -133,9 +137,7 @@ public class GlobalApplication extends Application {
 
     public boolean isLoggedIn() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        boolean a = settings.getString(pfUserName, null) == null;
-        boolean b = settings.getString(pfPassword, null) == null;
-        return !(a || b);
+        return settings.getBoolean(pfLoggedIn, false);
     }
 
     public void setCurrentUser(User user) {
@@ -149,6 +151,25 @@ public class GlobalApplication extends Application {
         editor.apply();
     }
 
+    public void setTokens(String accessToken, String refreshToken) {
+        SharedPreferences.Editor prefEditor = getSharedPreferences(pfName, MODE_PRIVATE).edit();
+
+        prefEditor.putString(pfAccessToken, accessToken);
+        prefEditor.putString(pfRefreshToken, refreshToken);
+
+        prefEditor.commit();
+    }
+
+    public String getAccessToken() {
+        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        return settings.getString(pfAccessToken, null);
+    }
+
+    public String getRefreshToken() {
+        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        return settings.getString(pfRefreshToken, null);
+    }
+
     public void logOutUser() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -156,6 +177,9 @@ public class GlobalApplication extends Application {
         editor.putString(pfUserName, null);
         editor.putString(pfPassword, null);
         editor.putInt(pfUserId, -1);
+        editor.putString(pfAccessToken, null);
+        editor.putString(pfRefreshToken, null);
+        editor.putBoolean(pfLoggedIn, false);
         editor.apply();
 
         currentUser = null;

@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
+import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
@@ -100,17 +101,6 @@ public class SplashScreen extends AppCompatActivity {
 
         setUpUIReferences();
 
-        final SharedPreferences settings = getSharedPreferences(GlobalApplication.pfName, MODE_PRIVATE);
-
-        if (!application.isLoggedIn()) {
-            Log.i(TAG, "Not logged in");
-        } else {
-            showLoading("Logging in...");
-
-            login(settings.getString(GlobalApplication.pfUserName, ""), settings.getString(GlobalApplication.pfPassword, ""));
-        }
-
-
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new SplashSlidePagerAdapter(getSupportFragmentManager());
@@ -178,6 +168,25 @@ public class SplashScreen extends AppCompatActivity {
             mixpanelHelper.trackAppStatus(MixpanelHelper.APP_LAUNCHED);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if(currentUser != null) {
+            Log.wtf("session token", currentUser.getSessionToken());
+            Log.wtf("user id", currentUser.getObjectId());
+            showLoading("Logging in");
+            loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
+        } else if (!application.isLoggedIn()
+                || application.getAccessToken() == null || application.getRefreshToken() == null) {
+            Log.i(TAG, "Not logged in");
+        } else {
+            showLoading("Logging in...");
+
+            Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra(LOGIN_REFRESH, true);
+            intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+            startActivity(intent);
         }
     }
 
@@ -324,15 +333,51 @@ public class SplashScreen extends AppCompatActivity {
         }
     }
 
+    private void loginParse(final String userId, final String sessionId) {
+        NetworkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                hideLoading();
+                if(requestError == null) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        User user = User.jsonToUserObject(response);
+                        String accessToken = jsonObject.getString("accessToken");
+                        String refreshToken = jsonObject.getString("refreshToken");
+                        application.logInUser(accessToken, refreshToken, user);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    GlobalApplication.setUpMixPanel();
+
+                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra(LOGIN_REFRESH, true);
+                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+                    startActivity(intent);
+                } else {
+
+                }
+            }
+        });
+    }
+
     private void login(final String username, final String password) {
         NetworkHelper.loginAsync(username, password, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
                 if(requestError == null) {
-                    User user = User.jsonToUserObject(response);
-                    application.logInUser(username, password, user);
-
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        User user = User.jsonToUserObject(response);
+                        String accessToken = jsonObject.getString("accessToken");
+                        String refreshToken = jsonObject.getString("refreshToken");
+                        application.logInUser(accessToken, refreshToken, user);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     GlobalApplication.setUpMixPanel();
 
                     Intent intent = new Intent(SplashScreen.this, MainActivity.class);
@@ -354,6 +399,8 @@ public class SplashScreen extends AppCompatActivity {
             }
         });
     }
+
+
 
     public void login(View view) {
         try {

@@ -11,6 +11,7 @@ import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
+import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,9 +22,11 @@ import java.util.List;
 /**
  * Created by Ben Wu on 2016-05-20.
  */
-public class NetworkHelper {
+public class NetworkHelper { // TODO: set headers
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
+
+    private static GlobalApplication application;
 
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager
@@ -141,26 +144,8 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
-    public static void updateLastName(int userId, String newName, RequestCallback callback) {
-        Log.i(TAG, "updateLastName: userId: " + userId + " newName: " + newName);
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("userId", userId);
-            body.put("lastName", newName);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        new HttpRequest.Builder().uri("user")
-                .requestType(RequestType.PUT)
-                .requestCallBack(callback)
-                .body(body)
-                .createRequest().executeAsync();
-    }
-
     public static void loginAsync(String userName, String password, RequestCallback callback) {
-
+        Log.i(TAG, "login");
         JSONObject credentials = new JSONObject();
         try {
             credentials.put("username", userName);
@@ -176,7 +161,26 @@ public class NetworkHelper {
                 .createRequest().executeAsync();
     }
 
+    // for logged in parse user
+    public static void loginLegacy(String userId, String sessionToken, RequestCallback callback) {
+        Log.i(TAG, "login legacy");
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("userId", userId);
+            credentials.put("sessionToken", sessionToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new HttpRequest.Builder().uri("login/legacy")
+                .requestType(RequestType.POST)
+                .body(credentials)
+                .requestCallBack(callback)
+                .createRequest().executeAsync();
+    }
+
     public static void signUpAsync(JSONObject newUser, RequestCallback callback) {
+        Log.i(TAG, "signup");
         new HttpRequest.Builder().uri("user")
                 .requestType(RequestType.POST)
                 .body(newUser)
