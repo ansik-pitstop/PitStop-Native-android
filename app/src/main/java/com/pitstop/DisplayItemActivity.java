@@ -188,8 +188,8 @@ public class DisplayItemActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested','1'"));
+                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                    + "','Device':'Android','Number of Services Requested':'1'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -220,6 +220,7 @@ public class DisplayItemActivity extends AppCompatActivity {
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(DisplayItemActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                            NetworkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
                             Toast.makeText(DisplayItemActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();

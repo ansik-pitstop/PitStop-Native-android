@@ -218,6 +218,20 @@ public class NetworkHelper {
         put("issue", callback, body);
     }
 
+    public static void servicePending(int carId, int issueId, RequestCallback callback) {
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("carId", carId);
+            body.put("issueId", issueId);
+            body.put("status", CarIssue.ISSUE_PENDING);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        put("issue", callback, body);
+    }
+
     public static void createNewScanner(int carId, String scannerId, RequestCallback callback) {
         JSONObject body = new JSONObject();
 
@@ -286,6 +300,7 @@ public class NetworkHelper {
         }
 
         post("utility/serviceRequest", callback, body);
+
     }
 
     public static void requestService(int userId, int carId, int shopId, String comments,

@@ -54,6 +54,7 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -398,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             proxyObject.setCarList(carList);
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
 
-            if(GlobalApplication.getCurrentUser() == null) {
+            if(application.getCurrentUser() == null) {
                 NetworkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
@@ -614,12 +615,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 customProperties.put("Car Make",  dashboardCar.getMake());
                 customProperties.put("Car Model", dashboardCar.getModel());
                 customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Phone", GlobalApplication.getCurrentUser().getPhone());
+                customProperties.put("Phone", application.getCurrentUser().getPhone());
                 Log.i(TAG, dashboardCar.getDealership().getEmail());
                 customProperties.put("Email",dashboardCar.getDealership().getEmail());
                 User.getCurrentUser().addProperties(customProperties);
-                User.getCurrentUser().setFirstName(GlobalApplication.getCurrentUser().getFirstName());
-                User.getCurrentUser().setEmail(GlobalApplication.getCurrentUser().getEmail());
+                User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
+                User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
                 ConversationActivity.show(MainActivity.this);
             }
         });
@@ -821,6 +822,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(MainActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                            for(CarIssue issue : dashboardCar.getActiveIssues()) {
+                                NetworkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                            }
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
                             Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();

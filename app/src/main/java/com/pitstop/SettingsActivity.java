@@ -30,6 +30,7 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
@@ -157,6 +158,8 @@ public class SettingsActivity extends AppCompatActivity {
         private Car mainCar;
         private LocalCarAdapter localCarAdapter;
         private LocalShopAdapter shopAdapter;
+
+        private User currentUser;
 
         private MixpanelHelper mixpanelHelper;
 
@@ -292,7 +295,7 @@ public class SettingsActivity extends AppCompatActivity {
                             listener.localUpdatePerformed();
                         }
 
-                        NetworkHelper.getCarsByUserId(application.getCurrentUserId(), new RequestCallback() {
+                        NetworkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if(requestError == null) {
@@ -331,11 +334,13 @@ public class SettingsActivity extends AppCompatActivity {
 
             application = (GlobalApplication) getActivity().getApplicationContext();
 
+            currentUser = application.getCurrentUser();
+
             addPreferencesFromResource(R.xml.preferences);
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(String.format("%s %s",
-                    GlobalApplication.getCurrentUser().getFirstName(),
-                    GlobalApplication.getCurrentUser().getLastName() == null ? "" : GlobalApplication.getCurrentUser().getLastName()));
+                    currentUser.getFirstName(),
+                    currentUser.getLastName() == null ? "" : currentUser.getLastName()));
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -352,10 +357,10 @@ public class SettingsActivity extends AppCompatActivity {
                     changeNameLayout.setLayoutParams(lp);
 
                     final EditText firstNameInput = new EditText(getActivity());
-                    firstNameInput.setText(GlobalApplication.getCurrentUser().getFirstName());
+                    firstNameInput.setText(currentUser.getFirstName());
 
                     final EditText lastNameInput = new EditText(getActivity());
-                    lastNameInput.setText(GlobalApplication.getCurrentUser().getLastName());
+                    lastNameInput.setText(currentUser.getLastName());
 
                     changeNameLayout.addView(firstNameInput);
                     changeNameLayout.addView(lastNameInput);
@@ -385,10 +390,10 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             Preference emailPreference = findPreference(getString(R.string.pref_email_key));
-            emailPreference.setTitle(GlobalApplication.getCurrentUser().getEmail());
+            emailPreference.setTitle(currentUser.getEmail());
 
             Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
-            phoneNumberPreference.setTitle(GlobalApplication.getCurrentUser().getPhone());
+            phoneNumberPreference.setTitle(currentUser.getPhone());
 
             findPreference(getString(R.string.pref_privacy_policy)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -484,10 +489,9 @@ public class SettingsActivity extends AppCompatActivity {
 
                         Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
 
-                        User updatedUser = GlobalApplication.getCurrentUser();
-                        updatedUser.setFirstName(firstName);
-                        updatedUser.setLastName(lastName);
-                        application.setCurrentUser(updatedUser);
+                        currentUser.setFirstName(firstName);
+                        currentUser.setLastName(lastName);
+                        application.setCurrentUser(currentUser);
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     }

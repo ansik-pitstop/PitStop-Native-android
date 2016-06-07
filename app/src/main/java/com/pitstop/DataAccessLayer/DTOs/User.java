@@ -1,6 +1,7 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
 import com.castel.obd.util.JsonUtil;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
@@ -12,11 +13,8 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    //@Expose(serialize = false, deserialize = false)
-    //private int id;
+    private int id;
 
-    @SerializedName("id")
-    private int userId;
     private String firstName;
     private String lastName;
     private String email;
@@ -30,13 +28,13 @@ public class User implements Serializable {
 
     public User() {}
 
-    //public int getId() {
-    //    return id;
-    //}
-//
-    //public void setId(int id) {
-    //    this.id = id;
-    //}
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -110,23 +108,15 @@ public class User implements Serializable {
         this.verifiedEmail = verifiedEmail;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public static User jsonToUserObject(String json) {
         User user = null;
         try {
             user = JsonUtil.json2object(json, User.class);
 
-            if(user.getUserId() == 0) {
+            if(user.getId() == 0) {
                 user = new User();
                 JSONObject userJson = new JSONObject(json).getJSONObject("user");
-                user.setUserId(userJson.getInt("id"));
+                user.setId(userJson.getInt("id"));
                 user.setFirstName(userJson.getString("firstName"));
                 user.setLastName(userJson.getString("lastName"));
                 user.setEmail(userJson.getString("email"));

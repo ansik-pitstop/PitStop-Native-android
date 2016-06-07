@@ -13,6 +13,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
 import io.smooch.core.Smooch;
@@ -39,9 +40,13 @@ public class GlobalApplication extends Application {
 
     private static User currentUser;
 
+    private UserAdapter userAdapter;
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        userAdapter = new UserAdapter(this);
 
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
@@ -53,8 +58,8 @@ public class GlobalApplication extends Application {
 
     public static void setUpMixPanel(){
         if(currentUser!=null) {
-            mixpanelAPI.identify(String.valueOf(currentUser.getUserId()));
-            mixpanelAPI.getPeople().identify(String.valueOf(currentUser.getUserId()));
+            mixpanelAPI.identify(String.valueOf(currentUser.getId()));
+            mixpanelAPI.getPeople().identify(String.valueOf(currentUser.getId()));
             mixpanelAPI.getPeople().set("$phone", currentUser.getPhone());
             mixpanelAPI.getPeople().set("$name", currentUser.getFirstName());
             mixpanelAPI.getPeople().set("$email", currentUser.getEmail());
@@ -139,8 +144,8 @@ public class GlobalApplication extends Application {
         return settings.getInt(GlobalApplication.pfUserId, -1);
     }
 
-    public static User getCurrentUser() {
-        return currentUser;
+    public User getCurrentUser() {
+        return userAdapter.getUser();
     }
 
     public boolean isLoggedIn() {
@@ -150,13 +155,13 @@ public class GlobalApplication extends Application {
 
     public void setCurrentUser(User user) {
         currentUser = user;
-        Log.i(TAG, "UserId:"+currentUser.getUserId());
+        Log.i(TAG, "UserId:"+currentUser.getId());
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-
-        //editor.putString(pfUserName, currentUser.getUserName());
-        editor.putInt(pfUserId, currentUser.getUserId());
+        editor.putInt(pfUserId, currentUser.getId());
         editor.apply();
+
+        userAdapter.storeUserData(user);
     }
 
     public void setTokens(String accessToken, String refreshToken) {
@@ -195,7 +200,7 @@ public class GlobalApplication extends Application {
 
         ParseUser.logOut();
 
-        currentUser = null;
+        userAdapter.deleteAllUsers();
     }
 
 }
