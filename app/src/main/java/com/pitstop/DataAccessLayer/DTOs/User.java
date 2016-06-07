@@ -1,7 +1,6 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
@@ -13,9 +12,10 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    @Expose(serialize = false, deserialize = false)
-    private int id;
+    //@Expose(serialize = false, deserialize = false)
+    //private int id;
 
+    @SerializedName("id")
     private int userId;
     private String firstName;
     private String lastName;
@@ -24,19 +24,19 @@ public class User implements Serializable {
     private String password;
     //authData
     private boolean activated;
-    private String phoneNumber;
+    private String phone;
     private String role;
     private boolean verifiedEmail;
 
     public User() {}
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    //public int getId() {
+    //    return id;
+    //}
+//
+    //public void setId(int id) {
+    //    this.id = id;
+    //}
 
     public String getFirstName() {
         return firstName;
@@ -86,12 +86,12 @@ public class User implements Serializable {
         this.activated = activated;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {
@@ -130,7 +130,7 @@ public class User implements Serializable {
                 user.setFirstName(userJson.getString("firstName"));
                 user.setLastName(userJson.getString("lastName"));
                 user.setEmail(userJson.getString("email"));
-                user.setPhoneNumber(userJson.getString("phone"));
+                user.setPhone(userJson.getString("phone"));
             }
         } catch (Exception e) {
             e.printStackTrace();

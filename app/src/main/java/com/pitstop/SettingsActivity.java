@@ -388,7 +388,7 @@ public class SettingsActivity extends AppCompatActivity {
             emailPreference.setTitle(GlobalApplication.getCurrentUser().getEmail());
 
             Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
-            phoneNumberPreference.setTitle(GlobalApplication.getCurrentUser().getPhoneNumber());
+            phoneNumberPreference.setTitle(GlobalApplication.getCurrentUser().getPhone());
 
             findPreference(getString(R.string.pref_privacy_policy)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override

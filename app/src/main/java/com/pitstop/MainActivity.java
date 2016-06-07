@@ -66,6 +66,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -613,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 customProperties.put("Car Make",  dashboardCar.getMake());
                 customProperties.put("Car Model", dashboardCar.getModel());
                 customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Phone", GlobalApplication.getCurrentUser().getPhoneNumber());
+                customProperties.put("Phone", GlobalApplication.getCurrentUser().getPhone());
                 Log.i(TAG, dashboardCar.getDealership().getEmail());
                 customProperties.put("Email",dashboardCar.getDealership().getEmail());
                 User.getCurrentUser().addProperties(customProperties);
@@ -683,6 +684,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             @Override
                             public void onDismissedBySwipeLeft(final RecyclerView recyclerView,
                                                                final int[] reverseSortedPositions) {
+
+                                /*new DatePickerDialog(MainActivity.this,
+                                        new DatePickerDialog.OnDateSetListener() {
+                                            @Override
+                                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+
+                                            }
+                                        },
+
+                                )*/
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTimeInMillis(System.currentTimeMillis());
+                                Log.wtf(TAG, "" + calendar.toString());
 
                                 final CharSequence[] times = new CharSequence[]{
                                         "Recently", "2 Weeks Ago", "A Month Ago",

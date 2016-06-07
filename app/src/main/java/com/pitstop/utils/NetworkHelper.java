@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by Ben Wu on 2016-05-20.
  */
-public class NetworkHelper { // TODO: set headers
+public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
@@ -37,7 +37,7 @@ public class NetworkHelper { // TODO: set headers
 
     private static void post(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .header("clientId", devToken) // TODO : put in tokens for prod
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -47,7 +47,7 @@ public class NetworkHelper { // TODO: set headers
 
     private static void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .header("clientId", devToken)
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .createRequest()
@@ -56,7 +56,7 @@ public class NetworkHelper { // TODO: set headers
 
     private static void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .header("clientId", devToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
