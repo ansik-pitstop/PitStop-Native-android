@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -143,6 +144,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private SharedPreferences sharedPreferences;
 
+    private boolean dialogShowing = false;
+
     public static String TAG = MainActivity.class.getSimpleName();
 
     private BluetoothAutoConnectService autoConnectService;
@@ -194,14 +197,117 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         && dashboardCar.getScannerId() != null
                         && dashboardCar.getScannerId()
                         .equals(autoConnectService.getCurrentDeviceId())) {
+
                     updateConnectedCarIndicator(true);
+
+                } else if(autoConnectService != null
+                        && !dialogShowing
+                        && dashboardCar != null
+                        && (dashboardCar.getScannerId() == null || dashboardCar.getScannerId().isEmpty())
+                        && autoConnectService.getCurrentDeviceId() != null
+                        && carLocalStore.getCarByScanner(autoConnectService.getCurrentDeviceId()) == null) {
+
+                    final ArrayList<Car> selectedCar = new ArrayList<>(1); // must be final because this is accessed in the inner class
+                    final CarListAdapter carAdapter = new CarListAdapter(carList);
+
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("New Module Detected. Please select the car this device is connected to.");
+                    dialog.setSingleChoiceItems(carAdapter, -1, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            selectedCar.clear();
+                            selectedCar.add((Car) carAdapter.getItem(which));
+                        }
+                    });
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+
+                            if (selectedCar.isEmpty()) {
+                                return;
+                            }
+
+                            NetworkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
+                                    new RequestCallback() {
+                                        @Override
+                                        public void done(String response, RequestError requestError) {
+                                            if(requestError == null) {
+                                                Toast.makeText(MainActivity.this, "Device added successfullY", Toast.LENGTH_SHORT).show();
+                                                sharedPreferences.edit().putInt(pfCurrentCar, selectedCar.get(0).getId()).commit();
+                                                refreshFromServer();
+                                            } else {
+                                                Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        }
+                    });
+
+                    dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            dialogShowing = false;
+                        }
+                    });
+
+                    dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            dialogShowing = false;
+                        }
+                    });
+
+                    dialog.show();
+                    dialogShowing = true;
+
                 } else {
                     updateConnectedCarIndicator(false);
                 }
-                handler.post(carConnectedRunnable);
+                handler.postDelayed(carConnectedRunnable, 2000);
             }
         }
     };
+
+    private class CarListAdapter extends BaseAdapter {
+        private List<Car> ownedCars;
+
+        public CarListAdapter(List<Car> cars) {
+            ownedCars = cars;
+        }
+
+        @Override
+        public int getCount () {
+            return ownedCars.size();
+        }
+
+        @Override
+        public Object getItem (int position) {
+            return ownedCars.get(position);
+        }
+
+        @Override
+        public long getItemId (int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView (int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = convertView != null ? convertView :
+                    inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+            Car ownedCar = (Car) getItem(position);
+
+            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
+            carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
+            return rowView;
+        }
+    }
 
 
     Runnable carConnectedRunnable = new Runnable() {

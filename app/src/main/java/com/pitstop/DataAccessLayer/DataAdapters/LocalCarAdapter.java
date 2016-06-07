@@ -117,6 +117,25 @@ public class LocalCarAdapter {
     }
 
     /**
+     * Get car by scanner
+     */
+
+    public Car getCarByScanner(String scannerId) {
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR.TABLE_NAME,null,
+                TABLES.CAR.KEY_SCANNER_ID +"=?", new String[] {String.valueOf(scannerId)},null,null,null);
+        Car car = null;
+        if(c.moveToFirst()) {
+            car = cursorToCar(c);
+        }
+
+        db.close();
+        return car;
+    }
+
+    /**
      * Update car
      */
     public int updateCar(Car car) {

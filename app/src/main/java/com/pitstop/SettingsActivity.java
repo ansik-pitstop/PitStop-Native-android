@@ -431,9 +431,7 @@ public class SettingsActivity extends AppCompatActivity {
                     // Setting Negative "NO" Button
                     alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // Write your code here to invoke NO event
-                            //Toast.makeText(getActivity().getApplication(), "You clicked on NO", Toast.LENGTH_SHORT).show();
-                            dialog.cancel();
+                            dialog.dismiss();
                         }
                     });
 
@@ -541,10 +539,16 @@ public class SettingsActivity extends AppCompatActivity {
 
                 }
             });
+            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
             dialog.show();
         }
 
-        class CarListAdapter extends BaseAdapter {
+        private class CarListAdapter extends BaseAdapter {
             private List<Car> ownedCars;
 
             public CarListAdapter(List<Car> cars) {
@@ -575,7 +579,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Car ownedCar = (Car) getItem(position);
 
                 TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
-                carName.setText(ownedCar.getMake() + " " + ownedCar.getModel());
+                carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
                 return rowView;
             }
         }
