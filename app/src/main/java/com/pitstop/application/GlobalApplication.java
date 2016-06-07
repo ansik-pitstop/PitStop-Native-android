@@ -28,9 +28,10 @@ public class GlobalApplication extends Application {
     public final static String pfUserName = "com.pitstop.user_name";
     public final static String pfPassword = "com.pitstop.password";
     public final static String pfUserId = "com.pitstop.user_id";
-    public final static String pfAccessToken = "com.pitstop.access";
-    public final static String pfRefreshToken = "com.pitstop.refresh";
     public final static String pfLoggedIn = "com.pitstop.logged_in";
+
+    private static String accessToken;
+    private static String refreshToken;
 
     private static MixpanelAPI mixpanelAPI;
 
@@ -117,11 +118,12 @@ public class GlobalApplication extends Application {
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-
-        editor.putString(pfAccessToken, accessToken);
-        editor.putString(pfRefreshToken, refreshToken);
         editor.putBoolean(pfLoggedIn, true);
         editor.apply();
+
+        GlobalApplication.refreshToken = refreshToken;
+        GlobalApplication.accessToken = accessToken;
+
         setCurrentUser(currentUser);
     }
 
@@ -152,23 +154,12 @@ public class GlobalApplication extends Application {
         editor.apply();
     }
 
-    public void setTokens(String accessToken, String refreshToken) {
-        SharedPreferences.Editor prefEditor = getSharedPreferences(pfName, MODE_PRIVATE).edit();
-
-        prefEditor.putString(pfAccessToken, accessToken);
-        prefEditor.putString(pfRefreshToken, refreshToken);
-
-        prefEditor.commit();
+    public static String getAccessToken() {
+        return accessToken;
     }
 
-    public String getAccessToken() {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfAccessToken, null);
-    }
-
-    public String getRefreshToken() {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfRefreshToken, null);
+    public static String getRefreshToken() {
+        return refreshToken;
     }
 
     public void logOutUser() {
@@ -178,10 +169,11 @@ public class GlobalApplication extends Application {
         editor.putString(pfUserName, null);
         editor.putString(pfPassword, null);
         editor.putInt(pfUserId, -1);
-        editor.putString(pfAccessToken, null);
-        editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
         editor.apply();
+
+        accessToken = null;
+        refreshToken = null;
 
         ParseUser.logOut();
 

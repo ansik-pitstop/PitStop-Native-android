@@ -3,10 +3,10 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.castel.obd.info.PIDInfo;
+import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -26,13 +26,42 @@ public class NetworkHelper { // TODO: set headers
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static GlobalApplication application;
+    private static final String devToken = "DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD";
 
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private static void post(String uri, RequestCallback callback, JSONObject body) {
+        new HttpRequest.Builder().uri(uri)
+                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .body(body)
+                .requestCallBack(callback)
+                .requestType(RequestType.POST)
+                .createRequest()
+                .executeAsync();
+    }
+
+    private static void get(String uri, RequestCallback callback) {
+        new HttpRequest.Builder().uri(uri)
+                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .requestCallBack(callback)
+                .requestType(RequestType.GET)
+                .createRequest()
+                .executeAsync();
+    }
+
+    private static void put(String uri, RequestCallback callback, JSONObject body) {
+        new HttpRequest.Builder().uri(uri)
+                .header("clientId", BuildConfig.DEBUG ? devToken : GlobalApplication.getAccessToken())
+                .body(body)
+                .requestCallBack(callback)
+                .requestType(RequestType.PUT)
+                .createRequest()
+                .executeAsync();
     }
 
     public static void createNewCar(int userId, int mileage, String vin, String scannerId,
@@ -50,35 +79,22 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("car")
-                .requestType(RequestType.POST)
-                .requestCallBack(callback)
-                .body(body)
-                .createRequest().executeAsync();
+        post("car", callback, body);
     }
 
     public static void getCarsByUserId(int userId, RequestCallback callback) {
         Log.i(TAG, "getCarsByUserId: " + userId);
-        new HttpRequest.Builder().uri("car/?userId=" + userId)
-                .requestType(RequestType.GET)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        get("car/?userId=" + userId, callback);
     }
 
     public static void getCarsByVin(String vin, RequestCallback callback) {
         Log.i(TAG, "getCarsByVin: " + vin);
-        new HttpRequest.Builder().uri("car/?vin=" + vin)
-                .requestType(RequestType.GET)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        get("car/?vin=" + vin, callback);
     }
 
     public static void getCarsById(int carId, RequestCallback callback) {
         Log.i(TAG, "getCarsById: " + carId);
-        new HttpRequest.Builder().uri("car/" + carId)
-                .requestType(RequestType.GET)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        get("car/" + carId, callback);
     }
 
     public static void updateCarMileage(int carId, int mileage, RequestCallback callback) {
@@ -92,11 +108,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("car")
-                .requestType(RequestType.PUT)
-                .requestCallBack(callback)
-                .body(body)
-                .createRequest().executeAsync();
+        put("car", callback, body);
     }
 
     public static void updateCarShop(int carId, int shopId, RequestCallback callback) {
@@ -110,19 +122,12 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("car")
-                .requestType(RequestType.PUT)
-                .requestCallBack(callback)
-                .body(body)
-                .createRequest().executeAsync();
+        put("car", callback, body);
     }
 
     public static void getShops(RequestCallback callback) {
         Log.i(TAG, "getShops");
-        new HttpRequest.Builder().uri("shop")
-                .requestType(RequestType.GET)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        get("shop", callback);
     }
 
     public static void updateFirstName(int userId, String firstName, String lastName, RequestCallback callback) {
@@ -137,11 +142,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("user")
-                .requestType(RequestType.PUT)
-                .requestCallBack(callback)
-                .body(body)
-                .createRequest().executeAsync();
+        put("user", callback, body);
     }
 
     public static void loginAsync(String userName, String password, RequestCallback callback) {
@@ -154,11 +155,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("login")
-                .requestType(RequestType.POST)
-                .body(credentials)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("login", callback, credentials);
     }
 
     // for logged in parse user
@@ -172,27 +169,17 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("login/legacy")
-                .requestType(RequestType.POST)
-                .body(credentials)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("login/legacy", callback, credentials);
     }
 
     public static void signUpAsync(JSONObject newUser, RequestCallback callback) {
         Log.i(TAG, "signup");
-        new HttpRequest.Builder().uri("user")
-                .requestType(RequestType.POST)
-                .body(newUser)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("user", callback, newUser);
     }
 
     public static void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending,
                                  List<PIDInfo> freezeData, RequestCallback callback) {
         JSONObject body = new JSONObject();
-        // TODO: put actual freeze data
-
         JSONArray data = new JSONArray();
 
         try {
@@ -212,11 +199,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("issue")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("issue", callback, body);
     }
 
     public static void serviceDone(int carId, int issueId, int daysAgo, int mileage, RequestCallback callback) {
@@ -232,11 +215,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("issue")
-                .requestType(RequestType.PUT)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        put("issue", callback, body);
     }
 
     public static void createNewScanner(int carId, String scannerId, RequestCallback callback) {
@@ -249,11 +228,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("scanner")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("scanner", callback, body);
     }
 
     public static void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
@@ -267,11 +242,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("scan/freezeData")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("scan/freezeData", callback, body);
     }
 
     public static void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
@@ -286,11 +257,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("scan/tripMileage")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("scan/tripMileage", callback, body);
     }
 
     public static void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
@@ -303,11 +270,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("scan/pids")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("scan/pids", callback, body);
     }
 
     public static void requestService(int userId, int carId, int shopId, String comments,
@@ -322,11 +285,7 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("utility/serviceRequest")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("utility/serviceRequest", callback, body);
     }
 
     public static void requestService(int userId, int carId, int shopId, String comments,
@@ -342,18 +301,11 @@ public class NetworkHelper { // TODO: set headers
             e.printStackTrace();
         }
 
-        new HttpRequest.Builder().uri("utility/serviceRequest")
-                .requestType(RequestType.POST)
-                .body(body)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        post("utility/serviceRequest", callback, body);
     }
 
     public static void getUser(int userId, RequestCallback callback) {
         Log.i(TAG, "getUser: " + userId);
-        new HttpRequest.Builder().uri("user/" + userId)
-                .requestType(RequestType.GET)
-                .requestCallBack(callback)
-                .createRequest().executeAsync();
+        get("user/" + userId, callback);
     }
 }
