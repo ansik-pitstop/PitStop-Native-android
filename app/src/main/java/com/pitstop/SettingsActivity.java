@@ -334,7 +334,8 @@ public class SettingsActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.preferences);
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(String.format("%s %s",
-                    GlobalApplication.getCurrentUser().getFirstName(), GlobalApplication.getCurrentUser().getLastName()));
+                    GlobalApplication.getCurrentUser().getFirstName(),
+                    GlobalApplication.getCurrentUser().getLastName() == null ? "" : GlobalApplication.getCurrentUser().getLastName()));
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
