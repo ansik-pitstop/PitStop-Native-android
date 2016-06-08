@@ -349,10 +349,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         carDataManager = CarDataManager.getInstance();
 
-        try {
-            mixpanelHelper.trackViewAppeared(TAG);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        // Always refresh from the server if entering from log in activity
+        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+            Log.i(TAG, "refresh from login");
+            refreshFromServer();
+        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            // In the event the user pressed back button while in the select dealership activity
+            // then load required data from local db.
+            refreshFromLocal();
+        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            // On opening a push notification, load required data from server
+            refreshFromServer();
+        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+            refreshFromServer();
         }
     }
 
@@ -442,21 +451,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-
-        // Always refresh from the server if resuming from log in activity
-        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-            Log.i(TAG, "refresh from login");
-            refreshFromServer();
-        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // In the event the user pressed back button while in the select dealership activity
-            // then load required data from local db.
-            refreshFromLocal();
-        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // On opening a push notification, load required data from server
-            refreshFromServer();
-        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-            refreshFromServer();
         }
 
         handler.postDelayed(carConnectedRunnable, 1000);
