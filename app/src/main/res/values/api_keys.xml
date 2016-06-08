@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="mashape_key">Rg3YqzHEJmmshZIoHi4smSVbZvudp1ywHEEjsn0dR4DyKVyF5z</string>
     <string name="parse_appID_prod">NdSgPCykUoMT6jQd35LVYjf4MjayAL1PcSvSCxUo</string>
     <string name="parse_clientID_prod">dkLeQT0VbB5G5eF6qbwjnUM0km6iou5LVcf7uxEs</string>
     <string name="parse_appID_dev">3ELjpfdU7OpLr3En6op36zVLyV1OTJv0Xf59mYS8</string>

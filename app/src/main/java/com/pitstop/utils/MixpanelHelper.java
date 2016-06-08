@@ -1,6 +1,6 @@
 package com.pitstop.utils;
 
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +10,7 @@ import org.json.JSONObject;
  */
 public class MixpanelHelper {
 
-    private ParseApplication application;
+    private GlobalApplication application;
 
     public static final String APP_LAUNCHED = "Launched";
     public static final String APP_LAUNCHED_FROM_PUSH = "Launched from Push";
@@ -24,7 +24,7 @@ public class MixpanelHelper {
     public static final String ADDED_MANUALLY = "Car Added Manually";
     public static final String ADDED_WITH_DEVICE = "Car Added Through Device";
 
-    public MixpanelHelper(ParseApplication context) {
+    public MixpanelHelper(GlobalApplication context) {
         application = context;
     }
 

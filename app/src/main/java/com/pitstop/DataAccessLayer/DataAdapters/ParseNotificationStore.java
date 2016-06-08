@@ -20,7 +20,7 @@ public class ParseNotificationStore {
             + TABLES.NOTIFICATION.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.NOTIFICATION.KEY_TITLE + " TEXT, "
             + TABLES.NOTIFICATION.KEY_ALERT + " TEXT, "
-            + TABLES.COMMON.KEY_PARSE_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " TEXT, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
 
@@ -37,7 +37,7 @@ public class ParseNotificationStore {
         ContentValues values = new ContentValues();
         values.put(TABLES.NOTIFICATION.KEY_TITLE,parseNotification.getTitle());
         values.put(TABLES.NOTIFICATION.KEY_ALERT,parseNotification.getAlert());
-        values.put(TABLES.COMMON.KEY_PARSE_ID, parseNotification.getParsePushId());
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, parseNotification.getParsePushId());
 
         db.insert(TABLES.NOTIFICATION.TABLE_NAME, null, values);
         db.close();
@@ -77,7 +77,7 @@ public class ParseNotificationStore {
         parseNotification.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
         parseNotification.setTitle(c.getString(c.getColumnIndex(TABLES.NOTIFICATION.KEY_TITLE)));
         parseNotification.setAlert(c.getString(c.getColumnIndex(TABLES.NOTIFICATION.KEY_ALERT)));
-        parseNotification.setParsePushId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+        parseNotification.setParsePushId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         return parseNotification;
     }
 }

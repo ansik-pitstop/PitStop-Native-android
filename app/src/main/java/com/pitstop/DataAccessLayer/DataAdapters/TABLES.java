@@ -8,7 +8,7 @@ public final class TABLES {
     public interface COMMON {
         //Common column names
         String KEY_ID = "id";
-        String KEY_PARSE_ID = "parseId";
+        String KEY_OBJECT_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
     }
 
@@ -51,6 +51,16 @@ public final class TABLES {
         String KEY_DESCRIPTION = "description";
         String KEY_ACTION = "action";
         String KEY_CAR_ISSUE_ID = "carIssueId";
+    }
+
+    public interface USER {
+        String TABLE_NAME = "user";
+
+        String KEY_FIRST_NAME = "firstName";
+        String KEY_LAST_NAME = "lastName";
+        String KEY_EMAIL = "email";
+        String KEY_PHONE = "phone";
+
     }
 
     public interface SHOP {

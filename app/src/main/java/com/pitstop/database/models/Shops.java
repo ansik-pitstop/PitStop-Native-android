@@ -12,7 +12,7 @@ public class Shops extends DBModel{
 
     @Override
     protected void setUpTable() {
-        columns.put("ShopID","Text Primary Key");
+        columns.put("ShopID","Integer Primary Key");
         columns.put("name","Text");
         columns.put("address","Text");
         columns.put("email","Text");

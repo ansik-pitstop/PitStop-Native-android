@@ -2,6 +2,9 @@ package com.pitstop.DataAccessLayer.DTOs;
 
 import com.google.gson.annotations.Expose;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 /**
@@ -56,6 +59,16 @@ public class CarIssueDetail implements Serializable {
         carIssueDetail.setItem(item);
         carIssueDetail.setDescription(description);
         carIssueDetail.setAction(action);
+        return carIssueDetail;
+    }
+
+    public static CarIssueDetail createCarIssueDetail(JSONObject detailObject) throws JSONException {
+        CarIssueDetail carIssueDetail = new CarIssueDetail();
+
+        carIssueDetail.setItem(detailObject.getString("item"));
+        carIssueDetail.setDescription(detailObject.getString("description"));
+        carIssueDetail.setAction(detailObject.optString("action"));
+
         return carIssueDetail;
     }
 }

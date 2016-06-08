@@ -97,10 +97,18 @@ public class LocalPidAdapter {
 
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        for(Pid pid : pidDataEntries) {
-            db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
-                    new String[] { String.valueOf(pid.getId()) });
+        try {
+
+            for (Pid pid : pidDataEntries) {
+                db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
+                        new String[]{String.valueOf(pid.getId())});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(db != null && db.isOpen()) {
+                db.close();
+            }
         }
-        //db.close();
     }
 }

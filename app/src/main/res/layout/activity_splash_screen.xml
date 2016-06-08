@@ -36,7 +36,8 @@
                 android:textColor="#fff"
                 android:textColorHighlight="#fff"
                 android:textColorHint="#fff"
-                android:buttonTint="#fff" />
+                android:buttonTint="#fff"
+                style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -46,7 +47,8 @@
                 android:textColorHint="#fff"
                 android:textColorHighlight="#fff"
                 android:textColor="#fff"
-                android:buttonTint="#fff" />
+                android:buttonTint="#fff"
+                style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -56,7 +58,8 @@
                 android:textColorHint="#fff"
                 android:textColorHighlight="#fff"
                 android:textColor="#fff"
-                android:buttonTint="#fff" />
+                android:buttonTint="#fff"
+                style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
         </LinearLayout>
     </RelativeLayout>

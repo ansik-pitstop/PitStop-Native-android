@@ -17,26 +17,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class SelectDealershipActivity extends AppCompatActivity {
 
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     public static String SELECTED_DEALERSHIP = "selected_dealership";
@@ -63,7 +58,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         localStore = new LocalShopAdapter(this);
         setup();
@@ -97,15 +92,14 @@ public class SelectDealershipActivity extends AppCompatActivity {
         }
 
         if(id == R.id.log_out) {
-            ParseUser.logOut();
             navigateToLogin();
+            application.logOutUser();
         }
         return true;
     }
 
     @Override
     public void onBackPressed() {
-        String userId = null;
 
         Intent intent = getIntent();
         if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
@@ -120,41 +114,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
             mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
             startActivity(mainActivity);
 
-        } else if(ParseUser.getCurrentUser() != null) {
-
-            userId = ParseUser.getCurrentUser().getObjectId();
-
-            if(InternetChecker.isConnected(this)) {
-                Log.i(TAG, "Internet connection found");
-                //hadInternetConnection = true;
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Car");
-                query.whereContains("owner", userId);
-                progressBar.setVisibility(View.VISIBLE);
-                query.findInBackground(new FindCallback<ParseObject>() {
-
-
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        progressBar.setVisibility(View.GONE);
-                        if(e == null) {
-                            if (!objects.isEmpty()) {
-                                startActivity(new Intent(SelectDealershipActivity.this,
-                                        MainActivity.class));
-                            } else {
-                                if(hadInternetConnection) {
-                                    Toast.makeText(SelectDealershipActivity.this,
-                                            "Please select dealership",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    setup();
-                                }
-                            }
-                        } else {
-                            Log.i("ParseError",e.getMessage());
-                        }
-                    }
-                });
-            }
+        } else {
+            Toast.makeText(SelectDealershipActivity.this, "There are no cars in you dashboard", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -177,29 +138,35 @@ public class SelectDealershipActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
 
-        if(InternetChecker.isConnected(this)) {
+        if(NetworkHelper.isConnected(this)) {
             Log.i(TAG, "Internet connection found");
             hadInternetConnection = true;
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Shop");
 
             List<Dealership> dealerships = localStore.getAllDealerships();
             if(dealerships.isEmpty()) {
-                query.findInBackground(new FindCallback<ParseObject>() {
-
+                NetworkHelper.getShops(new RequestCallback() {
                     @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        progressBar.setVisibility(View.GONE);
-                        if(e == null) {
-                            List<Dealership> list = Dealership.createDealershipList(objects);
-                            localStore.storeDealerships(list);
-                            adapter = new CustomAdapter(list);
-                            recyclerView.setAdapter(adapter);
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            progressBar.setVisibility(View.GONE);
+                            Log.i(TAG, "Get shops response: " + response);
+                            try {
+                                List<Dealership> list = Dealership.createDealershipList(response);
+                                localStore.deleteAllDealerships();
+                                localStore.storeDealerships(list);
+                                adapter = new CustomAdapter(list);
+                                recyclerView.setAdapter(adapter);
+                            } catch (JSONException e) {
+                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+
             } else {
                 progressBar.setVisibility(View.GONE);
                 adapter = new CustomAdapter(dealerships);
@@ -239,7 +206,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(CustomAdapter.ViewHolder holder, int position) {
             final Dealership shop = shops.get(position);
-            final String displayedShopId = shop.getParseId();
+            final int displayedShopId = shop.getId();
 
             holder.dealershipName.setText(shop.getName());
             holder.dealershipAddress.setText(shop.getAddress());

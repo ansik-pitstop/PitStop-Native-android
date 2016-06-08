@@ -3,6 +3,7 @@
     <color name="highlight">#66bc46</color>
     <color name="primary">#427ec1</color>
     <color name="primary_dark">#12539e</color>
+    <color name="primary_light">#3895fe</color>
     <color name="highlight_dark">#1f974a</color>
     <color name="evcheck">#66bc46</color>
     <color name="evcheck_dark">#1f974a</color>

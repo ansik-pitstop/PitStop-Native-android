@@ -1,12 +1,9 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
-import android.util.Log;
-
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.parse.ParseObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -17,10 +14,9 @@ import java.util.List;
  * Created by Paul Soladoye on 2/11/2016.
  */
 public class Car implements Serializable {
-    @Expose(serialize = false, deserialize = false)
+
     private int id;
 
-    @SerializedName("id")
     private String parseId;
 
     private String make;
@@ -34,27 +30,19 @@ public class Car implements Serializable {
     private String highwayMileage;
     private int baseMileage;
     private int totalMileage;
-    private int numberOfRecalls = 0; //TODO fix recalls
+    private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;
 
     private String ownerId;
-    // TODO remove once api integration is complete
-    private String shopId;
-    private List<String> pendingEdmundServicesIds = new ArrayList<>();
-    private List<String> pendingIntervalServicesIds = new ArrayList<>();
-    private List<String> pendingFixedServicesIds = new ArrayList<>();
-    private List<String> storedDTCs = new ArrayList<>();
-    private List<String> pendingDTCs = new ArrayList<>();
+    private int userId;
+    private int shopId;
 
-    @SerializedName("shop")
-    private Dealership dealerShip;
+    private Dealership dealership;
     private boolean serviceDue;
 
-    private String scanner;
+    private String scannerId;
     private List<CarIssue> issues = new ArrayList<>();
-
-    private ParseObject parseObject;
 
     public Car() { }
 
@@ -170,12 +158,20 @@ public class Car implements Serializable {
         this.ownerId = ownerId;
     }
 
-    public Dealership getDealerShip() {
-        return dealerShip;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setDealerShip(Dealership dealerShip) {
-        this.dealerShip = dealerShip;
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public Dealership getDealership() {
+        return dealership;
+    }
+
+    public void setDealership(Dealership dealership) {
+        this.dealership = dealership;
     }
 
     public boolean isServiceDue() {
@@ -202,12 +198,12 @@ public class Car implements Serializable {
         this.numberOfServices = numberOfServices;
     }
 
-    public String getScanner() {
-        return scanner;
+    public String getScannerId() {
+        return scannerId;
     }
 
-    public void setScanner(String scanner) {
-        this.scanner = scanner;
+    public void setScannerId(String scannerId) {
+        this.scannerId = scannerId;
     }
 
     public boolean isCurrentCar() {
@@ -218,11 +214,11 @@ public class Car implements Serializable {
         this.currentCar = currentCar;
     }
 
-    public String getShopId() {
+    public int getShopId() {
         return shopId;
     }
 
-    public void setShopId(String shopId) {
+    public void setShopId(int shopId) {
         this.shopId = shopId;
     }
 
@@ -234,109 +230,122 @@ public class Car implements Serializable {
         this.issues = issues;
     }
 
-    //Todo remove once api-integration is done
-    public List<String> getPendingEdmundServicesIds() {
-        return pendingEdmundServicesIds;
-    }
+    public ArrayList<CarIssue> getActiveIssues() {
+        ArrayList<CarIssue> activeIssues = new ArrayList<>();
 
-    public void setPendingEdmundServicesIds(List<String> pendingEdmundServicesIds) {
-        this.pendingEdmundServicesIds = pendingEdmundServicesIds;
-    }
-
-    public List<String> getPendingIntervalServicesIds() {
-        return pendingIntervalServicesIds;
-    }
-
-    public void setPendingIntervalServicesIds(List<String> pendingIntervalServicesIds) {
-        this.pendingIntervalServicesIds = pendingIntervalServicesIds;
-    }
-
-    public List<String> getPendingFixedServicesIds() {
-        return pendingFixedServicesIds;
-    }
-
-    public void setPendingFixedServicesIds(List<String> pendingFixedServicesIds) {
-        this.pendingFixedServicesIds = pendingFixedServicesIds;
-    }
-
-    public List<String> getStoredDTCs() {
-        return storedDTCs;
-    }
-
-    public List<String> getPendingDTCs() {
-        if(pendingDTCs == null) {
-            pendingDTCs = new ArrayList<>();
+        for(CarIssue issue : issues) {
+            if(!issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                activeIssues.add(issue);
+            }
         }
-        return pendingDTCs;
+
+        return activeIssues;
     }
 
-    public void setStoredDTCs(List<String> storedDTCs) {
-        this.storedDTCs = storedDTCs;
+    public ArrayList<CarIssue> getDoneIssues() {
+        ArrayList<CarIssue> activeIssues = new ArrayList<>();
+
+        for(CarIssue issue : issues) {
+            if(issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                activeIssues.add(issue);
+            }
+        }
+
+        return activeIssues;
     }
 
-    public void setPendingDTCs(List<String> pendingDTCs) {
-        this.pendingDTCs = pendingDTCs;
+    // create car from json object (this is for the response from POST car)
+    public static Car createNewCar(JSONObject jsonObject) throws JSONException {
+        Car car = new Car();
+
+        car.setId(jsonObject.getInt("id"));
+        car.setEngine(jsonObject.getString("car_engine"));
+        car.setMake(jsonObject.getString("car_make"));
+        car.setModel(jsonObject.getString("car_model"));
+        car.setYear(jsonObject.getInt("car_year"));
+        car.setTrim(jsonObject.getString("car_trim"));
+        car.setScannerId(jsonObject.optString("scannerId"));
+        car.setTotalMileage(jsonObject.getInt("mileage_total"));
+        car.setBaseMileage(jsonObject.getInt("mileage_base"));
+        car.setUserId(jsonObject.getInt("id_user"));
+        car.setShopId(jsonObject.getJSONObject("shop").getInt("id_shop"));
+        car.setVin(jsonObject.getString("vin"));
+
+        //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+
+        return car;
     }
 
-    public static Car jsonToCarObject(JSONObject jsonObject) {
-        Car car  = new Car();
-        String json;
-        try {
-            json = jsonObject.getString("data");
-            car = JsonUtil.json2object(json,Car.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+    // create car from json response (this is for GET from api)
+    public static Car createCar(String response) throws JSONException {
+        Car car = JsonUtil.json2object(response, Car.class);
+
+        JSONObject jsonObject = new JSONObject(response);
+
+        if(!jsonObject.isNull("issues")) {
+            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+            car.setNumberOfServices(jsonObject.getJSONArray("issues").length());
+        }
+
+        if(!jsonObject.isNull("shop")) {
+            Dealership dealer = Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString());
+            car.setDealership(dealer);
+            car.setShopId(dealer.getId());
+        }
+
+        if(!jsonObject.isNull("scanner")) {
+            car.setScannerId(jsonObject.getJSONObject("scanner").getString("scannerId"));
         }
 
         return car;
     }
 
-    public String objectToJson() {
-        String json = null;
+    // create car from json object (this is for GET from api)
+    public static Car createCar(JSONObject jsonObject) throws JSONException { // THIS IS OUTDATED
+        Car car = new Car();
 
-        try {
-            json = JsonUtil.object2Json(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  json;
-    }
+        car.setId(jsonObject.getInt("id"));
+        car.setEngine(jsonObject.getString("engine"));
+        car.setMake(jsonObject.getString("make"));
+        car.setModel(jsonObject.getString("model"));
+        car.setYear(jsonObject.getInt("year"));
+        car.setTrim(jsonObject.getString("trim"));
+        car.setScannerId(jsonObject.optString("scannerId"));
+        car.setTotalMileage(jsonObject.getInt("totalMileage"));
+        car.setBaseMileage(jsonObject.getInt("baseMileage"));
+        car.setUserId(jsonObject.getInt("userId"));
+        car.setShopId(jsonObject.getJSONObject("shop").getInt("id"));
+        car.setVin(jsonObject.getString("vin"));
 
-    // TODO update param once api integration is complete
-    public static Car createCar(ParseObject parseObject) {
-        Car car = null;
-        if(parseObject != null) {
-            car = new Car();
-            car.setParseId(parseObject.getObjectId());
-            car.setEngine(parseObject.getString("engine"));
-            car.setMake(parseObject.getString("make"));
-            car.setModel(parseObject.getString("model"));
-            car.setYear(parseObject.getInt("year"));
-            car.setTrim(parseObject.getString("trim_level"));
-            car.setNumberOfRecalls(parseObject.getInt("numberOfRecalls"));
-            car.setNumberOfServices(parseObject.getInt("numberOfServices"));
-            car.setScanner(parseObject.getString("scannerId"));
-            car.setTotalMileage(parseObject.getInt("totalMileage"));
-            car.setBaseMileage(parseObject.getInt("baseMileage"));
-            car.setOwnerId(parseObject.getString("owner"));
-            car.setShopId(parseObject.getString("dealership"));
-            car.setVin(parseObject.getString("VIN"));
-            car.setServiceDue(parseObject.getBoolean("serviceDue"));
-            car.setCurrentCar(parseObject.getBoolean("currentCar"));
-            car.setPendingEdmundServicesIds(parseObject.<String>getList("pendingEdmundServices"));
-            car.setPendingFixedServicesIds(parseObject.<String>getList("pendingFixedServices"));
-            car.setPendingIntervalServicesIds(parseObject.<String>getList("pendingIntervalServices"));
-            car.setStoredDTCs(parseObject.<String>getList("storedDTCs"));
-            car.setPendingDTCs(parseObject.<String>getList("pendingDTCs"));
+        Object issues = jsonObject.get("issues");
+
+        if(issues instanceof JSONArray) {
+            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+            car.setNumberOfServices(((JSONArray) issues).length());
         }
+
+        if(jsonObject.get("shop") != null) {
+            car.setDealership(Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString()));
+        }
+
         return car;
     }
 
-    public static List<Car> createCarsList(List<ParseObject> objects) {
+    // create list of cars from api response
+    public static List<Car> createCarsList(String jsonRoot) throws JSONException {
         List<Car> cars = new ArrayList<>();
-        for(ParseObject object : objects) {
-            cars.add(createCar(object));
+        JSONArray carArr;
+
+        try {
+            carArr = new JSONArray(jsonRoot);
+        } catch (JSONException e) {
+            return cars;
         }
+
+        for(int i = 0 ; i < carArr.length() ; i++) {
+            cars.add(createCar(carArr.getString(i)));
+        }
+
         return cars;
     }
 }

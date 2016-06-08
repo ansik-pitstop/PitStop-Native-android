@@ -9,17 +9,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.castel.obd.util.Utils;
-import com.pitstop.parse.ParseApplication;
-import com.pitstop.utils.InternetChecker;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.concurrent.ExecutionException;
-
 /**
  * Created by David Liu on 2/21/2016.
  */
+@Deprecated
 public class PendingAddCarActivity extends AppCompatActivity{
 
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
@@ -27,14 +26,14 @@ public class PendingAddCarActivity extends AppCompatActivity{
     public static String ADD_CAR_DTCS = "PENDING_ADD_CAR_DTCS";
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
 
-    ParseApplication application;
+    GlobalApplication application;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_pending_add_car);
-        application = (ParseApplication) getApplicationContext();
+        application = (GlobalApplication) getApplicationContext();
         SharedPreferences settings =
                 getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
         Intent intentFromMainActivity = getIntent();
@@ -73,7 +72,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            if (InternetChecker.isConnected(PendingAddCarActivity.this)) {
+            if (NetworkHelper.isConnected(PendingAddCarActivity.this)) {
                 goBackToAddCar();
             } else {
                 // Repeat this the same carConnectedRunnable code block again another 3 seconds

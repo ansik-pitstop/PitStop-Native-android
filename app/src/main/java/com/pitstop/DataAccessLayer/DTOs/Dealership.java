@@ -1,8 +1,15 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.widget.Toast;
+
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.parse.ParseObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,16 +20,14 @@ import java.util.List;
  */
 public class Dealership implements Serializable {
 
-    @Expose(serialize = false, deserialize = false)
     private int id;
-    private long dealershipId;
-    private String parseId;
     private String name;
     private String address;
     private String phone;
     private String email;
-    private double latitude;
-    private double longitude;
+    private String longitude;
+    private String latitude;
+
 
     public Dealership(){}
 
@@ -31,10 +36,6 @@ public class Dealership implements Serializable {
     }
 
     public void setId(int id) { this.id = id; }
-
-    public long getDealershipId() {
-        return dealershipId;
-    }
 
     public String getName() {
         return name;
@@ -68,37 +69,35 @@ public class Dealership implements Serializable {
         this.email = email;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
+    public static List<Dealership> createDealershipList(String shopsListJson) throws JSONException {
+        ArrayList<Dealership> dealerships = new ArrayList<>();
 
-    public double getLongitude() {
-        return longitude;
-    }
+        JSONArray shopArr = new JSONArray(shopsListJson);
 
-    public String getParseId() {
-        return parseId;
-    }
-
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
-    }
-
-    public static Dealership createDealership(ParseObject parseObject, String carId) {
-        Dealership dealership = new Dealership();
-        dealership.setParseId(parseObject.getObjectId());
-        dealership.setName(parseObject.getString("name"));
-        dealership.setPhoneNumber(parseObject.getString("phoneNumber"));
-        dealership.setEmail(parseObject.getString("email"));
-        dealership.setAddress(parseObject.getString("addressText"));
-        return dealership;
-    }
-
-    public static List<Dealership> createDealershipList(List<ParseObject> parseObjects) {
-        List<Dealership> dealerships = new ArrayList<>();
-        for( ParseObject parseObject : parseObjects) {
-            dealerships.add(createDealership(parseObject,""));
+        for (int i = 0; i < shopArr.length() ; i++) {
+            dealerships.add(jsonToDealershipObject(shopArr.getJSONObject(i).toString()));
         }
         return dealerships;
+    }
+
+    public static Dealership jsonToDealershipObject(String json) {
+        Dealership dealership = null;
+        try {
+            dealership = JsonUtil.json2object(json, Dealership.class);
+
+            if(dealership.getId() == 0) {
+                dealership = new Dealership();
+                JSONObject dealershipJson = new JSONObject(json).getJSONObject("dealership");
+                dealership.setId(dealershipJson.getInt("id"));
+                dealership.setName(dealershipJson.getString("name"));
+                dealership.setAddress(dealershipJson.getString("address"));
+                dealership.setEmail(dealershipJson.getString("email"));
+                dealership.setPhoneNumber(dealershipJson.getString("phone"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dealership;
     }
 }

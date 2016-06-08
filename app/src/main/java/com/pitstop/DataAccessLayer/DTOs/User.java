@@ -1,6 +1,10 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -9,10 +13,8 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    @Expose(serialize = false, deserialize = false)
     private int id;
 
-    private String parseId;
     private String firstName;
     private String lastName;
     private String email;
@@ -20,7 +22,7 @@ public class User implements Serializable {
     private String password;
     //authData
     private boolean activated;
-    private String phoneNumber;
+    private String phone;
     private String role;
     private boolean verifiedEmail;
 
@@ -82,12 +84,12 @@ public class User implements Serializable {
         this.activated = activated;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {
@@ -106,11 +108,24 @@ public class User implements Serializable {
         this.verifiedEmail = verifiedEmail;
     }
 
-    public String getParseId() {
-        return parseId;
-    }
+    public static User jsonToUserObject(String json) {
+        User user = null;
+        try {
+            user = JsonUtil.json2object(json, User.class);
 
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
+            if(user.getId() == 0) {
+                user = new User();
+                JSONObject userJson = new JSONObject(json).getJSONObject("user");
+                user.setId(userJson.getInt("id"));
+                user.setFirstName(userJson.getString("firstName"));
+                user.setLastName(userJson.getString("lastName"));
+                user.setEmail(userJson.getString("email"));
+                user.setPhone(userJson.getString("phone"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 }

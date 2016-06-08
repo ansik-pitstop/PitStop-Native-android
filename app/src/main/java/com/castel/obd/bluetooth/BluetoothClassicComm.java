@@ -12,16 +12,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.data.OBDInfoSP;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
-import com.parse.Parse;
-import com.pitstop.MainActivity;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +29,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;
-    private ParseApplication application;
+    private GlobalApplication application;
     private ObdManager mObdManager;
 
     private BluetoothChat mBluetoothChat;
@@ -49,7 +45,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public BluetoothClassicComm(Context context) {
         Log.i(TAG, "classicComm Constructor");
         mContext = context;
-        application = (ParseApplication) context.getApplicationContext();
+        application = (GlobalApplication) context.getApplicationContext();
         mObdManager = new ObdManager(context);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
@@ -269,16 +265,16 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "BReceiver onReceive - BluetoothClassicComm");
+            Log.v(TAG, "BReceiver onReceive - BluetoothClassicComm");
 
             String action = intent.getAction();
             LogUtil.i(action);
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.i(TAG,"A device found - BluetoothClassicComm");
+                Log.v(TAG,"A device found - BluetoothClassicComm");
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG,device.getName() + " " + device.getAddress());
+                Log.v(TAG,device.getName() + " " + device.getAddress());
 
                 if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
