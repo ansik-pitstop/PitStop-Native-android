@@ -62,6 +62,8 @@ public class DisplayItemActivity extends AppCompatActivity {
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
+    private NetworkHelper networkHelper;
+
     private static final String TAG = DisplayItemActivity.class.getSimpleName();
 
 
@@ -92,6 +94,8 @@ public class DisplayItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
+
+        networkHelper = new NetworkHelper(getApplicationContext());
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
@@ -214,13 +218,13 @@ public class DisplayItemActivity extends AppCompatActivity {
     }
 
     private void sendRequest(String additionalComment) {
-        NetworkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
+        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
                 additionalComment, carIssue.getId(), new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(DisplayItemActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
-                            NetworkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
+                            networkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
                             Toast.makeText(DisplayItemActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
@@ -317,7 +321,7 @@ public class DisplayItemActivity extends AppCompatActivity {
             final CarIssue issue = dashboardCar.getActiveIssues().get(i);
             final int index = i;
             if(issue.getIssueType().equals(CarIssue.DTC) || issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                NetworkHelper.serviceDone(dashboardCar.getId(), issue.getId(), 0, dashboardCar.getTotalMileage(),
+                networkHelper.serviceDone(dashboardCar.getId(), issue.getId(), 0, dashboardCar.getTotalMileage(),
                         new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {

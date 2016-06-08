@@ -50,10 +50,15 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private boolean hadInternetConnection = false;
     private LocalShopAdapter localStore;
 
+    private NetworkHelper networkHelper;
+
     private static final String TAG = SelectDealershipActivity.class.getSimpleName();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        networkHelper = new NetworkHelper(getApplicationContext());
+
         setContentView(R.layout.activity_select_dealership);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -144,7 +149,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
             List<Dealership> dealerships = localStore.getAllDealerships();
             if(dealerships.isEmpty()) {
-                NetworkHelper.getShops(new RequestCallback() {
+                networkHelper.getShops(new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {

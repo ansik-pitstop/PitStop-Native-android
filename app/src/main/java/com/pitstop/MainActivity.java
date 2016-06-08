@@ -56,7 +56,6 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -116,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private static final int LOC_PERM_REQ = 112;
 
     private boolean isLoading = false;
+
+    private NetworkHelper networkHelper;
 
     private RecyclerView recyclerView;
     private CustomAdapter carIssuesAdapter;
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 return;
                             }
 
-                            NetworkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
+                            networkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
                                     new RequestCallback() {
                                         @Override
                                         public void done(String response, RequestError requestError) {
@@ -330,6 +331,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
 
+        networkHelper = new NetworkHelper(getApplicationContext());
+
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
@@ -412,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             intent.putExtra(CAR_LIST_EXTRA,proxyObject);
 
             if(application.getCurrentUser() == null) {
-                NetworkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+                networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
@@ -715,7 +718,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                                     CarIssue carIssue = carIssuesAdapter.getItem(i);
 
-                                                    NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
+                                                    networkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
                                                             daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
                                                                 @Override
                                                                 public void done(String response, RequestError requestError) {
@@ -820,9 +823,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested',"
-                                    + dashboardCar.getActiveIssues().size()));
+                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                    + "','Device':'Android','Number of Services Requested':"
+                                    + dashboardCar.getActiveIssues().size() + "}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -855,14 +858,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * */
     private void sendRequest(String additionalComment) {
 
-        NetworkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
+        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
                 dashboardCar.getShopId(), additionalComment, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(MainActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
                             for(CarIssue issue : dashboardCar.getActiveIssues()) {
-                                NetworkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                                networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
                             }
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
@@ -944,7 +947,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void loadCarDetailsFromServer() {
         int userId = application.getCurrentUserId();
 
-        NetworkHelper.getCarsByUserId(userId, new RequestCallback() {
+        networkHelper.getCarsByUserId(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
@@ -981,7 +984,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Dealership shop = dashboardCar.getDealership();
         if(shop == null) {
 
-            NetworkHelper.getShops(new RequestCallback() {
+            networkHelper.getShops(new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -1051,7 +1054,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 || dashboardCar.getNumberOfRecalls() > 0)) {
             Log.i(TAG, "No car issues in local store");
 
-            NetworkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
+            networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {

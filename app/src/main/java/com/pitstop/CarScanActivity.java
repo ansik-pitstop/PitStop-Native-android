@@ -101,6 +101,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private boolean updatedMileage = false;
     private ProgressDialog progressDialog;
 
+    private NetworkHelper networkHelper;
 
     private static String TAG = CarScanActivity.class.getSimpleName();
 
@@ -140,6 +141,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         setContentView(R.layout.activity_car_scan);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        networkHelper = new NetworkHelper(getApplicationContext());
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
@@ -374,7 +377,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         updatedMileage = true;
 
         try {
-            NetworkHelper.updateCarMileage(dashboardCar.getId(), Integer.parseInt(mileage), new RequestCallback() {
+            networkHelper.updateCarMileage(dashboardCar.getId(), Integer.parseInt(mileage), new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -433,7 +436,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         services = 0;
         recalls = 0;
 
-        NetworkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
+        networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {

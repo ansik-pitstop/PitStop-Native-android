@@ -78,6 +78,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private int counter = 1;
     private int status5counter = 0;
 
+    private NetworkHelper networkHelper;
+
     String[] pids = new String[0];
     int pidI = 0;
 
@@ -90,6 +92,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
+
+        networkHelper = new NetworkHelper(getApplicationContext());
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
 
@@ -194,7 +198,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
              */
 
             if(currentDeviceId != null && lastData != null) {
-                NetworkHelper.saveTripMileage(
+                networkHelper.saveTripMileage(
                         currentDeviceId,
                         lastData.tripId != null ? lastData.tripId : "0",
                         lastData.tripMileage != null ? lastData.tripMileage : "0",
@@ -435,14 +439,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         int carId = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainActivity.pfCurrentCar, -1);
 
-        NetworkHelper.getCarsById(carId, new RequestCallback() {
+        networkHelper.getCarsById(carId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
                     try {
                         Car car = Car.createCar(response);
                         for(final String dtc : dtcArr) {
-                            NetworkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                            networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
                                     dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
                                     new RequestCallback() {
                                 @Override
@@ -656,7 +660,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void processResultFourData(final DataPackageInfo data) {
 
         if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
-            NetworkHelper.saveTripMileage(data.deviceId, data.tripId, data.tripMileage, data.rtcTime,
+            networkHelper.saveTripMileage(data.deviceId, data.tripId, data.tripMileage, data.rtcTime,
                     new RequestCallback() {
                         @Override
                         public void done(String response, RequestError requestError) {
@@ -758,7 +762,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             e.printStackTrace();
         }
 
-        NetworkHelper.savePids(data.deviceId, pidArray,
+        networkHelper.savePids(data.deviceId, pidArray,
                 new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {

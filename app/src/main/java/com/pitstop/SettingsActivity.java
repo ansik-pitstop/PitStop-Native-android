@@ -163,6 +163,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         private MixpanelHelper mixpanelHelper;
 
+        private NetworkHelper networkHelper;
+
         public SettingsFragment() {}
 
         public void setOnInfoUpdatedListener (OnInfoUpdated listener) {
@@ -172,6 +174,8 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            networkHelper = new NetworkHelper(getActivity().getApplicationContext());
 
             mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
@@ -234,7 +238,7 @@ public class SettingsActivity extends AppCompatActivity {
             if(dealerships.isEmpty()) {
                 Log.i(TAG, "Local store has no dealerships");
 
-                NetworkHelper.getShops(new RequestCallback() {
+                networkHelper.getShops(new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
@@ -295,11 +299,11 @@ public class SettingsActivity extends AppCompatActivity {
                             listener.localUpdatePerformed();
                         }
 
-                        NetworkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
+                        networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if(requestError == null) {
-                                    NetworkHelper.updateCarShop(itemCar.getId(), shopId,
+                                    networkHelper.updateCarShop(itemCar.getId(), shopId,
                                             new RequestCallback() {
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
@@ -481,7 +485,7 @@ public class SettingsActivity extends AppCompatActivity {
                 e1.printStackTrace();
             }
 
-            NetworkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
+            networkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {

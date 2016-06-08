@@ -97,6 +97,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private LinearLayout vinSection;
 
+    private NetworkHelper networkHelper;
+
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
     private boolean hasBluetoothVinEntryFailed = false;
 
@@ -158,6 +160,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         setContentView(R.layout.activity_add_car);
         Log.i(TAG, "onCreate()");
 
+        networkHelper = new NetworkHelper(getApplicationContext());
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         intentFromMainActivity = getIntent();
@@ -987,7 +990,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        NetworkHelper.getCarsByVin(VIN, new RequestCallback() {
+        networkHelper.getCarsByVin(VIN, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
@@ -1020,7 +1023,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             }
         });
 
-        NetworkHelper.createNewCar(application.getCurrentUserId(),
+        networkHelper.createNewCar(application.getCurrentUserId(),
                 mileage.equals("") ? 0 : Integer.valueOf(mileage),
                 VIN,
                 scannerID == null ? "" : scannerID,
@@ -1036,7 +1039,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                 Car newCar = Car.createCar(response);
 
                                 if(scannerID != null) {
-                                    NetworkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
+                                    networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
                                         @Override
                                         public void done(String response, RequestError requestError) {
 
