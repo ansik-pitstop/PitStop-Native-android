@@ -14,14 +14,14 @@ import android.widget.TextView;
 
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Created by DavidIsDum on 1/30/2016.
@@ -52,13 +52,23 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         dashboardCar = (Car) getIntent().getSerializableExtra("dashboardCar");
-        ArrayList<CarIssue> doneIssues = dashboardCar.getDoneIssues();
 
-        if(doneIssues.isEmpty()) {
+        CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
+
+        Arrays.sort(doneIssues, new Comparator<CarIssue>() {
+            @Override
+            public int compare(CarIssue lhs, CarIssue rhs) {
+                return getDateToCompare(rhs.getTimestamp()) - getDateToCompare(lhs.getTimestamp());
+            }
+        });
+
+        ArrayList<CarIssue> doneIssuesList = new ArrayList<>(Arrays.asList(doneIssues));
+
+        if(doneIssuesList.isEmpty()) {
             messageCard.setVisibility(View.VISIBLE);
         }
 
-        customAdapter = new CustomAdapter(doneIssues);
+        customAdapter = new CustomAdapter(doneIssuesList);
         mRecyclerView.setAdapter(customAdapter);
 
         try {
@@ -150,12 +160,21 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     private String formatDate(String rawDate) {
         String[] splittedDate = rawDate.split("-");
-        String[] months = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
 
         splittedDate[2] = splittedDate[2].substring(0, 2);
 
         return months[Integer.parseInt(splittedDate[1])] + ". " + splittedDate[2] + ", " + splittedDate[0];
+    }
+
+    private int getDateToCompare(String rawDate) {
+        String[] splittedDate = rawDate.split("-");
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return Integer.parseInt(splittedDate[2])
+                + Integer.parseInt(splittedDate[1]) * 30
+                + Integer.parseInt(splittedDate[0]) * 365;
     }
 
 }

@@ -46,6 +46,8 @@ public class GlobalApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        Log.d(TAG, "onCreate");
+
         userAdapter = new UserAdapter(this);
 
         Parse.enableLocalDatastore(this);
@@ -133,6 +135,10 @@ public class GlobalApplication extends Application {
 
         GlobalApplication.refreshToken = refreshToken;
         GlobalApplication.accessToken = accessToken;
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("userId", String.valueOf(currentUser.getId()));
+        installation.saveInBackground();
 
         setCurrentUser(currentUser);
     }

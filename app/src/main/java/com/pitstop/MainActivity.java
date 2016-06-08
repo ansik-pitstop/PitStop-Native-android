@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -33,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -71,6 +73,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
@@ -686,20 +689,62 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             public void onDismissedBySwipeLeft(final RecyclerView recyclerView,
                                                                final int[] reverseSortedPositions) {
 
-                                /*new DatePickerDialog(MainActivity.this,
+                                final Calendar calendar = Calendar.getInstance();
+                                calendar.setTimeInMillis(System.currentTimeMillis());
+                                final int currentYear = calendar.get(Calendar.YEAR);
+                                final int currentMonth = calendar.get(Calendar.MONTH);
+                                final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+                                final int i = reverseSortedPositions[0];
+
+                                DatePickerDialog datePicker = new DatePickerDialog(MainActivity.this,
                                         new DatePickerDialog.OnDateSetListener() {
                                             @Override
                                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                                if(year > currentYear || (year == currentYear
+                                                        && (monthOfYear > currentMonth
+                                                        || (monthOfYear == currentMonth && dayOfMonth > currentDay)))) {
+                                                    Toast.makeText(MainActivity.this, "Please choose a date that has passed", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    long currentTime = calendar.getTimeInMillis();
 
+                                                    calendar.set(year, monthOfYear, dayOfMonth);
+
+                                                    int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
+
+                                                    try {
+                                                        mixpanelHelper.trackButtonTapped("Completed Service: "
+                                                                + carIssueList.get(i).getIssueDetail().getItem() + " " + daysAgo, TAG);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    CarIssue carIssue = carIssuesAdapter.getItem(i);
+
+                                                    NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
+                                                            daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                                @Override
+                                                                public void done(String response, RequestError requestError) {
+                                                                    if(requestError == null) {
+                                                                        Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
+                                                                        carIssueList.remove(i);
+                                                                        carIssuesAdapter.notifyDataSetChanged();
+                                                                        refreshFromServer();
+                                                                    }
+                                                                }
+                                                            });
+                                                }
                                             }
                                         },
+                                        currentYear,
+                                        currentMonth,
+                                        currentDay
+                                );
+                                datePicker.setTitle("When was this service completed?");
 
-                                )*/
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTimeInMillis(System.currentTimeMillis());
-                                Log.wtf(TAG, "" + calendar.toString());
+                                datePicker.show();
 
-                                final CharSequence[] times = new CharSequence[]{
+                                /*final CharSequence[] times = new CharSequence[]{
                                         "Recently", "2 Weeks Ago", "A Month Ago",
                                         "2 to 3 Months Ago", "3 to 6 Months Ago",
                                         "6 to 12 Months Ago"
@@ -739,7 +784,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                                         });
                                                 dialogInterface.dismiss();
                                             }
-                                        }).setTitle("When did you complete this task?").show();
+                                        }).setTitle("When did you complete this task?");*/
                             }
 
                             @Override

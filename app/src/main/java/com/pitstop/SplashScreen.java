@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -170,8 +171,6 @@ public class SplashScreen extends AppCompatActivity {
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if(currentUser != null) {
-            Log.wtf("session token", currentUser.getSessionToken());
-            Log.wtf("user id", currentUser.getObjectId());
             showLoading("Logging in");
             loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
         } else if (!application.isLoggedIn()
@@ -179,6 +178,12 @@ public class SplashScreen extends AppCompatActivity {
             Log.i(TAG, "Not logged in");
         } else {
             showLoading("Logging in...");
+
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.put("userId", String.valueOf(application.getCurrentUserId()));
+            installation.saveInBackground();
+
+            Log.wtf(TAG, String.valueOf(application.getCurrentUserId()));
 
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
