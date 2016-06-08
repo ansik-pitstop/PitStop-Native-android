@@ -44,7 +44,10 @@
                 android:singleLine="true"
                 android:layout_gravity="center_horizontal"
                 android:visibility="gone"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textColorHint="#dedede"
+                android:textColor="#efefef"
+                android:backgroundTint="#dedede" />
 
             <EditText
                 android:layout_width="match_parent"
@@ -56,7 +59,10 @@
                 android:layout_gravity="center_horizontal"
                 android:visibility="gone"
                 android:textIsSelectable="false"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textColorHint="#dedede"
+                android:textColor="#efefef"
+                android:backgroundTint="#dedede" />
         </LinearLayout>
 
         <EditText
@@ -68,7 +74,10 @@
             android:id="@+id/phone"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            android:textIsSelectable="false" />
+            android:textIsSelectable="false"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -76,7 +85,10 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:hint="Email"
-            android:id="@+id/email" />
+            android:id="@+id/email"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -86,7 +98,10 @@
             android:layout_marginBottom="12dp"
             android:ems="10"
             android:imeOptions="actionSend"
-            android:id="@+id/password" />
+            android:id="@+id/password"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <Button
             android:layout_width="fill_parent"
