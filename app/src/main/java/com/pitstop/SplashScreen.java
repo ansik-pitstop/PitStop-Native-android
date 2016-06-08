@@ -112,14 +112,15 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 setUpUIReferences();
-                if(position==3){
+                if(position==2){
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.GONE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     radioLayout.setVisibility(View.GONE);
-                    skipButton.setVisibility(View.GONE);
+//                    skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
                     firstName.setVisibility(View.GONE);
                     lastName.setVisibility(View.GONE);
@@ -130,11 +131,8 @@ public class SplashScreen extends AppCompatActivity {
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             boolean handled = false;
                             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                if(signup){
-                                    signUp(null);
-                                }else{
-                                    login(null);
-                                }
+                                loginOrSignUp(null);
+
                                 handled = true;
                                 View view = getCurrentFocus();
                                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -144,8 +142,9 @@ public class SplashScreen extends AppCompatActivity {
                         }
                     });
                 }else{
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
                     radioLayout.setVisibility(View.VISIBLE);
-                    skipButton.setVisibility(View.VISIBLE);
+//                    skipButton.setVisibility(View.VISIBLE);
                     for(int i = 0; i<3; i++){
                         ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
                     }
@@ -251,11 +250,41 @@ public class SplashScreen extends AppCompatActivity {
         splashLayout = findViewById(R.id.splash_layout);
         radioLayout = (LinearLayout) findViewById(R.id.radio_layout);
         loginButton = (Button) findViewById(R.id.login_btn);
-        skipButton = (Button) findViewById(R.id.skip_btn);
+        skipButton = (Button) findViewById(R.id.sign_up_skip);
     }
 
-    public void signUp(final View view) {
+    public void signUpSwitcher(final View view) {
         if (signup) {
+            firstName.setVisibility(View.GONE);
+            lastName.setVisibility(View.GONE);
+            phoneNumber.setVisibility(View.GONE);
+            ((Button)findViewById(R.id.login_btn)).setText("LOG IN");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
+            signup = !signup;
+        }else{
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            firstName.setVisibility(View.VISIBLE);
+            lastName.setVisibility(View.VISIBLE);
+            phoneNumber.setVisibility(View.VISIBLE);
+            ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
+            signup = !signup;
+        }
+    }
+
+    public void loginOrSignUp(final View view) {
+        if (signup) {
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
             } catch (JSONException e) {
@@ -267,7 +296,7 @@ public class SplashScreen extends AppCompatActivity {
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                login(null);
+                                loginOrSignUp(null);
                             }
                         })
                         .show();
@@ -280,17 +309,16 @@ public class SplashScreen extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            if(password.getText().toString().length()<6){
-                Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+            if (password.getText().toString().length() < 6) {
+                Snackbar.make(splashLayout, "Password length must be greater than 6", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
-            if(phoneNumber.getText().toString().length()!=10){
-                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+            if (phoneNumber.getText().toString().length() != 10) {
+                Snackbar.make(splashLayout, "Invalid phone number", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
-
             // creating json to post
             JSONObject json = new JSONObject();
             try {
@@ -320,19 +348,36 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 }
             });
-
         }else{
             try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
-                mixpanelHelper.trackViewAppeared("Register");
-            } catch (JSONException e) {
-                e.printStackTrace();
+                mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+
+                try {
+                    mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+                } catch (JSONException e2) {
+                    e2.printStackTrace();
+                }
+
+                if(!NetworkHelper.isConnected(this)) {
+                    Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    signUpSwitcher(null);
+                                }
+                            })
+                            .show();
+                    return;
+                }
+
+                showLoading("Logging in...");
+                final String usernameInput = email.getText().toString().toLowerCase();
+                final String passwordInput = password.getText().toString();
+
+                login(usernameInput, passwordInput);
+            } catch (JSONException e2) {
+                e2.printStackTrace();
             }
-            firstName.setVisibility(View.VISIBLE);
-            lastName.setVisibility(View.VISIBLE);
-            phoneNumber.setVisibility(View.VISIBLE);
-            loginButton.setVisibility(View.GONE);
-            signup = !signup;
         }
     }
 
@@ -395,41 +440,13 @@ public class SplashScreen extends AppCompatActivity {
                             .setAction("Retry", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    login(null);
+                                    signUpSwitcher(null);
                                 }
                             })
                             .show();
                 }
             }
         });
-    }
-
-
-
-    public void login(View view) {
-        try {
-            mixpanelHelper.trackButtonTapped("Login with Email", TAG);
-        } catch (JSONException e2) {
-            e2.printStackTrace();
-        }
-
-        if(!NetworkHelper.isConnected(this)) {
-            Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
-                    .setAction("Retry", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            login(null);
-                        }
-                    })
-                    .show();
-            return;
-        }
-
-        showLoading("Logging in...");
-        final String usernameInput = email.getText().toString().toLowerCase();
-        final String passwordInput = password.getText().toString();
-
-        login(usernameInput, passwordInput);
     }
 
     public void goToLogin(View view) {

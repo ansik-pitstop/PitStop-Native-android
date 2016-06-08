@@ -32,7 +32,7 @@
             android:text="GET DTCS"
             android:id="@+id/btn_get_3"
             android:onClick="getDTC"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:layout_margin="6dp"
             android:textColor="#fff" />
@@ -44,7 +44,7 @@
             android:text="GET FREEZE"
             android:id="@+id/button3"
             android:onClick="getFreeze"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:layout_margin="6dp"
             android:textColor="#fff" />
@@ -55,7 +55,7 @@
             android:text="GET PIDS"
             android:id="@+id/button4"
             android:onClick="getPIDS"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:layout_margin="6dp"
             android:textColor="#fff" />

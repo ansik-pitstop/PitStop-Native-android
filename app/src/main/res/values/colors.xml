@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="highlight">#ff2848</color>
-    <color name="primary">#5D9CEC</color>
-    <color name="primary_dark">#4ba9ff</color>
-    <color name="highlight_dark">#d7223d</color>
-    <color name="evcheck">#29d767</color>
+    <color name="highlight">#66bc46</color>
+    <color name="primary">#427ec1</color>
+    <color name="primary_dark">#12539e</color>
+    <color name="primary_light">#3895fe</color>
+    <color name="highlight_dark">#1f974a</color>
+    <color name="evcheck">#66bc46</color>
     <color name="evcheck_dark">#1f974a</color>
-    <color name="not_connected">#eeeeee</color>
+    <color name="not_connected">#e53a52</color>
 
     <!-- Smooch chat -->
     <color name="Smooch_accent">@color/primary</color>
     <color name="Smooch_accentDark">@color/primary</color>
     <color name="line_break">#424242</color>
 
-    <color name="scanner_scanning">#d50000</color>
+    <color name="scanner_scanning">#e53a52</color>
     <color name="scanner_found">#64dd17</color>
 </resources>

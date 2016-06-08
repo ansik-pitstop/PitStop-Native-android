@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="C:\Users\David Liu\Documents\Pitstop\DemoApp\app\src\main\jniLibs"><file name="armeabi/lib212B.so" path="C:\Users\David Liu\Documents\Pitstop\DemoApp\app\src\main\jniLibs\armeabi\lib212B.so"/></source></dataSet><dataSet config="debug"><source path="C:\Users\David Liu\Documents\Pitstop\DemoApp\app\src\debug\jniLibs"/></dataSet></merger>
