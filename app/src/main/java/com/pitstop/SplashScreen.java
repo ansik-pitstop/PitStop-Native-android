@@ -66,6 +66,8 @@ public class SplashScreen extends AppCompatActivity {
     private LinearLayout radioLayout;
     private Button loginButton, skipButton;
 
+    private NetworkHelper networkHelper;
+
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
      * and next wizard steps.
@@ -92,6 +94,8 @@ public class SplashScreen extends AppCompatActivity {
                 Settings.Secure.ANDROID_ID);
 
         //Log.i(TAG, "Device id: " + deviceId);
+
+        networkHelper = new NetworkHelper(getApplicationContext());
 
         application = (GlobalApplication) getApplicationContext();
 
@@ -182,8 +186,6 @@ public class SplashScreen extends AppCompatActivity {
             installation.put("userId", String.valueOf(application.getCurrentUserId()));
             installation.saveInBackground();
 
-            Log.wtf(TAG, String.valueOf(application.getCurrentUserId()));
-
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra(LOGIN_REFRESH, true);
@@ -209,7 +211,6 @@ public class SplashScreen extends AppCompatActivity {
             super.onBackPressed();
         } else {
             // Otherwise, select the previous step.
-            //TODO: Come up with an elegant solution
             if(signup && backPressed) {
                 signup = !signup;
                 backPressed = !backPressed;
@@ -336,7 +337,7 @@ public class SplashScreen extends AppCompatActivity {
                 return;
             }
 
-            NetworkHelper.signUpAsync(json, new RequestCallback() {
+            networkHelper.signUpAsync(json, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -382,7 +383,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void loginParse(final String userId, final String sessionId) {
-        NetworkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
+        networkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
@@ -405,15 +406,13 @@ public class SplashScreen extends AppCompatActivity {
                     intent.putExtra(LOGIN_REFRESH, true);
                     intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
                     startActivity(intent);
-                } else {
-
                 }
             }
         });
     }
 
     private void login(final String username, final String password) {
-        NetworkHelper.loginAsync(username, password, new RequestCallback() {
+        networkHelper.loginAsync(username, password, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
