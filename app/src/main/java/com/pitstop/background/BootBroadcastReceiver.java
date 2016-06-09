@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.pitstop.MainActivity;
+import com.pitstop.AppMasterActivity;
+import com.pitstop.MainDashboardFragment;
 
 /**
  * Created by David Liu on 11/30/2015.
@@ -17,7 +18,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         // BOOT_COMPLETED start Service
         if (intent.getAction().equals(ACTION)) {
             //Service
-            Log.i(MainActivity.TAG,"Starting auto connect service from boot broadcast receiver");
+            Log.i(AppMasterActivity.TAG,"Starting auto connect service from boot broadcast receiver");
             Intent serviceIntent = new Intent(context, BluetoothAutoConnectService.class);
             context.startService(serviceIntent);
         }

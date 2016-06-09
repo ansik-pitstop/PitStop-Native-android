@@ -21,13 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
@@ -41,11 +34,6 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
@@ -102,7 +90,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         dashboardCar = CarDataManager.getInstance().getDashboardCar();
-        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        carIssue = (CarIssue) intent.getSerializableExtra(AppMasterActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);
 
@@ -158,8 +146,8 @@ public class DisplayItemActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
-        setResult(MainActivity.RESULT_OK, intent);
+        intent.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, needToRefresh);
+        setResult(AppMasterActivity.RESULT_OK, intent);
         super.finish();
     }
 

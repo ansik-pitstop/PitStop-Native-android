@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -91,11 +92,9 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(MainActivity.TAG, "Calling on create");
-
+        Log.i(AppMasterActivity.TAG, "Calling on create");
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
-
         setContentView(R.layout.activity_splash_screen);
 
         if(BuildConfig.DEBUG) {
@@ -214,7 +213,6 @@ public class SplashScreen extends AppCompatActivity {
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
             installation.put("userId", String.valueOf(application.getCurrentUserId()));
             installation.saveInBackground();
-
             goToMainActivity();
         }
     }
@@ -467,7 +465,6 @@ public class SplashScreen extends AppCompatActivity {
                     }
 
                     GlobalApplication.setUpMixPanel();
-
                     goToMainActivity();
                 }
             }
@@ -490,7 +487,6 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     GlobalApplication.setUpMixPanel();
-
                     goToMainActivity();
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
@@ -508,10 +504,10 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void goToMainActivity() {
-        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, true);
-        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
 
@@ -531,7 +527,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void hideLoading(){
-        Log.i(MainActivity.TAG, "hiding loading");
+        Log.i(AppMasterActivity.TAG, "hiding loading");
         progressDialog.dismiss();
     }
 
@@ -543,14 +539,14 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onPause() {
         application.getMixpanelAPI().flush();
-        Log.i(MainActivity.TAG, "SplashScreen on pause");
+        Log.i(AppMasterActivity.TAG, "SplashScreen on pause");
         hideLoading();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(MainActivity.TAG, "SplashScreen onDestroy");
+        Log.i(AppMasterActivity.TAG, "SplashScreen onDestroy");
         super.onDestroy();
     }
 

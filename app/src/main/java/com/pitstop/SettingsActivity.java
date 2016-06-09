@@ -30,7 +30,6 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
@@ -90,7 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
         carList = localCarAdapter.getAllCars();
 
         for(Car car : carList) {
-            if(car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainActivity.pfCurrentCar, -1)) {
+            if(car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
                 dashboardCar = car;
             }
 
@@ -134,8 +133,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
-        setResult(MainActivity.RESULT_OK,intent);
+        intent.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
+        setResult(AppMasterActivity.RESULT_OK,intent);
         super.finish();
     }
 
@@ -544,7 +543,7 @@ public class SettingsActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainActivity.pfCurrentCar, newDashboardCar.getId()).apply();
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainDashboardFragment.pfCurrentCar, newDashboardCar.getId()).apply();
 
                 }
             });
