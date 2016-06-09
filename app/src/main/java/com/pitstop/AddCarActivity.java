@@ -129,16 +129,16 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
                 if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+                    startActivityForResult(enableBtIntent, AppMasterActivity.RC_ENABLE_BT);
                     return;
                 }
 
-                if(EasyPermissions.hasPermissions(AddCarActivity.this,MainActivity.LOC_PERMS)) {
+                if(EasyPermissions.hasPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS)) {
                     autoConnectService.startBluetoothSearch();
                 } else {
                     EasyPermissions.requestPermissions(AddCarActivity.this,
                             getString(R.string.location_request_rationale),
-                            RC_LOCATION_PERM, MainActivity.LOC_PERMS);
+                            RC_LOCATION_PERM, AppMasterActivity.LOC_PERMS);
                 }
 
             }
@@ -214,8 +214,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         // Select shop
         Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
+        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent,
                 SelectDealershipActivity.RC_DEALERSHIP);
     }
@@ -279,8 +279,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
+        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent, SelectDealershipActivity.RC_DEALERSHIP);
     }
 
@@ -306,7 +306,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         if(id == android.R.id.home) {
             Intent intent = getIntent();
-            if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)){
+            if(intent!=null && intent.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false)){
                 super.onBackPressed();
             } else {
                 Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
@@ -327,11 +327,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 setDealership(selectedShopId);
             }
 
-        } else if(requestCode == MainActivity.RC_ENABLE_BT
-                && resultCode == MainActivity.RC_ENABLE_BT) {
+        } else if(requestCode == AppMasterActivity.RC_ENABLE_BT
+                && resultCode == AppMasterActivity.RC_ENABLE_BT) {
             beginSearchForCar();
         } else if(requestCode == RC_PENDING_ADD_CAR
-                && resultCode == MainActivity.RESULT_OK) {
+                && resultCode == AppMasterActivity.RESULT_OK) {
             resumeFromPendingAddCar(data);
 
         } else {
@@ -743,7 +743,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             }
 
-            Log.i(MainActivity.TAG, "getIOData --- Adding car");
+            Log.i(AppMasterActivity.TAG, "getIOData --- Adding car");
             if(NetworkHelper.isConnected(this)){
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
@@ -1073,13 +1073,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
 
         hideLoading();
         CarDataManager.getInstance().setDashboardCar(addedCar);
         Intent data = new Intent();
-        //data.putExtra(MainActivity.CAR_EXTRA, addedCar);
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
+        //data.putExtra(AppMasterActivity.CAR_EXTRA, addedCar);
+        data.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
         finish();
     }

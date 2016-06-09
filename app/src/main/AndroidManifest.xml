@@ -79,17 +79,16 @@
             android:resource="@xml/android_auto" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".AppMasterActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AddCarActivity"
             android:label="@string/title_activity_add_car"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".AppMasterActivity" />
         </activity>
         <activity
             android:name=".SplashScreen"
@@ -108,7 +107,7 @@
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".AppMasterActivity" />
         </activity>
         <activity
             android:name=".ReceiveDebugActivity"
@@ -134,20 +133,20 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".AppMasterActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.MainActivity" />
+                android:value=".AppMasterActivity" />
         </activity>
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".AppMasterActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.MainActivity" />
+                android:value=".AppMasterActivity" />
         </activity>
 
         <service android:name="com.parse.PushService" />

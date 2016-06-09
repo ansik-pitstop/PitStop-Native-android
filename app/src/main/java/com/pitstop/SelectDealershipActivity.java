@@ -107,7 +107,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false)) {
+        if(intent!=null && intent.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false)) {
 
             try {
                 mixpanelHelper.trackButtonTapped("Back", TAG);
@@ -115,8 +115,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Intent mainActivity = new Intent(this, MainActivity.class);
-            mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+            Intent mainActivity = new Intent(this, AppMasterActivity.class);
+            mainActivity.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
             startActivity(mainActivity);
 
         } else {

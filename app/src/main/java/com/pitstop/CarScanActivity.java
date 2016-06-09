@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -179,15 +178,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onBackPressed() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileage);
-        setResult(MainActivity.RESULT_OK, data);
+        data.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, updatedMileage);
+        setResult(AppMasterActivity.RESULT_OK, data);
         finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == MainActivity.RC_ENABLE_BT
-                && resultCode == MainActivity.RC_ENABLE_BT) {
+        if(requestCode == AppMasterActivity.RC_ENABLE_BT
+                && resultCode == AppMasterActivity.RC_ENABLE_BT) {
             carScanButton.performClick();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -211,7 +210,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
                 if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+                    startActivityForResult(enableBtIntent, AppMasterActivity.RC_ENABLE_BT);
                     return;
                 }
 
@@ -599,8 +598,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
-        Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
+        Log.i(AppMasterActivity.TAG, "Result "+dataPackageInfo.result);
+        Log.i(AppMasterActivity.TAG, "DTC "+dataPackageInfo.dtcData);
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
 

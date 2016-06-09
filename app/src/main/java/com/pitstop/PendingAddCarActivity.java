@@ -35,7 +35,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         setContentView(R.layout.activity_pending_add_car);
         application = (GlobalApplication) getApplicationContext();
         SharedPreferences settings =
-                getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+                getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
         Intent intentFromMainActivity = getIntent();
         if(intentFromMainActivity != null) {
             String vin = intentFromMainActivity.getStringExtra(ADD_CAR_VIN);
@@ -82,14 +82,14 @@ public class PendingAddCarActivity extends AppCompatActivity{
     };
 
     private void goBackToAddCar() {
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
 
         Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
         intent.putExtra(ADD_CAR_DTCS,settings.getString(ADD_CAR_DTCS,""));
         intent.putExtra(ADD_CAR_SCANNER,settings.getString(ADD_CAR_SCANNER,""));
         intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,""));
-        setResult(MainActivity.RESULT_OK,intent);
+        setResult(AppMasterActivity.RESULT_OK,intent);
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(ADD_CAR_DTCS, "");
