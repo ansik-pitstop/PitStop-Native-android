@@ -85,7 +85,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public final static String pfShopName = "com.pitstop.shop.name";
     public final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
-    private boolean isLoading = false;
 
     private NetworkHelper networkHelper;
 
@@ -93,7 +92,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private RelativeLayout mainView;
     private RelativeLayout connectedCarIndicator;
     private RelativeLayout serviceCountBackground;
     private RelativeLayout dealershipLayout;
@@ -103,8 +101,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private TextView carName, dealershipName;
     private Button carScan;
-
-    private ProgressDialog progressDialog;
 
     private CarDataManager carDataManager;
 
@@ -287,19 +283,19 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        rootview = inflater.inflate(R.layout.fragment_main_dashboard,container);
+        rootview = inflater.inflate(R.layout.fragment_main_dashboard,null);
 
         AppMasterActivity.callback = this;
-        networkHelper = new NetworkHelper(getContext());
 
-        application = (GlobalApplication) getContext();
+        application = (GlobalApplication) getActivity().getApplicationContext();
+        networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
 
         // Local db adapters
         carLocalStore = AppMasterActivity.carLocalStore;
         carIssueLocalStore = AppMasterActivity.carIssueLocalStore;
         shopLocalStore = AppMasterActivity.shopLocalStore;
-
+        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 
@@ -326,14 +322,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         setSwipeDeleteListener(recyclerView);
 
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCanceledOnTouchOutside(false);
 
         carName = (TextView) rootview.findViewById(R.id.car_name);
         serviceCountText = (TextView) rootview.findViewById(R.id.service_count_text);
         dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
 
-        mainView = (RelativeLayout) rootview.findViewById(R.id.main_view);
         serviceCountBackground = (RelativeLayout) rootview.findViewById(R.id.service_count_background);
         dealershipLayout = (RelativeLayout) rootview.findViewById(R.id.dealership_info_layout);
 
@@ -426,26 +419,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         } else {
             connectedCarIndicator.setBackgroundColor(getResources().getColor(R.color.not_connected));
         }
-    }
-
-    private void hideLoading() {
-        progressDialog.dismiss();
-        isLoading = false;
-
-        mainView.setVisibility(View.VISIBLE);
-
-    }
-
-    private void showLoading(String text) {
-
-        isLoading = true;
-
-        progressDialog.setMessage(text);
-        if(!progressDialog.isShowing()) {
-            progressDialog.show();
-        }
-
-        mainView.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -658,35 +631,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
 
     public void onServerRefreshed() {
-        carIssueList.clear();
-        getCarDetails();
+        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
     }
 
     public void onLocalRefreshed() {
-        carIssueList.clear();
-        getCarDetails();
-    }
-    /**
-     * Get list of cars associated with current user
-     * */
-    private void getCarDetails() {
-
-
-        showLoading("Retrieving car details");
-
-        // Try local store
-        List<Car> localCars = carLocalStore.getAllCars();
-
-        if(localCars.isEmpty()) {
-            loadCarDetailsFromServer();
-        } else {
-            Log.i(TAG,"Trying local store for cars");
-            AppMasterActivity.carList = localCars;
-
-            setDashboardCar(AppMasterActivity.carList);
-            setCarDetailsUI();
-            hideLoading();
-        }
+        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
     }
 
 
@@ -694,7 +643,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * Update ui with current car info
      * And retrieve available car issues
      * */
-    private void setCarDetailsUI() {
+    public void setCarDetailsUI() {
         setDealership();
         populateCarIssuesAdapter();
 
@@ -729,44 +678,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         } else {
             gradientDrawable.setColor(Color.rgb(93, 172, 129));
         }
-    }
-
-    /** Call function to retrieve live data from parse
-     * @see #getCarDetails()
-     * */
-    private void loadCarDetailsFromServer() {
-        int userId = application.getCurrentUserId();
-
-        networkHelper.getCarsByUserId(userId, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(requestError == null) {
-                    try {
-                        AppMasterActivity.carList = Car.createCarsList(response);
-
-                        if(AppMasterActivity.carList.isEmpty()) {
-                            if (isLoading) {
-                                hideLoading();
-                            }
-                            ((AppMasterActivity)getActivity()).startAddCarActivity();
-                        } else {
-                            setDashboardCar(AppMasterActivity.carList);
-                            carLocalStore.deleteAllCars();
-                            carLocalStore.storeCars(AppMasterActivity.carList);
-                            setCarDetailsUI();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getActivity(),
-                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Log.e(TAG, "Load cars error: " + requestError.getMessage());
-                    Toast.makeText(getActivity(),
-                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     private void setDealership() {
@@ -833,10 +744,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     private void populateCarIssuesAdapter() {
-        if(isLoading) {
-            hideLoading();
-        }
-
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
         List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
@@ -879,7 +786,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
-    private void setDashboardCar(List<Car> carList) {
+    public void setDashboardCar(List<Car> carList) {
         int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
 
         for(Car car : carList) {

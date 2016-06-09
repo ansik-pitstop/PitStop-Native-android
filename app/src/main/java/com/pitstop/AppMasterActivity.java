@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
@@ -29,12 +32,14 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.CarDataManager;
@@ -55,6 +60,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         EasyPermissions.PermissionCallbacks {
 
     public static List<Car> carList = new ArrayList<>();
+    private List<CarIssue> carIssueList = new ArrayList<>();
+
+    private ProgressDialog progressDialog;
 
 
     public static LocalCarAdapter carLocalStore;
@@ -91,9 +99,10 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private CharSequence mDrawerTitle="Swag";
-    private CharSequence mTitle="swaggier";
+    private CharSequence mDrawerTitle="Your Vehicles";
+    private CharSequence mTitle="Pitstop";
     private MixpanelHelper mixpanelHelper;
+    private View mainView;
     private Car dashboardCar;
 
     private NetworkHelper networkHelper;
@@ -101,6 +110,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
 
 
+    private boolean isLoading = false;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
     private Intent serviceIntent;
@@ -141,6 +151,24 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         setContentView(R.layout.activity_main_drawer_frame);
         serviceIntent= new Intent(AppMasterActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
+        mainView = findViewById(R.id.content_frame);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        Fragment fragment = new MainDashboardFragment();
+        Bundle args = new Bundle();
+//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+        fragment.setArguments(args);
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
@@ -151,6 +179,22 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         carLocalStore = new LocalCarAdapter(this);
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
+
+
+        // Always refresh from the server if entering from log in activity
+        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+            Log.i(TAG, "refresh from login");
+            refreshFromServer();
+        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            // In the event the user pressed back button while in the select dealership activity
+            // then load required data from local db.
+            refreshFromLocal();
+        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            // On opening a push notification, load required data from server
+            refreshFromServer();
+        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+            refreshFromServer();
+        }
 
         List<Car> cars = carLocalStore.getAllCars();
         mDrawerTitles = new String[cars.size()];
@@ -164,9 +208,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
 
         // Set the adapter for the list view
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-//                R.layout.drawer_list_item, mPlanetTitles));
-        // Set the list's click listener
+        mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
+                mDrawerTitles));
+//         Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -189,21 +233,6 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-        // Always refresh from the server if entering from log in activity
-        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-            Log.i(TAG, "refresh from login");
-            refreshFromServer();
-        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // In the event the user pressed back button while in the select dealership activity
-            // then load required data from local db.
-            refreshFromLocal();
-        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // On opening a push notification, load required data from server
-            refreshFromServer();
-        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-            refreshFromServer();
-        }
 
     }
 
@@ -284,6 +313,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int id = item.getItemId();
 
@@ -350,7 +382,17 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             intent.putExtra("dashboardCar", dashboardCar);
             startActivity(intent);
         }
-        return true;
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    public List<CarIssue> getCarIssueList() {
+        return carIssueList;
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -364,15 +406,110 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     public void refreshFromServer() {
         carLocalStore.deleteAllCars();
         carIssueLocalStore.deleteAllCarIssues();
+        carIssueList.clear();
+        getCarDetails();
         if(callback!=null) {
+            if(isLoading) {
+                hideLoading();
+            }
+
             callback.onServerRefreshed();
         }
     }
 
     public void refreshFromLocal() {
+        carIssueList.clear();
+        getCarDetails();
         if(callback!=null) {
+            if(isLoading) {
+                hideLoading();
+            }
             callback.onLocalRefreshed();
         }
+    }
+
+
+    /**
+     * Get list of cars associated with current user
+     * */
+    private void getCarDetails() {
+
+
+        showLoading("Retrieving car details");
+
+        // Try local store
+        List<Car> localCars = carLocalStore.getAllCars();
+
+        if(localCars.isEmpty()) {
+            loadCarDetailsFromServer();
+        } else {
+            Log.i(TAG,"Trying local store for cars");
+            AppMasterActivity.carList = localCars;
+
+            callback.setDashboardCar(AppMasterActivity.carList);
+            callback.setCarDetailsUI();
+            hideLoading();
+        }
+    }
+
+    /** Call function to retrieve live data from parse
+     * @see #getCarDetails()
+     * */
+    private void loadCarDetailsFromServer() {
+        int userId = ((GlobalApplication)getApplication()).getCurrentUserId();
+
+        networkHelper.getCarsByUserId(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null) {
+                    try {
+                        AppMasterActivity.carList = Car.createCarsList(response);
+
+                        if(AppMasterActivity.carList.isEmpty()) {
+                            if (isLoading) {
+                                hideLoading();
+                            }
+                            startAddCarActivity();
+                        } else {
+//                            callback.setDashboardCar(AppMasterActivity.carList);
+                            carLocalStore.deleteAllCars();
+                            carLocalStore.storeCars(AppMasterActivity.carList);
+//                            callback.setCarDetailsUI();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getBaseContext(),
+                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Load cars error: " + requestError.getMessage());
+                    Toast.makeText(getBaseContext(),
+                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+
+
+    public void hideLoading() {
+        progressDialog.dismiss();
+        isLoading = false;
+
+        mainView.setVisibility(View.VISIBLE);
+
+    }
+
+    public void showLoading(String text) {
+
+        isLoading = true;
+
+        progressDialog.setMessage(text);
+        if(!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+
+        mainView.setVisibility(View.INVISIBLE);
     }
 
     /** Swaps fragments in the main content view */
@@ -457,5 +594,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         public void activityResultCallback(int requestCode, int resultCode, Intent data);
         void onServerRefreshed();
         void onLocalRefreshed();
+
+        void setDashboardCar(List<Car> carList);
+
+        void setCarDetailsUI();
     }
 }

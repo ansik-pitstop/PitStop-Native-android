@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -40,7 +39,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.SplashSlidePagerAdapter;
+import com.pitstop.adapters.SplashSlidePagerAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
