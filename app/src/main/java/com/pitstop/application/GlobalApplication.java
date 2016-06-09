@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.facebook.login.LoginManager;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
@@ -181,12 +182,12 @@ public class GlobalApplication extends Application {
 
     public String getAccessToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfAccessToken, null);
+        return settings.getString(pfAccessToken, "");
     }
 
     public String getRefreshToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfRefreshToken, null);
+        return settings.getString(pfRefreshToken, "");
     }
 
     public void logOutUser() {
@@ -204,6 +205,7 @@ public class GlobalApplication extends Application {
         accessToken = null;
         refreshToken = null;
 
+        LoginManager.getInstance().logOut();
         ParseUser.logOut();
 
         userAdapter.deleteAllUsers();

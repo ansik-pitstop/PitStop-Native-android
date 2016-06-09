@@ -44,14 +44,19 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void post(String uri, RequestCallback callback, JSONObject body) {
-        new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+    private void post(String uri, RequestCallback callback, JSONObject body, boolean useHeader) {
+        HttpRequest.Builder request = new HttpRequest.Builder().uri(uri)
                 .body(body)
                 .requestCallBack(callback)
-                .requestType(RequestType.POST)
-                .createRequest()
-                .executeAsync();
+                .requestType(RequestType.POST);
+
+        if(useHeader) {
+            request.header("clientId", BuildConfig.DEBUG ? devToken : accessToken);
+        }
+
+        request.createRequest().executeAsync();
+
+
     }
 
     private void get(String uri, RequestCallback callback) {
@@ -88,7 +93,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("car", callback, body);
+        post("car", callback, body, true);
     }
 
     public void getCarsByUserId(int userId, RequestCallback callback) {
@@ -165,7 +170,21 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("login", callback, credentials);
+        post("login", callback, credentials, false);
+    }
+
+    public void loginSocial(String accessToken, String provider, RequestCallback callback) {
+        Log.i(TAG, "login");
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("accessToken", accessToken);
+            credentials.put("provider", provider);
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("login/social", callback, credentials, false);
     }
 
     // for logged in parse user
@@ -180,12 +199,12 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("login/legacy", callback, credentials);
+        post("login/legacy", callback, credentials, false);
     }
 
     public void signUpAsync(JSONObject newUser, RequestCallback callback) {
         Log.i(TAG, "signup");
-        post("user", callback, newUser);
+        post("user", callback, newUser, false);
     }
 
     public void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending,
@@ -210,7 +229,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("issue", callback, body);
+        post("issue", callback, body, true);
     }
 
     public void serviceDone(int carId, int issueId, int daysAgo, int mileage, RequestCallback callback) {
@@ -253,7 +272,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scanner", callback, body);
+        post("scanner", callback, body, true);
     }
 
     public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
@@ -267,7 +286,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/freezeData", callback, body);
+        post("scan/freezeData", callback, body, true);
     }
 
     public void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
@@ -282,7 +301,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/tripMileage", callback, body);
+        post("scan/tripMileage", callback, body, true);
     }
 
     public void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
@@ -295,7 +314,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/pids", callback, body);
+        post("scan/pids", callback, body, true);
     }
 
     public void requestService(int userId, int carId, int shopId, String comments,
@@ -310,7 +329,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("utility/serviceRequest", callback, body);
+        post("utility/serviceRequest", callback, body, true);
 
     }
 
@@ -327,7 +346,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("utility/serviceRequest", callback, body);
+        post("utility/serviceRequest", callback, body, true);
     }
 
     public void getUser(int userId, RequestCallback callback) {
