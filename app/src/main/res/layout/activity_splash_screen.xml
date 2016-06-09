@@ -82,7 +82,8 @@
             android:layout_weight="1"
             android:textColor="#fff"
             android:typeface="normal"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:onClick="goToLogin" />
 
         <Button
             android:layout_width="0dp"
@@ -93,7 +94,8 @@
             android:layout_weight="1"
             android:textColor="#fff"
             android:typeface="normal"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:onClick="goToLogin" />
     </LinearLayout>
 
 

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -284,7 +285,7 @@ public class SplashScreen extends AppCompatActivity {
             lastName.setVisibility(View.GONE);
             phoneNumber.setVisibility(View.GONE);
             ((Button)findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
-            ((Button)findViewById(R.id.login_btn)).setText("LOG IN");
+            ((Button)findViewById(R.id.login_btn)).setText("Log In");
             ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
             signup = !signup;
         }else{
@@ -294,11 +295,8 @@ public class SplashScreen extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            firstName.setVisibility(View.VISIBLE);
-            lastName.setVisibility(View.VISIBLE);
-            phoneNumber.setVisibility(View.VISIBLE);
             ((Button)findViewById(R.id.fb_login_butt)).setText("Sign up with facebook");
-            ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
+            ((Button)findViewById(R.id.login_btn)).setText("Sign Up");
             ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
             signup = !signup;
         }
@@ -335,10 +333,29 @@ public class SplashScreen extends AppCompatActivity {
                         .show();
                 return;
             }
+            if(firstName.getVisibility()!= View.VISIBLE){
+                mPager.setOnTouchListener(new View.OnTouchListener(){
+
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        return true;
+                    }
+                });
+                firstName.setVisibility(View.VISIBLE);
+                lastName.setVisibility(View.VISIBLE);
+                phoneNumber.setVisibility(View.VISIBLE);
+                email.setVisibility(View.GONE);
+                password.setVisibility(View.GONE);
+                findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
+                findViewById(R.id.login_or).setVisibility(View.GONE);
+                findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
+                ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+                return;
+            }
 
             showLoading("Loading");
             if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
-                Snackbar.make(splashLayout, "First and last name are required",Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(splashLayout, "First and last name are required", Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
@@ -512,7 +529,12 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void goToLogin(View view) {
-        mPager.setCurrentItem(3);
+        mPager.setCurrentItem(2);
+        if(((Button)view).getText().equals("Sign Up")&&!signup){
+            signUpSwitcher(view);
+        }else if (((Button)view).getText().equals("Log In")&&signup){
+            signUpSwitcher(view);
+        }
     }
 
     private void showLoading(String text){
