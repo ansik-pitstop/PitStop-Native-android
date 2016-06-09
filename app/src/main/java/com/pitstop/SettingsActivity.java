@@ -344,7 +344,7 @@ public class SettingsActivity extends AppCompatActivity {
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(String.format("%s %s",
                     currentUser.getFirstName(),
-                    currentUser.getLastName() == null ? "" : currentUser.getLastName()));
+                    currentUser.getLastName() == null || currentUser.getLastName().equals("null") ? "" : currentUser.getLastName()));
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -364,7 +364,8 @@ public class SettingsActivity extends AppCompatActivity {
                     firstNameInput.setText(currentUser.getFirstName());
 
                     final EditText lastNameInput = new EditText(getActivity());
-                    lastNameInput.setText(currentUser.getLastName());
+                    lastNameInput.setText(
+                            currentUser.getLastName() == null || currentUser.getLastName().equals("null") ? "" : currentUser.getLastName());
 
                     changeNameLayout.addView(firstNameInput);
                     changeNameLayout.addView(lastNameInput);

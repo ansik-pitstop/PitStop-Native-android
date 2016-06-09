@@ -15,6 +15,55 @@
         android:layout_height="wrap_content"/>
 
     <RelativeLayout
+        android:id="@+id/no_car_text"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/no_car_line_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="There are no cars"
+            android:layout_above="@+id/no_car_line_2"
+            android:layout_centerHorizontal="true"
+            android:textColor="#aaaaaa"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/no_car_line_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="in your dashboard"
+            android:layout_centerInParent="true"
+            android:textColor="#aaaaaa"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textAlignment="center" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/color_button_add_car"
+            android:layout_below="@id/no_car_line_2"
+            android:layout_centerHorizontal="true"
+            android:textSize="18sp"
+            android:layout_marginTop="18dp"
+            android:padding="16dp"
+            android:textAllCaps="false"
+            android:text="Tap here to add your first car"
+            android:textColor="#efefef"
+            android:onClick="startAddCarActivity"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/main_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

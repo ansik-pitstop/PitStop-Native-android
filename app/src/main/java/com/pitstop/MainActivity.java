@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -19,6 +20,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -76,20 +81,18 @@ import java.util.concurrent.TimeUnit;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
-import pub.devrel.easypermissions.EasyPermissions;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
-public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
-        EasyPermissions.PermissionCallbacks {
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private static final int RC_ADD_CAR = 50;
     private static final int RC_SCAN_CAR = 51;
     private static final int RC_SETTINGS = 52;
     private static final int RC_DISPLAY_ISSUE = 53;
 
-    private static final int RC_LOCATION_PERM = 101;
+    public static final int RC_LOCATION_PERM = 101;
     public static final int RC_ENABLE_BT= 102;
     public static final int RESULT_OK = 60;
 
@@ -112,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
-    private static final int LOC_PERM_REQ = 112;
 
     private boolean isLoading = false;
 
@@ -171,11 +173,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
-                if(EasyPermissions.hasPermissions(MainActivity.this, LOC_PERMS)) {
-                    autoConnectService.startBluetoothSearch();
+
+                if(ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                 } else {
-                    EasyPermissions.requestPermissions(MainActivity.this,
-                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, LOC_PERMS);
+                    autoConnectService.startBluetoothSearch();
                 }
             }
         }
@@ -392,12 +395,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 autoConnectService.startBluetoothSearch();
             }
         } else if(id == R.id.add) {
-            try {
-                mixpanelHelper.trackButtonTapped("Add Car", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            startAddCarActivity(dashboardCar!=null);
+            startAddCarActivity(null);
         } else if(id == R.id.action_settings) {
             try {
                 mixpanelHelper.trackButtonTapped("Settings", TAG);
@@ -436,10 +434,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
-            //intent.putExtra("carId",dashboardCar.getId());
-            intent.putExtra("dashboardCar", dashboardCar);
-            startActivity(intent);
+            if(dashboardCar == null) {
+                Toast.makeText(MainActivity.this, "There is no active car", Toast.LENGTH_SHORT).show();
+            } else {
+                Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
+                //intent.putExtra("carId",dashboardCar.getId());
+                intent.putExtra("dashboardCar", dashboardCar);
+                startActivity(intent);
+            }
         }
         return true;
     }
@@ -451,7 +453,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Log.i(TAG, "onResume");
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            if(dashboardCar == null || dashboardCar.getDealership() == null) {
+                mixpanelHelper.trackViewAppeared(TAG);
+            } else {
+                application.getMixpanelAPI().track("View Appeared",
+                        new JSONObject("{'View':'" + TAG + "','Dealership':'" + dashboardCar.getDealership().getName()
+                                + "','Device':'Android'}"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -467,6 +475,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
 
             if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
+
+                findViewById(R.id.no_car_text).setVisibility(View.GONE);
 
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
@@ -958,7 +968,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             if (isLoading) {
                                 hideLoading();
                             }
-                            startAddCarActivity(false);
+                            findViewById(R.id.main_view).setVisibility(View.GONE);
+                            findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
                         } else {
                             setDashboardCar(carList);
                             carLocalStore.deleteAllCars();
@@ -1101,12 +1112,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         getCarDetails();
     }
 
-    private void startAddCarActivity(boolean hasCars) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        if(hasCars) {
-            intent.putExtra(HAS_CAR_IN_DASHBOARD, true);
-            CarDataManager.getInstance().setDashboardCar(dashboardCar);
+    public void startAddCarActivity(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Add Car", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
+        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+
+        intent.putExtra(HAS_CAR_IN_DASHBOARD, true);
+        CarDataManager.getInstance().setDashboardCar(dashboardCar);
         startActivityForResult(intent, RC_ADD_CAR);
     }
 
@@ -1132,22 +1148,20 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onRequestPermissionsResult (int requestCode, String[] permissions,
                                             int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        if(autoConnectService != null) {
-            autoConnectService.startBluetoothSearch();
+        if(requestCode == RC_LOCATION_PERM) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                autoConnectService.startBluetoothSearch();
+            } else {
+                Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
+                            }
+                        })
+                        .show();
+            }
         }
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-
     }
 
     /**
@@ -1237,9 +1251,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             }
         });
-
         sequence.start();
-
     }
 
     /**
