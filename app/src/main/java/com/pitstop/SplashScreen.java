@@ -3,10 +3,7 @@ package com.pitstop;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -134,7 +131,7 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login_butt);
+                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
                     if(facebookLoginButton != null) {
                         facebookLoginButton.setReadPermissions("public_profile", "email");
                         facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -288,6 +285,7 @@ public class SplashScreen extends AppCompatActivity {
             firstName.setVisibility(View.GONE);
             lastName.setVisibility(View.GONE);
             phoneNumber.setVisibility(View.GONE);
+            ((Button)findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
             ((Button)findViewById(R.id.login_btn)).setText("LOG IN");
             ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
             signup = !signup;
@@ -301,9 +299,21 @@ public class SplashScreen extends AppCompatActivity {
             firstName.setVisibility(View.VISIBLE);
             lastName.setVisibility(View.VISIBLE);
             phoneNumber.setVisibility(View.VISIBLE);
+            ((Button)findViewById(R.id.fb_login_butt)).setText("Sign up with facebook");
             ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
             ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
             signup = !signup;
+        }
+    }
+
+    public void loginFacebook(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Login with Facebook", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(facebookLoginButton != null) {
+            facebookLoginButton.performClick();
         }
     }
 
@@ -312,11 +322,6 @@ public class SplashScreen extends AppCompatActivity {
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
                 mixpanelHelper.trackViewAppeared("Register");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -351,14 +356,13 @@ public class SplashScreen extends AppCompatActivity {
             }
             // creating json to post
             JSONObject json = new JSONObject();
-            try {
+            try { // TODO: put names and phone number from second screen
                 json.put("firstName", firstName.getText().toString());
                 json.put("lastName", lastName.getText().toString());
                 json.put("email", email.getText().toString());
                 json.put("username", email.getText().toString());
                 json.put("phone", phoneNumber.getText().toString());
                 json.put("password", password.getText().toString());
-                json.put("facebookId", "");
                 json.put("isSocial", false);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -413,31 +417,36 @@ public class SplashScreen extends AppCompatActivity {
 
     private void loginSocial(final String fbAccessToken, final String provider) {
         showLoading("Logging in");
-        networkHelper.loginSocial(fbAccessToken, provider, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                hideLoading();
-                if(requestError == null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        User user = User.jsonToUserObject(response);
-                        String accessToken = jsonObject.getString("accessToken");
-                        String refreshToken = jsonObject.getString("refreshToken");
-                        application.logInUser(accessToken, refreshToken, user);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+
+        if(!signup) {
+            networkHelper.loginSocial(fbAccessToken, provider, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    hideLoading();
+                    if (requestError == null) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            User user = User.jsonToUserObject(response);
+                            String accessToken = jsonObject.getString("accessToken");
+                            String refreshToken = jsonObject.getString("refreshToken");
+                            application.logInUser(accessToken, refreshToken, user);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        GlobalApplication.setUpMixPanel();
+
+                        goToMainActivity();
+                    } else {
+                        Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                        Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                                .show();
                     }
-
-                    GlobalApplication.setUpMixPanel();
-
-                    goToMainActivity();
-                } else {
-                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
-                            .show();
                 }
-            }
-        });
+            });
+        } else {
+            // TODO: put confirm information screen here with name and phone number, after first login, PUT user to update information
+        }
     }
 
     private void loginParse(final String userId, final String sessionId) {
