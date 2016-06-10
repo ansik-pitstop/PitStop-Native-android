@@ -85,7 +85,8 @@
         <activity
             android:name=".AppMasterActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
         <activity
             android:name=".AddCarActivity"
             android:label="@string/title_activity_add_car"

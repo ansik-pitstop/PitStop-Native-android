@@ -3,6 +3,7 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -280,28 +281,30 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         super.onPause();
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        rootview = inflater.inflate(R.layout.fragment_main_dashboard,null);
-
-        AppMasterActivity.callback = this;
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         application = (GlobalApplication) getActivity().getApplicationContext();
         networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        carDataManager = CarDataManager.getInstance();
+        carIssuesAdapter = new CustomAdapter(carIssueList);
+        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
 
         // Local db adapters
         carLocalStore = AppMasterActivity.carLocalStore;
         carIssueLocalStore = AppMasterActivity.carIssueLocalStore;
         shopLocalStore = AppMasterActivity.shopLocalStore;
-        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        AppMasterActivity.callback = this;
+    }
 
-
-
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        rootview = inflater.inflate(R.layout.fragment_main_dashboard,null);
         setUpUIReferences();
-        carDataManager = CarDataManager.getInstance();
         return rootview;
     }
 
@@ -313,7 +316,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      */
     private void setUpUIReferences() {
 
-        toolbar = (Toolbar) rootview.findViewById(R.id.toolbar);
+        toolbar = (Toolbar)  getActivity().findViewById(R.id.toolbar);
         recyclerView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
@@ -553,79 +556,16 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
 
-    /**
-     * Request service for all issues currently displayed or custom request
-     * */
-    public void requestMultiService(View view) {
 
-        try {
-            mixpanelHelper.trackButtonTapped("Request Service", TAG);
-        } catch (JSONException e) {
-            e.printStackTrace();
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if(dashboardCar!=null) {
+            carName.setText(dashboardCar.getYear() + " "
+                    + dashboardCar.getMake() + " "
+                    + dashboardCar.getModel());
+            setIssuesCount();
         }
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-        alertDialog.setTitle("Enter additional comment");
-
-        final String[] additionalComment = {""};
-        final EditText userInput = new EditText(getContext());
-        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        alertDialog.setView(userInput);
-
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':"
-                                    + dashboardCar.getActiveIssues().size() + "}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                additionalComment[0] = userInput.getText().toString();
-                sendRequest(additionalComment[0]);
-            }
-        });
-
-        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                dialog.cancel();
-            }
-        });
-
-        alertDialog.show();
-    }
-
-
-    /**
-     * Request service for all issues currently displayed or custom request
-     * @see #requestMultiService(View)
-     * */
-    private void sendRequest(String additionalComment) {
-
-        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
-                dashboardCar.getShopId(), additionalComment, new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            Toast.makeText(getActivity(), "Service request sent", Toast.LENGTH_SHORT).show();
-                            for(CarIssue issue : dashboardCar.getActiveIssues()) {
-                                networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
-                            }
-                        } else {
-                            Log.e(TAG, "service request: " + requestError.getMessage());
-                            Toast.makeText(getActivity(), "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
     }
 
 
@@ -657,12 +597,12 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 }
             }, 2000);
         }
-
-        carName.setText(dashboardCar.getYear() + " "
-                + dashboardCar.getMake() + " "
-                + dashboardCar.getModel());
-
-        setIssuesCount();
+        if(carName!=null) {
+            carName.setText(dashboardCar.getYear() + " "
+                    + dashboardCar.getMake() + " "
+                    + dashboardCar.getModel());
+            setIssuesCount();
+        }
     }
 
     private void setIssuesCount() { // sets the number of active issues to display
@@ -787,6 +727,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     public void setDashboardCar(List<Car> carList) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
 
         for(Car car : carList) {
@@ -837,14 +778,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             }
         });
 
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder(getActivity())
-                .setTarget(toolbar.findViewById(R.id.add))
-                .setTitleText("Add Car")
-                .setContentText("Click to add a new car")
-                .setDismissOnTouch(true)
-                .setDismissText("OK")
-                .build()
-        );
+//        sequence.addSequenceItem(new MaterialShowcaseView.Builder(getActivity())
+//                .setTarget(toolbar.findViewById(R.id.add))
+//                .setTitleText("Add Car")
+//                .setContentText("Click to add a new car")
+//                .setDismissOnTouch(true)
+//                .setDismissText("OK")
+//                .build()
+//        );
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(getActivity())

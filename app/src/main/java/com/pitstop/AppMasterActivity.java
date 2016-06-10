@@ -1,26 +1,33 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -40,13 +47,16 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.adapters.MainAppSideMenuAdapter;
+import com.pitstop.adapters.MainAppViewPagerAdaper;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.CarDataManager;
+import com.pitstop.utils.MainToolFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,8 +112,11 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     private CharSequence mDrawerTitle="Your Vehicles";
     private CharSequence mTitle="Pitstop";
     private MixpanelHelper mixpanelHelper;
-    private View mainView;
+    private  Toolbar toolbar;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
     private Car dashboardCar;
+    private GlobalApplication application;
 
     private NetworkHelper networkHelper;
     public static MainDashboardCallback callback;
@@ -151,20 +164,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         setContentView(R.layout.activity_main_drawer_frame);
         serviceIntent= new Intent(AppMasterActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
-        mainView = findViewById(R.id.content_frame);
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        Fragment fragment = new MainDashboardFragment();
-        Bundle args = new Bundle();
-//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-        fragment.setArguments(args);
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
 
 
         progressDialog = new ProgressDialog(this);
@@ -180,38 +182,18 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
 
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
 
-        // Always refresh from the server if entering from log in activity
-        if(getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-            Log.i(TAG, "refresh from login");
-            refreshFromServer();
-        } else if(SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // In the event the user pressed back button while in the select dealership activity
-            // then load required data from local db.
-            refreshFromLocal();
-        } else if(PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-            // On opening a push notification, load required data from server
-            refreshFromServer();
-        } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-            refreshFromServer();
-        }
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+    }
 
-        List<Car> cars = carLocalStore.getAllCars();
-        mDrawerTitles = new String[cars.size()];
-        for (int i = 0; i<cars.size();i++){
-            Car car = cars.get(i);
-            mDrawerTitles[i]=car.getMake()+" " + car.getModel();
-        }
+    private void setupViewPager(ViewPager viewPager) {
+        MainAppViewPagerAdaper adapter = new MainAppViewPagerAdaper(getSupportFragmentManager());
+        adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
+        adapter.addFragment(new MainToolFragment(), "TOOLS");
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
-                mDrawerTitles));
-//         Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.bluetooth, R.string.bluetooth) {
@@ -233,9 +215,57 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
+        viewPager.setAdapter(adapter);
+        mDrawerToggle.syncState();
     }
 
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof MainDashboardFragment) {
+            // Always refresh from the server if entering from log in activity
+            if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+                Log.i(TAG, "refresh from login");
+                refreshFromServer();
+            } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+                // In the event the user pressed back button while in the select dealership activity
+                // then load required data from local db.
+                refreshFromLocal();
+            } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+                // On opening a push notification, load required data from server
+                refreshFromServer();
+            } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+                refreshFromServer();
+            }
+            resetMenus(true);
+        }
+    }
+
+    public void resetMenus(boolean check){
+
+        carList = carLocalStore.getAllCars();
+        if(carList.size()==0&&check){
+            refreshFromServer();
+        }
+        mDrawerTitles = new String[carList.size()];
+        for (int i = 0; i<carList.size();i++){
+            Car car = carList.get(i);
+            mDrawerTitles[i]=car.getMake()+" " + car.getModel();
+        }
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
+
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
+                mDrawerTitles));
+//         Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        if(carList.size()>0){
+            callback.setDashboardCar(AppMasterActivity.carList);
+            callback.setCarDetailsUI();
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -310,68 +340,74 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         return true;
     }
 
+    public void refreshClicked(View view){
+        try {
+            mixpanelHelper.trackButtonTapped("Refresh", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        refreshFromServer();
+
+        if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+            autoConnectService.startBluetoothSearch();
+        }
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+    }
+    public void addClicked(View view){
+
+        try {
+            mixpanelHelper.trackButtonTapped("Add Car", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        startAddCarActivity();
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+    }
+    public void settingsClicked(View view){
+        try {
+            mixpanelHelper.trackButtonTapped("Settings", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
+
+        final Intent intent = new Intent(AppMasterActivity.this, SettingsActivity.class);
+
+        IntentProxyObject proxyObject = new IntentProxyObject();
+
+        proxyObject.setCarList(carList);
+        intent.putExtra(CAR_LIST_EXTRA, proxyObject);
+
+        application = ((GlobalApplication) getApplication());
+        if (application.getCurrentUser() == null) {
+            networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null) {
+                        application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
+                        startActivityForResult(intent, RC_SETTINGS);
+                    } else {
+                        Log.e(TAG, "Get user error: " + requestError.getMessage());
+                    }
+                }
+            });
+        } else {
+            startActivityForResult(intent, RC_SETTINGS);
+        }
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int id = item.getItemId();
 
-        if(id == R.id.refresh_main) {
-            try {
-                mixpanelHelper.trackButtonTapped("Refresh", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            refreshFromServer();
-
-            if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
-                autoConnectService.startBluetoothSearch();
-            }
-        } else if(id == R.id.add) {
-            try {
-                mixpanelHelper.trackButtonTapped("Add Car", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            startAddCarActivity();
-        } else if(id == R.id.action_settings) {
-            try {
-                mixpanelHelper.trackButtonTapped("Settings", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
-
-            final Intent intent = new Intent(AppMasterActivity.this, SettingsActivity.class);
-
-            IntentProxyObject proxyObject = new IntentProxyObject();
-
-            proxyObject.setCarList(carList);
-            intent.putExtra(CAR_LIST_EXTRA,proxyObject);
-
-            final GlobalApplication application  = ((GlobalApplication)getApplication());
-            if(application.getCurrentUser() == null) {
-                networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
-                            startActivityForResult(intent, RC_SETTINGS);
-                        } else {
-                            Log.e(TAG, "Get user error: " + requestError.getMessage());
-                        }
-                    }
-                });
-            } else {
-                startActivityForResult(intent, RC_SETTINGS);
-            }
-
-        } else if(id == R.id.action_car_history) {
+        if (id == R.id.action_car_history) {
             try {
                 mixpanelHelper.trackButtonTapped("History", TAG);
             } catch (JSONException e) {
@@ -384,6 +420,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -408,10 +445,10 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         carIssueLocalStore.deleteAllCarIssues();
         carIssueList.clear();
         getCarDetails();
+        if(isLoading) {
+            hideLoading();
+        }
         if(callback!=null) {
-            if(isLoading) {
-                hideLoading();
-            }
 
             callback.onServerRefreshed();
         }
@@ -420,10 +457,10 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     public void refreshFromLocal() {
         carIssueList.clear();
         getCarDetails();
+        if(isLoading) {
+            hideLoading();
+        }
         if(callback!=null) {
-            if(isLoading) {
-                hideLoading();
-            }
             callback.onLocalRefreshed();
         }
     }
@@ -471,10 +508,11 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
                             }
                             startAddCarActivity();
                         } else {
-//                            callback.setDashboardCar(AppMasterActivity.carList);
+                            callback.setDashboardCar(AppMasterActivity.carList);
                             carLocalStore.deleteAllCars();
                             carLocalStore.storeCars(AppMasterActivity.carList);
-//                            callback.setCarDetailsUI();
+                            callback.setCarDetailsUI();
+                            resetMenus(false);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -496,7 +534,6 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         progressDialog.dismiss();
         isLoading = false;
 
-        mainView.setVisibility(View.VISIBLE);
 
     }
 
@@ -509,27 +546,17 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             progressDialog.show();
         }
 
-        mainView.setVisibility(View.INVISIBLE);
     }
 
     /** Swaps fragments in the main content view */
-    private void selectItem(int position) {
-        // Create a new fragment and specify the planet to show based on position
-        Fragment fragment = new MainDashboardFragment();
-        Bundle args = new Bundle();
-//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-        fragment.setArguments(args);
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+    private void selectItem(int position){
 
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
-        setTitle(mDrawerTitles[position]);
-        mDrawerLayout.closeDrawer(mDrawerList);
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, carList.get(position).getId()).apply();
+        callback.setDashboardCar(carList);
+        callback.setCarDetailsUI();
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
 
 
@@ -553,6 +580,83 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         if(autoConnectService != null) {
             autoConnectService.startBluetoothSearch();
         }
+    }
+
+
+    /**
+     * Request service for all issues currently displayed or custom request
+     * */
+    public void requestMultiService(View view) {
+
+        try {
+            mixpanelHelper.trackButtonTapped("Request Service", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Enter additional comment");
+
+        final String[] additionalComment = {""};
+        final EditText userInput = new EditText(this);
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        alertDialog.setView(userInput);
+
+        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    application.getMixpanelAPI().track("Button Tapped",
+                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                    + "','Device':'Android','Number of Services Requested':"
+                                    + dashboardCar.getActiveIssues().size() + "}"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                additionalComment[0] = userInput.getText().toString();
+                sendRequest(additionalComment[0]);
+            }
+        });
+
+        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                dialog.cancel();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+
+
+    /**
+     * Request service for all issues currently displayed or custom request
+     * @see #requestMultiService(View)
+     * */
+    private void sendRequest(String additionalComment) {
+
+        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
+                dashboardCar.getShopId(), additionalComment, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(getApplicationContext(), "Service request sent", Toast.LENGTH_SHORT).show();
+                            for(CarIssue issue : dashboardCar.getActiveIssues()) {
+                                networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                            }
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(getApplicationContext(), "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     @Override

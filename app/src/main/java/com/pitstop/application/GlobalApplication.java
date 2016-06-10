@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
@@ -52,6 +53,7 @@ public class GlobalApplication extends Application {
         userAdapter = new UserAdapter(this);
 
         Parse.enableLocalDatastore(this);
+        FacebookSdk.sdkInitialize(this);
         Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
         ParseInstallation.getCurrentInstallation().saveInBackground();
@@ -204,7 +206,6 @@ public class GlobalApplication extends Application {
 
         accessToken = null;
         refreshToken = null;
-
         LoginManager.getInstance().logOut();
         ParseUser.logOut();
 
