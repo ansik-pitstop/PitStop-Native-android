@@ -54,6 +54,9 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
@@ -330,13 +333,28 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        application = (GlobalApplication) getApplicationContext();
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("userId", String.valueOf(application.getCurrentUserId()));
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.wtf(TAG + " SAVE", e == null ? "Saved" : e.getMessage());
+            }
+        });
+
+        Log.wtf(TAG, "ObjectId: " + ParseInstallation.getCurrentInstallation().getObjectId());
+        Log.wtf(TAG, "deviceToken: " + ParseInstallation.getCurrentInstallation().get("deviceToken"));
+        Log.wtf(TAG, "userId: " + ParseInstallation.getCurrentInstallation().get("userId"));
+
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
-        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
         // Local db adapters

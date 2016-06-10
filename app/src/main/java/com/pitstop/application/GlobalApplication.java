@@ -9,8 +9,11 @@ import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.PushService;
+import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
@@ -51,6 +54,7 @@ public class GlobalApplication extends Application {
         userAdapter = new UserAdapter(this);
 
         Parse.enableLocalDatastore(this);
+        Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
         ParseInstallation.getCurrentInstallation().saveInBackground();
@@ -136,9 +140,14 @@ public class GlobalApplication extends Application {
         GlobalApplication.refreshToken = refreshToken;
         GlobalApplication.accessToken = accessToken;
 
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        installation.put("userId", String.valueOf(currentUser.getId()));
-        installation.saveInBackground();
+        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        //installation.put("userId", String.valueOf(currentUser.getId()));
+        //installation.saveInBackground(new SaveCallback() {
+        //    @Override
+        //    public void done(ParseException e) {
+        //        Log.wtf("SAVE", e == null ? "Saved" : e.getMessage());
+        //    }
+        //});
 
         setCurrentUser(currentUser);
     }
