@@ -212,6 +212,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 }
                             }
                         });
+                sendPidDataToServer(lastData);
             }
 
             NotificationManager mNotificationManager =
@@ -688,14 +689,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        if(localPid.getPidDataEntryCount() >= 100) {
-            sendPidDataToServer(data);
-        }
-
-        /*if(localPidResult4.getPidDataEntryCount() >= 50) {
-            sendPidDataResult4ToServer(data);
-        }*/
-
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
         Car dashboardCar = CarDataManager.getInstance().getDashboardCar();
@@ -737,6 +730,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             localPid.createPIDData(pidDataObject);
         }
+
+        if(localPid.getPidDataEntryCount() >= 100) {
+            sendPidDataToServer(data);
+        }
+
+        /*if(localPidResult4.getPidDataEntryCount() >= 50) {
+            sendPidDataResult4ToServer(data);
+        }*/
     }
 
     /**
