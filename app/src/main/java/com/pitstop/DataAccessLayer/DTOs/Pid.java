@@ -63,4 +63,9 @@ public class Pid {
     public double getMileage() {
         return mileage;
     }
+
+    public String toString() {
+        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp
+                + ", mileage: " + mileage + ", pids: " + pids;
+    }
 }

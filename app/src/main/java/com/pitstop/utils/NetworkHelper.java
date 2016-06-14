@@ -188,7 +188,7 @@ public class NetworkHelper {
         post("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending,
+    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
                                  List<PIDInfo> freezeData, RequestCallback callback) {
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
@@ -213,7 +213,7 @@ public class NetworkHelper {
         post("issue", callback, body);
     }
 
-    public void serviceDone(int carId, int issueId, int daysAgo, int mileage, RequestCallback callback) {
+    public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
         JSONObject body = new JSONObject();
 
         try {
@@ -276,11 +276,13 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("tripId", Long.parseLong(tripId));
-            body.put("mileage", Double.parseDouble(mileage));
+            body.put("mileage", Double.parseDouble(mileage)/1000);
             body.put("rtcTime", Long.parseLong(rtcTime));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        Log.wtf("TripMileage", body.toString());
 
         post("scan/tripMileage", callback, body);
     }

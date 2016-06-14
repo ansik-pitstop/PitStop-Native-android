@@ -156,12 +156,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
 
         setupUiReferences();
-        carMileage.setText(String.valueOf(dashboardCar.getTotalMileage()));
+        carMileage.setText(String.valueOf((int) dashboardCar.getTotalMileage()));
     }
 
     @Override
     protected void onPause() {
         handler.removeCallbacks(runnable);
+        handler.removeCallbacks(connectCar);
         super.onPause();
     }
 
@@ -333,7 +334,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                 Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
 
-                                carScanButton.setEnabled(false);
+                                //carScanButton.setEnabled(false);
                                 recallsStateLayout.setVisibility(View.GONE);
                                 recallsCountLayout.setVisibility(View.GONE);
                                 loadingRecalls.setVisibility(View.VISIBLE);
@@ -606,6 +607,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             for(String dtc : dtcs) {
                 dtcCodes.add(dtc);
             }
+            Log.wtf("DTCS", dataPackageInfo.dtcData);
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -667,7 +669,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 10 && askingForDtcs) {
+            if(seconds > 25 && askingForDtcs) {
                 askingForDtcs = false;
                 handler.sendEmptyMessage(0);
                 handler.removeCallbacks(runnable);
@@ -684,7 +686,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - carSearchStartTime;
             int seconds = (int) (timeDiff / 1000);
-            if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED || autoConnectService.isCommunicatingWithDevice()) {
+            if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.isCommunicatingWithDevice()) {
                 handler.sendEmptyMessage(1);
                 handler.removeCallbacks(connectCar);
             } else if(seconds > 15) {

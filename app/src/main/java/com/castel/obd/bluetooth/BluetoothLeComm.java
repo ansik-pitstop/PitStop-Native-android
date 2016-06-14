@@ -123,6 +123,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     public void startScan() {
         if(!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
             Log.i(TAG, "Scan unable to start");
+            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
             return;
         }
 

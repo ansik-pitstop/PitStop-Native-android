@@ -28,8 +28,8 @@ public class Car implements Serializable {
     private String tankSize;
     private String cityMileage;
     private String highwayMileage;
-    private int baseMileage;
-    private int totalMileage;
+    private double baseMileage;
+    private double totalMileage;
     private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;
@@ -134,7 +134,7 @@ public class Car implements Serializable {
         this.highwayMileage = highwayMileage;
     }
 
-    public int getBaseMileage() {
+    public double getBaseMileage() {
         return baseMileage;
     }
 
@@ -142,7 +142,7 @@ public class Car implements Serializable {
         this.baseMileage = baseMileage;
     }
 
-    public int getTotalMileage() {
+    public double getTotalMileage() {
         return totalMileage;
     }
 

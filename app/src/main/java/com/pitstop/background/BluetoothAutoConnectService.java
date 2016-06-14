@@ -316,7 +316,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         deviceConnState = true;
         currentDeviceId = dataPackageInfo.deviceId;
-        lastData = dataPackageInfo;
+        if(dataPackageInfo.tripMileage != null) {
+            lastData = dataPackageInfo;
+        }
         processPIDData(dataPackageInfo);
 
         if(dataPackageInfo.result == 4) {
@@ -693,9 +695,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         JSONArray pids = new JSONArray();
         Car dashboardCar = CarDataManager.getInstance().getDashboardCar();
 
-        double mileage = data.tripMileage == null || data.tripMileage.equals("0") || data.tripMileage.isEmpty()
-                ? 0.0 : (Double.parseDouble(data.tripMileage) / 1000) +
-                (dashboardCar == null ? 0 : dashboardCar.getTotalMileage());
+        double mileage;
+
+        if(lastData != null && lastData.tripMileage != null) {
+            mileage = Double.parseDouble(lastData.tripMileage)/1000;
+        } else if(data.tripMileage == null || data.tripMileage.isEmpty()) {
+            mileage = 0.0;
+        } else {
+            mileage = Double.parseDouble(data.tripMileage) / 1000;
+        }
+
+        mileage += dashboardCar == null ? 0 : dashboardCar.getTotalMileage();
 
         pidDataObject.setMileage(mileage);
         pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
@@ -731,6 +741,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             localPid.createPIDData(pidDataObject);
         }
 
+        Log.wtf("DATA mileage" , data.tripMileage == null ? "null" : data.tripMileage);
+        Log.wtf("PID", pidDataObject.toString());
+        Log.wtf("Car mileage", dashboardCar == null ? "null" : String.valueOf(dashboardCar.getTotalMileage()));
+
         if(localPid.getPidDataEntryCount() >= 100) {
             sendPidDataToServer(data);
         }
@@ -755,7 +769,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("dataNum", pidDataObject.getDataNumber());
                 jsonObject.put("rtcTime", pidDataObject.getRtcTime());
-                jsonObject.put("mileage", 0);
+                jsonObject.put("mileage", pidDataObject.getMileage());
                 jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                 pidArray.put(jsonObject);
             }
