@@ -9,11 +9,7 @@ import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.parse.PushService;
-import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
@@ -54,19 +50,22 @@ public class GlobalApplication extends Application {
 
         userAdapter = new UserAdapter(this);
 
-        Parse.enableLocalDatastore(this);
+        // Smooch
+        Settings settings = new Settings(getString(R.string.smooch_token));
+        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        Smooch.init(this, settings);
 
+        // Parse
+        Parse.enableLocalDatastore(this);
         if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
-        Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
+        Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-        Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
-        Smooch.init(this, settings);
+
+        // Mixpanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
     }
 

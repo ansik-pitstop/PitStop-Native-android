@@ -338,7 +338,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("userId", String.valueOf(application.getCurrentUserId()));
-        installation.saveInBackground();
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
 
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
@@ -636,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 customProperties.put("Car Year", dashboardCar.getYear());
                 customProperties.put("Phone", application.getCurrentUser().getPhone());
                 Log.i(TAG, dashboardCar.getDealership().getEmail());
-                customProperties.put("Email","ben@getpitstop.io");
+                customProperties.put("Email", dashboardCar.getDealership().getEmail());
                 User.getCurrentUser().addProperties(customProperties);
                 User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
                 User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());

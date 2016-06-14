@@ -3,10 +3,7 @@ package com.pitstop;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -89,11 +86,6 @@ public class SplashScreen extends AppCompatActivity {
         if(BuildConfig.DEBUG) {
             Toast.makeText(this, "This is a debug build", Toast.LENGTH_LONG).show();
         }
-
-        String deviceId = Settings.Secure.getString(this.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-
-        //Log.i(TAG, "Device id: " + deviceId);
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
