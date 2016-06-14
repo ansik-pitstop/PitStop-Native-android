@@ -1,24 +1,21 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
-import android.widget.Toast;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.parse.ParseObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Paul Soladoye on 3/14/2016.
  */
-public class Dealership implements Serializable {
+public class Dealership implements Parcelable {
 
     private int id;
     private String name;
@@ -100,4 +97,43 @@ public class Dealership implements Serializable {
 
         return dealership;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.address);
+        dest.writeString(this.phone);
+        dest.writeString(this.email);
+        dest.writeString(this.longitude);
+        dest.writeString(this.latitude);
+    }
+
+    protected Dealership(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+        this.address = in.readString();
+        this.phone = in.readString();
+        this.email = in.readString();
+        this.longitude = in.readString();
+        this.latitude = in.readString();
+    }
+
+    public static final Creator<Dealership> CREATOR = new Creator<Dealership>() {
+        @Override
+        public Dealership createFromParcel(Parcel source) {
+            return new Dealership(source);
+        }
+
+        @Override
+        public Dealership[] newArray(int size) {
+            return new Dealership[size];
+        }
+    };
 }

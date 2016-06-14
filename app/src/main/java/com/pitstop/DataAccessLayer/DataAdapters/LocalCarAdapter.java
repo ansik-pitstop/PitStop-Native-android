@@ -27,7 +27,7 @@ public class LocalCarAdapter {
             + TABLES.CAR.KEY_MAKE + " TEXT, "
             + TABLES.CAR.KEY_MODEL+ " TEXT, "
             + TABLES.CAR.KEY_YEAR + " INTEGER, "
-            + TABLES.CAR.KEY_USER_ID + " TEXT, "
+            + TABLES.CAR.KEY_USER_ID + " INTEGER, "
             + TABLES.CAR.KEY_SCANNER_ID + " TEXT, "
             + TABLES.CAR.KEY_NUM_SERVICES + " INTEGER, "
             + TABLES.CAR.KEY_IS_DASHBOARD_CAR + " INTEGER, "
@@ -117,7 +117,7 @@ public class LocalCarAdapter {
     }
 
     /**
-     * Get car by scanner
+     * Get car by scanner (assumes one car per scanner)
      */
 
     public Car getCarByScanner(String scannerId) {
@@ -145,7 +145,7 @@ public class LocalCarAdapter {
         ContentValues values = carObjectToContentValues(car);
 
         int rows = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                new String[] { car.getParseId() });
+                new String[] { String.valueOf(car.getId()) });
 
         db.close();
 
@@ -178,7 +178,7 @@ public class LocalCarAdapter {
         car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
         car.setScannerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
-        car.setOwnerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
+        car.setUserId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
         car.setShopId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
         car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
         car.setCurrentCar(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1);
@@ -197,7 +197,7 @@ public class LocalCarAdapter {
         values.put(TABLES.CAR.KEY_ENGINE, car.getEngine());
         values.put(TABLES.CAR.KEY_VIN, car.getVin());
         values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScannerId());
-        values.put(TABLES.CAR.KEY_USER_ID, car.getOwnerId());
+        values.put(TABLES.CAR.KEY_USER_ID, car.getUserId());
         values.put(TABLES.CAR.KEY_SHOP_ID, car.getShopId());
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, car.isCurrentCar() ? 1 : 0);

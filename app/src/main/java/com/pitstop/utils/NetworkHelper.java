@@ -282,8 +282,6 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        Log.wtf("TripMileage", body.toString());
-
         post("scan/tripMileage", callback, body);
     }
 

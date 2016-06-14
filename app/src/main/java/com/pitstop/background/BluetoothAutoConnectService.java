@@ -33,6 +33,7 @@ import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidResult4Adapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -41,7 +42,6 @@ import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
-import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -693,7 +693,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
-        Car dashboardCar = CarDataManager.getInstance().getDashboardCar();
+
+        Car car = new LocalCarAdapter(getApplicationContext()).getCarByScanner(data.deviceId);
 
         double mileage;
 
@@ -705,7 +706,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             mileage = Double.parseDouble(data.tripMileage) / 1000;
         }
 
-        mileage += dashboardCar == null ? 0 : dashboardCar.getTotalMileage();
+        mileage += car == null ? 0 : car.getTotalMileage();
 
         pidDataObject.setMileage(mileage);
         pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
@@ -740,10 +741,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             localPid.createPIDData(pidDataObject);
         }
-
-        Log.wtf("DATA mileage" , data.tripMileage == null ? "null" : data.tripMileage);
-        Log.wtf("PID", pidDataObject.toString());
-        Log.wtf("Car mileage", dashboardCar == null ? "null" : String.valueOf(dashboardCar.getTotalMileage()));
 
         if(localPid.getPidDataEntryCount() >= 100) {
             sendPidDataToServer(data);

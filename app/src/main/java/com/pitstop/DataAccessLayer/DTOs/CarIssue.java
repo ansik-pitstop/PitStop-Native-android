@@ -1,22 +1,21 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.parse.ParseObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Paul Soladoye on 3/18/2016.
  */
-public class CarIssue implements Serializable {
+public class CarIssue implements Parcelable {
     private static final String PRIORITY_KEY = "priority";
     private static final String ITEM_KEY = "item";
     private static final String ITEM_DESCRIPTION_KEY = "itemDescription";
@@ -137,4 +136,42 @@ public class CarIssue implements Serializable {
 
         return carIssues;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.carId);
+        dest.writeInt(this.id);
+        dest.writeString(this.status);
+        dest.writeString(this.timestamp);
+        dest.writeInt(this.priority);
+        dest.writeString(this.issueType);
+        dest.writeParcelable(this.issueDetail, 0);
+    }
+
+    protected CarIssue(Parcel in) {
+        this.carId = in.readInt();
+        this.id = in.readInt();
+        this.status = in.readString();
+        this.timestamp = in.readString();
+        this.priority = in.readInt();
+        this.issueType = in.readString();
+        this.issueDetail = in.readParcelable(CarIssueDetail.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<CarIssue> CREATOR = new Parcelable.Creator<CarIssue>() {
+        @Override
+        public CarIssue createFromParcel(Parcel source) {
+            return new CarIssue(source);
+        }
+
+        @Override
+        public CarIssue[] newArray(int size) {
+            return new CarIssue[size];
+        }
+    };
 }

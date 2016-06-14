@@ -21,13 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
@@ -35,17 +28,11 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
@@ -101,8 +88,8 @@ public class DisplayItemActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
-        dashboardCar = CarDataManager.getInstance().getDashboardCar();
-        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
+        carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);
 

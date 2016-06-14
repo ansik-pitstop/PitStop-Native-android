@@ -1,17 +1,16 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
-
-import java.io.Serializable;
 
 /**
  * Created by Paul Soladoye on 3/21/2016.
  */
-public class User implements Serializable {
+public class User implements Parcelable {
 
     private int id;
 
@@ -128,4 +127,49 @@ public class User implements Serializable {
 
         return user;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.firstName);
+        dest.writeString(this.lastName);
+        dest.writeString(this.email);
+        dest.writeString(this.userName);
+        dest.writeString(this.password);
+        dest.writeByte(this.activated ? (byte) 1 : (byte) 0);
+        dest.writeString(this.phone);
+        dest.writeString(this.role);
+        dest.writeByte(this.verifiedEmail ? (byte) 1 : (byte) 0);
+    }
+
+    protected User(Parcel in) {
+        this.id = in.readInt();
+        this.firstName = in.readString();
+        this.lastName = in.readString();
+        this.email = in.readString();
+        this.userName = in.readString();
+        this.password = in.readString();
+        this.activated = in.readByte() != 0;
+        this.phone = in.readString();
+        this.role = in.readString();
+        this.verifiedEmail = in.readByte() != 0;
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

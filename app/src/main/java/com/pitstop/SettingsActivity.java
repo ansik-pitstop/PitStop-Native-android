@@ -75,11 +75,11 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putStringArrayList("cars", cars);
         bundle.putIntegerArrayList("ids", ids);
         bundle.putStringArrayList("dealers",dealers);
-        bundle.putSerializable("mainCar",dashboardCar);
+        bundle.putParcelable("mainCar",dashboardCar);
 
         IntentProxyObject intentProxyObject = new IntentProxyObject();
         intentProxyObject.setCarList(carList);
-        bundle.putSerializable("carList", intentProxyObject);
+        bundle.putParcelable("carList", intentProxyObject);
 
         settingsFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -192,7 +192,7 @@ public class SettingsActivity extends AppCompatActivity {
             cars = bundle.getStringArrayList("cars");
             ids = bundle.getIntegerArrayList("ids");
             dealers = bundle.getStringArrayList("dealers");
-            mainCar = (Car) bundle.getSerializable("mainCar");
+            mainCar = bundle.getParcelable("mainCar");
 
             IntentProxyObject listObject = (IntentProxyObject) bundle.getSerializable("carList");
             if(listObject != null) {
