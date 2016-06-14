@@ -19,6 +19,7 @@ import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
+import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
 /**
@@ -26,7 +27,7 @@ import io.smooch.core.Smooch;
  */
 public class GlobalApplication extends Application {
 
-    private static String TAG = "GlobalApplication";
+    private static String TAG = GlobalApplication.class.getSimpleName();
 
     public final static String pfName = "com.pitstop.credentials";
     public final static String pfUserName = "com.pitstop.user_name";
@@ -54,11 +55,18 @@ public class GlobalApplication extends Application {
         userAdapter = new UserAdapter(this);
 
         Parse.enableLocalDatastore(this);
-        Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+
+        if(BuildConfig.DEBUG) {
+            Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        } else {
+            Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
+        }
         Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
         ParseInstallation.getCurrentInstallation().saveInBackground();
-        Smooch.init(this, getString(R.string.smooch_token));
+        Settings settings = new Settings(getString(R.string.smooch_token));
+        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        Smooch.init(this, settings);
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
     }
 

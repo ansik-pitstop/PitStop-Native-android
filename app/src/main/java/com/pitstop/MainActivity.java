@@ -338,16 +338,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("userId", String.valueOf(application.getCurrentUserId()));
-        installation.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                Log.wtf(TAG + " SAVE", e == null ? "Saved" : e.getMessage());
-            }
-        });
-
-        Log.wtf(TAG, "ObjectId: " + ParseInstallation.getCurrentInstallation().getObjectId());
-        Log.wtf(TAG, "deviceToken: " + ParseInstallation.getCurrentInstallation().get("deviceToken"));
-        Log.wtf(TAG, "userId: " + ParseInstallation.getCurrentInstallation().get("userId"));
+        installation.saveInBackground();
 
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
@@ -645,7 +636,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 customProperties.put("Car Year", dashboardCar.getYear());
                 customProperties.put("Phone", application.getCurrentUser().getPhone());
                 Log.i(TAG, dashboardCar.getDealership().getEmail());
-                customProperties.put("Email",dashboardCar.getDealership().getEmail());
+                customProperties.put("Email","ben@getpitstop.io");
                 User.getCurrentUser().addProperties(customProperties);
                 User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
                 User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());

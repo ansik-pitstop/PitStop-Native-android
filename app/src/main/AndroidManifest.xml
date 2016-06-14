@@ -29,8 +29,9 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
-    <uses-feature android:name="android.hardware.bluetooth_le"
-        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
 
     <meta-data
         android:name="com.google.android.gms.vision.DEPENDENCIES"
@@ -64,12 +65,19 @@
             </intent-filter>
         </receiver>
 
+        <meta-data android:name="com.mixpanel.android.MPConfig.ResourcePackageName"
+            android:value="com.pitstop" />
+
         <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
             android:value="true" />
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
+
+        <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
+
+        <!-- activities -->
 
         <activity
             android:name=".MainActivity"
@@ -142,7 +150,24 @@
                 android:value="com.pitstop.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".SelectDealershipActivity"
+            android:label="Select Dealership"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
+        <activity
+            android:name=".CarScanActivity"
+            android:label="@string/title_activity_car_scan"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
+        <activity
+            android:name=".BarcodeScannerActivity"
+            android:theme="@style/AppNoActionBarTheme" />
+
+        <!-- smooch stuff -->
+
         <service android:name="io.smooch.core.service.SmoochService" />
+
         <service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
             android:exported="false">
@@ -153,6 +178,7 @@
         <service
             android:name="io.smooch.core.GcmRegistrationIntentService"
             android:exported="false" />
+
         <service
             android:name="io.smooch.core.GcmService"
             android:exported="false">
@@ -161,21 +187,7 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".SelectDealershipActivity"
-            android:label="Select Dealership"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
-        <activity
-            android:name=".CarScanActivity"
-            android:label="@string/title_activity_car_scan"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme"/>
-        <activity
-            android:name=".BarcodeScannerActivity"
-            android:theme="@style/AppNoActionBarTheme"/>
-
-        <!-- Push notification stuff -->
+        <!-- Parse push notification stuff -->
 
         <service android:name="com.parse.PushService" />
 
