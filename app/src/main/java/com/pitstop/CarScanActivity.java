@@ -666,7 +666,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 25 && askingForDtcs) {
+            if(seconds > 15 && askingForDtcs) {
                 askingForDtcs = false;
                 handler.sendEmptyMessage(0);
                 handler.removeCallbacks(runnable);

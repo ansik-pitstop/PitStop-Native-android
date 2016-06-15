@@ -723,22 +723,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.i(TAG, "PID json: " + json);
+            Log.d(TAG, "PID json: " + json);
         }
 
-        Log.i(TAG, "Pid array --> DB");
+        Log.d(TAG, "Pid array --> DB");
         pidDataObject.setPids(pids.toString());
-        Log.i(TAG, pidDataObject.getPids());
+        Log.d(TAG, pidDataObject.getPids());
 
         JSONObject freezeData = extractFreezeData(data);
-        Log.i(TAG,"Freeze data --->Extract");
-        Log.i(TAG,freezeData.toString());
+        Log.d(TAG,"Freeze data --->Extract");
+        Log.d(TAG,freezeData.toString());
 
         if(data.result == 4) {
-            Log.i(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
+            Log.d(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
             localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
-            Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
+            Log.d(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             localPid.createPIDData(pidDataObject);
         }
 
@@ -765,7 +765,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             for(Pid pidDataObject : pidDataEntries) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                jsonObject.put("rtcTime", pidDataObject.getRtcTime());
+                jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
                 jsonObject.put("mileage", pidDataObject.getMileage());
                 jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                 pidArray.put(jsonObject);

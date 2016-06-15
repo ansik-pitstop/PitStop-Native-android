@@ -277,7 +277,7 @@ public class SplashScreen extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            if(phoneNumber.getText().toString().length()!=10){
+            if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
                 Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
@@ -388,12 +388,13 @@ public class SplashScreen extends AppCompatActivity {
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
 
-                        if(jsonObject.getBoolean("activated")) {
+                        //if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("activated")
+                        //        && jsonObject.getJSONObject("user").getBoolean("activated")) {
                             application.logInUser(accessToken, refreshToken, user);
                             startMainActivity();
-                        } else {
-                            startMigration(accessToken, refreshToken, user.getId());
-                        }
+                        //} else {
+                        //    startMigration(accessToken, refreshToken, user.getId());
+                        //}
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

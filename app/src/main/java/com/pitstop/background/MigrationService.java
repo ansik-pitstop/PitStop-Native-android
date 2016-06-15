@@ -65,7 +65,6 @@ public class MigrationService extends Service {
 
         final NotificationCompat.Builder notif = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                .setColor(getResources().getColor(R.color.highlight))
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push))
                 .setContentTitle("Update in progress")
                 .setProgress(100, 100, true)
