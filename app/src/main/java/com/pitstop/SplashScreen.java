@@ -1,8 +1,10 @@
 package com.pitstop;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
@@ -29,6 +31,7 @@ import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SplashSlidePagerAdapter;
@@ -179,11 +182,7 @@ public class SplashScreen extends AppCompatActivity {
             installation.put("userId", String.valueOf(application.getCurrentUserId()));
             installation.saveInBackground();
 
-            Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra(LOGIN_REFRESH, true);
-            intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-            startActivity(intent);
+            startMainActivity();
         }
     }
 
@@ -329,7 +328,24 @@ public class SplashScreen extends AppCompatActivity {
         }
     }
 
+    private BroadcastReceiver migrationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean success = intent.getBooleanExtra(MigrationService.USER_MIGRATION_SUCCESS, false);
+            Log.d(TAG, "migration result received: " + success);
+            unregisterReceiver(this);
+            if(success) {
+                startMainActivity();
+            } else {
+                hideLoading();
+                Toast.makeText(SplashScreen.this, "Update failed, please try to login again", Toast.LENGTH_LONG).show();
+            }
+
+        }
+    };
+
     private void loginParse(final String userId, final String sessionId) {
+
         networkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -340,19 +356,19 @@ public class SplashScreen extends AppCompatActivity {
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
-                        ParseUser.logOut();
-                        application.logInUser(accessToken, refreshToken, user);
+
+                        GlobalApplication.setUpMixPanel();
+
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("activated")
+                            && jsonObject.getJSONObject("user").getBoolean("activated")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity();
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-                    GlobalApplication.setUpMixPanel();
-
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-                    startActivity(intent);
                 }
             }
         });
@@ -364,22 +380,23 @@ public class SplashScreen extends AppCompatActivity {
             public void done(String response, RequestError requestError) {
                 hideLoading();
                 if(requestError == null) {
+                    GlobalApplication.setUpMixPanel();
                     try {
                         JSONObject jsonObject = new JSONObject(response);
+
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
-                        application.logInUser(accessToken, refreshToken, user);
+
+                        if(jsonObject.getBoolean("activated")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity();
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    GlobalApplication.setUpMixPanel();
-
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-                    startActivity(intent);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                     Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
@@ -394,8 +411,6 @@ public class SplashScreen extends AppCompatActivity {
             }
         });
     }
-
-
 
     public void login(View view) {
         try {
@@ -421,6 +436,27 @@ public class SplashScreen extends AppCompatActivity {
         final String passwordInput = password.getText().toString();
 
         login(usernameInput, passwordInput);
+    }
+
+    private void startMigration(String accessToken, String refreshToken, int userId) {
+        showLoading("We are updating the app.  This may take a minute.  " +
+                "Feel free to leave the app during this time.");
+
+        registerReceiver(migrationReceiver, new IntentFilter(MigrationService.MIGRATION_BROADCAST));
+
+        Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_REFRESH, refreshToken);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ACCESS, accessToken);
+        startService(migrationIntent);
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(LOGIN_REFRESH, true);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        startActivity(intent);
     }
 
     public void goToLogin(View view) {
@@ -453,6 +489,13 @@ public class SplashScreen extends AppCompatActivity {
         application.getMixpanelAPI().flush();
         Log.i(MainActivity.TAG, "SplashScreen on pause");
         hideLoading();
+
+        try {
+            unregisterReceiver(migrationReceiver);
+        } catch (Exception e) {
+            // Receiver not registered
+        }
+
         super.onPause();
     }
 

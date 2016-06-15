@@ -194,7 +194,7 @@ public class SettingsActivity extends AppCompatActivity {
             dealers = bundle.getStringArrayList("dealers");
             mainCar = bundle.getParcelable("mainCar");
 
-            IntentProxyObject listObject = (IntentProxyObject) bundle.getSerializable("carList");
+            IntentProxyObject listObject = bundle.getParcelable("carList");
             if(listObject != null) {
                 carList = listObject.getCarList();
             } else {

@@ -169,6 +169,10 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private int getDateToCompare(String rawDate) {
+        if(rawDate == null || rawDate.isEmpty()) {
+            return 0;
+        }
+
         String[] splittedDate = rawDate.split("-");
         splittedDate[2] = splittedDate[2].substring(0, 2);
 

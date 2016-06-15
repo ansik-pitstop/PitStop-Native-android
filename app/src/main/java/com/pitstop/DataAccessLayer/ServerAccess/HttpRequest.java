@@ -18,6 +18,8 @@ import java.util.HashMap;
  */
 public class HttpRequest {
 
+    private static final String TAG = HttpRequest.class.getSimpleName();
+
     private static final boolean staging = !!!false;
 
     private static final String BASE_ENDPOINT = !!!!staging ? "http://staging.api.getpitstop.io:10010/" : "http://snapshot.api.getpitstop.io:10011/";
@@ -156,13 +158,13 @@ public class HttpRequest {
         protected void onPostExecute(Response<String> response) {
             if(response != null) {
                 if(response.isSuccess()) {
-                    Log.i(MainActivity.TAG, response.getBody());
-                    Log.i(MainActivity.TAG, response.getResponseMessage());
+                    Log.i(TAG, response.getBody());
+                    Log.i(TAG, response.getResponseMessage());
                     listener.done(response.getBody(),null);
                 } else {
-                    Log.i(MainActivity.TAG,"Error: "+response.getStatusLine());
-                    Log.i(MainActivity.TAG, response.getResponseMessage());
-                    Log.i(MainActivity.TAG, (String) response.getErrorBody());
+                    Log.i(TAG,"Error: "+response.getStatusLine());
+                    Log.i(TAG, response.getResponseMessage());
+                    Log.i(TAG, (String) response.getErrorBody());
 
                     listener.done(null,RequestError
                             .jsonToRequestErrorObject((String)response.getErrorBody()));

@@ -131,6 +131,10 @@
             android:name=".background.BluetoothAutoConnectService"
             android:label="Background Service" />
 
+        <service
+            android:name=".background.MigrationService"
+            android:exported="false"/>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
