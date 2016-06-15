@@ -359,8 +359,8 @@ public class SplashScreen extends AppCompatActivity {
 
                         GlobalApplication.setUpMixPanel();
 
-                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("activated")
-                            && jsonObject.getJSONObject("user").getBoolean("activated")) {
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                            && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
                             startMainActivity();
                         } else {
@@ -388,13 +388,13 @@ public class SplashScreen extends AppCompatActivity {
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
 
-                        //if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("activated")
-                        //        && jsonObject.getJSONObject("user").getBoolean("activated")) {
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                                && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
                             startMainActivity();
-                        //} else {
-                        //    startMigration(accessToken, refreshToken, user.getId());
-                        //}
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

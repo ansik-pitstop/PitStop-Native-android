@@ -75,7 +75,7 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
-        timer = new CountDownTimer(30000, 5000) {
+        timer = new CountDownTimer(120000, 10000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 networkHelper.getUser(userId, new RequestCallback() {
@@ -86,7 +86,7 @@ public class MigrationService extends Service {
                         }
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
-                            if (requestError == null && jsonResponse.getBoolean("activated")) {
+                            if (requestError == null && jsonResponse.getJSONObject("migration").getBoolean("isMigrationDone")) {
                                 Log.i(TAG, "Migration complete");
                                 notificationManager.notify(notificationId,
                                         notif.setContentTitle("DONE DAWG").setContentText("Press here to use the app").setAutoCancel(true)
