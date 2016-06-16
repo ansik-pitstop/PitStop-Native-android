@@ -75,7 +75,7 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
-        timer = new CountDownTimer(120000, 10000) {
+        timer = new CountDownTimer(120000, 6000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 networkHelper.getUser(userId, new RequestCallback() {
@@ -112,7 +112,7 @@ public class MigrationService extends Service {
             public void onFinish() {
                 Log.i(TAG, "Migration failed");
                 notificationManager.notify(notificationId,
-                        notif.setContentTitle("Update failed").setContentText("Please try to login again").setAutoCancel(true)
+                        notif.setContentTitle("Update failed").setContentText("Press here to try again").setAutoCancel(true)
                                 .setProgress(0, 0, false).setOngoing(false).setContentIntent(failedPendingIntent).build());
 
                 Intent resultIntent = new Intent(MIGRATION_BROADCAST);

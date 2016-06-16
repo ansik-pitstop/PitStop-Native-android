@@ -764,7 +764,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         currentMonth,
                                         currentDay
                                 );
-                                datePicker.setTitle("When was this service completed?");
+
+                                TextView titleView = new TextView(MainActivity.this);
+                                titleView.setText("When was this service completed?");
+                                titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                                titleView.setTextSize(18);
+                                titleView.setPadding(10,10,10,10);
+                                datePicker.setCustomTitle(titleView);
 
                                 datePicker.show();
 

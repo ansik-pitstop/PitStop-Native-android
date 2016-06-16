@@ -1,8 +1,10 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -338,7 +340,7 @@ public class SplashScreen extends AppCompatActivity {
                 startMainActivity();
             } else {
                 hideLoading();
-                Toast.makeText(SplashScreen.this, "Update failed, please try to login again", Toast.LENGTH_LONG).show();
+                migrationFailedDialog();
             }
 
         }
@@ -350,12 +352,14 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
-                if(requestError == null) {
+                if(requestError == null) { // start migration
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
+
+                        application.setCurrentUser(user);
 
                         GlobalApplication.setUpMixPanel();
 
@@ -369,6 +373,9 @@ public class SplashScreen extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                } else if(requestError.getMessage().contains("is already used") && application.getAccessToken() != null
+                        && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
+                    migrationFailedDialog();
                 }
             }
         });
@@ -437,6 +444,26 @@ public class SplashScreen extends AppCompatActivity {
         final String passwordInput = password.getText().toString();
 
         login(usernameInput, passwordInput);
+    }
+
+    private void migrationFailedDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(SplashScreen.this);
+        dialog.setMessage("Update failed. Would you like to try again?");
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                GlobalApplication.setUpMixPanel();
+                startMigration(application.getAccessToken(), application.getRefreshToken(), application.getCurrentUserId());
+            }
+        });
+        dialog.show();
     }
 
     private void startMigration(String accessToken, String refreshToken, int userId) {

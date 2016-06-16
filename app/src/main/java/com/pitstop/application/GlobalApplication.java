@@ -192,7 +192,7 @@ public class GlobalApplication extends Application {
         prefEditor.putString(pfAccessToken, accessToken);
         prefEditor.putString(pfRefreshToken, refreshToken);
 
-        prefEditor.commit();
+        prefEditor.apply();
     }
 
     public String getAccessToken() {
