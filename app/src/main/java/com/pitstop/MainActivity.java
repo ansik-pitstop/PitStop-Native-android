@@ -1018,7 +1018,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
                         try {
-                            List<Dealership> dl = Dealership.createDealershipList(response);
+                            final List<Dealership> dl = Dealership.createDealershipList(response);
                             shopLocalStore.deleteAllDealerships();
                             shopLocalStore.storeDealerships(dl);
 
@@ -1027,6 +1027,48 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             dashboardCar.setDealership(d);
                             if(dashboardCar.getDealership() != null) {
                                 dealershipName.setText(dashboardCar.getDealership().getName());
+                            } else {
+                                String[] shopNames = new String[dl.size()];
+
+                                for(int i = 0 ; i < shopNames.length ; i++) {
+                                    shopNames[i] = dl.get(i).getName();
+                                }
+
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                dialog.setTitle(String.format("Please select the dealership for your %s %s %s",
+                                        dashboardCar.getYear(), dashboardCar.getMake(), dashboardCar.getModel()));
+                                dialog.setSingleChoiceItems(shopNames, -1, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dashboardCar.setDealership(dl.get(which));
+                                    }
+                                });
+
+                                dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(dashboardCar.getDealership() == null) {
+                                            return;
+                                        }
+                                        dialog.dismiss();
+
+                                        networkHelper.updateCarShop(dashboardCar.getId(), dashboardCar.getDealership().getId(),
+                                                new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        if(requestError == null) {
+                                                            Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + dashboardCar.getDealership().getId());
+                                                            Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+                                                            setDealership();
+                                                        } else {
+                                                            Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                            Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
+                                dialog.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1042,7 +1084,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
     }
-
 
     @Override
     public void getBluetoothState(int state) {
