@@ -15,4 +15,7 @@
 
     <color name="scanner_scanning">#d50000</color>
     <color name="scanner_found">#64dd17</color>
+
+    <color name="white_text">#fefefe</color>
+    <color name="date_picker_background">#00796b</color>
 </resources>

@@ -3,10 +3,12 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -90,6 +92,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private EditText vinEditText, mileageEditText;
     private TextView vinHint, searchForCarInfo;
+
+    private int vinAttempts = 0;
 
     private LinearLayout vinSection;
 
@@ -471,6 +475,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             int seconds = (int) (timeDiff / 1000);
 
             if(seconds > 15 && isGettingVinAndCarIsConnected) {
+                vinAttempts++;
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
                 return;
@@ -511,7 +516,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    if(connectionAttempts++ == 2) {
+                    if(connectionAttempts++ == 2 && autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
                         tryAgainDialog();
                     } else {
                         Log.i(TAG, "connection reattempt: " + connectionAttempts);
@@ -702,7 +707,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     }
                 });
 
-            } else {
+            } else if(vinAttempts > 6){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
@@ -714,6 +719,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         vinHint.setVisibility(View.VISIBLE);
                     }
                 });
+            } else {
+                Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
+                Log.i(TAG,"VIN: "+VIN);
+                isGettingVinAndCarIsConnected = true;
+                mHandler.post(vinDetectionRunnable);
+                autoConnectService.getCarVIN();
             }
         }
     }
@@ -1025,6 +1036,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             Log.i(TAG, "Create car response: " + response);
                             try {
                                 Car newCar = Car.createCar(response);
+
+                                PreferenceManager.getDefaultSharedPreferences(AddCarActivity.this)
+                                        .edit().putInt(MainActivity.pfCurrentCar, newCar.getId()).commit();
 
                                 if(scannerID != null) {
                                     networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {

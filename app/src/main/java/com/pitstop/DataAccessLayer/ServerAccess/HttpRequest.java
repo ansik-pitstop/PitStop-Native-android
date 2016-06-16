@@ -20,9 +20,9 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    private static final boolean staging = !!!!!false;
+    public static final boolean staging = !false;
 
-    private static final String BASE_ENDPOINT = !!!!staging ? "http://staging.api.getpitstop.io:10010/" : "http://snapshot.api.getpitstop.io:10011/";
+    private static final String BASE_ENDPOINT = staging ? "http://staging.api.getpitstop.io:10010/" : "http://snapshot.api.getpitstop.io:10011/";
     private static Webb webClient;
     private RequestCallback listener;
     private RequestType requestType;

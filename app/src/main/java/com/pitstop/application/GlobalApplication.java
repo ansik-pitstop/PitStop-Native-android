@@ -66,7 +66,7 @@ public class GlobalApplication extends Application {
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
 
         // Mixpanel
-        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
+        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
@@ -81,7 +81,7 @@ public class GlobalApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "grpogrjer" : getString(R.string.prod_mixpanel_api_token));
         }
         return mixpanelAPI;
     }

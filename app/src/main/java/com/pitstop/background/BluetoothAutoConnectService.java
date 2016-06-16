@@ -7,8 +7,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -112,6 +114,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         localPid = new LocalPidAdapter(this);
         localPidResult4 = new LocalPidResult4Adapter(this);
+
+        registerReceiver(bondReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
     }
 
     @Override
@@ -125,6 +129,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "Destroying auto-connect service");
         super.onDestroy();
         bluetoothCommunicator.close();
+
+        try {
+            unregisterReceiver(bondReceiver);
+        } catch (Exception e) {
+            Log.d(TAG, "Bond receiver not registered");
+        }
     }
 
     @Nullable
@@ -698,7 +708,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         double mileage;
 
-        if(lastData != null && lastData.tripMileage != null) {
+        if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
             mileage = Double.parseDouble(lastData.tripMileage)/1000;
         } else if(data.tripMileage == null || data.tripMileage.isEmpty()) {
             mileage = 0.0;
@@ -883,4 +893,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         return jsonObject;
     }
+
+    private BroadcastReceiver bondReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
+            if(intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED
+                    && bluetoothCommunicator instanceof BluetoothLeComm) {
+                ((BluetoothLeComm) bluetoothCommunicator)
+                        .connectForReal((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+            }
+        }
+    };
 }

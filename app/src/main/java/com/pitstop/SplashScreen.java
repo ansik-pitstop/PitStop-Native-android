@@ -30,6 +30,7 @@ import com.castel.obd.util.Utils;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
@@ -89,7 +90,7 @@ public class SplashScreen extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
         if(BuildConfig.DEBUG) {
-            Toast.makeText(this, "This is a debug build", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "This is a debug build - " + (HttpRequest.staging ? "staging" : "snapshot"), Toast.LENGTH_LONG).show();
         }
 
         networkHelper = new NetworkHelper(getApplicationContext());

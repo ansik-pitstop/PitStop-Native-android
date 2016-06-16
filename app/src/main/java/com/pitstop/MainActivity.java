@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -764,12 +763,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         currentMonth,
                                         currentDay
                                 );
-
                                 TextView titleView = new TextView(MainActivity.this);
                                 titleView.setText("When was this service completed?");
+                                titleView.setBackgroundColor(getResources().getColor(R.color.date_picker_background));
+                                titleView.setTextColor(getResources().getColor(R.color.white_text));
                                 titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 titleView.setTextSize(18);
                                 titleView.setPadding(10,10,10,10);
+
                                 datePicker.setCustomTitle(titleView);
 
                                 datePicker.show();

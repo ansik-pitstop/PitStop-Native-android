@@ -14,7 +14,9 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -260,6 +262,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      * @param device
      */
     private void connectToDevice(BluetoothDevice device) {
+        Log.i(TAG, "Bonding to device");
+        //if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+        //    device.createBond();
+        //}
         if(mGatt == null) {
             mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
             mGatt.requestMtu(512);
@@ -268,7 +274,15 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
     }
 
-
+    public void connectForReal(BluetoothDevice device) {
+        Log.i(TAG, "Connecting to gatt");
+        if(mGatt == null) {
+            mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+            mGatt.requestMtu(512);
+            scanLeDevice(false);// will stop after first device detection
+            btConnectionState = CONNECTING;
+        }
+    }
 
     /**
      *
@@ -320,9 +334,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "Stopping scan");
-                    mIsScanning = false;
-                    mLEScanner.stopScan(mScanCallback);
+                    scanLeDevice(false);
                 }
             }, SCAN_PERIOD);
 
@@ -330,6 +342,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mLEScanner.startScan(new ArrayList<ScanFilter>(), settings, mScanCallback);
             mIsScanning = true;
         } else {
+            Log.i(TAG, "Stopping scan");
             mLEScanner.stopScan(mScanCallback);
             mIsScanning = false;
         }

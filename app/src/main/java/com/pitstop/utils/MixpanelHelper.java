@@ -1,5 +1,6 @@
 package com.pitstop.utils;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
@@ -29,31 +30,49 @@ public class MixpanelHelper {
     }
 
     public void trackAppStatus(String value) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("App Status",
                 new JSONObject("{'Status':'" + value + "','Device':'Android'}"));
     }
 
     public void trackViewAppeared(String value) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("View Appeared",
                 new JSONObject("{'View':'" + value + "','Device':'Android'}"));
     }
 
     public void trackConnectionStatus(String value) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("Peripheral Connection Status",
                 new JSONObject("{'Status':'" + value + "','Device':'Android'}"));
     }
 
     public void trackButtonTapped(String value, String view) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("Button Tapped",
                 new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}"));
     }
 
     public void trackScrolledInView(String view) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("Scrolled in View",
                 new JSONObject("{'View':'" + view + "','Device':'Android'}"));
     }
 
     public void trackCarAdded(String view, String mileage, String method) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
         application.getMixpanelAPI().track("Button Tapped",
                 new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
                         + "','Method of Adding Car':'" + method + "','Device':'Android'}"));
