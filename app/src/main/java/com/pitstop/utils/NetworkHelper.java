@@ -46,7 +46,7 @@ public class NetworkHelper {
 
     private void post(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -56,7 +56,7 @@ public class NetworkHelper {
 
     private void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .createRequest()
@@ -65,7 +65,7 @@ public class NetworkHelper {
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -160,7 +160,7 @@ public class NetworkHelper {
         try {
             credentials.put("username", userName);
             credentials.put("password", password);
-            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -175,7 +175,7 @@ public class NetworkHelper {
         try {
             credentials.put("userId", userId);
             credentials.put("sessionToken", sessionToken);
-            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }

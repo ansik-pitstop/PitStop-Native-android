@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
@@ -89,11 +90,11 @@ public class MigrationService extends Service {
                             if (requestError == null && jsonResponse.getJSONObject("migration").getBoolean("isMigrationDone")) {
                                 Log.i(TAG, "Migration complete");
                                 notificationManager.notify(notificationId,
-                                        notif.setContentTitle("DONE DAWG").setContentText("Press here to use the app").setAutoCancel(true)
+                                        notif.setContentTitle("Update complete").setContentText("Press here to use the app").setAutoCancel(true)
                                                 .setOngoing(false).setProgress(0, 0, false).setContentIntent(donePendingIntent).build());
                                 ((GlobalApplication) getApplicationContext()).logInUser(accessToken, refreshToken, User.jsonToUserObject(response));
                                 timer.cancel();
-
+                                ParseUser.logOut();
                                 Intent resultIntent = new Intent(MIGRATION_BROADCAST);
                                 resultIntent.putExtra(USER_MIGRATION_SUCCESS, true);
                                 sendBroadcast(resultIntent);

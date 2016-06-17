@@ -297,6 +297,7 @@ public class SplashScreen extends AppCompatActivity {
                 json.put("password", password.getText().toString());
                 json.put("facebookId", "");
                 json.put("isSocial", false);
+                json.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -453,6 +454,7 @@ public class SplashScreen extends AppCompatActivity {
         dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ParseUser.logOut();
                 dialog.dismiss();
             }
         });

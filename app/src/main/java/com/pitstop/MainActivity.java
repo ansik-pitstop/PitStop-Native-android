@@ -2,6 +2,7 @@ package com.pitstop;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -67,6 +68,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         && dashboardCar != null
                         && dashboardCar.getScannerId() != null
                         && dashboardCar.getScannerId()
-                        .equals(autoConnectService.getCurrentDeviceId())) {
+                        .equals(autoConnectService.getCurrentDeviceId())) { // car is connected
 
                     updateConnectedCarIndicator(true);
 
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         && dashboardCar != null
                         && (dashboardCar.getScannerId() == null || dashboardCar.getScannerId().isEmpty())
                         && autoConnectService.getCurrentDeviceId() != null
-                        && carLocalStore.getCarByScanner(autoConnectService.getCurrentDeviceId()) == null) {
+                        && carLocalStore.getCarByScanner(autoConnectService.getCurrentDeviceId()) == null) { // scanner is connected but not associated with a local car
 
                     final ArrayList<Car> selectedCar = new ArrayList<>(1); // must be final because this is accessed in the inner class
                     final CarListAdapter carAdapter = new CarListAdapter(carList);
@@ -334,6 +336,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
         application = (GlobalApplication) getApplicationContext();
 
@@ -742,7 +746,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                                         e.printStackTrace();
                                                     }
 
-                                                    CarIssue carIssue = carIssuesAdapter.getItem(i);
+                                                    final CarIssue carIssue = carIssuesAdapter.getItem(i);
 
                                                     networkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
                                                             daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
@@ -750,7 +754,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                                                 public void done(String response, RequestError requestError) {
                                                                     if(requestError == null) {
                                                                         Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                        carIssueList.remove(i);
+                                                                        if(carIssueList.size() > i) {
+                                                                            carIssueList.remove(i);
+                                                                        }
                                                                         carIssuesAdapter.notifyDataSetChanged();
                                                                         refreshFromServer();
                                                                     }
@@ -774,48 +780,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 datePicker.setCustomTitle(titleView);
 
                                 datePicker.show();
-
-                                /*final CharSequence[] times = new CharSequence[]{
-                                        "Recently", "2 Weeks Ago", "A Month Ago",
-                                        "2 to 3 Months Ago", "3 to 6 Months Ago",
-                                        "6 to 12 Months Ago"
-                                };
-
-                                final int[] timesInDays = new int[] {0, 14, 30, 75, 135, 240};
-
-                                final int[] estimate = new int[]{0,2,3,10,18,32};
-
-                                final int i = reverseSortedPositions[0];
-                                new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
-                                        .setItems(times, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, final int position) {
-
-                                                //----- services
-                                                try {
-                                                    mixpanelHelper.trackButtonTapped("Completed Service: "
-                                                            + carIssueList.get(i).getIssueDetail().getItem() + " " + times[position], TAG);
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                CarIssue carIssue = carIssuesAdapter.getItem(i);
-
-                                                NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
-                                                        timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                            @Override
-                                                            public void done(String response, RequestError requestError) {
-                                                                if(requestError == null) {
-                                                                    Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                    carIssueList.remove(i);
-                                                                    carIssuesAdapter.notifyDataSetChanged();
-                                                                    refreshFromServer();
-                                                                }
-                                                            }
-                                                        });
-                                                dialogInterface.dismiss();
-                                            }
-                                        }).setTitle("When did you complete this task?");*/
                             }
 
                             @Override
