@@ -17,6 +17,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -107,6 +108,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         mObdManager = new ObdManager(context);
         mObdManager.initializeObd();
+
+        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        mContext.registerReceiver(bluetoothReceiver, intentFilter);
     }
 
     @Override
@@ -203,6 +208,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     @Override
     public void close() {
+        try {
+            mContext.unregisterReceiver(bluetoothReceiver);
+        } catch (Exception e) {
+            Log.d(TAG, "Receiver not registered");
+        }
         if (mGatt == null) {
             return;
         }
@@ -262,23 +272,15 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      * @param device
      */
     private void connectToDevice(BluetoothDevice device) {
-        Log.i(TAG, "Bonding to device");
-        //if(device.getBondState() == BluetoothDevice.BOND_NONE) {
-        //    device.createBond();
-        //}
-        if(mGatt == null) {
-            mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-            mGatt.requestMtu(512);
-            scanLeDevice(false);// will stop after first device detection
-            btConnectionState = CONNECTING;
+        if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+            Log.i(TAG, "Bonding to device");
+            device.createBond();
         }
-    }
-
-    public void connectForReal(BluetoothDevice device) {
-        Log.i(TAG, "Connecting to gatt");
         if(mGatt == null) {
+            Log.i(TAG, "Connecting to device");
             mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-            mGatt.requestMtu(512);
+            boolean mtuSuccess = mGatt.requestMtu(512);
+            Log.i(TAG, "mtu request " + (mtuSuccess ? "success" : "failed"));
             scanLeDevice(false);// will stop after first device detection
             btConnectionState = CONNECTING;
         }
@@ -304,17 +306,22 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         String macAddress = OBDInfoSP.getMacAddress(mContext);*/
 
         if (mGatt != null) {
-
-            // BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
-            // Previously connected device.  Try to reconnect.
-            if(mGatt.connect()) {
-                Log.i(TAG,"Trying to connect to device - BluetoothLeComm");
-                btConnectionState = CONNECTING;
-            } else {
-                Log.i(TAG,"Could not connect to previous device, scanning...");
+            try {
+                // BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
+                // Previously connected device.  Try to reconnect.
+                if (mGatt.connect()) {
+                    Log.i(TAG, "Trying to connect to device - BluetoothLeComm");
+                    btConnectionState = CONNECTING;
+                } else {
+                    Log.i(TAG, "Could not connect to previous device, scanning...");
+                    scanLeDevice(true);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception thrown by connect");
+                e.printStackTrace();
+                mGatt = null;
                 scanLeDevice(true);
             }
-
         } else  {
 
             Log.i(TAG, "mGatt is null");
@@ -510,6 +517,30 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mCommandLock.acquireUninterruptibly();
             //Tell the command to start itself.
             mCommand.execute(mGatt);
+        }
+    }
+
+    private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+                Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
+                if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
+                    connectToDevice((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+                }
+            } else if(intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                Log.i(TAG, "Bluetooth adapter state changed: " + state);
+                if(state == BluetoothAdapter.STATE_OFF) {
+                    btConnectionState = DISCONNECTED;
+                    if(mGatt != null) {
+                        mGatt.close();
+                        mGatt = null;
+                    }
+                } else if(state == BluetoothAdapter.STATE_ON) {
+                    startScan();
+                }
+            }
         }
     };
 }

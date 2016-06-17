@@ -314,6 +314,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private boolean showingDialog = false;
 
     public void updateMileage(final boolean performScan) {
+        if(isFinishing() || isDestroyed()) {
+            return;
+        }
 
         final EditText input = new EditText(CarScanActivity.this);
         input.setText(carMileage.getText().toString());

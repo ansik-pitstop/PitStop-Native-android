@@ -516,7 +516,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    if(connectionAttempts++ == 2 && autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    if(connectionAttempts++ == 3) {
                         tryAgainDialog();
                     } else {
                         Log.i(TAG, "connection reattempt: " + connectionAttempts);
