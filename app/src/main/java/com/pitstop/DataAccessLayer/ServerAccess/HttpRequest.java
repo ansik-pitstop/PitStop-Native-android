@@ -19,7 +19,7 @@ import java.util.HashMap;
  */
 public class HttpRequest {
 
-    private static final String BASE_ENDPOINT = "http://staging.api.getpitstop.io:10010/";
+    private static final String BASE_ENDPOINT = "http://52.204.33.174:10010/";
     private static Webb webClient;
     private RequestCallback listener;
     private RequestType requestType;
