@@ -334,4 +334,14 @@ public class NetworkHelper {
         Log.i(TAG, "getUser: " + userId);
         get("user/" + userId, callback);
     }
+
+    public void forgotPassword(String email, RequestCallback callback) {
+        Log.i(TAG, "forgotPassword: " + email);
+
+        try {
+            post("utility/resetPassword", callback, new JSONObject().put("email", email));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

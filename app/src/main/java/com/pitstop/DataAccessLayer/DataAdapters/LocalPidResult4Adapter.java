@@ -23,6 +23,7 @@ public class LocalPidResult4Adapter {
             + TABLES.PID.KEY_TIMESTAMP + " TEXT,"
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
+            + TABLES.PID.KEY_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -43,6 +44,7 @@ public class LocalPidResult4Adapter {
         values.put(TABLES.PID.KEY_RTCTIME, pidData.getRtcTime());
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
+        values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
 
         db.insert(TABLES.PID.TABLE_NAME_RESULT_4, null, values);
         db.close();
@@ -67,6 +69,7 @@ public class LocalPidResult4Adapter {
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
+                pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());

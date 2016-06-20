@@ -535,4 +535,41 @@ public class SplashScreen extends AppCompatActivity {
         Log.i(MainActivity.TAG, "SplashScreen onDestroy");
         super.onDestroy();
     }
+
+    public void forgotPassword(View view) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        final EditText emailField = new EditText(this);
+        emailField.setHint("Email");
+
+        dialog.setView(emailField);
+        dialog.setMessage("Please enter your email address");
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                networkHelper.forgotPassword(emailField.getText().toString(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(SplashScreen.this, "An email has been sent with further instructions. " +
+                                    "It may take up to a few minutes to arrive.",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
 }

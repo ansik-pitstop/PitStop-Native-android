@@ -117,7 +117,11 @@ public class CarHistoryActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.desc.setText(doneIssues.get(position).getIssueDetail().getDescription());
-            holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+            if(doneIssues.get(position).getTimestamp() == null || doneIssues.get(position).getTimestamp().equals("null")) {
+                holder.date.setText("Done");
+            } else {
+                holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+            }
 
             if(doneIssues.get(position).getIssueType().equals(CarIssue.RECALL)) {
                 holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
