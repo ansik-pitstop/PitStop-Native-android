@@ -213,7 +213,7 @@ public class SplashScreen extends AppCompatActivity {
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
             installation.put("userId", String.valueOf(application.getCurrentUserId()));
             installation.saveInBackground();
-            goToMainActivity();
+            goToMainActivity(false);
         }
     }
 
@@ -450,7 +450,7 @@ public class SplashScreen extends AppCompatActivity {
 
                         GlobalApplication.setUpMixPanel();
 
-                        goToMainActivity();
+                        goToMainActivity(true);
                     } else {
                         Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                         Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
@@ -481,7 +481,7 @@ public class SplashScreen extends AppCompatActivity {
                     }
 
                     GlobalApplication.setUpMixPanel();
-                    goToMainActivity();
+                    goToMainActivity(true);
                 }
             }
         });
@@ -503,7 +503,7 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     GlobalApplication.setUpMixPanel();
-                    goToMainActivity();
+                    goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                     Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
@@ -519,10 +519,10 @@ public class SplashScreen extends AppCompatActivity {
         });
     }
 
-    private void goToMainActivity() {
+    private void goToMainActivity(boolean refresh) {
         Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(LOGIN_REFRESH, true);
+        intent.putExtra(LOGIN_REFRESH, refresh);
         intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }

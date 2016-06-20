@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +33,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,15 +95,17 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private RelativeLayout connectedCarIndicator;
-    private RelativeLayout serviceCountBackground;
-    private RelativeLayout dealershipLayout;
+    private ImageView connectedCarIndicator;
+    private ImageView serviceCountBackground;
+    private LinearLayout dealershipLayout;
+    private TextView dealershipAddress;
+    private TextView dealershipPhone;
     private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
     private Toolbar toolbar;
     private TextView serviceCountText;
 
     private TextView carName, dealershipName;
-    private Button carScan;
+    private RelativeLayout carScan;
 
     private CarDataManager carDataManager;
 
@@ -329,11 +333,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         carName = (TextView) rootview.findViewById(R.id.car_name);
         serviceCountText = (TextView) rootview.findViewById(R.id.service_count_text);
         dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
+        dealershipAddress = (TextView) rootview.findViewById(R.id.dealership_address);
+        dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
 
-        serviceCountBackground = (RelativeLayout) rootview.findViewById(R.id.service_count_background);
-        dealershipLayout = (RelativeLayout) rootview.findViewById(R.id.dealership_info_layout);
+        serviceCountBackground = (ImageView) rootview.findViewById(R.id.service_count_background);
+        dealershipLayout = (LinearLayout) rootview.findViewById(R.id.dealership_info_layout);
 
-        carScan = (Button) rootview.findViewById(R.id.car_scan_btn);
+        carScan = (RelativeLayout) rootview.findViewById(R.id.car_scan_btn);
         carScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -413,14 +419,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             }
         });
 
-        connectedCarIndicator = (RelativeLayout) rootview.findViewById(R.id.car_connected_indicator_layout);
+        connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
         if(isConnected) {
-            connectedCarIndicator.setBackgroundColor(getResources().getColor(R.color.evcheck));
+            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.severity_low_indicator));
         } else {
-            connectedCarIndicator.setBackgroundColor(getResources().getColor(R.color.not_connected));
+            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.circle_indicator_stroke ));
         }
     }
 
@@ -610,7 +616,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         serviceCountText.setText(String.valueOf(total));
 
-        Drawable background = serviceCountBackground.getBackground();
+        Drawable background = serviceCountBackground.getDrawable();
         GradientDrawable gradientDrawable = (GradientDrawable) background;
 
         if (total > 0) {
@@ -639,6 +645,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             dashboardCar.setDealership(d);
                             if(dashboardCar.getDealership() != null) {
                                 dealershipName.setText(dashboardCar.getDealership().getName());
+                                dealershipAddress.setText(dashboardCar.getDealership().getAddress());
+                                dealershipPhone.setText(dashboardCar.getDealership().getPhone());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -651,6 +659,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         } else {
             dashboardCar.setDealership(shop);
             dealershipName.setText(shop.getName());
+            dealershipAddress.setText(shop.getAddress());
+            dealershipPhone.setText(shop.getPhone());
         }
 
     }

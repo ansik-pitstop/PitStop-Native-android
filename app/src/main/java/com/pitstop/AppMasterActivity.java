@@ -255,15 +255,16 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
 
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
-                mDrawerTitles));
+        if(mDrawerList!=null) {
+            // Set the adapter for the list view
+            mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
+                    mDrawerTitles));
 //         Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        if(carList.size()>0){
-            callback.setDashboardCar(AppMasterActivity.carList);
-            callback.setCarDetailsUI();
+            mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            if (carList.size() > 0) {
+                callback.setDashboardCar(AppMasterActivity.carList);
+                callback.setCarDetailsUI();
+            }
         }
     }
 
@@ -441,6 +442,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
 
     public void refreshFromServer() {
+        Log.d("random","refresh called");
         carLocalStore.deleteAllCars();
         carIssueLocalStore.deleteAllCarIssues();
         carIssueList.clear();

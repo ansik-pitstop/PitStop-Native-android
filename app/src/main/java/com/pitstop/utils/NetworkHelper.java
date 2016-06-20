@@ -44,24 +44,19 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void post(String uri, RequestCallback callback, JSONObject body, boolean useHeader) {
-        HttpRequest.Builder request = new HttpRequest.Builder().uri(uri)
+    private void post(String uri, RequestCallback callback, JSONObject body) {
+        new HttpRequest.Builder().uri(uri)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .body(body)
                 .requestCallBack(callback)
-                .requestType(RequestType.POST);
-
-        if(useHeader) {
-            request.header("clientId", BuildConfig.DEBUG ? devToken : accessToken);
-        }
-
-        request.createRequest().executeAsync();
-
-
+                .requestType(RequestType.POST)
+                .createRequest()
+                .executeAsync();
     }
 
     private void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .createRequest()
@@ -70,7 +65,7 @@ public class NetworkHelper {
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("clientId", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -79,7 +74,7 @@ public class NetworkHelper {
     }
 
     public void createNewCar(int userId, int mileage, String vin, String scannerId,
-                                    int shopId, RequestCallback callback) {
+                             int shopId, RequestCallback callback) {
         Log.i(TAG, "createNewCar");
         JSONObject body = new JSONObject();
 
@@ -93,7 +88,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("car", callback, body, true);
+        post("car", callback, body);
     }
 
     public void getCarsByUserId(int userId, RequestCallback callback) {
@@ -165,13 +160,14 @@ public class NetworkHelper {
         try {
             credentials.put("username", userName);
             credentials.put("password", password);
-            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("login", callback, credentials, false);
+        post("login", callback, credentials);
     }
+
 
     public void loginSocial(String accessToken, String provider, RequestCallback callback) {
         Log.i(TAG, "login");
@@ -184,7 +180,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("login/social", callback, credentials, false);
+        post("login/social", callback, credentials);
     }
 
     // for logged in parse user
@@ -194,21 +190,21 @@ public class NetworkHelper {
         try {
             credentials.put("userId", userId);
             credentials.put("sessionToken", sessionToken);
-            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("login/legacy", callback, credentials, false);
+        post("login/legacy", callback, credentials);
     }
 
     public void signUpAsync(JSONObject newUser, RequestCallback callback) {
         Log.i(TAG, "signup");
-        post("user", callback, newUser, false);
+        post("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, int mileage, String rtcTime, String dtcCode, boolean isPending,
-                                 List<PIDInfo> freezeData, RequestCallback callback) {
+    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
+                          List<PIDInfo> freezeData, RequestCallback callback) {
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
 
@@ -229,10 +225,10 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("issue", callback, body, true);
+        post("issue", callback, body);
     }
 
-    public void serviceDone(int carId, int issueId, int daysAgo, int mileage, RequestCallback callback) {
+    public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
         JSONObject body = new JSONObject();
 
         try {
@@ -272,7 +268,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scanner", callback, body, true);
+        post("scanner", callback, body);
     }
 
     public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
@@ -286,7 +282,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/freezeData", callback, body, true);
+        post("scan/freezeData", callback, body);
     }
 
     public void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
@@ -295,13 +291,13 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("tripId", Long.parseLong(tripId));
-            body.put("mileage", Double.parseDouble(mileage));
+            body.put("mileage", Double.parseDouble(mileage)/1000);
             body.put("rtcTime", Long.parseLong(rtcTime));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("scan/tripMileage", callback, body, true);
+        post("scan/tripMileage", callback, body);
     }
 
     public void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
@@ -314,11 +310,11 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/pids", callback, body, true);
+        post("scan/pids", callback, body);
     }
 
     public void requestService(int userId, int carId, int shopId, String comments,
-                                      RequestCallback callback) {
+                               RequestCallback callback) {
         JSONObject body = new JSONObject();
         try {
             body.put("userId", userId);
@@ -329,12 +325,12 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("utility/serviceRequest", callback, body, true);
+        post("utility/serviceRequest", callback, body);
 
     }
 
     public void requestService(int userId, int carId, int shopId, String comments,
-                                      int issueId, RequestCallback callback) {
+                               int issueId, RequestCallback callback) {
         JSONObject body = new JSONObject();
         try {
             body.put("userId", userId);
@@ -346,7 +342,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("utility/serviceRequest", callback, body, true);
+        post("utility/serviceRequest", callback, body);
     }
 
     public void getUser(int userId, RequestCallback callback) {
