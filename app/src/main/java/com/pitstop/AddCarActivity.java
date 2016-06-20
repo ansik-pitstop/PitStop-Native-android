@@ -54,6 +54,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;

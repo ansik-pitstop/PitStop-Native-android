@@ -59,7 +59,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Vehicle Overview"
-                        android:id="@+id/textView49" />
+                        android:id="@+id/textView49"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -102,7 +103,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Scan Your Vehicle"
-                        android:id="@+id/textView51" />
+                        android:id="@+id/textView51"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -157,7 +159,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Request Service"
-                        android:id="@+id/textView54" />
+                        android:id="@+id/textView54"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -200,7 +203,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Service History"
-                        android:id="@+id/textView56" />
+                        android:id="@+id/textView56"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -255,7 +259,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Message Service Center"
-                        android:id="@+id/textView59" />
+                        android:id="@+id/textView59"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -299,7 +304,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Navigate to Service Center"
-                        android:id="@+id/textView63" />
+                        android:id="@+id/textView63"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -343,7 +349,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Call Service Center"
-                        android:id="@+id/textView61" />
+                        android:id="@+id/textView61"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -14,7 +14,6 @@ import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.AppMasterActivity;
-import com.pitstop.MainDashboardFragment;
 
 import java.util.ArrayList;
 import java.util.List;

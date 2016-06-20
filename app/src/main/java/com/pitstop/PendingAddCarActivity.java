@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;

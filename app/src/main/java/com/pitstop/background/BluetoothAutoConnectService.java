@@ -38,7 +38,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidResult4Adapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.MainDashboardFragment;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.R;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;

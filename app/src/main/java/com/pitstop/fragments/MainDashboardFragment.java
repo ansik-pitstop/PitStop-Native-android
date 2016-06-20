@@ -1,4 +1,4 @@
-package com.pitstop;
+package com.pitstop.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -46,6 +46,9 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.pitstop.AddCarActivity;
+import com.pitstop.AppMasterActivity;
+import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
@@ -54,6 +57,8 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.DisplayItemActivity;
+import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.CarDataManager;
@@ -976,7 +981,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public void activityResultCallback(int requestCode, int resultCode, Intent data) {
         boolean shouldRefreshFromServer = data.getBooleanExtra(AppMasterActivity.REFRESH_FROM_SERVER,false);
 
-        if(requestCode == AppMasterActivity.RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
+        if(requestCode == AppMasterActivity.RC_ADD_CAR && resultCode== AddCarActivity.ADD_CAR_SUCCESS) {
             if(!shouldRefreshFromServer)  {
                 dashboardCar = carDataManager.getDashboardCar();
                 sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();

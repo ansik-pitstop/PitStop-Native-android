@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.pitstop.AppMasterActivity;
-import com.pitstop.MainDashboardFragment;
+import com.pitstop.fragments.MainDashboardFragment;
 
 /**
  * Created by David Liu on 11/30/2015.

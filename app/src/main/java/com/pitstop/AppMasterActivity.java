@@ -50,8 +50,9 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdaper;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.CarDataManager;
-import com.pitstop.utils.MainToolFragment;
+import com.pitstop.fragments.MainToolFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -362,7 +363,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        startAddCarActivity();
+        startAddCarActivity(true);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
     public void settingsClicked(View view){
@@ -408,17 +409,17 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         }
         int id = item.getItemId();
 
-        if (id == R.id.action_car_history) {
-            try {
-                mixpanelHelper.trackButtonTapped("History", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent(AppMasterActivity.this, CarHistoryActivity.class);
-            //intent.putExtra("carId",dashboardCar.getId());
-            intent.putExtra("dashboardCar", dashboardCar);
-            startActivity(intent);
-        }
+//        if (id == R.id.action_car_history) {
+//            try {
+//                mixpanelHelper.trackButtonTapped("History", TAG);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            Intent intent = new Intent(AppMasterActivity.this, CarHistoryActivity.class);
+//            //intent.putExtra("carId",dashboardCar.getId());
+//            intent.putExtra("dashboardCar", dashboardCar);
+//            startActivity(intent);
+//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -508,7 +509,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
                             if (isLoading) {
                                 hideLoading();
                             }
-                            startAddCarActivity();
+                            startAddCarActivity(false);
                         } else {
                             callback.setDashboardCar(AppMasterActivity.carList);
                             carLocalStore.deleteAllCars();
@@ -562,8 +563,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     }
 
 
-    public void startAddCarActivity() {
+    public void startAddCarActivity(boolean hasCar) {
         Intent intent = new Intent(AppMasterActivity.this, AddCarActivity.class);
+        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, hasCar);
         startActivity(intent);
     }
 
