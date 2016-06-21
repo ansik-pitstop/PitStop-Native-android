@@ -27,14 +27,14 @@ public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static final String devToken = "DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD";
+    private static final String devToken = "DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD"; // TODO: other tokens
     private String accessToken;
 
     private Context context;
 
     public NetworkHelper(Context context) {
         this.context = context;
-        accessToken = ((GlobalApplication) context).getAccessToken();
+        accessToken = "Bearer " + ((GlobalApplication) context).getAccessToken();
     }
 
     public static boolean isConnected(Context context) {
@@ -44,9 +44,20 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
+        new HttpRequest.Builder().uri(uri)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .body(body)
+                .requestCallBack(callback)
+                .requestType(RequestType.POST)
+                .createRequest()
+                .executeAsync();
+    }
+
     private void post(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -56,7 +67,8 @@ public class NetworkHelper {
 
     private void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
-                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", accessToken)
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .createRequest()
@@ -65,7 +77,8 @@ public class NetworkHelper {
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Authorization", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Authorization", accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -165,7 +178,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("login", callback, credentials);
+        postNoAuth("login", callback, credentials);
     }
 
     // for logged in parse user
@@ -180,12 +193,12 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("login/legacy", callback, credentials);
+        postNoAuth("login/legacy", callback, credentials);
     }
 
     public void signUpAsync(JSONObject newUser, RequestCallback callback) {
         Log.i(TAG, "signup");
-        post("user", callback, newUser);
+        postNoAuth("user", callback, newUser);
     }
 
     public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
@@ -267,7 +280,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/freezeData", callback, body);
+        postNoAuth("scan/freezeData", callback, body);
     }
 
     public void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
@@ -275,14 +288,14 @@ public class NetworkHelper {
 
         try {
             body.put("scannerId", scannerId);
-            body.put("tripId", Long.parseLong(tripId));
+            body.put("tripId", tripId);
             body.put("mileage", Double.parseDouble(mileage)/1000);
             body.put("rtcTime", Long.parseLong(rtcTime));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("scan/tripMileage", callback, body);
+        postNoAuth("scan/tripMileage", callback, body);
     }
 
     public void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
@@ -295,7 +308,7 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("scan/pids", callback, body);
+        postNoAuth("scan/pids", callback, body);
     }
 
     public void requestService(int userId, int carId, int shopId, String comments,
@@ -335,11 +348,11 @@ public class NetworkHelper {
         get("user/" + userId, callback);
     }
 
-    public void forgotPassword(String email, RequestCallback callback) {
-        Log.i(TAG, "forgotPassword: " + email);
+    public void resetPassword(String email, RequestCallback callback) {
+        Log.i(TAG, "resetPassword: " + email);
 
         try {
-            post("utility/resetPassword", callback, new JSONObject().put("email", email));
+            postNoAuth("login/resetPassword", callback, new JSONObject().put("email", email));
         } catch (JSONException e) {
             e.printStackTrace();
         }
