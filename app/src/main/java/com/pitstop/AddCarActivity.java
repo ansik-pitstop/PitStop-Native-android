@@ -655,6 +655,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 isGettingVinAndCarIsConnected = true;
                 mHandler.post(vinDetectionRunnable);
             }
+        } else if(state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showLoading("Connecting to device");
+                }
+            });
         }
     }
 

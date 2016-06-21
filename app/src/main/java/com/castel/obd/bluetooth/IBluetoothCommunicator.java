@@ -25,4 +25,5 @@ public interface IBluetoothCommunicator {
     void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener);
     boolean hasDiscoveredServices();
     void close();
+    void bluetoothStateChanged(int state);
 }

@@ -63,7 +63,7 @@ public class ObdManager {
     /**
      *
      */
-    public void initializeObd() {
+    public int initializeObd() {
         Log.i(MainActivity.TAG, "Initializing obd");
 
         String deviceId = OBDInfoSP.getDeviceId(mContext);
@@ -73,8 +73,9 @@ public class ObdManager {
             Log.i(MainActivity.TAG,"deviceId:" + deviceId + "dataNum"
                     + OBDInfoSP.getDataNum(mContext));
             Log.i(MainActivity.TAG,"Initializing obd module");
-            OBD.init(deviceId, dataNum);
+            return OBD.init(deviceId, dataNum);
         }
+        return -1;
     }
 
 

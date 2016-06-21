@@ -540,6 +540,7 @@ public class SplashScreen extends AppCompatActivity {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         final EditText emailField = new EditText(this);
+        emailField.setInputType(EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         emailField.setHint("Email");
 
         dialog.setView(emailField);
@@ -548,11 +549,12 @@ public class SplashScreen extends AppCompatActivity {
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                networkHelper.forgotPassword(emailField.getText().toString(), new RequestCallback() {
+                final String email = emailField.getText().toString();
+                networkHelper.resetPassword(email, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
-                            Toast.makeText(SplashScreen.this, "An email has been sent with further instructions. " +
+                            Toast.makeText(SplashScreen.this, String.format("An email has been sent to %s with further instructions. ", email) +
                                     "It may take up to a few minutes to arrive.",
                                     Toast.LENGTH_LONG).show();
                         } else {

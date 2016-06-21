@@ -50,7 +50,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
-        mObdManager.initializeObd();
+        int initSuccess = mObdManager.initializeObd();
+
+        Log.d(TAG, "init result: " + initSuccess);
+
         mHandler.postDelayed(runnable, 500);
     }
 
@@ -354,5 +357,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         mContext.registerReceiver(mReceiver, filter);
+    }
+
+    public void bluetoothStateChanged(int state) {
+        if(state == BluetoothAdapter.STATE_OFF) {
+            btConnectionState = DISCONNECTED;
+        }
     }
 }

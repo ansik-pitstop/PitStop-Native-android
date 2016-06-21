@@ -147,6 +147,8 @@ public class GlobalApplication extends Application {
         GlobalApplication.refreshToken = refreshToken;
         GlobalApplication.accessToken = accessToken;
 
+        ParseUser.logOut();
+
         //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         //installation.put("userId", String.valueOf(currentUser.getId()));
         //installation.saveInBackground(new SaveCallback() {
