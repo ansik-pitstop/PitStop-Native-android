@@ -500,7 +500,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
             if(seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
-                    != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
+                    == IBluetoothCommunicator.DISCONNECTED) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);
             } else if (!isSearchingForCar) {

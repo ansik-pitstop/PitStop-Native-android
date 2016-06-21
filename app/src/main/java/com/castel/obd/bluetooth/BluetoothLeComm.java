@@ -1,6 +1,8 @@
 package com.castel.obd.bluetooth;
 
 import android.annotation.TargetApi;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -15,14 +17,22 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
+import com.pitstop.MainActivity;
+import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -260,6 +270,35 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         mCommandLock.release();
     }
 
+    private void showConnectingNotification() {
+        Bitmap icon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.mipmap.ic_push);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(mContext)
+                        .setLargeIcon(icon)
+                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                        .setProgress(100, 100, true)
+                        .setContentTitle("Connecting to car");
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(mContext, MainActivity.class);
+        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MainActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
+    }
+
     /**
      * @param device
      */
@@ -270,6 +309,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         //}
         if(mGatt == null) {
             Log.i(TAG, "Connecting to device");
+            showConnectingNotification();
             mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
             scanLeDevice(false);// will stop after first device detection
             btConnectionState = CONNECTING;

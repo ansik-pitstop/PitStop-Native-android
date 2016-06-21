@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -73,7 +75,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean gettingPID = false;
     private boolean deviceConnState = false;
 
-    private int notifID = 1360119;
+    public static int notifID = 1360119;
     private String currentDeviceId = null;
     private DataPackageInfo lastData = null;
 
@@ -163,9 +165,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             //show a custom notification
             if (deviceConnected) {
+                Bitmap icon = BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_push);
+
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                                .setLargeIcon(icon)
                                 .setColor(getResources().getColor(R.color.highlight))
                                 .setContentTitle("Car is Connected")
                                 .setContentText("Click here to check out more");

@@ -89,9 +89,6 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.mipmap.ic_push);
 
-
-
-
         List<ParseNotification> notificationList = localStore.getAllNotifications();
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
         notification
