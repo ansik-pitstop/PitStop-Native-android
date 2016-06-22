@@ -178,7 +178,7 @@ public class NetworkHelper {
         try {
             credentials.put("username", userName);
             credentials.put("password", password);
-            credentials.put("installationObjectId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -193,7 +193,7 @@ public class NetworkHelper {
         try {
             credentials.put("userId", userId);
             credentials.put("sessionToken", sessionToken);
-            credentials.put("installationObjectId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (JSONException e) {
             e.printStackTrace();
         }

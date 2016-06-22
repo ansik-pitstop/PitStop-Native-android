@@ -181,10 +181,6 @@ public class SplashScreen extends AppCompatActivity {
         } else {
             showLoading("Logging in...");
 
-            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-            installation.put("userId", String.valueOf(application.getCurrentUserId()));
-            installation.saveInBackground();
-
             startMainActivity();
         }
     }
@@ -297,7 +293,7 @@ public class SplashScreen extends AppCompatActivity {
                 json.put("password", password.getText().toString());
                 json.put("facebookId", "");
                 json.put("isSocial", false);
-                json.put("installationObjectId", ParseInstallation.getCurrentInstallation().getInstallationId());
+                json.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();

@@ -350,7 +350,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     Log.d(TAG, "Installation saved");
                 } else {
                     Log.w(TAG, "Error saving installation: " + e.getMessage());
-
                 }
             }
         });
