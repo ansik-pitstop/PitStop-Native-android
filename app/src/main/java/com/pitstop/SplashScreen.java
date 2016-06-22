@@ -297,7 +297,7 @@ public class SplashScreen extends AppCompatActivity {
                 json.put("password", password.getText().toString());
                 json.put("facebookId", "");
                 json.put("isSocial", false);
-                json.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
+                json.put("installationObjectId", ParseInstallation.getCurrentInstallation().getInstallationId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();

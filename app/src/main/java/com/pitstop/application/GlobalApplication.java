@@ -15,6 +15,8 @@ import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
+import java.io.File;
+
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -59,6 +61,9 @@ public class GlobalApplication extends Application {
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
+
+        boolean clearedInstallation = deleteInstallationCache();
+        Log.d(TAG, "installation cleared: " + clearedInstallation); // // TODO: Change prod appId
         Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
 
@@ -207,6 +212,21 @@ public class GlobalApplication extends Application {
         ParseUser.logOut();
 
         userAdapter.deleteAllUsers();
+    }
+
+    // when parse is initialized and there is a previous installation, installation can't be saved anymore
+    public boolean deleteInstallationCache() {
+        boolean deletedParseFolder = false;
+        File parseApp = new File(getCacheDir().getParent(),"app_Parse");
+        File installationId = new File(parseApp,"installationId");
+        File currentInstallation = new File(parseApp,"currentInstallation");
+        if(installationId.exists()) {
+            deletedParseFolder = deletedParseFolder || installationId.delete();
+        }
+        if(currentInstallation.exists()) {
+            deletedParseFolder = deletedParseFolder && currentInstallation.delete();
+        }
+        return deletedParseFolder;
     }
 
 }
