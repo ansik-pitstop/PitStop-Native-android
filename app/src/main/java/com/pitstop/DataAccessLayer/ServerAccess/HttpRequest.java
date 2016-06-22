@@ -3,17 +3,17 @@ package com.pitstop.DataAccessLayer.ServerAccess;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
-import com.pitstop.MainActivity;
 import com.pitstop.SplashScreen;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.NetworkHelper;
+
+import static com.pitstop.utils.LogUtils.LOGD;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +36,6 @@ public class HttpRequest {
     private String uri;
     private JSONObject body;
     private HashMap<String, String> headers = new HashMap<>();
-    private Context context; // for refresh token things
     private GlobalApplication application;
 
     private int retryAttempts = 0;
@@ -55,7 +54,6 @@ public class HttpRequest {
         this.headers = headers;
         this.listener = listener;
         this.body = body;
-        this.context = context;
 
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
     }
@@ -173,13 +171,13 @@ public class HttpRequest {
         protected void onPostExecute(Response<String> response) {
             if(response != null) {
                 if(response.isSuccess()) {
-                    Log.i(TAG, response.getBody());
-                    Log.i(TAG, response.getResponseMessage());
+                    LOGD(TAG, response.getBody());
+                    LOGD(TAG, response.getResponseMessage());
                     listener.done(response.getBody(),null);
                 } else {
-                    Log.i(TAG,"Error: "+response.getStatusLine());
-                    Log.i(TAG, response.getResponseMessage());
-                    Log.i(TAG, (String) response.getErrorBody());
+                    LOGD(TAG,"Error: "+response.getStatusLine());
+                    LOGD(TAG, response.getResponseMessage());
+                    LOGD(TAG, (String) response.getErrorBody());
 
                     if(response.getStatusCode() == 401) { // unauthorized (must use refresh)
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
@@ -211,6 +209,7 @@ public class HttpRequest {
         }
 
         private void logOut() {
+            LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
             Toast.makeText(application, "Your session has expired.  Please log in again.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(application, SplashScreen.class);

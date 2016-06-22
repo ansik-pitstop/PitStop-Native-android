@@ -203,13 +203,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             listAdapter = new CarListAdapter(carList);
 
-            try {
-                (getPreferenceManager()
-                        .findPreference("AppInfo"))
-                        .setTitle(getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName);
-            } catch(Exception e) {
-                (getPreferenceManager().findPreference("AppInfo")).setTitle(getString(R.string.app_build_no));
-            }
+            (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
             if(mainCar != null) {
                 final Preference mainCarPreference = findPreference("current_car");

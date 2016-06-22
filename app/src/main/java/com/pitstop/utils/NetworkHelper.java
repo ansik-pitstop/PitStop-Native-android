@@ -14,6 +14,9 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
 import com.pitstop.application.GlobalApplication;
 
+import static com.pitstop.utils.LogUtils.LOGI;
+import static com.pitstop.utils.LogUtils.LOGV;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +93,7 @@ public class NetworkHelper {
 
     public void createNewCar(int userId, int mileage, String vin, String scannerId,
                                     int shopId, RequestCallback callback) {
-        Log.i(TAG, "createNewCar");
+        LOGI(TAG, "createNewCar");
         JSONObject body = new JSONObject();
 
         try {
@@ -107,22 +110,22 @@ public class NetworkHelper {
     }
 
     public void getCarsByUserId(int userId, RequestCallback callback) {
-        Log.i(TAG, "getCarsByUserId: " + userId);
+        LOGI(TAG, "getCarsByUserId: " + userId);
         get("car/?userId=" + userId, callback);
     }
 
     public void getCarsByVin(String vin, RequestCallback callback) {
-        Log.i(TAG, "getCarsByVin: " + vin);
+        LOGI(TAG, "getCarsByVin: " + vin);
         get("car/?vin=" + vin, callback);
     }
 
     public void getCarsById(int carId, RequestCallback callback) {
-        Log.i(TAG, "getCarsById: " + carId);
+        LOGI(TAG, "getCarsById: " + carId);
         get("car/" + carId, callback);
     }
 
     public void updateCarMileage(int carId, int mileage, RequestCallback callback) {
-        Log.i(TAG, "updateCarShop: carId: " + carId + " mileage: " + mileage);
+        LOGI(TAG, "updateCarShop: carId: " + carId + " mileage: " + mileage);
         JSONObject body = new JSONObject();
 
         try {
@@ -136,7 +139,7 @@ public class NetworkHelper {
     }
 
     public void updateCarShop(int carId, int shopId, RequestCallback callback) {
-        Log.i(TAG, "updateCarShop: carId: " + carId + " shopId: " + shopId);
+        LOGI(TAG, "updateCarShop: carId: " + carId + " shopId: " + shopId);
         JSONObject body = new JSONObject();
 
         try {
@@ -150,12 +153,12 @@ public class NetworkHelper {
     }
 
     public void getShops(RequestCallback callback) {
-        Log.i(TAG, "getShops");
+        LOGI(TAG, "getShops");
         get("shop", callback);
     }
 
     public void updateFirstName(int userId, String firstName, String lastName, RequestCallback callback) {
-        Log.i(TAG, "updateFirstName: userId: " + userId + " firstName: " + firstName + " lastName: " + lastName);
+        LOGI(TAG, "updateFirstName: userId: " + userId + " firstName: " + firstName + " lastName: " + lastName);
         JSONObject body = new JSONObject();
 
         try {
@@ -170,7 +173,7 @@ public class NetworkHelper {
     }
 
     public void loginAsync(String userName, String password, RequestCallback callback) {
-        Log.i(TAG, "login");
+        LOGI(TAG, "login");
         JSONObject credentials = new JSONObject();
         try {
             credentials.put("username", userName);
@@ -185,7 +188,7 @@ public class NetworkHelper {
 
     // for logged in parse user
     public void loginLegacy(String userId, String sessionToken, RequestCallback callback) {
-        Log.i(TAG, "login legacy");
+        LOGI(TAG, "login legacy");
         JSONObject credentials = new JSONObject();
         try {
             credentials.put("userId", userId);
@@ -199,12 +202,15 @@ public class NetworkHelper {
     }
 
     public void signUpAsync(JSONObject newUser, RequestCallback callback) {
-        Log.i(TAG, "signup");
+        LOGI(TAG, "signup");
         postNoAuth("user", callback, newUser);
     }
 
     public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
                                  List<PIDInfo> freezeData, RequestCallback callback) {
+        LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
+                " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
+
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
 
@@ -229,6 +235,9 @@ public class NetworkHelper {
     }
 
     public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
+        LOGI(TAG, String.format("serviceDone: carId: %s, issueId: %s," +
+                " daysAgo: %s, mileage: %s", carId, issueId, daysAgo, mileage));
+
         JSONObject body = new JSONObject();
 
         try {
@@ -245,6 +254,8 @@ public class NetworkHelper {
     }
 
     public void servicePending(int carId, int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("servicePending: carId: %s, issueId: %s,", carId, issueId));
+
         JSONObject body = new JSONObject();
 
         try {
@@ -259,6 +270,8 @@ public class NetworkHelper {
     }
 
     public void createNewScanner(int carId, String scannerId, RequestCallback callback) {
+        LOGI(TAG, String.format("createNewScanner: carId: %s, scannerId: %s,", carId, scannerId));
+
         JSONObject body = new JSONObject();
 
         try {
@@ -272,6 +285,8 @@ public class NetworkHelper {
     }
 
     public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
+        LOGI(TAG, String.format("saveFreezeData: scannerId: %s, serviceType: %s,", scannerId, serviceType));
+
         JSONObject body = new JSONObject();
 
         try {
@@ -286,6 +301,9 @@ public class NetworkHelper {
     }
 
     public void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
+        LOGI(TAG, String.format("saveTripMileage: scannerId: %s, tripId: %s," +
+                " mileage: %s, rtcTime: %s", scannerId, tripId, mileage, rtcTime));
+
         JSONObject body = new JSONObject();
 
         try {
@@ -301,6 +319,9 @@ public class NetworkHelper {
     }
 
     public void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
+        LOGI(TAG, "savePids to " + scannerId);
+        LOGV(TAG, "pidArr: "  + pidArr.toString());
+
         JSONObject body = new JSONObject();
 
         try {
@@ -315,6 +336,8 @@ public class NetworkHelper {
 
     public void requestService(int userId, int carId, int shopId, String comments,
                                       RequestCallback callback) {
+        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
+
         JSONObject body = new JSONObject();
         try {
             body.put("userId", userId);
@@ -331,6 +354,8 @@ public class NetworkHelper {
 
     public void requestService(int userId, int carId, int shopId, String comments,
                                       int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
+
         JSONObject body = new JSONObject();
         try {
             body.put("userId", userId);
@@ -346,12 +371,12 @@ public class NetworkHelper {
     }
 
     public void getUser(int userId, RequestCallback callback) {
-        Log.i(TAG, "getUser: " + userId);
+        LOGI(TAG, "getUser: " + userId);
         get("user/" + userId, callback);
     }
 
     public void resetPassword(String email, RequestCallback callback) {
-        Log.i(TAG, "resetPassword: " + email);
+        LOGI(TAG, "resetPassword: " + email);
 
         try {
             postNoAuth("login/resetPassword", callback, new JSONObject().put("email", email));
@@ -361,7 +386,7 @@ public class NetworkHelper {
     }
 
     public static void refreshToken(String refreshToken, RequestCallback callback) {
-        Log.i(TAG, "refreshToken: " + refreshToken);
+        LOGI(TAG, "refreshToken: " + refreshToken);
 
         try {
             postNoAuth("login/refresh", callback, new JSONObject().put("refreshToken", refreshToken));
