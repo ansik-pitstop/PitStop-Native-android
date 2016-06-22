@@ -1,7 +1,5 @@
 package com.pitstop.background;
 
-import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -80,8 +78,6 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
-        application.setTokens(accessToken, refreshToken);
-
         timer = new CountDownTimer(120000, 6000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -106,7 +102,8 @@ public class MigrationService extends Service {
                                         notificationManager.notify(notificationId,
                                                 notif.setContentTitle("Update complete").setContentText("Press here to use the app").setAutoCancel(true)
                                                         .setOngoing(false).setProgress(0, 0, false).setContentIntent(donePendingIntent).build());
-                                        ((GlobalApplication) getApplicationContext()).logInUser(accessToken, refreshToken, User.jsonToUserObject(response));
+                                        ((GlobalApplication) getApplicationContext()).logInUser(application.getAccessToken(),
+                                                application.getRefreshToken(), User.jsonToUserObject(response));
                                         timer.cancel();
                                         ParseUser.logOut();
                                         Intent resultIntent = new Intent(MIGRATION_BROADCAST);
@@ -128,8 +125,6 @@ public class MigrationService extends Service {
             @Override
             public void onFinish() {
                 Log.i(TAG, "Migration failed");
-
-                application.setTokens(null, null);
 
                 notificationManager.notify(notificationId,
                         notif.setContentTitle("Update failed").setContentText("Press here to try again").setAutoCancel(true)

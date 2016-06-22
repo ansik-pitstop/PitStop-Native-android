@@ -3,7 +3,6 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;

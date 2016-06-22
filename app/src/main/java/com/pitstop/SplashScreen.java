@@ -471,6 +471,8 @@ public class SplashScreen extends AppCompatActivity {
 
         registerReceiver(migrationReceiver, new IntentFilter(MigrationService.MIGRATION_BROADCAST));
 
+        application.setTokens(accessToken, refreshToken);
+
         Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_REFRESH, refreshToken);
