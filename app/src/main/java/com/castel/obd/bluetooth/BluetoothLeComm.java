@@ -29,7 +29,7 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.MainActivity;
+import com.pitstop.AppMasterActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -281,11 +281,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         .setProgress(100, 100, true)
                         .setContentTitle("Connecting to car");
         // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(mContext, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
+        Intent resultIntent = new Intent(mContext, AppMasterActivity.class);
+        resultIntent.putExtra(AppMasterActivity.FROM_NOTIF, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addParentStack(AppMasterActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =

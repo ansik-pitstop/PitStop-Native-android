@@ -114,9 +114,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
 
-                if(ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
+                if(ContextCompat.checkSelfPermission(CarScanActivity.this, AppMasterActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(CarScanActivity.this, AppMasterActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CarScanActivity.this, AppMasterActivity.LOC_PERMS, AppMasterActivity.RC_LOCATION_PERM);
                 } else {
                     autoConnectService.startBluetoothSearch();
                 }
@@ -146,7 +146,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         bindService(new Intent(this, BluetoothAutoConnectService.class),
                 serviceConnection, BIND_AUTO_CREATE);
 
-        dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
+        dashboardCar = getIntent().getParcelableExtra(AppMasterActivity.CAR_EXTRA);
 
         try {
             mixpanelHelper.trackViewAppeared(TAG);
@@ -706,7 +706,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onRequestPermissionsResult (int requestCode, String[] permissions,
                                             int[] grantResults) {
-        if(requestCode == MainActivity.RC_LOCATION_PERM) {
+        if(requestCode == AppMasterActivity.RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 autoConnectService.startBluetoothSearch();
             } else {
@@ -714,7 +714,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
+                                ActivityCompat.requestPermissions(CarScanActivity.this, AppMasterActivity.LOC_PERMS, AppMasterActivity.RC_LOCATION_PERM);
                             }
                         })
                         .show();

@@ -18,7 +18,6 @@ import java.util.HashMap;
  * Created by Paul Soladoye  on 3/8/2016.
  */
 public class HttpRequest {
-    private static final String TAG = HttpRequest.class.getSimpleName();
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 

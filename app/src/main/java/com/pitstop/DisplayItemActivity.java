@@ -88,8 +88,8 @@ public class DisplayItemActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
-        dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
-        carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        dashboardCar = intent.getParcelableExtra(AppMasterActivity.CAR_EXTRA);
+        carIssue = intent.getParcelableExtra(AppMasterActivity.CAR_ISSUE_EXTRA);
 //        dashboardCar = CarDataManager.getInstance().getDashboardCar();
 //        carIssue = (CarIssue) intent.getSerializableExtra(AppMasterActivity.CAR_ISSUE_EXTRA);
 

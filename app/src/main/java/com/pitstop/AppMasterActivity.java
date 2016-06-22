@@ -9,12 +9,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -51,7 +55,6 @@ import com.pitstop.adapters.MainAppViewPagerAdaper;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.fragments.MainDashboardFragment;
-import com.pitstop.utils.CarDataManager;
 import com.pitstop.fragments.MainToolFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -62,13 +65,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import pub.devrel.easypermissions.EasyPermissions;
-
 /**
  * Created by David on 6/8/2016.
  */
-public class AppMasterActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
-        EasyPermissions.PermissionCallbacks {
+public class AppMasterActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener{
 
     public static List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -100,8 +100,8 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     public static final String FROM_ACTIVITY = "from_activity";
 
     public static final String TAG = "AppMasterActivity";
-    private static final int LOC_PERM_REQ = 112;
-    private static final int RC_LOCATION_PERM = 101;
+    public static final int LOC_PERM_REQ = 112;
+    public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
@@ -141,11 +141,12 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
-                if(EasyPermissions.hasPermissions(AppMasterActivity.this, LOC_PERMS)) {
-                    autoConnectService.startBluetoothSearch();
+
+                if(ContextCompat.checkSelfPermission(AppMasterActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(AppMasterActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(AppMasterActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                 } else {
-                    EasyPermissions.requestPermissions(AppMasterActivity.this,
-                            getString(R.string.location_request_rationale), RC_LOCATION_PERM, LOC_PERMS);
+                    autoConnectService.startBluetoothSearch();
                 }
             }
         }
@@ -175,8 +176,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
-        CarDataManager carDataManager = new CarDataManager();
-        dashboardCar = carDataManager.getDashboardCar();
+        dashboardCar = carList.get(0);
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(this);
@@ -573,20 +573,21 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     @Override
     public void onRequestPermissionsResult (int requestCode, String[] permissions,
                                             int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        if(autoConnectService != null) {
-            autoConnectService.startBluetoothSearch();
+        if(requestCode == RC_LOCATION_PERM) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                autoConnectService.startBluetoothSearch();
+            } else {
+                Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(AppMasterActivity.this, LOC_PERMS, RC_LOCATION_PERM);
+                            }
+                        })
+                        .show();
+            }
         }
     }
-
-
     /**
      * Request service for all issues currently displayed or custom request
      * */
@@ -663,10 +664,6 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
                 });
     }
 
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-
-    }
 
     @Override
     public void getBluetoothState(int state) {

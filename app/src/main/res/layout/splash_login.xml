@@ -128,7 +128,7 @@
             android:layout_width="fill_parent"
             android:textColor="#fff"
             android:layout_height="wrap_content"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary_car"
             android:text="Sign Up"
             android:elegantTextHeight="true"
             android:id="@+id/button2"
@@ -146,11 +146,10 @@
             android:onClick="forgotPassword"
             android:layout_marginTop="12dp"/>
         <com.facebook.login.widget.LoginButton
-            android:id="@+id/fb_login"
+            android:id="@+id/fb_login_butt"
             android:layout_centerInParent="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

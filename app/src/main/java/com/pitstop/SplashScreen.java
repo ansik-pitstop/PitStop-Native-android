@@ -136,7 +136,7 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
+                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login_butt);
                     if(facebookLoginButton != null) {
                         facebookLoginButton.setReadPermissions("public_profile", "email");
                         facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -634,10 +634,10 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, true);
-        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
 

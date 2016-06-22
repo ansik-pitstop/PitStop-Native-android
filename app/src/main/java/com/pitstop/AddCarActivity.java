@@ -58,7 +58,6 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.fragments.MainDashboardFragment;
-import com.pitstop.utils.CarDataManager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -135,9 +134,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     return;
                 }
 
-                if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
+                if(ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS, RC_LOCATION_PERM);
                 } else {
                     autoConnectService.startBluetoothSearch();
                 }
@@ -392,8 +391,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             makeCar();
 
         } else {
-            if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+            if(ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
 
                 Toast.makeText(this, "Location permissions are required",
                         Toast.LENGTH_SHORT).show();
@@ -913,7 +912,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
+                                ActivityCompat.requestPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS, RC_LOCATION_PERM);
                             }
                         })
                         .show();
@@ -1051,7 +1050,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                 Car newCar = Car.createCar(response);
 
                                 PreferenceManager.getDefaultSharedPreferences(AddCarActivity.this)
-                                        .edit().putInt(MainActivity.pfCurrentCar, newCar.getId()).commit();
+                                        .edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
 
                                 if(scannerID != null) {
                                     networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {

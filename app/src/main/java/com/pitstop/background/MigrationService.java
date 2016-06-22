@@ -14,10 +14,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.parse.ParseUser;
+import com.pitstop.AppMasterActivity;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.SplashScreen;
 import com.pitstop.application.GlobalApplication;
@@ -53,8 +53,8 @@ public class MigrationService extends Service {
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
-        Intent doneIntent = new Intent(this, MainActivity.class);
-        doneIntent.putExtra(MainActivity.FROM_NOTIF, true);
+        Intent doneIntent = new Intent(this, AppMasterActivity.class);
+        doneIntent.putExtra(AppMasterActivity.FROM_NOTIF, true);
         doneIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         final PendingIntent donePendingIntent = PendingIntent.getActivity(this, 45435, doneIntent, PendingIntent.FLAG_UPDATE_CURRENT);

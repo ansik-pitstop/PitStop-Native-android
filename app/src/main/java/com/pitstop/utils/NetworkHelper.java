@@ -167,6 +167,19 @@ public class NetworkHelper {
         put("user", callback, body);
     }
 
+    public void loginSocial(String accessToken, String provider, RequestCallback callback) {
+        Log.i(TAG, "login");
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("accessToken", accessToken);
+            credentials.put("provider", provider);
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("login/social", callback, credentials);
+    }
     public void loginAsync(String userName, String password, RequestCallback callback) {
         Log.i(TAG, "login");
         JSONObject credentials = new JSONObject();
