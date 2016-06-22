@@ -33,9 +33,6 @@ public class GlobalApplication extends Application {
     public final static String pfRefreshToken = "com.pitstop.refresh";
     public final static String pfLoggedIn = "com.pitstop.logged_in";
 
-    private static String accessToken;
-    private static String refreshToken;
-
     private static MixpanelAPI mixpanelAPI;
 
     private static User currentUser;
@@ -144,19 +141,7 @@ public class GlobalApplication extends Application {
         editor.putBoolean(pfLoggedIn, true);
         editor.apply();
 
-        GlobalApplication.refreshToken = refreshToken;
-        GlobalApplication.accessToken = accessToken;
-
         ParseUser.logOut();
-
-        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        //installation.put("userId", String.valueOf(currentUser.getId()));
-        //installation.saveInBackground(new SaveCallback() {
-        //    @Override
-        //    public void done(ParseException e) {
-        //        Log.wtf("SAVE", e == null ? "Saved" : e.getMessage());
-        //    }
-        //});
 
         setCurrentUser(currentUser);
     }
@@ -218,9 +203,6 @@ public class GlobalApplication extends Application {
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
         editor.apply();
-
-        accessToken = null;
-        refreshToken = null;
 
         ParseUser.logOut();
 

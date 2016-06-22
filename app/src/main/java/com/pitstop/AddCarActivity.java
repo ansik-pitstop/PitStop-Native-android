@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -1084,13 +1085,21 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
 
-        hideLoading();
-
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
-        finish();
+
+        new CountDownTimer(2000, 2000) { // to let issues populate in server
+            @Override
+            public void onTick(long millisUntilFinished) {}
+
+            @Override
+            public void onFinish() {
+                hideLoading();
+                finish();
+            }
+        }.start();
     }
 
     private void runVinTask() {

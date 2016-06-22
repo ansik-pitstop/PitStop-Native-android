@@ -43,6 +43,8 @@ public class MigrationService extends Service {
     private String accessToken;
     private String refreshToken;
 
+    private GlobalApplication application;
+
     private CountDownTimer timer;
 
     private NetworkHelper networkHelper;
@@ -50,6 +52,8 @@ public class MigrationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        application = (GlobalApplication) getApplicationContext();
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
@@ -76,12 +80,14 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
+        application.setTokens(accessToken, refreshToken);
+
         timer = new CountDownTimer(120000, 6000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 networkHelper.getUser(userId, new RequestCallback() {
                     @Override
-                    public void done(String response, RequestError requestError) {
+                    public void done(final String response, RequestError requestError) {
                         if(response == null) {
                             return;
                         }
@@ -89,16 +95,26 @@ public class MigrationService extends Service {
                             JSONObject jsonResponse = new JSONObject(response);
                             if (requestError == null && jsonResponse.getJSONObject("migration").getBoolean("isMigrationDone")) {
                                 Log.i(TAG, "Migration complete");
-                                notificationManager.notify(notificationId,
-                                        notif.setContentTitle("Update complete").setContentText("Press here to use the app").setAutoCancel(true)
-                                                .setOngoing(false).setProgress(0, 0, false).setContentIntent(donePendingIntent).build());
-                                ((GlobalApplication) getApplicationContext()).logInUser(accessToken, refreshToken, User.jsonToUserObject(response));
-                                timer.cancel();
-                                ParseUser.logOut();
-                                Intent resultIntent = new Intent(MIGRATION_BROADCAST);
-                                resultIntent.putExtra(USER_MIGRATION_SUCCESS, true);
-                                sendBroadcast(resultIntent);
-                                stopSelf();
+
+                                new CountDownTimer(3000, 3000) { // in case not all data is completely migrated
+                                    @Override
+                                    public void onTick(long millisUntilFinished) {
+                                    }
+
+                                    @Override
+                                    public void onFinish() {
+                                        notificationManager.notify(notificationId,
+                                                notif.setContentTitle("Update complete").setContentText("Press here to use the app").setAutoCancel(true)
+                                                        .setOngoing(false).setProgress(0, 0, false).setContentIntent(donePendingIntent).build());
+                                        ((GlobalApplication) getApplicationContext()).logInUser(accessToken, refreshToken, User.jsonToUserObject(response));
+                                        timer.cancel();
+                                        ParseUser.logOut();
+                                        Intent resultIntent = new Intent(MIGRATION_BROADCAST);
+                                        resultIntent.putExtra(USER_MIGRATION_SUCCESS, true);
+                                        sendBroadcast(resultIntent);
+                                        stopSelf();
+                                    }
+                                }.start();
                             } else {
                                 Log.i(TAG, "Migration in progress");
                             }
@@ -112,6 +128,9 @@ public class MigrationService extends Service {
             @Override
             public void onFinish() {
                 Log.i(TAG, "Migration failed");
+
+                application.setTokens(null, null);
+
                 notificationManager.notify(notificationId,
                         notif.setContentTitle("Update failed").setContentText("Press here to try again").setAutoCancel(true)
                                 .setProgress(0, 0, false).setOngoing(false).setContentIntent(failedPendingIntent).build());
@@ -140,65 +159,4 @@ public class MigrationService extends Service {
         return null;
     }
 
-    /*@Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            Log.wtf(TAG, "Migration started");
-            userId = intent.getIntExtra(USER_MIGRATION_ID, -1);
-            accessToken = intent.getStringExtra(USER_MIGRATION_ACCESS);
-            refreshToken = intent.getStringExtra(USER_MIGRATION_REFRESH);
-            networkHelper = new NetworkHelper(getApplicationContext());
-
-            Intent resultIntent = new Intent(this, MainActivity.class);
-            resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-            resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            final PendingIntent doneIntent = PendingIntent.getActivity(this, 45435, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            final NotificationCompat.Builder notif = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                    .setColor(getResources().getColor(R.color.highlight))
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push))
-                    .setContentTitle("Upgrade in progress")
-                    .setProgress(100, 100, true)
-                    .setAutoCancel(false)
-                    .setOngoing(true);
-
-            final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-            notificationManager.notify(notificationId, notif.build());
-
-            new CountDownTimer(120000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    Log.i(TAG, "Migration in progress: " + millisUntilFinished);
-                    networkHelper.getUser(userId, new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            try {
-                                if (requestError != null && new JSONObject(response).getBoolean("activated")) {
-                                    Log.i(TAG, "Migration complete");
-                                    notificationManager.notify(notificationId,
-                                            notif.setContentTitle("DONE DAWG").setContentText("Press here to use the app")
-                                                    .setContentIntent(doneIntent).build());
-                                    ((GlobalApplication) getApplicationContext()).logInUser(accessToken, refreshToken, User.jsonToUserObject(response));
-                                } else {
-                                    Log.i(TAG, "Migration in progress");
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onFinish() {
-                    Log.i(TAG, "Migration failed");
-                    notificationManager.notify(notificationId,
-                            notif.setContentTitle("FAILED!").setAutoCancel(true).build());
-                }
-            }.start();
-        }
-    }*/
 }

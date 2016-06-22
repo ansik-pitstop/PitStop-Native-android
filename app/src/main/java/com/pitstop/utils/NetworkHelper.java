@@ -44,44 +44,48 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
+    private static void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
+                .context(null)
                 .createRequest()
                 .executeAsync();
     }
 
     private void post(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .header("Authorization", accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
+                .context(context)
                 .createRequest()
                 .executeAsync();
     }
 
     private void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .header("Authorization", accessToken)
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
+                .context(context)
                 .createRequest()
                 .executeAsync();
     }
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : accessToken)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .header("Authorization", accessToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
+                .context(context)
                 .createRequest()
                 .executeAsync();
     }
@@ -353,6 +357,16 @@ public class NetworkHelper {
 
         try {
             postNoAuth("login/resetPassword", callback, new JSONObject().put("email", email));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void refreshToken(String refreshToken, RequestCallback callback) {
+        Log.i(TAG, "refreshToken: " + refreshToken);
+
+        try {
+            postNoAuth("login/refresh", callback, new JSONObject().put("refreshToken", refreshToken));
         } catch (JSONException e) {
             e.printStackTrace();
         }

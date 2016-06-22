@@ -544,6 +544,7 @@ public class SplashScreen extends AppCompatActivity {
         emailField.setHint("Email");
 
         dialog.setView(emailField);
+        dialog.setTitle("Reset Password");
         dialog.setMessage("Please enter your email address");
 
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {

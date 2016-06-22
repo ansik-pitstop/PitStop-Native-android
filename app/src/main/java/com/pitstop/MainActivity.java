@@ -354,7 +354,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
+        Log.wtf(TAG, "objectId: " + installation.get("objectId"));
+
+        serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         setContentView(R.layout.activity_main);
 
@@ -528,6 +530,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Log.i(TAG, "onPause");
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
+
+        if(progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
 
         super.onPause();
     }

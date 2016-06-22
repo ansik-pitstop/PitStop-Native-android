@@ -280,13 +280,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                         .setProgress(100, 100, true)
                         .setContentTitle("Connecting to car");
-        // Creates an explicit intent for an Activity in your app
+
         Intent resultIntent = new Intent(mContext, MainActivity.class);
         resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
-        // Adds the back stack for the Intent (but not the Intent itself)
+
         stackBuilder.addParentStack(MainActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
+
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
