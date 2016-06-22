@@ -28,13 +28,11 @@ public class NetworkHelper {
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
     private static final String devToken = "DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD"; // TODO: other tokens
-    private String accessToken;
 
     private Context context;
 
     public NetworkHelper(Context context) {
         this.context = context;
-        accessToken = "Bearer " + ((GlobalApplication) context).getAccessToken();
     }
 
     public static boolean isConnected(Context context) {
@@ -58,7 +56,7 @@ public class NetworkHelper {
     private void post(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
-                .header("Authorization", accessToken)
+                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -70,7 +68,7 @@ public class NetworkHelper {
     private void get(String uri, RequestCallback callback) {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
-                .header("Authorization", accessToken)
+                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .context(context)
@@ -81,7 +79,7 @@ public class NetworkHelper {
     private void put(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
-                .header("Authorization", accessToken)
+                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
