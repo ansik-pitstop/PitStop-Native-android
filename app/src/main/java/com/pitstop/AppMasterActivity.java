@@ -262,6 +262,15 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 //         Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
             if (carList.size() > 0) {
+                for(Car car : carList) {
+                    if(car.isCurrentCar()) {
+                        dashboardCar = car;
+                    }
+                }
+                if(dashboardCar==null){
+                    carList.get(0).setCurrentCar(true);
+                    dashboardCar = carList.get(0);
+                }
                 callback.setDashboardCar(AppMasterActivity.carList);
                 callback.setCarDetailsUI();
             }
@@ -409,19 +418,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         int id = item.getItemId();
 
 //        if (id == R.id.action_car_history) {
-//            try {
-//                mixpanelHelper.trackButtonTapped("History", TAG);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            Intent intent = new Intent(AppMasterActivity.this, CarHistoryActivity.class);
-//            //intent.putExtra("carId",dashboardCar.getId());
-//            intent.putExtra("dashboardCar", dashboardCar);
-//            startActivity(intent);
 //        }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -431,6 +430,18 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
     public List<CarIssue> getCarIssueList() {
         return carIssueList;
+    }
+
+    public void clickServiceHistory(View view) {
+            try {
+                mixpanelHelper.trackButtonTapped("History", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(AppMasterActivity.this, CarHistoryActivity.class);
+            //intent.putExtra("carId",dashboardCar.getId());
+            intent.putExtra(AppMasterActivity.CAR_EXTRA, dashboardCar);
+            startActivity(intent);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
