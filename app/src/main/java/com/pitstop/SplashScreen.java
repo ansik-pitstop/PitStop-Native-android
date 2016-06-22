@@ -1,8 +1,12 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
@@ -34,9 +38,11 @@ import com.facebook.login.widget.LoginButton;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.adapters.SplashSlidePagerAdapter;
@@ -98,7 +104,7 @@ public class SplashScreen extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
         if(BuildConfig.DEBUG) {
-            Toast.makeText(this, "This is a debug build", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "This is a debug build - " + (HttpRequest.staging ? "staging" : "snapshot"), Toast.LENGTH_LONG).show();
         }
 
         networkHelper = new NetworkHelper(getApplicationContext());
@@ -363,8 +369,8 @@ public class SplashScreen extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            if (phoneNumber.getText().toString().length() != 10) {
-                Snackbar.make(splashLayout, "Invalid phone number", Snackbar.LENGTH_SHORT).show();
+            if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
+                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
                 hideLoading();
                 return;
             }
@@ -378,6 +384,7 @@ public class SplashScreen extends AppCompatActivity {
                 json.put("phone", phoneNumber.getText().toString());
                 json.put("password", password.getText().toString());
                 json.put("isSocial", false);
+                json.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -463,25 +470,55 @@ public class SplashScreen extends AppCompatActivity {
         }
     }
 
+    private BroadcastReceiver migrationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean success = intent.getBooleanExtra(MigrationService.USER_MIGRATION_SUCCESS, false);
+            Log.d(TAG, "migration result received: " + success);
+            unregisterReceiver(this);
+            if(success) {
+                startMainActivity();
+            } else {
+                hideLoading();
+                migrationFailedDialog();
+            }
+
+        }
+    };
+
     private void loginParse(final String userId, final String sessionId) {
+
         networkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
-                if(requestError == null) {
+                if(requestError == null) { // start migration
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
-                        ParseUser.logOut();
-                        application.logInUser(accessToken, refreshToken, user);
+
+                        application.setCurrentUser(user);
+
+                        GlobalApplication.setUpMixPanel();
+
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                            && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity();
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                     GlobalApplication.setUpMixPanel();
                     goToMainActivity(true);
+                } else if(requestError.getMessage().contains("is already used") && application.getAccessToken() != null
+                        && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
+                    migrationFailedDialog();
                 }
             }
         });
@@ -493,12 +530,21 @@ public class SplashScreen extends AppCompatActivity {
             public void done(String response, RequestError requestError) {
                 hideLoading();
                 if(requestError == null) {
+                    GlobalApplication.setUpMixPanel();
                     try {
                         JSONObject jsonObject = new JSONObject(response);
+
                         User user = User.jsonToUserObject(response);
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
-                        application.logInUser(accessToken, refreshToken, user);
+
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                                && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity();
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -519,11 +565,79 @@ public class SplashScreen extends AppCompatActivity {
         });
     }
 
+
     private void goToMainActivity(boolean refresh) {
         Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, refresh);
         intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        startActivity(intent);
+    }
+    public void login(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+        } catch (JSONException e2) {
+            e2.printStackTrace();
+        }
+
+        if(!NetworkHelper.isConnected(this)) {
+            Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                    .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            login(null);
+                        }
+                    })
+                    .show();
+            return;
+        }
+
+        showLoading("Logging in...");
+        final String usernameInput = email.getText().toString().toLowerCase();
+        final String passwordInput = password.getText().toString();
+
+        login(usernameInput, passwordInput);
+    }
+
+    private void migrationFailedDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(SplashScreen.this);
+        dialog.setMessage("Update failed. Would you like to try again?");
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ParseUser.logOut();
+                dialog.dismiss();
+            }
+        });
+        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                GlobalApplication.setUpMixPanel();
+                startMigration(application.getAccessToken(), application.getRefreshToken(), application.getCurrentUserId());
+            }
+        });
+        dialog.show();
+    }
+
+    private void startMigration(String accessToken, String refreshToken, int userId) {
+        showLoading("We are updating the app.  This may take a minute.  " +
+                "Feel free to leave the app during this time.");
+
+        registerReceiver(migrationReceiver, new IntentFilter(MigrationService.MIGRATION_BROADCAST));
+
+        Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_REFRESH, refreshToken);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ACCESS, accessToken);
+        startService(migrationIntent);
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(LOGIN_REFRESH, true);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
 
@@ -562,6 +676,13 @@ public class SplashScreen extends AppCompatActivity {
         application.getMixpanelAPI().flush();
         Log.i(AppMasterActivity.TAG, "SplashScreen on pause");
         hideLoading();
+
+        try {
+            unregisterReceiver(migrationReceiver);
+        } catch (Exception e) {
+            // Receiver not registered
+        }
+
         super.onPause();
     }
 
@@ -575,5 +696,44 @@ public class SplashScreen extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void forgotPassword(View view) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        final EditText emailField = new EditText(this);
+        emailField.setInputType(EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        emailField.setHint("Email");
+
+        dialog.setView(emailField);
+        dialog.setMessage("Please enter your email address");
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String email = emailField.getText().toString();
+                networkHelper.resetPassword(email, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(SplashScreen.this, String.format("An email has been sent to %s with further instructions. ", email) +
+                                    "It may take up to a few minutes to arrive.",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 }

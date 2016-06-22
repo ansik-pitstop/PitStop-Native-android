@@ -75,11 +75,11 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putStringArrayList("cars", cars);
         bundle.putIntegerArrayList("ids", ids);
         bundle.putStringArrayList("dealers",dealers);
-        bundle.putSerializable("mainCar",dashboardCar);
+        bundle.putParcelable("mainCar",dashboardCar);
 
         IntentProxyObject intentProxyObject = new IntentProxyObject();
         intentProxyObject.setCarList(carList);
-        bundle.putSerializable("carList", intentProxyObject);
+        bundle.putParcelable("carList", intentProxyObject);
 
         settingsFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -192,9 +192,9 @@ public class SettingsActivity extends AppCompatActivity {
             cars = bundle.getStringArrayList("cars");
             ids = bundle.getIntegerArrayList("ids");
             dealers = bundle.getStringArrayList("dealers");
-            mainCar = (Car) bundle.getSerializable("mainCar");
+            mainCar = bundle.getParcelable("mainCar");
 
-            IntentProxyObject listObject = (IntentProxyObject) bundle.getSerializable("carList");
+            IntentProxyObject listObject = bundle.getParcelable("carList");
             if(listObject != null) {
                 carList = listObject.getCarList();
             } else {
@@ -344,7 +344,7 @@ public class SettingsActivity extends AppCompatActivity {
             final Preference namePreference = findPreference(getString(R.string.pref_username_key));
             namePreference.setTitle(String.format("%s %s",
                     currentUser.getFirstName(),
-                    currentUser.getLastName() == null ? "" : currentUser.getLastName()));
+                    currentUser.getLastName() == null || currentUser.getLastName().equals("null") ? "" : currentUser.getLastName()));
             namePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -364,7 +364,8 @@ public class SettingsActivity extends AppCompatActivity {
                     firstNameInput.setText(currentUser.getFirstName());
 
                     final EditText lastNameInput = new EditText(getActivity());
-                    lastNameInput.setText(currentUser.getLastName());
+                    lastNameInput.setText(
+                            currentUser.getLastName() == null || currentUser.getLastName().equals("null") ? "" : currentUser.getLastName());
 
                     changeNameLayout.addView(firstNameInput);
                     changeNameLayout.addView(lastNameInput);

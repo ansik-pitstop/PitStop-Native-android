@@ -1,23 +1,23 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.castel.obd.util.JsonUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Paul Soladoye on 2/11/2016.
  */
-public class Car implements Serializable {
+public class Car implements Parcelable {
 
     private int id;
-
-    private String parseId;
 
     private String make;
     private String model;
@@ -28,13 +28,12 @@ public class Car implements Serializable {
     private String tankSize;
     private String cityMileage;
     private String highwayMileage;
-    private int baseMileage;
-    private int totalMileage;
+    private double baseMileage;
+    private double totalMileage;
     private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;
 
-    private String ownerId;
     private int userId;
     private int shopId;
 
@@ -52,14 +51,6 @@ public class Car implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getParseId() {
-        return parseId;
-    }
-
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
     }
 
     public String getMake() {
@@ -134,7 +125,7 @@ public class Car implements Serializable {
         this.highwayMileage = highwayMileage;
     }
 
-    public int getBaseMileage() {
+    public double getBaseMileage() {
         return baseMileage;
     }
 
@@ -142,20 +133,12 @@ public class Car implements Serializable {
         this.baseMileage = baseMileage;
     }
 
-    public int getTotalMileage() {
+    public double getTotalMileage() {
         return totalMileage;
     }
 
     public void setTotalMileage(int totalMileage) {
         this.totalMileage = totalMileage;
-    }
-
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
     }
 
     public int getUserId() {
@@ -348,4 +331,89 @@ public class Car implements Serializable {
 
         return cars;
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id=" + id +
+                ", make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                ", year=" + year +
+                ", vin='" + vin + '\'' +
+                ", totalMileage=" + totalMileage +
+                ", baseMileage=" + baseMileage +
+                ", scannerId='" + scannerId + '\'' +
+                ", shopId=" + shopId +
+                ", userId=" + userId +
+                ", issues: " + getActiveIssues().size() +
+                '}';
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.make);
+        dest.writeString(this.model);
+        dest.writeInt(this.year);
+        dest.writeString(this.trim);
+        dest.writeString(this.vin);
+        dest.writeString(this.engine);
+        dest.writeString(this.tankSize);
+        dest.writeString(this.cityMileage);
+        dest.writeString(this.highwayMileage);
+        dest.writeDouble(this.baseMileage);
+        dest.writeDouble(this.totalMileage);
+        dest.writeInt(this.numberOfRecalls);
+        dest.writeInt(this.numberOfServices);
+        dest.writeByte(this.currentCar ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.userId);
+        dest.writeInt(this.shopId);
+        dest.writeParcelable(this.dealership, 0);
+        dest.writeByte(this.serviceDue ? (byte) 1 : (byte) 0);
+        dest.writeString(this.scannerId);
+        dest.writeList(this.issues);
+    }
+
+    protected Car(Parcel in) {
+        this.id = in.readInt();
+        this.make = in.readString();
+        this.model = in.readString();
+        this.year = in.readInt();
+        this.trim = in.readString();
+        this.vin = in.readString();
+        this.engine = in.readString();
+        this.tankSize = in.readString();
+        this.cityMileage = in.readString();
+        this.highwayMileage = in.readString();
+        this.baseMileage = in.readDouble();
+        this.totalMileage = in.readDouble();
+        this.numberOfRecalls = in.readInt();
+        this.numberOfServices = in.readInt();
+        this.currentCar = in.readByte() != 0;
+        this.userId = in.readInt();
+        this.shopId = in.readInt();
+        this.dealership = in.readParcelable(Dealership.class.getClassLoader());
+        this.serviceDue = in.readByte() != 0;
+        this.scannerId = in.readString();
+        this.issues = new ArrayList<CarIssue>();
+        in.readList(this.issues, CarIssue.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Car> CREATOR = new Parcelable.Creator<Car>() {
+        @Override
+        public Car createFromParcel(Parcel source) {
+            return new Car(source);
+        }
+
+        @Override
+        public Car[] newArray(int size) {
+            return new Car[size];
+        }
+    };
 }

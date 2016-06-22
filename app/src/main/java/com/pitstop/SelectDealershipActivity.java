@@ -106,22 +106,15 @@ public class SelectDealershipActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Intent intent = getIntent();
-        if(intent!=null && intent.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false)) {
-
-            try {
-                mixpanelHelper.trackButtonTapped("Back", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            Intent mainActivity = new Intent(this, AppMasterActivity.class);
-            mainActivity.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-            startActivity(mainActivity);
-
-        } else {
-            Toast.makeText(SelectDealershipActivity.this, "There are no cars in you dashboard", Toast.LENGTH_SHORT).show();
+        try {
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
+        Intent mainActivity = new Intent(this, AppMasterActivity.class);
+        mainActivity.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        startActivity(mainActivity);
     }
 
     @Override

@@ -11,13 +11,13 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
+import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
 /**
@@ -25,7 +25,7 @@ import io.smooch.core.Smooch;
  */
 public class GlobalApplication extends Application {
 
-    private static String TAG = "GlobalApplication";
+    private static String TAG = GlobalApplication.class.getSimpleName();
 
     public final static String pfName = "com.pitstop.credentials";
     public final static String pfUserName = "com.pitstop.user_name";
@@ -52,13 +52,24 @@ public class GlobalApplication extends Application {
 
         userAdapter = new UserAdapter(this);
 
+        // Smooch
+        Settings settings = new Settings(getString(R.string.smooch_token));
+        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        Smooch.init(this, settings);
+
+        // Parse
         Parse.enableLocalDatastore(this);
         FacebookSdk.sdkInitialize(this);
-        Parse.initialize(this, BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
+        if(BuildConfig.DEBUG) {
+            Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        } else {
+            Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
+        }
+        Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-        Smooch.init(this, getString(R.string.smooch_token));
-        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
+
+        // Mixpanel
+        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
     public static void setUpMixPanel(){
@@ -73,7 +84,7 @@ public class GlobalApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token) : getString(R.string.prod_mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "grpogrjer" : getString(R.string.prod_mixpanel_api_token));
         }
         return mixpanelAPI;
     }
@@ -139,9 +150,16 @@ public class GlobalApplication extends Application {
         GlobalApplication.refreshToken = refreshToken;
         GlobalApplication.accessToken = accessToken;
 
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        installation.put("userId", String.valueOf(currentUser.getId()));
-        installation.saveInBackground();
+        ParseUser.logOut();
+
+        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        //installation.put("userId", String.valueOf(currentUser.getId()));
+        //installation.saveInBackground(new SaveCallback() {
+        //    @Override
+        //    public void done(ParseException e) {
+        //        Log.wtf("SAVE", e == null ? "Saved" : e.getMessage());
+        //    }
+        //});
 
         setCurrentUser(currentUser);
     }
@@ -179,7 +197,7 @@ public class GlobalApplication extends Application {
         prefEditor.putString(pfAccessToken, accessToken);
         prefEditor.putString(pfRefreshToken, refreshToken);
 
-        prefEditor.commit();
+        prefEditor.apply();
     }
 
     public String getAccessToken() {

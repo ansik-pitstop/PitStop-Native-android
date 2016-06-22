@@ -51,7 +51,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        dashboardCar = (Car) getIntent().getSerializableExtra("dashboardCar");
+        dashboardCar = (Car) getIntent().getParcelableExtra("dashboardCar");
 
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
@@ -117,7 +117,11 @@ public class CarHistoryActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.desc.setText(doneIssues.get(position).getIssueDetail().getDescription());
-            holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+            if(doneIssues.get(position).getTimestamp() == null || doneIssues.get(position).getTimestamp().equals("null")) {
+                holder.date.setText("Done");
+            } else {
+                holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+            }
 
             if(doneIssues.get(position).getIssueType().equals(CarIssue.RECALL)) {
                 holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
@@ -169,6 +173,10 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private int getDateToCompare(String rawDate) {
+        if(rawDate == null || rawDate.isEmpty()) {
+            return 0;
+        }
+
         String[] splittedDate = rawDate.split("-");
         splittedDate[2] = splittedDate[2].substring(0, 2);
 

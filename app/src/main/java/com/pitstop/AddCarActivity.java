@@ -3,10 +3,12 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -18,6 +20,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -68,12 +71,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
-
-
 public class AddCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
-        View.OnClickListener, EasyPermissions.PermissionCallbacks {
+        View.OnClickListener {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -95,6 +94,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private EditText vinEditText, mileageEditText;
     private TextView vinHint, searchForCarInfo;
+
+    private int vinAttempts = 0;
 
     private LinearLayout vinSection;
 
@@ -134,14 +135,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     return;
                 }
 
-                if(EasyPermissions.hasPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS)) {
-                    autoConnectService.startBluetoothSearch();
+                if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
                 } else {
-                    EasyPermissions.requestPermissions(AddCarActivity.this,
-                            getString(R.string.location_request_rationale),
-                            RC_LOCATION_PERM, AppMasterActivity.LOC_PERMS);
+                    autoConnectService.startBluetoothSearch();
                 }
-
             }
 
 
@@ -306,12 +305,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         if(id == android.R.id.home) {
-            Intent intent = getIntent();
-            if(intent!=null && intent.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false)){
-                super.onBackPressed();
-            } else {
-                Toast.makeText(this,"There are no cars in your dashboard",Toast.LENGTH_SHORT).show();
-            }
+            super.onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -398,7 +392,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             makeCar();
 
         } else {
-            if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
+            if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this, "Location permissions are required",
+                        Toast.LENGTH_SHORT).show();
+                hideLoading();
+            } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
                 hideLoading();
                 vinSection.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Your device does not support bluetooth",
@@ -481,6 +481,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             int seconds = (int) (timeDiff / 1000);
 
             if(seconds > 15 && isGettingVinAndCarIsConnected) {
+                vinAttempts++;
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
                 return;
@@ -505,7 +506,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
             if(seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
-                    != IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
+                    == IBluetoothCommunicator.DISCONNECTED) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);
             } else if (!isSearchingForCar) {
@@ -521,7 +522,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    if(connectionAttempts++ == 2) {
+                    if(connectionAttempts++ == 3) {
                         tryAgainDialog();
                     } else {
                         Log.i(TAG, "connection reattempt: " + connectionAttempts);
@@ -660,6 +661,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 isGettingVinAndCarIsConnected = true;
                 mHandler.post(vinDetectionRunnable);
             }
+        } else if(state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showLoading("Connecting to device");
+                }
+            });
         }
     }
 
@@ -712,7 +720,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     }
                 });
 
-            } else {
+            } else if(vinAttempts > 6){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
@@ -724,6 +732,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         vinHint.setVisibility(View.VISIBLE);
                     }
                 });
+            } else {
+                Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
+                Log.i(TAG,"VIN: "+VIN);
+                isGettingVinAndCarIsConnected = true;
+                mHandler.post(vinDetectionRunnable);
+                autoConnectService.getCarVIN();
             }
         }
     }
@@ -891,23 +905,21 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         })
                         .show();
             }
-        } else {
-            // Forward results to EasyPermissions
-            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        } else if(requestCode == RC_LOCATION_PERM) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                autoConnectService.startBluetoothSearch();
+            } else {
+                Snackbar.make(findViewById(R.id.add_car_root), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
+                            }
+                        })
+                        .show();
+            }
         }
     }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Toast.makeText(AddCarActivity.this,"Access to location not granted",
-                Toast.LENGTH_SHORT).show();
-    }
-
 
     /**
      * Hide the loading screen
@@ -937,7 +949,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         return shopSelected;
     }
 
-    @AfterPermissionGranted(RC_LOCATION_PERM)
     private void beginSearchForCar() {
         abstractButton.performClick();
     }
@@ -1039,6 +1050,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
+                                PreferenceManager.getDefaultSharedPreferences(AddCarActivity.this)
+                                        .edit().putInt(MainActivity.pfCurrentCar, newCar.getId()).commit();
+
                                 if(scannerID != null) {
                                     networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
                                         @Override
@@ -1077,9 +1091,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
 
         hideLoading();
-        CarDataManager.getInstance().setDashboardCar(addedCar);
+
         Intent data = new Intent();
-        //data.putExtra(AppMasterActivity.CAR_EXTRA, addedCar);
+        data.putExtra(AppMasterActivity.CAR_EXTRA, addedCar);
         data.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
         finish();

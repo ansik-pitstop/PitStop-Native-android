@@ -125,16 +125,26 @@
             android:id="@+id/login_or" />
 
         <Button
-            android:id="@+id/fb_login_butt"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
+            android:textColor="#fff"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/fb_logo"
-            android:paddingLeft="20dp"
-            android:text="Log In with Facebook"
-            android:onClick="loginFacebook"
-            android:textColor="#efefef"
-            android:background="@drawable/color_button_fb"/>
+            android:background="@drawable/color_button_add_car"
+            android:text="Sign Up"
+            android:elegantTextHeight="true"
+            android:id="@+id/button2"
+            android:elevation="6dp"
+            android:onClick="signUp"
+            android:layout_gravity="center_horizontal" />
 
+        <Button
+            android:id="@+id/forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:textAllCaps="false"
+            android:onClick="forgotPassword"
+            android:layout_marginTop="12dp"/>
         <com.facebook.login.widget.LoginButton
             android:id="@+id/fb_login"
             android:layout_centerInParent="true"

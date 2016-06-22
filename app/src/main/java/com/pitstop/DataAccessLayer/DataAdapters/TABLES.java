@@ -20,6 +20,7 @@ public final class TABLES {
         String KEY_RTCTIME = "rtcTime";
         String KEY_TIMESTAMP = "timestamp";
         String KEY_PIDS = "pids";
+        String KEY_MILEAGE = "mileage";
     }
 
     public interface CAR {
