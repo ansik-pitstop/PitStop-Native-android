@@ -176,7 +176,6 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
-        dashboardCar = carList.get(0);
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(this);

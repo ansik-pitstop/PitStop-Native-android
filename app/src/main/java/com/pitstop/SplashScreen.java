@@ -136,7 +136,7 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login_butt);
+                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
                     if(facebookLoginButton != null) {
                         facebookLoginButton.setReadPermissions("public_profile", "email");
                         facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -352,7 +352,7 @@ public class SplashScreen extends AppCompatActivity {
                 email.setVisibility(View.GONE);
                 password.setVisibility(View.GONE);
                 findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
-                findViewById(R.id.login_or).setVisibility(View.GONE);
+//                findViewById(R.id.login_or).setVisibility(View.GONE);
                 findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
                 ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
                 return;

@@ -115,26 +115,23 @@
             android:layout_marginBottom="12dp"
             android:elegantTextHeight="true"
             android:layout_gravity="center_horizontal" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OR"
-            android:textColor="#efefef"
-            android:layout_marginBottom="12dp"
-            android:id="@+id/login_or" />
-
         <Button
-            android:layout_width="fill_parent"
-            android:textColor="#fff"
+            android:id="@+id/fb_login_butt"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/color_button_primary_car"
-            android:text="Sign Up"
-            android:elegantTextHeight="true"
-            android:id="@+id/button2"
-            android:elevation="6dp"
-            android:onClick="signUp"
-            android:layout_gravity="center_horizontal" />
+            android:drawableLeft="@drawable/fb_logo"
+            android:paddingLeft="20dp"
+            android:text="Log In with Facebook"
+            android:onClick="loginFacebook"
+            android:textColor="#efefef"
+            android:background="@drawable/color_button_fb"/>
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/fb_login"
+            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/forgot_password"
@@ -143,13 +140,9 @@
             android:text="Forgot password?"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:textAllCaps="false"
+            android:textColor="#fff"
             android:onClick="forgotPassword"
             android:layout_marginTop="12dp"/>
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/fb_login_butt"
-            android:layout_centerInParent="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
