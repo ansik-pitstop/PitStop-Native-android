@@ -23,6 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothLeComm;
@@ -89,6 +90,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
+
+    private String lastDataNum = "";
 
     private static String TAG = "BtAutoConnectDebug";
 
@@ -318,6 +321,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+
+        if(dataPackageInfo.dataNumber != null) {
+            lastDataNum = dataPackageInfo.dataNumber;
+        }
 
         deviceConnState = true;
         currentDeviceId = dataPackageInfo.deviceId;
@@ -671,6 +678,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         public void done(String response, RequestError requestError) {
                             if (requestError == null) {
                                 Log.i(TAG, "trip data sent: " + data.tripMileage);
+                                Toast.makeText(BluetoothAutoConnectService.this, "Trip data saved", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -711,7 +719,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         mileage += car == null ? 0 : car.getTotalMileage();
 
         pidDataObject.setMileage(Math.max(mileage, 1)); // for overflow lol
-        pidDataObject.setDataNumber(data.dataNumber == null ? "" : data.dataNumber);
+        pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
 
@@ -857,7 +865,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         mileage += car == null ? 0 : car.getTotalMileage();
 
         try {
-            jsonObject.put("dataNum", data.dataNumber==null ? "" : data.dataNumber);
+            jsonObject.put("dataNum", lastDataNum == null ? "" : lastDataNum);
             jsonObject.put("rtcTime", data.rtcTime);
             jsonObject.put("timestamp", String.valueOf(System.currentTimeMillis()/1000));
             jsonObject.put("mileage", mileage);

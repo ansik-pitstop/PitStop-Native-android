@@ -405,7 +405,7 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(findViewById(R.id.splash_layout), requestError.getMessage(), Snackbar.LENGTH_SHORT)
                             .setAction("Retry", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -557,7 +557,7 @@ public class SplashScreen extends AppCompatActivity {
                                     "It may take up to a few minutes to arrive.",
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

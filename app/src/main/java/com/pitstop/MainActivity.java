@@ -989,12 +989,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this,
-                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                                "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Log.e(TAG, "Load cars error: " + requestError.getMessage());
                     Toast.makeText(MainActivity.this,
-                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -1094,7 +1094,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {  }
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+        if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    refreshFromServer();
+                }
+            });
+        }
+    }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {

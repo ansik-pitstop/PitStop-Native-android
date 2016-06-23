@@ -1066,7 +1066,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         } else {
                             hideLoading();
                             Log.e(TAG, "Create new car: " + requestError.getMessage());
-                            Toast.makeText(AddCarActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddCarActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

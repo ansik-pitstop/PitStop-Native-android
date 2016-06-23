@@ -44,13 +44,13 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private static void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
+    private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
-                .context(null)
+                .context(context)
                 .createRequest()
                 .executeAsync();
     }
@@ -224,8 +224,8 @@ public class NetworkHelper {
                     new JSONObject().put("mileage", mileage)
                             .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
-                            .put("isPending", isPending)
-                            .put("freezeData", data));
+                            .put("isPending", isPending));
+                            //.put("freezeData", data));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -388,7 +388,14 @@ public class NetworkHelper {
         LOGI(TAG, "refreshToken: " + refreshToken);
 
         try {
-            postNoAuth("login/refresh", callback, new JSONObject().put("refreshToken", refreshToken));
+            new HttpRequest.Builder().uri("login/refresh")
+                    .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                    .body(new JSONObject().put("refreshToken", refreshToken))
+                    .requestCallBack(callback)
+                    .requestType(RequestType.POST)
+                    .context(null)
+                    .createRequest()
+                    .executeAsync();
         } catch (JSONException e) {
             e.printStackTrace();
         }
