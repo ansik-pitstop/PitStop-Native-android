@@ -244,8 +244,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             vinDecoderApi.cancel(true);
             vinDecoderApi = null;
         }
-
-        hideLoading();
         super.onPause();
     }
 

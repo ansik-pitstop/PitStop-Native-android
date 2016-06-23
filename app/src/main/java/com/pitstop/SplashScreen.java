@@ -33,6 +33,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 import com.pitstop.parse.ParseApplication;
+import com.pitstop.utils.InternetChecker;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.SplashSlidePagerAdapter;
 
@@ -276,6 +277,10 @@ public class SplashScreen extends AppCompatActivity {
 
     public void signUp(final View view) {
         if (signup) {
+            if(!InternetChecker.isConnected(SplashScreen.this)) {
+                Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                return;
+            }
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
             } catch (JSONException e) {
@@ -317,7 +322,7 @@ public class SplashScreen extends AppCompatActivity {
                     } else {
                         hideLoading();
                         Toast.makeText(SplashScreen.this,
-                                "Failed, please double check your information!",
+                                "Email may already be in use",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -347,42 +352,47 @@ public class SplashScreen extends AppCompatActivity {
         final String usernameInput = email.getText().toString().toLowerCase();
         final String passwordInput = password.getText().toString();
 
-        ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
+        if(!InternetChecker.isConnected(SplashScreen.this)) {
+            Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            hideLoading();
+        } else {
+            ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
 
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e == null) {
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                @Override
+                public void done(ParseUser user, ParseException e) {
+                    if (e == null) {
+                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
 
-                    SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(pfCodeForID, usernameInput);
-                    editor.putString(pfCodeForPassword, passwordInput);
-                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
-                    if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                        editor.putString(MainActivity.pfCodeForShopObjectID,
-                                ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(pfCodeForID, usernameInput);
+                        editor.putString(pfCodeForPassword, passwordInput);
+                        editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
+                        if (ParseUser.getCurrentUser().getParseObject("subscribedShopPointer") != null) {
+                            editor.putString(MainActivity.pfCodeForShopObjectID,
+                                    ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
+                        }
+                        editor.apply();
+
+                        //save user data
+                        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                        installation.put("userId", ParseUser.getCurrentUser().getObjectId());
+                        installation.saveInBackground();
+                        ParseApplication.setUpMixPanel();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra(LOGIN_REFRESH, true);
+                        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+
+                        hideLoading();
+                        startActivity(intent);
+                    } else {
+                        hideLoading();
+                        Toast.makeText(SplashScreen.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
                     }
-                    editor.apply();
 
-                    //save user data
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                    installation.put("userId", ParseUser.getCurrentUser().getObjectId());
-                    installation.saveInBackground();
-                    ParseApplication.setUpMixPanel();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-
-                    hideLoading();
-                    startActivity(intent);
-                } else {
-                    hideLoading();
-                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-
-            }
-        });
+            });
+        }
     }
 
     public void goToLogin(View view) {
