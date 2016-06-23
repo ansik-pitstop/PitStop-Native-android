@@ -225,7 +225,7 @@ public class NetworkHelper {
                             .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending)
-                            .put("freezeData", new JSONObject().put("data", data)));
+                            .put("freezeData", data));
         } catch (JSONException e) {
             e.printStackTrace();
         }

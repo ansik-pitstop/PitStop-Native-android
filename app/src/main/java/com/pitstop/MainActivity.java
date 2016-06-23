@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                     dialog.setCancelable(false);
-                    dialog.setTitle("New Module Detected. Please select the car this device is connected to.");
+                    dialog.setTitle("Module detected. Which car is it connected to?");
                     dialog.setSingleChoiceItems(carAdapter, -1, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -390,6 +390,23 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else if(getIntent().getBooleanExtra(FROM_NOTIF, false)) {
             refreshFromServer();
         }
+
+        networkHelper.getShops(new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null) {
+                    try {
+                        final List<Dealership> dl = Dealership.createDealershipList(response);
+                        shopLocalStore.deleteAllDealerships();
+                        shopLocalStore.storeDealerships(dl);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.e(TAG, "Get shops: " + requestError.getMessage());
+                }
+            }
+        });
     }
 
     @Override

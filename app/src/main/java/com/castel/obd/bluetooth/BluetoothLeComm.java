@@ -309,9 +309,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         //}
         if(mGatt == null) {
             Log.i(TAG, "Connecting to device");
+            scanLeDevice(false);// will stop after first device detection
             showConnectingNotification();
             mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-            scanLeDevice(false);// will stop after first device detection
             btConnectionState = CONNECTING;
             boolean mtuSuccess = mGatt.requestMtu(512);
             Log.i(TAG, "mtu request " + (mtuSuccess ? "success" : "failed"));
@@ -476,6 +476,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         e.printStackTrace();
                     }
                     dataListener.getBluetoothState(btConnectionState);
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
                     break;
                 }
 
@@ -498,12 +501,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 // device until services have been discovered
                 //btConnectionState = CONNECTED;
                 dataListener.getBluetoothState(btConnectionState);
-
-                //try {
-                //    dataListener.getIOData(null);
-                //} catch (Exception e) {
-                //    Log.v(TAG, "Woot");
-                //}
 
             } else {
                 Log.i(TAG, "Error onServicesDiscovered received: " + status);

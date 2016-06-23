@@ -9,7 +9,10 @@ import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
@@ -62,10 +65,19 @@ public class GlobalApplication extends Application {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
 
-        boolean clearedInstallation = deleteInstallationCache();
-        Log.d(TAG, "installation cleared: " + clearedInstallation); // // TODO: Change prod appId
         Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
+
+        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
 
         // Mixpanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
@@ -212,21 +224,6 @@ public class GlobalApplication extends Application {
         ParseUser.logOut();
 
         userAdapter.deleteAllUsers();
-    }
-
-    // when parse is initialized and there is a previous installation, installation can't be saved anymore
-    public boolean deleteInstallationCache() {
-        boolean deletedParseFolder = false;
-        File parseApp = new File(getCacheDir().getParent(),"app_Parse");
-        File installationId = new File(parseApp,"installationId");
-        File currentInstallation = new File(parseApp,"currentInstallation");
-        if(installationId.exists()) {
-            deletedParseFolder = deletedParseFolder || installationId.delete();
-        }
-        if(currentInstallation.exists()) {
-            deletedParseFolder = deletedParseFolder && currentInstallation.delete();
-        }
-        return deletedParseFolder;
     }
 
 }

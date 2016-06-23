@@ -268,6 +268,9 @@ public class Car implements Parcelable {
         if(!jsonObject.isNull("issues")) {
             car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
             car.setNumberOfServices(jsonObject.getJSONArray("issues").length());
+        } else {
+            car.setIssues(new ArrayList<CarIssue>());
+            car.setNumberOfServices(0);
         }
 
         if(!jsonObject.isNull("shop")) {

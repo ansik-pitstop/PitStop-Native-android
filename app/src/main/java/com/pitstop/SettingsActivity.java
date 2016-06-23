@@ -224,7 +224,7 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            List<Dealership> dealerships = shopAdapter.getAllDealerships();
+            final List<Dealership> dealerships = shopAdapter.getAllDealerships();
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
 
@@ -237,8 +237,9 @@ public class SettingsActivity extends AppCompatActivity {
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             try {
+                                List<Dealership> dealers = Dealership.createDealershipList(response);
                                 shopAdapter.deleteAllDealerships();
-                                shopAdapter.storeDealerships(Dealership.createDealershipList(response));
+                                shopAdapter.storeDealerships(dealers);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -356,10 +357,12 @@ public class SettingsActivity extends AppCompatActivity {
 
                     final EditText firstNameInput = new EditText(getActivity());
                     firstNameInput.setText(currentUser.getFirstName());
+                    firstNameInput.setHint("First name");
 
                     final EditText lastNameInput = new EditText(getActivity());
                     lastNameInput.setText(
                             currentUser.getLastName() == null || currentUser.getLastName().equals("null") ? "" : currentUser.getLastName());
+                    lastNameInput.setHint("Last name");
 
                     changeNameLayout.addView(firstNameInput);
                     changeNameLayout.addView(lastNameInput);
@@ -578,8 +581,7 @@ public class SettingsActivity extends AppCompatActivity {
             public View getView (int position, View convertView, ViewGroup parent) {
                 LayoutInflater inflater = (LayoutInflater) getActivity()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View rowView = inflater
-                        .inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+                View rowView = inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
                 Car ownedCar = (Car) getItem(position);
 
                 TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
