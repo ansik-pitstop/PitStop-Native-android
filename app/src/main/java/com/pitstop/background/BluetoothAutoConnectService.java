@@ -37,6 +37,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
@@ -54,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -449,7 +451,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.i(TAG, "DTCs found: " + dtcs);
 
-        int carId = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainActivity.pfCurrentCar, -1);
+        int carId = new LocalCarAdapter(this).getCarByScanner(dataPackageInfo.deviceId).getId();
 
         networkHelper.getCarsById(carId, new RequestCallback() {
             @Override
@@ -457,15 +459,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(requestError == null) {
                     try {
                         Car car = Car.createCar(response);
+
+                        HashSet<String> dtcNames = new HashSet<>();
+                        for(CarIssue issue : car.getActiveIssues()) {
+                            dtcNames.add(issue.getIssueDetail().getItem());
+                        }
+
                         for(final String dtc : dtcArr) {
-                            networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                    dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
-                                    new RequestCallback() {
-                                @Override
-                                public void done(String response, RequestError requestError) {
-                                    Log.i(TAG, "DTC added: " + dtc);
-                                }
-                            });
+                            if(!dtcNames.contains(dtc)) {
+                                networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                        dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                                        new RequestCallback() {
+                                            @Override
+                                            public void done(String response, RequestError requestError) {
+                                                Log.i(TAG, "DTC added: " + dtc);
+                                            }
+                                        });
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

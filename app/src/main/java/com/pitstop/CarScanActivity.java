@@ -155,7 +155,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
 
         setupUiReferences();
-        carMileage.setText(String.valueOf((int) dashboardCar.getTotalMileage()));
+        carMileage.setText(String.valueOf((int) Math.round(dashboardCar.getTotalMileage())));
     }
 
     @Override
