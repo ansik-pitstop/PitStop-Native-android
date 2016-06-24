@@ -200,7 +200,8 @@ public class HttpRequest {
                         });
                     } else {
                         listener.done(null,RequestError
-                                .jsonToRequestErrorObject((String)response.getErrorBody()));
+                                .jsonToRequestErrorObject((String)response.getErrorBody())
+                                .setStatusCode(response.getStatusCode()));
                     }
                 }
             } else {

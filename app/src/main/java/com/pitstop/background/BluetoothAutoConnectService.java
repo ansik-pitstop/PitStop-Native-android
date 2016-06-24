@@ -803,6 +803,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             localPid.deleteAllPidDataEntries();
                         } else {
                             Log.e(TAG, "save pid error: " + requestError.getMessage());
+                            if(requestError.getStatusCode() == 400) {
+                                localPid.deleteAllPidDataEntries();
+                            }
                         }
                     }
                 });
@@ -840,6 +843,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             localPidResult4.deleteAllPidDataEntries();
                         } else {
                             Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
+                            if(requestError.getStatusCode() == 400) {
+                                localPid.deleteAllPidDataEntries();
+                            }
                         }
                     }
                 });
