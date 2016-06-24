@@ -11,11 +11,16 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
+
+import java.io.File;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -34,9 +39,6 @@ public class GlobalApplication extends Application {
     public final static String pfAccessToken = "com.pitstop.access";
     public final static String pfRefreshToken = "com.pitstop.refresh";
     public final static String pfLoggedIn = "com.pitstop.logged_in";
-
-    private static String accessToken;
-    private static String refreshToken;
 
     private static MixpanelAPI mixpanelAPI;
 
@@ -65,8 +67,20 @@ public class GlobalApplication extends Application {
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
+
         Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
                 BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
+
+        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
 
         // Mixpanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
@@ -147,19 +161,7 @@ public class GlobalApplication extends Application {
         editor.putBoolean(pfLoggedIn, true);
         editor.apply();
 
-        GlobalApplication.refreshToken = refreshToken;
-        GlobalApplication.accessToken = accessToken;
-
         ParseUser.logOut();
-
-        //ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        //installation.put("userId", String.valueOf(currentUser.getId()));
-        //installation.saveInBackground(new SaveCallback() {
-        //    @Override
-        //    public void done(ParseException e) {
-        //        Log.wtf("SAVE", e == null ? "Saved" : e.getMessage());
-        //    }
-        //});
 
         setCurrentUser(currentUser);
     }
@@ -222,9 +224,6 @@ public class GlobalApplication extends Application {
         editor.putBoolean(pfLoggedIn, false);
         editor.apply();
 
-        accessToken = null;
-        refreshToken = null;
-        LoginManager.getInstance().logOut();
         ParseUser.logOut();
 
         userAdapter.deleteAllUsers();

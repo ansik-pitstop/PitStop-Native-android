@@ -208,7 +208,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private void sendRequest(String additionalComment) {
         networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, carIssue.getId(), new RequestCallback() {
+                additionalComment, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {

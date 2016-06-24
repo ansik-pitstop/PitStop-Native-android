@@ -1,5 +1,6 @@
 package com.castel.obd.bluetooth;
 
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -15,6 +16,7 @@ import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -328,6 +330,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     }
                     dataListener.getBluetoothState(btConnectionState);
                 }
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
 
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                 Log.i(TAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");

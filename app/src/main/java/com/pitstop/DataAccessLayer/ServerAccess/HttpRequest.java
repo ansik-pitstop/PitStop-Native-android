@@ -1,13 +1,21 @@
 package com.pitstop.DataAccessLayer.ServerAccess;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
+import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.pitstop.SplashScreen;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.NetworkHelper;
 
+import static com.pitstop.utils.LogUtils.LOGD;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -28,12 +36,16 @@ public class HttpRequest {
     private String uri;
     private JSONObject body;
     private HashMap<String, String> headers = new HashMap<>();
+    private GlobalApplication application;
+
+    private int retryAttempts = 0;
 
     private HttpRequest(RequestType requestType,
                         String uri,
                         HashMap<String, String> headers,
                         RequestCallback listener,
-                        JSONObject body
+                        JSONObject body,
+                        Context context
                         ) {
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
@@ -42,6 +54,8 @@ public class HttpRequest {
         this.headers = headers;
         this.listener = listener;
         this.body = body;
+
+        application = context == null ? null : (GlobalApplication) context.getApplicationContext();
     }
 
     public void executeAsync() {
@@ -63,7 +77,7 @@ public class HttpRequest {
         asyncRequest.execute(uri, requestType, body, headers);
     }
 
-    public static class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String> > {
+    private class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String> > {
         private RequestCallback listener;
 
         public void setListener(RequestCallback listener) {
@@ -157,20 +171,50 @@ public class HttpRequest {
         protected void onPostExecute(Response<String> response) {
             if(response != null) {
                 if(response.isSuccess()) {
-                    Log.i(TAG, response.getBody());
-                    Log.i(TAG, response.getResponseMessage());
+                    LOGD(TAG, response.getBody());
+                    LOGD(TAG, response.getResponseMessage());
                     listener.done(response.getBody(),null);
                 } else {
-                    Log.i(TAG,"Error: "+response.getStatusLine());
-                    Log.i(TAG, response.getResponseMessage());
-                    Log.i(TAG, (String) response.getErrorBody());
+                    LOGD(TAG,"Error: "+response.getStatusLine());
+                    LOGD(TAG, response.getResponseMessage());
+                    LOGD(TAG, (String) response.getErrorBody());
 
-                    listener.done(null,RequestError
-                            .jsonToRequestErrorObject((String)response.getErrorBody()));
+                    if(response.getStatusCode() == 401) { // unauthorized (must use refresh)
+                        NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if (requestError == null && retryAttempts++ == 0) { // retry request
+                                    try {
+                                        String newAccessToken = new JSONObject(response).getString("accessToken");
+                                        application.setTokens(newAccessToken, application.getRefreshToken());
+                                        headers.put("Authorization", "Bearer " + newAccessToken);
+                                        executeAsync();
+                                    } catch(JSONException e) {
+                                        e.printStackTrace();
+                                        logOut();
+                                    }
+                                } else { // need to log out
+                                    logOut();
+                                }
+                            }
+                        });
+                    } else {
+                        listener.done(null,RequestError
+                                .jsonToRequestErrorObject((String)response.getErrorBody()));
+                    }
                 }
             } else {
                 listener.done(null, RequestError.getUnknownError());
             }
+        }
+
+        private void logOut() {
+            LOGD(TAG, "Refresh failed, logging out");
+            application.logOutUser();
+            Toast.makeText(application, "Your session has expired.  Please log in again.", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(application, SplashScreen.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            application.startActivity(intent);
         }
     }
 
@@ -181,6 +225,7 @@ public class HttpRequest {
         private JSONObject body;
         private RequestType requestType;
         private RequestCallback callback;
+        private Context context;
 
         public Builder() {
             this.headers = new HashMap<>();
@@ -216,8 +261,13 @@ public class HttpRequest {
             return this;
         }
 
+        public Builder context(Context context) {
+            this.context = context;
+            return this;
+        }
+
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType,uri,headers,callback,body);
+            return new HttpRequest(requestType,uri,headers,callback,body,context);
         }
     }
 }

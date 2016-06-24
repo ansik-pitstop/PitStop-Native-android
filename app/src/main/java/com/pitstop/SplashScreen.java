@@ -216,10 +216,7 @@ public class SplashScreen extends AppCompatActivity {
         } else {
             showLoading("Logging in...");
 
-            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-            installation.put("userId", String.valueOf(application.getCurrentUserId()));
-            installation.saveInBackground();
-            goToMainActivity(false);
+            startMainActivity();
         }
     }
 
@@ -384,7 +381,7 @@ public class SplashScreen extends AppCompatActivity {
                 json.put("phone", phoneNumber.getText().toString());
                 json.put("password", password.getText().toString());
                 json.put("isSocial", false);
-                json.put("objectId", ParseInstallation.getCurrentInstallation().getInstallationId());
+                json.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -552,7 +549,7 @@ public class SplashScreen extends AppCompatActivity {
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(findViewById(R.id.splash_layout), requestError.getMessage(), Snackbar.LENGTH_SHORT)
                             .setAction("Retry", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -625,6 +622,8 @@ public class SplashScreen extends AppCompatActivity {
                 "Feel free to leave the app during this time.");
 
         registerReceiver(migrationReceiver, new IntentFilter(MigrationService.MIGRATION_BROADCAST));
+
+        application.setTokens(accessToken, refreshToken);
 
         Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
@@ -706,6 +705,7 @@ public class SplashScreen extends AppCompatActivity {
         emailField.setHint("Email");
 
         dialog.setView(emailField);
+        dialog.setTitle("Reset Password");
         dialog.setMessage("Please enter your email address");
 
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -720,7 +720,7 @@ public class SplashScreen extends AppCompatActivity {
                                     "It may take up to a few minutes to arrive.",
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

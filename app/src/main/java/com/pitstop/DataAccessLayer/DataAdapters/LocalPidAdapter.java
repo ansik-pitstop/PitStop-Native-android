@@ -95,17 +95,13 @@ public class LocalPidAdapter {
     /**
      * Clear all pid data entries
      */
-    public void deleteAllPidDataEntries() {
+    synchronized public void deleteAllPidDataEntries() {
         List<Pid> pidDataEntries = getAllPidDataEntries();
 
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         try {
-
-            for (Pid pid : pidDataEntries) {
-                db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
-                        new String[]{String.valueOf(pid.getId())});
-            }
+            db.delete(TABLES.PID.TABLE_NAME, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
