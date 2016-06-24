@@ -134,8 +134,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
-        setResult(AppMasterActivity.RESULT_OK,intent);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
+        setResult(MainActivity.RESULT_OK,intent);
         super.finish();
     }
 

@@ -7,8 +7,6 @@ import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
-import com.pitstop.AppMasterActivity;
-import com.pitstop.fragments.MainDashboardFragment;
 
 import org.json.JSONObject;
 

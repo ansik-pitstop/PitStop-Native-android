@@ -13,7 +13,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.AppMasterActivity;
+import com.pitstop.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,15 +63,15 @@ public class ObdManager {
      *
      */
     public int initializeObd() {
-        Log.i(AppMasterActivity.TAG, "Initializing obd");
+        Log.i(MainActivity.TAG, "Initializing obd");
 
         String deviceId = OBDInfoSP.getDeviceId(mContext);
         String dataNum = OBDInfoSP.getDataNum(mContext);
 
         if (!Utils.isEmpty(deviceId) && !Utils.isEmpty(dataNum)) {
-            Log.i(AppMasterActivity.TAG,"deviceId:" + deviceId + "dataNum"
+            Log.i(MainActivity.TAG,"deviceId:" + deviceId + "dataNum"
                     + OBDInfoSP.getDataNum(mContext));
-            Log.i(AppMasterActivity.TAG,"Initializing obd module");
+            Log.i(MainActivity.TAG,"Initializing obd module");
             return OBD.init(deviceId, dataNum);
         }
         return -1;
@@ -172,16 +172,16 @@ public class ObdManager {
      */
     private void determinePackageType(String info, int result) {
         if (0 == result) {
-            Log.i(AppMasterActivity.TAG,"Receiving result 0 - ObdManager");
+            Log.i(MainActivity.TAG,"Receiving result 0 - ObdManager");
             obdLoginPackageParse(info);
         } else if (2 == result) {
-            Log.i(AppMasterActivity.TAG,"Receiving result 2 - ObdManager");
+            Log.i(MainActivity.TAG,"Receiving result 2 - ObdManager");
             obdResponsePackageParse(info);
         } else if (3 == result) {
-            Log.i(AppMasterActivity.TAG,"Receiving result 3 - ObdManager");
+            Log.i(MainActivity.TAG,"Receiving result 3 - ObdManager");
             obdParameterPackageParse(info);
         } else if (4 == result || 5 == result || 6 == result) {
-            Log.i(AppMasterActivity.TAG,"Receiving result 4 or 5 or 6 - ObdManager");
+            Log.i(MainActivity.TAG,"Receiving result 4 or 5 or 6 - ObdManager");
             obdIODataPackageParse(info);
         }
     }
@@ -235,9 +235,9 @@ public class ObdManager {
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
                 ParameterPackageInfo.class);
         dataListener.getParameterData(parameterPackageInfo);
-        Log.i(AppMasterActivity.TAG,"result: "+ parameterPackageInfo.result);
-        Log.i(AppMasterActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).tlvTag);
-        Log.i(AppMasterActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).value);
+        Log.i(MainActivity.TAG,"result: "+ parameterPackageInfo.result);
+        Log.i(MainActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).tlvTag);
+        Log.i(MainActivity.TAG, "Data: " + parameterPackageInfo.value.get(0).value);
     }
 
 
@@ -252,10 +252,10 @@ public class ObdManager {
             //dataPackages.add(dataPackageInfo);
 
             if (!Utils.isEmpty(dataPackageInfo.dataNumber)) {
-                Log.i(AppMasterActivity.TAG, "Saving OBDInfo (DeviceId and DataNumber) - ObdManager");
+                Log.i(MainActivity.TAG, "Saving OBDInfo (DeviceId and DataNumber) - ObdManager");
                 OBDInfoSP.saveInfo(mContext, dataPackageInfo.deviceId,
                         dataPackageInfo.dataNumber);
-                Log.i(AppMasterActivity.TAG,"dataNumber:" + dataPackageInfo.dataNumber);
+                Log.i(MainActivity.TAG,"dataNumber:" + dataPackageInfo.dataNumber);
             }
 
         }

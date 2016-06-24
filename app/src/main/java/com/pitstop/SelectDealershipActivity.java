@@ -112,8 +112,8 @@ public class SelectDealershipActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Intent mainActivity = new Intent(this, AppMasterActivity.class);
-        mainActivity.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        Intent mainActivity = new Intent(this, MainActivity.class);
+        mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(mainActivity);
     }
 

@@ -92,7 +92,7 @@
             android:resource="@xml/android_auto" />
 
         <activity
-            android:name=".AppMasterActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
@@ -102,7 +102,7 @@
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AppMasterActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".SplashScreen"
@@ -121,7 +121,7 @@
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AppMasterActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".ReceiveDebugActivity"
@@ -151,20 +151,20 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".AppMasterActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AppMasterActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".AppMasterActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".AppMasterActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".SelectDealershipActivity"

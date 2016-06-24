@@ -2,7 +2,6 @@ package com.pitstop.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,16 +20,13 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -47,7 +42,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
-import com.pitstop.AppMasterActivity;
+import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
@@ -81,7 +76,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
-        AppMasterActivity.MainDashboardCallback {
+        MainActivity.MainDashboardCallback {
 
 
 
@@ -185,7 +180,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            final BluetoothAutoConnectService autoConnectService=((AppMasterActivity)getActivity()).getBluetoothConnectService();
+            final BluetoothAutoConnectService autoConnectService=((MainActivity)getActivity()).getBluetoothConnectService();
             if(msg.what == 0) {
                 if(autoConnectService != null
                         && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
@@ -204,7 +199,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                         && carLocalStore.getCarByScanner(autoConnectService.getCurrentDeviceId()) == null) {
 
                     final ArrayList<Car> selectedCar = new ArrayList<>(1); // must be final because this is accessed in the inner class
-                    final CarListAdapter carAdapter = new CarListAdapter(AppMasterActivity.carList);
+                    final CarListAdapter carAdapter = new CarListAdapter(MainActivity.carList);
 
                     AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
                     dialog.setTitle("New Module Detected. Please select the car this device is connected to.");
@@ -237,7 +232,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                 Toast.makeText(getActivity(), "Device added successfullY", Toast.LENGTH_SHORT).show();
                                                 sharedPreferences.edit().putInt(pfCurrentCar, selectedCar.get(0).getId()).commit();
                                                 //TODO: DEBUG THIS
-                                                ((AppMasterActivity)getActivity()).refreshFromServer();
+                                                ((MainActivity)getActivity()).refreshFromServer();
                                             } else {
                                                 Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                                             }
@@ -296,13 +291,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         mixpanelHelper = new MixpanelHelper(application);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         carIssuesAdapter = new CustomAdapter(carIssueList);
-        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
+        carIssueList = ((MainActivity)getActivity()).getCarIssueList();
 
         // Local db adapters
-        carLocalStore = AppMasterActivity.carLocalStore;
-        carIssueLocalStore = AppMasterActivity.carIssueLocalStore;
-        shopLocalStore = AppMasterActivity.shopLocalStore;
-        AppMasterActivity.callback = this;
+        carLocalStore = MainActivity.carLocalStore;
+        carIssueLocalStore = MainActivity.carIssueLocalStore;
+        shopLocalStore = MainActivity.shopLocalStore;
+        MainActivity.callback = this;
     }
 
     @Nullable
@@ -352,11 +347,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     e.printStackTrace();
                 }
 
-                sharedPreferences.edit().putBoolean(AppMasterActivity.REFRESH_FROM_SERVER, true).apply();
+                sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
                 Intent intent = new Intent(getActivity(), CarScanActivity.class);
-                intent.putExtra(AppMasterActivity.CAR_EXTRA, dashboardCar);
-                startActivityForResult(intent, AppMasterActivity.RC_SCAN_CAR);
+                intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+                startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
             }
         });
 
@@ -494,7 +489,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                                         Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
                                                                         carIssueList.remove(i);
                                                                         carIssuesAdapter.notifyDataSetChanged();
-                                                                        ((AppMasterActivity)getActivity()).refreshFromServer();
+                                                                        ((MainActivity)getActivity()).refreshFromServer();
                                                                     }
                                                                 }
                                                             });
@@ -520,7 +515,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 final int[] estimate = new int[]{0,2,3,10,18,32};
 
                                 final int i = reverseSortedPositions[0];
-                                new android.support.v7.app.AlertDialog.Builder(AppMasterActivity.this)
+                                new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
                                         .setItems(times, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, final int position) {
@@ -540,7 +535,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                             @Override
                                                             public void done(String response, RequestError requestError) {
                                                                 if(requestError == null) {
-                                                                    Toast.makeText(AppMasterActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
+                                                                    Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
                                                                     carIssueList.remove(i);
                                                                     carIssuesAdapter.notifyDataSetChanged();
                                                                     refreshFromServer();
@@ -578,11 +573,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
 
     public void onServerRefreshed() {
-        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
+        carIssueList = ((MainActivity)getActivity()).getCarIssueList();
     }
 
     public void onLocalRefreshed() {
-        carIssueList = ((AppMasterActivity)getActivity()).getCarIssueList();
+        carIssueList = ((MainActivity)getActivity()).getCarIssueList();
     }
 
 
@@ -922,9 +917,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                         }
 
                         Intent intent = new Intent(getActivity(), DisplayItemActivity.class);
-                        intent.putExtra(AppMasterActivity.CAR_EXTRA, dashboardCar);
-                        intent.putExtra(AppMasterActivity.CAR_ISSUE_EXTRA, carIssueList.get(position));
-                        startActivityForResult(intent, AppMasterActivity.RC_DISPLAY_ISSUE);
+                        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+                        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssueList.get(position));
+                        startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                     }
                 });
             }
@@ -972,11 +967,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     @Override
     public void activityResultCallback(int requestCode, int resultCode, Intent data) {
-        boolean shouldRefreshFromServer = data.getBooleanExtra(AppMasterActivity.REFRESH_FROM_SERVER,false);
+        boolean shouldRefreshFromServer = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER,false);
 
-        if(requestCode == AppMasterActivity.RC_ADD_CAR && resultCode== AddCarActivity.ADD_CAR_SUCCESS) {
+        if(requestCode == MainActivity.RC_ADD_CAR && resultCode== AddCarActivity.ADD_CAR_SUCCESS) {
             if(!shouldRefreshFromServer)  {
-                dashboardCar = data.getParcelableExtra(AppMasterActivity.CAR_EXTRA);
+                dashboardCar = data.getParcelableExtra(MainActivity.CAR_EXTRA);
                 sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
             }
         }

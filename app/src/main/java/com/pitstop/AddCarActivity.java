@@ -3,12 +3,10 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -130,13 +128,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
                 if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, AppMasterActivity.RC_ENABLE_BT);
+                    startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
                     return;
                 }
 
-                if(ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS, RC_LOCATION_PERM);
+                if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
                 } else {
                     autoConnectService.startBluetoothSearch();
                 }
@@ -213,8 +211,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         // Select shop
         Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false));
+        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent,
                 SelectDealershipActivity.RC_DEALERSHIP);
     }
@@ -278,8 +276,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD,false));
+        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
+                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent, SelectDealershipActivity.RC_DEALERSHIP);
     }
 
@@ -321,11 +319,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 setDealership(selectedShopId);
             }
 
-        } else if(requestCode == AppMasterActivity.RC_ENABLE_BT
-                && resultCode == AppMasterActivity.RC_ENABLE_BT) {
+        } else if(requestCode == MainActivity.RC_ENABLE_BT
+                && resultCode == MainActivity.RC_ENABLE_BT) {
             beginSearchForCar();
         } else if(requestCode == RC_PENDING_ADD_CAR
-                && resultCode == AppMasterActivity.RESULT_OK) {
+                && resultCode == MainActivity.RESULT_OK) {
             resumeFromPendingAddCar(data);
 
         } else {
@@ -391,8 +389,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             makeCar();
 
         } else {
-            if(ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(AddCarActivity.this, AppMasterActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+            if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
 
                 Toast.makeText(this, "Location permissions are required",
                         Toast.LENGTH_SHORT).show();
@@ -757,7 +755,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
             }
 
-            Log.i(AppMasterActivity.TAG, "getIOData --- Adding car");
+            Log.i(MainActivity.TAG, "getIOData --- Adding car");
             if(NetworkHelper.isConnected(this)){
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
@@ -912,7 +910,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(AddCarActivity.this, AppMasterActivity.LOC_PERMS, RC_LOCATION_PERM);
+                                ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
                             }
                         })
                         .show();
@@ -1092,8 +1090,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         hideLoading();
 
         Intent data = new Intent();
-        data.putExtra(AppMasterActivity.CAR_EXTRA, addedCar);
-        data.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, true);
+        data.putExtra(MainActivity.CAR_EXTRA, addedCar);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
         finish();
     }

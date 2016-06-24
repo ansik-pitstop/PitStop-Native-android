@@ -90,7 +90,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         intent.putExtra(ADD_CAR_DTCS,settings.getString(ADD_CAR_DTCS,""));
         intent.putExtra(ADD_CAR_SCANNER,settings.getString(ADD_CAR_SCANNER,""));
         intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,""));
-        setResult(AppMasterActivity.RESULT_OK,intent);
+        setResult(MainActivity.RESULT_OK,intent);
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(ADD_CAR_DTCS, "");

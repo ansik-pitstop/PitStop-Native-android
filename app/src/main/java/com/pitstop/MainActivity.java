@@ -17,7 +17,6 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -30,10 +29,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -68,7 +65,7 @@ import java.util.List;
 /**
  * Created by David on 6/8/2016.
  */
-public class AppMasterActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener{
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener{
 
     public static List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -99,7 +96,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
 
-    public static final String TAG = "AppMasterActivity";
+    public static final String TAG = "MainActivity";
     public static final int LOC_PERM_REQ = 112;
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -137,14 +134,14 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(AppMasterActivity.this);
+            autoConnectService.setCallbacks(MainActivity.this);
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter()!=null) {
 
-                if(ContextCompat.checkSelfPermission(AppMasterActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(AppMasterActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AppMasterActivity.this, LOC_PERMS, RC_LOCATION_PERM);
+                if(ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                 } else {
                     autoConnectService.startBluetoothSearch();
                 }
@@ -164,7 +161,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_drawer_frame);
-        serviceIntent= new Intent(AppMasterActivity.this, BluetoothAutoConnectService.class);
+        serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -271,7 +268,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
                     carList.get(0).setCurrentCar(true);
                     dashboardCar = carList.get(0);
                 }
-                callback.setDashboardCar(AppMasterActivity.carList);
+                callback.setDashboardCar(MainActivity.carList);
                 callback.setCarDetailsUI();
             }
         }
@@ -384,7 +381,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
-        final Intent intent = new Intent(AppMasterActivity.this, SettingsActivity.class);
+        final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 
         IntentProxyObject proxyObject = new IntentProxyObject();
 
@@ -438,9 +435,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Intent intent = new Intent(AppMasterActivity.this, CarHistoryActivity.class);
+            Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
             //intent.putExtra("carId",dashboardCar.getId());
-            intent.putExtra(AppMasterActivity.CAR_EXTRA, dashboardCar);
+            intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
             startActivity(intent);
     }
 
@@ -494,9 +491,9 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             loadCarDetailsFromServer();
         } else {
             Log.i(TAG,"Trying local store for cars");
-            AppMasterActivity.carList = localCars;
+            MainActivity.carList = localCars;
 
-            callback.setDashboardCar(AppMasterActivity.carList);
+            callback.setDashboardCar(MainActivity.carList);
             callback.setCarDetailsUI();
             hideLoading();
         }
@@ -513,17 +510,17 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
                     try {
-                        AppMasterActivity.carList = Car.createCarsList(response);
+                        MainActivity.carList = Car.createCarsList(response);
 
-                        if(AppMasterActivity.carList.isEmpty()) {
+                        if(MainActivity.carList.isEmpty()) {
                             if (isLoading) {
                                 hideLoading();
                             }
                             startAddCarActivity(false);
                         } else {
-                            callback.setDashboardCar(AppMasterActivity.carList);
+                            callback.setDashboardCar(MainActivity.carList);
                             carLocalStore.deleteAllCars();
-                            carLocalStore.storeCars(AppMasterActivity.carList);
+                            carLocalStore.storeCars(MainActivity.carList);
                             callback.setCarDetailsUI();
                             resetMenus(false);
                         }
@@ -574,8 +571,8 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
 
 
     public void startAddCarActivity(boolean hasCar) {
-        Intent intent = new Intent(AppMasterActivity.this, AddCarActivity.class);
-        intent.putExtra(AppMasterActivity.HAS_CAR_IN_DASHBOARD, hasCar);
+        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, hasCar);
         startActivity(intent);
     }
 
@@ -591,7 +588,7 @@ public class AppMasterActivity extends AppCompatActivity implements ObdManager.I
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(AppMasterActivity.this, LOC_PERMS, RC_LOCATION_PERM);
+                                ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                             }
                         })
                         .show();

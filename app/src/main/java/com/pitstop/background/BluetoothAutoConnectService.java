@@ -35,7 +35,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
-import com.pitstop.AppMasterActivity;
+import com.pitstop.MainActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
@@ -177,8 +177,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 .setContentTitle("Car is Connected")
                                 .setContentText("Click here to check out more");
                 // Creates an explicit intent for an Activity in your app
-                Intent resultIntent = new Intent(this, AppMasterActivity.class);
-                resultIntent.putExtra(AppMasterActivity.FROM_NOTIF, true);
+                Intent resultIntent = new Intent(this, MainActivity.class);
+                resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
 
                 // The stack builder object will contain an artificial back stack for the
                 // started Activity.
@@ -186,7 +186,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 // your application to the Home screen.
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
                 // Adds the back stack for the Intent (but not the Intent itself)
-                stackBuilder.addParentStack(AppMasterActivity.class);
+                stackBuilder.addParentStack(MainActivity.class);
                 // Adds the Intent that starts the Activity to the top of the stack
                 stackBuilder.addNextIntent(resultIntent);
                 PendingIntent resultPendingIntent =

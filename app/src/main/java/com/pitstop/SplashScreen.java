@@ -98,7 +98,7 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(AppMasterActivity.TAG, "Calling on create");
+        Log.i(MainActivity.TAG, "Calling on create");
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_splash_screen);
@@ -567,10 +567,10 @@ public class SplashScreen extends AppCompatActivity {
 
 
     private void goToMainActivity(boolean refresh) {
-        Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, refresh);
-        intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
     public void login(View view) {
@@ -634,10 +634,10 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        Intent intent = new Intent(SplashScreen.this, AppMasterActivity.class);
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, true);
-        intent.putExtra(AppMasterActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
 
@@ -662,7 +662,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void hideLoading(){
-        Log.i(AppMasterActivity.TAG, "hiding loading");
+        Log.i(MainActivity.TAG, "hiding loading");
         progressDialog.dismiss();
     }
 
@@ -674,7 +674,7 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onPause() {
         application.getMixpanelAPI().flush();
-        Log.i(AppMasterActivity.TAG, "SplashScreen on pause");
+        Log.i(MainActivity.TAG, "SplashScreen on pause");
         hideLoading();
 
         try {
@@ -688,7 +688,7 @@ public class SplashScreen extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i(AppMasterActivity.TAG, "SplashScreen onDestroy");
+        Log.i(MainActivity.TAG, "SplashScreen onDestroy");
         super.onDestroy();
     }
 

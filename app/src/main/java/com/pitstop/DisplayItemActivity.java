@@ -88,10 +88,10 @@ public class DisplayItemActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
-        dashboardCar = intent.getParcelableExtra(AppMasterActivity.CAR_EXTRA);
-        carIssue = intent.getParcelableExtra(AppMasterActivity.CAR_ISSUE_EXTRA);
+        dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
+        carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
 //        dashboardCar = CarDataManager.getInstance().getDashboardCar();
-//        carIssue = (CarIssue) intent.getSerializableExtra(AppMasterActivity.CAR_ISSUE_EXTRA);
+//        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);
 
@@ -147,8 +147,8 @@ public class DisplayItemActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(AppMasterActivity.REFRESH_FROM_SERVER, needToRefresh);
-        setResult(AppMasterActivity.RESULT_OK, intent);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
+        setResult(MainActivity.RESULT_OK, intent);
         super.finish();
     }
 
