@@ -1045,9 +1045,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                PreferenceManager.getDefaultSharedPreferences(AddCarActivity.this)
-                                        .edit().putInt(MainActivity.pfCurrentCar, newCar.getId()).commit();
-
                                 if(scannerID != null) {
                                     networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
                                         @Override
@@ -1084,6 +1081,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private void returnToMainActivity(Car addedCar) {
 
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+
+        networkHelper.setMainCar(application.getCurrentUserId(), addedCar.getId(), null);
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);

@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Monitor app connection to device, so that ui can be updated
      * appropriately.
      * */
-    Handler handler = new Handler() {
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0) {
@@ -964,37 +964,56 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @see #getCarDetails()
      * */
     private void loadCarDetailsFromServer() {
-        int userId = application.getCurrentUserId();
+        final int userId = application.getCurrentUserId();
 
-        networkHelper.getCarsByUserId(userId, new RequestCallback() {
+        networkHelper.getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if(requestError == null) {
-                    try {
-                        carList = Car.createCarsList(response);
-
-                        if(carList.isEmpty()) {
-                            if (isLoading) {
-                                hideLoading();
-                            }
-                            findViewById(R.id.main_view).setVisibility(View.GONE);
-                            findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
-                        } else {
-                            findViewById(R.id.no_car_text).setVisibility(View.GONE);
-                            setDashboardCar(carList);
-                            carLocalStore.deleteAllCars();
-                            carLocalStore.storeCars(carList);
-                            setCarDetailsUI();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this,
-                                "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
-                    }
+                if(response == null || response.isEmpty() || response.equals("{}")) {
+                    application.logOutUser();
+                    Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
-                    Log.e(TAG, "Load cars error: " + requestError.getMessage());
-                    Toast.makeText(MainActivity.this,
-                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                    int mainCarId = -1;
+                    try {
+                        mainCarId = new JSONObject(response).getJSONObject("settings").getInt("mainCar");
+                    } catch (JSONException e) {
+                    }
+
+                    sharedPreferences.edit().putInt(pfCurrentCar, mainCarId).commit();
+
+                    networkHelper.getCarsByUserId(userId, new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                try {
+                                    carList = Car.createCarsList(response);
+
+                                    if (carList.isEmpty()) {
+                                        if (isLoading) {
+                                            hideLoading();
+                                        }
+                                        findViewById(R.id.main_view).setVisibility(View.GONE);
+                                        findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                                    } else {
+                                        findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                        setDashboardCar(carList);
+                                        carLocalStore.deleteAllCars();
+                                        carLocalStore.storeCars(carList);
+                                        setCarDetailsUI();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(MainActivity.this,
+                                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.e(TAG, "Load cars error: " + requestError.getMessage());
+                                Toast.makeText(MainActivity.this,
+                                        "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });

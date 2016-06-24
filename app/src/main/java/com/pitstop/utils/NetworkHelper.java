@@ -400,4 +400,18 @@ public class NetworkHelper {
             e.printStackTrace();
         }
     }
+
+    public void setMainCar(int userId, int carId, RequestCallback callback) {
+        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
+
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("settings", new JSONObject().put("mainCar", carId));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        put("user/" + userId + "/settings", callback, body);
+    }
 }

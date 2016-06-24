@@ -544,6 +544,8 @@ public class SettingsActivity extends AppCompatActivity {
 
                     PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainActivity.pfCurrentCar, newDashboardCar.getId()).apply();
 
+                    networkHelper.setMainCar(currentUser.getId(), newDashboardCar.getId(), null);
+
                 }
             });
             dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
