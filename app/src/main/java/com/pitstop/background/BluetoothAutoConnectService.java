@@ -451,38 +451,40 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.i(TAG, "DTCs found: " + dtcs);
 
-        int carId = new LocalCarAdapter(this).getCarByScanner(dataPackageInfo.deviceId).getId();
+        Car car = new LocalCarAdapter(this).getCarByScanner(dataPackageInfo.deviceId);
 
-        networkHelper.getCarsById(carId, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(requestError == null) {
-                    try {
-                        Car car = Car.createCar(response);
+        if(car != null) {
+            networkHelper.getCarsById(car.getId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null) {
+                        try {
+                            Car car = Car.createCar(response);
 
-                        HashSet<String> dtcNames = new HashSet<>();
-                        for(CarIssue issue : car.getActiveIssues()) {
-                            dtcNames.add(issue.getIssueDetail().getItem());
-                        }
-
-                        for(final String dtc : dtcArr) {
-                            if(!dtcNames.contains(dtc)) {
-                                networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                        dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
-                                        new RequestCallback() {
-                                            @Override
-                                            public void done(String response, RequestError requestError) {
-                                                Log.i(TAG, "DTC added: " + dtc);
-                                            }
-                                        });
+                            HashSet<String> dtcNames = new HashSet<>();
+                            for (CarIssue issue : car.getActiveIssues()) {
+                                dtcNames.add(issue.getIssueDetail().getItem());
                             }
+
+                            for (final String dtc : dtcArr) {
+                                if (!dtcNames.contains(dtc)) {
+                                    networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                            dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                                            new RequestCallback() {
+                                                @Override
+                                                public void done(String response, RequestError requestError) {
+                                                    Log.i(TAG, "DTC added: " + dtc);
+                                                }
+                                            });
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
                 }
-            }
-        });
+            });
+        }
 
         if (callbacks != null)
             callbacks.getIOData(dataPackageInfo);
