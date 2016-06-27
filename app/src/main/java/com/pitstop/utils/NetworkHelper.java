@@ -124,7 +124,7 @@ public class NetworkHelper {
     }
 
     public void updateCarMileage(int carId, int mileage, RequestCallback callback) {
-        LOGI(TAG, "updateCarShop: carId: " + carId + " mileage: " + mileage);
+        LOGI(TAG, "updateCarShop: carId: " + carId + ", mileage: " + mileage);
         JSONObject body = new JSONObject();
 
         try {

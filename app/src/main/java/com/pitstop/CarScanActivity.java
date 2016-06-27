@@ -24,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -44,6 +45,7 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -92,8 +94,11 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private int recalls = 0, services = 0;
 
     private Car dashboardCar;
+    private double baseMileage;
     private boolean updatedMileage = false;
     private ProgressDialog progressDialog;
+
+    private LocalCarAdapter localCarAdapter;
 
     private NetworkHelper networkHelper;
 
@@ -146,6 +151,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         bindService(new Intent(this, BluetoothAutoConnectService.class),
                 serviceConnection, BIND_AUTO_CREATE);
 
+        localCarAdapter = new LocalCarAdapter(this);
+
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
 
         try {
@@ -155,7 +162,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
 
         setupUiReferences();
-        carMileage.setText(String.valueOf((int) Math.round(dashboardCar.getTotalMileage())));
+        baseMileage = dashboardCar.getTotalMileage();
+        carMileage.setText(String.valueOf(localCarAdapter.getCar(dashboardCar.getId()).getTotalMileage()));
     }
 
     @Override
@@ -319,7 +327,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
 
         final EditText input = new EditText(CarScanActivity.this);
-        input.setText(carMileage.getText().toString());
+        input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         input.setRawInputType(Configuration.KEYBOARD_12KEY);
 
@@ -373,6 +381,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, mileage);
 
         carMileage.setText(mileage);
+
+        dashboardCar.setTotalMileage(Double.parseDouble(mileage));
+        localCarAdapter.updateCar(dashboardCar);
 
         updatedMileage = true;
 
@@ -596,11 +607,34 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private Set<String> dtcCodes = new HashSet<>();
+    int dataCounter = 0;
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
+
+        ++dataCounter;
+
+        if(dataCounter % 40 == 0) {
+            dataCounter = 0;
+            autoConnectService.getPendingDTCs();
+        }
+
+        if(dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+            final double newTotalMileage = ((int) ((baseMileage
+                    + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
+
+            dashboardCar.setTotalMileage(newTotalMileage);
+            localCarAdapter.updateCar(dashboardCar);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
+        }
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
 

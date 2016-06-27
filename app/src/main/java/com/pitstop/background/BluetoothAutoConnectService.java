@@ -414,13 +414,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             response.setValue("dtcData", dataPackageInfo.dtcData);
             Log.i(TAG, "IO data saving to local db - auto-connect service");
             ldr.saveData("Responses", response.getValues());
-
-            if (callbacks != null) {
-                Log.i(TAG, "calling service callbacks for getIOdata - auto-connect service");
-                callbacks.getIOData(dataPackageInfo);
-            }
-
         }
+
+        if (callbacks != null) {
+            Log.i(TAG, "calling service callbacks for getIOdata - auto-connect service");
+            callbacks.getIOData(dataPackageInfo);
+        }
+
         if(counter%20==0){
             getPIDs();
         }

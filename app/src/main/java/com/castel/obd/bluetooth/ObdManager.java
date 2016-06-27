@@ -33,6 +33,7 @@ public class ObdManager {
 
     public final static int DEVICE_LOGIN_FLAG = 1;
     public final static int DEVICE_LOGOUT_FLAG = 0;
+    public final static int TYPE_MONITOR_PID_DATA = 0;
     public final static int TYPE_DTC = 1;
     public final static int TYPE_PENDING_DTC = 2;
     public final static int TYPE_FREEZE_DATA = 3;
