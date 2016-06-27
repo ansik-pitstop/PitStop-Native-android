@@ -98,6 +98,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private EditText vinEditText, mileageEditText;
     private TextView vinHint, searchForCarInfo;
 
+    private int vinAttempts = 0;
+
     private LinearLayout vinSection;
 
     /** is true when bluetooth has failed enough that we want to show the manual VIN entry UI */
@@ -502,6 +504,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             int seconds = (int) (timeDiff / 1000);
 
             if(seconds > 15 && isGettingVinAndCarIsConnected) {
+                vinAttempts++;
+                Log.i(TAG, "Vin attempt: " + vinAttempts);
                 mHandler.sendEmptyMessage(1);
                 mHandler.post(vinDetectionRunnable);
                 return;
@@ -751,7 +755,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     }
                 });
 
-            } else {
+            } else if(vinAttempts > 6){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
@@ -763,6 +767,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         vinHint.setVisibility(View.VISIBLE);
                     }
                 });
+            } else {
+                Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
+                Log.i(TAG,"VIN: "+VIN);
+                isGettingVinAndCarIsConnected = true;
+                mHandler.post(vinDetectionRunnable);
+                autoConnectService.getCarVIN();
             }
         }
     }

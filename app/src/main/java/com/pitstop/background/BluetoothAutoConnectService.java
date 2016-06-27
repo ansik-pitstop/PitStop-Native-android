@@ -160,8 +160,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnected = true;
                 }
             }
+
+            syncObdDevice();
+
             //show a custom notification
-            if (deviceConnected) {
+            //if (deviceConnected) {
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
@@ -190,11 +193,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(notifID, mBuilder.build());
-            } else {
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.cancel(notifID);
-            }
+            //} else {
+            //    NotificationManager mNotificationManager =
+            //            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            //    mNotificationManager.cancel(notifID);
+            //}
 
         } else {
             /**
@@ -930,88 +933,5 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         return jsonObject;
-    }
-
-    public void uploadRecords() {
-
-        Log.i(TAG, "Uploading database records");
-        LocalDataRetriever ldr = new LocalDataRetriever(this);
-        DBModel entry = ldr.getLastRow("Uploads", "UploadID");
-        if(entry==null){
-            ArrayList<DBModel> array  = ldr.getAllDataSet("Responses");
-            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
-            uploadInfoOnline.execute(array.get(0).getValue("ResponseID"),
-                    array.get(array.size()-1).getValue("ResponseID"));
-        }else{
-            DBModel lastResponse = ldr.getLastRow("Responses", "ResponseID");
-            UploadInfoOnline uploadInfoOnline = new UploadInfoOnline();
-            uploadInfoOnline.execute(entry.getValue("EntriesEnd"),
-                    lastResponse.getValue("ResponseID"));
-        }
-    }
-
-    //Todo: Once getIOData is refactored, this class shouldn't be needed anymore
-    private class UploadInfoOnline extends AsyncTask<String,Void,Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            Log.i(TAG,"Uploading info online (async task) - auto-connect service");
-            final LocalDataRetriever ldr = new LocalDataRetriever(getApplicationContext());
-            ArrayList<String> devices = ldr.getDistinctDataSet("Responses","deviceId");
-            for (final String device : devices) {
-                ParseObject object = ParseObject.create("Scan");
-                String pid = "{", freeze = "{", dtc = "{";
-                final ArrayList<DBModel> responses = ldr.getResponse(device, params[0],params[1]);
-                boolean firstp = false, firstf = false, firstd = false;
-                for (DBModel model : responses) {
-                    if ((model.getValue("OBD") != null) && (!model.getValue("OBD").equals("{}"))&&model.getValue("result").equals("6")) {
-                        pid += (firstp ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("OBD") + "";
-                        firstp = true;
-                    }
-                    if ((model.getValue("Freeze") != null) && (!model.getValue("Freeze").equals("{}"))) {
-                        freeze += (firstf ? "," : "") + "'" + model.getValue("rtcTime") + "':" + model.getValue("Freeze");
-                        firstf = true;
-                    }
-                    if ((model.getValue("dtcData") != null) && (!model.getValue("dtcData").equals(""))) {
-                        dtc += (firstd ? "," : "") + "'" + model.getValue("rtcTime") + "':'" + model.getValue("dtcData") + "'";
-                        firstd = true;
-                    }
-                }
-                pid += "}";
-                freeze += "}";
-                dtc += "}";
-                final int count = responses.size();
-                if (count > 0) {
-
-                    final Uploads upload = new Uploads();
-                    upload.setValue("EntriesStart", responses.get(0).getValue("ResponseID"));
-                    upload.setValue("EntriesEnd", responses.get(responses.size()-1).getValue("ResponseID"));
-                    final long index = ldr.saveData("Uploads", upload.getValues());
-                    try {
-                        object.put("DTCArray", new JSONObject(dtc));
-                        object.put("runAfterSave",false);
-                        object.put("freezeDataArray", new JSONObject(pid));
-                        object.put("scannerId", device);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    object.saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                ldr.deleteData("Responses", "deviceId", device);
-                                final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-                                upload.setValue("UploadedAt", timeStamp);
-                                ldr.updateData("Uploads", "UploadID",""+index, upload.getValues());
-                            } else {
-                                Log.d("Cant upload", e.getMessage());
-                            }
-                        }
-                    });
-                }else{
-                }
-            }
-            return null;
-        }
     }
 }
