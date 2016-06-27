@@ -1022,74 +1022,79 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void setDealership() {
 
         Dealership shop = dashboardCar.getDealership();
-        if(shop == null) {
+        if(shop == null) { // need to load shop
+            shop = shopLocalStore.getDealership(dashboardCar.getShopId());
+            if(shop != null) { // shop is stored locally
+                dashboardCar.setDealership(shop);
+                dealershipName.setText(shop.getName());
+            } else { // shop needs to be retrieved from server
+                networkHelper.getShops(new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError == null) {
+                            try {
+                                final List<Dealership> dl = Dealership.createDealershipList(response);
+                                shopLocalStore.deleteAllDealerships();
+                                shopLocalStore.storeDealerships(dl);
 
-            networkHelper.getShops(new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if(requestError == null) {
-                        try {
-                            final List<Dealership> dl = Dealership.createDealershipList(response);
-                            shopLocalStore.deleteAllDealerships();
-                            shopLocalStore.storeDealerships(dl);
+                                Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
 
-                            Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
+                                dashboardCar.setDealership(d);
+                                if (dashboardCar.getDealership() != null) {
+                                    dealershipName.setText(dashboardCar.getDealership().getName());
+                                } else {
+                                    String[] shopNames = new String[dl.size()];
 
-                            dashboardCar.setDealership(d);
-                            if(dashboardCar.getDealership() != null) {
-                                dealershipName.setText(dashboardCar.getDealership().getName());
-                            } else {
-                                String[] shopNames = new String[dl.size()];
-
-                                for(int i = 0 ; i < shopNames.length ; i++) {
-                                    shopNames[i] = dl.get(i).getName();
-                                }
-
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                                dialog.setTitle(String.format("Please select the dealership for your %s %s %s",
-                                        dashboardCar.getYear(), dashboardCar.getMake(), dashboardCar.getModel()));
-                                dialog.setSingleChoiceItems(shopNames, -1, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dashboardCar.setDealership(dl.get(which));
+                                    for (int i = 0; i < shopNames.length; i++) {
+                                        shopNames[i] = dl.get(i).getName();
                                     }
-                                });
 
-                                dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if(dashboardCar.getDealership() == null) {
-                                            return;
+                                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                    dialog.setTitle(String.format("Please select the dealership for your %s %s %s",
+                                            dashboardCar.getYear(), dashboardCar.getMake(), dashboardCar.getModel()));
+                                    dialog.setSingleChoiceItems(shopNames, -1, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dashboardCar.setDealership(dl.get(which));
                                         }
-                                        dialog.dismiss();
+                                    });
 
-                                        networkHelper.updateCarShop(dashboardCar.getId(), dashboardCar.getDealership().getId(),
-                                                new RequestCallback() {
-                                                    @Override
-                                                    public void done(String response, RequestError requestError) {
-                                                        if(requestError == null) {
-                                                            Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + dashboardCar.getDealership().getId());
-                                                            Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
-                                                            setDealership();
-                                                        } else {
-                                                            Log.e(TAG, "Dealership update error: " + requestError.getError());
-                                                            Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                    dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (dashboardCar.getDealership() == null) {
+                                                return;
+                                            }
+                                            dialog.dismiss();
+
+                                            networkHelper.updateCarShop(dashboardCar.getId(), dashboardCar.getDealership().getId(),
+                                                    new RequestCallback() {
+                                                        @Override
+                                                        public void done(String response, RequestError requestError) {
+                                                            if (requestError == null) {
+                                                                Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + dashboardCar.getDealership().getId());
+                                                                Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+                                                                setDealership();
+                                                            } else {
+                                                                Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                                Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                                            }
                                                         }
-                                                    }
-                                                });
-                                    }
-                                });
-                                dialog.show();
+                                                    });
+                                        }
+                                    });
+                                    dialog.show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        } else {
+                            Log.e(TAG, "Get shops: " + requestError.getMessage());
                         }
-                    } else {
-                        Log.e(TAG, "Get shops: " + requestError.getMessage());
                     }
-                }
-            });
-        } else {
+                });
+            }
+        } else { // shop is good
             dashboardCar.setDealership(shop);
             dealershipName.setText(shop.getName());
         }
