@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -95,6 +96,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private String lastDataNum = "";
 
+    private static int lastTripId = -1;
+
     private static String TAG = "BtAutoConnectDebug";
 
     @Override
@@ -108,7 +111,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                bluetoothCommunicator = new BluetoothLeComm(this);
+                bluetoothCommunicator = new BluetoothClassicComm(this);
             } else {
                 bluetoothCommunicator = new BluetoothClassicComm(this);
             }
@@ -125,6 +128,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, intentFilter);
+
+        Runnable runnable = new Runnable() { // start background search
+            @Override
+            public void run() {
+                if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
+                        bluetoothCommunicator.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    startBluetoothSearch();
+                }
+                handler.postDelayed(this, 300000);
+            }
+        };
+
+        handler.postDelayed(runnable, 10000);
     }
 
     @Override
@@ -168,8 +184,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnected = true;
                 }
             }
+
+            syncObdDevice();
+
             //show a custom notification
-            if (deviceConnected) {
+            //if (deviceConnected) {
                 Bitmap icon = BitmapFactory.decodeResource(getResources(),
                         R.mipmap.ic_push);
 
@@ -202,11 +221,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(notifID, mBuilder.build());
-            } else {
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.cancel(notifID);
-            }
+            //} else {
+            //    NotificationManager mNotificationManager =
+            //            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            //    mNotificationManager.cancel(notifID);
+            //}
 
         } else {
             /**
@@ -343,7 +362,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //processResultFiveData(dataPackageInfo);
         }
 
-        Log.i(TAG, "getting io data - auto-connect service");
+        Log.d(TAG, "getting io data - auto-connect service");
 
         if(dataPackageInfo.result == 6) { //save dtcs
             saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
@@ -412,12 +431,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             response.setValue("supportPid", dataPackageInfo.surportPid);
             response.setValue("dtcData", dataPackageInfo.dtcData);
-            Log.i(TAG, "IO data saving to local db - auto-connect service");
+            Log.d(TAG, "IO data saving to local db - auto-connect service");
             ldr.saveData("Responses", response.getValues());
         }
 
         if (callbacks != null) {
-            Log.i(TAG, "calling service callbacks for getIOdata - auto-connect service");
+            Log.d(TAG, "calling service callbacks for getIOdata - auto-connect service");
             callbacks.getIOData(dataPackageInfo);
         }
 
@@ -654,7 +673,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
 
     private void sendForPIDS(){
-        Log.i(TAG, "Sending for PIDS - auto-connect service");
+        Log.d(TAG, "Sending for PIDS - auto-connect service");
         gettingPIDs = true;
         String pid="";
         while(pidI!=pids.length){
@@ -684,7 +703,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void processResultFourData(final DataPackageInfo data) {
 
         if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
-            networkHelper.saveTripMileage(data.deviceId, data.tripId, data.tripMileage, data.rtcTime,
+            networkHelper.saveTripMileage(lastTripId, data.tripMileage, data.rtcTime,
                     new RequestCallback() {
                         @Override
                         public void done(String response, RequestError requestError) {
@@ -694,6 +713,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         }
                     });
+        } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        try {
+                            lastTripId = new JSONObject(response).getInt("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -796,21 +828,33 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             e.printStackTrace();
         }
 
-        networkHelper.savePids(data.deviceId, pidArray,
-                new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            Log.i(TAG, "PIDS saved");
-                            localPid.deleteAllPidDataEntries();
-                        } else {
-                            Log.e(TAG, "save pid error: " + requestError.getMessage());
-                            if(requestError.getStatusCode() == 400) {
+        if(lastTripId != -1) {
+            networkHelper.savePids(lastTripId, data.deviceId, pidArray,
+                    new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                Log.i(TAG, "PIDS saved");
                                 localPid.deleteAllPidDataEntries();
+                            } else {
+                                Log.e(TAG, "save pid error: " + requestError.getMessage());
                             }
                         }
+                    });
+        } else {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        try {
+                            lastTripId = new JSONObject(response).getInt("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                });
+                }
+            });
+        }
     }
 
     /**
@@ -836,21 +880,33 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             e.printStackTrace();
         }
 
-        networkHelper.savePids(data.deviceId, pidArray,
-                new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            Log.i(TAG, "PIDS result 4 saved");
-                            localPidResult4.deleteAllPidDataEntries();
-                        } else {
-                            Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
-                            if(requestError.getStatusCode() == 400) {
-                                localPid.deleteAllPidDataEntries();
+        if(lastTripId != -1) {
+            networkHelper.savePids(lastTripId, data.deviceId, pidArray,
+                    new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                Log.i(TAG, "PIDS result 4 saved");
+                                localPidResult4.deleteAllPidDataEntries();
+                            } else {
+                                Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
                             }
                         }
+                    });
+        } else {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        try {
+                            lastTripId = new JSONObject(response).getInt("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                });
+                }
+            });
+        }
     }
 
     /**
@@ -931,7 +987,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 } else if(state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                        bluetoothCommunicator = new BluetoothLeComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
                     } else {
                         bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
                     }
@@ -945,4 +1001,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
     };
+
+    private Handler handler = new Handler();
 }

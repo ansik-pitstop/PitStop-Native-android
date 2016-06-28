@@ -27,7 +27,7 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    public static final boolean staging = !false;
+    public static final boolean staging = !!false;
 
     private static final String TESTING = "http://45.55.82.111:10011/";
 
@@ -202,8 +202,8 @@ public class HttpRequest {
                         });
                     } else {
                         listener.done(null,RequestError
-                                .jsonToRequestErrorObject((String)response.getErrorBody())
-                                .setStatusCode(response.getStatusCode()));
+                                .jsonToRequestErrorObject((String)response.getErrorBody()));
+                                //.setStatusCode(response.getStatusCode()));
                     }
                 }
             } else {

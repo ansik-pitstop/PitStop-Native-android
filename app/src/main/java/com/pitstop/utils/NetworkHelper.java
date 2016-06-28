@@ -13,6 +13,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
 import com.pitstop.application.GlobalApplication;
 
+import static com.pitstop.utils.LogUtils.LOGD;
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
 
@@ -82,6 +83,17 @@ public class NetworkHelper {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
+                .body(body)
+                .requestCallBack(callback)
+                .requestType(RequestType.PUT)
+                .context(context)
+                .createRequest()
+                .executeAsync();
+    }
+
+    private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
+        new HttpRequest.Builder().uri(uri)
+                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -299,31 +311,46 @@ public class NetworkHelper {
         postNoAuth("scan/freezeData", callback, body);
     }
 
-    public void saveTripMileage(String scannerId, String tripId, String mileage, String rtcTime, RequestCallback callback) {
-        LOGI(TAG, String.format("saveTripMileage: scannerId: %s, tripId: %s," +
-                " mileage: %s, rtcTime: %s", scannerId, tripId, mileage, rtcTime));
+    public void sendTripStart(String scannerId, String rtcTime, RequestCallback callback) {
+        LOGI(TAG, String.format("saveTripMileage: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
 
         try {
             body.put("scannerId", scannerId);
-            body.put("tripId", tripId);
-            body.put("mileage", Double.parseDouble(mileage)/1000);
-            body.put("rtcTime", Long.parseLong(rtcTime));
+            body.put("rtcTimeStart", Long.parseLong(rtcTime));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        postNoAuth("scan/tripMileage", callback, body);
+        postNoAuth("scan/trip", callback, body);
     }
 
-    public void savePids(String scannerId, JSONArray pidArr, RequestCallback callback) {
+    public void saveTripMileage(int tripId, String mileage, String rtcTime, RequestCallback callback) {
+        LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
+                " mileage: %s, rtcTime: %s", tripId, mileage, rtcTime));
+
+        JSONObject tripBody = new JSONObject();
+
+        try {
+            tripBody.put("mileage", Double.parseDouble(mileage)/1000);
+            tripBody.put("tripId", tripId);
+            tripBody.put("rtcTimeEnd", Long.parseLong(rtcTime));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        putNoAuth("scan/trip", callback, tripBody);
+    }
+
+    public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
         LOGI(TAG, "savePids to " + scannerId);
         LOGV(TAG, "pidArr: "  + pidArr.toString());
 
         JSONObject body = new JSONObject();
 
         try {
+            body.put("tripId", tripId);
             body.put("scannerId", scannerId);
             body.put("pidArray", pidArr);
         } catch (JSONException e) {

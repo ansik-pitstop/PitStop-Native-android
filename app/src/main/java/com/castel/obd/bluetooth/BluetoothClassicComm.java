@@ -41,6 +41,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private List<String> dataLists = new ArrayList<String>();
 
+    private boolean saved = false; // so that pids aren't saved twice on unexpected disconnect
+
     private ObdManager.IBluetoothDataListener dataListener;
     private static String TAG = "BtClassicComm";
 
@@ -223,6 +225,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 {
                     Log.i(TAG,"Bluetooth connect success - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
+                    saved = false;
                     Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
                     OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
                     Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
@@ -252,7 +255,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
-                    dataListener.getBluetoothState(btConnectionState);
+                    if(!saved) {
+                        saved = true;
+                        dataListener.getBluetoothState(btConnectionState);
+                    }
                     break;
                 }
                 case BLUETOOTH_READ_DATA:
@@ -328,7 +334,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    dataListener.getBluetoothState(btConnectionState);
+                    if(!saved) {
+                        saved = true;
+                        dataListener.getBluetoothState(btConnectionState);
+                    }
                 }
 
                 NotificationManager mNotificationManager =
