@@ -45,6 +45,30 @@ public class Car implements Parcelable {
 
     public Car() { }
 
+    public Car(Car car) { // copy constructor
+        this.id = car.id;
+        this.make = car.make;
+        this.model = car.model;
+        this.year = car.year;
+        this.trim = car.trim;
+        this.vin = car.vin;
+        this.engine = car.engine;
+        this.tankSize = car.tankSize;
+        this.cityMileage = car.cityMileage;
+        this.highwayMileage = car.highwayMileage;
+        this.baseMileage = car.baseMileage;
+        this.totalMileage = car.totalMileage;
+        this.numberOfRecalls = car.numberOfRecalls;
+        this.numberOfServices = car.numberOfServices;
+        this.currentCar = car.currentCar;
+        this.userId = car.userId;
+        this.shopId = car.shopId;
+        this.dealership = car.dealership;
+        this.serviceDue = car.serviceDue;
+        this.scannerId = car.scannerId;
+        this.issues = car.issues;
+    }
+
     public int getId() {
         return id;
     }
@@ -137,7 +161,7 @@ public class Car implements Parcelable {
         return totalMileage;
     }
 
-    public void setTotalMileage(int totalMileage) {
+    public void setTotalMileage(double totalMileage) {
         this.totalMileage = totalMileage;
     }
 

@@ -8,6 +8,7 @@ import com.castel.obd.util.JsonUtil;
 public class RequestError {
     private String error;
     private String message;
+    private int statusCode;
 
     public RequestError() { }
 
@@ -25,6 +26,15 @@ public class RequestError {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public RequestError setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+        return this;
     }
 
     public static RequestError jsonToRequestErrorObject(String json) {

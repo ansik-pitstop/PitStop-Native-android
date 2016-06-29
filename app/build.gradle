@@ -16,8 +16,9 @@ android {
         minSdkVersion 18
         targetSdkVersion 23
         versionCode 33
-        versionName "2.0.0"
+        versionName "2.0.1"
         //multiDexEnabled = true
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
@@ -61,4 +62,7 @@ dependencies {
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
+    compile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    compile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+    compile 'com.android.support.test:runner:0.5'
 }

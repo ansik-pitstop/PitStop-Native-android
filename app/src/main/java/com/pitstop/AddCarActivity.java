@@ -3,10 +3,12 @@ package com.pitstop;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -56,7 +58,6 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -212,8 +213,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         // Select shop
         Log.i(TAG,"Select dealership");
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent,
                 SelectDealershipActivity.RC_DEALERSHIP);
     }
@@ -277,8 +276,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Intent intent = new Intent(this,SelectDealershipActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, intentFromMainActivity != null
-                && intentFromMainActivity.getBooleanExtra(MainActivity.HAS_CAR_IN_DASHBOARD,false));
         startActivityForResult(intent, SelectDealershipActivity.RC_DEALERSHIP);
     }
 
@@ -1048,9 +1045,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                PreferenceManager.getDefaultSharedPreferences(AddCarActivity.this)
-                                        .edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
-
                                 if(scannerID != null) {
                                     networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
                                         @Override
@@ -1086,7 +1080,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+
+        networkHelper.setMainCar(application.getCurrentUserId(), addedCar.getId(), null);
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, addedCar);

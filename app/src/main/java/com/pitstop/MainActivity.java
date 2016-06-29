@@ -504,40 +504,198 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @see #getCarDetails()
      * */
     private void loadCarDetailsFromServer() {
-        int userId = ((GlobalApplication)getApplication()).getCurrentUserId();
+        int userId = application.getCurrentUserId();
 
         networkHelper.getCarsByUserId(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
                     try {
-                        MainActivity.carList = Car.createCarsList(response);
+                        carList = Car.createCarsList(response);
 
-                        if(MainActivity.carList.isEmpty()) {
+                        if(carList.isEmpty()) {
                             if (isLoading) {
                                 hideLoading();
                             }
-                            startAddCarActivity(false);
+                            findViewById(R.id.main_view).setVisibility(View.GONE);
+                            findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
                         } else {
-                            callback.setDashboardCar(MainActivity.carList);
+                            findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                            setDashboardCar(carList);
                             carLocalStore.deleteAllCars();
-                            carLocalStore.storeCars(MainActivity.carList);
-                            callback.setCarDetailsUI();
-                            resetMenus(false);
+                            carLocalStore.storeCars(carList);
+                            setCarDetailsUI();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(getBaseContext(),
-                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this,
+                                "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Log.e(TAG, "Load cars error: " + requestError.getMessage());
-                    Toast.makeText(getBaseContext(),
-                            "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,
+                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
+
+    private void setDealership() {
+
+        Dealership shop = dashboardCar.getDealership();
+        if(shop == null) {
+
+            networkHelper.getShops(new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        try {
+                            final List<Dealership> dl = Dealership.createDealershipList(response);
+                            shopLocalStore.deleteAllDealerships();
+                            shopLocalStore.storeDealerships(dl);
+
+                            Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
+
+                            dashboardCar.setDealership(d);
+                            if(dashboardCar.getDealership() != null) {
+                                dealershipName.setText(dashboardCar.getDealership().getName());
+                            } else {
+                                String[] shopNames = new String[dl.size()];
+
+                                for(int i = 0 ; i < shopNames.length ; i++) {
+                                    shopNames[i] = dl.get(i).getName();
+                                }
+
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                dialog.setTitle(String.format("Please select the dealership for your %s %s %s",
+                                        dashboardCar.getYear(), dashboardCar.getMake(), dashboardCar.getModel()));
+                                dialog.setSingleChoiceItems(shopNames, -1, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dashboardCar.setDealership(dl.get(which));
+                                    }
+                                });
+
+                                dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(dashboardCar.getDealership() == null) {
+                                            return;
+                                        }
+                                        dialog.dismiss();
+
+                                        networkHelper.updateCarShop(dashboardCar.getId(), dashboardCar.getDealership().getId(),
+                                                new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        if(requestError == null) {
+                                                            Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + dashboardCar.getDealership().getId());
+                                                            Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+                                                            setDealership();
+                                                        } else {
+                                                            Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                            Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
+                                dialog.show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.e(TAG, "Get shops: " + requestError.getMessage());
+                    }
+                }
+            });
+        } else {
+            dashboardCar.setDealership(shop);
+            dealershipName.setText(shop.getName());
+        }
+
+    }
+
+    @Override
+    public void getBluetoothState(int state) {
+        if(state==BluetoothManage.DISCONNECTED) {
+            Log.i(TAG,"Bluetooth disconnected");
+        }
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
+
+    @Override
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
+
+    @Override
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+        if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    refreshFromServer();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        if(loginPackageInfo.flag.
+                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            Log.i(TAG, "Device logout");
+        }
+    }
+
+    private void populateCarIssuesAdapter() {
+        if(isLoading) {
+            hideLoading();
+        }
+
+        // Try local store
+        Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
+        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
+        if(carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
+                || dashboardCar.getNumberOfRecalls() > 0)) {
+            Log.i(TAG, "No car issues in local store");
+
+            networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        try {
+                            dashboardCar.setIssues(CarIssue.createCarIssues(
+                                    new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
+                            carIssueList.clear();
+                            carIssueList.addAll(dashboardCar.getActiveIssues());
+                            carIssuesAdapter.notifyDataSetChanged();
+                            setIssuesCount();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this,
+                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Load issues error: " + requestError.getMessage());
+                        Toast.makeText(MainActivity.this,
+                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        } else {
+            Log.i(TAG, "Trying local store for carIssues");
+            dashboardCar.setIssues(carIssues);
+            carIssueList.clear();
+            carIssueList.addAll(dashboardCar.getActiveIssues());
+            carIssuesAdapter.notifyDataSetChanged();
+        }
 
 
 
