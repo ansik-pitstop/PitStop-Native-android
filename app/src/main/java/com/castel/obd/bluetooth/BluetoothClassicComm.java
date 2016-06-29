@@ -146,7 +146,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public void close() {
         Log.i(TAG,"Closing connection - BluetoothClassicComm");
         btConnectionState = DISCONNECTED;
-        mContext.unregisterReceiver(mReceiver);
+        try {
+            mContext.unregisterReceiver(mReceiver);
+        } catch (Exception e) {
+            Log.d(TAG, "Receiver not registered");
+        }
         mBluetoothChat.closeConnect();
         mHandler.removeCallbacks(runnable);
     }

@@ -288,11 +288,12 @@ public class NetworkHelper {
         try {
             body.put("carId", carId);
             body.put("scannerId", scannerId);
+            body.put("isActive", true);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("scanner", callback, body);
+        put("scanner", callback, body);
     }
 
     public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
@@ -312,7 +313,7 @@ public class NetworkHelper {
     }
 
     public void sendTripStart(String scannerId, String rtcTime, RequestCallback callback) {
-        LOGI(TAG, String.format("saveTripMileage: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
+        LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
 
