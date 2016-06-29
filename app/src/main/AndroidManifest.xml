@@ -271,20 +271,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".SelectDealershipActivity"
-            android:label="Select Dealership"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
-        <activity
-            android:name=".CarScanActivity"
-            android:label="@string/title_activity_car_scan"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme"/>
-        <activity
-            android:name=".BarcodeScannerActivity"
-            android:theme="@style/AppNoActionBarTheme"/>
-
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"

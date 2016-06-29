@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        application = ((GlobalApplication) getApplication());
         setContentView(R.layout.activity_main_drawer_frame);
         serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
@@ -616,14 +617,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                try {
-                    application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':"
-                                    + dashboardCar.getActiveIssues().size() + "}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+//                try {
+////                    application.getMixpanelAPI().track("Button Tapped",
+////                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+////                                    + "','Device':'Android','Number of Services Requested':"
+////                                    + dashboardCar.getActiveIssues().size() + "}"));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
 
                 additionalComment[0] = userInput.getText().toString();
                 sendRequest(additionalComment[0]);
