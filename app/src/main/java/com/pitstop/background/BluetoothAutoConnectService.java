@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Paul Soladoye on 11/04/2016.
@@ -69,6 +70,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
+    private static String DEVICE_IDS = "deviceIds";
 
     private final IBinder mBinder = new BluetoothBinder();
     private IBluetoothCommunicator bluetoothCommunicator;
@@ -146,16 +148,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Runnable runnable = new Runnable() { // start background search
             @Override
-            public void run() {
+            public void run() { // this is for auto connect for bluetooth classic
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
                         bluetoothCommunicator.getState() == IBluetoothCommunicator.DISCONNECTED) {
                     startBluetoothSearch();
                 }
-                handler.postDelayed(this, 300000);
+                handler.postDelayed(this, 120000);
             }
         };
 
-        handler.postDelayed(runnable, 10000);
+        handler.postDelayed(runnable, 15000);
     }
 
     @Override
@@ -187,59 +189,55 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getBluetoothState(int state) {
         if(state==IBluetoothCommunicator.CONNECTED) {
-            BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-            List<BluetoothDevice> devices = new LinkedList<>();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
-            }
-            boolean deviceConnected = false;
-            for (BluetoothDevice device : devices) {
-                //if device has name IDD-212
-                if (device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
-                    deviceConnected = true;
-                }
-            }
-
-            //show a custom notification
-            //if (deviceConnected) {
-                Bitmap icon = BitmapFactory.decodeResource(getResources(),
-                        R.mipmap.ic_push);
-
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                                .setLargeIcon(icon)
-                                .setColor(getResources().getColor(R.color.highlight))
-                                .setContentTitle("Car is Connected")
-                                .setContentText("Click here to check out more");
-                // Creates an explicit intent for an Activity in your app
-                Intent resultIntent = new Intent(this, MainActivity.class);
-                resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-
-                // The stack builder object will contain an artificial back stack for the
-                // started Activity.
-                // This ensures that navigating backward from the Activity leads out of
-                // your application to the Home screen.
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-                // Adds the back stack for the Intent (but not the Intent itself)
-                stackBuilder.addParentStack(MainActivity.class);
-                // Adds the Intent that starts the Activity to the top of the stack
-                stackBuilder.addNextIntent(resultIntent);
-                PendingIntent resultPendingIntent =
-                        stackBuilder.getPendingIntent(
-                                0,
-                                PendingIntent.FLAG_UPDATE_CURRENT
-                        );
-                mBuilder.setContentIntent(resultPendingIntent);
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.notify(notifID, mBuilder.build());
-            //} else {
-            //    NotificationManager mNotificationManager =
-            //            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            //    mNotificationManager.cancel(notifID);
+            //BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+            //List<BluetoothDevice> devices = new LinkedList<>();
+            //if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            //    devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
+            //}
+            //boolean deviceConnected = false;
+            //for (BluetoothDevice device : devices) {
+            //    //if device has name IDD-212
+            //    if (device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+            //        deviceConnected = true;
+            //    }
             //}
 
+            //syncObdDevice();
+
+            //show a custom notification
+            Bitmap icon = BitmapFactory.decodeResource(getResources(),
+                    R.mipmap.ic_push);
+
+            Car connectedCar = localCarAdapter.getCarByScanner(getCurrentDeviceId());
+
+            String carName = connectedCar == null ? "Click here to find out more" :
+                    connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                            .setLargeIcon(icon)
+                            .setColor(getResources().getColor(R.color.highlight))
+                            .setContentTitle("Car is Connected")
+                            .setContentText(carName);
+
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+            stackBuilder.addParentStack(MainActivity.class);
+
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(notifID, mBuilder.build());
         } else {
             /**
              * Set device connection state for connected car indicator,
@@ -315,7 +313,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(gettingPID){
             Log.i(TAG,"Getting parameter data- auto-connect service");
-            pids  =parameterPackageInfo.value.get(0).value.split(",");
+            pids = parameterPackageInfo.value.get(0).value.split(",");
             pidI = 0;
             sendForPIDS();
             gettingPID=false;
@@ -622,12 +620,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * On successfully syncing device,  #setParameter() gets called
      * @see #setParameterResponse(ResponsePackageInfo)
      * */
-    private void syncObdDevice() {
+    public void syncObdDevice() {
         Log.i(TAG,"Resetting RTC time - BluetoothAutoConn");
 
         long systemTime = System.currentTimeMillis();
         bluetoothCommunicator
                 .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
+    }
+
+    public void removeSyncedDevice() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(DEVICE_ID);
+        editor.apply();
     }
 
     /**
@@ -715,7 +721,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     private void processResultFourData(final DataPackageInfo data) {
 
-        if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
+        if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG) && !sendingTripEnd) {
             sendingTripEnd = true;
             networkHelper.saveTripMileage(lastTripId, data.tripMileage, data.rtcTime,
                     new RequestCallback() {
@@ -728,9 +734,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         }
                     });
-        } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
+        } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG) && !sendingTripStart) {
             sendingTripStart = true;
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     sendingTripStart = false;
@@ -758,8 +764,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      *
      */
     private void processPIDData(DataPackageInfo data) {
-        if(data.obdData.isEmpty()) {
-            Log.i(TAG,"obdData is empty");
+        if (data.obdData.isEmpty()) {
+            Log.i(TAG, "obdData is empty");
             return;
         }
 
@@ -769,18 +775,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Car car = localCarAdapter.getCarByScanner(data.deviceId);
 
         double mileage;
+        double calculatedMileage;
 
-        if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(lastData.tripMileage)/1000;
-        } else if(data.tripMileage == null || data.tripMileage.isEmpty()) {
-            mileage = 0.0;
-        } else {
+        if(data.tripMileage != null && !data.tripMileage.isEmpty()) {
             mileage = Double.parseDouble(data.tripMileage) / 1000;
+            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
+        } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
+            mileage = Double.parseDouble(lastData.tripMileage)/1000;
+            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
+        } else {
+            mileage = 0.0;
+            calculatedMileage = 0;
         }
 
-        mileage += car == null ? 0 : car.getTotalMileage();
-
-        pidDataObject.setMileage(Math.max(mileage, 1)); // for overflow lol
+        pidDataObject.setMileage(Math.max(mileage, 0));
+        pidDataObject.setCalculatedMileage(Math.max(calculatedMileage, 0));
         pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
@@ -811,7 +820,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
             Log.d(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
-            localPid.createPIDData(pidDataObject);
+            if(pidDataObject.getMileage() > 0) {
+                localPid.createPIDData(pidDataObject);
+            }
         }
 
         if(localPid.getPidDataEntryCount() >= 100 && pidSendCounter++ % 25 == 0) {
@@ -840,7 +851,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("dataNum", pidDataObject.getDataNumber());
                 jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                jsonObject.put("mileage", pidDataObject.getMileage());
+                jsonObject.put("tripMileage", pidDataObject.getMileage());
+                jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
                 jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                 pidArray.put(jsonObject);
             }
@@ -862,7 +874,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         }
                     });
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -883,7 +895,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #processPIDData(DataPackageInfo)
      * @param data
      */
-    private void sendPidDataResult4ToServer(DataPackageInfo data) {
+    private void sendPidDataResult4ToServer(DataPackageInfo data) { // TODO: Update this when we figure out wtf to do with it
         Log.i(TAG, "sending PID result 4 data");
         List<Pid> pidDataEntries = localPidResult4.getAllPidDataEntries();
         JSONArray pidArray = new JSONArray();
@@ -915,7 +927,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         }
                     });
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {

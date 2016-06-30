@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.castel.obd.util.JsonUtil;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +31,7 @@ public class Car implements Parcelable {
     private String highwayMileage;
     private double baseMileage;
     private double totalMileage;
+    private double displayedMileage; // for live mileage updates
     private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;
@@ -44,30 +46,6 @@ public class Car implements Parcelable {
     private List<CarIssue> issues = new ArrayList<>();
 
     public Car() { }
-
-    public Car(Car car) { // copy constructor
-        this.id = car.id;
-        this.make = car.make;
-        this.model = car.model;
-        this.year = car.year;
-        this.trim = car.trim;
-        this.vin = car.vin;
-        this.engine = car.engine;
-        this.tankSize = car.tankSize;
-        this.cityMileage = car.cityMileage;
-        this.highwayMileage = car.highwayMileage;
-        this.baseMileage = car.baseMileage;
-        this.totalMileage = car.totalMileage;
-        this.numberOfRecalls = car.numberOfRecalls;
-        this.numberOfServices = car.numberOfServices;
-        this.currentCar = car.currentCar;
-        this.userId = car.userId;
-        this.shopId = car.shopId;
-        this.dealership = car.dealership;
-        this.serviceDue = car.serviceDue;
-        this.scannerId = car.scannerId;
-        this.issues = car.issues;
-    }
 
     public int getId() {
         return id;
@@ -163,6 +141,14 @@ public class Car implements Parcelable {
 
     public void setTotalMileage(double totalMileage) {
         this.totalMileage = totalMileage;
+    }
+
+    public double getDisplayedMileage() {
+        return displayedMileage;
+    }
+
+    public void setDisplayedMileage(double displayedMileage) {
+        this.displayedMileage = displayedMileage;
     }
 
     public int getUserId() {
@@ -273,6 +259,7 @@ public class Car implements Parcelable {
         car.setTrim(jsonObject.getString("car_trim"));
         car.setScannerId(jsonObject.optString("scannerId"));
         car.setTotalMileage(jsonObject.getInt("mileage_total"));
+        car.setDisplayedMileage(jsonObject.getInt("mileage_total"));
         car.setBaseMileage(jsonObject.getInt("mileage_base"));
         car.setUserId(jsonObject.getInt("id_user"));
         car.setShopId(jsonObject.getJSONObject("shop").getInt("id_shop"));
@@ -286,6 +273,8 @@ public class Car implements Parcelable {
     // create car from json response (this is for GET from api)
     public static Car createCar(String response) throws JSONException {
         Car car = JsonUtil.json2object(response, Car.class);
+
+        car.setDisplayedMileage(car.getTotalMileage());
 
         JSONObject jsonObject = new JSONObject(response);
 
@@ -322,6 +311,7 @@ public class Car implements Parcelable {
         car.setTrim(jsonObject.getString("trim"));
         car.setScannerId(jsonObject.optString("scannerId"));
         car.setTotalMileage(jsonObject.getInt("totalMileage"));
+        car.setDisplayedMileage(jsonObject.getInt("totalMileage"));
         car.setBaseMileage(jsonObject.getInt("baseMileage"));
         car.setUserId(jsonObject.getInt("userId"));
         car.setShopId(jsonObject.getJSONObject("shop").getInt("id"));

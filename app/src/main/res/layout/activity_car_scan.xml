@@ -394,6 +394,7 @@
         android:layout_height="wrap_content"
         android:text="Scan Car"
         android:background="@drawable/color_button_primary_car"
+        android:onClick="startCarScan"
         android:textColor="#fff"
         android:elevation="2dp"
         android:paddingLeft="16dp"

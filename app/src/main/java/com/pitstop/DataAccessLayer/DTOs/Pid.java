@@ -13,6 +13,7 @@ public class Pid {
     private String timeStamp;
     private String pids;
     private double mileage;
+    private double calculatedMileage;
 
     public Pid() {}
 
@@ -62,6 +63,14 @@ public class Pid {
 
     public double getMileage() {
         return mileage;
+    }
+
+    public void setCalculatedMileage(double mileage) {
+        this.calculatedMileage = mileage;
+    }
+
+    public double getCalculatedMileage() {
+        return calculatedMileage;
     }
 
     public String toString() {

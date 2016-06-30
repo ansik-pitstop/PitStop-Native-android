@@ -312,7 +312,7 @@ public class NetworkHelper {
         postNoAuth("scan/freezeData", callback, body);
     }
 
-    public void sendTripStart(String scannerId, String rtcTime, RequestCallback callback) {
+    public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, RequestCallback callback) {
         LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
@@ -320,6 +320,7 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("rtcTimeStart", Long.parseLong(rtcTime));
+            body.put("tripIdRaw", tripIdRaw);
         } catch (JSONException e) {
             e.printStackTrace();
         }

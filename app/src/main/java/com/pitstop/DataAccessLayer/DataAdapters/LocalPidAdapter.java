@@ -24,6 +24,7 @@ public class LocalPidAdapter {
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
             + TABLES.PID.KEY_MILEAGE + " REAL,"
+            + TABLES.PID.KEY_CALCULATED_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -45,6 +46,7 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
         values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
+        values.put(TABLES.PID.KEY_CALCULATED_MILEAGE, pidData.getCalculatedMileage());
 
         db.insert(TABLES.PID.TABLE_NAME, null, values);
         db.close();
@@ -70,10 +72,12 @@ public class LocalPidAdapter {
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
+                pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
         }
+        c.close();
         db.close();
         return pidDataEntries;
     }
@@ -87,8 +91,8 @@ public class LocalPidAdapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         int count = c.getCount();
+        c.close();
         db.close();
-
         return count;
     }
 
@@ -96,8 +100,6 @@ public class LocalPidAdapter {
      * Clear all pid data entries
      */
     synchronized public void deleteAllPidDataEntries() {
-        List<Pid> pidDataEntries = getAllPidDataEntries();
-
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         try {
