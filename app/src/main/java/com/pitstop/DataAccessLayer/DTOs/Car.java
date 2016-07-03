@@ -2,6 +2,7 @@ package com.pitstop.DataAccessLayer.DTOs;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.SerializedName;
@@ -386,6 +387,7 @@ public class Car implements Parcelable {
         dest.writeString(this.highwayMileage);
         dest.writeDouble(this.baseMileage);
         dest.writeDouble(this.totalMileage);
+        dest.writeDouble(this.displayedMileage);
         dest.writeInt(this.numberOfRecalls);
         dest.writeInt(this.numberOfServices);
         dest.writeByte(this.currentCar ? (byte) 1 : (byte) 0);
@@ -410,6 +412,7 @@ public class Car implements Parcelable {
         this.highwayMileage = in.readString();
         this.baseMileage = in.readDouble();
         this.totalMileage = in.readDouble();
+        this.displayedMileage = in.readDouble();
         this.numberOfRecalls = in.readInt();
         this.numberOfServices = in.readInt();
         this.currentCar = in.readByte() != 0;

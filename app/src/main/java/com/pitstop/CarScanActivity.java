@@ -292,7 +292,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     public void updateMileage(View view) {
         if(isFinishing() || isDestroyed()) {
             return;
-        } else if(Math.abs(dashboardCar.getDisplayedMileage() - baseMileage) < 1.0) {
+        } else if(dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
             Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
             return;
         }

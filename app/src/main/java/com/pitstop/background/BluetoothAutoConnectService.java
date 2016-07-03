@@ -107,6 +107,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean sendingTripStart = false;
     private boolean sendingTripEnd = false;
 
+    private boolean gettingTime = false;
+
     private int lastTripId = -1;
     private String pfTripId = "lastTripId";
 
@@ -142,8 +144,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
 
-        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, intentFilter);
 
         Runnable runnable = new Runnable() { // start background search
@@ -321,6 +322,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(isGettingVin) {
             if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
+                gettingTime = false;
                 Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
                 long moreThanOneYear = 32000000;
                 long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
@@ -582,14 +584,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public void getCarVIN() {
         Log.i(TAG, "getCarVin");
-        String savedDeviceId = getSavedSyncedDeviceId();
-        if(savedDeviceId == null) {
-            isGettingVin = true;
-            getObdDeviceTime();
-        } else {
-            // Device has already been synced
-            getVinFromCar();
-        }
+        isGettingVin = true;
+        getObdDeviceTime();
+//        String savedDeviceId = getSavedSyncedDeviceId();
+//        if(savedDeviceId == null) {
+//            isGettingVin = true;
+//            getObdDeviceTime();
+//        } else {
+//            // Device has already been synced
+//            getVinFromCar();
+//        }
     }
 
     /**
@@ -609,7 +613,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #getParameterData(ParameterPackageInfo) for device time returned
      * by obd device.
      */
-    private void getObdDeviceTime() {
+    public void getObdDeviceTime() {
         Log.i(TAG, "Getting device time");
         bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
     }
@@ -626,6 +630,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         long systemTime = System.currentTimeMillis();
         bluetoothCommunicator
                 .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
+    }
+
+    public void resetObdDeviceTime() {
+        Log.i(TAG,"Setting RTC time to 200x - BluetoothAutoConn");
+
+        bluetoothCommunicator
+                .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(1088804101));
+    }
+
+    public void resetDeviceToFactory() {
+        Log.i(TAG, "Resetting device to factory settings");
+
+        bluetoothCommunicator.obdSetCtrl(4);
     }
 
     public void removeSyncedDevice() {
@@ -784,12 +801,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             mileage = Double.parseDouble(lastData.tripMileage)/1000;
             calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
         } else {
-            mileage = 0.0;
-            calculatedMileage = 0;
+            mileage = -1;
+            calculatedMileage = -1;
         }
 
-        pidDataObject.setMileage(Math.max(mileage, 0));
-        pidDataObject.setCalculatedMileage(Math.max(calculatedMileage, 0));
+        pidDataObject.setMileage(mileage);
+        pidDataObject.setCalculatedMileage(calculatedMileage);
         pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
@@ -820,17 +837,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
             Log.d(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
-            if(pidDataObject.getMileage() > 0) {
+            if(pidDataObject.getMileage() >= 0) {
                 localPid.createPIDData(pidDataObject);
             }
         }
 
-        if(localPid.getPidDataEntryCount() >= 100 && pidSendCounter++ % 25 == 0) {
+        if(localPid.getPidDataEntryCount() >= 100 && ++pidSendCounter % 25 == 0) {
             pidSendCounter = 0;
             sendPidDataToServer(data);
         }
 
-        if(localPidResult4.getPidDataEntryCount() >= 50 && pidResult4SendCounter++ % 25 == 0) {
+        if(localPidResult4.getPidDataEntryCount() >= 50 && ++pidResult4SendCounter % 25 == 0) {
             pidResult4SendCounter = 0;
             //sendPidDataResult4ToServer(data);
         }
