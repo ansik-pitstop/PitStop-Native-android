@@ -310,7 +310,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String mileage = input.getText().toString();
+                            final String mileage = input.getText().toString();
                             if (mileage.length() > 9) {
                                 Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
@@ -319,6 +319,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                             public void done(String response, RequestError requestError) {
                                                 if (requestError == null) {
                                                     Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
+                                                    dashboardCar.setDisplayedMileage(Integer.parseInt(mileage));
+                                                    localCarAdapter.updateCar(dashboardCar);
+                                                    baseMileage = Integer.parseInt(mileage);
+                                                    carMileage.setText(mileage);
                                                 } else {
                                                     Toast.makeText(CarScanActivity.this, "An error occurred while updateing mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
@@ -341,123 +345,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private boolean showingDialog = false;
-
-    //private void updateMileage(final boolean performScan) {
-    //    if(isFinishing() || isDestroyed()) {
-    //        return;
-    //    } else if(Math.abs(dashboardCar.getDisplayedMileage() - baseMileage) < 1.0) {
-    //        Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
-    //        return;
-    //    }
-//
-    //    final EditText input = new EditText(CarScanActivity.this);
-    //    input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
-    //    input.setInputType(InputType.TYPE_CLASS_NUMBER);
-    //    input.setRawInputType(Configuration.KEYBOARD_12KEY);
-//
-    //    if(!showingDialog) {
-    //        showingDialog = true;
-    //        new AlertDialog.Builder(CarScanActivity.this)
-    //                .setTitle("Update Mileage")
-    //                .setView(input)
-    //                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-    //                    @Override
-    //                    public void onClick(DialogInterface dialogInterface, int i) {
-//
-    //                        if (input.getText().toString().length() > 9) {
-    //                            Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
-    //                        } else {
-//
-    //                            //carScanButton.setEnabled(false);
-    //                            recallsStateLayout.setVisibility(View.GONE);
-    //                            recallsCountLayout.setVisibility(View.GONE);
-    //                            loadingRecalls.setVisibility(View.VISIBLE);
-    //                            recallsText.setText("Checking for recalls");
-//
-    //                            servicesStateLayout.setVisibility(View.GONE);
-    //                            servicesCountLayout.setVisibility(View.GONE);
-    //                            loadingServices.setVisibility(View.VISIBLE);
-    //                            servicesText.setText("Checking for services");
-//
-    //                            engineIssuesStateLayout.setVisibility(View.GONE);
-    //                            engineIssuesCountLayout.setVisibility(View.GONE);
-    //                            loadingEngineIssues.setVisibility(View.VISIBLE);
-    //                            engineIssuesText.setText("Checking for engine issues");
-//
-    //                            updateMileage(input.getText().toString(), performScan);
-    //                            showingDialog = false;
-    //                            dialogInterface.dismiss();
-    //                        }
-    //                    }
-    //                })
-    //                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-    //                    @Override
-    //                    public void onClick(DialogInterface dialog, int which) {
-    //                        showingDialog = false;
-    //                        dialog.cancel();
-    //                    }
-    //                })
-    //                .show();
-    //    }
-    //}
-//
-    //private void updateMileage (String mileage, final boolean performScan) {
-    //    Log.i(TAG, mileage);
-//
-    //    carMileage.setText(mileage);
-//
-    //    dashboardCar.setTotalMileage(Double.parseDouble(mileage));
-    //    localCarAdapter.updateCar(dashboardCar);
-//
-    //    updatedMileage = true;
-//
-    //    try {
-    //        networkHelper.updateCarMileage(dashboardCar.getId(), Integer.parseInt(mileage), new RequestCallback() {
-    //            @Override
-    //            public void done(String response, RequestError requestError) {
-    //                if(requestError == null) {
-    //                    if(performScan) {
-    //                        startCarScan();
-    //                    } else {
-    //                        Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
-    //                        carScanButton.setEnabled(true);
-    //                        recallsCountLayout.setVisibility(View.VISIBLE);
-    //                        loadingRecalls.setVisibility(View.GONE);
-    //                        recallsText.setText("Recalls");
-//
-    //                        servicesCountLayout.setVisibility(View.VISIBLE);
-    //                        loadingServices.setVisibility(View.GONE);
-    //                        servicesText.setText("Services");
-//
-    //                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
-    //                        loadingEngineIssues.setVisibility(View.GONE);
-    //                        engineIssuesText.setText("Engine issues");
-//
-    //                    }
-    //                } else {
-    //                    carScanButton.setEnabled(true);
-    //                    recallsCountLayout.setVisibility(View.VISIBLE);
-    //                    loadingRecalls.setVisibility(View.GONE);
-    //                    recallsText.setText("Recalls");
-//
-    //                    servicesCountLayout.setVisibility(View.VISIBLE);
-    //                    loadingServices.setVisibility(View.GONE);
-    //                    servicesText.setText("Services");
-//
-    //                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-    //                    loadingEngineIssues.setVisibility(View.GONE);
-    //                    engineIssuesText.setText("Engine issues");
-//
-    //                    Log.e(TAG, "update car mileage error: " + requestError.getMessage());
-    //                    Toast.makeText(CarScanActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
-    //                }
-    //            }
-    //        });
-    //    } catch (NumberFormatException e) {
-    //        e.printStackTrace();
-    //        Toast.makeText(CarScanActivity.this, "Please enter a valid mileage", Toast.LENGTH_SHORT).show();
-    //    }
-    //}
 
     public void startCarScan(View view) {
         try {
