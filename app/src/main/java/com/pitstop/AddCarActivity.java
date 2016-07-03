@@ -486,7 +486,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 15 && isGettingVinAndCarIsConnected) {
+            if(seconds > 10 && isGettingVinAndCarIsConnected) {
                 mHandler.sendEmptyMessage(1);
                 mHandler.postDelayed(vinDetectionRunnable, 2000);
                 return;
@@ -726,7 +726,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     }
                 });
 
-            } else if(vinAttempts > 2){
+            } else if(vinAttempts > 8){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
@@ -744,7 +744,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 vinAttempts++;
                 isGettingVinAndCarIsConnected = true;
                 mHandler.postDelayed(vinDetectionRunnable, 2000);
-                autoConnectService.getCarVIN();
             }
         }
     }
