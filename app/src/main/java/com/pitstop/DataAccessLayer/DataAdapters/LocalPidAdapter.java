@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -80,6 +81,53 @@ public class LocalPidAdapter {
         c.close();
         db.close();
         return pidDataEntries;
+    }
+
+    /**
+     * Get first 100 pids
+     */
+    synchronized public List<Pid> getHundredPidDataEntries() {
+        List<Pid> pidDataEntries = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + TABLES.PID.TABLE_NAME;
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery,null);
+
+        if(c.moveToFirst()) {
+            int count = 0;
+            do {
+                Pid pidData = new Pid();
+                pidData.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
+                pidData.setDataNumber(c.getString(c.getColumnIndex(TABLES.PID.KEY_DATANUM)));
+                pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
+                pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
+                pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
+                pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
+                pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
+
+                pidDataEntries.add(pidData);
+            } while (c.moveToNext() && count++ < 100);
+        }
+        c.close();
+        db.close();
+        return pidDataEntries;
+    }
+
+    synchronized public void deletePidDataEntries(List<Pid> pids) {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        for(Pid pid : pids) {
+            try {
+                db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?", new String[] {String.valueOf(pid.getId())});
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        }
     }
 
     /**

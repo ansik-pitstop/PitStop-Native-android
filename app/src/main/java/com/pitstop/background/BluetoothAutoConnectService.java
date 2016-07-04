@@ -203,8 +203,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //    }
             //}
 
-            //syncObdDevice();
-
             //show a custom notification
             Bitmap icon = BitmapFactory.decodeResource(getResources(),
                     R.mipmap.ic_push);
@@ -805,7 +803,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             calculatedMileage = -1;
         }
 
-        pidDataObject.setMileage(mileage);
+        pidDataObject.setMileage(calculatedMileage);  // TODO: Change back to mileage when backend is updated
         pidDataObject.setCalculatedMileage(calculatedMileage);
         pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
         pidDataObject.setRtcTime(data.rtcTime);
@@ -836,21 +834,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Log.d(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
             //localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
-            Log.d(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
-            if(pidDataObject.getMileage() >= 0) {
+            Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
+            if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() > 0) {
                 localPid.createPIDData(pidDataObject);
             }
         }
 
-        if(localPid.getPidDataEntryCount() >= 100 && ++pidSendCounter % 25 == 0) {
-            pidSendCounter = 0;
+        if(localPid.getPidDataEntryCount() >= 100 && localPid.getPidDataEntryCount() % 25 == 0) {
             sendPidDataToServer(data);
         }
 
-        if(localPidResult4.getPidDataEntryCount() >= 50 && ++pidResult4SendCounter % 25 == 0) {
-            pidResult4SendCounter = 0;
-            //sendPidDataResult4ToServer(data);
-        }
+        //if(localPidResult4.getPidDataEntryCount() >= 50 && ++pidResult4SendCounter % 25 == 0) {
+        //    pidResult4SendCounter = 0;
+        //    //sendPidDataResult4ToServer(data);
+        //}
     }
 
     /**
@@ -861,35 +858,50 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void sendPidDataToServer(DataPackageInfo data) {
         Log.i(TAG, "sending PID data");
         List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
-        JSONArray pidArray = new JSONArray();
+
+        int chunks = pidDataEntries.size() / 100 + 1; // sending pids in size 100 chunks
+        JSONArray[] pidArrays = new JSONArray[chunks];
 
         try {
-            for(Pid pidDataObject : pidDataEntries) {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                jsonObject.put("tripMileage", pidDataObject.getMileage());
-                jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                pidArray.put(jsonObject);
+            for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
+                JSONArray pidArray = new JSONArray();
+                for (int i = 0; i < 100; i++) {
+                    if(chunkNumber * 100 + i >= pidDataEntries.size()) {
+                        continue;
+                    }
+                    Pid pidDataObject = pidDataEntries.get(chunkNumber * 100 + i);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
+                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
+                    jsonObject.put("tripMileage", pidDataObject.getMileage());
+                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
+                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
+                    pidArray.put(jsonObject);
+                }
+                pidArrays[chunkNumber] = pidArray;
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         if(lastTripId != -1) {
-            networkHelper.savePids(lastTripId, data.deviceId, pidArray,
-                    new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            if (requestError == null) {
-                                Log.i(TAG, "PIDS saved");
-                                localPid.deleteAllPidDataEntries();
-                            } else {
-                                Log.e(TAG, "save pid error: " + requestError.getMessage());
+            for(JSONArray pids : pidArrays) {
+                if(pids.length() == 0) {
+                    continue;
+                }
+                networkHelper.savePids(lastTripId, data.deviceId, pids,
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if (requestError == null) {
+                                    Log.i(TAG, "PIDS saved");
+                                    localPid.deleteAllPidDataEntries();
+                                } else {
+                                    Log.e(TAG, "save pid error: " + requestError.getMessage());
+                                }
                             }
-                        }
-                    });
+                        });
+            }
         } else {
             networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
                 @Override
