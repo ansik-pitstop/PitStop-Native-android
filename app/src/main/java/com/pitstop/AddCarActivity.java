@@ -58,6 +58,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -1080,7 +1081,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
 
         networkHelper.setMainCar(application.getCurrentUserId(), addedCar.getId(), null);
 
