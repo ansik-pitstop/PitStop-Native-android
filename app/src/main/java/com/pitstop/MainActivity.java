@@ -54,6 +54,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
@@ -341,7 +342,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         application = (GlobalApplication) getApplicationContext();
 
+        ParseACL acl = new ParseACL();
+        acl.setPublicReadAccess(true);
+        acl.setPublicWriteAccess(true);
+
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.setACL(acl);
         installation.put("userId", String.valueOf(application.getCurrentUserId()));
         installation.saveInBackground(new SaveCallback() {
             @Override
@@ -1231,7 +1237,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                             int[] grantResults) {
         if(requestCode == RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();
+                //autoConnectService.startBluetoothSearch();
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {

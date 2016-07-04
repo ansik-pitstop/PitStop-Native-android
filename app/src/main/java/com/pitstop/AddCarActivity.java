@@ -139,8 +139,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
                         || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
-                } else {
-                    autoConnectService.startBluetoothSearch();
                 }
             }
 
@@ -715,7 +713,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 e.printStackTrace();
             }
             if (isValidVin(VIN)) {
-
+                vinAttempts = 0;
                 Log.i(TAG,"VIN is valid");
                 runOnUiThread(new Runnable() {
                     @Override
@@ -730,6 +728,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
+                vinAttempts = 0;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
