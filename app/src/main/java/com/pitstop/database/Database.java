@@ -20,10 +20,10 @@ import java.util.HashMap;
  * Created by David Liu on 11/20/2015.
  */
 public class Database extends SQLiteOpenHelper {
-    private static final String DB_NAME = "PitstopDB";
+    public static final String DB_NAME = "PitstopDB";
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
-        super(context, DB_NAME, null, 19);
+        super(context, DB_NAME, null, 21);
         //add all tables
         models.add(new Cars());
         models.add(new DTCs());

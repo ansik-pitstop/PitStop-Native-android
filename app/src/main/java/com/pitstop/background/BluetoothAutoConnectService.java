@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -39,6 +38,7 @@ import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.Dtc;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
@@ -47,6 +47,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
+import com.pitstop.database.Database;
 import com.pitstop.database.LocalDataRetriever;
 import com.pitstop.database.models.Responses;
 import com.pitstop.utils.NetworkHelper;
@@ -57,9 +58,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Paul Soladoye on 11/04/2016.
@@ -90,13 +89,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private NetworkHelper networkHelper;
 
-    String[] pids = new String[0];
-    int pidI = 0;
+    private String[] pids = new String[0];
+    private int pidI = 0;
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-    private int pidSendCounter = 0;
-    private int pidResult4SendCounter = 0;
+    private int PID_CHUNK_SIZE = 100;
 
     private String lastDataNum = "";
 
@@ -107,10 +105,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean sendingTripStart = false;
     private boolean sendingTripEnd = false;
 
-    private boolean gettingTime = false;
+    private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
-    private int lastTripId = -1;
+    private int lastDeviceTripId = -1; // from device
+    private int lastTripId = -1; // from backend
     private String pfTripId = "lastTripId";
+
+    private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
     private static String TAG = "BtAutoConnectDebug";
 
@@ -145,7 +146,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
 
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(bluetoothReceiver, intentFilter);
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(connectionReceiver, intentFilter);
 
         Runnable runnable = new Runnable() { // start background search
             @Override
@@ -154,6 +156,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         bluetoothCommunicator.getState() == IBluetoothCommunicator.DISCONNECTED) {
                     startBluetoothSearch();
                 }
+
                 handler.postDelayed(this, 120000);
             }
         };
@@ -172,7 +175,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "Destroying auto-connect service");
 
         try {
-            unregisterReceiver(bluetoothReceiver);
+            unregisterReceiver(connectionReceiver);
         } catch (Exception e) {
             Log.d(TAG, "Receiver not registered");
         }
@@ -320,7 +323,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(isGettingVin) {
             if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
-                gettingTime = false;
                 Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
                 long moreThanOneYear = 32000000;
                 long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
@@ -362,6 +364,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         currentDeviceId = dataPackageInfo.deviceId;
         if(dataPackageInfo.tripMileage != null) {
             lastData = dataPackageInfo;
+        }
+
+        if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()) {
+            lastDeviceTripId = Integer.parseInt(dataPackageInfo.tripId);
+            for(Pid pid : pidsWithNoTripId) {
+                pid.setTripId(lastDeviceTripId);
+                localPid.createPIDData(pid);
+            }
+            pidsWithNoTripId.clear();
         }
 
         if(dataPackageInfo.result == 4) {
@@ -483,37 +494,45 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Car car = localCarAdapter.getCarByScanner(dataPackageInfo.deviceId);
 
-        if(car != null) {
-            networkHelper.getCarsById(car.getId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        try {
-                            Car car = Car.createCar(response);
+        if(NetworkHelper.isConnected(this)) {
+            if (car != null) {
+                networkHelper.getCarsById(car.getId(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError == null) {
+                            try {
+                                Car car = Car.createCar(response);
 
-                            HashSet<String> dtcNames = new HashSet<>();
-                            for (CarIssue issue : car.getActiveIssues()) {
-                                dtcNames.add(issue.getIssueDetail().getItem());
-                            }
-
-                            for (final String dtc : dtcArr) {
-                                if (!dtcNames.contains(dtc)) {
-                                    networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                            dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    Log.i(TAG, "DTC added: " + dtc);
-                                                }
-                                            });
+                                HashSet<String> dtcNames = new HashSet<>();
+                                for (CarIssue issue : car.getActiveIssues()) {
+                                    dtcNames.add(issue.getIssueDetail().getItem());
                                 }
+
+                                for (final String dtc : dtcArr) {
+                                    if (!dtcNames.contains(dtc)) {
+                                        networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                                dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                                                new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        Log.i(TAG, "DTC added: " + dtc);
+                                                    }
+                                                });
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            Log.i(TAG, "Saving dtcs offline");
+            for (final String dtc : dtcArr) {
+                dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dataPackageInfo.rtcTime,
+                        dtc, isPendingDtc, dataPackageInfo.freezeData));
+            }
         }
 
         if (callbacks != null)
@@ -746,12 +765,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             if (requestError == null) {
                                 Log.i(TAG, "trip data sent: " + data.tripMileage);
                                 Toast.makeText(BluetoothAutoConnectService.this, "Trip data saved", Toast.LENGTH_LONG).show();
+                                lastTripId = -1;
+                                lastDeviceTripId = -1;
                             }
                         }
                     });
         } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG) && !sendingTripStart) {
             sendingTripStart = true;
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     sendingTripStart = false;
@@ -762,6 +783,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        sendingTripStart = true;
+                        networkHelper.getLatestTrip(data.deviceId, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                sendingTripStart = false;
+                                if(requestError == null) {
+                                    try {
+                                        lastTripId = new JSONObject(response).getInt("id");
+                                        sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+                                    } catch(JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -803,9 +840,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             calculatedMileage = -1;
         }
 
-        pidDataObject.setMileage(calculatedMileage);  // TODO: Change back to mileage when backend is updated
+        pidDataObject.setMileage(mileage); // trip mileage from device
         pidDataObject.setCalculatedMileage(calculatedMileage);
         pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
+        pidDataObject.setTripId(lastDeviceTripId);
         pidDataObject.setRtcTime(data.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
 
@@ -831,23 +869,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,freezeData.toString());
 
         if(data.result == 4) {
-            //Log.d(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
-            //localPidResult4.createPIDData(pidDataObject);
+            Log.d(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
+            localPidResult4.createPIDData(pidDataObject);
         } else if(data.result == 5) {
             Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
-            if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() > 0) {
+            if(pidDataObject.getTripId() == -1) {
+                pidsWithNoTripId.add(pidDataObject);
+            } else if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() > 0) {
                 localPid.createPIDData(pidDataObject);
             }
         }
 
-        if(localPid.getPidDataEntryCount() >= 100 && localPid.getPidDataEntryCount() % 25 == 0) {
+        if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
             sendPidDataToServer(data);
         }
 
-        //if(localPidResult4.getPidDataEntryCount() >= 50 && ++pidResult4SendCounter % 25 == 0) {
-        //    pidResult4SendCounter = 0;
-        //    //sendPidDataResult4ToServer(data);
-        //}
+        if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
+            sendPidDataResult4ToServer(data);
+        }
     }
 
     /**
@@ -859,21 +898,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "sending PID data");
         List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
 
-        int chunks = pidDataEntries.size() / 100 + 1; // sending pids in size 100 chunks
+        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
         JSONArray[] pidArrays = new JSONArray[chunks];
 
         try {
             for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
                 JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < 100; i++) {
-                    if(chunkNumber * 100 + i >= pidDataEntries.size()) {
+                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
+                    if(chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
                         continue;
                     }
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * 100 + i);
+                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("dataNum", pidDataObject.getDataNumber());
                     jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
                     jsonObject.put("tripMileage", pidDataObject.getMileage());
+                    jsonObject.put("tripId", pidDataObject.getTripId());
                     jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
                     jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                     pidArray.put(jsonObject);
@@ -898,12 +938,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     localPid.deleteAllPidDataEntries();
                                 } else {
                                     Log.e(TAG, "save pid error: " + requestError.getMessage());
+                                    if(getDatabasePath(Database.DB_NAME).length() > 10000000L) { // delete pids if db size > 10MB
+                                        localPid.deleteAllPidDataEntries();
+                                    }
                                 }
                             }
                         });
             }
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -927,36 +970,56 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void sendPidDataResult4ToServer(DataPackageInfo data) { // TODO: Update this when we figure out wtf to do with it
         Log.i(TAG, "sending PID result 4 data");
         List<Pid> pidDataEntries = localPidResult4.getAllPidDataEntries();
-        JSONArray pidArray = new JSONArray();
+
+        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size 50 chunks
+        JSONArray[] pidArrays = new JSONArray[chunks];
 
         try {
-            for(Pid pidDataObject : pidDataEntries) {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                jsonObject.put("mileage", pidDataObject.getMileage());
-                jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                pidArray.put(jsonObject);
+            for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
+                JSONArray pidArray = new JSONArray();
+                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
+                    if(chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
+                        continue;
+                    }
+                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
+                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
+                    jsonObject.put("tripMileage", pidDataObject.getMileage());
+                    jsonObject.put("tripId", pidDataObject.getTripId());
+                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
+                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
+                    pidArray.put(jsonObject);
+                }
+                pidArrays[chunkNumber] = pidArray;
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         if(lastTripId != -1) {
-            networkHelper.savePids(lastTripId, data.deviceId, pidArray,
-                    new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            if (requestError == null) {
-                                Log.i(TAG, "PIDS result 4 saved");
-                                localPidResult4.deleteAllPidDataEntries();
-                            } else {
-                                Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
+            for(JSONArray pids : pidArrays) {
+                if(pids.length() == 0) {
+                    continue;
+                }
+                networkHelper.savePids(lastTripId, data.deviceId, pids,
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if (requestError == null) {
+                                    Log.i(TAG, "PIDS result 4 saved");
+                                    localPidResult4.deleteAllPidDataEntries();
+                                } else {
+                                    Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
+                                    if(getDatabasePath(Database.DB_NAME).length() > 10000000L) { // delete pids if db size > 10MB
+                                        localPidResult4.deleteAllPidDataEntries();
+                                    }
+                                }
                             }
-                        }
-                    });
+                        });
+            }
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, data.tripId, new RequestCallback() {
+            networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if(requestError == null) {
@@ -1030,7 +1093,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return jsonObject;
     }
 
-    private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver connectionReceiver = new BroadcastReceiver() { // for both bluetooth and internet
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
@@ -1059,6 +1122,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                         bluetoothCommunicator.startScan();
+                    }
+                }
+            } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                if(NetworkHelper.isConnected(BluetoothAutoConnectService.this)) {
+                    Log.i(TAG, "Sending stored PIDS and DTCS");
+                    if(lastData != null) {
+                        sendPidDataToServer(lastData);
+                    }
+                    for(final Dtc dtc : dtcsToSend) {
+                        networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
+                                dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(), dtc.getFreezeData(),
+                                new RequestCallback() {
+                                    @Override
+                                    public void done(String response, RequestError requestError) {
+                                        Log.i(TAG, "DTC added: " + dtc);
+                                    }
+                                });
                     }
                 }
             }

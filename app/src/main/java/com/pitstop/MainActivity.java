@@ -1191,10 +1191,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     private void refreshFromServer() {
-        carIssueList.clear();
-        carLocalStore.deleteAllCars();
-        carIssueLocalStore.deleteAllCarIssues();
-        getCarDetails();
+        if(!NetworkHelper.isConnected(this)) {
+            refreshFromLocal();
+        } else {
+            carIssueList.clear();
+            carLocalStore.deleteAllCars();
+            carIssueLocalStore.deleteAllCarIssues();
+            getCarDetails();
+        }
     }
 
     private void refreshFromLocal() {

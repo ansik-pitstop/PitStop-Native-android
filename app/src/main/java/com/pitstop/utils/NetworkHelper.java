@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.widget.Toast;
 
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
@@ -56,6 +57,10 @@ public class NetworkHelper {
     }
 
     private void post(String uri, RequestCallback callback, JSONObject body) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
@@ -68,6 +73,10 @@ public class NetworkHelper {
     }
 
     private void get(String uri, RequestCallback callback) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
@@ -79,6 +88,10 @@ public class NetworkHelper {
     }
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
@@ -441,5 +454,11 @@ public class NetworkHelper {
         }
 
         put("user/" + userId + "/settings", callback, body);
+    }
+
+    public void getLatestTrip(String scannerId, RequestCallback callback) {
+        LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
+
+        get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
     }
 }

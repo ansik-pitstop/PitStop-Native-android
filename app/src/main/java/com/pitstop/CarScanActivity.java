@@ -566,15 +566,19 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             final double newTotalMileage = ((int) ((baseMileage
                     + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
 
-            dashboardCar.setDisplayedMileage(newTotalMileage);
-            localCarAdapter.updateCar(dashboardCar);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                    carMileage.setText(String.valueOf(newTotalMileage));
-                }
-            });
+            Log.i(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+
+            if(dashboardCar.getDisplayedMileage() - newTotalMileage != 0) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                        carMileage.setText(String.valueOf(newTotalMileage));
+                    }
+                });
+            }
         }
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {

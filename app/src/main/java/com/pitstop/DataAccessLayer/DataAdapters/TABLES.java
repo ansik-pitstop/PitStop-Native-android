@@ -19,6 +19,7 @@ public final class TABLES {
         String KEY_DATANUM = "dataNum";
         String KEY_RTCTIME = "rtcTime";
         String KEY_TIMESTAMP = "timestamp";
+        String KEY_TRIP_ID = "tripId";
         String KEY_PIDS = "pids";
         String KEY_MILEAGE = "mileage";
         String KEY_CALCULATED_MILEAGE = "calculatedMileage";

@@ -23,7 +23,9 @@ public class LocalPidResult4Adapter {
             + TABLES.PID.KEY_TIMESTAMP + " TEXT,"
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
+            + TABLES.PID.KEY_TRIP_ID + " INTEGER,"
             + TABLES.PID.KEY_MILEAGE + " REAL,"
+            + TABLES.PID.KEY_CALCULATED_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -43,8 +45,10 @@ public class LocalPidResult4Adapter {
         values.put(TABLES.PID.KEY_DATANUM, pidData.getDataNumber());
         values.put(TABLES.PID.KEY_RTCTIME, pidData.getRtcTime());
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
+        values.put(TABLES.PID.KEY_TRIP_ID, pidData.getTripId());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
         values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
+        values.put(TABLES.PID.KEY_CALCULATED_MILEAGE, pidData.getCalculatedMileage());
 
         db.insert(TABLES.PID.TABLE_NAME_RESULT_4, null, values);
         db.close();
@@ -68,12 +72,15 @@ public class LocalPidResult4Adapter {
                 pidData.setDataNumber(c.getString(c.getColumnIndex(TABLES.PID.KEY_DATANUM)));
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
+                pidData.setTripId(c.getInt(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
+                pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
         }
+        c.close();
         db.close();
         return pidDataEntries;
     }
@@ -87,23 +94,25 @@ public class LocalPidResult4Adapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         int count = c.getCount();
+        c.close();
         db.close();
-
         return count;
     }
 
     /**
      * Clear all pid data entries
      */
-    public void deleteAllPidDataEntries() {
-        List<Pid> pidDataEntries = getAllPidDataEntries();
-
+    synchronized public void deleteAllPidDataEntries() {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        for(Pid pid : pidDataEntries) {
-            db.delete(TABLES.PID.TABLE_NAME_RESULT_4, TABLES.COMMON.KEY_ID + " = ? ",
-                    new String[] { String.valueOf(pid.getId()) });
+        try {
+            db.delete(TABLES.PID.TABLE_NAME_RESULT_4, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(db != null && db.isOpen()) {
+                db.close();
+            }
         }
-        //db.close();
     }
 }
