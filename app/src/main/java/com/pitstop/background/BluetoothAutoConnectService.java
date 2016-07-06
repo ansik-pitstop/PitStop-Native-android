@@ -58,6 +58,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -355,6 +356,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+
+        Log.v(TAG, dataPackageInfo.toString());
 
         if(dataPackageInfo.dataNumber != null) {
             lastDataNum = dataPackageInfo.dataNumber;
