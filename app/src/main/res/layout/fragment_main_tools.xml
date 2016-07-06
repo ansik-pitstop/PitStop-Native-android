@@ -31,8 +31,8 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp"
@@ -45,7 +45,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:id="@+id/imageView19"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_directions_car_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -79,17 +79,18 @@
                 android:layout_marginRight="16dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp" >
+                android:elevation="2dp"
+                android:onClick="scanClicked">
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:id="@+id/imageView20"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_search_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -109,7 +110,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
+                        android:text="Scan your vehicle for potential issues"
                         android:id="@+id/textView52" />
                 </LinearLayout>
             </LinearLayout>
@@ -132,14 +133,15 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:onClick="requestMultiService">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -165,7 +167,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
+                        android:text="Request all your pending services"
                         android:id="@+id/textView55" />
                 </LinearLayout>
             </LinearLayout>
@@ -180,8 +182,8 @@
                 android:layout_marginRight="16dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp" >
@@ -190,7 +192,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:id="@+id/imageView22"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_history_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -210,7 +212,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
+                        android:text="Check your service history recorded with us"
                         android:id="@+id/textView57" />
                 </LinearLayout>
             </LinearLayout>
@@ -233,8 +235,8 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp"
@@ -244,16 +246,17 @@
 
                 <ImageView
                     android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_height="30dp"
                     android:id="@+id/imageView23"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_message_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -261,13 +264,9 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Message Service Center"
                         android:id="@+id/textView59"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:layout_gravity="center_vertical" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
-                        android:id="@+id/textView60" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -278,20 +277,20 @@
                 android:layout_gravity="right"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp" >
 
                 <ImageView
                     android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_height="30dp"
                     android:id="@+id/imageView25"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_location_on_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -306,13 +305,10 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Navigate to Service Center"
                         android:id="@+id/textView63"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="0dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
-                        android:id="@+id/textView64" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -326,17 +322,17 @@
                 android:layout_marginBottom="16dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
                 android:elevation="2dp" >
 
                 <ImageView
                     android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_height="30dp"
                     android:id="@+id/imageView24"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/ic_phone_light_blue_500_24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -351,13 +347,10 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Call Service Center"
                         android:id="@+id/textView61"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="0dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lorem Ipsum Lorem Ipsum"
-                        android:id="@+id/textView62" />
                 </LinearLayout>
             </LinearLayout>
 

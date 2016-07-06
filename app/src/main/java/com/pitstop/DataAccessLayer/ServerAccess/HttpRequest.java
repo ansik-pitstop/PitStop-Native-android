@@ -27,7 +27,7 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    public static final boolean staging = !!false;
+    public static final boolean staging = false;
 
     private static final String TESTING = "http://45.55.82.111:10011/";
 

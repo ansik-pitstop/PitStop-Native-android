@@ -66,7 +66,7 @@ import java.util.List;
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener{
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     public static List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -349,6 +349,23 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         return true;
     }
 
+    public void scanClicked(View view){
+
+        try {
+            application.getMixpanelAPI().track("Button Tapped",
+                    new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
+                            TAG, dashboardCar.getMake(), dashboardCar.getModel())));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
+
+        Intent intent = new Intent(this, CarScanActivity.class);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+        startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+    }
     public void refreshClicked(View view){
         try {
             mixpanelHelper.trackButtonTapped("Refresh", TAG);
@@ -447,22 +464,27 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
             selectItem(position);
+            resetMenus(false);
         }
     }
 
 
     public void refreshFromServer() {
-        Log.d("random","refresh called");
-        carLocalStore.deleteAllCars();
-        carIssueLocalStore.deleteAllCarIssues();
-        carIssueList.clear();
-        getCarDetails();
-        if(isLoading) {
-            hideLoading();
-        }
-        if(callback!=null) {
+        if(NetworkHelper.isConnected(this)) {
+            Log.d("random", "refresh called");
+            carLocalStore.deleteAllCars();
+            carIssueLocalStore.deleteAllCarIssues();
+            carIssueList.clear();
+            getCarDetails();
+            if (isLoading) {
+                hideLoading();
+            }
+            if (callback != null) {
 
-            callback.onServerRefreshed();
+                callback.onServerRefreshed();
+            }
+        }else{
+            Snackbar.make(findViewById(R.id.drawer_layout),"You are not connected to internet",Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -595,6 +617,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /** Swaps fragments in the main content view */
     private void selectItem(int position){
 
+        dashboardCar = carList.get(position);
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, carList.get(position).getId()).apply();

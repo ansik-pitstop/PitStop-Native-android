@@ -305,6 +305,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         rootview = inflater.inflate(R.layout.fragment_main_dashboard,null);
         setUpUIReferences();
+        if(dashboardCar!=null) {
+            carName.setText(dashboardCar.getYear() + " "
+                    + dashboardCar.getMake() + " "
+                    + dashboardCar.getModel());
+            setIssuesCount();
+            setCarDetailsUI();
+        }
         return rootview;
     }
 
@@ -562,12 +569,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(dashboardCar!=null) {
-            carName.setText(dashboardCar.getYear() + " "
-                    + dashboardCar.getMake() + " "
-                    + dashboardCar.getModel());
-            setIssuesCount();
-        }
     }
 
 
@@ -625,12 +626,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private void setDealership() {
 
         Dealership shop = dashboardCar.getDealership();
-        if(shop == null) {
-
+        shop = (shop == null)?shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId()):shop;
+        dashboardCar.setDealership(shop);
+        if (shop==null) {
             networkHelper.getShops(new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
-                    if(requestError == null) {
+                    if (requestError == null) {
                         try {
                             List<Dealership> dl = Dealership.createDealershipList(response);
                             shopLocalStore.deleteAllDealerships();
@@ -639,7 +641,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
 
                             dashboardCar.setDealership(d);
-                            if(dashboardCar.getDealership() != null) {
+                            if (dashboardCar.getDealership() != null) {
                                 dealershipName.setText(dashboardCar.getDealership().getName());
                                 dealershipAddress.setText(dashboardCar.getDealership().getAddress());
                                 dealershipPhone.setText(dashboardCar.getDealership().getPhone());
@@ -653,10 +655,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 }
             });
         } else {
-            dashboardCar.setDealership(shop);
-            dealershipName.setText(shop.getName());
-            dealershipAddress.setText(shop.getAddress());
-            dealershipPhone.setText(shop.getPhone());
+            if(dealershipName!=null) {
+                dealershipName.setText(shop.getName());
+                dealershipAddress.setText(shop.getAddress());
+                dealershipPhone.setText(shop.getPhone());
+            }
         }
 
     }

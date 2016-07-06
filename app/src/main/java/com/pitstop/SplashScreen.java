@@ -216,7 +216,7 @@ public class SplashScreen extends AppCompatActivity {
         } else {
             showLoading("Logging in...");
 
-            startMainActivity();
+            startMainActivity(false);
         }
     }
 
@@ -474,7 +474,7 @@ public class SplashScreen extends AppCompatActivity {
             Log.d(TAG, "migration result received: " + success);
             unregisterReceiver(this);
             if(success) {
-                startMainActivity();
+                startMainActivity(true);
             } else {
                 hideLoading();
                 migrationFailedDialog();
@@ -503,7 +503,7 @@ public class SplashScreen extends AppCompatActivity {
                         if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
                             && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
-                            startMainActivity();
+                            startMainActivity(true);
                         } else {
                             startMigration(accessToken, refreshToken, user.getId());
                         }
@@ -538,7 +538,7 @@ public class SplashScreen extends AppCompatActivity {
                         if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
                                 && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
-                            startMainActivity();
+                            startMainActivity(true);
                         } else {
                             startMigration(accessToken, refreshToken, user.getId());
                         }
@@ -632,10 +632,10 @@ public class SplashScreen extends AppCompatActivity {
         startService(migrationIntent);
     }
 
-    private void startMainActivity() {
+    private void startMainActivity(boolean update) {
         Intent intent = new Intent(SplashScreen.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(LOGIN_REFRESH, true);
+        intent.putExtra(LOGIN_REFRESH, update);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
