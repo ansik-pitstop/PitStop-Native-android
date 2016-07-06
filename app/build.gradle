@@ -13,7 +13,8 @@ android {
     def staging = "\"http://staging.api.getpitstop.io:10010/\""
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
-    def isStaging = true
+    def isStaging = false
+
     defaultConfig {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18

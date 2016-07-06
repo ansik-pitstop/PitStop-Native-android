@@ -770,6 +770,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         }
                     });
+            Car car = localCarAdapter.getCarByScanner(data.deviceId);
+            if(car != null) {
+                double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage);
+                car.setDisplayedMileage(newMileage);
+                car.setTotalMileage(newMileage);
+                localCarAdapter.updateCar(car);
+            }
         } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG) && !sendingTripStart) {
             sendingTripStart = true;
             networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
