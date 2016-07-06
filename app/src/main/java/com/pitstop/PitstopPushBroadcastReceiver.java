@@ -3,7 +3,6 @@ package com.pitstop;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.admin.SystemUpdatePolicy;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -12,18 +11,17 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import com.parse.Parse;
+
 import com.parse.ParseAnalytics;
 import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
 import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -91,9 +89,6 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.mipmap.ic_push);
 
-
-
-
         List<ParseNotification> notificationList = localStore.getAllNotifications();
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
         notification
@@ -151,7 +146,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             context.startActivity(target);
             openedActivity = true;
 
-            ParseApplication application = (ParseApplication) context.getApplicationContext();
+            GlobalApplication application = (GlobalApplication) context.getApplicationContext();
             new MixpanelHelper(application).trackAppStatus(MixpanelHelper.APP_LAUNCHED_FROM_PUSH);
         } catch (JSONException e) {
             Log.e(TAG, "Unexpected JSONException when receiving push data: ", e);

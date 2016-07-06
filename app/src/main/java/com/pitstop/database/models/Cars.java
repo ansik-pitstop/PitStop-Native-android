@@ -2,8 +2,6 @@ package com.pitstop.database.models;
 
 import com.pitstop.database.DBModel;
 
-import java.io.Serializable;
-
 /**
  * Created by David Liu on 11/20/2015.
  */

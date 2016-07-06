@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="parse_appID_prod">NdSgPCykUoMT6jQd35LVYjf4MjayAL1PcSvSCxUo</string>
-    <string name="parse_clientID_prod">dkLeQT0VbB5G5eF6qbwjnUM0km6iou5LVcf7uxEs</string>
-    <string name="parse_appID_dev">3ELjpfdU7OpLr3En6op36zVLyV1OTJv0Xf59mYS8</string>
-    <string name="parse_clientID_dev">8Pflh1AzSDbEzZf9UrswTOJVjLlZbKNGFCM19Rq0</string>
+    <string name="mashape_key">Rg3YqzHEJmmshZIoHi4smSVbZvudp1ywHEEjsn0dR4DyKVyF5z</string>
+    <string name="parse_appID_prod">JeosZ41GY0uaPQEMBEW3hOIaYKXoOJmuzBclVYUE</string>
+    <string name="parse_clientID_prod">yitYYIedrwDQmyMzztQyOfFkGZC3A74wFyPZ8JdK</string>
+    <string name="parse_appID_dev">ZYOmoKuYsa2LtOKPnBW7dGLNpYbYhZGHb6EBfl3S</string>
+    <string name="parse_clientID_dev">xrxqVtdLZP9QBa7eXx7ZVizrlFRHqmU5UGzcNfVB</string>
+    <!-- old string name="parse_appID_dev">3ELjpfdU7OpLr3En6op36zVLyV1OTJv0Xf59mYS8</string>
+    <string name="parse_clientID_dev">8Pflh1AzSDbEzZf9UrswTOJVjLlZbKNGFCM19Rq0</string-->
     <string name="smooch_token">0xs5j98mds1x8mn77ptw4knc5</string>
     <string name="dev_mixpanel_api_token">330c942ffad6819253501447810ad761</string>
     <string name="prod_mixpanel_api_token">02b8b23d15c94812afac29c9513f0008</string>
+    <string name="facebook_id">364948730344806</string>
 </resources>

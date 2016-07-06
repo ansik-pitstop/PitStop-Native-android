@@ -4,7 +4,10 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.SyncStateContract;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -23,10 +26,17 @@ public class ParseApplication extends Application {
 
     private static String TAG = "ParseApplication";
 
+    // Build a RemoteInput for receiving voice input in a Car Notification
+    public static RemoteInput remoteInput = null;
+
     private static MixpanelAPI mixpanelAPI;
     @Override
     public void onCreate() {
         super.onCreate();
+
+        remoteInput = new RemoteInput.Builder("PitstopApplication")
+                .setLabel(getApplicationContext().getString(R.string.notification_reply))
+                .build();
 
         // ParseCrashReporting.enable(this);
         Parse.enableLocalDatastore(this);

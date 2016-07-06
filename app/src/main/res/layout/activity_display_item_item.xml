@@ -99,7 +99,7 @@
                 android:id="@+id/btnClearDtc"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/color_button_add_car"
+                android:background="@drawable/color_button_primary"
                 android:text="Clear All Engine Codes"
                 android:textColor="#fff"
                 android:layout_marginBottom="24dp"
@@ -115,7 +115,7 @@
                 android:layout_below="@id/btnClearDtc"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                android:background="@drawable/color_button_add_car"
+                android:background="@drawable/color_button_primary"
                 android:drawableRight="@drawable/request_service_button"
                 android:textColor="#fff" />
 

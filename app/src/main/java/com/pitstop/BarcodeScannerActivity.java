@@ -24,7 +24,7 @@ import com.pitstop.BarcodeScanner.BarcodeTrackerFactory;
 import com.pitstop.BarcodeScanner.CameraSource;
 import com.pitstop.BarcodeScanner.CameraSourcePreview;
 import com.pitstop.BarcodeScanner.GraphicOverlay;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -70,7 +70,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_barcode_scanner);
 
-        mixpanelHelper = new MixpanelHelper((ParseApplication) getApplicationContext());
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)

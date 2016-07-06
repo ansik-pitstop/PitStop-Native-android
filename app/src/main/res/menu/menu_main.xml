@@ -1,26 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity">
-
-    <item
-        android:id="@+id/refresh_main"
-        android:icon="@drawable/ic_refresh_white_24dp"
-        android:title="Refresh"
-        app:showAsAction="always"
-        tools:context=".MainActivity" />
-    <item
-        android:id="@+id/add"
-        android:icon="@drawable/ic_add_circle_white_48dp"
-        android:title="Add car"
-        app:showAsAction="always"
-        tools:context=".MainActivity" />
-
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings" />
-
-    <item
-        android:id="@+id/action_car_history"
-        android:title="History" />
+    tools:context=".MainDashboardFragment">
 </menu>

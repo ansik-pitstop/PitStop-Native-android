@@ -23,6 +23,7 @@ public class LocalPidAdapter {
             + TABLES.PID.KEY_TIMESTAMP + " TEXT,"
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
+            + TABLES.PID.KEY_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -43,6 +44,7 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_RTCTIME, pidData.getRtcTime());
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
+        values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
 
         db.insert(TABLES.PID.TABLE_NAME, null, values);
         db.close();
@@ -67,6 +69,7 @@ public class LocalPidAdapter {
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
+                pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
@@ -92,15 +95,19 @@ public class LocalPidAdapter {
     /**
      * Clear all pid data entries
      */
-    public void deleteAllPidDataEntries() {
+    synchronized public void deleteAllPidDataEntries() {
         List<Pid> pidDataEntries = getAllPidDataEntries();
 
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        for(Pid pid : pidDataEntries) {
-            db.delete(TABLES.PID.TABLE_NAME, TABLES.COMMON.KEY_ID + " = ? ",
-                    new String[] { String.valueOf(pid.getId()) });
+        try {
+            db.delete(TABLES.PID.TABLE_NAME, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(db != null && db.isOpen()) {
+                db.close();
+            }
         }
-        //db.close();
     }
 }

@@ -12,7 +12,6 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
-import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.MainActivity;
 
@@ -33,6 +32,7 @@ public class ObdManager {
 
     public final static int DEVICE_LOGIN_FLAG = 1;
     public final static int DEVICE_LOGOUT_FLAG = 0;
+    public final static int TYPE_MONITOR_PID_DATA = 0;
     public final static int TYPE_DTC = 1;
     public final static int TYPE_PENDING_DTC = 2;
     public final static int TYPE_FREEZE_DATA = 3;
@@ -63,7 +63,7 @@ public class ObdManager {
     /**
      *
      */
-    public void initializeObd() {
+    public int initializeObd() {
         Log.i(MainActivity.TAG, "Initializing obd");
 
         String deviceId = OBDInfoSP.getDeviceId(mContext);
@@ -73,8 +73,9 @@ public class ObdManager {
             Log.i(MainActivity.TAG,"deviceId:" + deviceId + "dataNum"
                     + OBDInfoSP.getDataNum(mContext));
             Log.i(MainActivity.TAG,"Initializing obd module");
-            OBD.init(deviceId, dataNum);
+            return OBD.init(deviceId, dataNum);
         }
+        return -1;
     }
 
 

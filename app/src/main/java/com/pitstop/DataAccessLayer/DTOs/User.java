@@ -1,18 +1,19 @@
 package com.pitstop.DataAccessLayer.DTOs;
 
-import com.google.gson.annotations.Expose;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.io.Serializable;
+import com.castel.obd.util.JsonUtil;
+
+import org.json.JSONObject;
 
 /**
  * Created by Paul Soladoye on 3/21/2016.
  */
-public class User implements Serializable {
+public class User implements Parcelable {
 
-    @Expose(serialize = false, deserialize = false)
     private int id;
 
-    private String parseId;
     private String firstName;
     private String lastName;
     private String email;
@@ -20,7 +21,7 @@ public class User implements Serializable {
     private String password;
     //authData
     private boolean activated;
-    private String phoneNumber;
+    private String phone;
     private String role;
     private boolean verifiedEmail;
 
@@ -82,12 +83,12 @@ public class User implements Serializable {
         this.activated = activated;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {
@@ -106,11 +107,69 @@ public class User implements Serializable {
         this.verifiedEmail = verifiedEmail;
     }
 
-    public String getParseId() {
-        return parseId;
+    public static User jsonToUserObject(String json) {
+        User user = null;
+        try {
+            user = JsonUtil.json2object(json, User.class);
+
+            if(user.getId() == 0) {
+                user = new User();
+                JSONObject userJson = new JSONObject(json).getJSONObject("user");
+                user.setId(userJson.getInt("id"));
+                user.setFirstName(userJson.getString("firstName"));
+                user.setLastName(userJson.getString("lastName"));
+                user.setEmail(userJson.getString("email"));
+                user.setPhone(userJson.getString("phone"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 
-    public void setParseId(String parseId) {
-        this.parseId = parseId;
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.firstName);
+        dest.writeString(this.lastName);
+        dest.writeString(this.email);
+        dest.writeString(this.userName);
+        dest.writeString(this.password);
+        dest.writeByte(this.activated ? (byte) 1 : (byte) 0);
+        dest.writeString(this.phone);
+        dest.writeString(this.role);
+        dest.writeByte(this.verifiedEmail ? (byte) 1 : (byte) 0);
+    }
+
+    protected User(Parcel in) {
+        this.id = in.readInt();
+        this.firstName = in.readString();
+        this.lastName = in.readString();
+        this.email = in.readString();
+        this.userName = in.readString();
+        this.password = in.readString();
+        this.activated = in.readByte() != 0;
+        this.phone = in.readString();
+        this.role = in.readString();
+        this.verifiedEmail = in.readByte() != 0;
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

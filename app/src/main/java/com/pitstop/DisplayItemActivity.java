@@ -21,27 +21,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
@@ -53,8 +44,12 @@ public class DisplayItemActivity extends AppCompatActivity {
     private Car dashboardCar;
     private CarIssue carIssue;
 
-    ParseApplication application;
+    private LocalCarIssueAdapter carIssueAdapter;
+
+    GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
+
+    private NetworkHelper networkHelper;
 
     private static final String TAG = DisplayItemActivity.class.getSimpleName();
 
@@ -87,12 +82,16 @@ public class DisplayItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_item);
 
-        application = (ParseApplication) getApplicationContext();
+        networkHelper = new NetworkHelper(getApplicationContext());
+
+        application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
-        dashboardCar = (Car) intent.getSerializableExtra(MainActivity.CAR_EXTRA);
-        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
+        carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+//        dashboardCar = CarDataManager.getInstance().getDashboardCar();
+//        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);
 
@@ -182,8 +181,8 @@ public class DisplayItemActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested','1'"));
+                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                    + "','Device':'Android','Number of Services Requested':'1'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -208,65 +207,19 @@ public class DisplayItemActivity extends AppCompatActivity {
     }
 
     private void sendRequest(String additionalComment) {
-        String userId = ParseUser.getCurrentUser().getObjectId();
-        HashMap<String,Object> output = new HashMap<>();
-        List<HashMap<String,String>> services = new ArrayList<>();
-
-        if(carIssue.getIssueType().equals("recall")) {
-            HashMap<String, String> recall = new HashMap<>();
-            recall.put("item", carIssue.getIssueDetail().getItem());
-            recall.put("action", carIssue.getIssueDetail().getAction());
-            recall.put("itemDescription", carIssue.getIssueDetail().getDescription());
-            recall.put("priority", String.valueOf(carIssue.getPriority()));
-            services.add(recall);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments", additionalComment);
-
-        } else if(carIssue.getIssueType().equals("dtc")) {
-
-            HashMap<String, String> dtc = new HashMap<>();
-            dtc.put("item", carIssue.getIssueDetail().getItem());
-            dtc.put("action", carIssue.getIssueDetail().getAction());
-            dtc.put("itemDescription", carIssue.getIssueDetail().getDescription());
-            dtc.put("priority", String.valueOf(carIssue.getPriority()));
-            services.add(dtc);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments", additionalComment);
-
-
-        } else {
-            HashMap<String, String> service = new HashMap<>();
-            service.put("item",carIssue.getIssueDetail().getItem());
-            service.put("action",carIssue.getIssueDetail().getAction());
-            service.put("itemDescription",carIssue.getIssueDetail().getDescription());
-            service.put("priority",String.valueOf(carIssue.getPriority()));
-            services.add(service);
-
-            output.put("services", services);
-            output.put("carVin", dashboardCar.getVin());
-            output.put("userObjectId", userId);
-            output.put("comments",additionalComment);
-        }
-
-        ParseCloud.callFunctionInBackground("sendServiceRequestEmail", output, new FunctionCallback<Object>() {
-            @Override
-            public void done(Object object, ParseException e) {
-                if (e == null) {
-                    Toast.makeText(DisplayItemActivity.this,
-                            "Request sent", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(DisplayItemActivity.this,
-                            e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                onBackPressed();
-            }
-        });
+        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
+                additionalComment, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(DisplayItemActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                            networkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(DisplayItemActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {
@@ -289,8 +242,23 @@ public class DisplayItemActivity extends AppCompatActivity {
                     if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
                         Toast.makeText(DisplayItemActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
                     } else {
-                        autoConnectService.clearDTCs();
-                        clearDtcs();
+                        new AlertDialog.Builder(DisplayItemActivity.this)
+                                .setTitle("Are you sure you want to clear all engine codes?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        autoConnectService.clearDTCs();
+                                        clearDtcs();
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .show();
                     }
                 }
             });
@@ -328,53 +296,39 @@ public class DisplayItemActivity extends AppCompatActivity {
         }
     }
 
+    private class ErrorIndicator { // because boolean needs to be used in inner class
+        boolean wasError = false;
+    }
+
     private void clearDtcs() {
 
-        ParseQuery updateObject = new ParseQuery("Car");
-        try {
-            updateObject.get(dashboardCar.getParseId());
-            updateObject.findInBackground(new FindCallback<ParseObject>() {
+        carIssueAdapter = new LocalCarIssueAdapter(this);
 
-                @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(e==null) {
-
-                        needToRefresh = true;
-
-                        // clearing dtcs from backend
-                        objects.get(0).removeAll("storedDTCs", dashboardCar.getStoredDTCs());
-                        objects.get(0).removeAll("pendingDTCs", dashboardCar.getPendingDTCs());
-                        objects.get(0).saveEventually();
-
-                        // saving service history to backend
-                        for(CarIssue dtc : dashboardCar.getIssues()) {
-                            if(dtc.getIssueType().equals(CarIssue.DTC) || dtc.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                                ParseObject saveCompletion = new ParseObject("ServiceHistory");
-                                saveCompletion.put("carId", dashboardCar.getParseId());
-                                saveCompletion.put("mileageSetByUser", dashboardCar.getTotalMileage());
-                                saveCompletion.put("mileage", dashboardCar.getTotalMileage());
-                                saveCompletion.put("shopId", dashboardCar.getShopId());
-                                saveCompletion.put("userMarkedDoneOn", "Recently from " + new SimpleDateFormat("yyy-MM-dd HH:mm:ss z"));
-                                saveCompletion.put("serviceId", 123);
-                                saveCompletion.put("serviceObjectId", dtc.getParseId());
-                                saveCompletion.saveEventually();
+        // marking each dtc as done in the backend and locally
+        final ErrorIndicator errorIndicator = new ErrorIndicator();
+        for(int i = 0 ; i < dashboardCar.getActiveIssues().size() ; i++) {
+            final CarIssue issue = dashboardCar.getActiveIssues().get(i);
+            final int index = i;
+            if(issue.getIssueType().equals(CarIssue.DTC) || issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                networkHelper.serviceDone(dashboardCar.getId(), issue.getId(), 0, dashboardCar.getTotalMileage(),
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(requestError != null) {
+                                    issue.setStatus("done");
+                                    dashboardCar.getActiveIssues().set(index, issue);
+                                    carIssueAdapter.updateCarIssue(issue);
+                                    errorIndicator.wasError = true;
+                                }
                             }
-                        }
-                        // clearing dtcs locally
-                        dashboardCar.setPendingDTCs(new ArrayList<String>());
-                        dashboardCar.setStoredDTCs(new ArrayList<String>());
-
-                        Log.i(TAG, "Engine codes cleared");
-                        Toast.makeText(DisplayItemActivity.this, "Engine codes cleared", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        Toast.makeText(DisplayItemActivity.this,"Parse error: "+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
+                        });
+            }
         }
+
+        if(errorIndicator.wasError) {
+            Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+        }
+
+        needToRefresh = true;
     }
 }

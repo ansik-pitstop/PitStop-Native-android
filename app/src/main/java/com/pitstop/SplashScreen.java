@@ -1,12 +1,13 @@
 package com.pitstop;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -22,35 +24,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.parse.SignUpCallback;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
+import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.background.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.SplashSlidePagerAdapter;
+import com.pitstop.utils.NetworkHelper;
+import com.pitstop.adapters.SplashSlidePagerAdapter;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SplashScreen extends AppCompatActivity {
 
     final static String pfName = "com.pitstop.login.name";
-    final static String pfCodeForID = "com.pitstop.login.id";
-    final static String pfCodeForPassword = "com.pitstop.login.passwd";
-    final static String pfCodeForObjectID = "com.pitstop.login.objectID";
     public static String ACTIVITY_NAME = "splash_screen";
 
     public static String LOGIN_REFRESH = "login_refresh";
 
     public static final String TAG = SplashScreen.class.getSimpleName();
 
-    ParseApplication application;
+    GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
     boolean signup  = false;
@@ -58,7 +67,8 @@ public class SplashScreen extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
-    private EditText name;
+    private EditText firstName;
+    private EditText lastName;
     private EditText password;
     private EditText phoneNumber;
     private EditText email;
@@ -67,6 +77,11 @@ public class SplashScreen extends AppCompatActivity {
     private LinearLayout radioLayout;
     private Button loginButton, skipButton;
 
+    // for facebook login
+    public CallbackManager callbackManager;
+    private LoginButton facebookLoginButton;
+
+    private NetworkHelper networkHelper;
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -79,69 +94,27 @@ public class SplashScreen extends AppCompatActivity {
      */
     private PagerAdapter mPagerAdapter;
 
-    Handler loginHandler = new Handler();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(MainActivity.TAG, "Calling on create");
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_splash_screen);
 
         if(BuildConfig.DEBUG) {
-            Toast.makeText(this, "This is a debug build", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "This is a debug build - " + (HttpRequest.staging ? "staging" : "snapshot"), Toast.LENGTH_LONG).show();
         }
 
-        String deviceId = Settings.Secure.getString(this.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
+        networkHelper = new NetworkHelper(getApplicationContext());
 
-        //Log.i(TAG, "Device id: " + deviceId);
+        application = (GlobalApplication) getApplicationContext();
 
-        application = (ParseApplication) getApplicationContext();
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         setUpUIReferences();
-
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        String email = settings.getString(pfCodeForID, "NA");
-
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser == null) {
-            Log.i(TAG, "Current Parse user is null");
-        } else {
-            ParseApplication.setUpMixPanel();
-
-            final ProgressDialog loadingDialog = ProgressDialog.show(SplashScreen.this, "", "Logging in...", true, false);
-
-            final Runnable loginRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(MainActivity.TAG, "loginHandler login");
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-                    startActivity(intent);
-                }
-            };
-
-            loginHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i(MainActivity.TAG, "Handler dismiss dialog");
-                            loadingDialog.dismiss();
-                        }
-                    });
-                    loginHandler.post(loginRunnable);
-                }
-            }, 2500);
-
-            Log.i(TAG, currentUser.getUsername());
-        }
-
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -155,16 +128,38 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 setUpUIReferences();
-                if(position==3){
+                if(position==2){
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.GONE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
+                    if(facebookLoginButton != null) {
+                        facebookLoginButton.setReadPermissions("public_profile", "email");
+                        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                            @Override
+                            public void onSuccess(LoginResult loginResult) {
+                                loginSocial(loginResult.getAccessToken().getToken(), "facebook");
+                            }
+                            @Override
+                            public void onCancel() {
+                                Log.d("Facebook", "cancel");
+                            }
+                            @Override
+                            public void onError(FacebookException error) {
+                                Log.d("Facebook", "error" + error.getMessage());
+                            }
+                        });
+                    }
+
                     radioLayout.setVisibility(View.GONE);
-                    skipButton.setVisibility(View.GONE);
+//                    skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
-                    name.setVisibility(View.GONE);
+                    firstName.setVisibility(View.GONE);
+                    lastName.setVisibility(View.GONE);
                     phoneNumber.setVisibility(View.GONE);
 
                     password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -172,11 +167,8 @@ public class SplashScreen extends AppCompatActivity {
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                             boolean handled = false;
                             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                if(signup){
-                                    signUp(null);
-                                }else{
-                                    login(null);
-                                }
+                                loginOrSignUp(null);
+
                                 handled = true;
                                 View view = getCurrentFocus();
                                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -186,8 +178,9 @@ public class SplashScreen extends AppCompatActivity {
                         }
                     });
                 }else{
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
                     radioLayout.setVisibility(View.VISIBLE);
-                    skipButton.setVisibility(View.VISIBLE);
+//                    skipButton.setVisibility(View.VISIBLE);
                     for(int i = 0; i<3; i++){
                         ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
                     }
@@ -210,6 +203,21 @@ public class SplashScreen extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if(currentUser != null) {
+            showLoading("Logging in");
+            loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
+        } else if(AccessToken.getCurrentAccessToken() != null) {
+            loginSocial(AccessToken.getCurrentAccessToken().getToken(), "facebook");
+        }else if (!application.isLoggedIn()
+                || application.getAccessToken() == null || application.getRefreshToken() == null) {
+            Log.i(TAG, "Not logged in");
+        } else {
+            showLoading("Logging in...");
+
+            startMainActivity(false);
+        }
     }
 
     @Override
@@ -229,12 +237,12 @@ public class SplashScreen extends AppCompatActivity {
             super.onBackPressed();
         } else {
             // Otherwise, select the previous step.
-            //TODO: Come up with an elegant solution
             if(signup && backPressed) {
                 signup = !signup;
                 backPressed = !backPressed;
                 loginButton.setVisibility(View.VISIBLE);
-                name.setVisibility(View.GONE);
+                firstName.setVisibility(View.GONE);
+                lastName.setVisibility(View.GONE);
                 phoneNumber.setVisibility(View.GONE);
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
@@ -260,10 +268,9 @@ public class SplashScreen extends AppCompatActivity {
 
     private void setUpUIReferences() {
 
-        progressDialog = new ProgressDialog(SplashScreen.this);
-        progressDialog.setCanceledOnTouchOutside(false);
 
-        name = (EditText) findViewById(R.id.name);
+        firstName = (EditText) findViewById(R.id.firstName);
+        lastName = (EditText) findViewById(R.id.lastName);
         password = (EditText) findViewById(R.id.password);
         phoneNumber = (EditText) findViewById(R.id.phone);
         email = (EditText) findViewById(R.id.email);
@@ -271,57 +278,18 @@ public class SplashScreen extends AppCompatActivity {
         splashLayout = findViewById(R.id.splash_layout);
         radioLayout = (LinearLayout) findViewById(R.id.radio_layout);
         loginButton = (Button) findViewById(R.id.login_btn);
-        skipButton = (Button) findViewById(R.id.skip_btn);
+        skipButton = (Button) findViewById(R.id.sign_up_skip);
     }
 
-    public void signUp(final View view) {
+    public void signUpSwitcher(final View view) {
         if (signup) {
-            try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            showLoading("Loading");
-            if(Utils.isEmpty(name.getText().toString())) {
-                Snackbar.make(splashLayout, "Name is required",Snackbar.LENGTH_SHORT).show();
-                hideLoading();
-                return;
-            }
-            if(password.getText().toString().length()<6){
-                Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
-                hideLoading();
-                return;
-            }
-            if(phoneNumber.getText().toString().length()!=10){
-                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
-                hideLoading();
-                return;
-            }
-            ParseUser user = new ParseUser();
-            user.setUsername(email.getText().toString());
-            user.setPassword(password.getText().toString());
-            user.setEmail(email.getText().toString());
-
-            // other fields can be set just like with ParseObject
-            user.put("name", name.getText().toString());
-            user.put("phoneNumber", phoneNumber.getText().toString());
-            user.put("role", "customer");
-
-            user.signUpInBackground(new SignUpCallback() {
-                public void done(ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(SplashScreen.this, "Congrats, you have signed up!",
-                                Toast.LENGTH_SHORT).show();
-                        login(view);
-                    } else {
-                        hideLoading();
-                        Toast.makeText(SplashScreen.this,
-                                "Failed, please double check your information!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            firstName.setVisibility(View.GONE);
+            lastName.setVisibility(View.GONE);
+            phoneNumber.setVisibility(View.GONE);
+            ((Button)findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
+            ((Button)findViewById(R.id.login_btn)).setText("Log In");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
+            signup = !signup;
         }else{
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
@@ -329,13 +297,279 @@ public class SplashScreen extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            name.setVisibility(View.VISIBLE);
-            phoneNumber.setVisibility(View.VISIBLE);
-            loginButton.setVisibility(View.GONE);
+            ((Button)findViewById(R.id.fb_login_butt)).setText("Sign up with facebook");
+            ((Button)findViewById(R.id.login_btn)).setText("Sign Up");
+            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
             signup = !signup;
         }
     }
 
+    public void loginFacebook(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Login with Facebook", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(facebookLoginButton != null) {
+            facebookLoginButton.performClick();
+        }
+    }
+
+    public void loginOrSignUp(final View view) {
+        if (signup) {
+            try {
+                mixpanelHelper.trackButtonTapped("Register", TAG);
+                mixpanelHelper.trackViewAppeared("Register");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if(!NetworkHelper.isConnected(this)) {
+                Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                loginOrSignUp(null);
+                            }
+                        })
+                        .show();
+                return;
+            }
+            if(firstName.getVisibility()!= View.VISIBLE){
+                mPager.setOnTouchListener(new View.OnTouchListener(){
+
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        return true;
+                    }
+                });
+                firstName.setVisibility(View.VISIBLE);
+                lastName.setVisibility(View.VISIBLE);
+                phoneNumber.setVisibility(View.VISIBLE);
+                email.setVisibility(View.GONE);
+                password.setVisibility(View.GONE);
+                findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
+//                findViewById(R.id.login_or).setVisibility(View.GONE);
+                findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
+                ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+                return;
+            }
+
+            showLoading("Loading");
+            if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
+                Snackbar.make(splashLayout, "First and last name are required", Snackbar.LENGTH_SHORT).show();
+                hideLoading();
+                return;
+            }
+            if (password.getText().toString().length() < 6) {
+                Snackbar.make(splashLayout, "Password length must be greater than 6", Snackbar.LENGTH_SHORT).show();
+                hideLoading();
+                return;
+            }
+            if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
+                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+                hideLoading();
+                return;
+            }
+            // creating json to post
+            JSONObject json = new JSONObject();
+            try { // TODO: put names and phone number from second screen
+                json.put("firstName", firstName.getText().toString());
+                json.put("lastName", lastName.getText().toString());
+                json.put("email", email.getText().toString());
+                json.put("username", email.getText().toString());
+                json.put("phone", phoneNumber.getText().toString());
+                json.put("password", password.getText().toString());
+                json.put("isSocial", false);
+                json.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            networkHelper.signUpAsync(json, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if(requestError == null) {
+                        login(email.getText().toString(), password.getText().toString());
+                    } else {
+                        Log.e(TAG, "Sign up error: " + requestError.getMessage());
+                        Toast.makeText(SplashScreen.this, "This email is already in use", Toast.LENGTH_SHORT).show();
+                        hideLoading();
+                    }
+                }
+            });
+        }else{
+            try {
+                mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+
+                try {
+                    mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+                } catch (JSONException e2) {
+                    e2.printStackTrace();
+                }
+
+                if(!NetworkHelper.isConnected(this)) {
+                    Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    signUpSwitcher(null);
+                                }
+                            })
+                            .show();
+                    return;
+                }
+
+                showLoading("Logging in...");
+                final String usernameInput = email.getText().toString().toLowerCase();
+                final String passwordInput = password.getText().toString();
+
+                login(usernameInput, passwordInput);
+            } catch (JSONException e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
+
+    private void loginSocial(final String fbAccessToken, final String provider) {
+        showLoading("Logging in");
+
+        if(!signup) {
+            networkHelper.loginSocial(fbAccessToken, provider, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    hideLoading();
+                    if (requestError == null) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            User user = User.jsonToUserObject(response);
+                            String accessToken = jsonObject.getString("accessToken");
+                            String refreshToken = jsonObject.getString("refreshToken");
+                            application.logInUser(accessToken, refreshToken, user);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        GlobalApplication.setUpMixPanel();
+
+                        goToMainActivity(true);
+                    } else {
+                        Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                        Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+            });
+        } else {
+            // TODO: put confirm information screen here with name and phone number, after first login, PUT user to update information
+        }
+    }
+
+    private BroadcastReceiver migrationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean success = intent.getBooleanExtra(MigrationService.USER_MIGRATION_SUCCESS, false);
+            Log.d(TAG, "migration result received: " + success);
+            unregisterReceiver(this);
+            if(success) {
+                startMainActivity(true);
+            } else {
+                hideLoading();
+                migrationFailedDialog();
+            }
+
+        }
+    };
+
+    private void loginParse(final String userId, final String sessionId) {
+
+        networkHelper.loginLegacy(userId, sessionId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                hideLoading();
+                if(requestError == null) { // start migration
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        User user = User.jsonToUserObject(response);
+                        String accessToken = jsonObject.getString("accessToken");
+                        String refreshToken = jsonObject.getString("refreshToken");
+
+                        application.setCurrentUser(user);
+
+                        GlobalApplication.setUpMixPanel();
+
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                            && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity(true);
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    GlobalApplication.setUpMixPanel();
+                    goToMainActivity(true);
+                } else if(requestError.getMessage().contains("is already used") && application.getAccessToken() != null
+                        && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
+                    migrationFailedDialog();
+                }
+            }
+        });
+    }
+
+    private void login(final String username, final String password) {
+        networkHelper.loginAsync(username, password, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                hideLoading();
+                if(requestError == null) {
+                    GlobalApplication.setUpMixPanel();
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+
+                        User user = User.jsonToUserObject(response);
+                        String accessToken = jsonObject.getString("accessToken");
+                        String refreshToken = jsonObject.getString("refreshToken");
+
+                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                                && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
+                            application.logInUser(accessToken, refreshToken, user);
+                            startMainActivity(true);
+                        } else {
+                            startMigration(accessToken, refreshToken, user.getId());
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    GlobalApplication.setUpMixPanel();
+                    goToMainActivity(true);
+                } else {
+                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                    Snackbar.make(findViewById(R.id.splash_layout), requestError.getMessage(), Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    signUpSwitcher(null);
+                                }
+                            })
+                            .show();
+                }
+            }
+        });
+    }
+
+
+    private void goToMainActivity(boolean refresh) {
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(LOGIN_REFRESH, refresh);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        startActivity(intent);
+    }
     public void login(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Login with Email", TAG);
@@ -343,53 +577,80 @@ public class SplashScreen extends AppCompatActivity {
             e2.printStackTrace();
         }
 
+        if(!NetworkHelper.isConnected(this)) {
+            Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                    .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            login(null);
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         showLoading("Logging in...");
         final String usernameInput = email.getText().toString().toLowerCase();
         final String passwordInput = password.getText().toString();
 
-        ParseUser.logInInBackground(usernameInput, passwordInput, new LogInCallback() {
+        login(usernameInput, passwordInput);
+    }
 
+    private void migrationFailedDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(SplashScreen.this);
+        dialog.setMessage("Update failed. Would you like to try again?");
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e == null) {
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-
-                    SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(pfCodeForID, usernameInput);
-                    editor.putString(pfCodeForPassword, passwordInput);
-                    editor.putString(pfCodeForObjectID, ParseUser.getCurrentUser().getObjectId());
-                    if(ParseUser.getCurrentUser().getParseObject("subscribedShopPointer")!=null) {
-                        editor.putString(MainActivity.pfCodeForShopObjectID,
-                                ParseUser.getCurrentUser().getParseObject("subscribedShopPointer").getObjectId());
-                    }
-                    editor.apply();
-
-                    //save user data
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                    installation.put("userId", ParseUser.getCurrentUser().getObjectId());
-                    installation.saveInBackground();
-                    ParseApplication.setUpMixPanel();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra(LOGIN_REFRESH, true);
-                    intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
-
-                    hideLoading();
-                    startActivity(intent);
-                } else {
-                    hideLoading();
-                    Toast.makeText(SplashScreen.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-
+            public void onClick(DialogInterface dialog, int which) {
+                ParseUser.logOut();
+                dialog.dismiss();
             }
         });
+        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                GlobalApplication.setUpMixPanel();
+                startMigration(application.getAccessToken(), application.getRefreshToken(), application.getCurrentUserId());
+            }
+        });
+        dialog.show();
+    }
+
+    private void startMigration(String accessToken, String refreshToken, int userId) {
+        showLoading("We are updating the app.  This may take a minute.  " +
+                "Feel free to leave the app during this time.");
+
+        registerReceiver(migrationReceiver, new IntentFilter(MigrationService.MIGRATION_BROADCAST));
+
+        application.setTokens(accessToken, refreshToken);
+
+        Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_REFRESH, refreshToken);
+        migrationIntent.putExtra(MigrationService.USER_MIGRATION_ACCESS, accessToken);
+        startService(migrationIntent);
+    }
+
+    private void startMainActivity(boolean update) {
+        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(LOGIN_REFRESH, update);
+        intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+        startActivity(intent);
     }
 
     public void goToLogin(View view) {
-        mPager.setCurrentItem(3);
+        mPager.setCurrentItem(2);
+        if(((Button)view).getText().equals("Sign Up")&&!signup){
+            signUpSwitcher(view);
+        }else if (((Button)view).getText().equals("Log In")&&signup){
+            signUpSwitcher(view);
+        }
     }
 
     private void showLoading(String text){
+        Log.i(TAG, "Show loading: " + text);
         if(isFinishing())
             return;
 
@@ -413,14 +674,66 @@ public class SplashScreen extends AppCompatActivity {
     protected void onPause() {
         application.getMixpanelAPI().flush();
         Log.i(MainActivity.TAG, "SplashScreen on pause");
-        progressDialog.cancel();
+        hideLoading();
+
+        try {
+            unregisterReceiver(migrationReceiver);
+        } catch (Exception e) {
+            // Receiver not registered
+        }
+
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         Log.i(MainActivity.TAG, "SplashScreen onDestroy");
-        progressDialog.cancel();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void forgotPassword(View view) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        final EditText emailField = new EditText(this);
+        emailField.setInputType(EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        emailField.setHint("Email");
+
+        dialog.setView(emailField);
+        dialog.setTitle("Reset Password");
+        dialog.setMessage("Please enter your email address");
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String email = emailField.getText().toString();
+                networkHelper.resetPassword(email, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            Toast.makeText(SplashScreen.this, String.format("An email has been sent to %s with further instructions. ", email) +
+                                    "It may take up to a few minutes to arrive.",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 }

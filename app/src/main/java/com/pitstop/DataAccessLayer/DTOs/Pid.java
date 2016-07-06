@@ -12,6 +12,7 @@ public class Pid {
     private String rtcTime;
     private String timeStamp;
     private String pids;
+    private double mileage;
 
     public Pid() {}
 
@@ -53,5 +54,18 @@ public class Pid {
 
     public void setDataNumber(String dataNumber) {
         this.dataNumber = dataNumber;
+    }
+
+    public void setMileage(double mileage) {
+        this.mileage = mileage;
+    }
+
+    public double getMileage() {
+        return mileage;
+    }
+
+    public String toString() {
+        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp
+                + ", mileage: " + mileage + ", pids: " + pids;
     }
 }

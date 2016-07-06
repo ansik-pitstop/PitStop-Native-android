@@ -27,4 +27,17 @@ public class DataPackageInfo {
 
 	public AlarmInfo alarmData;
 
+	@Override
+	public String toString() {
+		return "DataPackageInfo{" +
+				"result=" + result +
+				", deviceId='" + deviceId + '\'' +
+				", tripId='" + tripId + '\'' +
+				", dataNumber='" + dataNumber + '\'' +
+				", tripFlag='" + tripFlag + '\'' +
+				", rtcTime='" + rtcTime + '\'' +
+				", tripMileage='" + tripMileage + '\'' +
+				", obdData=" + obdData +
+				'}';
+	}
 }

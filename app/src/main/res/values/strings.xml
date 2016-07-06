@@ -17,11 +17,10 @@
     <string name="pref_phone_number_key">pref_phone_number_key</string>
     <string name="pref_privacy_policy">pref_privacy_policy</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
     <string name="appinfo">appinfo</string>
-    <string name="app_build_no">1.0.9</string>
+    <string name="app_build_no">1.0.10</string>
 
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. Make sure your device is plugged in and ready to go. Below are various location that the OBD plug can be at.</string>
     <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
@@ -50,6 +49,7 @@
     <string name="appversion">app_version</string>
     <string name="title_activity_select_dealership">Select Dealership</string>
     <string name="title_activity_car_scan">Car Scan</string>
+    <string name="notification_reply">Feel Free to Reply</string>
 
     <!-- Strings for welcome screen -->
     <string name="welcome">Welcome to Pitstop</string>

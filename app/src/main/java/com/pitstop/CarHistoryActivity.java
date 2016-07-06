@@ -5,40 +5,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
- * Created by David Liu on 1/30/2016.
+ * Created by DavidIsDum on 1/30/2016.
  */
 public class CarHistoryActivity extends AppCompatActivity {
     private CustomAdapter customAdapter;
     private RecyclerView mRecyclerView;
     private CardView messageCard;
 
-    private ArrayList<Container> array;
-
-    private ParseApplication application;
+    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
+
+    private Car dashboardCar;
 
     private static final String TAG = CarHistoryActivity.class.getSimpleName();
 
@@ -47,95 +43,32 @@ public class CarHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_history);
 
-        application = (ParseApplication) getApplicationContext();
-        mixpanelHelper = new MixpanelHelper((ParseApplication) getApplicationContext());
-
-        array = new ArrayList<>();
+        application = (GlobalApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         messageCard = (CardView) findViewById(R.id.message_card);
         // set up listview
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //get all service history
-        final ParseQuery query = new ParseQuery("ServiceHistory");
-        query.whereEqualTo("carId",getIntent().getStringExtra("carId"));
-        query.findInBackground(new FindCallback<ParseObject>() {
+        dashboardCar = (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
+
+        CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
+
+        Arrays.sort(doneIssues, new Comparator<CarIssue>() {
             @Override
-            public void done(final List<ParseObject> objects, ParseException e) {
-                if( e == null) {
-                    ArrayList<HashSet<String>> storage = new ArrayList<HashSet<String>>();
-                    storage.add(new HashSet<String>());
-                    storage.add(new HashSet<String>());
-                    storage.add(new HashSet<String>());
-                    storage.add(new HashSet<String>());
-                    storage.add(new HashSet<String>());
-
-                    Log.i(MainActivity.TAG, "Parse objects service history: "+objects.size());
-                    if(objects.isEmpty()) {
-                        messageCard.setVisibility(View.VISIBLE);
-                    }
-
-                    for (ParseObject object : objects){
-                        Log.i(MainActivity.TAG, "Parse objects service history: "+object.getObjectId());
-                        if(object.get("type")==null && object.get("serviceId") != null){
-                            if(object.get("serviceId").equals("124")) {
-                                storage.get(3).add(object.getString("serviceObjectId"));
-                            } else {
-                                storage.get(4).add(object.getString("serviceObjectId"));
-                            }
-                        }else if(object.getInt("type")==0){
-                            storage.get(0).add(object.getString("serviceObjectId"));
-                        }else if(object.getInt("type")==1){
-                            storage.get(1).add(object.getString("serviceObjectId"));
-                        }else if(object.getInt("type")==2) {
-                            storage.get(2).add(object.getString("serviceObjectId"));
-                        }
-                    }
-                    String[] a = new String[]{"EdmundsService", "ServiceFixed", "ServiceInterval","RecallEntry","DTC"};
-                    for (int i = 0; i<a.length; i++) {
-                        ParseQuery intervalQuery = ParseQuery.getQuery(a[i]);
-                        Log.i(MainActivity.TAG, a[i]+ " : " + storage.get(i).toString());
-                        intervalQuery.whereContainedIn("objectId", storage.get(i));
-                        intervalQuery.findInBackground(new FindCallback<ParseObject>() {
-
-                            @Override
-                            public void done(List<ParseObject> descObjects, ParseException e) {
-                                if( e == null) {
-                                    Log.i(MainActivity.TAG, "interval query result: "+descObjects.size());
-                                    for (ParseObject obj : descObjects) {
-                                        Container con = new Container();
-                                        if(obj.get("forRecallMasters")!=null) {
-                                            con.name = obj.getString("name");
-                                            con.description = obj.getString("description");
-                                        } else if(obj.get("dtcCode") != null) {
-                                            con.name = obj.getString("dtcCode");
-                                            con.description = obj.getString("description");
-                                        } else {
-                                            Log.i(MainActivity.TAG, "Object for recall masters is null");
-                                            con.name = obj.getString("item");
-                                            con.description = obj.getString("itemDescription");
-                                        }
-                                        array.add(con);
-                                    }
-                                    customAdapter.dataList.clear();
-                                    customAdapter.dataList.addAll(array);
-                                    customAdapter.notifyDataSetChanged();
-                                } else {
-                                    Log.i(MainActivity.TAG, "Parse error: "+e.getMessage());
-                                }
-                            }
-                        });
-                    }
-                } else {
-                    Log.i(MainActivity.TAG, e.getMessage());
-                }
+            public int compare(CarIssue lhs, CarIssue rhs) {
+                return getDateToCompare(rhs.getTimestamp()) - getDateToCompare(lhs.getTimestamp());
             }
-
-
         });
 
-        customAdapter = new CustomAdapter(array);
+        ArrayList<CarIssue> doneIssuesList = new ArrayList<>(Arrays.asList(doneIssues));
+
+        if(doneIssuesList.isEmpty()) {
+            messageCard.setVisibility(View.VISIBLE);
+        }
+
+        customAdapter = new CustomAdapter(doneIssuesList);
         mRecyclerView.setAdapter(customAdapter);
 
         try {
@@ -149,10 +82,6 @@ public class CarHistoryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         application.getMixpanelAPI().flush();
-    }
-
-    private class Container{
-        public String name, description, date;
     }
 
     @Override
@@ -171,10 +100,10 @@ public class CarHistoryActivity extends AppCompatActivity {
      */
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>{
 
-        ArrayList<Container> dataList;
+        ArrayList<CarIssue> doneIssues;
 
-        public CustomAdapter(ArrayList<Container> dataList){
-            this.dataList = new ArrayList<Container>(dataList);
+        public CustomAdapter(ArrayList<CarIssue> doneIssues){
+            this.doneIssues = new ArrayList<>(doneIssues);
         }
 
         @Override
@@ -187,27 +116,73 @@ public class CarHistoryActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.title.setText(dataList.get(position).name);
-            holder.desc.setText(dataList.get(position).description);
-            //holder.date.setText(String.format("Last done on %s", dataList.get(position).date));
+            holder.desc.setText(doneIssues.get(position).getIssueDetail().getDescription());
+            if(doneIssues.get(position).getTimestamp() == null || doneIssues.get(position).getTimestamp().equals("null")) {
+                holder.date.setText("Done");
+            } else {
+                holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+            }
+
+            if(doneIssues.get(position).getIssueType().equals(CarIssue.RECALL)) {
+                holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
+
+            } else if(doneIssues.get(position).getIssueType().equals(CarIssue.DTC)) {
+                holder.title.setText(String.format("Engine issue: Code %s", doneIssues.get(position).getIssueDetail().getItem()));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_red));
+
+            } else if(doneIssues.get(position).getIssueType().equals(CarIssue.PENDING_DTC)) {
+                holder.title.setText(String.format("Potential engine issue: Code %s", doneIssues.get(position).getIssueDetail().getItem()));
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_yellow));
+
+            } else {
+                holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
+            }
+
         }
 
         @Override
         public int getItemCount() {
-            return dataList.size();
+            return doneIssues.size();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView title;
             TextView desc;
             TextView date;
+            ImageView imageView;
             public ViewHolder(View itemView) {
                 super(itemView);
                 title = (TextView)itemView.findViewById(R.id.title);
                 desc = (TextView)itemView.findViewById(R.id.description);
-                //date = (TextView)itemView.findViewById(R.id.date);
+                date = (TextView)itemView.findViewById(R.id.date);
+                imageView = (ImageView) itemView.findViewById(R.id.image_icon);
             }
         }
+    }
+
+    private String formatDate(String rawDate) {
+        String[] splittedDate = rawDate.split("-");
+        String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
+
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return months[Integer.parseInt(splittedDate[1])] + ". " + splittedDate[2] + ", " + splittedDate[0];
+    }
+
+    private int getDateToCompare(String rawDate) {
+        if(rawDate == null || rawDate.isEmpty()) {
+            return 0;
+        }
+
+        String[] splittedDate = rawDate.split("-");
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return Integer.parseInt(splittedDate[2])
+                + Integer.parseInt(splittedDate[1]) * 30
+                + Integer.parseInt(splittedDate[0]) * 365;
     }
 
 }
