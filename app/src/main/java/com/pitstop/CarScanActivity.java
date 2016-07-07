@@ -95,7 +95,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private Car dashboardCar;
     private double baseMileage;
-    private boolean updatedMileage = false;
+    private boolean updatedMileageOrDtcsFound = false;
     private ProgressDialog progressDialog;
 
     private LocalCarAdapter localCarAdapter;
@@ -185,7 +185,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onBackPressed() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileage);
+        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
         finish();
     }
@@ -566,7 +566,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             final double newTotalMileage = ((int) ((baseMileage
                     + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
 
-            Log.i(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+            Log.d(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
 
             if(dashboardCar.getDisplayedMileage() - newTotalMileage != 0) {
                 dashboardCar.setDisplayedMileage(newTotalMileage);
@@ -613,6 +613,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            if(isFinishing() || isDestroyed()) {
+                return;
+            }
             switch (msg.what) {
                 case 0: {
                     if(dtcCodes.isEmpty()) {
@@ -620,6 +623,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         engineIssuesCountLayout.setVisibility(View.GONE);
                         engineIssuesStateLayout.setVisibility(View.VISIBLE);
                         engineIssuesText.setText("No Engine Issues");
+                    } else {
+                        updatedMileageOrDtcsFound = true;
                     }
                     updateCarHealthMeter();
                     carScanButton.setEnabled(true);
@@ -648,7 +653,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long timeDiff = currentTime - startTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 15 && askingForDtcs) {
+            if(seconds > 20 && askingForDtcs) {
                 askingForDtcs = false;
                 handler.sendEmptyMessage(0);
                 handler.removeCallbacks(runnable);

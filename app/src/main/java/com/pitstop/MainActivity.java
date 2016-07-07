@@ -53,6 +53,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.util.ObdDataUtil;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -60,6 +61,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
@@ -79,6 +81,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -1124,12 +1127,38 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
+    public void getIOData(final DataPackageInfo dataPackageInfo) {
         if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+
+            final HashSet<String> activeIssueNames = new HashSet<>();
+
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
+                activeIssueNames.add(issues.getIssueDetail().getItem());
+            }
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshFromServer();
+                    boolean newDtcFound = false;
+
+                    if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                        String[] DTCs = dataPackageInfo.dtcData.split(",");
+                        for(String dtc : DTCs) {
+                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+                            if(!activeIssueNames.contains(parsedDtc)) {
+                                newDtcFound = true;
+                            }
+                        }
+                    }
+
+                    if(newDtcFound) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshFromServer();
+                            }
+                        }, 1111);
+                    }
                 }
             });
         }
