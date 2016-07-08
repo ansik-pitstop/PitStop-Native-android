@@ -21,7 +21,7 @@ android {
         targetSdkVersion 23
         versionCode 39
         versionName "2.0.9"
-        //multiDexEnabled = true
+        multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
@@ -54,7 +54,7 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
-    //compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:cardview-v7:23.4.0'
@@ -68,8 +68,9 @@ dependencies {
     compile 'io.smooch:core:latest.release'
     compile 'io.smooch:ui:latest.release'
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    // used in barcode scanner
+    compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
+    compile 'com.google.zxing:core:3.2.1'
+    compile 'org.greenrobot:eventbus:3.0.0' // used in barcode scanner
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'

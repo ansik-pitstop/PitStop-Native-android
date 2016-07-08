@@ -52,6 +52,8 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.BarcodeScanner.BarcodeScanner;
 import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -334,6 +336,31 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 && resultCode == MainActivity.RESULT_OK) {
             resumeFromPendingAddCar(data);
 
+        } else if(requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if(result != null) {
+                if(result.getContents() != null) {
+                    VIN = result.getContents();
+                    try {
+                        application.getMixpanelAPI().track("Scanned VIN",
+                                new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    vinEditText.setText(VIN);
+                    vinSection.setVisibility(View.VISIBLE);
+                    Log.i(TAG, "Barcode read: " + VIN);
+                    if (isValidVin(VIN)) { // show add car button iff vin is valid
+                        abstractButton.setVisibility(View.VISIBLE);
+                        scannerButton.setVisibility(View.GONE);
+                        abstractButton.setEnabled(true);
+                    } else {
+                        abstractButton.setVisibility(View.GONE);
+                        scannerButton.setVisibility(View.VISIBLE);
+                        Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -606,45 +633,10 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Log.i(TAG,"Starting barcode scanner");
-        new BarcodeScannerBuilder()
-                .withActivity(AddCarActivity.this)
-                .withEnableAutoFocus(true)
-                .withCenterTracker()
-                .withBackfacingCamera()
-                .withText("Scanning for barcode...")
-                .withResultListener(new BarcodeScanner.OnResultListener() {
-                    @Override
-                    public void onResult(Barcode barcode) {
-                        VIN = barcode.displayValue;
 
-                        String possibleEditedVin = checkVinForInvalidCharacter(VIN);
-                        if(possibleEditedVin!=null) {
-                            VIN = possibleEditedVin;
-                        }
-
-                        try {
-                            application.getMixpanelAPI().track("Scanned VIN",
-                                    new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        vinEditText.setText(VIN);
-                        vinSection.setVisibility(View.VISIBLE);
-                        Log.i(TAG, "Barcode read: " + barcode.displayValue);
-
-                        if (isValidVin(VIN)) { // show add car button iff vin is valid
-                            abstractButton.setVisibility(View.VISIBLE);
-                            scannerButton.setVisibility(View.GONE);
-                            abstractButton.setEnabled(true);
-                        } else {
-                            abstractButton.setVisibility(View.GONE);
-                            scannerButton.setVisibility(View.VISIBLE);
-                            Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .build().startScan();
+        IntentIntegrator barcodeScanner = new IntentIntegrator(this);
+        barcodeScanner.setBeepEnabled(false);
+        barcodeScanner.initiateScan();
     }
 
     @Override
