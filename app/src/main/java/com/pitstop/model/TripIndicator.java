@@ -22,8 +22,8 @@ public abstract class TripIndicator {
         return rtcTime;
     }
 
-    public void setRtcTime(String rtcTime) {
-        this.rtcTime = rtcTime;
+    public int getTripId() {
+        return tripId;
     }
 
     public abstract void execute(Context context, RequestCallback callback);
