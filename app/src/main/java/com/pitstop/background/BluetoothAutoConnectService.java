@@ -759,7 +759,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     });
             Car car = localCarAdapter.getCarByScanner(data.deviceId);
             if(car != null) {
-                double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage);
+                double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage) / 1000;
                 car.setDisplayedMileage(newMileage);
                 car.setTotalMileage(newMileage);
                 localCarAdapter.updateCar(car);
