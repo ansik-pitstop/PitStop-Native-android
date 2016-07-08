@@ -310,6 +310,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            showingDialog = false;
                             final String mileage = input.getText().toString();
                             if (mileage.length() > 9) {
                                 Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
@@ -328,7 +329,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 }
                                             }
                                         });
-                                showingDialog = false;
                                 dialogInterface.dismiss();
                             }
                         }

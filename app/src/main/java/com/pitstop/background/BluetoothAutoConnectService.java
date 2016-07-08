@@ -1040,21 +1040,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         });
             }
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    isSendingPids = false;
-                    if(requestError == null) {
-                        try {
-                            lastTripId = new JSONObject(response).getInt("id");
-                            sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
-                            sendPidDataToServer(data);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
+            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
+            executeTripRequests();
+
+            //networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
+            //    @Override
+            //    public void done(String response, RequestError requestError) {
+            //        isSendingPids = false;
+            //        if(requestError == null) {
+            //            try {
+            //                lastTripId = new JSONObject(response).getInt("id");
+            //                sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+            //                sendPidDataToServer(data);
+            //            } catch (JSONException e) {
+            //                e.printStackTrace();
+            //            }
+            //        }
+            //    }
+            //});
         }
     }
 
@@ -1115,19 +1118,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         });
             }
         } else {
-            networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if(requestError == null) {
-                        try {
-                            lastTripId = new JSONObject(response).getInt("id");
-                            sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
+            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
+            executeTripRequests();
+
+            //networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
+            //    @Override
+            //    public void done(String response, RequestError requestError) {
+            //        if(requestError == null) {
+            //            try {
+            //                lastTripId = new JSONObject(response).getInt("id");
+            //                sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+            //            } catch (JSONException e) {
+            //                e.printStackTrace();
+            //            }
+            //        }
+            //    }
+            //});
         }
     }
 
