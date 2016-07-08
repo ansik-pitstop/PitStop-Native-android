@@ -742,60 +742,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      *      The data returned from obd device for result 4
      */
     private void processResultFourData(final DataPackageInfo data) {
-
-        //if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
-        //    Log.i(TAG, "Trip end flag received");
-        //    networkHelper.saveTripMileage(lastTripId, data.tripMileage, data.rtcTime,
-        //            new RequestCallback() {
-        //                @Override
-        //                public void done(String response, RequestError requestError) {
-        //                    if (requestError == null) {
-        //                        Log.i(TAG, "trip data sent: " + data.tripMileage);
-        //                        Toast.makeText(BluetoothAutoConnectService.this, "Trip data saved", Toast.LENGTH_LONG).show();
-        //                        lastTripId = -1;
-        //                        lastDeviceTripId = -1;
-        //                    }
-        //                }
-        //            });
-        //    Car car = localCarAdapter.getCarByScanner(data.deviceId);
-        //    if(car != null) {
-        //        double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage) / 1000;
-        //        car.setDisplayedMileage(newMileage);
-        //        car.setTotalMileage(newMileage);
-        //        localCarAdapter.updateCar(car);
-        //    }
-        //} else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
-        //    Log.i(TAG, "Trip start flag received");
-        //    networkHelper.sendTripStart(data.deviceId, data.rtcTime, lastDeviceTripId == -1 ? "" : String.valueOf(lastDeviceTripId), new RequestCallback() {
-        //        @Override
-        //        public void done(String response, RequestError requestError) {
-        //            if(requestError == null) {
-        //                try {
-        //                    lastTripId = new JSONObject(response).getInt("id");
-        //                    sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
-        //                } catch (JSONException e) {
-        //                    e.printStackTrace();
-        //                }
-        //            } else {
-        //                networkHelper.getLatestTrip(data.deviceId, new RequestCallback() {
-        //                    @Override
-        //                    public void done(String response, RequestError requestError) {
-        //                        if(requestError == null) {
-        //                            try {
-        //                                lastTripId = new JSONObject(response).getInt("id");
-        //                                sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
-        //                            } catch(JSONException e) {
-        //                                e.printStackTrace();
-        //                            }
-        //                        }
-        //                    }
-        //                });
-        //            }
-        //        }
-        //    });
-        //}
-
-        // TODO: Queueueue
         if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
             Log.i(TAG, "Trip end flag received");
             if(lastTripId == -1) {
@@ -820,7 +766,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             Car car = localCarAdapter.getCarByScanner(data.deviceId);
             if(car != null) {
-                double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage);
+                double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage) / 1000;
                 car.setDisplayedMileage(newMileage);
                 car.setTotalMileage(newMileage);
                 localCarAdapter.updateCar(car);
@@ -1040,6 +986,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         });
             }
         } else {
+            isSendingPids = false;
             tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
             executeTripRequests();
 

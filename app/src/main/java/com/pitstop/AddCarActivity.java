@@ -51,11 +51,8 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.pitstop.BarcodeScanner.BarcodeScanner;
-import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
@@ -110,6 +107,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private boolean isSearchingForCar = false, isGettingVinAndCarIsConnected = false;
 
     private static final int RC_LOCATION_PERM = 101;
+    private static final int CAM_PERM_REQ = 103;
     private static final int RC_PENDING_ADD_CAR = 102;
 
     private CallMashapeAsync vinDecoderApi;
@@ -341,6 +339,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if(result != null) {
                 if(result.getContents() != null) {
                     VIN = result.getContents();
+                    if(VIN.length() == 18) {
+                        VIN = VIN.substring(1, 18);
+                    }
                     try {
                         application.getMixpanelAPI().track("Scanned VIN",
                                 new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
@@ -886,7 +887,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                             int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if(requestCode == BarcodeScanner.CAM_PERM_REQ) {
+        if(requestCode == CAM_PERM_REQ) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startScanner(null);
             } else {
@@ -896,8 +897,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             @Override
                             public void onClick(View view) {
                                 ActivityCompat.requestPermissions(AddCarActivity.this,
-                                        new String[]{android.Manifest.permission.CAMERA},
-                                        BarcodeScanner.CAM_PERM_REQ);
+                                        new String[]{android.Manifest.permission.CAMERA}, CAM_PERM_REQ);
                             }
                         })
                         .show();
