@@ -7,8 +7,8 @@ import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -19,8 +19,6 @@ import com.pitstop.BuildConfig;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
-
-import java.io.File;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -225,6 +223,8 @@ public class GlobalApplication extends Application {
         editor.apply();
 
         ParseUser.logOut();
+
+        AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
     }

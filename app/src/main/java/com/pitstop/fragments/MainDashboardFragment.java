@@ -973,6 +973,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         boolean shouldRefreshFromServer = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER,false);
 
         if(requestCode == MainActivity.RC_ADD_CAR && resultCode== AddCarActivity.ADD_CAR_SUCCESS) {
+
+            getActivity().findViewById(R.id.no_car_text).setVisibility(View.GONE);
+
             if(!shouldRefreshFromServer)  {
                 dashboardCar = data.getParcelableExtra(MainActivity.CAR_EXTRA);
                 sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();

@@ -206,11 +206,11 @@ public class SplashScreen extends AppCompatActivity {
         if(currentUser != null) {
             showLoading("Logging in");
             loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
-        } else if(AccessToken.getCurrentAccessToken() != null) {
-            loginSocial(AccessToken.getCurrentAccessToken().getToken(), "facebook");
-        }else if (!application.isLoggedIn()
+        } else if (!application.isLoggedIn()
                 || application.getAccessToken() == null || application.getRefreshToken() == null) {
             Log.i(TAG, "Not logged in");
+        } else if(AccessToken.getCurrentAccessToken() != null) {
+            startMainActivity(false);
         } else {
             showLoading("Logging in...");
 
