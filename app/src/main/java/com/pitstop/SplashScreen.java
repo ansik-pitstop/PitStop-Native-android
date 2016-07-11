@@ -444,15 +444,15 @@ public class SplashScreen extends AppCompatActivity {
 
     private void migrationFailedDialog() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(SplashScreen.this);
-        dialog.setMessage("Update failed. Would you like to try again?");
-        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+        dialog.setMessage("Update failed. Please contact us at info@getpitstop.io.");
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ParseUser.logOut();
                 dialog.dismiss();
             }
         });
-        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton("Try again", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
