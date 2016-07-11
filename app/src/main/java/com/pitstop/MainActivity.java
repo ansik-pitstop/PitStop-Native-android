@@ -40,8 +40,16 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.util.ObdDataUtil;
+import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
@@ -61,6 +69,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -161,9 +172,31 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        application = ((GlobalApplication) getApplication());
+
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
+
+        application = (GlobalApplication) getApplicationContext();
         setContentView(R.layout.activity_main_drawer_frame);
-        serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
+
+        ParseACL acl = new ParseACL();
+        acl.setPublicReadAccess(true);
+        acl.setPublicWriteAccess(true);
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.setACL(acl);
+        installation.put("userId", String.valueOf(application.getCurrentUserId()));
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
+
+        serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -576,12 +609,38 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
+    public void getIOData(final DataPackageInfo dataPackageInfo) {
         if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+
+            final HashSet<String> activeIssueNames = new HashSet<>();
+
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
+                activeIssueNames.add(issues.getIssueDetail().getItem());
+            }
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshFromServer();
+                    boolean newDtcFound = false;
+
+                    if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                        String[] DTCs = dataPackageInfo.dtcData.split(",");
+                        for(String dtc : DTCs) {
+                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+                            if(!activeIssueNames.contains(parsedDtc)) {
+                                newDtcFound = true;
+                            }
+                        }
+                    }
+
+                    if(newDtcFound) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshFromServer();
+                            }
+                        }, 1111);
+                    }
                 }
             });
         }
@@ -611,7 +670,18 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if(!progressDialog.isShowing()) {
             progressDialog.show();
         }
+    }
 
+    private void refreshFromServer() {
+        if(!NetworkHelper.isConnected(this)) {
+            refreshFromLocal();
+        } else {
+            carIssueList.clear();
+            carLocalStore.deleteAllCars();
+            carIssueLocalStore.deleteAllCarIssues();
+            getCarDetails();
+        }
+    }
     }
 
     /** Swaps fragments in the main content view */
@@ -639,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                             int[] grantResults) {
         if(requestCode == RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();
+                //autoConnectService.startBluetoothSearch();
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {

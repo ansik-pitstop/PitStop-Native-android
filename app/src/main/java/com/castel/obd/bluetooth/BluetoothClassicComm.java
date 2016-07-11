@@ -54,8 +54,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
-        int initSuccess = mObdManager.initializeObd();
 
+        int initSuccess = mObdManager.initializeObd();
         Log.d(TAG, "init result: " + initSuccess);
 
         mHandler.postDelayed(runnable, 500);

@@ -34,7 +34,6 @@
             android:onClick="getDTC"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
-            android:layout_margin="6dp"
             android:textColor="#fff" />
 
 
@@ -46,7 +45,6 @@
             android:onClick="getFreeze"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
-            android:layout_margin="6dp"
             android:textColor="#fff" />
 
         <Button
@@ -57,9 +55,54 @@
             android:onClick="getPIDS"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
-            android:layout_margin="6dp"
             android:textColor="#fff" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RESET"
+            android:onClick="resetDevice"
+            android:background="@drawable/color_button_add_car"
+            android:elevation="4dp"
+            android:textColor="#fff" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="get RTC"
+            android:textColor="#fff"
+            android:onClick="getRtc"
+            android:background="@drawable/color_button_add_car"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set RTC"
+            android:textColor="#fff"
+            android:onClick="setRtc"
+            android:background="@drawable/color_button_add_car"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="reset RTC"
+            android:textColor="#fff"
+            android:onClick="resetRtc"
+            android:background="@drawable/color_button_add_car"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="get VIN"
+            android:textColor="#fff"
+            android:onClick="getVin"
+            android:background="@drawable/color_button_add_car"/>
 
     </LinearLayout>
 
