@@ -521,6 +521,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }else{
             Snackbar.make(findViewById(R.id.drawer_layout),"You are not connected to internet",Snackbar.LENGTH_SHORT).show();
             refreshFromLocal();
+            resetMenus(false);
         }
     }
 
@@ -582,6 +583,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             carLocalStore.storeCars(carList);
                             callback.setCarDetailsUI();
                         }
+                        resetMenus(false);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this,
