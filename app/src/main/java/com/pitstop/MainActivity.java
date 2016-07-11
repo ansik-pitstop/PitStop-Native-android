@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -11,6 +12,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -60,6 +62,7 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdaper;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.background.MigrationService;
 import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.fragments.MainToolFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -501,7 +504,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
-
     public void refreshFromServer() {
         if(NetworkHelper.isConnected(this)) {
             Log.d("random", "refresh called");
@@ -518,6 +520,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         }else{
             Snackbar.make(findViewById(R.id.drawer_layout),"You are not connected to internet",Snackbar.LENGTH_SHORT).show();
+            refreshFromLocal();
         }
     }
 
@@ -670,18 +673,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if(!progressDialog.isShowing()) {
             progressDialog.show();
         }
-    }
-
-    private void refreshFromServer() {
-        if(!NetworkHelper.isConnected(this)) {
-            refreshFromLocal();
-        } else {
-            carIssueList.clear();
-            carLocalStore.deleteAllCars();
-            carIssueLocalStore.deleteAllCarIssues();
-            getCarDetails();
-        }
-    }
     }
 
     /** Swaps fragments in the main content view */

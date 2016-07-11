@@ -2,7 +2,6 @@ package com.castel.obd.bluetooth;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.castel.obd.OBD;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
