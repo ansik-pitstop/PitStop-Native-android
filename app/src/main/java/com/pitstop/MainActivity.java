@@ -10,7 +10,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,6 +28,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,6 +75,8 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -424,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        startAddCarActivity(true);
+        startAddCarActivity(null);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
     public void settingsClicked(View view){
@@ -462,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -578,7 +584,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             if (isLoading) {
                                 hideLoading();
                             }
+                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.main_view).setVisibility(View.GONE);
+                                findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                            }
                         } else {
+                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                findViewById(R.id.main_view).setVisibility(View.VISIBLE);
+                            }
                             callback.setDashboardCar(carList);
                             carLocalStore.deleteAllCars();
                             carLocalStore.storeCars(carList);
@@ -694,9 +708,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
 
-    public void startAddCarActivity(boolean hasCar) {
+    public void startAddCarActivity(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, hasCar);
         startActivity(intent);
     }
 
