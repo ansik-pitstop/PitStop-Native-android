@@ -16,7 +16,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="VEHICLE UTILITIES"
+                android:text="VEHICLE SUPPORT"
                 android:id="@+id/textView48"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -35,7 +35,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginLeft="16dp"
@@ -60,7 +60,8 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Vehicle Overview"
                         android:id="@+id/textView49"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -83,7 +84,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:onClick="scanClicked">
 
                 <ImageView
@@ -105,7 +106,8 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Scan Your Vehicle"
                         android:id="@+id/textView51"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -118,7 +120,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="SERVICE UTILITIES"
+                android:text="SERVICES"
                 android:id="@+id/textView53"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -137,7 +139,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="8dp"
@@ -147,7 +149,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:id="@+id/imageView21"
-                    android:src="@drawable/car_engine_red"
+                    android:src="@drawable/car_engine_blue"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="16dp" />
 
@@ -162,7 +164,8 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Request Service"
                         android:id="@+id/textView54"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -186,7 +189,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp" >
+                android:elevation="1dp" >
 
                 <ImageView
                     android:layout_width="24dp"
@@ -207,7 +210,8 @@
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Service History"
                         android:id="@+id/textView56"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -220,7 +224,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="DEALERSHIP UTILITIES"
+                android:text="DEALERSHIP "
                 android:id="@+id/textView58"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -239,7 +243,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="8dp" >
@@ -265,7 +269,8 @@
                         android:text="Message Service Center"
                         android:id="@+id/textView59"
                         android:textSize="18sp"
-                        android:layout_gravity="center_vertical" />
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -284,7 +289,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp" >
+                android:elevation="1dp" >
 
                 <ImageView
                     android:layout_width="24dp"
@@ -307,7 +312,8 @@
                         android:id="@+id/textView63"
                         android:textSize="18sp"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginTop="0dp" />
+                        android:layout_marginTop="0dp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -326,7 +332,7 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="2dp" >
+                android:elevation="1dp" >
 
                 <ImageView
                     android:layout_width="24dp"
@@ -349,7 +355,8 @@
                         android:id="@+id/textView61"
                         android:textSize="18sp"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginTop="0dp" />
+                        android:layout_marginTop="0dp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
                 </LinearLayout>
             </LinearLayout>

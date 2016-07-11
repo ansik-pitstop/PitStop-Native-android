@@ -65,6 +65,7 @@ import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.MigrationService;
 import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.fragments.MainToolFragment;
+import com.pitstop.utils.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -117,8 +118,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
-
-    private String[] mDrawerTitles;
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -126,13 +125,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private CharSequence mTitle="Pitstop";
     private MixpanelHelper mixpanelHelper;
     private  Toolbar toolbar;
-    private ViewPager viewPager;
+    private MainAppViewPager viewPager;
     private TabLayout tabLayout;
     private Car dashboardCar;
     private GlobalApplication application;
 
     private NetworkHelper networkHelper;
     public static MainDashboardCallback callback;
+    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
 
 
 
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (MainAppViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -276,39 +276,40 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void resetMenus(boolean check){
-
-        carList = carLocalStore.getAllCars();
         if(carList.size()==0&&check){
             refreshFromServer();
         }
-        mDrawerTitles = new String[carList.size()];
-        for (int i = 0; i<carList.size();i++){
-            Car car = carList.get(i);
-            mDrawerTitles[i]=car.getMake()+" " + car.getModel();
+        int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
+        if (carList.size() > 0) {
+            for(Car car : carList) {
+                if(car.isCurrentCar()||car.getId()==id) {
+                    dashboardCar = car;
+                    car.setCurrentCar(true);
+                }
+            }
+            if(dashboardCar==null){
+                carList.get(0).setCurrentCar(true);
+                dashboardCar = carList.get(0);
+            }
+            callback.setDashboardCar(MainActivity.carList);
+            callback.setCarDetailsUI();
         }
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
 
         if(mDrawerList!=null) {
+            if(mainAppSideMenuAdapter==null){
+                mainAppSideMenuAdapter = new MainAppSideMenuAdapter(this,
+                        (Car[]) carList.toArray(new Car[carList.size()]));
+                mDrawerList.setAdapter(mainAppSideMenuAdapter);
+            }else{
+                mainAppSideMenuAdapter.setData((Car[]) carList.toArray(new Car[carList.size()]));
+                mainAppSideMenuAdapter.notifyDataSetChanged();
+
+            }
             // Set the adapter for the list view
-            mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
-                    mDrawerTitles));
 //         Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-            if (carList.size() > 0) {
-                for(Car car : carList) {
-                    if(car.isCurrentCar()) {
-                        dashboardCar = car;
-                    }
-                }
-                if(dashboardCar==null){
-                    carList.get(0).setCurrentCar(true);
-                    dashboardCar = carList.get(0);
-                }
-                callback.setDashboardCar(MainActivity.carList);
-                callback.setCarDetailsUI();
-            }
         }
     }
 
@@ -679,8 +680,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     /** Swaps fragments in the main content view */
     private void selectItem(int position){
-
         dashboardCar = carList.get(position);
+        for (Car car : carList){
+            car.setCurrentCar(false);
+        }
+        dashboardCar.setCurrentCar(true);
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, carList.get(position).getId()).apply();

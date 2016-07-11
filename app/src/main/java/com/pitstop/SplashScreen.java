@@ -333,12 +333,14 @@ public class SplashScreen extends AppCompatActivity {
                         .show();
                 return;
             }
-            if(firstName.getVisibility()!= View.VISIBLE){
+            if((!email.getText().toString().equals(""))
+                    &&(!password.getText().toString().equals(""))
+                    &&firstName.getVisibility()!= View.VISIBLE){
                 mPager.setOnTouchListener(new View.OnTouchListener(){
 
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
-                        return true;
+                        return false;
                     }
                 });
                 firstName.setVisibility(View.VISIBLE);
@@ -350,6 +352,9 @@ public class SplashScreen extends AppCompatActivity {
 //                findViewById(R.id.login_or).setVisibility(View.GONE);
                 findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
                 ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+                return;
+            }else if(firstName.getVisibility()!= View.VISIBLE){
+                Snackbar.make(splashLayout, "Email or Password Field are not filled",Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
