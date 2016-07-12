@@ -16,6 +16,8 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.MainActivity;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,6 +157,8 @@ public class ObdManager {
         String info = OBD.getIOData(receivedPayload);
         isParse = false;
 
+        //writeToFile(receivedPayload);
+
         info = info.replace("obdData\":]","obdData\":[]");
         String[] infos = info.split("&");
 
@@ -167,6 +171,21 @@ public class ObdManager {
         }
     }
 
+    /**
+     *  write hexdata to file
+     */
+    private boolean writeToFile(String data) {
+        try {
+            Log.v("ObdManager", "Writing to file");
+            OutputStreamWriter out = new OutputStreamWriter(mContext.openFileOutput("rawHex", Context.MODE_APPEND | Context.MODE_WORLD_READABLE));
+            out.write("[" + System.currentTimeMillis() + "]: " + data + "\n");
+            out.close();
+            return true;
+        } catch(IOException e) {
+            Log.e("ObdManager", "Error writing data to file");
+            return false;
+        }
+    }
 
     /**
      * @param info

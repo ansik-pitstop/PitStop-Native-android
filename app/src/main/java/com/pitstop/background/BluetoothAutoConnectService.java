@@ -109,8 +109,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
     private int lastDeviceTripId = -1; // from device
+    private String pfDeviceTripId = "lastTripId";
     private int lastTripId = -1; // from backend
     private String pfTripId = "lastTripId";
+    private int lastTripMileage = 0;
+    private String pfTripMileage = "lastTripMileage";
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
@@ -149,6 +152,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
+        lastDeviceTripId = sharedPreferences.getInt(pfDeviceTripId, -1);
+        lastTripMileage = sharedPreferences.getInt(pfTripMileage, 0);
 
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -358,19 +363,34 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         currentDeviceId = dataPackageInfo.deviceId;
         if(dataPackageInfo.tripMileage != null) {
             lastData = dataPackageInfo;
+
+            int tripMileage = Integer.parseInt(dataPackageInfo.tripMileage);
+
+            if(lastTripMileage > tripMileage) {
+                sendPidDataToServer(lastData);
+
+                tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
+                executeTripRequests();
+
+                lastTripMileage = 0;
+            } else {
+                lastTripMileage = tripMileage;
+            }
+            sharedPreferences.edit().putInt(pfTripMileage, lastTripMileage);
         }
 
         if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()) {
             int newTripId = Integer.parseInt(dataPackageInfo.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
+                sharedPreferences.edit().putInt(pfDeviceTripId, newTripId).apply();
 
-                if(lastData != null) {
-                    sendPidDataToServer(lastData);
-                }
-
-                tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
-                executeTripRequests();
+            //    if(lastData != null) {
+            //        sendPidDataToServer(lastData);
+            //    }
+//
+            //    tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
+            //    executeTripRequests();
             }
             for(Pid pid : pidsWithNoTripId) {
                 pid.setTripId(lastDeviceTripId);
