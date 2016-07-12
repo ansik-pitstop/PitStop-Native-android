@@ -285,8 +285,8 @@ public class SplashScreen extends AppCompatActivity {
             try {
                 json.put("firstName", firstName.getText().toString());
                 json.put("lastName", lastName.getText().toString());
-                json.put("email", email.getText().toString());
-                json.put("username", email.getText().toString());
+                json.put("email", email.getText().toString().replace(" ", ""));
+                json.put("username", email.getText().toString().replace(" ", ""));
                 json.put("phone", phoneNumber.getText().toString());
                 json.put("password", password.getText().toString());
                 json.put("facebookId", "");
