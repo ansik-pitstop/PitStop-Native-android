@@ -585,11 +585,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 hideLoading();
                             }
                             if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.pagerTopMargin).setVisibility(View.GONE);
+                                findViewById(R.id.tabs).setVisibility(View.GONE);
                                 findViewById(R.id.main_view).setVisibility(View.GONE);
                                 findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
                             }
                         } else {
                             if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.pagerTopMargin).setVisibility(View.VISIBLE);
+                                findViewById(R.id.tabs).setVisibility(View.VISIBLE);
                                 findViewById(R.id.no_car_text).setVisibility(View.GONE);
                                 findViewById(R.id.main_view).setVisibility(View.VISIBLE);
                             }
