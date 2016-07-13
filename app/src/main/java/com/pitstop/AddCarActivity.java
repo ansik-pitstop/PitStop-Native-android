@@ -1048,13 +1048,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                if(scannerID != null) {
-                                    networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-
-                                        }
-                                    });
+                                if(scannerID != null && !scannerID.isEmpty()) {
+                                    networkHelper.createNewScanner(newCar.getId(), scannerID, null);
                                 }
 
                                 returnToMainActivity(newCar);

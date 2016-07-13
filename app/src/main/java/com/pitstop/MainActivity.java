@@ -714,7 +714,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void startAddCarActivity(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, RC_ADD_CAR);
     }
 
 
