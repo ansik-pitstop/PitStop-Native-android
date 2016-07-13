@@ -163,7 +163,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
         setupUiReferences();
         baseMileage = dashboardCar.getTotalMileage();
-        carMileage.setText(String.valueOf(localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage()));
+        carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
     }
 
     @Override
@@ -322,6 +322,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 if (requestError == null) {
                                                     Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
                                                     dashboardCar.setDisplayedMileage(Integer.parseInt(mileage));
+                                                    dashboardCar.setTotalMileage(Integer.parseInt(mileage));
                                                     localCarAdapter.updateCar(dashboardCar);
                                                     baseMileage = Integer.parseInt(mileage);
                                                     carMileage.setText(mileage);
