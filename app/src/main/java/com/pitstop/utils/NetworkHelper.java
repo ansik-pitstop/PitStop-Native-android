@@ -461,4 +461,19 @@ public class NetworkHelper {
 
         get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
     }
+
+    public void updateMileageStart(int mileageStart, int tripId, RequestCallback callback) {
+        LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
+
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("mileageStart", mileageStart);
+            body.put("tripId", tripId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        putNoAuth("scan/trip", callback, body);
+    }
 }

@@ -330,6 +330,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 }
                                             }
                                         });
+
+                                if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+                                    networkHelper.updateMileageStart(Integer.parseInt(mileage), autoConnectService.getLastTripId(), null);
+                                }
                                 dialogInterface.dismiss();
                             }
                         }

@@ -105,7 +105,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String lastDataNum = "";
 
     private SharedPreferences sharedPreferences;
-
     private LocalCarAdapter localCarAdapter;
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
@@ -363,7 +362,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         deviceConnState = true;
         currentDeviceId = dataPackageInfo.deviceId;
-        if(dataPackageInfo.tripMileage != null) {
+        if(dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
             lastData = dataPackageInfo;
 
             int tripMileage = Integer.parseInt(dataPackageInfo.tripMileage);
@@ -824,7 +823,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (!isSendingTripRequest && !tripRequestQueue.isEmpty() && NetworkHelper.isConnected(this)) {
             Log.i(TAG, "Executing trip request");
             isSendingTripRequest = true;
-            final TripIndicator nextAction = tripRequestQueue.pop();
+            final TripIndicator nextAction = tripRequestQueue.peekFirst();
             RequestCallback callback = null;
             if (nextAction instanceof TripStart) {
                 callback = new RequestCallback() {
@@ -837,6 +836,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            tripRequestQueue.pop();
                             isSendingTripRequest = false;
                             executeTripRequests();
                         } else {
@@ -850,6 +850,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                        tripRequestQueue.pop();
                                     }
                                     isSendingTripRequest = false;
                                     executeTripRequests();
@@ -866,6 +867,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             Log.i(TAG, "trip data sent: " + ((TripEnd) nextAction).getMileage());
                             Toast.makeText(BluetoothAutoConnectService.this, "Trip data saved", Toast.LENGTH_LONG).show();
                         }
+                        tripRequestQueue.pop();
                         isSendingTripRequest = false;
                         executeTripRequests();
                     }
@@ -1265,4 +1267,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     };
 
     private Handler handler = new Handler(); // for periodic bluetooth scans
+
+    public int getLastTripId() {
+        return lastTripId;
+    }
 }
