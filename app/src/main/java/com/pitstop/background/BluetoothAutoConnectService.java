@@ -60,9 +60,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Paul Soladoye on 11/04/2016.
@@ -109,11 +111,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
     private int lastDeviceTripId = -1; // from device
-    private String pfDeviceTripId = "lastTripId";
+    private final String pfDeviceTripId = "lastDeviceTripId";
     private int lastTripId = -1; // from backend
-    private String pfTripId = "lastTripId";
+    private final String pfTripId = "lastTripId";
     private int lastTripMileage = 0;
-    private String pfTripMileage = "lastTripMileage";
+    private final String pfTripMileage = "lastTripMileage";
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
@@ -572,6 +574,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG,"Device result: "+loginPackageInfo.result);
             Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
+
+            syncObdDevice();
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
@@ -923,7 +927,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "PID json: " + json);
+            //Log.d(TAG, "PID json: " + json);
         }
 
         Log.d(TAG, "Pid array --> DB");
@@ -938,7 +942,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(data.result == 4) {
             Log.d(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
-            localPidResult4.createPIDData(pidDataObject);
+
+            //ArrayList<Pid> parsedPids = parsePidSet(pidDataObject);
+//
+            //if(parsedPids != null) {
+            //    for (Pid pid : parsedPids) {
+            //        localPidResult4.createPIDData(pid);
+            //    }
+            //}
         } else if(data.result == 5) {
             Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             if(pidDataObject.getTripId() == -1) {
@@ -952,9 +963,61 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             sendPidDataToServer(data);
         }
 
-        if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
+        if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE < 5) {
             sendPidDataResult4ToServer(data);
         }
+    }
+
+    /**
+     * Parse result 4 pid into inividual pids
+     * @param result4Pid
+     * @return array of parsed pids
+     */
+    private ArrayList<Pid> parsePidSet(Pid result4Pid) {
+        final int DATA_POINT_INTERVAL = 2;
+        ArrayList<Pid> parsedPids = new ArrayList<>();
+        try {
+            JSONArray rawDataPoints = new JSONArray(result4Pid.getPids());
+
+            HashMap<String, String[] > dataPointMap = new HashMap<>();
+
+            int numberOfDataPoints = 0;
+
+            for(int idCount = 0 ; idCount < rawDataPoints.length() ; idCount++) {
+                JSONObject currentObject = rawDataPoints.getJSONObject(idCount);
+                dataPointMap.put(currentObject.getString("id"), currentObject.getString("data").split(","));
+                numberOfDataPoints = dataPointMap.get(currentObject.getString("id")).length;
+            }
+
+            ArrayList<JSONArray> obdDatas = new ArrayList<>();
+
+            for(int i = 0 ; i < numberOfDataPoints ; i++) {
+                JSONArray jsonArray = new JSONArray();
+                for (Map.Entry<String, String[]> entry : dataPointMap.entrySet()) {
+                    jsonArray.put(new JSONObject().put("id", entry.getKey()).put("data", entry.getValue()[i]));
+                }
+                obdDatas.add(jsonArray);
+            }
+
+            for(int i = 0 ; i < obdDatas.size() ; i++) {
+                Pid pid = new Pid();
+                pid.setMileage(result4Pid.getMileage());
+                pid.setCalculatedMileage(result4Pid.getCalculatedMileage());
+                pid.setDataNumber(result4Pid.getDataNumber());
+                pid.setId(result4Pid.getId());
+                pid.setTripId(result4Pid.getTripId());
+                pid.setTimeStamp(result4Pid.getTimeStamp());
+                pid.setPids(obdDatas.get(i).toString());
+                pid.setRtcTime(String.valueOf(Integer.parseInt(result4Pid.getRtcTime()) - DATA_POINT_INTERVAL * (obdDatas.size() - i + 1)));
+
+                parsedPids.add(pid);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return parsedPids;
     }
 
     private boolean isSendingPids = false;
@@ -1007,7 +1070,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                isSendingPids = false;
                                 if (requestError == null) {
                                     Log.i(TAG, "PIDS saved");
                                     localPid.deleteAllPidDataEntries();
@@ -1021,6 +1083,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         });
             }
+            isSendingPids = false;
         } else {
             isSendingPids = false;
             tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
