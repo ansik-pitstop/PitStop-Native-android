@@ -274,6 +274,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
     public void onBackPressed() {
         if(dialog.isShowing()) {
             hideLoading();

@@ -249,7 +249,8 @@
                 android:elevation="1dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginBottom="8dp" >
+                android:layout_marginBottom="8dp"
+                android:onClick="startChat">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -292,7 +293,8 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="1dp" >
+                android:elevation="1dp"
+                android:onClick="navigateToDealer">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -335,7 +337,8 @@
                 android:paddingBottom="8dp"
                 android:touchscreenBlocksFocus="false"
                 android:background="@color/cardview_light_background"
-                android:elevation="1dp" >
+                android:elevation="1dp"
+                android:onClick="callDealer">
 
                 <ImageView
                     android:layout_width="24dp"

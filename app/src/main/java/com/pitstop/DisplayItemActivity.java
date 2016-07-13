@@ -150,6 +150,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override

@@ -10,9 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,11 +27,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -46,15 +45,12 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
-import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
@@ -75,13 +71,14 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 /**
  * Created by David on 6/8/2016.
@@ -324,6 +321,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onResume");
 
+        resetMenus(false);
+
         try {
             mixpanelHelper.trackViewAppeared(TAG);
         } catch (JSONException e) {
@@ -348,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
 
             if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
-
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 }
@@ -407,6 +405,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Intent intent = new Intent(this, CarScanActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
     public void refreshClicked(View view){
         try {
@@ -457,6 +456,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     if (requestError == null) {
                         application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
                         startActivityForResult(intent, RC_SETTINGS);
+                        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     } else {
                         Log.e(TAG, "Get user error: " + requestError.getMessage());
                     }
@@ -464,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
+            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
         }
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
@@ -501,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             //intent.putExtra("carId",dashboardCar.getId());
             intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
             startActivity(intent);
+            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -709,12 +711,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         callback.setDashboardCar(carList);
         callback.setCarDetailsUI();
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+        findViewById(R.id.viewpager).startAnimation(AnimationUtils.loadAnimation(this, R.anim.activity_slide_left_in));
     }
 
 
     public void startAddCarActivity(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivityForResult(intent, RC_ADD_CAR);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
 
@@ -787,7 +791,57 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         alertDialog.show();
     }
 
+    public void startChat(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Chat with " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        final HashMap<String, Object> customProperties = new HashMap<>();
+        customProperties.put("VIN", dashboardCar.getVin());
+        customProperties.put("Car Make",  dashboardCar.getMake());
+        customProperties.put("Car Model", dashboardCar.getModel());
+        customProperties.put("Car Year", dashboardCar.getYear());
+        Log.i(TAG, dashboardCar.getDealership().getEmail());
+        customProperties.put("Email",dashboardCar.getDealership().getEmail());
+        User.getCurrentUser().addProperties(customProperties);
+        if(application.getCurrentUser() != null) {
+            customProperties.put("Phone", application.getCurrentUser().getPhone());
+            User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
+            User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
+        }
+        ConversationActivity.show(this);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    public void navigateToDealer(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String uri = String.format(Locale.ENGLISH,
+                "http://maps.google.com/maps?daddr=%s",
+                dashboardCar.getDealership().getAddress());
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    public void callDealer(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                dashboardCar.getDealership().getPhone()));
+        startActivity(intent);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
 
     /**
      * Request service for all issues currently displayed or custom request
@@ -812,7 +866,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 });
     }
     public interface MainDashboardCallback{
-        public void activityResultCallback(int requestCode, int resultCode, Intent data);
+        void activityResultCallback(int requestCode, int resultCode, Intent data);
         void onServerRefreshed();
         void onLocalRefreshed();
 

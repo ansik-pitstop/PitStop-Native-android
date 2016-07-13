@@ -64,13 +64,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import io.smooch.core.User;
-import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -99,7 +96,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private LinearLayout dealershipLayout;
     private TextView dealershipAddress;
     private TextView dealershipPhone;
-    private RelativeLayout addressLayout, phoneNumberLayout, chatLayout;
+    private RelativeLayout addressLayout, phoneNumberLayout;
     private Toolbar toolbar;
     private TextView serviceCountText;
 
@@ -163,7 +160,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     }
 
-
+    private boolean askForCar = true; // do not ask for car if user presses cancel
 
     /**
      * Monitor app connection to device, so that ui can be updated
@@ -192,6 +189,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     updateConnectedCarIndicator(true);
 
                 } else if(autoConnectService != null
+                        && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
+                        && askForCar
                         && !dialogShowing
                         && dashboardCar != null
                         && (dashboardCar.getScannerId() == null || dashboardCar.getScannerId().isEmpty())
@@ -202,6 +201,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     final CarListAdapter carAdapter = new CarListAdapter(MainActivity.carList);
 
                     AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+                    dialog.setCancelable(false);
                     dialog.setTitle("New Module Detected. Please select the car this device is connected to.");
                     dialog.setSingleChoiceItems(carAdapter, -1, new DialogInterface.OnClickListener() {
                         @Override
@@ -212,6 +212,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     });
                     dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            askForCar = false;
                             dialog.dismiss();
                         }
                     });
@@ -229,7 +230,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         @Override
                                         public void done(String response, RequestError requestError) {
                                             if(requestError == null) {
-                                                Toast.makeText(getActivity(), "Device added successfullY", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getActivity(), "Device added successfully", Toast.LENGTH_SHORT).show();
                                                 sharedPreferences.edit().putInt(pfCurrentCar, selectedCar.get(0).getId()).commit();
                                                 //TODO: DEBUG THIS
                                                 ((MainActivity)getActivity()).refreshFromServer();
@@ -359,6 +360,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 Intent intent = new Intent(getActivity(), CarScanActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
                 startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+                getActivity().overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
 
@@ -394,31 +396,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         dashboardCar.getDealership().getPhone()));
                 startActivity(intent);
-            }
-        });
-
-        chatLayout = (RelativeLayout) rootview.findViewById(R.id.chat_layout);
-        chatLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Chat with " + dashboardCar.getDealership().getName(), TAG);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", dashboardCar.getVin());
-                customProperties.put("Car Make",  dashboardCar.getMake());
-                customProperties.put("Car Model", dashboardCar.getModel());
-                customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Phone", application.getCurrentUser().getPhone());
-                Log.i(TAG, dashboardCar.getDealership().getEmail());
-                customProperties.put("Email",dashboardCar.getDealership().getEmail());
-                User.getCurrentUser().addProperties(customProperties);
-                User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
-                User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
-                ConversationActivity.show(getActivity());
             }
         });
 
@@ -507,51 +484,18 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentMonth,
                                         currentDay
                                 );
-                                datePicker.setTitle("When was this service completed?");
+                                TextView titleView = new TextView(getActivity());
+                                titleView.setText("When was this service completed?");
+                                titleView.setBackgroundColor(getResources().getColor(R.color.date_picker_background));
+                                titleView.setTextColor(getResources().getColor(R.color.white_text));
+                                titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                                titleView.setTextSize(18);
+                                titleView.setPadding(10,10,10,10);
+
+                                datePicker.setCustomTitle(titleView);
+
 
                                 datePicker.show();
-
-                                /*final CharSequence[] times = new CharSequence[]{
-                                        "Recently", "2 Weeks Ago", "A Month Ago",
-                                        "2 to 3 Months Ago", "3 to 6 Months Ago",
-                                        "6 to 12 Months Ago"
-                                };
-
-                                final int[] timesInDays = new int[] {0, 14, 30, 75, 135, 240};
-
-                                final int[] estimate = new int[]{0,2,3,10,18,32};
-
-                                final int i = reverseSortedPositions[0];
-                                new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
-                                        .setItems(times, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, final int position) {
-
-                                                //----- services
-                                                try {
-                                                    mixpanelHelper.trackButtonTapped("Completed Service: "
-                                                            + carIssueList.get(i).getIssueDetail().getItem() + " " + times[position], TAG);
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                CarIssue carIssue = carIssuesAdapter.getItem(i);
-
-                                                NetworkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
-                                                        timesInDays[position], dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                            @Override
-                                                            public void done(String response, RequestError requestError) {
-                                                                if(requestError == null) {
-                                                                    Toast.makeText(MainActivity.this, "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                    carIssueList.remove(i);
-                                                                    carIssuesAdapter.notifyDataSetChanged();
-                                                                    refreshFromServer();
-                                                                }
-                                                            }
-                                                        });
-                                                dialogInterface.dismiss();
-                                            }
-                                        }).setTitle("When did you complete this task?");*/
                             }
 
                             @Override

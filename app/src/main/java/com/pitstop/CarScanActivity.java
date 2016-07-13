@@ -183,6 +183,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
     public void onBackPressed() {
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
