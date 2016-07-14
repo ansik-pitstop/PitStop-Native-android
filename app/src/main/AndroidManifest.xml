@@ -166,7 +166,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
 
-        <!--receiver android:name=".utils.GcmReceiver"
+        <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -174,7 +174,7 @@
 
                 <category android:name="${applicationId}" />
             </intent-filter>
-        </receiver-->
+        </receiver>
         
         <!-- Parse push notification stuff -->
 
@@ -195,14 +195,26 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
         <!-- smooch stuff -->
 
-        <service android:name="io.smooch.core.service.SmoochService" />
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="${applicationId}"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+            </intent-filter>
+        </receiver>
+
+        <!--service android:name="io.smooch.core.service.SmoochService" />
         <service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
             android:exported="false">
@@ -219,7 +231,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </service-->
 
     </application>
 

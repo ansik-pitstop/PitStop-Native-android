@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -19,6 +20,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
 import java.io.File;
+import java.io.IOException;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -52,8 +54,8 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
-        Smooch.init(this, settings);
+        settings.setGoogleCloudMessagingAutoRegistrationEnabled(true);
+        Smooch.init(this, getString(R.string.smooch_token));
 
         // Parse
         Parse.enableLocalDatastore(this);
