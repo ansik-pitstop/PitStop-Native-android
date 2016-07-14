@@ -920,7 +920,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
 
         for(PIDInfo pidInfo : data.obdData) {
-            String json  = GSON.toJson(pidInfo);
+            //String json  = GSON.toJson(pidInfo);
             try {
                 JSONObject pid = new JSONObject();
                 pid.put("id",pidInfo.pidType);
@@ -1072,6 +1072,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
+                                isSendingPids = false;
                                 if (requestError == null) {
                                     Log.i(TAG, "PIDS saved");
                                     localPid.deleteAllPidDataEntries();
@@ -1085,7 +1086,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         });
             }
-            isSendingPids = false;
         } else {
             isSendingPids = false;
             tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
