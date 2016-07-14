@@ -86,6 +86,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import io.smooch.core.Smooch;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
@@ -1368,6 +1369,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     } catch (JSONException e) {
                        e.printStackTrace();
                     }
+                    Smooch.track("User Logged In");
                 }
             }
         });
