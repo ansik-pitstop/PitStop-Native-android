@@ -40,8 +40,6 @@ public class GlobalApplication extends Application {
 
     private static MixpanelAPI mixpanelAPI;
 
-    private static User currentUser;
-
     private UserAdapter userAdapter;
 
     @Override
@@ -83,13 +81,17 @@ public class GlobalApplication extends Application {
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
-    public static void setUpMixPanel(){
-        if(currentUser!=null) {
-            mixpanelAPI.identify(String.valueOf(currentUser.getId()));
-            mixpanelAPI.getPeople().identify(String.valueOf(currentUser.getId()));
-            mixpanelAPI.getPeople().set("$phone", currentUser.getPhone());
-            mixpanelAPI.getPeople().set("$name", currentUser.getFirstName());
-            mixpanelAPI.getPeople().set("$email", currentUser.getEmail());
+    public void setUpMixPanel(){
+        User user = userAdapter.getUser();
+        if(user != null) {
+            Log.d(TAG, "Setting up mixpanel");
+            mixpanelAPI.identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().set("$phone", user.getPhone());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName());
+            mixpanelAPI.getPeople().set("$email", user.getEmail());
+        } else {
+            Log.d(TAG, "Can't set up mixpanel; current user is null");
         }
     }
 
@@ -180,11 +182,10 @@ public class GlobalApplication extends Application {
     }
 
     public void setCurrentUser(User user) {
-        currentUser = user;
-        Log.i(TAG, "UserId:"+currentUser.getId());
+        Log.i(TAG, "UserId:"+user.getId());
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(pfUserId, currentUser.getId());
+        editor.putInt(pfUserId, user.getId());
         editor.apply();
 
         userAdapter.storeUserData(user);

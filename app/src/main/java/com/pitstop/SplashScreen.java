@@ -357,8 +357,6 @@ public class SplashScreen extends AppCompatActivity {
 
                         application.setCurrentUser(user);
 
-                        GlobalApplication.setUpMixPanel();
-
                         if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
                             && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
@@ -383,7 +381,6 @@ public class SplashScreen extends AppCompatActivity {
             public void done(String response, RequestError requestError) {
                 hideLoading();
                 if(requestError == null) {
-                    GlobalApplication.setUpMixPanel();
                     try {
                         JSONObject jsonObject = new JSONObject(response);
 
@@ -456,7 +453,7 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                GlobalApplication.setUpMixPanel();
+                application.setUpMixPanel();
                 startMigration(application.getAccessToken(), application.getRefreshToken(), application.getCurrentUserId());
             }
         });
@@ -479,6 +476,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void startMainActivity() {
+        application.setUpMixPanel();
         Intent intent = new Intent(SplashScreen.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, true);

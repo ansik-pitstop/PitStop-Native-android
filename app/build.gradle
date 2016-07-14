@@ -14,7 +14,6 @@ android {
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
     def isStaging = true
-
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def file = output.outputFile
@@ -22,18 +21,18 @@ android {
                     file.name.replace(".apk", "_${variant.versionName}.apk").replace("app-", "Pitstop_"))
         }
     }
-
     defaultConfig {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 40
-        versionName "2.0.10"
+        versionCode 42
+        versionName "2.0.12"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "CLIENT_ID", "\"8pLSeDGJdlW89dzfbfI4uNr0x2Blo4FG8TEkCB5LXKgtfVf8\""
