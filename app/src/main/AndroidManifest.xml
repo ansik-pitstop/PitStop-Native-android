@@ -35,10 +35,6 @@
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
 
-    <meta-data
-        android:name="com.google.android.gms.vision.DEPENDENCIES"
-        android:value="barcode" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
@@ -76,6 +72,9 @@
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
+
+        <meta-data android:name="com.parse.push.gcm_sender_id"
+            android:value="id:309712221750" />
 
         <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
 
@@ -171,7 +170,6 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
@@ -196,6 +194,9 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="${applicationId}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="abc" />
             </intent-filter>
         </receiver>
 

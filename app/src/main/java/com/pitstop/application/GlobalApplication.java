@@ -54,8 +54,8 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, getString(R.string.smooch_token));
+        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        Smooch.init(this, settings);
 
         // Parse
         Parse.enableLocalDatastore(this);
