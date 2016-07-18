@@ -77,6 +77,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
+import io.smooch.core.Smooch;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 
@@ -182,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         application = (GlobalApplication) getApplicationContext();
         setContentView(R.layout.activity_main_drawer_frame);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);

@@ -77,4 +77,12 @@ public class MixpanelHelper {
                 new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
                         + "','Method of Adding Car':'" + method + "','Device':'Android'}"));
     }
+
+    public void trackMigrationProgress(String status, int userId) throws JSONException {
+        if(BuildConfig.DEBUG) {
+            return;
+        }
+        application.getMixpanelAPI().track("Migration status",
+                new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}"));
+    }
 }

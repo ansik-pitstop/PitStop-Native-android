@@ -163,7 +163,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
         setupUiReferences();
         baseMileage = dashboardCar.getTotalMileage();
-        carMileage.setText(String.valueOf(localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage()));
+        carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
     }
 
     @Override
@@ -298,7 +298,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     public void updateMileage(View view) {
         if(isFinishing() || isDestroyed()) {
             return;
-        } else if(dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
+        } else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
+                dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
             Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
             return;
         }
@@ -327,6 +328,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 if (requestError == null) {
                                                     Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
                                                     dashboardCar.setDisplayedMileage(Integer.parseInt(mileage));
+                                                    dashboardCar.setTotalMileage(Integer.parseInt(mileage));
                                                     localCarAdapter.updateCar(dashboardCar);
                                                     baseMileage = Integer.parseInt(mileage);
                                                     carMileage.setText(mileage);
@@ -335,6 +337,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 }
                                             }
                                         });
+
+                                if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+                                    networkHelper.updateMileageStart(Integer.parseInt(mileage), autoConnectService.getLastTripId(), null);
+                                }
                                 dialogInterface.dismiss();
                             }
                         }
@@ -599,6 +605,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 public void run() {
                     numberOfIssues = services + recalls + dtcCodes.size();
                     updateCarHealthMeter();
+
+                    if(numberOfIssues != 0) {
+                        updatedMileageOrDtcsFound = true;
+                    }
 
                     loadingEngineIssues.setVisibility(View.GONE);
                     engineIssuesStateLayout.setVisibility(View.GONE);

@@ -139,7 +139,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         try {
             JSONObject pushData = new JSONObject(intent.getStringExtra(KEY_PUSH_DATA));
             Log.i(TAG, "Push data: "+pushData.toString());
-            Intent target = new Intent(context, MainActivity.class);
+            Intent target = new Intent(context, SplashScreen.class);
             target.putExtras(intent.getExtras());
             target.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
             target.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
