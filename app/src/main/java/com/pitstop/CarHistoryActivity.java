@@ -173,7 +173,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private int getDateToCompare(String rawDate) {
-        if(rawDate == null || rawDate.isEmpty()) {
+        if(rawDate == null || rawDate.isEmpty() || rawDate.equals("null") {
             return 0;
         }
 
