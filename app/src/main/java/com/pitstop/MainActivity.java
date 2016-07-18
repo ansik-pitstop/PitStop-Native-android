@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
         application = (GlobalApplication) getApplicationContext();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
@@ -376,8 +377,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carLocalStore = new LocalCarAdapter(this);
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

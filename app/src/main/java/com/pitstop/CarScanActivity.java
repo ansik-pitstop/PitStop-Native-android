@@ -600,6 +600,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     numberOfIssues = services + recalls + dtcCodes.size();
                     updateCarHealthMeter();
 
+                    if(numberOfIssues != 0) {
+                        updatedMileageOrDtcsFound = true;
+                    }
+
                     loadingEngineIssues.setVisibility(View.GONE);
                     engineIssuesStateLayout.setVisibility(View.GONE);
                     engineIssuesCountLayout.setVisibility(View.VISIBLE);

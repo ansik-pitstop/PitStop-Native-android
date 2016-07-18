@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -252,30 +251,23 @@ public class SplashScreen extends AppCompatActivity {
             }
 
             if(!NetworkHelper.isConnected(this)) {
-                Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
-                        .setAction("Retry", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                login(null);
-                            }
-                        })
-                        .show();
+                Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
                 return;
             }
 
             showLoading("Loading");
             if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
-                Snackbar.make(splashLayout, "First and last name are required",Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(SplashScreen.this, "First and last name are required", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             if(password.getText().toString().length()<6){
-                Snackbar.make(splashLayout, "Password length must be greater than 6",Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(SplashScreen.this, "Password length must be greater than 6", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
-                Snackbar.make(splashLayout, "Invalid phone number",Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(SplashScreen.this, "Invalid phone number", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
@@ -400,14 +392,7 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Snackbar.make(findViewById(R.id.splash_layout), requestError.getMessage(), Snackbar.LENGTH_SHORT)
-                            .setAction("Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    login(null);
-                                }
-                            })
-                            .show();
+                    Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -421,14 +406,7 @@ public class SplashScreen extends AppCompatActivity {
         }
 
         if(!NetworkHelper.isConnected(this)) {
-            Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
-                    .setAction("Retry", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            login(null);
-                        }
-                    })
-                    .show();
+            Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
             return;
         }
 
