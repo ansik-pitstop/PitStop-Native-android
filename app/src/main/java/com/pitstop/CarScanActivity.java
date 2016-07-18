@@ -184,6 +184,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void onBackPressed() {
+        returnToMainActivity(null);
+    }
+
+    public void returnToMainActivity(View view) {
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
@@ -289,7 +293,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
-    public void updateMileage(View view) {
+    public void updateMileage(final View view) {
         if(isFinishing() || isDestroyed()) {
             return;
         } else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
@@ -335,6 +339,19 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                 if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
                                     networkHelper.updateMileageStart(Integer.parseInt(mileage), autoConnectService.getLastTripId(), null);
                                 }
+
+                                if(view == null) {
+                                    if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
+                                        startCarScan();
+                                    } else {
+                                        progressDialog.setMessage("Connecting to car");
+                                        progressDialog.show();
+                                        carSearchStartTime = System.currentTimeMillis();
+                                        autoConnectService.startBluetoothSearch();
+                                        handler.postDelayed(connectCar, 3000);
+                                    }
+                                }
+
                                 dialogInterface.dismiss();
                             }
                         }
@@ -365,15 +382,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             return;
         }
 
-        if(IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
-            startCarScan();
-        } else {
-            progressDialog.setMessage("Connecting to car");
-            progressDialog.show();
-            carSearchStartTime = System.currentTimeMillis();
-            autoConnectService.startBluetoothSearch();
-            handler.postDelayed(connectCar, 3000);
-        }
+        updateMileage(null);
     }
 
     private void startCarScan() {
