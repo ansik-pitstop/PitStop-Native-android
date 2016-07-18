@@ -680,6 +680,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     public void setDashboardCar(List<Car> carList) {
+        if(getActivity() == null) {
+            return;
+        }
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
 

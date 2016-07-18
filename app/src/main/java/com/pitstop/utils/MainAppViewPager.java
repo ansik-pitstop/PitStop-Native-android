@@ -13,17 +13,17 @@ public class MainAppViewPager extends ViewPager {
 
     public MainAppViewPager(Context context) {
         super(context);
-        this.enabled = false;
+        this.enabled = true;
     }
 
     public MainAppViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.enabled = false;
+        this.enabled = true;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (this.enabled) {
+        if (this.enabled  && getCurrentItem() == 1) {
             return super.onTouchEvent(event);
         }
 
@@ -32,7 +32,7 @@ public class MainAppViewPager extends ViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (this.enabled) {
+        if (this.enabled && getCurrentItem() == 1) {
             return super.onInterceptTouchEvent(event);
         }
 
