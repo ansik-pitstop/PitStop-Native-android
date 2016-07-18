@@ -38,8 +38,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Name"
-            android:id="@+id/name"
+            android:hint="First Name"
+            android:id="@+id/firstName"
+            android:singleLine="true"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Last Name"
+            android:id="@+id/lastName"
             android:singleLine="true"
             android:layout_gravity="center_horizontal"
             android:visibility="gone" />
@@ -96,6 +106,16 @@
             android:elevation="6dp"
             android:onClick="signUp"
             android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:id="@+id/forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:textAllCaps="false"
+            android:onClick="forgotPassword"
+            android:layout_marginTop="12dp"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -11,6 +11,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.ParseNotificationStore;
 import com.pitstop.DataAccessLayer.DataAdapters.TABLES;
+import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 
 /**
  * Created by Paul Soladoye on 3/16/2016.
@@ -19,7 +20,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     // Logcat tag
     private static final String LOG = "LocalDatabaseHelper";
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 16;
     private static final String DATABASE_NAME = "PITSTOP_DB";
 
     public LocalDatabaseHelper(Context context) {
@@ -34,6 +35,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalCarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalShopAdapter.CREATE_TABLE_DEALERSHIP);
         db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
+        db.execSQL(UserAdapter.CREATE_TABLE_USER);
     }
 
     @Override
@@ -44,6 +46,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_ISSUES.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SHOP.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
         onCreate(db);
     }
 }

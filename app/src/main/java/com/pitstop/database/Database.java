@@ -20,10 +20,10 @@ import java.util.HashMap;
  * Created by David Liu on 11/20/2015.
  */
 public class Database extends SQLiteOpenHelper {
-    private static final String DB_NAME = "PitstopDB";
+    public static final String DB_NAME = "PitstopDB";
     ArrayList<DBModel> models = new ArrayList<>();
     public Database(Context context) {
-        super(context, DB_NAME, null, 16);
+        super(context, DB_NAME, null, 21);
         //add all tables
         models.add(new Cars());
         models.add(new DTCs());
@@ -50,10 +50,10 @@ public class Database extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.w("Database Upgrade",
-                "Upgrading database from version " + i + " to "
-                        + i1 + ", which will destroy all old data");
+                "Upgrading database from version " + oldVersion + " to "
+                        + newVersion + ", which will destroy all old data");
         for (DBModel model : models) {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + model.getTableName());
         }

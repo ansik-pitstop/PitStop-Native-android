@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -17,6 +18,7 @@
 
     <!-- permission for barcode scanner -->
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <!-- feature support -->
@@ -29,12 +31,9 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
-    <uses-feature android:name="android.hardware.bluetooth_le"
-        android:required="false"/>
-
-    <meta-data
-        android:name="com.google.android.gms.vision.DEPENDENCIES"
-        android:value="barcode" />
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -52,7 +51,7 @@
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 
     <application
-        android:name=".parse.ParseApplication"
+        android:name=".application.GlobalApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -65,11 +64,21 @@
         </receiver>
 
         <meta-data
+            android:name="com.mixpanel.android.MPConfig.ResourcePackageName"
+            android:value="com.pitstop" />
+        <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
             android:value="true" />
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
+
+        <meta-data android:name="com.parse.push.gcm_sender_id"
+            android:value="id:309712221750" />
+
+        <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
+
+        <!-- activities -->
 
         <activity
             android:name=".MainActivity"
@@ -123,6 +132,10 @@
             android:name=".background.BluetoothAutoConnectService"
             android:label="Background Service" />
 
+        <service
+            android:name=".background.MigrationService"
+            android:exported="false"/>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -141,6 +154,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pitstop.MainActivity" />
         </activity>
+        <activity
+            android:name=".SelectDealershipActivity"
+            android:label="Select Dealership"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
+        <activity
+            android:name=".CarScanActivity"
+            android:label="@string/title_activity_car_scan"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppNoActionBarTheme" />
+
+        <receiver android:name=".utils.GcmReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Parse push notification stuff -->
 
         <service android:name="com.parse.PushService" />
 
@@ -159,12 +193,29 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
                 <category android:name="${applicationId}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="abc" />
             </intent-filter>
         </receiver>
 
-        <service android:name="io.smooch.core.service.SmoochService" />
+        <!-- smooch stuff -->
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="${applicationId}"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+            </intent-filter>
+        </receiver>
+
+        <!--service android:name="io.smooch.core.service.SmoochService" />
         <service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
             android:exported="false">
@@ -181,21 +232,8 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </service-->
 
-        <activity
-            android:name=".SelectDealershipActivity"
-            android:label="Select Dealership"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
-        <activity
-            android:name=".CarScanActivity"
-            android:label="@string/title_activity_car_scan"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme"/>
-        <activity
-            android:name=".BarcodeScannerActivity"
-            android:theme="@style/AppNoActionBarTheme"/>
     </application>
 
 </manifest>

@@ -3,7 +3,9 @@ package com.pitstop.DataAccessLayer.DataAdapters;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -23,7 +25,7 @@ public class LocalShopAdapter {
             + TABLES.SHOP.KEY_ADDRESS + " TEXT, "
             + TABLES.SHOP.KEY_PHONE + " TEXT, "
             + TABLES.SHOP.KEY_EMAIL + " TEXT, "
-            + TABLES.COMMON.KEY_PARSE_ID + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -39,7 +41,7 @@ public class LocalShopAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_PARSE_ID, dealership.getParseId());
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, dealership.getId());
         values.put(TABLES.SHOP.KEY_NAME, dealership.getName());
         values.put(TABLES.SHOP.KEY_ADDRESS, dealership.getAddress());
         values.put(TABLES.SHOP.KEY_PHONE, dealership.getPhone());
@@ -55,11 +57,11 @@ public class LocalShopAdapter {
         }
     }
 
-    public Dealership getDealership(String shopId) {
+    public Dealership getDealership(int shopId) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         Cursor c = db.query(TABLES.SHOP.TABLE_NAME, null,
-                TABLES.COMMON.KEY_PARSE_ID+"=?",new String[]{shopId},null,null,null);
+                TABLES.COMMON.KEY_OBJECT_ID +"=?",new String[]{String.valueOf(shopId)},null,null,null);
         if(c.getCount() == 0) {
             return null;
         }
@@ -97,7 +99,7 @@ public class LocalShopAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         for(Dealership dealership : dealerships) {
-            db.delete(TABLES.SHOP.TABLE_NAME, TABLES.COMMON.KEY_ID + "=?",
+            db.delete(TABLES.SHOP.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                     new String[] { String.valueOf(dealership.getId()) });
         }
 
@@ -106,8 +108,7 @@ public class LocalShopAdapter {
 
     private Dealership cursorToDealership(Cursor c) {
         Dealership dealership = new Dealership();
-        dealership.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_ID)));
-        dealership.setParseId(c.getString(c.getColumnIndex(TABLES.COMMON.KEY_PARSE_ID)));
+        dealership.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
 
         dealership.setName(c.getString(c.getColumnIndex(TABLES.SHOP.KEY_NAME)));
         dealership.setAddress(c.getString(c.getColumnIndex(TABLES.SHOP.KEY_ADDRESS)));

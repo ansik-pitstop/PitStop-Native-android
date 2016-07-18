@@ -8,7 +8,7 @@ public final class TABLES {
     public interface COMMON {
         //Common column names
         String KEY_ID = "id";
-        String KEY_PARSE_ID = "parseId";
+        String KEY_OBJECT_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
     }
 
@@ -19,7 +19,10 @@ public final class TABLES {
         String KEY_DATANUM = "dataNum";
         String KEY_RTCTIME = "rtcTime";
         String KEY_TIMESTAMP = "timestamp";
+        String KEY_TRIP_ID = "tripId";
         String KEY_PIDS = "pids";
+        String KEY_MILEAGE = "mileage";
+        String KEY_CALCULATED_MILEAGE = "calculatedMileage";
     }
 
     public interface CAR {
@@ -28,6 +31,7 @@ public final class TABLES {
         String KEY_VIN = "vin";
         String KEY_SHOP_ID = "shopId";
         String KEY_MILEAGE = "totalMileage";
+        String KEY_DISPLAYED_MILEAGE = "displayedMileage";
         String KEY_SCANNER_ID = "scannerId";
         String KEY_MAKE = "make";
         String KEY_MODEL = "model";
@@ -51,6 +55,16 @@ public final class TABLES {
         String KEY_DESCRIPTION = "description";
         String KEY_ACTION = "action";
         String KEY_CAR_ISSUE_ID = "carIssueId";
+    }
+
+    public interface USER {
+        String TABLE_NAME = "user";
+
+        String KEY_FIRST_NAME = "firstName";
+        String KEY_LAST_NAME = "lastName";
+        String KEY_EMAIL = "email";
+        String KEY_PHONE = "phone";
+
     }
 
     public interface SHOP {

@@ -1,7 +1,6 @@
 package com.pitstop;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.bluetooth.ObdManager;
@@ -121,17 +119,17 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(TAG, "setCtrlResponse");
+        Log.i(TAG, "setCtrlResponse: " + responsePackageInfo.toString());
     }
 
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(TAG, "setParameterResponse");
+        Log.i(TAG, "setParameterResponse: " + responsePackageInfo.toString());
     }
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-        Log.i(TAG, "getParameterData");
+        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
     }
 
     @Override
@@ -175,7 +173,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             }
         });
 
-        Log.e(TAG, output);
+        Log.e(TAG, dataPackageInfo.toString());
     }
 
     @Override
@@ -212,4 +210,25 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
+
+    public void getVin(View view) {
+        service.getCarVIN();
+    }
+
+    public void getRtc(View view) {
+        service.getObdDeviceTime();
+    }
+
+    public void setRtc(View view) {
+        service.syncObdDevice();
+    }
+
+    public void resetRtc(View view) {
+        service.resetObdDeviceTime();
+    }
+
+    public void resetDevice(View view) {
+        service.resetDeviceToFactory();
+    }
+
 }

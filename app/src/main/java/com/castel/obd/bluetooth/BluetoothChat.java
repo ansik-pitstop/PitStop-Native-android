@@ -43,7 +43,7 @@ public class BluetoothChat {
 	}
 
 	private class ConnectThread extends Thread {
-		private final BluetoothSocket mmSocket;
+		private BluetoothSocket mmSocket;
 		private BluetoothDevice mmDevice;
 
 		@SuppressLint("NewApi")
@@ -54,7 +54,6 @@ public class BluetoothChat {
 			try {
 				temp = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
@@ -68,9 +67,9 @@ public class BluetoothChat {
 			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
 			try {
 				if(mmSocket!=null) {
-					mmSocket.connect();
+					LogUtil.i("Connecting to socket - insecure");
 
-					LogUtil.i("蓝牙连接成功");
+					mmSocket.connect();
 
 					mHandler.sendMessage(mHandler.obtainMessage(
 							BluetoothManage.BLUETOOTH_CONNECT_SUCCESS,
@@ -83,7 +82,7 @@ public class BluetoothChat {
 			} catch (IOException connectException) {
 				connectException.printStackTrace();
 				try {
-					LogUtil.i("蓝牙连接失败");
+					LogUtil.i("Coudn't connect to socket");
 					mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
 					mmSocket.close();
 				} catch (IOException e) {

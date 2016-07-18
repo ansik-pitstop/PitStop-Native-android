@@ -11,7 +11,10 @@ public class Pid {
     private String dataNumber;
     private String rtcTime;
     private String timeStamp;
+    private int tripId;
     private String pids;
+    private double mileage;
+    private double calculatedMileage;
 
     public Pid() {}
 
@@ -39,6 +42,14 @@ public class Pid {
         this.timeStamp = timeStamp;
     }
 
+    public int getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
+    }
+
     public String getPids() {
         return pids;
     }
@@ -53,5 +64,26 @@ public class Pid {
 
     public void setDataNumber(String dataNumber) {
         this.dataNumber = dataNumber;
+    }
+
+    public void setMileage(double mileage) {
+        this.mileage = mileage;
+    }
+
+    public double getMileage() {
+        return mileage;
+    }
+
+    public void setCalculatedMileage(double mileage) {
+        this.calculatedMileage = mileage;
+    }
+
+    public double getCalculatedMileage() {
+        return calculatedMileage;
+    }
+
+    public String toString() {
+        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp + ", tripId: " + tripId
+                + ", mileage: " + mileage + ", calculatedMileage: " + calculatedMileage + ", pids: " + pids;
     }
 }
