@@ -448,7 +448,7 @@ public class SplashScreen extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                        GlobalApplication.setUpMixPanel();
+                        application.setUpMixPanel();
 
                         goToMainActivity(true);
                     } else {
@@ -505,7 +505,7 @@ public class SplashScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    GlobalApplication.setUpMixPanel();
+                    application.setUpMixPanel();
                     goToMainActivity(true);
                 } else if(requestError.getMessage().contains("is already used") && application.getAccessToken() != null
                         && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
@@ -538,7 +538,7 @@ public class SplashScreen extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    GlobalApplication.setUpMixPanel();
+                    application.setUpMixPanel();
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());

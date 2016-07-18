@@ -171,7 +171,6 @@ public class BluetoothManage {
 			Log.i(DTAG, "BReceiver onReceive - BluetoothManage");
 
 			String action = intent.getAction();
-			LogUtil.i(action);
 			// �����豸
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				Log.i(DTAG,"A device found - BluetoothManage");

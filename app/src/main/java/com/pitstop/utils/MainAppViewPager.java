@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /**
@@ -23,7 +24,7 @@ public class MainAppViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (this.enabled  && getCurrentItem() == 1) {
+        if (this.enabled && getCurrentItem() == 1) {
             return super.onTouchEvent(event);
         }
 

@@ -11,7 +11,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.pitstop.R;
-import com.pitstop.parse.ParseApplication;
+import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +61,7 @@ public class AndroidAutoHeardReceiver extends BroadcastReceiver {
             NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
                     new NotificationCompat.CarExtender.UnreadConversation.Builder("PITSTOP MSG")
                             .setReadPendingIntent(msgHeardPendingIntent)
-                            .setReplyAction(msgReplyPendingIntent, ParseApplication.remoteInput);
+                            .setReplyAction(msgReplyPendingIntent, GlobalApplication.remoteInput);
 
             try {
                 JSONObject parsed = new JSONObject(msg);

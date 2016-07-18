@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import io.smooch.core.Smooch;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -784,6 +785,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    Smooch.track("User Logged In");
                 }
             }
         });

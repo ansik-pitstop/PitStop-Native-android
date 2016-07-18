@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.facebook.AccessToken;
@@ -43,6 +44,9 @@ public class GlobalApplication extends Application {
     private static MixpanelAPI mixpanelAPI;
 
     private UserAdapter userAdapter;
+
+    // Build a RemoteInput for receiving voice input in a Car Notification
+    public static RemoteInput remoteInput = null;
 
     @Override
     public void onCreate() {
