@@ -23,13 +23,14 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_above="@+id/log_in_sign_up_container"
             android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
             android:id="@+id/radio_layout"
             android:layout_marginBottom="16dp">
 
             <RadioButton
+                android:clickable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
@@ -40,6 +41,7 @@
                 style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
             <RadioButton
+                android:clickable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
@@ -51,6 +53,7 @@
                 style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
             <RadioButton
+                android:clickable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
@@ -62,9 +65,8 @@
                 style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
 
         </LinearLayout>
-    </RelativeLayout>
 
-    <LinearLayout
+        <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,6 +99,6 @@
             android:textStyle="bold"
             android:onClick="goToLogin" />
     </LinearLayout>
-
+    </RelativeLayout>
 
 </RelativeLayout>

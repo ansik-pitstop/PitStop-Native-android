@@ -127,7 +127,7 @@ public class SplashScreen extends AppCompatActivity {
             public void onPageSelected(int position) {
                 setUpUIReferences();
                 if(position==2){
-                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.GONE);
+                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
                     } catch (JSONException e) {
