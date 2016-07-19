@@ -25,7 +25,7 @@ public class GcmReceiver extends BroadcastReceiver {
         }
 
         if(intent.getAction().equals("com.google.android.c2dm.intent.REGISTRATION")) {
-            if(!registrationId.startsWith("|ID|")) {
+            if(registrationId != null && !registrationId.startsWith("|ID|")) {
                 Smooch.setGoogleCloudMessagingToken(registrationId);
             } else {
                 abortBroadcast();

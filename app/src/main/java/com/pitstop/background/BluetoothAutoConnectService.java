@@ -380,7 +380,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //sharedPreferences.edit().putInt(pfTripMileage, lastTripMileage);
         }
 
-        if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()) {
+        if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()
+                && localCarAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
             int newTripId = Integer.parseInt(dataPackageInfo.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
@@ -676,6 +677,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(1088804101));
     }
 
+    public void setFixedUploadInterval(String seconds) {
+        Log.i(TAG,"Setting fixed upload interval");
+
+        bluetoothCommunicator
+                .obdSetParameter(ObdManager.FIXED_UPLOAD_TAG, "1,1,1,60,2,6");
+    }
+
     public void resetDeviceToFactory() {
         Log.i(TAG, "Resetting device to factory settings");
 
@@ -774,7 +782,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      *      The data returned from obd device for result 4
      */
     private void processResultFourData(final DataPackageInfo data) {
-        if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
+        if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG) && localCarAdapter.getCarByScanner(data.deviceId) != null) {
             Log.i(TAG, "Trip end flag received");
             if(lastTripId == -1) {
                 networkHelper.getLatestTrip(data.deviceId, new RequestCallback() {
@@ -803,15 +811,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 car.setTotalMileage(newMileage);
                 localCarAdapter.updateCar(car);
             }
-        } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
+        } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG) && localCarAdapter.getCarByScanner(data.deviceId) != null) {
             Log.i(TAG, "Trip start flag received");
-//
-            //if(lastData != null) {
-            //    sendPidDataToServer(lastData);
-            //}
-//
-            //tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
-            //executeTripRequests();
+
+            if(lastData != null) {
+                sendPidDataToServer(lastData);
+            }
+
+            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
+            executeTripRequests();
         }
     }
 

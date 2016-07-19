@@ -227,8 +227,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         service.resetObdDeviceTime();
     }
 
-    public void resetDevice(View view) {
-        service.resetDeviceToFactory();
+    public void setFixedUpload(View view) {
+        service.setFixedUploadInterval("60");
     }
 
 }
