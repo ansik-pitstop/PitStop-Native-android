@@ -147,7 +147,7 @@ public class NetworkHelper {
         get("car/" + carId, callback);
     }
 
-    public void updateCarMileage(int carId, int mileage, RequestCallback callback) {
+    public void updateCarMileage(int carId, double mileage, RequestCallback callback) {
         LOGI(TAG, "updateCarShop: carId: " + carId + ", mileage: " + mileage);
         JSONObject body = new JSONObject();
 
@@ -462,7 +462,7 @@ public class NetworkHelper {
         get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
     }
 
-    public void updateMileageStart(int mileageStart, int tripId, RequestCallback callback) {
+    public void updateMileageStart(double mileageStart, int tripId, RequestCallback callback) {
         LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
 
         JSONObject body = new JSONObject();
