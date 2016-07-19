@@ -825,6 +825,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             final TripIndicator nextAction = tripRequestQueue.peekFirst();
             RequestCallback callback = null;
             if (nextAction instanceof TripStart) {
+                if(localCarAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
+                    return;
+                }
                 callback = new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
