@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.castel.obd.bluetooth.BluetoothManage;
@@ -201,14 +202,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         }
     }
 
-    public void getFreeze(View view) {
-        findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getState() != BluetoothManage.CONNECTED) {
-            service.startBluetoothSearch();
-        }else {
-            service.getFreeze();
-            ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
-        }
+    public void getParam(View view) {
+        String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
+        service.getFreeze(tag);
     }
 
     public void getVin(View view) {
@@ -227,8 +223,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         service.resetObdDeviceTime();
     }
 
-    public void setFixedUpload(View view) {
-        service.setFixedUploadInterval("60");
+    public void setParam(View view) {
+        String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
+        String values = ((EditText) findViewById(R.id.values)).getText().toString();
+        //service.setParam(tag, values);
+        service.setFixedUpload();
     }
 
 }

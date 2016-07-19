@@ -327,7 +327,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                     baseMileage = Integer.parseInt(mileage);
                                                     carMileage.setText(mileage);
                                                 } else {
-                                                    Toast.makeText(CarScanActivity.this, "An error occurred while updateing mileage. Please try again.", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(CarScanActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });

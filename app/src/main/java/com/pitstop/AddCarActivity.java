@@ -708,6 +708,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             if (isValidVin(VIN)) {
                 vinAttempts = 0;
                 Log.i(TAG,"VIN is valid");
+                autoConnectService.setFixedUpload();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
