@@ -296,11 +296,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     public void updateMileage(final View view) {
         if(isFinishing() || isDestroyed()) {
             return;
-        } else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
-                dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
-            Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
-            return;
         }
+        //else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
+        //        dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
+        //    Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
+        //    return;
+        //}
 
         final EditText input = new EditText(CarScanActivity.this);
         input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
@@ -316,20 +317,22 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             showingDialog = false;
-                            final String mileage = input.getText().toString();
-                            if (mileage.length() > 9) {
+                            // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
+                            final double mileage = Double.parseDouble(input.getText().toString())
+                                    - (dashboardCar.getDisplayedMileage() - baseMileage);
+                            if (mileage > 20000000) {
                                 Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
-                                networkHelper.updateCarMileage(dashboardCar.getId(), Integer.parseInt(mileage), new RequestCallback() {
+                                networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                             @Override
                                             public void done(String response, RequestError requestError) {
                                                 if (requestError == null) {
                                                     Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
-                                                    dashboardCar.setDisplayedMileage(Integer.parseInt(mileage));
-                                                    dashboardCar.setTotalMileage(Integer.parseInt(mileage));
+                                                    dashboardCar.setDisplayedMileage(Double.parseDouble(input.getText().toString()));
+                                                    dashboardCar.setTotalMileage(mileage);
                                                     localCarAdapter.updateCar(dashboardCar);
-                                                    baseMileage = Integer.parseInt(mileage);
-                                                    carMileage.setText(mileage);
+                                                    baseMileage = mileage;
+                                                    carMileage.setText(String.valueOf(mileage));
                                                 } else {
                                                     Toast.makeText(CarScanActivity.this, "An error occurred while updateing mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
@@ -337,7 +340,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                         });
 
                                 if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
-                                    networkHelper.updateMileageStart(Integer.parseInt(mileage), autoConnectService.getLastTripId(), null);
+                                    networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
                                 }
 
                                 if(view == null) {
