@@ -1368,6 +1368,29 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     } catch (JSONException e) {
                        e.printStackTrace();
                     }
+                    com.pitstop.DataAccessLayer.DTOs.User user = application.getCurrentUser();
+
+                    final HashMap<String, Object> customProperties = new HashMap<>();
+                    customProperties.put("VIN", dashboardCar.getVin());
+                    customProperties.put("Car Make",  dashboardCar.getMake());
+                    customProperties.put("Car Model", dashboardCar.getModel());
+                    customProperties.put("Car Year", dashboardCar.getYear());
+                    customProperties.put("Email", dashboardCar.getDealership().getEmail());
+
+                    if(user != null) {
+                        customProperties.put("Phone", user.getPhone());
+                        User.getCurrentUser().setFirstName(user.getFirstName());
+                        User.getCurrentUser().setEmail(user.getEmail());
+                    }
+                    User.getCurrentUser().addProperties(customProperties);
+
+                    if(user != null) {
+                        Smooch.getConversation().sendMessage(
+                                new io.smooch.core.Message(user.getFirstName() +
+                                        (user.getLastName() == null || user.getLastName().equals("null")
+                                                ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                    }
+
                     Smooch.track("User Logged In");
                 }
             }
