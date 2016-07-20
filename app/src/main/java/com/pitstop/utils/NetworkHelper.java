@@ -3,6 +3,8 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
@@ -30,7 +32,7 @@ public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static final String devToken = "DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD"; // TODO: other tokens
+    private static final String clientId = BuildConfig.CLIENT_ID;
 
     private Context context;
 
@@ -47,7 +49,7 @@ public class NetworkHelper {
 
     private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -57,8 +59,12 @@ public class NetworkHelper {
     }
 
     private void post(String uri, RequestCallback callback, JSONObject body) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -69,8 +75,12 @@ public class NetworkHelper {
     }
 
     private void get(String uri, RequestCallback callback) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
@@ -80,8 +90,12 @@ public class NetworkHelper {
     }
 
     private void put(String uri, RequestCallback callback, JSONObject body) {
+        if(!isConnected(context)) {
+            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -93,7 +107,7 @@ public class NetworkHelper {
 
     private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -183,6 +197,19 @@ public class NetworkHelper {
         put("user", callback, body);
     }
 
+    public void loginSocial(String accessToken, String provider, RequestCallback callback) {
+        Log.i(TAG, "login");
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("accessToken", accessToken);
+            credentials.put("provider", provider);
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("login/social", callback, credentials);
+    }
     public void loginAsync(String userName, String password, RequestCallback callback) {
         LOGI(TAG, "login");
         JSONObject credentials = new JSONObject();
@@ -312,7 +339,7 @@ public class NetworkHelper {
         postNoAuth("scan/freezeData", callback, body);
     }
 
-    public void sendTripStart(String scannerId, String rtcTime, RequestCallback callback) {
+    public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, RequestCallback callback) {
         LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
@@ -320,6 +347,7 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("rtcTimeStart", Long.parseLong(rtcTime));
+            body.put("tripIdRaw", tripIdRaw);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -417,7 +445,7 @@ public class NetworkHelper {
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
-                    .header("Client-Id", BuildConfig.DEBUG ? devToken : devToken)
+                    .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
                     .body(new JSONObject().put("refreshToken", refreshToken))
                     .requestCallBack(callback)
                     .requestType(RequestType.POST)
@@ -441,5 +469,26 @@ public class NetworkHelper {
         }
 
         put("user/" + userId + "/settings", callback, body);
+    }
+
+    public void getLatestTrip(String scannerId, RequestCallback callback) {
+        LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
+
+        get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
+    }
+
+    public void updateMileageStart(int mileageStart, int tripId, RequestCallback callback) {
+        LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
+
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("mileageStart", mileageStart);
+            body.put("tripId", tripId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        putNoAuth("scan/trip", callback, body);
     }
 }

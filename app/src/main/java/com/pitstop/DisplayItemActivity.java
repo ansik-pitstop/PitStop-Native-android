@@ -90,6 +90,8 @@ public class DisplayItemActivity extends AppCompatActivity {
         Intent intent = getIntent();
         dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
         carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+//        dashboardCar = CarDataManager.getInstance().getDashboardCar();
+//        carIssue = (CarIssue) intent.getSerializableExtra(MainActivity.CAR_ISSUE_EXTRA);
 
         setUpDisplayItems(carIssue);
 
@@ -148,6 +150,7 @@ public class DisplayItemActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override

@@ -5,8 +5,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -40,9 +43,10 @@ public class GlobalApplication extends Application {
 
     private static MixpanelAPI mixpanelAPI;
 
-    private static User currentUser;
-
     private UserAdapter userAdapter;
+
+    // Build a RemoteInput for receiving voice input in a Car Notification
+    public static RemoteInput remoteInput = null;
 
     @Override
     public void onCreate() {
@@ -59,6 +63,7 @@ public class GlobalApplication extends Application {
 
         // Parse
         Parse.enableLocalDatastore(this);
+        FacebookSdk.sdkInitialize(this);
         if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
@@ -83,13 +88,17 @@ public class GlobalApplication extends Application {
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
-    public static void setUpMixPanel(){
-        if(currentUser!=null) {
-            mixpanelAPI.identify(String.valueOf(currentUser.getId()));
-            mixpanelAPI.getPeople().identify(String.valueOf(currentUser.getId()));
-            mixpanelAPI.getPeople().set("$phone", currentUser.getPhone());
-            mixpanelAPI.getPeople().set("$name", currentUser.getFirstName());
-            mixpanelAPI.getPeople().set("$email", currentUser.getEmail());
+    public void setUpMixPanel(){
+        User user = userAdapter.getUser();
+        if(user != null) {
+            Log.d(TAG, "Setting up mixpanel");
+            mixpanelAPI.identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().set("$phone", user.getPhone());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName());
+            mixpanelAPI.getPeople().set("$email", user.getEmail());
+        } else {
+            Log.d(TAG, "Can't set up mixpanel; current user is null");
         }
     }
 
@@ -180,11 +189,10 @@ public class GlobalApplication extends Application {
     }
 
     public void setCurrentUser(User user) {
-        currentUser = user;
-        Log.i(TAG, "UserId:"+currentUser.getId());
+        Log.i(TAG, "UserId:"+user.getId());
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(pfUserId, currentUser.getId());
+        editor.putInt(pfUserId, user.getId());
         editor.apply();
 
         userAdapter.storeUserData(user);
@@ -201,12 +209,12 @@ public class GlobalApplication extends Application {
 
     public String getAccessToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfAccessToken, null);
+        return settings.getString(pfAccessToken, "");
     }
 
     public String getRefreshToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfRefreshToken, null);
+        return settings.getString(pfRefreshToken, "");
     }
 
     public void logOutUser() {
@@ -222,6 +230,8 @@ public class GlobalApplication extends Application {
         editor.apply();
 
         ParseUser.logOut();
+
+        AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
     }

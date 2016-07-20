@@ -9,6 +9,7 @@ import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.pitstop.BuildConfig;
 import com.pitstop.SplashScreen;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.NetworkHelper;
@@ -27,11 +28,7 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    public static final boolean staging = !!false;
-
-    private static final String TESTING = "http://45.55.82.111:10011/";
-
-    private static final String BASE_ENDPOINT = staging ? "http://staging.api.getpitstop.io:10010/" : "http://snapshot.api.getpitstop.io:10011/";
+    private static final String BASE_ENDPOINT = BuildConfig.SERVER_URL;
     private static Webb webClient;
     private RequestCallback listener;
     private RequestType requestType;

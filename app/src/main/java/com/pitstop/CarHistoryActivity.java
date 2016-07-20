@@ -51,7 +51,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        dashboardCar = (Car) getIntent().getParcelableExtra("dashboardCar");
+        dashboardCar = (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
 
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
@@ -82,6 +82,12 @@ public class CarHistoryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         application.getMixpanelAPI().flush();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override
@@ -173,7 +179,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private int getDateToCompare(String rawDate) {
-        if(rawDate == null || rawDate.isEmpty()) {
+        if(rawDate == null || rawDate.isEmpty() || rawDate.equals("null")) {
             return 0;
         }
 

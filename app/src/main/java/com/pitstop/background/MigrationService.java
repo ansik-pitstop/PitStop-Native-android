@@ -12,13 +12,14 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.parse.ParseUser;
+import com.pitstop.MainActivity;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.SplashScreen;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -47,6 +48,8 @@ public class MigrationService extends Service {
 
     private NetworkHelper networkHelper;
 
+    private MixpanelHelper mixpanelHelper;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -54,6 +57,8 @@ public class MigrationService extends Service {
         application = (GlobalApplication) getApplicationContext();
 
         networkHelper = new NetworkHelper(getApplicationContext());
+
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         Intent doneIntent = new Intent(this, MainActivity.class);
         doneIntent.putExtra(MainActivity.FROM_NOTIF, true);
@@ -78,6 +83,12 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
+        try {
+            mixpanelHelper.trackMigrationProgress("Started", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         timer = new CountDownTimer(120000, 6000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -91,6 +102,12 @@ public class MigrationService extends Service {
                             JSONObject jsonResponse = new JSONObject(response);
                             if (requestError == null && jsonResponse.getJSONObject("migration").getBoolean("isMigrationDone")) {
                                 Log.i(TAG, "Migration complete");
+
+                                try {
+                                    mixpanelHelper.trackMigrationProgress("Complete", userId);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
 
                                 new CountDownTimer(3000, 3000) { // in case not all data is completely migrated
                                     @Override
@@ -126,8 +143,14 @@ public class MigrationService extends Service {
             public void onFinish() {
                 Log.i(TAG, "Migration failed");
 
+                try {
+                    mixpanelHelper.trackMigrationProgress("Failed", userId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 notificationManager.notify(notificationId,
-                        notif.setContentTitle("Update failed").setContentText("Press here to try again").setAutoCancel(true)
+                        notif.setContentTitle("Update failed").setContentText("Please email us at info@getpitstop.io").setAutoCancel(true)
                                 .setProgress(0, 0, false).setOngoing(false).setContentIntent(failedPendingIntent).build());
 
                 Intent resultIntent = new Intent(MIGRATION_BROADCAST);

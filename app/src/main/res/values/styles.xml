@@ -8,6 +8,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        <item name="colorAccent">@color/primary_light</item>
     </style>
 
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -15,7 +16,7 @@
     </style>
 
     <style name="AddCarButtonStyle" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:background">@drawable/color_button_add_car</item>
+        <item name="android:background">@drawable/color_button_primary</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -49,15 +51,15 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.pitstop.BarcodeScanner.BarcodeScanner;
-import com.pitstop.BarcodeScanner.BarcodeScannerBuilder;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -106,6 +108,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     private boolean isSearchingForCar = false, isGettingVinAndCarIsConnected = false;
 
     private static final int RC_LOCATION_PERM = 101;
+    private static final int CAM_PERM_REQ = 103;
     private static final int RC_PENDING_ADD_CAR = 102;
 
     private CallMashapeAsync vinDecoderApi;
@@ -137,11 +140,10 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 if(ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
                         || ContextCompat.checkSelfPermission(AddCarActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(AddCarActivity.this, MainActivity.LOC_PERMS, RC_LOCATION_PERM);
-                } else {
-                    autoConnectService.startBluetoothSearch();
                 }
             }
 
+            autoConnectService.removeSyncedDevice();
 
         }
 
@@ -158,6 +160,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car);
         Log.i(TAG, "onCreate()");
+
+        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(bluetoothReceiver, intentFilter);
 
         networkHelper = new NetworkHelper(getApplicationContext());
         application = (GlobalApplication) getApplicationContext();
@@ -242,6 +247,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             vinDecoderApi = null;
         }
 
+        try {
+            unregisterReceiver(bluetoothReceiver);
+        } catch (Exception e) {
+
+        }
+
         //hideLoading();
         super.onPause();
     }
@@ -260,6 +271,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override
@@ -324,6 +341,34 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 && resultCode == MainActivity.RESULT_OK) {
             resumeFromPendingAddCar(data);
 
+        } else if(requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if(result != null) {
+                if(result.getContents() != null) {
+                    VIN = result.getContents();
+                    if(VIN.length() == 18) {
+                        VIN = VIN.substring(1, 18);
+                    }
+                    try {
+                        application.getMixpanelAPI().track("Scanned VIN",
+                                new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    vinEditText.setText(VIN);
+                    vinSection.setVisibility(View.VISIBLE);
+                    Log.i(TAG, "Barcode read: " + VIN);
+                    if (isValidVin(VIN)) { // show add car button iff vin is valid
+                        abstractButton.setVisibility(View.VISIBLE);
+                        scannerButton.setVisibility(View.GONE);
+                        abstractButton.setEnabled(true);
+                    } else {
+                        abstractButton.setVisibility(View.GONE);
+                        scannerButton.setVisibility(View.VISIBLE);
+                        Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -406,7 +451,6 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     showLoading("Getting car vin");
                     Log.i(TAG, "Getting car vin with device connected");
                     autoConnectService.getCarVIN();
@@ -475,10 +519,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 15 && isGettingVinAndCarIsConnected) {
-                vinAttempts++;
+            if(seconds > 10 && isGettingVinAndCarIsConnected) {
                 mHandler.sendEmptyMessage(1);
-                mHandler.post(vinDetectionRunnable);
+                mHandler.postDelayed(vinDetectionRunnable, 2000);
                 return;
             }
 
@@ -487,7 +530,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 return;
             }
 
-            mHandler.post(vinDetectionRunnable);
+            mHandler.postDelayed(vinDetectionRunnable, 2000);
 
         }
     };
@@ -527,6 +570,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
 
                 case 1: {
+                    vinAttempts++;
                     autoConnectService.getCarVIN();
                     vinRetrievalStartTime = System.currentTimeMillis();
                     break;
@@ -597,45 +641,10 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
         }
 
         Log.i(TAG,"Starting barcode scanner");
-        new BarcodeScannerBuilder()
-                .withActivity(AddCarActivity.this)
-                .withEnableAutoFocus(true)
-                .withCenterTracker()
-                .withBackfacingCamera()
-                .withText("Scanning for barcode...")
-                .withResultListener(new BarcodeScanner.OnResultListener() {
-                    @Override
-                    public void onResult(Barcode barcode) {
-                        VIN = barcode.displayValue;
 
-                        String possibleEditedVin = checkVinForInvalidCharacter(VIN);
-                        if(possibleEditedVin!=null) {
-                            VIN = possibleEditedVin;
-                        }
-
-                        try {
-                            application.getMixpanelAPI().track("Scanned VIN",
-                                    new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        vinEditText.setText(VIN);
-                        vinSection.setVisibility(View.VISIBLE);
-                        Log.i(TAG, "Barcode read: " + barcode.displayValue);
-
-                        if (isValidVin(VIN)) { // show add car button iff vin is valid
-                            abstractButton.setVisibility(View.VISIBLE);
-                            scannerButton.setVisibility(View.GONE);
-                            abstractButton.setEnabled(true);
-                        } else {
-                            abstractButton.setVisibility(View.GONE);
-                            scannerButton.setVisibility(View.VISIBLE);
-                            Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .build().startScan();
+        IntentIntegrator barcodeScanner = new IntentIntegrator(this);
+        barcodeScanner.setBeepEnabled(false);
+        barcodeScanner.initiateScan();
     }
 
     @Override
@@ -654,7 +663,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 autoConnectService.getCarVIN();
                 vinRetrievalStartTime = System.currentTimeMillis();
                 isGettingVinAndCarIsConnected = true;
-                mHandler.post(vinDetectionRunnable);
+                mHandler.postDelayed(vinDetectionRunnable, 2000);
             }
         } else if(state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
             runOnUiThread(new Runnable() {
@@ -679,7 +688,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
             Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
-            autoConnectService.startBluetoothSearch();
+            mHandler.postDelayed(vinDetectionRunnable, 2000);
         }
     }
 
@@ -704,7 +713,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 e.printStackTrace();
             }
             if (isValidVin(VIN)) {
-
+                vinAttempts = 0;
                 Log.i(TAG,"VIN is valid");
                 runOnUiThread(new Runnable() {
                     @Override
@@ -715,10 +724,11 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     }
                 });
 
-            } else if(vinAttempts > 6){
+            } else if(vinAttempts > 8){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+VIN);
+                vinAttempts = 0;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -730,9 +740,9 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             } else {
                 Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
                 Log.i(TAG,"VIN: "+VIN);
+                vinAttempts++;
                 isGettingVinAndCarIsConnected = true;
-                mHandler.post(vinDetectionRunnable);
-                autoConnectService.getCarVIN();
+                mHandler.postDelayed(vinDetectionRunnable, 2000);
             }
         }
     }
@@ -884,7 +894,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                                             int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if(requestCode == BarcodeScanner.CAM_PERM_REQ) {
+        if(requestCode == CAM_PERM_REQ) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startScanner(null);
             } else {
@@ -894,8 +904,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             @Override
                             public void onClick(View view) {
                                 ActivityCompat.requestPermissions(AddCarActivity.this,
-                                        new String[]{android.Manifest.permission.CAMERA},
-                                        BarcodeScanner.CAM_PERM_REQ);
+                                        new String[]{android.Manifest.permission.CAMERA}, CAM_PERM_REQ);
                             }
                         })
                         .show();
@@ -1045,13 +1054,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                if(scannerID != null) {
-                                    networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-
-                                        }
-                                    });
+                                if(scannerID != null && !scannerID.isEmpty()) {
+                                    networkHelper.createNewScanner(newCar.getId(), scannerID, null);
                                 }
 
                                 returnToMainActivity(newCar);
@@ -1080,7 +1084,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
 
         networkHelper.setMainCar(application.getCurrentUserId(), addedCar.getId(), null);
 
@@ -1186,4 +1190,16 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             return error;
         }
     }
+
+    private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+                Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
+                if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
+                    searchForCar(null);
+                }
+            }
+        }
+    };
 }
