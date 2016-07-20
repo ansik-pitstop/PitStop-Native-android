@@ -381,11 +381,7 @@
             android:drawableRight="@drawable/request_service_button"
             android:textColor="#fff"
             android:elevation="2dp"
-            android:visibility="invisible"
-
             android:layout_alignParentBottom="true"/>
-        <!--android:background="@drawable/color_button_primary_car"-->
-        <!---->
 
     </RelativeLayout>
 
