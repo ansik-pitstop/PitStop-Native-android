@@ -235,13 +235,16 @@ public class SplashScreen extends AppCompatActivity {
             super.onBackPressed();
         } else {
             // Otherwise, select the previous step.
-            if(signup && backPressed) {
-                signup = !signup;
-                backPressed = !backPressed;
-                loginButton.setVisibility(View.VISIBLE);
+            if(signup && mPager.getCurrentItem()==2&&firstName.getVisibility()== View.VISIBLE) {
                 firstName.setVisibility(View.GONE);
                 lastName.setVisibility(View.GONE);
                 phoneNumber.setVisibility(View.GONE);
+                email.setVisibility(View.VISIBLE);
+                password.setVisibility(View.VISIBLE);
+                findViewById(R.id.sign_log_switcher_button).setVisibility(View.VISIBLE);
+//                findViewById(R.id.login_or).setVisibility(View.GONE);
+                findViewById(R.id.fb_login_butt).setVisibility(View.VISIBLE);
+                ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
@@ -314,7 +317,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     public void loginOrSignUp(final View view) {
-        if (signup) {
+        if (signup) {//if signing up
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
                 mixpanelHelper.trackViewAppeared("Register");
