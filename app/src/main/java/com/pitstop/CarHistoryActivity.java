@@ -85,6 +85,12 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -173,7 +179,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     private int getDateToCompare(String rawDate) {
-        if(rawDate == null || rawDate.isEmpty()) {
+        if(rawDate == null || rawDate.isEmpty() || rawDate.equals("null")) {
             return 0;
         }
 

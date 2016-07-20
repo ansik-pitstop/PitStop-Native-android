@@ -19,8 +19,10 @@ public final class TABLES {
         String KEY_DATANUM = "dataNum";
         String KEY_RTCTIME = "rtcTime";
         String KEY_TIMESTAMP = "timestamp";
+        String KEY_TRIP_ID = "tripId";
         String KEY_PIDS = "pids";
         String KEY_MILEAGE = "mileage";
+        String KEY_CALCULATED_MILEAGE = "calculatedMileage";
     }
 
     public interface CAR {
@@ -29,6 +31,7 @@ public final class TABLES {
         String KEY_VIN = "vin";
         String KEY_SHOP_ID = "shopId";
         String KEY_MILEAGE = "totalMileage";
+        String KEY_DISPLAYED_MILEAGE = "displayedMileage";
         String KEY_SCANNER_ID = "scannerId";
         String KEY_MAKE = "make";
         String KEY_MODEL = "model";

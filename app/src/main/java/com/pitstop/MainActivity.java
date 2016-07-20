@@ -1,6 +1,7 @@
 package com.pitstop;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -10,7 +11,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -28,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -40,6 +44,11 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.castel.obd.util.ObdDataUtil;
+import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
@@ -52,8 +61,10 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdaper;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.background.MigrationService;
 import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.fragments.MainToolFragment;
+import com.pitstop.utils.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -61,7 +72,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+
+import io.smooch.core.Smooch;
+import io.smooch.core.User;
+import io.smooch.ui.ConversationActivity;
 
 /**
  * Created by David on 6/8/2016.
@@ -103,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
-
-    private String[] mDrawerTitles;
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -112,13 +128,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private CharSequence mTitle="Pitstop";
     private MixpanelHelper mixpanelHelper;
     private  Toolbar toolbar;
-    private ViewPager viewPager;
+    private MainAppViewPager viewPager;
     private TabLayout tabLayout;
     private Car dashboardCar;
     private GlobalApplication application;
 
     private NetworkHelper networkHelper;
     public static MainDashboardCallback callback;
+    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
 
 
 
@@ -161,9 +178,31 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        application = ((GlobalApplication) getApplication());
+
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
+
+        application = (GlobalApplication) getApplicationContext();
         setContentView(R.layout.activity_main_drawer_frame);
-        serviceIntent= new Intent(MainActivity.this, BluetoothAutoConnectService.class);
+
+        ParseACL acl = new ParseACL();
+        acl.setPublicReadAccess(true);
+        acl.setPublicWriteAccess(true);
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.setACL(acl);
+        installation.put("userId", String.valueOf(application.getCurrentUserId()));
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
+
+        serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -181,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (MainAppViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -240,39 +279,40 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void resetMenus(boolean check){
-
-        carList = carLocalStore.getAllCars();
         if(carList.size()==0&&check){
             refreshFromServer();
         }
-        mDrawerTitles = new String[carList.size()];
-        for (int i = 0; i<carList.size();i++){
-            Car car = carList.get(i);
-            mDrawerTitles[i]=car.getMake()+" " + car.getModel();
+        int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
+        if (carList.size() > 0) {
+            for(Car car : carList) {
+                if(car.isCurrentCar()||car.getId()==id) {
+                    dashboardCar = car;
+                    car.setCurrentCar(true);
+                }
+            }
+            if(dashboardCar==null){
+                carList.get(0).setCurrentCar(true);
+                dashboardCar = carList.get(0);
+            }
+            callback.setDashboardCar(MainActivity.carList);
+            callback.setCarDetailsUI();
         }
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
 
         if(mDrawerList!=null) {
+            if(mainAppSideMenuAdapter==null){
+                mainAppSideMenuAdapter = new MainAppSideMenuAdapter(this,
+                        (Car[]) carList.toArray(new Car[carList.size()]));
+                mDrawerList.setAdapter(mainAppSideMenuAdapter);
+            }else{
+                mainAppSideMenuAdapter.setData((Car[]) carList.toArray(new Car[carList.size()]));
+                mainAppSideMenuAdapter.notifyDataSetChanged();
+
+            }
             // Set the adapter for the list view
-            mDrawerList.setAdapter(new MainAppSideMenuAdapter(this,
-                    mDrawerTitles));
 //         Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-            if (carList.size() > 0) {
-                for(Car car : carList) {
-                    if(car.isCurrentCar()) {
-                        dashboardCar = car;
-                    }
-                }
-                if(dashboardCar==null){
-                    carList.get(0).setCurrentCar(true);
-                    dashboardCar = carList.get(0);
-                }
-                callback.setDashboardCar(MainActivity.carList);
-                callback.setCarDetailsUI();
-            }
         }
     }
 
@@ -281,6 +321,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(TAG, "onResume");
+
+        resetMenus(false);
 
         try {
             mixpanelHelper.trackViewAppeared(TAG);
@@ -306,7 +348,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
 
             if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
-
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 }
@@ -365,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         Intent intent = new Intent(this, CarScanActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
     public void refreshClicked(View view){
         try {
@@ -387,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        startAddCarActivity(true);
+        startAddCarActivity(null);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
     public void settingsClicked(View view){
@@ -415,6 +457,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     if (requestError == null) {
                         application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
                         startActivityForResult(intent, RC_SETTINGS);
+                        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     } else {
                         Log.e(TAG, "Get user error: " + requestError.getMessage());
                     }
@@ -422,9 +465,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
+            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
         }
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -458,6 +503,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             //intent.putExtra("carId",dashboardCar.getId());
             intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
             startActivity(intent);
+            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -467,7 +513,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             resetMenus(false);
         }
     }
-
 
     public void refreshFromServer() {
         if(NetworkHelper.isConnected(this)) {
@@ -485,6 +530,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         }else{
             Snackbar.make(findViewById(R.id.drawer_layout),"You are not connected to internet",Snackbar.LENGTH_SHORT).show();
+            refreshFromLocal();
+            resetMenus(false);
         }
     }
 
@@ -540,12 +587,25 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             if (isLoading) {
                                 hideLoading();
                             }
+                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.pagerTopMargin).setVisibility(View.GONE);
+                                findViewById(R.id.tabs).setVisibility(View.GONE);
+                                findViewById(R.id.main_view).setVisibility(View.GONE);
+                                findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                            }
                         } else {
+                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
+                                findViewById(R.id.pagerTopMargin).setVisibility(View.VISIBLE);
+                                findViewById(R.id.tabs).setVisibility(View.VISIBLE);
+                                findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                findViewById(R.id.main_view).setVisibility(View.VISIBLE);
+                            }
                             callback.setDashboardCar(carList);
                             carLocalStore.deleteAllCars();
                             carLocalStore.storeCars(carList);
                             callback.setCarDetailsUI();
                         }
+                        resetMenus(false);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this,
@@ -576,12 +636,38 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
+    public void getIOData(final DataPackageInfo dataPackageInfo) {
         if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+
+            final HashSet<String> activeIssueNames = new HashSet<>();
+
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
+                activeIssueNames.add(issues.getIssueDetail().getItem());
+            }
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshFromServer();
+                    boolean newDtcFound = false;
+
+                    if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+                        String[] DTCs = dataPackageInfo.dtcData.split(",");
+                        for(String dtc : DTCs) {
+                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+                            if(!activeIssueNames.contains(parsedDtc)) {
+                                newDtcFound = true;
+                            }
+                        }
+                    }
+
+                    if(newDtcFound) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshFromServer();
+                            }
+                        }, 1111);
+                    }
                 }
             });
         }
@@ -611,26 +697,31 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if(!progressDialog.isShowing()) {
             progressDialog.show();
         }
-
     }
 
     /** Swaps fragments in the main content view */
     private void selectItem(int position){
-
         dashboardCar = carList.get(position);
+        for (Car car : carList){
+            car.setCurrentCar(false);
+        }
+        dashboardCar.setCurrentCar(true);
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, carList.get(position).getId()).apply();
         callback.setDashboardCar(carList);
         callback.setCarDetailsUI();
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+        if(viewPager.getCurrentItem() == 0) {
+            findViewById(R.id.viewpager).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
+        }
     }
 
 
-    public void startAddCarActivity(boolean hasCar) {
+    public void startAddCarActivity(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        intent.putExtra(MainActivity.HAS_CAR_IN_DASHBOARD, hasCar);
-        startActivity(intent);
+        startActivityForResult(intent, RC_ADD_CAR);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
 
@@ -639,7 +730,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                             int[] grantResults) {
         if(requestCode == RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();
+                //autoConnectService.startBluetoothSearch();
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {
@@ -703,7 +794,57 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         alertDialog.show();
     }
 
+    public void startChat(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Chat with " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        final HashMap<String, Object> customProperties = new HashMap<>();
+        customProperties.put("VIN", dashboardCar.getVin());
+        customProperties.put("Car Make",  dashboardCar.getMake());
+        customProperties.put("Car Model", dashboardCar.getModel());
+        customProperties.put("Car Year", dashboardCar.getYear());
+        Log.i(TAG, dashboardCar.getDealership().getEmail());
+        customProperties.put("Email",dashboardCar.getDealership().getEmail());
+        User.getCurrentUser().addProperties(customProperties);
+        if(application.getCurrentUser() != null) {
+            customProperties.put("Phone", application.getCurrentUser().getPhone());
+            User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
+            User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
+        }
+        ConversationActivity.show(this);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    public void navigateToDealer(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String uri = String.format(Locale.ENGLISH,
+                "http://maps.google.com/maps?daddr=%s",
+                dashboardCar.getDealership().getAddress());
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    public void callDealer(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                dashboardCar.getDealership().getPhone()));
+        startActivity(intent);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
 
     /**
      * Request service for all issues currently displayed or custom request
@@ -728,7 +869,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 });
     }
     public interface MainDashboardCallback{
-        public void activityResultCallback(int requestCode, int resultCode, Intent data);
+        void activityResultCallback(int requestCode, int resultCode, Intent data);
         void onServerRefreshed();
         void onLocalRefreshed();
 

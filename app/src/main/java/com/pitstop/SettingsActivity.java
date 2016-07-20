@@ -137,6 +137,7 @@ public class SettingsActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK,intent);
         super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     public static class SettingsFragment extends PreferenceFragment {

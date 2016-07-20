@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -33,10 +34,6 @@
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
-
-    <meta-data
-        android:name="com.google.android.gms.vision.DEPENDENCIES"
-        android:value="barcode" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -83,6 +80,9 @@
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
+
+        <meta-data android:name="com.parse.push.gcm_sender_id"
+            android:value="id:309712221750" />
 
         <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
 
@@ -176,20 +176,16 @@
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
-        <activity
-            android:name=".BarcodeScannerActivity"
-            android:theme="@style/AppNoActionBarTheme" />
 
-        <!--receiver android:name=".utils.GcmReceiver"
+        <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
                 <category android:name="${applicationId}" />
             </intent-filter>
-        </receiver-->
-
+        </receiver>
+        
         <!-- Parse push notification stuff -->
 
         <service android:name="com.parse.PushService" />
@@ -210,14 +206,29 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name. -->
                 <category android:name="${applicationId}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="abc" />
             </intent-filter>
         </receiver>
 
         <!-- smooch stuff -->
 
-        <service android:name="io.smooch.core.service.SmoochService" />
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="${applicationId}"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+            </intent-filter>
+        </receiver>
+
+        <!--service android:name="io.smooch.core.service.SmoochService" />
         <service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
             android:exported="false">
@@ -234,7 +245,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </service-->
 
         <receiver android:name=".auto.AndroidAutoHeardReceiver">
             <intent-filter>

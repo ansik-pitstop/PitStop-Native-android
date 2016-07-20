@@ -20,7 +20,8 @@ public class LocalCarAdapter {
     public static final String CREATE_TABLE_CAR = "CREATE TABLE IF NOT EXISTS "
             + TABLES.CAR.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.CAR.KEY_VIN + " TEXT, "
-            + TABLES.CAR.KEY_MILEAGE + " INTEGER, "
+            + TABLES.CAR.KEY_MILEAGE + " REAL, "
+            + TABLES.CAR.KEY_DISPLAYED_MILEAGE + " REAL, "
             + TABLES.CAR.KEY_ENGINE + " TEXT, "
             + TABLES.CAR.KEY_SHOP_ID + " INTEGER, "
             + TABLES.CAR.KEY_TRIM + " TEXT, "
@@ -154,14 +155,9 @@ public class LocalCarAdapter {
 
     /** Delete all cars*/
     public void deleteAllCars() {
-        List<Car> carEntries = getAllCars();
-
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        for(Car car : carEntries) {
-            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID +"=?",
-                    new String[] { String.valueOf(car.getId()) });
-        }
+        db.delete(TABLES.CAR.TABLE_NAME, null, null);
 
         db.close();
     }
@@ -173,7 +169,8 @@ public class LocalCarAdapter {
         car.setMake(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE)));
         car.setModel(c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL)));
         car.setYear(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR)));
-        car.setTotalMileage(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
+        car.setTotalMileage(c.getDouble(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE)));
+        car.setDisplayedMileage(c.getDouble(c.getColumnIndex(TABLES.CAR.KEY_DISPLAYED_MILEAGE)));
         car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
         car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
@@ -193,6 +190,7 @@ public class LocalCarAdapter {
         values.put(TABLES.CAR.KEY_MODEL, car.getModel());
         values.put(TABLES.CAR.KEY_YEAR, car.getYear());
         values.put(TABLES.CAR.KEY_MILEAGE, car.getTotalMileage());
+        values.put(TABLES.CAR.KEY_DISPLAYED_MILEAGE, car.getDisplayedMileage());
         values.put(TABLES.CAR.KEY_TRIM, car.getTrim());
         values.put(TABLES.CAR.KEY_ENGINE, car.getEngine());
         values.put(TABLES.CAR.KEY_VIN, car.getVin());
