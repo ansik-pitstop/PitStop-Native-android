@@ -67,7 +67,7 @@ public class BluetoothChat {
 			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
 			try {
 				if(mmSocket!=null) {
-					LogUtil.i("Connecting to socket");
+					LogUtil.i("Connecting to socket - insecure");
 
 					mmSocket.connect();
 
@@ -82,19 +82,11 @@ public class BluetoothChat {
 			} catch (IOException connectException) {
 				connectException.printStackTrace();
 				try {
-					LogUtil.i("Coudn't connect to socket, trying again");
-
-					mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
-					mmSocket.connect();
-				} catch (Exception e) {
-					e.printStackTrace();
 					LogUtil.i("Coudn't connect to socket");
-					try {
-						mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
-						mmSocket.close();
-					} catch(IOException e2) {
-						e2.printStackTrace();
-					}
+					mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
+					mmSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 				return;
 			}

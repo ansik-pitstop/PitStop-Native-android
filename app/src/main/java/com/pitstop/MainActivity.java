@@ -1384,7 +1384,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
                     User.getCurrentUser().addProperties(customProperties);
 
-                    if(user != null) {
+                    if(user != null && !BuildConfig.DEBUG) {
                         Smooch.getConversation().sendMessage(
                                 new io.smooch.core.Message(user.getFirstName() +
                                         (user.getLastName() == null || user.getLastName().equals("null")
