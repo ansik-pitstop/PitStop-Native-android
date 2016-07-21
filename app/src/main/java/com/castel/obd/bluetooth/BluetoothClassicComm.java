@@ -169,7 +169,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private void connectBluetooth() {
 
-        if (btConnectionState == CONNECTED) {
+        if (btConnectionState == CONNECTED || btConnectionState == CONNECTING) {
             Log.i(TAG,"Bluetooth is connected - BluetoothClassicComm");
             return;
         }
@@ -187,6 +187,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         String macAddress = OBDInfoSP.getMacAddress(mContext);
 
         if (!"".equals(macAddress)) {
+            mBluetoothAdapter.cancelDiscovery();
             isMacAddress = true;
             Log.i(TAG,"Using macAddress "+macAddress+" to connect to device - BluetoothClassicComm");
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);

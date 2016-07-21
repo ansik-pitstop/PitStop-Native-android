@@ -563,9 +563,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
 
                 case 1: {
-                    vinAttempts++;
-                    autoConnectService.getCarVIN();
-                    vinRetrievalStartTime = System.currentTimeMillis();
+                    if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
+                        autoConnectService.startBluetoothSearch();
+                    } else {
+                        vinAttempts++;
+                        autoConnectService.getCarVIN();
+                        vinRetrievalStartTime = System.currentTimeMillis();
+                    }
                     break;
                 }
             }
