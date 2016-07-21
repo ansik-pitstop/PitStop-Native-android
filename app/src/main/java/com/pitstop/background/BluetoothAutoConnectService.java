@@ -125,8 +125,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private static String TAG = "BtAutoConnectDebug";
 
-    private final ArrayList<String> PID_PRIORITY = new ArrayList<>(19);
-    private final String SUPPORTED_PIDS = "";
+    private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
+    private String supportedPids = "";
+    private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
     @Override
     public void onCreate() {
@@ -338,14 +339,28 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(gettingPID){
             Log.i(TAG,"Getting parameter data- auto-connect service");
             pids = parameterPackageInfo.value.get(0).value.split(",");
-            HashSet<String> supportedPids = new HashSet<>(Arrays.asList(pids));
+            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
             StringBuilder sb = new StringBuilder();
 
+            int pidCount = 0;
             for(String dataType : PID_PRIORITY) {
-                if(supportedPids.contains(dataType)) {
-                    //sb.append();
+                if(pidCount >= 10) {
+                    continue;
+                }
+                if(supportedPidsSet.contains(dataType)) {
+                    sb.append(dataType);
+                    sb.append(",");
+                    ++pidCount;
                 }
             }
+
+            if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
+                supportedPids = sb.substring(0, sb.length() - 1);
+            } else {
+                supportedPids = DEFAULT_PIDS;
+            }
+
+            setParam(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;" + supportedPids);
 
             pidI = 0;
             sendForPIDS();
@@ -513,7 +528,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(counter%200==0){
-            if(!isGettingVin && SUPPORTED_PIDS.isEmpty()) {
+            if(!isGettingVin) {
                 getPIDs();
             }
         }
