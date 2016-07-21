@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -52,6 +53,8 @@ public class GlobalApplication extends Application {
         Log.d(TAG, "onCreate");
 
         userAdapter = new UserAdapter(this);
+
+        MultiDex.install(this);
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));

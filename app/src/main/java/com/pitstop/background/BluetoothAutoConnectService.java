@@ -870,6 +870,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         }
                         tripRequestQueue.pop();
                         isSendingTripRequest = false;
+                        lastTripId = -1;
+                        sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
                         executeTripRequests();
                     }
                 };
