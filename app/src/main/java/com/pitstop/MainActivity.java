@@ -719,7 +719,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
 
     public void startAddCarActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
+        Intent intent = new Intent(MainActivity.this, com.pitstop.AddCarProcesses.AddCarActivity.class);
         startActivityForResult(intent, RC_ADD_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
