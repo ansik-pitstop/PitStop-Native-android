@@ -73,8 +73,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SetParam"
-            android:onClick="setParam"
+            android:text="setinterval"
+            android:onClick="setFixedUpload"
             android:background="@drawable/color_button_add_car"
             android:elevation="4dp"
             android:textColor="#fff" />
@@ -112,9 +112,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="get VIN"
+            android:text="setparam"
             android:textColor="#fff"
-            android:onClick="getVin"
+            android:onClick="setParam"
             android:background="@drawable/color_button_add_car"/>
 
     </LinearLayout>

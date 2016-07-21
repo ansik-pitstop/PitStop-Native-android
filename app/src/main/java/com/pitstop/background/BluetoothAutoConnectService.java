@@ -669,7 +669,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void setFixedUpload() { // to make result 4 pids send every 10 seconds
         Log.i(TAG, "Setting fixed upload parameters");
-        bluetoothCommunicator.obdSetParameter("1202,1201,1203,1204,1205,1206",
+        bluetoothCommunicator.obdSetParameter(ObdManager.FIXED_UPLOAD_TAG,
                 "01;01;01;10;2;2105,2106,210b,210c,210d,210e,210f,2110,2124,212d");
     }
 

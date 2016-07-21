@@ -311,6 +311,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                     dataListener.getBluetoothState(btConnectionState);
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {

@@ -28,7 +28,7 @@ public class ObdManager {
     private static final String TAG = ObdManager.class.getSimpleName();
 
     public final static String BT_DEVICE_NAME = "IDD-212";
-    public final static String FIXED_UPLOAD_TAG = "1201,1202,1203,1204,1205,1206";
+    public final static String FIXED_UPLOAD_TAG = "1202,1201,1203,1204,1205,1206";
     public final static String RTC_TAG = "1A01";
     public final static String VIN_TAG = "2201";
     public final static String PID_TAG = "2401";
