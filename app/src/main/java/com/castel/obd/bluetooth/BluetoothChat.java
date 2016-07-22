@@ -72,7 +72,7 @@ public class BluetoothChat {
 					mmSocket.connect();
 
 					mHandler.sendMessage(mHandler.obtainMessage(
-							BluetoothManage.BLUETOOTH_CONNECT_SUCCESS,
+							IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
 							mmDevice.getAddress()));
 
 					connectedThread = new ConnectedThread(mmSocket);
