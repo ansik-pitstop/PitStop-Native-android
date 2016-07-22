@@ -109,7 +109,7 @@
             android:text="Log In"
             android:textColor="#fff"
             android:onClick="loginOrSignUp"
-            android:background="@drawable/color_button_primary"
+            android:background="@drawable/color_button_highlight"
             android:id="@+id/login_btn"
             android:elevation="6dp"
             android:layout_marginBottom="12dp"
@@ -120,11 +120,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/fb_logo"
-            android:paddingLeft="20dp"
+            android:paddingLeft="34dp"
             android:text="Log In with Facebook"
             android:onClick="loginFacebook"
             android:textColor="#efefef"
-            android:background="@drawable/color_button_fb"/>
+            android:background="@drawable/color_button_fb"
+            android:paddingTop="1dp" />
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/fb_login"

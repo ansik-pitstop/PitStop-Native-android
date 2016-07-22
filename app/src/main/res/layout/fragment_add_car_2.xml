@@ -7,8 +7,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button2"
-        android:layout_below="@+id/textView60">
+        android:layout_above="@+id/button2">
 
         <LinearLayout
             android:orientation="vertical"
@@ -121,7 +120,7 @@
         android:text="SEARCH FOR VEHICLE"
         android:id="@+id/button2"
         android:layout_weight="1"
-        android:background="@drawable/color_button_primary"
+        android:background="@drawable/color_button_rectangle_highlight"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_alignParentBottom="true"

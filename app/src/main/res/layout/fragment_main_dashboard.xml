@@ -377,7 +377,7 @@
             android:onClick="requestMultiService"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:background="@drawable/color_button_primary_car"
+            android:background="@drawable/color_button_rectangle_primary"
             android:drawableRight="@drawable/request_service_button"
             android:textColor="#fff"
             android:elevation="2dp"

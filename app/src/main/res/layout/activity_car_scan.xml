@@ -72,7 +72,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="6dp"
-                    android:background="@drawable/color_button_primary_car"
+                    android:background="@drawable/color_button_rectangle_primary"
                     android:textColor="#fff"
                     android:onClick="updateMileage"/>
 
@@ -393,7 +393,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Scan Car"
-        android:background="@drawable/color_button_primary_car"
+        android:background="@drawable/color_button_highlight"
         android:onClick="startCarScan"
         android:textColor="#fff"
         android:elevation="2dp"

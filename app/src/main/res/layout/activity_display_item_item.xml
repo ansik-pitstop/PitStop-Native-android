@@ -86,14 +86,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:textSize="15sp"
-            android:background="#ffffff"/>
+            android:textSize="15sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:paddingBottom="15dp">
+            android:layout_alignParentBottom="true">
 
             <Button
                 android:id="@+id/btnClearDtc"
@@ -108,7 +106,7 @@
 
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:text="Request Service"
                 android:id="@+id/btnRequestService"
                 android:onClick="requestService"
@@ -117,7 +115,8 @@
                 android:paddingRight="16dp"
                 android:background="@drawable/color_button_primary"
                 android:drawableRight="@drawable/request_service_button"
-                android:textColor="#fff" />
+                android:textColor="#fff"
+                android:layout_marginBottom="8dp" />
 
         </RelativeLayout>
     </RelativeLayout>

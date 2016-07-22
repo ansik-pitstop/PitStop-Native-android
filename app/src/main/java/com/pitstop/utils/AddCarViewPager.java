@@ -7,6 +7,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
+
+import com.pitstop.R;
 
 /**
  * Created by David on 7/11/2016.
