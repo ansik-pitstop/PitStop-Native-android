@@ -136,26 +136,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
-        PID_PRIORITY.add("210C");
-        PID_PRIORITY.add("210D");
-        PID_PRIORITY.add("2106");
-        PID_PRIORITY.add("2107");
-        PID_PRIORITY.add("2110");
-        PID_PRIORITY.add("2124");
-        PID_PRIORITY.add("2105");
-        PID_PRIORITY.add("210E");
-        PID_PRIORITY.add("210F");
-        PID_PRIORITY.add("2142");
-        PID_PRIORITY.add("210A");
-        PID_PRIORITY.add("210B");
-        PID_PRIORITY.add("2104");
-        PID_PRIORITY.add("2111");
-        PID_PRIORITY.add("212C");
-        PID_PRIORITY.add("212D");
-        PID_PRIORITY.add("215C");
-        PID_PRIORITY.add("2103");
-        PID_PRIORITY.add("212E");
-
         if(BluetoothAdapter.getDefaultAdapter() != null) {
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -180,6 +160,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
         lastDeviceTripId = sharedPreferences.getInt(pfDeviceTripId, -1);
         lastTripMileage = sharedPreferences.getInt(pfTripMileage, 0);
+
+        initPidPriorityList();
 
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -339,28 +321,30 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(gettingPID){
             Log.i(TAG,"Getting parameter data- auto-connect service");
             pids = parameterPackageInfo.value.get(0).value.split(",");
-            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
-            StringBuilder sb = new StringBuilder();
+            //HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
+            //StringBuilder sb = new StringBuilder();
+//
+            //int pidCount = 0;
+            //for(String dataType : PID_PRIORITY) {
+            //    if(pidCount >= 10) {
+            //        continue;
+            //    }
+            //    if(supportedPidsSet.contains(dataType)) {
+            //        sb.append(dataType);
+            //        sb.append(",");
+            //        ++pidCount;
+            //    }
+            //}
+//
+            //if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
+            //    supportedPids = sb.substring(0, sb.length() - 1);
+            //} else {
+            //    supportedPids = DEFAULT_PIDS;
+            //}
+//
+            //setParam(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
 
-            int pidCount = 0;
-            for(String dataType : PID_PRIORITY) {
-                if(pidCount >= 10) {
-                    continue;
-                }
-                if(supportedPidsSet.contains(dataType)) {
-                    sb.append(dataType);
-                    sb.append(",");
-                    ++pidCount;
-                }
-            }
-
-            if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
-                supportedPids = sb.substring(0, sb.length() - 1);
-            } else {
-                supportedPids = DEFAULT_PIDS;
-            }
-
-            setParam(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;" + supportedPids);
+            setFixedUpload();
 
             pidI = 0;
             sendForPIDS();
@@ -433,11 +417,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
                 executeTripRequests();
             }
-            //for(Pid pid : pidsWithNoTripId) {
-            //    pid.setTripId(lastDeviceTripId);
-            //    localPid.createPIDData(pid);
-            //}
-            //pidsWithNoTripId.clear();
         }
 
         if(dataPackageInfo.result == 4) {
@@ -527,7 +506,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             callbacks.getIOData(dataPackageInfo);
         }
 
-        if(counter%200==0){
+        if(counter==50){
             if(!isGettingVin) {
                 getPIDs();
             }
@@ -538,7 +517,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(counter%600==0){
             getPendingDTCs();
         }
-        if(counter==10000){
+        if(counter==1000){
             counter = 1;
         }
 
@@ -1334,5 +1313,27 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public int getLastTripId() {
         return lastTripId;
+    }
+
+    private void initPidPriorityList() {
+        PID_PRIORITY.add("210C");
+        PID_PRIORITY.add("210D");
+        PID_PRIORITY.add("2106");
+        PID_PRIORITY.add("2107");
+        PID_PRIORITY.add("2110");
+        PID_PRIORITY.add("2124");
+        PID_PRIORITY.add("2105");
+        PID_PRIORITY.add("210E");
+        PID_PRIORITY.add("210F");
+        PID_PRIORITY.add("2142");
+        PID_PRIORITY.add("210A");
+        PID_PRIORITY.add("210B");
+        PID_PRIORITY.add("2104");
+        PID_PRIORITY.add("2111");
+        PID_PRIORITY.add("212C");
+        PID_PRIORITY.add("212D");
+        PID_PRIORITY.add("215C");
+        PID_PRIORITY.add("2103");
+        PID_PRIORITY.add("212E");
     }
 }

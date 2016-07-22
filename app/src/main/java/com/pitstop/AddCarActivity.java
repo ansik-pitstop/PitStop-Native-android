@@ -444,7 +444,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    showLoading("Getting car vin");
+                    showLoading("Linking with Device, give it a few seconds");
                     Log.i(TAG, "Getting car vin with device connected");
                     autoConnectService.getCarVIN();
                     vinRetrievalStartTime = System.currentTimeMillis();
@@ -685,6 +685,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
             Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showLoading("Device sucessfully linked");
+                }
+            });
             mHandler.postDelayed(vinDetectionRunnable, 2000);
         }
     }
@@ -695,6 +701,13 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             Log.i(TAG,"VIN response received");
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showLoading("Getting car VIN");
+                }
+            });
 
             isGettingVinAndCarIsConnected = false;
             scannerID = parameterPackageInfo.deviceId;

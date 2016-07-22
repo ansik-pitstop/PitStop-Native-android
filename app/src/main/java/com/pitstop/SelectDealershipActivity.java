@@ -171,9 +171,12 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 recyclerView.setAdapter(adapter);
             }
 
-        } else {
+        } else if(!localStore.getAllDealerships().isEmpty()) {
             Log.i(TAG, "No internet");
-            localStore.deleteAllDealerships();
+            progressBar.setVisibility(View.GONE);
+            adapter = new CustomAdapter(localStore.getAllDealerships());
+            recyclerView.setAdapter(adapter);
+        } else {
             hadInternetConnection = false;
             message_card.setVisibility(View.VISIBLE);
         }
