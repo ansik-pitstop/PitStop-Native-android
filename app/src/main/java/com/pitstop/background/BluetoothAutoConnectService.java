@@ -60,6 +60,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -124,12 +125,36 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private static String TAG = "BtAutoConnectDebug";
 
+    private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
+    private String supportedPids = "";
+    private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         networkHelper = new NetworkHelper(getApplicationContext());
+
+        PID_PRIORITY.add("210C");
+        PID_PRIORITY.add("210D");
+        PID_PRIORITY.add("2106");
+        PID_PRIORITY.add("2107");
+        PID_PRIORITY.add("2110");
+        PID_PRIORITY.add("2124");
+        PID_PRIORITY.add("2105");
+        PID_PRIORITY.add("210E");
+        PID_PRIORITY.add("210F");
+        PID_PRIORITY.add("2142");
+        PID_PRIORITY.add("210A");
+        PID_PRIORITY.add("210B");
+        PID_PRIORITY.add("2104");
+        PID_PRIORITY.add("2111");
+        PID_PRIORITY.add("212C");
+        PID_PRIORITY.add("212D");
+        PID_PRIORITY.add("215C");
+        PID_PRIORITY.add("2103");
+        PID_PRIORITY.add("212E");
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
 
@@ -314,6 +339,29 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(gettingPID){
             Log.i(TAG,"Getting parameter data- auto-connect service");
             pids = parameterPackageInfo.value.get(0).value.split(",");
+            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
+            StringBuilder sb = new StringBuilder();
+
+            int pidCount = 0;
+            for(String dataType : PID_PRIORITY) {
+                if(pidCount >= 10) {
+                    continue;
+                }
+                if(supportedPidsSet.contains(dataType)) {
+                    sb.append(dataType);
+                    sb.append(",");
+                    ++pidCount;
+                }
+            }
+
+            if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
+                supportedPids = sb.substring(0, sb.length() - 1);
+            } else {
+                supportedPids = DEFAULT_PIDS;
+            }
+
+            setParam(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;" + supportedPids);
+
             pidI = 0;
             sendForPIDS();
             gettingPID=false;
@@ -355,6 +403,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getIOData(DataPackageInfo dataPackageInfo) {
 
         Log.v(TAG, dataPackageInfo.toString());
+
+
 
         if(dataPackageInfo.dataNumber != null) {
             lastDataNum = dataPackageInfo.dataNumber;
@@ -668,7 +718,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void setFixedUpload() { // to make result 4 pids send every 10 seconds
         Log.i(TAG, "Setting fixed upload parameters");
         bluetoothCommunicator.obdSetParameter(ObdManager.FIXED_UPLOAD_TAG,
-                "01;01;01;10;2;2105,2106,210b,210c,210d,210e,210f,2110,2124,212d");
+                "01;01;01;10;2;2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
     }
 
     public void setParam(String tag, String values) {
