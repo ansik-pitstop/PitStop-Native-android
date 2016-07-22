@@ -58,7 +58,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.adapters.MainAppSideMenuAdapter;
-import com.pitstop.adapters.MainAppViewPagerAdaper;
+import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.background.MigrationService;
@@ -77,7 +77,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import io.smooch.core.Smooch;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 
@@ -228,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        MainAppViewPagerAdaper adapter = new MainAppViewPagerAdaper(getSupportFragmentManager());
+        MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
         adapter.addFragment(new MainToolFragment(), "TOOLS");
 

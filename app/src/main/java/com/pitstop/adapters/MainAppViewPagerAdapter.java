@@ -10,10 +10,10 @@ import java.util.List;
 /**
  * Created by david on 6/9/2016.
  */
-public class MainAppViewPagerAdaper extends FragmentPagerAdapter {
+public class MainAppViewPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
-    public MainAppViewPagerAdaper(FragmentManager fm) {
+    public MainAppViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
