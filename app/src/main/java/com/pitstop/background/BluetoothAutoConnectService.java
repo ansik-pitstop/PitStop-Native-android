@@ -364,20 +364,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         currentDeviceId = dataPackageInfo.deviceId;
         if(dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
             lastData = dataPackageInfo;
-
-            //int tripMileage = Integer.parseInt(dataPackageInfo.tripMileage);
-//
-            //if(lastTripMileage > tripMileage) {
-            //    sendPidDataToServer(lastData);
-//
-            //    tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
-            //    executeTripRequests();
-//
-            //    lastTripMileage = -1;
-            //} else {
-            //    lastTripMileage = tripMileage;
-            //}
-            //sharedPreferences.edit().putInt(pfTripMileage, lastTripMileage);
         }
 
         if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()) {
