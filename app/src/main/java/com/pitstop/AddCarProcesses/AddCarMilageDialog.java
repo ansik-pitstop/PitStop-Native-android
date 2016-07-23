@@ -46,7 +46,7 @@ public class AddCarMilageDialog extends DialogFragment {
                             utils.callback.hideLoading("Please enter valid mileage");
                             return;
                         }
-                        utils.addCarToServer(mileageEditText.getText().toString());
+                        utils.updateMilage(mileageEditText.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

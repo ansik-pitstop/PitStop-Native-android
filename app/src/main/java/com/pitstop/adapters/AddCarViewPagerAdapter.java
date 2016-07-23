@@ -6,6 +6,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.View;
 
+import com.pitstop.AddCarProcesses.AddCarChooseDealershipFragment;
+import com.pitstop.utils.LoadingActivityInterface;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +19,11 @@ import java.util.List;
 public class AddCarViewPagerAdapter extends FragmentStatePagerAdapter {
     private final HashMap<Integer,Fragment> mFragmentList = new HashMap<>();
     private final HashMap<Integer,String> mFragmentTitleList = new HashMap<>();
+    private LoadingActivityInterface callbackActivity;
 
-    public AddCarViewPagerAdapter(FragmentManager fm) {
+    public AddCarViewPagerAdapter(FragmentManager fm, LoadingActivityInterface callbackActivity) {
         super(fm);
+        this.callbackActivity = callbackActivity;
     }
 
 
@@ -38,6 +43,9 @@ public class AddCarViewPagerAdapter extends FragmentStatePagerAdapter {
                 mFragmentList.remove(location);
                 notifyDataSetChanged();
                 mFragmentList.put(location,(Fragment)fragment.newInstance());
+                if(fragment == AddCarChooseDealershipFragment.class){
+                    ((AddCarChooseDealershipFragment)mFragmentList.get(location)).setCallbackActivity(callbackActivity);
+                }
                 mFragmentTitleList.put(location,title);
             }
         } catch (InstantiationException e) {

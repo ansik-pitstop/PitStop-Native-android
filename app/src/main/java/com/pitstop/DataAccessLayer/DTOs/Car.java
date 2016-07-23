@@ -166,6 +166,9 @@ public class Car implements Parcelable {
 
     public void setDealership(Dealership dealership) {
         this.dealership = dealership;
+        if ( dealership != null ) {
+            this.shopId = dealership.getId();
+        }
     }
 
     public boolean isServiceDue() {

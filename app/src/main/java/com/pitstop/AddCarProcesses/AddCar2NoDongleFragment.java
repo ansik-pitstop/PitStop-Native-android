@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.pitstop.R;
 
@@ -28,6 +29,7 @@ public class AddCar2NoDongleFragment extends Fragment {
                 R.layout.fragment_add_car_2_no_dongle, container, false);
         final Button searchButton= (Button) rootView.findViewById(R.id.add_vehicle);
         final Button scanButton= (Button) rootView.findViewById(R.id.scan_vin);
+        final TextView scanButtonText= (TextView) rootView.findViewById(R.id.scan_vin_alternate_text);
 
         final EditText VINField = (EditText) rootView.findViewById(R.id.VIN);
         VINField.addTextChangedListener(new TextWatcher() {
@@ -53,10 +55,12 @@ public class AddCar2NoDongleFragment extends Fragment {
                         Log.i(TAG,"AfterTextChanged -- valid vin");
                         searchButton.setEnabled(true);
                         scanButton.setVisibility(View.GONE);
+                        scanButtonText.setVisibility(View.GONE);
                         searchButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_highlight));
                     } else {
                         Log.i(TAG,"AfterTextChanged -- Vin not valid");
                         scanButton.setVisibility(View.VISIBLE);
+                        scanButtonText.setVisibility(View.VISIBLE);
                         searchButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_grey));
                         searchButton.setEnabled(false);
                     }

@@ -80,7 +80,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your Dongle is Plugged In"
+                        android:text="Pitstop Device is Plugged In"
                         android:id="@+id/textView64"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="16dp"
@@ -91,7 +91,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your dongle should be able to be plugged into your car at a location close to what is indicated below"
+                    android:text="Your Pitstop device should be able to be plugged into your car at a location close to what is indicated below"
                     android:id="@+id/textView45"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="16dp"
@@ -126,6 +126,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:textColor="#fff" />
+        android:textColor="#fff"
+        android:onClick="searchForCar" />
 
 </RelativeLayout>

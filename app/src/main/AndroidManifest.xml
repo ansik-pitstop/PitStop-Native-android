@@ -162,6 +162,7 @@
             android:name=".AddCarProcesses.AddCarActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustPan|adjustResize"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -51,6 +52,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
@@ -573,51 +575,61 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @see #getCarDetails()
      * */
     private void loadCarDetailsFromServer() {
-        int userId = application.getCurrentUserId();
+        final int userId = application.getCurrentUserId();
 
-        networkHelper.getCarsByUserId(userId, new RequestCallback() {
+        networkHelper.getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if(requestError == null) {
-                    try {
-                        carList = Car.createCarsList(response);
-
-                        if(carList.isEmpty()) {
-                            if (isLoading) {
-                                hideLoading();
-                            }
-                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
-                                findViewById(R.id.pagerTopMargin).setVisibility(View.GONE);
-                                findViewById(R.id.tabs).setVisibility(View.GONE);
-                                findViewById(R.id.main_view).setVisibility(View.GONE);
-                                findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
-                            }
-                        } else {
-                            if(findViewById(R.id.main_view) != null && findViewById(R.id.no_car_text) != null) {
-                                findViewById(R.id.pagerTopMargin).setVisibility(View.VISIBLE);
-                                findViewById(R.id.tabs).setVisibility(View.VISIBLE);
-                                findViewById(R.id.no_car_text).setVisibility(View.GONE);
-                                findViewById(R.id.main_view).setVisibility(View.VISIBLE);
-                            }
-                            callback.setDashboardCar(carList);
-                            carLocalStore.deleteAllCars();
-                            carLocalStore.storeCars(carList);
-                            callback.setCarDetailsUI();
-                        }
-                        resetMenus(false);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this,
-                                "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
-                    }
+                if(response == null || response.isEmpty() || response.equals("{}")) {
+                    application.logOutUser();
+                    Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
-                    Log.e(TAG, "Load cars error: " + requestError.getMessage());
-                    Toast.makeText(MainActivity.this,
-                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                    int mainCarId = -1;
+                    try {
+                        mainCarId = new JSONObject(response).getJSONObject("settings").getInt("mainCar");
+                    } catch (JSONException e) {
+                    }
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    sharedPreferences.edit().putInt(MainDashboardFragment.pfCurrentCar, mainCarId).commit();
+
+                    networkHelper.getCarsByUserId(userId, new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                try {
+                                    carList = Car.createCarsList(response);
+
+                                    if (carList.isEmpty()) {
+                                        if (isLoading) {
+                                            hideLoading();
+                                        }
+                                        findViewById(R.id.main_view).setVisibility(View.GONE);
+                                        findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                                    } else {
+                                        findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                        callback.setDashboardCar(carList);
+                                        carLocalStore.deleteAllCars();
+                                        carLocalStore.storeCars(carList);
+                                        callback.setCarDetailsUI();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(MainActivity.this,
+                                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.e(TAG, "Load cars error: " + requestError.getMessage());
+                                Toast.makeText(MainActivity.this,
+                                        "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });
     }
+
     @Override
     public void getBluetoothState(int state) {
         if(state== BluetoothManage.DISCONNECTED) {

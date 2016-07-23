@@ -16,5 +16,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:hint="Mileage" />
+        android:imeOptions="actionDone"
+        android:hint="Mileage"
+        android:inputType="number"
+        android:singleLine="true" />
 </LinearLayout>

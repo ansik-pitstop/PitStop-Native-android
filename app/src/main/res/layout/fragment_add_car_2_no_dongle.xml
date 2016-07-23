@@ -47,6 +47,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
+                    android:singleLine="true"
                     android:imeOptions="actionGo"
                     android:hint="VIN" />
 
@@ -54,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="or alternatively"
-                    android:id="@+id/textView66"
+                    android:id="@+id/scan_vin_alternate_text"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp" />

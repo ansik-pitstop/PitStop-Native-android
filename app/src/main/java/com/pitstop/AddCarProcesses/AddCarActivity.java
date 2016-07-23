@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -60,6 +61,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     };
 
+    public MixpanelHelper getMixpanelHelper() {
+        return mixpanelHelper;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +72,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
-        mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager());
+        mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(),this);
         mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3",0);
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
@@ -107,6 +112,16 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
     }
+
+    public void selectDealershipClicked(View view) {
+        //TODO
+        Fragment fragment = mPagerAdapter.getItem(2);
+        if(fragment!=null&&fragment instanceof AddCarChooseDealershipFragment){
+            AddCarChooseDealershipFragment addCarChooseDealershipFragment = (AddCarChooseDealershipFragment)fragment;
+            addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
+            addCarUtils.addCarToServer(null);
+        }
+    }
     public void yesDongleClicked(View view) {
         mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle",1);
         ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
@@ -115,9 +130,21 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     public void searchForCar(View view) {
-        EditText vinEditText = (EditText) findViewById(R.id.VIN);
-        addCarUtils.setVin(vinEditText.getText().toString());
-        if(addCarUtils.isValidVin()) {
+        if (mPagerAdapter.getItem(1)!=null&&mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
+            EditText vinEditText = (EditText) findViewById(R.id.VIN);
+            addCarUtils.setVin(vinEditText.getText().toString());
+            if (addCarUtils.isValidVin()) {
+                Log.i(TAG, "Searching for car");
+
+                // Hide keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
+                AddCarMilageDialog dialog = new AddCarMilageDialog();
+                dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
+            } else {
+                hideLoading("Invalid VIN");
+            }
+        }else if(mPagerAdapter.getItem(1)!=null){
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
@@ -125,8 +152,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
             AddCarMilageDialog dialog = new AddCarMilageDialog();
             dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
-        }else{
-            hideLoading("Invalid VIN");
         }
     }
 
@@ -314,5 +339,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public BluetoothAutoConnectService getAutoConnectService() {
         return autoConnectService;
+    }
+
+    @Override
+    public void postMileageInput() {
+        mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership",2);
+        ((TextView)findViewById(R.id.step_text)).setText("STEP 3/3");
+        mPagerAdapter.notifyDataSetChanged();
+        mPager.setCurrentItem(2);
     }
 }

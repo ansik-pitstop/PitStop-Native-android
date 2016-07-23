@@ -17,7 +17,7 @@
             android:layout_alignParentStart="true"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="40dp"
             android:layout_marginBottom="40dp"
             android:id="@+id/linearLayout2">
 
@@ -26,6 +26,7 @@
                 android:layout_height="wrap_content"
                 android:text="Select A Dealership"
                 android:id="@+id/textView68"
+                android:imeOptions="actionDone"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#fff"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -33,24 +34,22 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="#fff"
                 android:id="@+id/dealership_query"
                 android:layout_gravity="center_horizontal"
                 android:hint="Query"
                 android:backgroundTint="#fff"
                 android:textColorHint="#efefef"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:singleLine="true" />
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_below="@+id/bar_overlay"
-                android:paddingBottom="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
                 android:layout_centerInParent="true"
-                android:id="@+id/android.support.v7.widget.RecyclerView"
+                android:id="@+id/dealership_recycler_list"
                 android:scrollbars="vertical"
                 android:background="#efefef"
                 android:elevation="2dp" />
@@ -68,6 +67,6 @@
         android:textStyle="bold"
         android:textColor="#fff"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/linearLayout2" />
+        android:onClick="selectDealershipClicked" />
 
 </RelativeLayout>

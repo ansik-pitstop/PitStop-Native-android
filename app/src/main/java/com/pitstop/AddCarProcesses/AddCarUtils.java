@@ -31,6 +31,7 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
@@ -40,6 +41,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.BluetoothServiceConnection;
+import com.pitstop.utils.LoadingActivityInterface;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -145,8 +147,18 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         Log.i(TAG,"isValidVin()-- func");
         return vin != null && vin.length() == 17;
     }
-
+    
+    public void updateMilage(String mileage){
+        if(mileage!=null) {
+            pendingCar.setBaseMileage(Integer.parseInt(mileage));
+        }
+        callback.postMileageInput();
+    }
     public void addCarToServer(String mileage) {
+        if(autoConnectService==null){
+            autoConnectService = callback.getAutoConnectService();
+            autoConnectService.setCallbacks(this);
+        }
         if(mileage!=null) {
             pendingCar.setBaseMileage(Integer.parseInt(mileage));
         }
@@ -208,6 +220,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         Log.i(TAG,"Making car -- make car function");
         if(autoConnectService==null){
             autoConnectService = callback.getAutoConnectService();
+            autoConnectService.setCallbacks(this);
         }
         if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
 
@@ -351,7 +364,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 }
             }
 
-            Log.i(MainActivity.TAG, "getIOData --- Adding car");
+            Log.i(TAG, "getIOData --- Adding car");
             if(NetworkHelper.isConnected(context)){
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
@@ -394,6 +407,10 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
     public boolean isValidVin() {
         return isValidVin(pendingCar.getVin());
+    }
+
+    public void setDealership(Dealership dealership) {
+        this.pendingCar.setDealership(dealership);
     }
 
     /**
@@ -582,13 +599,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
         }
     };
-    public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener{
-        public void hideLoading(String string);
-        public void showLoading(String string);
+    public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener,LoadingActivityInterface {
         public void carSuccessfullyAdded(Car car);
         void resetScreen();
         void openRetryDialog();
         BluetoothAutoConnectService getAutoConnectService();
+
+        void postMileageInput();
     }
 
 }

@@ -197,7 +197,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         @Override
         public CustomAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.dealership_list_row, null);
+                    .inflate(R.layout.list_item_dealerships, null);
 
             return new ViewHolder(view);
         }
@@ -244,8 +244,6 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
                 dealershipName = (TextView) itemView.findViewById(R.id.dealership_name);
                 dealershipAddress = (TextView) itemView.findViewById(R.id.dealership_address);
-                dealershipTel = (TextView) itemView.findViewById(R.id.dealership_tel);
-                container = (CardView) itemView.findViewById(R.id.dealership_row_item);
             }
         }
     }
