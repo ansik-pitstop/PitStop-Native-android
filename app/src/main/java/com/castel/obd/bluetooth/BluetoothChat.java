@@ -52,6 +52,7 @@ public class BluetoothChat {
 			mmDevice = device;
 			
 			try {
+
 				temp = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e1) {
 				e1.printStackTrace();

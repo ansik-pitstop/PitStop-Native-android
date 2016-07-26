@@ -593,10 +593,16 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     @Override
                     public void run() {
                         carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                        carMileage.setText(String.valueOf(newTotalMileage));
+                        //carMileage.setText(String.valueOf(newTotalMileage));
                     }
                 });
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
         }
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {

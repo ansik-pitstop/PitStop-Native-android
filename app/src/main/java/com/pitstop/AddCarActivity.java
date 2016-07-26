@@ -563,7 +563,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
 
                 case 1: {
-                    if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
+                    if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
                         autoConnectService.startBluetoothSearch();
                     } else {
                         vinAttempts++;

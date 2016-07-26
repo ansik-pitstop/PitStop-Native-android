@@ -854,6 +854,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             final TripIndicator nextAction = tripRequestQueue.peekFirst();
             RequestCallback callback = null;
             if (nextAction instanceof TripStart) {
+                if(((TripStart) nextAction).getScannerId() == null) {
+                    tripRequestQueue.pop();
+                }
                 if(localCarAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
                     isSendingTripRequest = false;
                     return;
@@ -966,11 +969,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Log.d(TAG, "PID json: " + json);
         }
 
-        Log.d(TAG, "Pid array --> DB");
         pidDataObject.setPids(pids.toString());
-        Log.d(TAG, pidDataObject.getPids());
-        Log.d(TAG, "rtcTime: " + pidDataObject.getRtcTime());
-        Log.d(TAG, "mileage: " + pidDataObject.getMileage());
+
+        if(data.result == 4) {
+            Log.d(TAG, "Pid array --> DB");
+            Log.d(TAG, pidDataObject.getPids());
+            Log.d(TAG, "rtcTime: " + pidDataObject.getRtcTime());
+            Log.d(TAG, "mileage: " + pidDataObject.getMileage());
+        }
 
         //JSONObject freezeData = extractFreezeData(data);
         //Log.d(TAG,"Freeze data --->Extract");
@@ -987,7 +993,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
         } else if(data.result == 5) {
-            Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
+            //Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
             //if(pidDataObject.getTripId() == -1) {
             //    pidsWithNoTripId.add(pidDataObject);
             //} else if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {

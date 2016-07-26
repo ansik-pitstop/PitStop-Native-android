@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.util.Log;
@@ -85,6 +86,30 @@ public class GlobalApplication extends Application {
 
         // Mixpanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
+
+        if(BuildConfig.DEBUG) {
+            File appDirectory = new File( Environment.getExternalStorageDirectory() + "/com.ansik.pitstop" );
+            File logDirectory = new File( appDirectory + "/log" );
+            File logFile = new File( logDirectory, "logcat" + System.currentTimeMillis() + ".txt" );
+
+            // create app folder
+            if ( !appDirectory.exists() ) {
+                appDirectory.mkdir();
+            }
+
+            // create log folder
+            if ( !logDirectory.exists() ) {
+                logDirectory.mkdir();
+            }
+
+            // clear the previous logcat and then write the new one to the file
+            try {
+                Process process = Runtime.getRuntime().exec("logcat -c");
+                process = Runtime.getRuntime().exec("logcat -f " + logFile);
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void setUpMixPanel(){
