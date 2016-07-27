@@ -1,5 +1,6 @@
 package com.pitstop;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -51,7 +52,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        dashboardCar = (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
+        dashboardCar = getIntent().getParcelableExtra("dashboardCar");
 
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
@@ -85,12 +86,6 @@ public class CarHistoryActivity extends AppCompatActivity {
     }
 
     @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -121,7 +116,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(ViewHolder holder, final int position) {
             holder.desc.setText(doneIssues.get(position).getIssueDetail().getDescription());
             if(doneIssues.get(position).getTimestamp() == null || doneIssues.get(position).getTimestamp().equals("null")) {
                 holder.date.setText("Done");
@@ -146,6 +141,22 @@ public class CarHistoryActivity extends AppCompatActivity {
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
 
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        mixpanelHelper.trackButtonTapped(doneIssues.get(position).getIssueDetail().getItem(), TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
+                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, doneIssues.get(position));
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override

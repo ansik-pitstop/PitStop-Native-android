@@ -164,6 +164,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         setupUiReferences();
         baseMileage = dashboardCar.getTotalMileage();
         carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
+
+        if(!BuildConfig.DEBUG) {
+            findViewById(R.id.update_mileage).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -190,6 +194,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void onBackPressed() {
+        returnToMainActivity(null);
+    }
+
+    public void returnToMainActivity(View view) {
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
@@ -295,14 +303,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
-    public void updateMileage(View view) {
+    public void updateMileage(final View view) {
         if(isFinishing() || isDestroyed()) {
             return;
-        } else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
-                dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
-            Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
-            return;
         }
+        //else if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED &&
+        //        dashboardCar.getDisplayedMileage() - baseMileage > 1.0) {
+        //    Toast.makeText(this, "Mileage must be updated at the start of a trip", Toast.LENGTH_LONG).show();
+        //    return;
+        //}
 
         final EditText input = new EditText(CarScanActivity.this);
         input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
@@ -317,30 +326,51 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            try {
+                                mixpanelHelper.trackButtonTapped("Confirm Scan", TAG);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                             showingDialog = false;
-                            final String mileage = input.getText().toString();
-                            if (mileage.length() > 9) {
+                            // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
+                            final double mileage = Double.parseDouble(input.getText().toString())
+                                    - (dashboardCar.getDisplayedMileage() - baseMileage);
+                            if (mileage > 20000000) {
                                 Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
-                                networkHelper.updateCarMileage(dashboardCar.getId(), Integer.parseInt(mileage), new RequestCallback() {
+                                networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                             @Override
                                             public void done(String response, RequestError requestError) {
                                                 if (requestError == null) {
                                                     Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
-                                                    dashboardCar.setDisplayedMileage(Integer.parseInt(mileage));
-                                                    dashboardCar.setTotalMileage(Integer.parseInt(mileage));
+                                                    dashboardCar.setDisplayedMileage(Double.parseDouble(input.getText().toString()));
+                                                    dashboardCar.setTotalMileage(mileage);
                                                     localCarAdapter.updateCar(dashboardCar);
-                                                    baseMileage = Integer.parseInt(mileage);
-                                                    carMileage.setText(mileage);
+                                                    baseMileage = mileage;
+                                                    carMileage.setText(String.valueOf(mileage));
                                                 } else {
-                                                    Toast.makeText(CarScanActivity.this, "An error occurred while updateing mileage. Please try again.", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(CarScanActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });
 
-                                if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
-                                    networkHelper.updateMileageStart(Integer.parseInt(mileage), autoConnectService.getLastTripId(), null);
+                                if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
+                                    networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
                                 }
+
+                                if(view == null) {
+                                    if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
+                                        startCarScan();
+                                    } else {
+                                        progressDialog.setMessage("Connecting to car");
+                                        progressDialog.show();
+                                        carSearchStartTime = System.currentTimeMillis();
+                                        autoConnectService.startBluetoothSearch();
+                                        handler.postDelayed(connectCar, 3000);
+                                    }
+                                }
+
                                 dialogInterface.dismiss();
                             }
                         }
@@ -371,15 +401,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             return;
         }
 
-        if(IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
-            startCarScan();
-        } else {
-            progressDialog.setMessage("Connecting to car");
-            progressDialog.show();
-            carSearchStartTime = System.currentTimeMillis();
-            autoConnectService.startBluetoothSearch();
-            handler.postDelayed(connectCar, 3000);
-        }
+        updateMileage(null);
     }
 
     private void startCarScan() {
@@ -587,10 +609,16 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     @Override
                     public void run() {
                         carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                        carMileage.setText(String.valueOf(newTotalMileage));
+                        //carMileage.setText(String.valueOf(newTotalMileage));
                     }
                 });
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
         }
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {

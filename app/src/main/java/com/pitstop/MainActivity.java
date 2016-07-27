@@ -326,7 +326,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         resetMenus(false);
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            if(dashboardCar == null || dashboardCar.getDealership() == null) {
+                mixpanelHelper.trackViewAppeared(TAG);
+            } else {
+                mixpanelHelper.trackCustom("View Appeared",
+                        new JSONObject("{'View':'" + TAG + "','Dealership':'" + dashboardCar.getDealership().getName()
+                                + "','Device':'Android'}"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

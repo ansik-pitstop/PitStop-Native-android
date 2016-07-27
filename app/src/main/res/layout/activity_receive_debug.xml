@@ -11,6 +11,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical">
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -21,6 +22,18 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="195dp"
         android:layout_marginEnd="195dp" />
+
+    <EditText
+        android:id="@+id/tag"
+        android:hint="Tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/values"
+        android:hint="Values"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,9 +53,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="GET FREEZE"
+            android:text="getParam"
             android:id="@+id/button3"
-            android:onClick="getFreeze"
+            android:onClick="getParam"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
@@ -60,8 +73,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="RESET"
-            android:onClick="resetDevice"
+            android:text="setinterval"
+            android:onClick="setFixedUpload"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
@@ -99,9 +112,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="get VIN"
+            android:text="setparam"
             android:textColor="#fff"
-            android:onClick="getVin"
+            android:onClick="setParam"
             android:background="@drawable/color_button_primary"/>
 
     </LinearLayout>
