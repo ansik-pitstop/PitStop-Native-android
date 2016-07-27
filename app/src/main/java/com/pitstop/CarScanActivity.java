@@ -164,6 +164,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         setupUiReferences();
         baseMileage = dashboardCar.getTotalMileage();
         carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
+
+        if(!BuildConfig.DEBUG) {
+            findViewById(R.id.update_mileage).setVisibility(View.GONE);
+        }
     }
 
     @Override
