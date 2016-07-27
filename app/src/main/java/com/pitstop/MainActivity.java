@@ -61,7 +61,6 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
@@ -649,7 +648,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onClick(View v) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), TAG);
+                    mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(), TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1472,7 +1471,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             e.printStackTrace();
                         }
 
-                        Intent intent = new Intent(MainActivity.this, DisplayItemActivity.class);
+                        Intent intent = new Intent(MainActivity.this, IssueDetailsActivity.class);
                         intent.putExtra(CAR_EXTRA, dashboardCar);
                         intent.putExtra(CAR_ISSUE_EXTRA, carIssueList.get(position));
                         startActivityForResult(intent, RC_DISPLAY_ISSUE);

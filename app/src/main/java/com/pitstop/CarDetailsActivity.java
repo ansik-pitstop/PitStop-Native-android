@@ -1050,7 +1050,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
+                        Intent intent = new Intent(CarDetailsActivity.this, IssueDetailsActivity.class);
                         intent.putExtra("Model", dataList.get(i));
                         intent.putExtra("VIN",VIN);
                         startActivity(intent);

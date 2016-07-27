@@ -125,7 +125,7 @@
             android:name=".EnvironmentalCheckActivity"
             android:label="@string/title_activity_enviornmental_check" />
         <activity
-            android:name=".DisplayItemActivity"
+            android:name=".IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
             android:screenOrientation="portrait" />
 

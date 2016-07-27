@@ -151,7 +151,7 @@ public class CarHistoryActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    Intent intent = new Intent(CarHistoryActivity.this, DisplayItemActivity.class);
+                    Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
                     intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
                     intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, doneIssues.get(position));
                     startActivity(intent);

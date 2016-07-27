@@ -320,6 +320,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            try {
+                                mixpanelHelper.trackButtonTapped("Confirm Scan", TAG);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                             showingDialog = false;
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString())
