@@ -52,7 +52,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        dashboardCar = getIntent().getParcelableExtra("dashboardCar");
+        dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
 
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 

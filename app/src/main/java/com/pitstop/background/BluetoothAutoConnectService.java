@@ -885,6 +885,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                             e.printStackTrace();
                                         }
                                         tripRequestQueue.pop();
+                                    } else if(requestError.getMessage().contains("no car")) {
+                                        tripRequestQueue.pop();
                                     }
                                     isSendingTripRequest = false;
                                     executeTripRequests();

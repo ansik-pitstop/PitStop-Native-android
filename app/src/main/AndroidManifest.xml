@@ -264,21 +264,20 @@
             </intent-filter>
         </service-->
 
-        <receiver android:name=".auto.AndroidAutoHeardReceiver">
+        <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
             <intent-filter>
                 <action android:name="com.pitstop.auto.MESSAGE_HEARD"/>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <!-- IMPORTANT: Change "com.ansik.pitstop" to match the app's current package name.-->
                 <category android:name="${applicationId}" />
             </intent-filter>
-        </receiver>
+        </receiver-->
 
-        <receiver android:name=".auto.AndroidAutoReplyReceiver">
+        <!--receiver android:name=".auto.AndroidAutoReplyReceiver">
             <intent-filter>
                 <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
             </intent-filter>
-        </receiver>
+        </receiver-->
 
         <service android:name="io.smooch.core.service.SmoochService" />
         <service

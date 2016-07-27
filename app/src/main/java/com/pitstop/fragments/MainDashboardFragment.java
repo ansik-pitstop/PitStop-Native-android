@@ -42,6 +42,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
+import com.pitstop.BuildConfig;
 import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -52,7 +53,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.DisplayItemActivity;
+import com.pitstop.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
@@ -64,11 +65,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import io.smooch.core.Smooch;
+import io.smooch.core.User;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -349,7 +352,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             @Override
             public void onClick(View v) {
                 try {
-                    application.getMixpanelAPI().track("Button Tapped",
+                    mixpanelHelper.trackCustom("Button Tapped",
                             new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
                                     TAG, dashboardCar.getMake(), dashboardCar.getModel())));
                 } catch (JSONException e) {
@@ -693,12 +696,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 return;
             }
         }
-
         dashboardCar = carList.get(0);
-        dashboardCar.setCurrentCar(true);
-        carLocalStore.updateCar(dashboardCar);
-
-        sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
     }
 
     /**
@@ -785,6 +783,30 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    com.pitstop.DataAccessLayer.DTOs.User user = application.getCurrentUser();
+
+                    final HashMap<String, Object> customProperties = new HashMap<>();
+                    customProperties.put("VIN", dashboardCar.getVin());
+                    customProperties.put("Car Make",  dashboardCar.getMake());
+                    customProperties.put("Car Model", dashboardCar.getModel());
+                    customProperties.put("Car Year", dashboardCar.getYear());
+                    customProperties.put("Email", dashboardCar.getDealership().getEmail());
+
+                    if(user != null) {
+                        customProperties.put("Phone", user.getPhone());
+                        User.getCurrentUser().setFirstName(user.getFirstName());
+                        User.getCurrentUser().setEmail(user.getEmail());
+                    }
+                    User.getCurrentUser().addProperties(customProperties);
+
+                    if(user != null && BuildConfig.DEBUG) {
+                        Smooch.getConversation().sendMessage(
+                                new io.smooch.core.Message(user.getFirstName() +
+                                        (user.getLastName() == null || user.getLastName().equals("null")
+                                                ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                    }
+
                     Smooch.track("User Logged In");
                 }
             }
@@ -868,7 +890,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             e.printStackTrace();
                         }
 
-                        Intent intent = new Intent(getActivity(), DisplayItemActivity.class);
+                        Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
                         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
                         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssueList.get(position));
                         startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);

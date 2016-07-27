@@ -317,7 +317,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             pendingCar.setVin(parameterValues.get(0).value);
             try {
-                context.getMixpanelAPI().track("Retrieved VIN from device",
+                new MixpanelHelper(context).trackCustom("Retrieved VIN from device",
                         new JSONObject("{'VIN':'" + pendingCar.getVin() + "','Device':'Android'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
