@@ -817,7 +817,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     }
                     User.getCurrentUser().addProperties(customProperties);
 
-                    if(user != null && BuildConfig.DEBUG) {
+                    if(user != null && !BuildConfig.DEBUG) {
                         Smooch.getConversation().sendMessage(
                                 new io.smooch.core.Message(user.getFirstName() +
                                         (user.getLastName() == null || user.getLastName().equals("null")
