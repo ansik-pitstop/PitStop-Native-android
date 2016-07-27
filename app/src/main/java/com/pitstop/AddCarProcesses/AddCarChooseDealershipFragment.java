@@ -64,7 +64,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
                 R.layout.fragment_add_car_dealership_xml, container, false);
 
         localStore = new LocalShopAdapter(getContext());
-        networkHelper = new NetworkHelper(getContext());
+        networkHelper = new NetworkHelper(getActivity().getApplicationContext());
         setup();
         return rootView;
     }

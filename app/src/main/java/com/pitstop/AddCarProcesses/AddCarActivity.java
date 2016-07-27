@@ -23,6 +23,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
@@ -34,6 +35,7 @@ import com.pitstop.utils.BSAbstractedFragmentActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by David on 7/20/2016.
@@ -225,6 +227,39 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         addCarUtils.cancelMashape();
         super.onDestroy();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if(result != null) {
+                if(result.getContents() != null) {
+                    String VIN = result.getContents();
+                    if(VIN.length() == 18) {
+                        VIN = VIN.substring(1, 18);
+                    }
+                    try {
+                        mixpanelHelper.trackCustom("Scanned VIN",
+                                new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    View vinField = findViewById(R.id.VIN);
+                    if(vinField != null) {
+                        ((EditText) vinField).setText(VIN);
+                    }
+                    Log.i(TAG, "Barcode read: " + VIN);
+                    if (AddCarUtils.isValidVin(VIN)) {
+                    } else {
+                        Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     @Override
     public void getBluetoothState(int state) {
 

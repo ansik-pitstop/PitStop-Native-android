@@ -43,6 +43,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
 import com.pitstop.BuildConfig;
+import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -458,11 +459,27 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                                     calendar.set(year, monthOfYear, dayOfMonth);
 
+                                                    String timeCompleted;
+
                                                     int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
 
+                                                    if(daysAgo < 13) { // approximate categorization of the time service was completed
+                                                        timeCompleted = "Recently";
+                                                    } else if(daysAgo < 28) {
+                                                        timeCompleted = "2 Weeks Ago";
+                                                    } else if(daysAgo < 56) {
+                                                        timeCompleted = "1 Month Ago";
+                                                    } else if(daysAgo < 170) {
+                                                        timeCompleted = "2 to 3 Months Ago";
+                                                    } else {
+                                                        timeCompleted = "6 to 12 Months Ago";
+                                                    }
+
                                                     try {
-                                                        mixpanelHelper.trackButtonTapped("Completed Service: "
-                                                                + carIssueList.get(i).getIssueDetail().getItem() + " " + daysAgo, TAG);
+                                                        CarIssueDetail issueDetail = carIssueList.get(i).getIssueDetail();
+                                                        mixpanelHelper.trackButtonTapped("Completed Service: " +
+                                                                (issueDetail.getAction() == null ? "" : (issueDetail.getAction() + " ")) +
+                                                                issueDetail.getItem() + " " + timeCompleted, TAG);
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
