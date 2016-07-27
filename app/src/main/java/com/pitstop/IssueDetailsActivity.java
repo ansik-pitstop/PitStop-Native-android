@@ -178,7 +178,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    application.getMixpanelAPI().track("Button Tapped",
+                    mixpanelHelper.trackCustom("Button Tapped",
                             new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
                                     + "','Device':'Android','Number of Services Requested':'1'}"));
                 } catch (JSONException e) {

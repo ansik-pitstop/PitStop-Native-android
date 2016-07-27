@@ -215,7 +215,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.i(TAG, "BluetoothClassicComm message handler");
+            Log.v(TAG, "BluetoothClassicComm message handler");
             super.handleMessage(msg);
             switch (msg.what) {
                 case CANCEL_DISCOVERY:
@@ -269,7 +269,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 case BLUETOOTH_READ_DATA:
                 {
                     if (!Utils.isEmpty(Utils.bytesToHexString((byte[]) msg.obj))) {
-                        Log.i(TAG, "Bluetooth read data... - BluetoothClassicComm");
+                        Log.v(TAG, "Bluetooth read data... - BluetoothClassicComm");
                         dataLists.add(Utils.bytesToHexString((byte[]) msg.obj));
                     }
                     break;

@@ -343,7 +343,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         VIN = VIN.substring(1, 18);
                     }
                     try {
-                        application.getMixpanelAPI().track("Scanned VIN",
+                        mixpanelHelper.trackCustom("Scanned VIN",
                                 new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -717,7 +717,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                application.getMixpanelAPI().track("Retrieved VIN from device",
+                mixpanelHelper.trackCustom("Retrieved VIN from device",
                         new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
             } catch (JSONException e) {
                 e.printStackTrace();

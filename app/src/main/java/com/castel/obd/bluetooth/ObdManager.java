@@ -196,16 +196,16 @@ public class ObdManager {
      */
     private void determinePackageType(String info, int result) {
         if (0 == result) {
-            Log.i(TAG,"Receiving result 0 - ObdManager");
+            Log.d(TAG,"Receiving result 0 - ObdManager");
             obdLoginPackageParse(info);
         } else if (2 == result) {
-            Log.i(TAG,"Receiving result 2 - ObdManager");
+            Log.d(TAG,"Receiving result 2 - ObdManager");
             obdResponsePackageParse(info);
         } else if (3 == result) {
-            Log.i(TAG,"Receiving result 3 - ObdManager");
+            Log.d(TAG,"Receiving result 3 - ObdManager");
             obdParameterPackageParse(info);
         } else if (4 == result || 5 == result || 6 == result) {
-            Log.i(TAG,"Receiving result 4 or 5 or 6 - ObdManager");
+            Log.d(TAG,"Receiving result 4 or 5 or 6 - ObdManager");
             obdIODataPackageParse(info);
         }
     }

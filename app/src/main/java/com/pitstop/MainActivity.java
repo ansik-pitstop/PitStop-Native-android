@@ -61,6 +61,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
@@ -502,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if(dashboardCar == null || dashboardCar.getDealership() == null) {
                 mixpanelHelper.trackViewAppeared(TAG);
             } else {
-                application.getMixpanelAPI().track("View Appeared",
+                mixpanelHelper.trackCustom("View Appeared",
                         new JSONObject("{'View':'" + TAG + "','Dealership':'" + dashboardCar.getDealership().getName()
                                 + "','Device':'Android'}"));
             }
@@ -609,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onClick(View v) {
                 try {
-                    application.getMixpanelAPI().track("Button Tapped",
+                    mixpanelHelper.trackCustom("Button Tapped",
                             new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
                                     TAG, dashboardCar.getMake(), dashboardCar.getModel())));
                 } catch (JSONException e) {
@@ -766,11 +767,27 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                                     calendar.set(year, monthOfYear, dayOfMonth);
 
+                                                    String timeCompleted;
+
                                                     int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
 
-                                                    try {
-                                                        mixpanelHelper.trackButtonTapped("Completed Service: "
-                                                                + carIssueList.get(i).getIssueDetail().getItem() + " " + daysAgo, TAG);
+                                                    if(daysAgo < 13) { // approximate categorization of the time service was completed
+                                                        timeCompleted = "Recently";
+                                                    } else if(daysAgo < 28) {
+                                                        timeCompleted = "2 Weeks Ago";
+                                                    } else if(daysAgo < 56) {
+                                                        timeCompleted = "1 Month Ago";
+                                                    } else if(daysAgo < 170) {
+                                                        timeCompleted = "2 to 3 Months Ago";
+                                                    } else {
+                                                        timeCompleted = "6 to 12 Months Ago";
+                                                    }
+
+                                                    try {  // TODO: merge mixpanel changes into redesign
+                                                        CarIssueDetail issueDetail = carIssueList.get(i).getIssueDetail();
+                                                        mixpanelHelper.trackButtonTapped("Completed Service: " +
+                                                                (issueDetail.getAction() == null ? "" : (issueDetail.getAction() + " ")) +
+                                                                issueDetail.getItem() + " " + timeCompleted, TAG);
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
@@ -849,7 +866,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    application.getMixpanelAPI().track("Button Tapped",
+                    mixpanelHelper.trackCustom("Button Tapped",
                             new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
                                     + "','Device':'Android','Number of Services Requested':"
                                     + dashboardCar.getActiveIssues().size() + "}"));
