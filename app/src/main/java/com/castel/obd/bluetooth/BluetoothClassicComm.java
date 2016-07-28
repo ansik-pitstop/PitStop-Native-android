@@ -192,11 +192,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
             mBluetoothChat.connectBluetooth(device);
         } else {
-            Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             if (mBluetoothAdapter.isDiscovering()) {
                 Log.i(TAG,"Already discovering - BluetoothClassicComm");
                 mBluetoothAdapter.cancelDiscovery();
             }
+            Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
     }

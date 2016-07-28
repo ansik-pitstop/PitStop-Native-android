@@ -27,6 +27,7 @@ public class BluetoothChat {
 	}
 
 	public void connectBluetooth(BluetoothDevice device) {
+		closeConnect();
 		connectThread = new ConnectThread(device);
 		connectThread.start();
 	}
@@ -70,7 +71,13 @@ public class BluetoothChat {
 				if(mmSocket!=null) {
 					LogUtil.i("Connecting to socket");
 
-					mmSocket.connect();
+					mHandler.sendMessage(mHandler.obtainMessage(
+							IBluetoothCommunicator.CANCEL_DISCOVERY,
+							mmDevice.getAddress()));
+
+					if(!mmSocket.isConnected()) {
+						mmSocket.connect();
+					}
 
 					mHandler.sendMessage(mHandler.obtainMessage(
 							IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
@@ -84,22 +91,34 @@ public class BluetoothChat {
 				connectException.printStackTrace();
 
 				try {
-					LogUtil.w("trying fallback...");
-
-					mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
-					mmSocket.connect();
-
-					LogUtil.i("Connected to socket");
-				} catch (Exception e) {
-					e.printStackTrace();
-					try {
-						LogUtil.i("Couldn't connect to socket");
-						mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
-						mmSocket.close();
-					} catch (IOException e2) {
-						e.printStackTrace();
-					}
+					LogUtil.i("Couldn't connect to socket");
+					mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
+					mmSocket.close();
+				} catch (IOException e2) {
+					e2.printStackTrace();
 				}
+
+				//try {
+				//	LogUtil.w("trying fallback...");
+//
+				//	mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
+				//	mmSocket.connect();
+//
+				//	mHandler.sendMessage(mHandler.obtainMessage(
+				//			IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
+				//			mmDevice.getAddress()));
+//
+				//	LogUtil.i("Connected to socket");
+				//} catch (Exception e) {
+				//	e.printStackTrace();
+				//	try {
+				//		LogUtil.i("Couldn't connect to socket");
+				//		mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
+				//		mmSocket.close();
+				//	} catch (IOException e2) {
+				//		e.printStackTrace();
+				//	}
+				//}
 			}
 		}
 
