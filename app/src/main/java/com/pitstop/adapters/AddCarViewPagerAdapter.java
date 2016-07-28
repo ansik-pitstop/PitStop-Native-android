@@ -41,8 +41,8 @@ public class AddCarViewPagerAdapter extends FragmentStatePagerAdapter {
         try {
             if(mFragmentTitleList.get(location)==null||!mFragmentTitleList.get(location).equals(title)){
                 mFragmentList.remove(location);
-                notifyDataSetChanged();
                 mFragmentList.put(location,(Fragment)fragment.newInstance());
+                notifyDataSetChanged();
                 if(fragment == AddCarChooseDealershipFragment.class){
                     ((AddCarChooseDealershipFragment)mFragmentList.get(location)).setCallbackActivity(callbackActivity);
                 }

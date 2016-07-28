@@ -333,7 +333,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public void resetScreen() {
         if(mPager.getCurrentItem()==1){
-            ((EditText)findViewById(R.id.VIN)).setText("");
+            if(findViewById(R.id.VIN) != null) {
+                ((EditText) findViewById(R.id.VIN)).setText("");
+            }
         }
     }
 

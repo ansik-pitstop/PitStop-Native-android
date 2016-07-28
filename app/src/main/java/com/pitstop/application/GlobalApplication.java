@@ -24,6 +24,7 @@ import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
 
 import java.io.File;
+import java.io.IOException;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -92,6 +93,7 @@ public class GlobalApplication extends Application {
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
 
         //if(BuildConfig.DEBUG) {
+        //    Log.i(TAG, "Creating new log file");
         //    File appDirectory = new File( Environment.getExternalStorageDirectory() + "/com.ansik.pitstop" );
         //    File logDirectory = new File( appDirectory + "/log" );
         //    File logFile = new File( logDirectory, "logcat" + System.currentTimeMillis() + ".txt" );
