@@ -520,6 +520,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void refreshFromServer() {
         if(NetworkHelper.isConnected(this)) {
             Log.d("random", "refresh called");
+            if(carLocalStore == null) {
+                carLocalStore = new LocalCarAdapter(this);
+            }
             carLocalStore.deleteAllCars();
             carIssueLocalStore.deleteAllCarIssues();
             carIssueList.clear();
