@@ -618,9 +618,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                             for (Car car : carList) {
                                                 if (car.getId() == mainCarIdCopy) {
                                                     car.setCurrentCar(true);
+                                                    dashboardCar = car;
                                                 }
                                             }
                                         } else {
+                                            dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
 
