@@ -116,9 +116,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     public void selectDealershipClicked(View view) {
-        //TODO
         Fragment fragment = mPagerAdapter.getItem(2);
         if(fragment!=null&&fragment instanceof AddCarChooseDealershipFragment){
+            try {
+                mixpanelHelper.trackButtonTapped("Selected " + ((AddCarChooseDealershipFragment) fragment).getShop().getName(), TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             AddCarChooseDealershipFragment addCarChooseDealershipFragment = (AddCarChooseDealershipFragment)fragment;
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
             addCarUtils.addCarToServer(null);

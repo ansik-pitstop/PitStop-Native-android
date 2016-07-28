@@ -158,14 +158,6 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
     @Override
     public void dealershipSelectedCallback(Dealership shop) {
         Log.i(TAG, "Dealership selected: " + shop.getName());
-        if(getActivity() instanceof AddCarActivity) {
-            try {
-                ((AddCarActivity) getActivity()).getMixpanelHelper().trackButtonTapped("Selected " + shop.getName(), TAG);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
         this.shop = shop;
-
     }
 }
