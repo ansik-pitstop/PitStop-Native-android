@@ -57,9 +57,9 @@ public class GlobalApplication extends Application {
 
         Log.d(TAG, "onCreate");
 
-        userAdapter = new UserAdapter(this);
-
         MultiDex.install(this);
+
+        userAdapter = new UserAdapter(this);
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));

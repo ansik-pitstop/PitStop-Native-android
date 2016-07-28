@@ -137,7 +137,9 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                adapter.getFilter().filter(charSequence);
+                if(adapter != null) {
+                    adapter.getFilter().filter(charSequence);
+                }
             }
 
             @Override

@@ -113,7 +113,9 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
             adapter.shops.clear();
             adapter.shops.addAll((ArrayList<Dealership>) filterResults.values);
             adapter.chosen=0;
-            callback.dealershipSelectedCallback(adapter.shops.get(chosen));
+            if(!adapter.shops.isEmpty()) {
+                callback.dealershipSelectedCallback(adapter.shops.get(chosen));
+            }
             adapter.notifyDataSetChanged();
         }
     }
