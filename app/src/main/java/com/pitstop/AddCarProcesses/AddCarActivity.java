@@ -229,6 +229,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);

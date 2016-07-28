@@ -30,7 +30,7 @@
             />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="My Vehicles" android:key="@string/pref_vehicles">
+    <PreferenceCategory android:title="My Vehicles (Tap to change dealership)" android:key="@string/pref_vehicles">
 
     </PreferenceCategory>
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">

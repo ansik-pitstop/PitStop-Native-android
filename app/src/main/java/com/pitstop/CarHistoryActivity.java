@@ -96,6 +96,12 @@ public class CarHistoryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
     /**
      * Adapter for listview
      */
