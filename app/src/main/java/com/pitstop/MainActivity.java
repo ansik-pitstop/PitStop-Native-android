@@ -595,6 +595,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     sharedPreferences.edit().putInt(MainDashboardFragment.pfCurrentCar, mainCarId).commit();
 
+                    final int mainCarIdCopy = mainCarId;
+
                     networkHelper.getCarsByUserId(userId, new RequestCallback() {
                         @Override
                         public void done(String response, RequestError requestError) {
@@ -609,6 +611,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         findViewById(R.id.main_view).setVisibility(View.GONE);
                                         findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
                                     } else {
+                                        if(mainCarIdCopy != -1) {
+                                            for (Car car : carList) {
+                                                if (car.getId() == mainCarIdCopy) {
+                                                    car.setCurrentCar(true);
+                                                }
+                                            }
+                                        } else {
+                                            carList.get(0).setCurrentCar(true);
+                                        }
+
                                         findViewById(R.id.no_car_text).setVisibility(View.GONE);
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();
