@@ -287,7 +287,7 @@ public class ObdManager {
 
 
     /**
-     *
+     *  Callbacks for obd functions
      */
     public interface IBluetoothDataListener {
         void getBluetoothState(int state);

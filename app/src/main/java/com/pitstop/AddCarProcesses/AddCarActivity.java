@@ -209,7 +209,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     protected void onPause() {
         ((GlobalApplication)getApplicationContext()).getMixpanelAPI().flush();
-        addCarUtils.cancelMashape();
 
         try {
             unregisterReceiver(bluetoothReceiver);

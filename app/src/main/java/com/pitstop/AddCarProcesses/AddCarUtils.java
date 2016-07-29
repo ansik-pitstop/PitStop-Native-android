@@ -78,6 +78,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            Log.i(TAG, "Add car handler message received: " + msg.what);
             switch (msg.what) {
                 case 0: {
                     if(connectionAttempts++ == 3) {
@@ -563,6 +564,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private Runnable vinDetectionRunnable = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG, "vinDetectionRunnable run, isGettingVinAndCarIsConnected: " + isGettingVinAndCarIsConnected);
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);

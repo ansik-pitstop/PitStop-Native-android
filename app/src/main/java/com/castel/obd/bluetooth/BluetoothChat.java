@@ -43,7 +43,7 @@ public class BluetoothChat {
 	}
 
 	private class ConnectThread extends Thread {
-		private BluetoothSocket mmSocket;
+		private final BluetoothSocket mmSocket;
 		private BluetoothDevice mmDevice;
 
 		@SuppressLint("NewApi")
@@ -65,14 +65,10 @@ public class BluetoothChat {
 		public void run() {
 			LogUtil.i("蓝牙开始连接");
 
-			mHandler.sendEmptyMessage(BluetoothManage.CANCEL_DISCOVERY);
+			mHandler.sendEmptyMessage(IBluetoothCommunicator.CANCEL_DISCOVERY);
 			try {
 				if(mmSocket!=null) {
 					LogUtil.i("Connecting to socket");
-
-					mHandler.sendMessage(mHandler.obtainMessage(
-							IBluetoothCommunicator.CANCEL_DISCOVERY,
-							mmDevice.getAddress()));
 
 					if(!mmSocket.isConnected()) {
 						mmSocket.connect();
@@ -96,28 +92,6 @@ public class BluetoothChat {
 				} catch (IOException e2) {
 					e2.printStackTrace();
 				}
-
-				//try {
-				//	LogUtil.w("trying fallback...");
-//
-				//	mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
-				//	mmSocket.connect();
-//
-				//	mHandler.sendMessage(mHandler.obtainMessage(
-				//			IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
-				//			mmDevice.getAddress()));
-//
-				//	LogUtil.i("Connected to socket");
-				//} catch (Exception e) {
-				//	e.printStackTrace();
-				//	try {
-				//		LogUtil.i("Couldn't connect to socket");
-				//		mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
-				//		mmSocket.close();
-				//	} catch (IOException e2) {
-				//		e.printStackTrace();
-				//	}
-				//}
 			}
 		}
 
