@@ -27,7 +27,6 @@ public class BluetoothChat {
 	}
 
 	public void connectBluetooth(BluetoothDevice device) {
-		closeConnect();
 		connectThread = new ConnectThread(device);
 		connectThread.start();
 	}

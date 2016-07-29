@@ -174,6 +174,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             return;
         }
 
+        if (mBluetoothAdapter.isDiscovering()) {
+            Log.i(TAG,"Already discovering - BluetoothClassicComm");
+            return;
+        }
+
         Log.i(TAG,"Connecting to bluetooth - BluetoothClassicComm");
         btConnectionState = CONNECTING;
         mBluetoothChat.closeConnect();
@@ -192,10 +197,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
             mBluetoothChat.connectBluetooth(device);
         } else {
-            if (mBluetoothAdapter.isDiscovering()) {
-                Log.i(TAG,"Already discovering - BluetoothClassicComm");
-                mBluetoothAdapter.cancelDiscovery();
-            }
             Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
@@ -260,10 +261,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
-                    if(!saved) {
-                        saved = true;
-                        dataListener.getBluetoothState(btConnectionState);
-                    }
+                    dataListener.getBluetoothState(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_READ_DATA:
@@ -340,10 +338,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if(!saved) {
-                        saved = true;
-                        dataListener.getBluetoothState(btConnectionState);
-                    }
+                    dataListener.getBluetoothState(btConnectionState);
                 }
 
                 NotificationManager mNotificationManager =
