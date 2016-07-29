@@ -1,24 +1,16 @@
 package com.pitstop.AddCarProcesses;
 
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
@@ -99,9 +91,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 }
 
                 case 1: {
-                    vinAttempts++;
-                    autoConnectService.getCarVIN();
-                    vinRetrievalStartTime = System.currentTimeMillis();
+                    if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                        autoConnectService.startBluetoothSearch();
+                    } else {
+                        vinAttempts++;
+                        autoConnectService.getCarVIN();
+                        vinRetrievalStartTime = System.currentTimeMillis();
+                    }
                     break;
                 }
             }
@@ -189,7 +185,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    callback.showLoading("Getting car vin");
+                    callback.showLoading("Linking with Device, give it a few seconds");
                     Log.i(TAG, "Getting car vin with device connected");
                     autoConnectService.getCarVIN();
                     vinRetrievalStartTime = System.currentTimeMillis();
@@ -273,7 +269,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 autoConnectService.getCarVIN();
                 vinRetrievalStartTime = System.currentTimeMillis();
                 isGettingVinAndCarIsConnected = true;
-                mHandler.postDelayed(vinDetectionRunnable, 2000);
+                mHandler.postDelayed(vinDetectionRunnable, 3000);
             }
         } else if(state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
             callback.runOnUiThread(new Runnable() {
@@ -298,6 +294,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
             Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
+            callback.showLoading("Device successfully linked");
             mHandler.postDelayed(vinDetectionRunnable, 2000);
         }
     }
@@ -308,6 +305,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             Log.i(TAG,"VIN response received");
+
+            callback.showLoading("Getting car VIN");
 
             isGettingVinAndCarIsConnected = false;
             pendingCar.setScannerId(parameterPackageInfo.deviceId);
@@ -325,6 +324,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             if (isValidVin(pendingCar.getVin())) {
                 vinAttempts = 0;
                 Log.i(TAG,"VIN is valid");
+                autoConnectService.setFixedUpload();
+                callback.showLoading("Loaded car VIN");
                 makeCar();
 
             } else if(vinAttempts > 8){

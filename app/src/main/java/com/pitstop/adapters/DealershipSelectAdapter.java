@@ -30,6 +30,7 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
         this.shops = shops;
         this.chosen = 0;
         this.callback = callback;
+        callback.dealershipSelectedCallback(shops.get(0));
     }
 
     @Override
