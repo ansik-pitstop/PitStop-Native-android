@@ -200,7 +200,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     autoConnectService.startBluetoothSearch();
                     isSearchingForCar = true;
                     searchTime = System.currentTimeMillis();
-                    connectionAttempts = 0;
+                    if(mileage != null) {
+                        connectionAttempts = 0;
+                    }
                     mHandler.postDelayed(carSearchRunnable, 3000);
                 }
             }
@@ -334,12 +336,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+pendingCar.getVin());
                 vinAttempts = 0;
-                callback.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.hideLoading("Vin value returned not valid, please use Manual Input!");
-                    }
-                });
+                callback.resetScreen();
+                callback.hideLoading("Vin value returned not valid, please use Manual Input!");
             } else {
                 Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
                 Log.i(TAG,"VIN: "+pendingCar.getVin());

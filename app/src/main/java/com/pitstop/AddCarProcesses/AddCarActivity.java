@@ -345,6 +345,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             if(findViewById(R.id.VIN) != null) {
                 ((EditText) findViewById(R.id.VIN)).setText("");
             }
+        } else if(mPager.getCurrentItem() == 2) {
+            mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
+            mPager.setCurrentItem(1);
         }
     }
 
