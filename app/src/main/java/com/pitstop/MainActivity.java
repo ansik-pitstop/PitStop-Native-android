@@ -616,6 +616,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         findViewById(R.id.main_view).setVisibility(View.GONE);
                                         findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                                        tabLayout.setVisibility(View.GONE);
                                     } else {
                                         if(mainCarIdCopy != -1) {
                                             for (Car car : carList) {
@@ -630,6 +631,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
 
                                         findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                        tabLayout.setVisibility(View.VISIBLE);
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);

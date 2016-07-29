@@ -7,7 +7,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/textView60"
         android:layout_above="@+id/add_vehicle">
 
         <LinearLayout
