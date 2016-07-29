@@ -523,6 +523,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if(carLocalStore == null) {
                 carLocalStore = new LocalCarAdapter(this);
             }
+            if(carIssueLocalStore == null) {
+                carIssueLocalStore = new LocalCarIssueAdapter(this);
+            }
             carLocalStore.deleteAllCars();
             carIssueLocalStore.deleteAllCarIssues();
             carIssueList.clear();

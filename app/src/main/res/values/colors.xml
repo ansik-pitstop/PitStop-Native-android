@@ -23,5 +23,7 @@
     <color name="white_text">#fefefe</color>
     <color name="date_picker_background">#00796b</color>
 
+    <color name="white">#fefefe</color>
+
     <color name="grey">#ccaaaaaa</color>
 </resources>
