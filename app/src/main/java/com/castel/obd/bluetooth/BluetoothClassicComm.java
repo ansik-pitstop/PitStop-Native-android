@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -23,6 +24,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Paul Soladoye on 12/04/2016.
@@ -241,15 +243,14 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG, "Bluetooth connection failed - BluetoothClassicComm");
-
                     if (mBluetoothAdapter.isDiscovering()) {
                         mBluetoothAdapter.cancelDiscovery();
                     }
+                    OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG,"Retry connection");
-                    mBluetoothAdapter.startDiscovery();
-
+                    startScan();
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
-                        dataListener.getBluetoothState(btConnectionState);
+                    dataListener.getBluetoothState(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION:
@@ -299,6 +300,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
+                    //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    //    boolean bondResult = device.createBond();
+                    //    Log.i(TAG, "Create bond result: " + String.valueOf(bondResult));
+                    //}
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {

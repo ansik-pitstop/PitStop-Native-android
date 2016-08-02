@@ -87,7 +87,7 @@ public class BluetoothChat {
 
 				try {
 					LogUtil.i("Couldn't connect to socket");
-					mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_FAIL);
+					mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
 					mmSocket.close();
 				} catch (IOException e2) {
 					e2.printStackTrace();

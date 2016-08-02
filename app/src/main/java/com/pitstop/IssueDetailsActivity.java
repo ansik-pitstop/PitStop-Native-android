@@ -34,6 +34,8 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.smooch.core.Smooch;
+
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
 import static com.pitstop.R.drawable.severity_medium_indicator;
@@ -211,6 +213,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(IssueDetailsActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
                             networkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());

@@ -79,6 +79,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
+import io.smooch.core.Smooch;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 
@@ -910,6 +911,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
                             Toast.makeText(getApplicationContext(), "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
                             for(CarIssue issue : dashboardCar.getActiveIssues()) {
                                 networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
                             }
