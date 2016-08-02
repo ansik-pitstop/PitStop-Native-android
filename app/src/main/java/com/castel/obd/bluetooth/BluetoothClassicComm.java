@@ -41,8 +41,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private List<String> dataLists = new ArrayList<String>();
 
-    private boolean saved = false; // so that pids aren't saved twice on unexpected disconnect
-
     private ObdManager.IBluetoothDataListener dataListener;
     private static String TAG = "BtClassicComm";
 
@@ -230,7 +228,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 {
                     Log.i(TAG,"Bluetooth connect success - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
-                    saved = false;
                     Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
                     OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
                     Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
@@ -243,16 +240,15 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG, "Bluetooth connection failed - BluetoothClassicComm");
-                    if (isMacAddress) {
-                        if (mBluetoothAdapter.isDiscovering()) {
-                            mBluetoothAdapter.cancelDiscovery();
-                        }
-                        Log.i(TAG,"Retry connection");
-                        mBluetoothAdapter.startDiscovery();
-                    } else {
-                        Log.i(TAG, "Sending out bluetooth state on dataListener");
-                        dataListener.getBluetoothState(btConnectionState);
+
+                    if (mBluetoothAdapter.isDiscovering()) {
+                        mBluetoothAdapter.cancelDiscovery();
                     }
+                    Log.i(TAG,"Retry connection");
+                    mBluetoothAdapter.startDiscovery();
+
+                    Log.i(TAG, "Sending out bluetooth state on dataListener");
+                        dataListener.getBluetoothState(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION:
@@ -260,10 +256,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
-                    if(!saved) {
-                        saved = true;
-                        dataListener.getBluetoothState(btConnectionState);
-                    }
+                    dataListener.getBluetoothState(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_READ_DATA:
@@ -340,10 +333,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if(!saved) {
-                        saved = true;
-                        dataListener.getBluetoothState(btConnectionState);
-                    }
+                    dataListener.getBluetoothState(btConnectionState);
                 }
 
                 NotificationManager mNotificationManager =
