@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
 
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -89,8 +88,8 @@
 
         <!-- activities -->
 
-        <meta-data android:name="com.google.android.gms.car.application"
-            android:resource="@xml/android_auto" />
+        <!--meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/android_auto" /-->
 
         <activity
             android:name=".MainActivity"

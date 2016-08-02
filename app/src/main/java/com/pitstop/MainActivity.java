@@ -607,6 +607,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         @Override
                         public void done(String response, RequestError requestError) {
                             if (requestError == null) {
+                                View mainView = findViewById(R.id.main_view);
+                                View  noCarText = findViewById(R.id.no_car_text);
                                 try {
                                     carList = Car.createCarsList(response);
 
@@ -614,8 +616,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if (isLoading) {
                                             hideLoading();
                                         }
-                                        findViewById(R.id.main_view).setVisibility(View.GONE);
-                                        findViewById(R.id.no_car_text).setVisibility(View.VISIBLE);
+                                        if(mainView != null) {
+                                            mainView.setVisibility(View.GONE);
+                                        }
+                                        if(noCarText != null) {
+                                            noCarText.setVisibility(View.VISIBLE);
+                                        }
                                         tabLayout.setVisibility(View.GONE);
                                     } else {
                                         if(mainCarIdCopy != -1) {
@@ -629,8 +635,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                             dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
-
-                                        findViewById(R.id.no_car_text).setVisibility(View.GONE);
+                                        if(mainView != null) {
+                                            mainView.setVisibility(View.VISIBLE);
+                                        }
+                                        if(noCarText != null) {
+                                            noCarText.setVisibility(View.GONE);
+                                        }
                                         tabLayout.setVisibility(View.VISIBLE);
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();
