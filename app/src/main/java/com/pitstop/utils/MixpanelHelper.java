@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
@@ -36,7 +37,10 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         json.put("Status", value);
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("App Status", json);
     }
 
@@ -47,7 +51,10 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
         json.put("View", value);
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("View Appeared", json);
     }
 
@@ -57,7 +64,10 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("Peripheral Connection Status", json);
     }
 
@@ -67,7 +77,10 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}");
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("Button Tapped", json);
     }
 
@@ -77,7 +90,10 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("Scrolled in View", json);
     }
 
@@ -88,7 +104,10 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
                 + "','Method of Adding Car':'" + method + "','Device':'Android'}");
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("Button Tapped", json);
     }
 
@@ -98,7 +117,10 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}");
         json.put("Device", "Android");
-        json.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track("Migration status", json);
     }
 
@@ -107,7 +129,10 @@ public class MixpanelHelper {
             return;
         }
         properties.put("Device", "Android");
-        properties.put("Username", application.getCurrentUser().getEmail());
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            properties.put("Username", user.getEmail());
+        }
         application.getMixpanelAPI().track(event, properties);
     }
 }
