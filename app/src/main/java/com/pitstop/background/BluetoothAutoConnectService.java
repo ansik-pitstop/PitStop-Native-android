@@ -995,7 +995,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
         } else if(data.result == 5) {
-            //Log.i(TAG, "creating PID data for result 5 - " + localPid.getPidDataEntryCount());
+            Log.i(TAG, "received PID data for result 5");
             //if(pidDataObject.getTripId() == -1) {
             //    pidsWithNoTripId.add(pidDataObject);
             //} else if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {

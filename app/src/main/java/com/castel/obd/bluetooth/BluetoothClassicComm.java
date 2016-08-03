@@ -55,8 +55,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        int initSuccess = mObdManager.initializeObd();
-        Log.d(TAG, "init result: " + initSuccess);
+        //int initSuccess = mObdManager.initializeObd();
+        //Log.d(TAG, "init result: " + initSuccess);
 
         mHandler.postDelayed(runnable, 500);
     }
@@ -356,10 +356,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     dataListener.getBluetoothState(btConnectionState);
                 }
             }else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
-                if(mBluetoothAdapter.isEnabled())
-                    connectBluetooth();
-                Log.i(TAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
-                dataListener.getBluetoothState(btConnectionState);
+                //if(mBluetoothAdapter.isEnabled())
+                //    connectBluetooth();
+                //Log.i(TAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
+                //dataListener.getBluetoothState(btConnectionState);
             }
         }
     };

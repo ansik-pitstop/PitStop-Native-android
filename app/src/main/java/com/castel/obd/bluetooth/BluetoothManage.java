@@ -318,7 +318,7 @@ public class BluetoothManage {
 					+ OBDInfoSP.getDataNum(mContext));
 			// ��ʼ�����������̬��
 			Log.i(DTAG,"Initializing obd module - BluetoothManage");
-			OBD.init(deviceId, dataNum);
+			//OBD.init(deviceId, dataNum);
 		}
 	}
 
