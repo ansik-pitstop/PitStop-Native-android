@@ -940,7 +940,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             public TextView title;
             public TextView description;
             public ImageView imageView;
-            public CardView container;
+            public View container;
             public View date; // Not used here so it is set to GONE
 
             public ViewHolder(View v) {
@@ -948,7 +948,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 title = (TextView) v.findViewById(R.id.title);
                 description = (TextView) v.findViewById(R.id.description);
                 imageView = (ImageView) v.findViewById(R.id.image_icon);
-                container = (CardView) v.findViewById(R.id.list_car_item);
+                container = v.findViewById(R.id.list_car_item);
                 date = v.findViewById(R.id.date);
             }
         }
