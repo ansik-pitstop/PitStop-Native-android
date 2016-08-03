@@ -138,7 +138,7 @@ public class BluetoothChat {
 
 						if (-1 == count) {
 							LogUtil.i("read exception");
-							mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_EXCEPTION);
+							mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 							break;
 						}
 
@@ -149,11 +149,11 @@ public class BluetoothChat {
 						LogUtil.i(Utils.bytesToHexString(data));
 
 						mHandler.sendMessage(mHandler.obtainMessage(
-								BluetoothManage.BLUETOOTH_READ_DATA, data));
+								IBluetoothCommunicator.BLUETOOTH_READ_DATA, data));
 					} catch (IOException e) {
 						LogUtil.i("read exception");
 						closeConnect();
-						mHandler.sendEmptyMessage(BluetoothManage.BLUETOOTH_CONNECT_EXCEPTION);
+						mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 						break;
 					}
 				}

@@ -115,9 +115,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         filters.add(new ScanFilter.Builder().setServiceUuid(serviceUuid).build());
 
         mObdManager = new ObdManager(context);
-        int initSuccess = mObdManager.initializeObd();
-
-        Log.d(TAG, "init result: " + initSuccess);
+        //int initSuccess = mObdManager.initializeObd();
+        //Log.d(TAG, "init result: " + initSuccess);
     }
 
     @Override

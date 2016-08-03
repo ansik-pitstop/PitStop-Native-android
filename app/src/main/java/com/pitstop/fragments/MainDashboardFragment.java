@@ -33,7 +33,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.BluetoothManage;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -632,7 +631,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     @Override
     public void getBluetoothState(int state) {
-        if(state==BluetoothManage.DISCONNECTED) {
+        if(state==IBluetoothCommunicator.DISCONNECTED) {
             Log.i(TAG,"Bluetooth disconnected");
         }
     }

@@ -70,17 +70,19 @@ public class ObdManager {
     public int initializeObd() {
         Log.i(TAG, "Initializing obd");
 
-        String deviceId = OBDInfoSP.getDeviceId(mContext);
-        String dataNum = OBDInfoSP.getDataNum(mContext);
+        return 0;
 
-        if (!Utils.isEmpty(deviceId) && !Utils.isEmpty(dataNum)) {
-            Log.i(TAG,"deviceId:" + deviceId + "dataNum"
-                    + OBDInfoSP.getDataNum(mContext));
-            Log.i(TAG,"Initializing obd module");
-            return OBD.init(deviceId, dataNum);
-        }
-        return -1;
-    }
+        //String deviceId = OBDInfoSP.getDeviceId(mContext);
+        //String dataNum = OBDInfoSP.getDataNum(mContext);
+//
+        //if (!Utils.isEmpty(deviceId) && !Utils.isEmpty(dataNum)) {
+        //    Log.i(TAG,"deviceId:" + deviceId + "dataNum"
+        //            + OBDInfoSP.getDataNum(mContext));
+        //    Log.i(TAG,"Initializing obd module");
+        //    return OBD.init(deviceId, dataNum);
+        //}
+        //return -1;
+    }//
 
 
     /**
