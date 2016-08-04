@@ -363,24 +363,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/linearLayout8"
-            android:layout_above="@+id/request_service_btn"
+            android:layout_above="@+id/request_service_placeholder"
             android:scrollbars="vertical"
             android:layout_marginTop="4dp">
 
         </android.support.v7.widget.RecyclerView>
 
         <Button
-            android:id="@+id/request_service_btn"
+            android:id="@+id/request_service_placeholder"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Request Service"
-            android:onClick="requestMultiService"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/color_button_rectangle_primary"
-            android:drawableRight="@drawable/request_service_button"
-            android:textColor="#fff"
-            android:elevation="2dp"
             android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
@@ -418,5 +412,19 @@
         </LinearLayout>
 
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/request_service_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Request Service"
+        android:onClick="requestMultiService"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="@drawable/color_button_rectangle_primary"
+        android:drawableRight="@drawable/request_service_button"
+        android:textColor="#fff"
+        android:elevation="2dp"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

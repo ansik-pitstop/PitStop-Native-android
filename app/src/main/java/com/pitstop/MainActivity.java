@@ -765,7 +765,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         callback.setCarDetailsUI();
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
         if(viewPager.getCurrentItem() == 0) {
-            findViewById(R.id.viewpager).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
+            findViewById(R.id.main_view).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
         }
     }
 
