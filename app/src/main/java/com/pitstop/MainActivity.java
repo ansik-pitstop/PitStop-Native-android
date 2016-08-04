@@ -608,7 +608,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         public void done(String response, RequestError requestError) {
                             if (requestError == null) {
                                 View mainView = findViewById(R.id.main_view);
-                                View  noCarText = findViewById(R.id.no_car_text);
+                                View noCarText = findViewById(R.id.no_car_text);
+                                View requestServiceButton = findViewById(R.id.request_service_btn);
                                 try {
                                     carList = Car.createCarsList(response);
 
@@ -621,6 +622,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.VISIBLE);
+                                        }
+                                        if(requestServiceButton != null) {
+                                            requestServiceButton.setVisibility(View.GONE);
                                         }
                                         tabLayout.setVisibility(View.GONE);
                                     } else {
@@ -640,6 +644,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.GONE);
+                                        }
+                                        if(requestServiceButton != null) {
+                                            requestServiceButton.setVisibility(View.VISIBLE);
                                         }
                                         tabLayout.setVisibility(View.VISIBLE);
                                         callback.setDashboardCar(carList);

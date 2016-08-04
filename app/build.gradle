@@ -28,7 +28,7 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 55
+        versionCode 56
         versionName "2.1.2"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -45,6 +45,10 @@ android {
             buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
             buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
+        }
+        beta.initWith(buildTypes.debug)
+        beta {
+            // for the "Pitstop Beta" app name
         }
     }
     packagingOptions {
