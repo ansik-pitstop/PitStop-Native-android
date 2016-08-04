@@ -134,8 +134,8 @@ public class CarIssue implements Parcelable {
             }
             if(!issueDetail.isNull("action")) {
                 carIssue.setAction(issueDetail.getString("action"));
-            } else {
-                carIssue.setAction("");
+            } else if(carIssue.getIssueType().equals(DTC)) {
+                carIssue.setAction("Engine issue: Code");
             }
             if(!issueDetail.isNull("description")) {
                 carIssue.setDescription(issueDetail.getString("description"));

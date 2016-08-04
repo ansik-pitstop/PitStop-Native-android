@@ -265,7 +265,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             });
         }
 
-        String title = carIssue.getAction() +" "
+        String title = carIssue.getAction() + " "
                 + carIssue.getItem();
         String description = carIssue.getDescription();
         int severity =  carIssue.getPriority();
