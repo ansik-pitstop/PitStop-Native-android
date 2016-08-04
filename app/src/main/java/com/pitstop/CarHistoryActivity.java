@@ -59,7 +59,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         Arrays.sort(doneIssues, new Comparator<CarIssue>() {
             @Override
             public int compare(CarIssue lhs, CarIssue rhs) {
-                return getDateToCompare(rhs.getTimestamp()) - getDateToCompare(lhs.getTimestamp());
+                return getDateToCompare(rhs.getDoneAt()) - getDateToCompare(lhs.getDoneAt());
             }
         });
 
@@ -123,27 +123,27 @@ public class CarHistoryActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
-            holder.desc.setText(doneIssues.get(position).getIssueDetail().getDescription());
-            if(doneIssues.get(position).getTimestamp() == null || doneIssues.get(position).getTimestamp().equals("null")) {
+            holder.desc.setText(doneIssues.get(position).getDescription());
+            if(doneIssues.get(position).getDoneAt() == null || doneIssues.get(position).getDoneAt().equals("null")) {
                 holder.date.setText("Done");
             } else {
-                holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getTimestamp())));
+                holder.date.setText(String.format("Done on %s", formatDate(doneIssues.get(position).getDoneAt())));
             }
 
             if(doneIssues.get(position).getIssueType().equals(CarIssue.RECALL)) {
-                holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
+                holder.title.setText(doneIssues.get(position).getItem());
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
 
             } else if(doneIssues.get(position).getIssueType().equals(CarIssue.DTC)) {
-                holder.title.setText(String.format("Engine issue: Code %s", doneIssues.get(position).getIssueDetail().getItem()));
+                holder.title.setText(String.format("Engine issue: Code %s", doneIssues.get(position).getItem()));
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_red));
 
             } else if(doneIssues.get(position).getIssueType().equals(CarIssue.PENDING_DTC)) {
-                holder.title.setText(String.format("Potential engine issue: Code %s", doneIssues.get(position).getIssueDetail().getItem()));
+                holder.title.setText(String.format("Potential engine issue: Code %s", doneIssues.get(position).getItem()));
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_yellow));
 
             } else {
-                holder.title.setText(doneIssues.get(position).getIssueDetail().getItem());
+                holder.title.setText(doneIssues.get(position).getItem());
                 holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
 
@@ -152,7 +152,7 @@ public class CarHistoryActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
-                        mixpanelHelper.trackButtonTapped(doneIssues.get(position).getIssueDetail().getItem(), TAG);
+                        mixpanelHelper.trackButtonTapped(doneIssues.get(position).getItem(), TAG);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

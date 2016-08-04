@@ -303,38 +303,6 @@ public class Car implements Parcelable {
         return car;
     }
 
-    // create car from json object (this is for GET from api)
-    public static Car createCar(JSONObject jsonObject) throws JSONException { // THIS IS OUTDATED
-        Car car = new Car();
-
-        car.setId(jsonObject.getInt("id"));
-        car.setEngine(jsonObject.getString("engine"));
-        car.setMake(jsonObject.getString("make"));
-        car.setModel(jsonObject.getString("model"));
-        car.setYear(jsonObject.getInt("year"));
-        car.setTrim(jsonObject.getString("trim"));
-        car.setScannerId(jsonObject.optString("scannerId"));
-        car.setTotalMileage(jsonObject.getInt("totalMileage"));
-        car.setDisplayedMileage(jsonObject.getInt("totalMileage"));
-        car.setBaseMileage(jsonObject.getInt("baseMileage"));
-        car.setUserId(jsonObject.getInt("userId"));
-        car.setShopId(jsonObject.getJSONObject("shop").getInt("id"));
-        car.setVin(jsonObject.getString("vin"));
-
-        Object issues = jsonObject.get("issues");
-
-        if(issues instanceof JSONArray) {
-            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
-            car.setNumberOfServices(((JSONArray) issues).length());
-        }
-
-        if(jsonObject.get("shop") != null) {
-            car.setDealership(Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString()));
-        }
-
-        return car;
-    }
-
     // create list of cars from api response
     public static List<Car> createCarsList(String jsonRoot) throws JSONException {
         List<Car> cars = new ArrayList<>();
