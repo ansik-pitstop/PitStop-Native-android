@@ -741,7 +741,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void showLoading(String text) {
 
         isLoading = true;
-
+        if (progressDialog == null) {
+            return;
+        }
         progressDialog.setMessage(text);
         if(!progressDialog.isShowing()) {
             progressDialog.show();

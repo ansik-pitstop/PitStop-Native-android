@@ -590,6 +590,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG,"Device result: "+loginPackageInfo.result);
             Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
+            bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }

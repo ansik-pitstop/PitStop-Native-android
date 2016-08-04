@@ -378,6 +378,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public void bluetoothStateChanged(int state) {
         if(state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
+        } else if(state == CONNECTED) {
+            btConnectionState = state;
         }
     }
 }
