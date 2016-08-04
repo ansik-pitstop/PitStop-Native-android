@@ -129,9 +129,15 @@ public class CarIssue implements Parcelable {
 
         JSONObject issueDetail = issueObject.getJSONObject("issueDetail");
         if(issueDetail != null) {
-            carIssue.setItem(issueDetail.getString("item"));
-            carIssue.setAction(issueDetail.getString("action"));
-            carIssue.setDescription(issueDetail.getString("description"));
+            if(!issueDetail.isNull("item")) {
+                carIssue.setItem(issueDetail.getString("item"));
+            }
+            if(!issueDetail.isNull("action")) {
+                carIssue.setAction(issueDetail.getString("action"));
+            }
+            if(!issueDetail.isNull("description")) {
+                carIssue.setDescription(issueDetail.getString("description"));
+            }
         }
 
         if(carIssue.getIssueType().equals(DTC) && !issueObject.getJSONObject("issueDetail").isNull("isPending")

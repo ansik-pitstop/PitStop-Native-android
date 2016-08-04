@@ -43,7 +43,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -92,7 +91,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private NetworkHelper networkHelper;
 
-    private RecyclerView recyclerView;
+    private RecyclerView carIssueListView;
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
@@ -330,13 +329,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private void setUpUIReferences() {
 
         toolbar = (Toolbar)  getActivity().findViewById(R.id.toolbar);
-        recyclerView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
+        carIssueListView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        carIssueListView.setHasFixedSize(true);
         carIssuesAdapter = new CustomAdapter(carIssueList);
-        recyclerView.setAdapter(carIssuesAdapter);
+        carIssueListView.setAdapter(carIssuesAdapter);
 
-        setSwipeDeleteListener(recyclerView);
+        setSwipeDeleteListener(carIssueListView);
 
 
         carName = (TextView) rootview.findViewById(R.id.car_name);
@@ -364,7 +363,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                 Intent intent = new Intent(getActivity(), CarScanActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+                getActivity().startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
                 getActivity().overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
@@ -417,7 +416,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     /**
      * Detect Swipes on each list item
-     * @param //recyclerView
+     * @param //carIssueListView
      */
     private void setSwipeDeleteListener(RecyclerView recyclerView) {
         SwipeableRecyclerViewTouchListener swipeTouchListener =
@@ -780,7 +779,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         );
 
         final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(getActivity())
-                .setTarget(recyclerView)
+                .setTarget(carIssueListView)
                 .setTitleText("Car Issues")
                 .setContentText("Swipe to dismiss issues.")
                 .setDismissOnTouch(true)
