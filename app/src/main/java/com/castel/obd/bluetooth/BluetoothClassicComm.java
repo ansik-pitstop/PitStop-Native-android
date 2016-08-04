@@ -295,7 +295,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
+                //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
@@ -326,8 +326,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-
-                Log.i(TAG, "Disconnection from a remote device - BluetoothClassicComm");
+                //Log.i(TAG, "Disconnection from a remote device - BluetoothClassicComm");
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 

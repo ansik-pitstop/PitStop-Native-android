@@ -20,7 +20,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
@@ -336,6 +335,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+
+                            updatedMileageOrDtcsFound = true;
 
                             showingDialog = false;
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage

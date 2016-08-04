@@ -3,8 +3,8 @@ package com.pitstop.DataAccessLayer.DTOs;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,19 +16,6 @@ import java.util.ArrayList;
  * Created by Paul Soladoye on 3/18/2016.
  */
 public class CarIssue implements Parcelable {
-    private static final String PRIORITY_KEY = "priority";
-    private static final String ITEM_KEY = "item";
-    private static final String ITEM_DESCRIPTION_KEY = "itemDescription";
-    private static final String ACTION_KEY = "action";
-    private static final String DTCCODE_KEY = "dtcCode";
-    private static final String RECALLS_ITEM_KEY = "name";
-    private static final String DESCRIPTION_KEY = "description";
-
-    private static final int RECALLS_PRIORITY_DEFAULT_VALUE = 6;
-    private static final int DTCS_PRIORITY_DEFAULT_VALUE = 5;
-    private static final int PENDING_DTC_PRIORITY = 2;
-    private static final int SERVICES_PRIORITY_DEFAULT_VALUE = 1;
-
     public static final String DTC = "dtc"; // stored only
     public static final String PENDING_DTC = "pending_dtc";
     public static final String RECALL = "recall_recallmasters";
@@ -45,11 +32,12 @@ public class CarIssue implements Parcelable {
     private int id;
     private int carId;
     private String status;
-    @SerializedName("doneAt")
-    private String timestamp;
+    private String doneAt;
     private int priority;
     private String issueType;
-    private CarIssueDetail issueDetail;
+    private String item;
+    private String description;
+    private String action;
 
     public CarIssue() {}
 
@@ -77,12 +65,12 @@ public class CarIssue implements Parcelable {
         this.status = status;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getDoneAt() {
+        return doneAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setDoneAt(String doneAt) {
+        this.doneAt = doneAt;
     }
 
     public int getPriority() {
@@ -101,24 +89,56 @@ public class CarIssue implements Parcelable {
         this.issueType = issueType;
     }
 
-    public CarIssueDetail getIssueDetail() {
-        return issueDetail;
+    public String getItem() {
+        return item;
     }
 
-    public void setIssueDetail(CarIssueDetail issueDetail) {
-        this.issueDetail = issueDetail;
+    public void setItem(String item) {
+        this.item = item;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
-        CarIssue carIssue = new CarIssue();
+        CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
 
-        carIssue.setId(issueObject.getInt("id"));
+        //CarIssue carIssue = new CarIssue();
+        //carIssue.setId(issueObject.getInt("id"));
+        //carIssue.setCarId(carId);
+        //carIssue.setStatus(issueObject.getString("status"));
+        //carIssue.setDoneAt(issueObject.getString("doneAt"));
+        //carIssue.setPriority(Integer.parseInt(issueObject.getString("priority")));
+        //carIssue.setIssueType(issueObject.getString("issueType"));
+        //carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(issueObject.getJSONObject("issueDetail")));
+
         carIssue.setCarId(carId);
-        carIssue.setStatus(issueObject.getString("status"));
-        carIssue.setTimestamp(issueObject.getString("doneAt"));
-        carIssue.setPriority(Integer.parseInt(issueObject.getString("priority")));
-        carIssue.setIssueType(issueObject.getString("issueType"));
-        carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(issueObject.getJSONObject("issueDetail")));
+
+        JSONObject issueDetail = issueObject.getJSONObject("issueDetail");
+        if(issueDetail != null) {
+            if(!issueDetail.isNull("item")) {
+                carIssue.setItem(issueDetail.getString("item"));
+            }
+            if(!issueDetail.isNull("action")) {
+                carIssue.setAction(issueDetail.getString("action"));
+            }
+            if(!issueDetail.isNull("description")) {
+                carIssue.setDescription(issueDetail.getString("description"));
+            }
+        }
 
         if(carIssue.getIssueType().equals(DTC) && !issueObject.getJSONObject("issueDetail").isNull("isPending")
                 && issueObject.getJSONObject("issueDetail").getBoolean("isPending")) {
@@ -145,26 +165,30 @@ public class CarIssue implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.carId);
         dest.writeInt(this.id);
+        dest.writeInt(this.carId);
         dest.writeString(this.status);
-        dest.writeString(this.timestamp);
+        dest.writeString(this.doneAt);
         dest.writeInt(this.priority);
         dest.writeString(this.issueType);
-        dest.writeParcelable(this.issueDetail, 0);
+        dest.writeString(this.item);
+        dest.writeString(this.description);
+        dest.writeString(this.action);
     }
 
     protected CarIssue(Parcel in) {
-        this.carId = in.readInt();
         this.id = in.readInt();
+        this.carId = in.readInt();
         this.status = in.readString();
-        this.timestamp = in.readString();
+        this.doneAt = in.readString();
         this.priority = in.readInt();
         this.issueType = in.readString();
-        this.issueDetail = in.readParcelable(CarIssueDetail.class.getClassLoader());
+        this.item = in.readString();
+        this.description = in.readString();
+        this.action = in.readString();
     }
 
-    public static final Parcelable.Creator<CarIssue> CREATOR = new Parcelable.Creator<CarIssue>() {
+    public static final Creator<CarIssue> CREATOR = new Creator<CarIssue>() {
         @Override
         public CarIssue createFromParcel(Parcel source) {
             return new CarIssue(source);

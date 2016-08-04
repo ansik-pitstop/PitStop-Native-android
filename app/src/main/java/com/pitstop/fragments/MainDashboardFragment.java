@@ -42,7 +42,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -91,7 +90,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private NetworkHelper networkHelper;
 
-    private RecyclerView recyclerView;
+    private RecyclerView carIssueListView;
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
@@ -329,13 +328,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private void setUpUIReferences() {
 
         toolbar = (Toolbar)  getActivity().findViewById(R.id.toolbar);
-        recyclerView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
+        carIssueListView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        carIssueListView.setHasFixedSize(true);
         carIssuesAdapter = new CustomAdapter(carIssueList);
-        recyclerView.setAdapter(carIssuesAdapter);
+        carIssueListView.setAdapter(carIssuesAdapter);
 
-        setSwipeDeleteListener(recyclerView);
+        setSwipeDeleteListener(carIssueListView);
 
 
         carName = (TextView) rootview.findViewById(R.id.car_name);
@@ -363,7 +362,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                 Intent intent = new Intent(getActivity(), CarScanActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
+                getActivity().startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
                 getActivity().overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
@@ -416,7 +415,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     /**
      * Detect Swipes on each list item
-     * @param //recyclerView
+     * @param //carIssueListView
      */
     private void setSwipeDeleteListener(RecyclerView recyclerView) {
         SwipeableRecyclerViewTouchListener swipeTouchListener =
@@ -474,16 +473,15 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                         timeCompleted = "6 to 12 Months Ago";
                                                     }
 
+                                                    CarIssue carIssue = carIssuesAdapter.getItem(i);
+
                                                     try {
-                                                        CarIssueDetail issueDetail = carIssueList.get(i).getIssueDetail();
                                                         mixpanelHelper.trackButtonTapped("Completed Service: " +
-                                                                (issueDetail.getAction() == null ? "" : (issueDetail.getAction() + " ")) +
-                                                                issueDetail.getItem() + " " + timeCompleted, TAG);
+                                                                (carIssue.getAction() == null ? "" : (carIssue.getAction() + " ")) +
+                                                                carIssue.getItem() + " " + timeCompleted, TAG);
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
-
-                                                    CarIssue carIssue = carIssuesAdapter.getItem(i);
 
                                                     networkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
                                                             daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
@@ -780,7 +778,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         );
 
         final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(getActivity())
-                .setTarget(recyclerView)
+                .setTarget(carIssueListView)
                 .setTitleText("Car Issues")
                 .setContentText("Swipe to dismiss issues.")
                 .setDismissOnTouch(true)
@@ -874,25 +872,25 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             } else {
                 final CarIssue carIssue = carIssueList.get(position);
 
-                holder.description.setText(carIssue.getIssueDetail().getDescription());
+                holder.description.setText(carIssue.getDescription());
                 holder.description.setEllipsize(TextUtils.TruncateAt.END);
                 if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.title.setText(carIssue.getItem());
                     holder.imageView.setImageDrawable(getResources()
                             .getDrawable(R.drawable.ic_error_red_600_24dp));
 
                 } else if(carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.title.setText(String.format("Engine issue: Code %s", carIssue.getIssueDetail().getItem()));
+                    holder.title.setText(String.format("Engine issue: Code %s", carIssue.getItem()));
                     holder.imageView.setImageDrawable(getResources().
                             getDrawable(R.drawable.car_engine_red));
 
                 } else if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                    holder.title.setText(String.format("Potential engine issue: Code %s", carIssue.getIssueDetail().getItem()));
+                    holder.title.setText(String.format("Potential engine issue: Code %s", carIssue.getItem()));
                     holder.imageView.setImageDrawable(getResources().
                             getDrawable(R.drawable.car_engine_yellow));
                 } else {
-                    holder.description.setText(carIssue.getIssueDetail().getDescription());
-                    holder.title.setText(carIssue.getIssueDetail().getItem());
+                    holder.description.setText(carIssue.getDescription());
+                    holder.title.setText(carIssue.getItem());
                     holder.imageView.setImageDrawable(getResources()
                             .getDrawable(R.drawable.ic_warning_amber_300_24dp));
                 }
@@ -901,7 +899,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     @Override
                     public void onClick(View view) {
                         try {
-                            mixpanelHelper.trackButtonTapped(carIssueList.get(position).getIssueDetail().getItem(), TAG);
+                            mixpanelHelper.trackButtonTapped(carIssueList.get(position).getItem(), TAG);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

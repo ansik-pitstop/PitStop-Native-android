@@ -549,7 +549,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                                 HashSet<String> dtcNames = new HashSet<>();
                                 for (CarIssue issue : car.getActiveIssues()) {
-                                    dtcNames.add(issue.getIssueDetail().getItem());
+                                    dtcNames.add(issue.getItem());
                                 }
 
                                 for (final String dtc : dtcArr) {

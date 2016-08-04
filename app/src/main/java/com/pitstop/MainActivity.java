@@ -645,6 +645,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
+                                        carIssueLocalStore.storeCarIssues(carList);
                                         callback.setCarDetailsUI();
                                     }
 
@@ -690,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             final HashSet<String> activeIssueNames = new HashSet<>();
 
             for(CarIssue issues : dashboardCar.getActiveIssues()) {
-                activeIssueNames.add(issues.getIssueDetail().getItem());
+                activeIssueNames.add(issues.getItem());
             }
 
             runOnUiThread(new Runnable() {
