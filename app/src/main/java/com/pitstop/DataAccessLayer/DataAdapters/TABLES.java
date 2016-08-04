@@ -83,4 +83,13 @@ public final class TABLES {
         String KEY_ALERT = "alert";
         String KEY_TITLE = "title";
     }
+
+    public interface SCANNER {
+        String TABLE_NAME = "scanners";
+
+        String KEY_CAR_ID = "carId";
+        String KEY_DEVICE_NAME = "deviceName";
+        String KEY_SCANNER_ID = "scannerId";
+        String KEY_DATANUM = "datanum";
+    }
 }
