@@ -205,6 +205,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
+    public void returnToMainActivity(View view) {
+        finish();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == MainActivity.RC_ENABLE_BT

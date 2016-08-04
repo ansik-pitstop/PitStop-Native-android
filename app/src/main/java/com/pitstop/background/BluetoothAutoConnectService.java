@@ -148,7 +148,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
                     && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                bluetoothCommunicator.startScan();
+                startBluetoothSearch();
             }
         }
         localPid = new LocalPidAdapter(this);
@@ -1287,7 +1287,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 } else if(state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this); // TODO: BLE
                     } else {
                         bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
                     }
@@ -1295,7 +1295,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        bluetoothCommunicator.startScan();
+                        startBluetoothSearch();
                     }
                 }
             } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {  // internet connectivity listener

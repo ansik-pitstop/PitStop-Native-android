@@ -174,7 +174,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             return;
         }
 
-        if (mBluetoothAdapter.isDiscovering()) {
+        if (mBluetoothAdapter.isDiscovering() || btConnectionState == CONNECTING) {
             Log.i(TAG,"Already discovering - BluetoothClassicComm");
             return;
         }
