@@ -45,6 +45,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     private final String TAG = AddCarActivity.class.getSimpleName();
     public static int ADD_CAR_SUCCESS = 51;
 
+    public static boolean addingCar = false;
+
     AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
@@ -81,7 +83,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
         addCarUtils = new AddCarUtils((GlobalApplication)getApplicationContext(),this);
-
     }
 
     private void setupUIReferences() {
@@ -207,6 +208,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        addingCar = true;
+
         super.onResume();
     }
 
@@ -219,8 +222,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         } catch (Exception e) {
 
         }
+        addingCar = false;
 
-        //hideLoading();
         super.onPause();
     }
 

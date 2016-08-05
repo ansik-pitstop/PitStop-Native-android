@@ -53,8 +53,10 @@ import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dealership;
 import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalScannerAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
@@ -653,6 +655,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
                                         carIssueLocalStore.storeCarIssues(carList);
+
+                                        LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
+                                        for(Car car : carList) { // populate scanner table with scanner ids associated with the cars
+                                            if(car.getScannerId() != null) {
+                                                if(scannerAdapter.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
+                                                    scannerAdapter.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                                                }
+                                            }
+                                        }
+
                                         callback.setCarDetailsUI();
                                     }
 

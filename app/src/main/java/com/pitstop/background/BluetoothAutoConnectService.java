@@ -26,7 +26,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothClassicComm;
-import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -39,10 +38,12 @@ import com.google.gson.Gson;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dtc;
+import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
 import com.pitstop.DataAccessLayer.DTOs.Pid;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalPidResult4Adapter;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalScannerAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
@@ -106,7 +107,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String lastDataNum = "";
 
     private SharedPreferences sharedPreferences;
-    private LocalCarAdapter localCarAdapter;
+    private LocalCarAdapter carAdapter;
+
+    private LocalScannerAdapter scannerAdapter;
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
@@ -153,7 +156,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         localPid = new LocalPidAdapter(this);
         localPidResult4 = new LocalPidResult4Adapter(this);
-        localCarAdapter = new LocalCarAdapter(this);
+        carAdapter = new LocalCarAdapter(this);
+        scannerAdapter = new LocalScannerAdapter(this);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -216,7 +220,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Bitmap icon = BitmapFactory.decodeResource(getResources(),
                     R.mipmap.ic_push);
 
-            Car connectedCar = localCarAdapter.getCarByScanner(getCurrentDeviceId());
+            Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
 
             String carName = connectedCar == null ? "Click here to find out more" :
                     connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
@@ -403,7 +407,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         // if trip id is different, start a new trip
         if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()
-                && localCarAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
+                && carAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
             int newTripId = Integer.parseInt(dataPackageInfo.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
@@ -536,7 +540,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.i(TAG, "DTCs found: " + dtcs);
 
-        Car car = localCarAdapter.getCarByScanner(dataPackageInfo.deviceId);
+        Car car = carAdapter.getCarByScanner(dataPackageInfo.deviceId);
 
         if(NetworkHelper.isConnected(this)) {
             if (car != null) {
@@ -591,6 +595,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
+
+            Car car = carAdapter.getCarByScanner(loginPackageInfo.deviceId);
+            ObdScanner scanner = scannerAdapter.getScannerByScannerId(loginPackageInfo.deviceId);
+            if(car != null) {
+                if (scanner != null) {
+                    scanner.setDeviceName(bluetoothCommunicator.getConnectedDeviceName());
+                    scanner.setCarId(car.getId());
+                    scannerAdapter.updateScanner(scanner);
+                } else {
+                    scannerAdapter.storeScanner(new ObdScanner(car.getId(), loginPackageInfo.deviceId,
+                            bluetoothCommunicator.getConnectedDeviceName()));
+                }
+            }
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
@@ -826,11 +843,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripRequestQueue.add(new TripEnd(lastTripId, data.rtcTime, data.tripMileage));
                 executeTripRequests();
             }
-            Car car = localCarAdapter.getCarByScanner(data.deviceId);
+            Car car = carAdapter.getCarByScanner(data.deviceId);
             if(car != null) {
                 double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage) / 1000;
                 car.setTotalMileage(newMileage);
-                localCarAdapter.updateCar(car);
+                carAdapter.updateCar(car);
             }
         } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // not needed if trips based on device trip id
             Log.i(TAG, "Trip start flag received");
@@ -858,7 +875,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(((TripStart) nextAction).getScannerId() == null) {
                     tripRequestQueue.pop();
                 }
-                if(localCarAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
+                if(carAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
                     isSendingTripRequest = false;
                     return;
                 }
@@ -936,7 +953,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
-        Car car = localCarAdapter.getCarByScanner(data.deviceId);
+        Car car = carAdapter.getCarByScanner(data.deviceId);
 
         double mileage;
         double calculatedMileage;

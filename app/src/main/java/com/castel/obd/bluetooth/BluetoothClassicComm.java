@@ -16,6 +16,9 @@ import android.widget.Toast;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.AddCarProcesses.AddCarActivity;
+import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
+import com.pitstop.DataAccessLayer.DataAdapters.LocalScannerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
@@ -41,6 +44,10 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private boolean isMacAddress = false;
 
+    private LocalScannerAdapter scannerAdapter;
+
+    private String connectedDeviceName;
+
     private List<String> dataLists = new ArrayList<String>();
 
     private ObdManager.IBluetoothDataListener dataListener;
@@ -54,6 +61,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
+
+        scannerAdapter = new LocalScannerAdapter(mContext);
 
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
@@ -153,6 +162,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         }
         mBluetoothChat.closeConnect();
         mHandler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public String getConnectedDeviceName() {
+        return connectedDeviceName;
     }
 
     private void writeToObd(String payload) {
@@ -288,10 +302,25 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.v(TAG,device.getName() + " " + device.getAddress());
 
                 if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
-                    Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
-                    mBluetoothChat.connectBluetooth(device);
-                    Log.i(TAG,"Connecting to device - BluetoothClassicComm");
-                    Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
+                    List<ObdScanner> scanners = scannerAdapter.getAllScanners();
+                    boolean shouldConnect = false; // if any scanner has "null" name or name matches
+                    for(ObdScanner scanner : scanners) { // check if any sc
+                        if(scanner.getDeviceName() == null || scanner.getDeviceName().equals(device.getName())) {
+                            shouldConnect = true;
+                            break;
+                        }
+                    }
+
+                    if(AddCarActivity.addingCar || scannerAdapter.getAllScanners().isEmpty() || shouldConnect) {
+                        Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
+                        connectedDeviceName = device.getName();
+                        mBluetoothChat.connectBluetooth(device);
+                        Log.i(TAG, "Connecting to device - BluetoothClassicComm");
+
+                        Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.i(TAG, "Found unrecognized OBD device, ignoring");
+                    }
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {

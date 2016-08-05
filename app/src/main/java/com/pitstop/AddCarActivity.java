@@ -72,6 +72,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+@Deprecated
 public class AddCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener,
         View.OnClickListener {
 

@@ -28,21 +28,77 @@ public class LocalScannerAdapter {
         databaseHelper = new LocalDatabaseHelper(context);
     }
 
-    private List<ObdScanner> getAllScanners() {
-        List<ObdScanner> carIssues = new ArrayList<>();
+    public void storeScanner(ObdScanner scanner) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = scannerObjectToContentValues(scanner);
+
+        db.insert(TABLES.SCANNER.TABLE_NAME, null, values);
+
+        db.close();
+    }
+
+    public List<ObdScanner> getAllScanners() {
+        List<ObdScanner> scanners = new ArrayList<>();
 
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
-        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,null,null,null,null,null);
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null,null,null,null,null,null);
         if(c.moveToFirst()) {
             while(!c.isAfterLast()) {
-                carIssues.add(cursorToScanner(c));
+                scanners.add(cursorToScanner(c));
                 c.moveToNext();
             }
         }
 
         db.close();
-        return carIssues;
+        return scanners;
+    }
+
+    public int updateScanner(ObdScanner scanner) {
+
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = scannerObjectToContentValues(scanner);
+
+        int rows = db.update(TABLES.SCANNER.TABLE_NAME, values, TABLES.SCANNER.KEY_SCANNER_ID + "=?",
+                new String[] { String.valueOf(scanner.getScannerId()) });
+
+        db.close();
+
+        return rows;
+    }
+
+    public ObdScanner getScannerByName(String scannerName) {
+        ObdScanner scanner = new ObdScanner();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null, TABLES.SCANNER.KEY_DEVICE_NAME+"=?",
+                new String[] {scannerName}, null, null, null);
+
+        if(c.moveToFirst()) {
+            scanner = cursorToScanner(c);
+        }
+
+        db.close();
+        return scanner;
+    }
+
+    public ObdScanner getScannerByScannerId(String scannerId) {
+        ObdScanner scanner = new ObdScanner();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, TABLES.SCANNER.KEY_SCANNER_ID+"=?",
+                new String[] {scannerId}, null, null, null);
+
+        if(c.moveToFirst()) {
+            scanner = cursorToScanner(c);
+        }
+
+        db.close();
+        return scanner;
     }
 
     private ObdScanner cursorToScanner(Cursor c) {

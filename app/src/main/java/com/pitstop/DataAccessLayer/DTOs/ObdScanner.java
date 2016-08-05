@@ -10,6 +10,20 @@ public class ObdScanner {
     private String scannerId; // name stored on device (212BM000000)
     private String datanum; // last datanum received from this device
 
+    public ObdScanner() {
+    }
+
+    public ObdScanner(int carId, String deviceName, String scannerId) {
+        this.carId = carId;
+        this.deviceName = deviceName;
+        this.scannerId = scannerId;
+    }
+
+    public ObdScanner(int carId, String scannerId) {
+        this.carId = carId;
+        this.scannerId = scannerId;
+    }
+
     public int getCarId() {
         return carId;
     }
