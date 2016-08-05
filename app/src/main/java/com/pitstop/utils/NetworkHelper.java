@@ -49,7 +49,7 @@ public class NetworkHelper {
 
     private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -64,7 +64,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -80,7 +80,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
@@ -95,7 +95,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -107,7 +107,7 @@ public class NetworkHelper {
 
     private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -445,7 +445,7 @@ public class NetworkHelper {
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
-                    .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                    .header("Client-Id", clientId)
                     .body(new JSONObject().put("refreshToken", refreshToken))
                     .requestCallBack(callback)
                     .requestType(RequestType.POST)
