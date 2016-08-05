@@ -35,6 +35,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
+import com.pitstop.AddCarProcesses.AddCarActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.Dtc;
@@ -596,17 +597,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
+            String btName = bluetoothCommunicator.getConnectedDeviceName();
+            Log.i(TAG,"Connected device name: " + btName);
+
             Car car = carAdapter.getCarByScanner(loginPackageInfo.deviceId);
             ObdScanner scanner = scannerAdapter.getScannerByScannerId(loginPackageInfo.deviceId);
-            if(car != null) {
+            if(btName != null && (car != null || AddCarActivity.addingCar)) {
+                Log.i(TAG, "Saving scanner locally");
                 if (scanner != null) {
-                    scanner.setDeviceName(bluetoothCommunicator.getConnectedDeviceName());
-                    scanner.setCarId(car.getId());
+                    scanner.setDeviceName(btName);
+                    scanner.setCarId(car != null ? car.getId() : 0);
                     scannerAdapter.updateScanner(scanner);
                 } else {
-                    scannerAdapter.storeScanner(new ObdScanner(car.getId(), loginPackageInfo.deviceId,
+                    scannerAdapter.storeScanner(new ObdScanner(car != null ? car.getId() : 0, loginPackageInfo.deviceId,
                             bluetoothCommunicator.getConnectedDeviceName()));
                 }
+            } else {
+                Log.i(TAG, "Connected to unrecognized device");
             }
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
