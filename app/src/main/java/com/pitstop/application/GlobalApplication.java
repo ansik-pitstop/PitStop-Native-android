@@ -75,8 +75,11 @@ public class GlobalApplication extends Application {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
 
-        Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
-                BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
+        Parse.initialize(getApplicationContext(), BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
+                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev),
+
+                BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
+                        getString(R.string.parse_clientID_prod) : getString(R.string.parse_clientID_dev));
 
         ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
             @Override
@@ -91,31 +94,6 @@ public class GlobalApplication extends Application {
 
         // Mixpanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
-
-        //if(BuildConfig.DEBUG) {
-        //    Log.i(TAG, "Creating new log file");
-        //    File appDirectory = new File( Environment.getExternalStorageDirectory() + "/com.ansik.pitstop" );
-        //    File logDirectory = new File( appDirectory + "/log" );
-        //    File logFile = new File( logDirectory, "logcat" + System.currentTimeMillis() + ".txt" );
-//
-        //    // create app folder
-        //    if ( !appDirectory.exists() ) {
-        //        appDirectory.mkdir();
-        //    }
-//
-        //    // create log folder
-        //    if ( !logDirectory.exists() ) {
-        //        logDirectory.mkdir();
-        //    }
-//
-        //    // clear the previous logcat and then write the new one to the file
-        //    try {
-        //        Process process = Runtime.getRuntime().exec("logcat -c");
-        //        process = Runtime.getRuntime().exec("logcat -f " + logFile);
-        //    } catch ( IOException e ) {
-        //        e.printStackTrace();
-        //    }
-        //}
     }
 
     public void setUpMixPanel(){

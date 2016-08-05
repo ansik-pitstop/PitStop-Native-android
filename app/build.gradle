@@ -23,28 +23,36 @@ android {
                     file.name.replace(".apk", "_${variant.versionName}.apk").replace("app-", "Pitstop_"))
         }
     }
-
     defaultConfig {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 55
+        versionCode 56
         versionName "2.1.2"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
-        release {
+        debug { // for development, dev backend, no mixpanel
+            buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
+            buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
+            buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
+            buildConfigField "String", "BETA_TYPE", "\"beta\""
+            buildConfigField "String", "DEBUG_TYPE", "\"debug\""
+            buildConfigField "String", "RELEASE_TYPE", "\"release\""
+        }
+        beta.initWith(buildTypes.debug)
+        beta { // for release to beta in Play Store, dev backend, mixpanel
+            debuggable false
+        }
+        release.initWith(buildTypes.debug)
+        release { // for release to production, prod backend, mixpanel
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "CLIENT_ID", "\"8pLSeDGJdlW89dzfbfI4uNr0x2Blo4FG8TEkCB5LXKgtfVf8\""
             buildConfigField "String", "SERVER_URL", "\"https://api.getpitstop.io/\""
             buildConfigField "String", "ENDPOINT_TYPE", "\"release\""
-        }
-        debug {
-            buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
-            buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
-            buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
         }
     }
     packagingOptions {
