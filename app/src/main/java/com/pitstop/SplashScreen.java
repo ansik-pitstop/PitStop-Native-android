@@ -235,6 +235,9 @@ public class SplashScreen extends AppCompatActivity {
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
         } else {
+            if(facebookSignup) {
+                application.logOutUser();
+            }
             // Otherwise, select the previous step.
             if(signup && mPager.getCurrentItem()==2&&firstName.getVisibility()== View.VISIBLE) {
                 firstName.setVisibility(View.GONE);

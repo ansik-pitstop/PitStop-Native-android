@@ -226,6 +226,7 @@ public class GlobalApplication extends Application {
     }
 
     public void logOutUser() {
+        Log.i(TAG, "Logging user out");
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
