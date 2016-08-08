@@ -652,6 +652,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
+                                        carIssueLocalStore.deleteAllCarIssues();
                                         carIssueLocalStore.storeCarIssues(carList);
                                         callback.setCarDetailsUI();
                                     }

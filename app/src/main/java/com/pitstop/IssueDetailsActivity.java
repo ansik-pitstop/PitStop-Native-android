@@ -34,6 +34,9 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.List;
+
 import io.smooch.core.Smooch;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
@@ -328,6 +331,23 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         if(errorIndicator.wasError) {
             Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+        }
+
+        List<CarIssue> issues = carIssueAdapter.getAllCarIssues(dashboardCar.getId());
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        final String currentYear = String.valueOf(calendar.get(Calendar.YEAR));
+        final String currentMonth = calendar.get(Calendar.MONTH) < 10 ? "0" + calendar.get(Calendar.MONTH)
+                : String.valueOf(calendar.get(Calendar.MONTH));
+        final String currentDay = calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + calendar.get(Calendar.DAY_OF_MONTH)
+                : String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+        for(CarIssue issue : issues) {
+            if(!issue.getStatus().equals(CarIssue.ISSUE_DONE) &&
+                    issue.getIssueType().equals(CarIssue.DTC) || issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+                issue.setStatus(CarIssue.ISSUE_DONE);
+                issue.setDoneAt(currentYear + "-" + currentMonth + "-" + currentDay);
+                carIssueAdapter.updateCarIssue(issue);
+            }
         }
 
         needToRefresh = true;

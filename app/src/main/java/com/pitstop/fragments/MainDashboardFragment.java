@@ -180,6 +180,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            if(getActivity() == null) {
+                return;
+            }
             final BluetoothAutoConnectService autoConnectService=((MainActivity)getActivity()).getBluetoothConnectService();
             if(msg.what == 0) {
                 if(autoConnectService != null
@@ -504,7 +507,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 );
                                 TextView titleView = new TextView(getActivity());
                                 titleView.setText("When was this service completed?");
-                                titleView.setBackgroundColor(getResources().getColor(R.color.date_picker_background));
+                                titleView.setBackgroundColor(getResources().getColor(R.color.primary_dark));
                                 titleView.setTextColor(getResources().getColor(R.color.white_text));
                                 titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 titleView.setTextSize(18);
