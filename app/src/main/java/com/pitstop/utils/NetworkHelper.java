@@ -430,6 +430,21 @@ public class NetworkHelper {
         get("user/" + userId, callback);
     }
 
+    public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
+        LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("userId", userId);
+            json.put("firstName", firstName);
+            json.put("lastName", lastName);
+            json.put("phone", phoneNumber);
+            put("user/", callback, json);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void resetPassword(String email, RequestCallback callback) {
         LOGI(TAG, "resetPassword: " + email);
 

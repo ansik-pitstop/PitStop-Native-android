@@ -63,6 +63,7 @@ public class SplashScreen extends AppCompatActivity {
 
     boolean signup  = false;
     boolean backPressed = false;
+    boolean facebookSignup = false;
 
     private ProgressDialog progressDialog;
 
@@ -332,24 +333,9 @@ public class SplashScreen extends AppCompatActivity {
             if((!email.getText().toString().equals(""))
                     &&(!password.getText().toString().equals(""))
                     &&firstName.getVisibility()!= View.VISIBLE){
-                mPager.setOnTouchListener(new View.OnTouchListener(){
-
-                    @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-                        return false;
-                    }
-                });
-                firstName.setVisibility(View.VISIBLE);
-                lastName.setVisibility(View.VISIBLE);
-                phoneNumber.setVisibility(View.VISIBLE);
-                email.setVisibility(View.GONE);
-                password.setVisibility(View.GONE);
-                findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
-//                findViewById(R.id.login_or).setVisibility(View.GONE);
-                findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
-                ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+                finalizeProfile();
                 return;
-            }else if(firstName.getVisibility()!= View.VISIBLE){
+            }else if(firstName.getVisibility()!= View.VISIBLE && !facebookSignup){
                 Snackbar.make(splashLayout, "Email or Password Field are not filled",Snackbar.LENGTH_SHORT).show();
                 return;
             }
@@ -360,7 +346,7 @@ public class SplashScreen extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            if(password.getText().toString().length()<6){
+            if(password.getText().toString().length()<6 && !facebookSignup){
                 Toast.makeText(SplashScreen.this, "Password length must be greater than 6", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
@@ -371,34 +357,54 @@ public class SplashScreen extends AppCompatActivity {
                 return;
             }
             // creating json to post
-            JSONObject json = new JSONObject();
-            try { // TODO: put names and phone number from second screen
-                json.put("firstName", firstName.getText().toString());
-                json.put("lastName", lastName.getText().toString());
-                json.put("email", email.getText().toString().replace(" ", ""));
-                json.put("username", email.getText().toString().replace(" ", ""));
-                json.put("phone", phoneNumber.getText().toString());
-                json.put("password", password.getText().toString());
-                json.put("isSocial", false);
-                json.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            networkHelper.signUpAsync(json, new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if(requestError == null) {
-                        login(email.getText().toString(), password.getText().toString());
-                    } else {
-                        Log.e(TAG, "Sign up error: " + requestError.getMessage());
-                        Toast.makeText(SplashScreen.this, "This email is already in use", Toast.LENGTH_SHORT).show();
-                        hideLoading();
-                    }
+            if(!facebookSignup) {
+                JSONObject json = new JSONObject();
+                try { // TODO: put names and phone number from second screen
+                    json.put("firstName", firstName.getText().toString());
+                    json.put("lastName", lastName.getText().toString());
+                    json.put("email", email.getText().toString().replace(" ", ""));
+                    json.put("username", email.getText().toString().replace(" ", ""));
+                    json.put("phone", phoneNumber.getText().toString());
+                    json.put("password", password.getText().toString());
+                    json.put("isSocial", false);
+                    json.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            });
+                networkHelper.signUpAsync(json, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if(requestError == null) {
+                            login(email.getText().toString(), password.getText().toString());
+                        } else {
+                            Log.e(TAG, "Sign up error: " + requestError.getMessage());
+                            Toast.makeText(SplashScreen.this, "This email is already in use", Toast.LENGTH_SHORT).show();
+                            hideLoading();
+                        }
+                    }
+                });
+            } else {
+                final User user = application.getCurrentUser();
+                user.setFirstName(firstName.getText().toString());
+                user.setLastName(lastName.getText().toString());
+                user.setPhone(phoneNumber.getText().toString());
+                networkHelper.updateUser(application.getCurrentUserId(), firstName.getText().toString(),
+                        lastName.getText().toString(), phoneNumber.getText().toString(),
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(requestError == null) {
+                                    application.setCurrentUser(user);
+                                    application.setUpMixPanel();
+                                    goToMainActivity(true);
+                                } else {
+                                    Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
         }else{
             try {
                 mixpanelHelper.trackButtonTapped("Login with Email", TAG);
@@ -432,38 +438,60 @@ public class SplashScreen extends AppCompatActivity {
         }
     }
 
+    private void finalizeProfile() {
+        mPager.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return false;
+            }
+        });
+        firstName.setVisibility(View.VISIBLE);
+        lastName.setVisibility(View.VISIBLE);
+        phoneNumber.setVisibility(View.VISIBLE);
+        email.setVisibility(View.GONE);
+        password.setVisibility(View.GONE);
+        findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
+        findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
+        ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+    }
+
     private void loginSocial(final String fbAccessToken, final String provider) {
         showLoading("Logging in");
 
-        if(!signup) {
-            networkHelper.loginSocial(fbAccessToken, provider, new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    hideLoading();
-                    if (requestError == null) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            User user = User.jsonToUserObject(response);
-                            String accessToken = jsonObject.getString("accessToken");
-                            String refreshToken = jsonObject.getString("refreshToken");
-                            application.logInUser(accessToken, refreshToken, user);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+        networkHelper.loginSocial(fbAccessToken, provider, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                hideLoading();
+                if (requestError == null) {
+                    facebookSignup = true;
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        User user = User.jsonToUserObject(response);
+                        String accessToken = jsonObject.getString("accessToken");
+                        String refreshToken = jsonObject.getString("refreshToken");
+                        application.logInUser(accessToken, refreshToken, user);
+                        if(user.getPhone() == null || user.getPhone().equals("null")) {
+                            signup = true;
+                            hideLoading();
+                            finalizeProfile();
+                            firstName.setText(user.getFirstName());
+                            lastName.setText(user.getLastName());
+                            return;
                         }
-
-                        application.setUpMixPanel();
-
-                        goToMainActivity(true);
-                    } else {
-                        Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                        Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
-                                .show();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+
+                    application.setUpMixPanel();
+
+                    goToMainActivity(true);
+                } else {
+                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                    Snackbar.make(findViewById(R.id.splash_layout), "Invalid username/password", Snackbar.LENGTH_SHORT)
+                            .show();
                 }
-            });
-        } else {
-            // TODO: put confirm information screen here with name and phone number, after first login, PUT user to update information
-        }
+            }
+        });
     }
 
     private BroadcastReceiver migrationReceiver = new BroadcastReceiver() {

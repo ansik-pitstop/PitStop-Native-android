@@ -698,6 +698,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             final HashSet<String> activeIssueNames = new HashSet<>();
 
+            if(dashboardCar == null) {
+                return;
+            }
+
             for(CarIssue issues : dashboardCar.getActiveIssues()) {
                 activeIssueNames.add(issues.getItem());
             }
