@@ -262,19 +262,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof MainDashboardFragment) {
             // Always refresh from the server if entering from log in activity
-            if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-                Log.i(TAG, "refresh from login");
-                refreshFromServer();
-            } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-                // In the event the user pressed back button while in the select dealership activity
-                // then load required data from local db.
-                refreshFromLocal();
-            } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-                // On opening a push notification, load required data from server
-                refreshFromServer();
-            } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-                refreshFromServer();
-            }
+            //if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+            //    Log.i(TAG, "refresh from login");
+            //    refreshFromServer();
+            //} else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            //    // In the event the user pressed back button while in the select dealership activity
+            //    // then load required data from local db.
+            //    refreshFromLocal();
+            //} else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+            //    // On opening a push notification, load required data from server
+            //    refreshFromServer();
+            //} else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+            //    refreshFromServer();
+            //}
             resetMenus(true);
         }
     }
