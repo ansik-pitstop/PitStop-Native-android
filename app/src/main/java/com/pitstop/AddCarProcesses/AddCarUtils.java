@@ -58,10 +58,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
-    private boolean serviceIsBound;
-    private boolean hasBluetoothVinEntryFailed = false;
-    private static final int CAM_PERM_REQ = 103;
-    public static int ADD_CAR_SUCCESS = 51;
     private static final int RC_PENDING_ADD_CAR = 102;
     private int vinAttempts = 0;
 
@@ -487,7 +483,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
     private void vinCheck(final JSONObject carInfo) {
         Log.i(TAG, "vinCheck()");
-        //check if car already exists!
+        //check if car already exists
         callback.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -543,6 +539,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                                     networkHelper.createNewScanner(newCar.getId(), pendingCar.getScannerId(), null);
                                 }
 
+                                autoConnectService.saveScanner();
 
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
                                 networkHelper.setMainCar(context.getCurrentUserId(), newCar.getId(), null);

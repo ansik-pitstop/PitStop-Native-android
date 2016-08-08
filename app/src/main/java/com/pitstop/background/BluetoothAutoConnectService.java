@@ -597,23 +597,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
-            String btName = bluetoothCommunicator.getConnectedDeviceName();
-            Log.i(TAG,"Connected device name: " + btName);
-
-            Car car = carAdapter.getCarByScanner(loginPackageInfo.deviceId);
-            ObdScanner scanner = scannerAdapter.getScannerByScannerId(loginPackageInfo.deviceId);
-            if(btName != null && (car != null || AddCarActivity.addingCar)) {
-                Log.i(TAG, "Saving scanner locally");
-                if (scanner != null) {
-                    scanner.setDeviceName(btName);
-                    scanner.setCarId(car != null ? car.getId() : 0);
-                    scannerAdapter.updateScanner(scanner);
-                } else {
-                    scannerAdapter.storeScanner(new ObdScanner(car != null ? car.getId() : 0, loginPackageInfo.deviceId,
-                            bluetoothCommunicator.getConnectedDeviceName()));
-                }
-            } else {
-                Log.i(TAG, "Connected to unrecognized device");
+            if(!AddCarActivity.addingCar) {
+                saveScanner(); // TODO: move this
             }
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
@@ -622,7 +607,30 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(callbacks != null) {
             callbacks.deviceLogin(loginPackageInfo);
         }
+    }
 
+    public void saveScanner() {
+        if(currentDeviceId == null) {
+            return;
+        }
+        String btName = bluetoothCommunicator.getConnectedDeviceName();
+        Log.i(TAG,"Connected device name: " + btName);
+
+        Car car = carAdapter.getCarByScanner(currentDeviceId);
+        ObdScanner scanner = scannerAdapter.getScannerByScannerId(currentDeviceId);
+        if(btName != null && (car != null || AddCarActivity.addingCar)) {
+            Log.i(TAG, "Saving scanner locally");
+            if (scanner != null) {
+                scanner.setDeviceName(btName);
+                scanner.setCarId(car != null ? car.getId() : 0);
+                scannerAdapter.updateScanner(scanner);
+            } else {
+                scannerAdapter.storeScanner(new ObdScanner(car != null ? car.getId() : 0, currentDeviceId,
+                        bluetoothCommunicator.getConnectedDeviceName()));
+            }
+        } else {
+            Log.i(TAG, "Connected to unrecognized device");
+        }
     }
 
     public class BluetoothBinder extends Binder {

@@ -14,8 +14,9 @@ android {
     def staging = "\"http://staging.api.getpitstop.io:10010/\""
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
-    def isStaging = true
+    def isStaging = true // change this to use snapshot or staging
 
+    // named apks when building (e.g. Pitstop_release_2.1.3.apk
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def file = output.outputFile
@@ -23,12 +24,13 @@ android {
                     file.name.replace(".apk", "_${variant.versionName}.apk").replace("app-", "Pitstop_"))
         }
     }
+
     defaultConfig {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 56
-        versionName "2.1.2"
+        versionCode 57
+        versionName "2.1.3"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
