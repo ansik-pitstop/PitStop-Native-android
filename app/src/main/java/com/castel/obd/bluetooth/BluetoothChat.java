@@ -28,11 +28,13 @@ public class BluetoothChat {
 		mHandler = handler;
 	}
 
-	public void connectBluetooth(BluetoothDevice device) {
-		Log.w(TAG, "connectBluetooth");
+	public synchronized void connectBluetooth(BluetoothDevice device) {
 		if(connectThread == null) {
+			Log.w(TAG, "connect thread is null");
 			connectThread = new ConnectThread(device);
 			connectThread.start();
+		} else {
+			Log.w(TAG, "connect thread is not null");
 		}
 	}
 
