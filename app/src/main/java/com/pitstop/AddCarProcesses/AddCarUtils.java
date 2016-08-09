@@ -145,7 +145,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         return vin != null && vin.length() == 17;
     }
     
-    public void updateMilage(String mileage){
+    public void updateMileage(String mileage){
         if(mileage!=null) {
             pendingCar.setBaseMileage(Integer.parseInt(mileage));
         }

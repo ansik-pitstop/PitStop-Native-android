@@ -59,7 +59,7 @@ public class LocalCarIssueAdapter {
         ContentValues values = carIssueObjectToContentValues(carIssue);
 
         int rows = db.update(TABLES.CAR_ISSUES.TABLE_NAME, values,
-                TABLES.CAR_ISSUES.KEY_CAR_ISSUE_ID+"=?",
+                TABLES.COMMON.KEY_OBJECT_ID+"=?",
                 new String[] {String.valueOf(carIssue.getId())});
         db.close();
         return rows;

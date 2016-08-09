@@ -54,7 +54,6 @@ public final class TABLES {
         String KEY_ITEM = "item";
         String KEY_DESCRIPTION = "description";
         String KEY_ACTION = "action";
-        String KEY_CAR_ISSUE_ID = "carIssueId";
     }
 
     public interface USER {

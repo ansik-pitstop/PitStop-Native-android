@@ -123,7 +123,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         || ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
                 } else {
-                    autoConnectService.startBluetoothSearch();
+                    //autoConnectService.startBluetoothSearch();
                 }
             }
         }
@@ -449,10 +449,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         }
 
                         for(CarIssue issue : issues) {
-                            if(issue.getIssueType().equals(CarIssue.RECALL)) {
-                                ++recalls;
-                            } else if(issue.getIssueType().contains(CarIssue.SERVICE)) {
-                                ++services;
+                            if(!issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                                if (issue.getIssueType().equals(CarIssue.RECALL)) {
+                                    ++recalls;
+                                } else if (issue.getIssueType().contains(CarIssue.SERVICE)) {
+                                    ++services;
+                                }
                             }
                         }
 

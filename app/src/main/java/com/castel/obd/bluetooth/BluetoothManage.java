@@ -204,7 +204,6 @@ public class BluetoothManage {
 				if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
 						(device.getName().contains(BT_NAME))) {
 					Log.i(DTAG,"Connected to a PAIRED device - BluetoothManage");
-					LogUtil.i("CONNECTED");
 					btConnectionState = CONNECTED;
 					LogUtil.i("Bluetooth state:CONNECTED");
 					dataListener.getBluetoothState(btConnectionState);
@@ -223,10 +222,8 @@ public class BluetoothManage {
 
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
 				Log.i(DTAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothManage");
-				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_STARTED");
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 				Log.i(DTAG,"Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothManage");
-				LogUtil.i("Bluetooth state:ACTION_DISCOVERY_FINISHED");
 				if (btConnectionState != CONNECTED) {
 					btConnectionState = DISCONNECTED;
 					Log.i(DTAG,"Not connected - setting get bluetooth state on dListeners");

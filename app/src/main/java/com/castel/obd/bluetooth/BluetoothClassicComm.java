@@ -168,6 +168,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     }
 
     private void connectBluetooth() {
+        Log.d(TAG, "connectBluetooth()");
 
         if (btConnectionState == CONNECTED) {
             Log.i(TAG,"Bluetooth is connected - BluetoothClassicComm");
@@ -248,7 +249,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     }
                     OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG,"Retry connection");
-                    startScan();
+                    //startScan();
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
                     dataListener.getBluetoothState(btConnectionState);
                     break;
@@ -297,7 +298,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
                     //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

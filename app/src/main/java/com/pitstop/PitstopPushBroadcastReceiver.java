@@ -98,7 +98,9 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
                 .setAutoCancel(true)
                 .setContentIntent(pContentIntent)
                 .setDeleteIntent(pDeleteIntent)
-                .setDefaults(Notification.DEFAULT_ALL);
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(parseNotification.getAlert()));
 
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);

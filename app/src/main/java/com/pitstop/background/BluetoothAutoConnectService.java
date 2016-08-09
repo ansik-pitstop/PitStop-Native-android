@@ -148,7 +148,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
                     && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                startBluetoothSearch();
+                startBluetoothSearch();  // start search when service starts
             }
         }
         localPid = new LocalPidAdapter(this);
@@ -173,7 +173,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
                         bluetoothCommunicator.getState() == IBluetoothCommunicator.DISCONNECTED) {
                     Log.d(TAG, "Running periodic scan");
-                    startBluetoothSearch();
+                    startBluetoothSearch(); // periodic scan
                 }
 
                 handler.postDelayed(this, 120000);
@@ -612,6 +612,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch() {
+        Log.d(TAG, "startBluetoothSearch()");
         bluetoothCommunicator.startScan();
     }
 
@@ -1274,7 +1275,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if(intent.getAction().equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {  // device pairing listener
                 Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
                 if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
-                    startBluetoothSearch();
+                    startBluetoothSearch();  // start search after pairing in case it disconnects after pair
                 }
             } else if(intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {  // bluetooth adapter state listener
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
@@ -1296,7 +1297,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        startBluetoothSearch();
+                        startBluetoothSearch(); // start search when turning bluetooth on
                     }
                 }
             } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {  // internet connectivity listener

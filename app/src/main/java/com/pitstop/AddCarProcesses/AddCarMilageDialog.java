@@ -8,7 +8,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.pitstop.R;
 
@@ -46,7 +45,7 @@ public class AddCarMilageDialog extends DialogFragment {
                             utils.callback.hideLoading("Please enter valid mileage");
                             return;
                         }
-                        utils.updateMilage(mileageEditText.getText().toString());
+                        utils.updateMileage(mileageEditText.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
