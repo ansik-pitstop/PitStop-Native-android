@@ -81,6 +81,10 @@ import java.util.Locale;
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 /**
  * Created by David on 6/8/2016.
@@ -103,11 +107,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final int RC_DISPLAY_ISSUE = 53;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
-
     public static final int RC_ENABLE_BT= 102;
     public static final int RESULT_OK = 60;
-
-    private static final String SHOWCASE_ID = "main_activity_sequence_01";
 
     public static final String CAR_EXTRA = "car";
     public static final String CAR_ISSUE_EXTRA = "car_issue";
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
+    private final static String pfTutorial = "com.pitstop.tutorial";
 
     public static final String TAG = "MainActivity";
     public static final int LOC_PERM_REQ = 112;
@@ -178,11 +180,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        application = (GlobalApplication) getApplicationContext();
         super.onCreate(savedInstanceState);
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
-        application = (GlobalApplication) getApplicationContext();
         setContentView(R.layout.activity_main_drawer_frame);
 
         ParseACL acl = new ParseACL();
@@ -340,6 +342,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        if(dashboardCar != null) {
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    presentShowcaseSequence();
+                }
+            }, 1300);
+        }
     }
 
     @Override
@@ -362,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+                presentShowcaseSequence();
             } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
@@ -941,6 +954,169 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
                 });
     }
+
+    /**
+     * Tutorial
+     */
+    private void presentShowcaseSequence() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean hasSeenTutorial = preferences.getBoolean(pfTutorial,false);
+        if(hasSeenTutorial) {
+            return;
+        }
+
+        Log.i(TAG, "running present show case");
+
+        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this);
+
+        try {
+            mixpanelHelper.trackViewAppeared("Tutorial Onboarding");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
+                preferences.edit().putBoolean(pfTutorial,true).apply();
+            }
+        });
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(findViewById(R.id.car_scan_btn))
+                        .setTitleText("Scan Car")
+                        .setContentText("Click here to scan your car for issues")
+                        .setDismissOnTouch(true)
+                        .setDismissText("OK")
+                        .setListener(new IShowcaseListener() {
+                            @Override
+                            public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+                            }
+
+                            @Override
+                            public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                                viewPager.setCurrentItem(1);
+                            }
+                        })
+                        .build()
+        );
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(findViewById(R.id.dealership_actions))
+                        .setTitleText("Your Dealership")
+                        .setContentText("Feel free to click these to " +
+                                "message/call/get directions to your dealership. " +
+                                "You can change your dealership in the settings.")
+                        .setDismissOnTouch(true)
+                        .setDismissText("OK")
+                        .withRectangleShape(true)
+                        .setListener(new IShowcaseListener() {
+                            @Override
+                            public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+                            }
+                            @Override
+                            public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                                viewPager.setCurrentItem(0);
+                            }
+                        })
+                        .build()
+        );
+
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
+                .setTarget(findViewById(R.id.car_issues_list))
+                .setTitleText("Car Issues")
+                .setContentText("These are the issues for your current car.  Swipe issues away to dismiss them.")
+                .setDismissOnTouch(true)
+                .setDismissText("OK")
+                .withRectangleShape(true)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+                    }
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+                    }
+                })
+                .build());
+
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
+                .setTarget(findViewById(R.id.left_drawer_listview))
+                .setTitleText("Your Cars")
+                .setContentText("These are your cars.  You can change your current car here.")
+                .setDismissOnTouch(true)
+                .withRectangleShape(true)
+                .setDismissText("OK")
+                .build());
+
+        final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
+                .setTarget(findViewById(R.id.linearLayout5))
+                .setTitleText("Add a car")
+                .setContentText("Click here to add a new car.")
+                .setDismissOnTouch(true)
+                .setDismissText("Get Started")
+                .withRectangleShape(true)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+                    }
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+                    }
+                })
+                .build();
+
+        sequence.addSequenceItem(finalShowcase);
+
+        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+            @Override
+            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+                if(materialShowcaseView.equals(finalShowcase)) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    com.pitstop.DataAccessLayer.DTOs.User user = application.getCurrentUser();
+
+                    final HashMap<String, Object> customProperties = new HashMap<>();
+                    customProperties.put("VIN", dashboardCar.getVin());
+                    customProperties.put("Car Make",  dashboardCar.getMake());
+                    customProperties.put("Car Model", dashboardCar.getModel());
+                    customProperties.put("Car Year", dashboardCar.getYear());
+                    customProperties.put("Email", dashboardCar.getDealership().getEmail());
+
+                    if(user != null) {
+                        customProperties.put("Phone", user.getPhone());
+                        User.getCurrentUser().setFirstName(user.getFirstName());
+                        User.getCurrentUser().setEmail(user.getEmail());
+                    }
+                    User.getCurrentUser().addProperties(customProperties);
+
+                    if(user != null && !BuildConfig.DEBUG) {
+                        Smooch.getConversation().sendMessage(
+                                new io.smooch.core.Message(user.getFirstName() +
+                                        (user.getLastName() == null || user.getLastName().equals("null")
+                                                ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                    }
+
+                    Smooch.track("User Logged In");
+                }
+            }
+        });
+
+        viewPager.setCurrentItem(0);
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+
+        sequence.start();
+
+    }
+
     public interface MainDashboardCallback{
         void activityResultCallback(int requestCode, int resultCode, Intent data);
         void onServerRefreshed();

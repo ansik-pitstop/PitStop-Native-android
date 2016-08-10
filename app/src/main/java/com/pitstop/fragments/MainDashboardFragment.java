@@ -69,12 +69,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import io.smooch.core.Smooch;
-import io.smooch.core.User;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
-
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
         MainActivity.MainDashboardCallback {
 
@@ -555,16 +549,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         setDealership();
         populateCarIssuesAdapter();
 
-        if(application.checkAppStart() == GlobalApplication.AppStart.FIRST_TIME
-                || application.checkAppStart() == GlobalApplication.AppStart.FIRST_TIME_VERSION) {
-
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    presentShowcaseSequence();
-                }
-            }, 2000);
-        }
         if(carName!=null) {
             carName.setText(dashboardCar.getYear() + " "
                     + dashboardCar.getMake() + " "
@@ -717,124 +701,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     /**
-     * Tutorial
-     */
-    private void presentShowcaseSequence() {
-
-        boolean hasSeenTutorial = sharedPreferences.getBoolean(pfTutorial,false);
-        if(hasSeenTutorial) {
-            return;
-        }
-
-        Log.i(TAG, "running present show case");
-
-        ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(500); // half second between each showcase view
-
-        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity());
-
-        try {
-            mixpanelHelper.trackViewAppeared("Tutorial Onboarding");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        sequence.setConfig(config);
-
-        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-            @Override
-            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                sharedPreferences.edit().putBoolean(pfTutorial,true).apply();
-            }
-        });
-
-//        sequence.addSequenceItem(new MaterialShowcaseView.Builder(getActivity())
-//                .setTarget(toolbar.findViewById(R.id.add))
-//                .setTitleText("Add Car")
-//                .setContentText("Click to add a new car")
-//                .setDismissOnTouch(true)
-//                .setDismissText("OK")
-//                .build()
-//        );
-
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
-                        .setTarget(carScan)
-                        .setTitleText("Scan Car")
-                        .setContentText("Click to scan car for issues")
-                        .setDismissOnTouch(true)
-                        .setDismissText("OK")
-                        .build()
-        );
-
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
-                        .setTarget(dealershipLayout)
-                        .setTitleText("Your Dealership")
-                        .setContentText("Feel free to click these to " +
-                                "message/call/get directions to your dealership. " +
-                                "You can edit this in your settings.")
-                        .setDismissOnTouch(true)
-                        .setDismissText("OK")
-                        .withRectangleShape(true)
-                        .build()
-        );
-
-        final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(getActivity())
-                .setTarget(carIssueListView)
-                .setTitleText("Car Issues")
-                .setContentText("Swipe to dismiss issues.")
-                .setDismissOnTouch(true)
-                .setDismissText("Get Started")
-                .withRectangleShape(true)
-                .build();
-
-        sequence.addSequenceItem(finalShowcase);
-
-        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-            @Override
-            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-                if(materialShowcaseView.equals(finalShowcase)) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    com.pitstop.DataAccessLayer.DTOs.User user = application.getCurrentUser();
-
-                    final HashMap<String, Object> customProperties = new HashMap<>();
-                    customProperties.put("VIN", dashboardCar.getVin());
-                    customProperties.put("Car Make",  dashboardCar.getMake());
-                    customProperties.put("Car Model", dashboardCar.getModel());
-                    customProperties.put("Car Year", dashboardCar.getYear());
-                    customProperties.put("Email", dashboardCar.getDealership().getEmail());
-
-                    if(user != null) {
-                        customProperties.put("Phone", user.getPhone());
-                        User.getCurrentUser().setFirstName(user.getFirstName());
-                        User.getCurrentUser().setEmail(user.getEmail());
-                    }
-                    User.getCurrentUser().addProperties(customProperties);
-
-                    if(user != null && !BuildConfig.DEBUG) {
-                        Smooch.getConversation().sendMessage(
-                                new io.smooch.core.Message(user.getFirstName() +
-                                        (user.getLastName() == null || user.getLastName().equals("null")
-                                                ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                    }
-
-                    Smooch.track("User Logged In");
-                }
-            }
-        });
-
-        sequence.start();
-
-    }
-
-    /**
-     *
+     *  Issues list view
      */
     class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
