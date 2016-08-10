@@ -122,12 +122,6 @@
             android:name=".PendingAddCarActivity"
             android:label="Please Connect to Internet" />
         <activity
-            android:name=".Debug.PIDDebugActivity"
-            android:label="@string/title_activity_piddebug" />
-        <activity
-            android:name=".EnvironmentalCheckActivity"
-            android:label="@string/title_activity_enviornmental_check" />
-        <activity
             android:name=".IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
             android:screenOrientation="portrait" />

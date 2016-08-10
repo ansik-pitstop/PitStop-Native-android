@@ -93,7 +93,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
                 case 1: {
                     if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
-                        autoConnectService.startBluetoothSearch();
+                        autoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
                     } else {
                         vinAttempts++;
                         autoConnectService.getCarVIN();
@@ -197,7 +197,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     callback.showLoading("Searching for Car");
 
                     Log.i(TAG, "Searching for car but device not connected");
-                    autoConnectService.startBluetoothSearch();
+                    autoConnectService.startBluetoothSearch(2);  // search for car
                     isSearchingForCar = true;
                     searchTime = System.currentTimeMillis();
                     if(mileage != null) {

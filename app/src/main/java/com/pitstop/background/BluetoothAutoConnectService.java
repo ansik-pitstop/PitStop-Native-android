@@ -148,7 +148,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
                     && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                startBluetoothSearch();  // start search when service starts
+                startBluetoothSearch(3);  // start search when service starts
             }
         }
         localPid = new LocalPidAdapter(this);
@@ -173,7 +173,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
                         bluetoothCommunicator.getState() == IBluetoothCommunicator.DISCONNECTED) {
                     Log.d(TAG, "Running periodic scan");
-                    startBluetoothSearch(); // periodic scan
+                    startBluetoothSearch(4); // periodic scan
                 }
 
                 handler.postDelayed(this, 120000);
@@ -611,8 +611,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.callbacks = callBacks;
     }
 
-    public void startBluetoothSearch() {
-        Log.d(TAG, "startBluetoothSearch()");
+    public void startBluetoothSearch(int... source) {
+        Log.d(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""));
         bluetoothCommunicator.startScan();
     }
 
@@ -1275,7 +1275,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if(intent.getAction().equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {  // device pairing listener
                 Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
                 if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
-                    startBluetoothSearch();  // start search after pairing in case it disconnects after pair
+                    startBluetoothSearch(5);  // start search after pairing in case it disconnects after pair
                 }
             } else if(intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {  // bluetooth adapter state listener
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
@@ -1287,6 +1287,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.cancel(notifID);
                 } else if(state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
+                    if(bluetoothCommunicator != null) {
+                        bluetoothCommunicator.close();
+                    }
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                         bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this); // TODO: BLE
@@ -1297,7 +1300,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        startBluetoothSearch(); // start search when turning bluetooth on
+                        startBluetoothSearch(6); // start search when turning bluetooth on
                     }
                 }
             } else if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {  // internet connectivity listener

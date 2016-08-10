@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         refreshFromServer();
 
         if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
-            autoConnectService.startBluetoothSearch();
+            autoConnectService.startBluetoothSearch(); // refresh clicked
         }
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }

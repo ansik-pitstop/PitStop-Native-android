@@ -91,14 +91,18 @@ public class BluetoothChat {
 				}
 
 			} catch (IOException connectException) {
-				connectException.printStackTrace();
+				if(mmSocket.isConnected()) {
+					Log.e(TAG, "Already connected to socket");
+				} else {
+					connectException.printStackTrace();
 
-				try {
-					Log.i(TAG, "Couldn't connect to socket");
-					mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
-					mmSocket.close();
-				} catch (IOException e2) {
-					e2.printStackTrace();
+					try {
+						Log.i(TAG, "Couldn't connect to socket");
+						mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
+						mmSocket.close();
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
 				}
 			}
 		}

@@ -207,8 +207,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         findViewById(R.id.evcheck_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(CarDetailsActivity.this, EnvironmentalCheckActivity.class);
-                startActivity(intent);
+
             }
         });
 

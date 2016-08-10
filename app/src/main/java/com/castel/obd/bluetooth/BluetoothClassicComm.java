@@ -249,7 +249,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     }
                     OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG,"Retry connection");
-                    //startScan();
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
                     dataListener.getBluetoothState(btConnectionState);
                     break;

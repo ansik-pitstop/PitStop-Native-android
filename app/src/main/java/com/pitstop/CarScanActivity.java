@@ -372,7 +372,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                         progressDialog.setMessage("Connecting to car");
                                         progressDialog.show();
                                         carSearchStartTime = System.currentTimeMillis();
-                                        autoConnectService.startBluetoothSearch();
+                                        autoConnectService.startBluetoothSearch();  // for car scan
                                         handler.postDelayed(connectCar, 3000);
                                     }
                                 }
@@ -744,7 +744,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                             int[] grantResults) {
         if(requestCode == MainActivity.RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();
+                autoConnectService.startBluetoothSearch();  // after permissions granted
             } else {
                 Snackbar.make(findViewById(R.id.car_scan_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {
