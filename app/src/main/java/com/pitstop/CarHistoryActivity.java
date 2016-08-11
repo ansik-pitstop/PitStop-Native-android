@@ -2,18 +2,15 @@ package com.pitstop;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +31,8 @@ import java.util.LinkedHashMap;
  * Created by DavidIsDum on 1/30/2016.
  */
 public class CarHistoryActivity extends AppCompatActivity {
+    public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
+
     //private CustomAdapter customAdapter;
     private RecyclerView issuesList;
     private CardView messageCard;
@@ -344,6 +343,7 @@ public class CarHistoryActivity extends AppCompatActivity {
                     Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
                     intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
                     intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+                    intent.putExtra(ISSUE_FROM_HISTORY, true);
                     startActivity(intent);
                 }
             });

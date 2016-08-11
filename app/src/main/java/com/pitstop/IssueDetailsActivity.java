@@ -49,6 +49,8 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private Car dashboardCar;
     private CarIssue carIssue;
 
+    private boolean fromHistory; // opened from history (no request service)
+
     private LocalCarIssueAdapter carIssueAdapter;
 
     GlobalApplication application;
@@ -95,8 +97,20 @@ public class IssueDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
         carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
 
         setUpDisplayItems(carIssue);
+
+        View requestServiceButton = findViewById(R.id.btnRequestService);
+        View clearDtcButton = findViewById(R.id.btnClearDtc);
+        if(fromHistory) {
+            if (requestServiceButton != null) {
+                requestServiceButton.setVisibility(View.INVISIBLE);
+            }
+            if (clearDtcButton != null) {
+                clearDtcButton.setVisibility(View.INVISIBLE);
+            }
+        }
 
         try {
             mixpanelHelper.trackViewAppeared(TAG);
