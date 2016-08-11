@@ -571,7 +571,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                 });
             }
-        } else {
+        } else if(car != null) {
             Log.i(TAG, "Saving dtcs offline");
             for (final String dtc : dtcArr) {
                 dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dataPackageInfo.rtcTime,

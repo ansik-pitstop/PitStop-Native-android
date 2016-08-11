@@ -64,5 +64,7 @@
     <string name="internet_desc">Turn on your internet connection in order for us to tell you what\'s going on with your car</string>
     <string name="car_desc">Turn your car on in order for the module to send data back to the app</string>
 
+    <!-- UartService -->
+    <string name="report_data">Terminal upload data:</string>
 
 </resources>
