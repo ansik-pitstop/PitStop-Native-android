@@ -140,7 +140,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                bluetoothCommunicator = new BluetoothClassicComm(this);
+                bluetoothCommunicator = new BluetoothClassicComm(this);  // TODO: BLE
             } else {
                 bluetoothCommunicator = new BluetoothClassicComm(this);
             }

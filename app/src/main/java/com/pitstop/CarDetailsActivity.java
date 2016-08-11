@@ -1020,7 +1020,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.car_details_list_item, parent, false);
+                    .inflate(R.layout.list_item_issue, parent, false);
             ViewHolder vh = new ViewHolder(v);
             return vh;
         }

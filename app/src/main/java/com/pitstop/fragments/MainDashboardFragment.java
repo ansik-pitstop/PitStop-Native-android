@@ -16,7 +16,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -41,7 +40,6 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.AddCarActivity;
-import com.pitstop.BuildConfig;
 import com.pitstop.MainActivity;
 import com.pitstop.CarScanActivity;
 import com.pitstop.DataAccessLayer.DTOs.Car;
@@ -64,7 +62,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -716,7 +713,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.car_details_list_item, parent, false);
+                    .inflate(R.layout.list_item_issue, parent, false);
             ViewHolder viewHolder = new ViewHolder(v);
             return viewHolder;
         }
