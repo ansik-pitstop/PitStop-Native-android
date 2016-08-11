@@ -228,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        resetMenus(true);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -280,8 +282,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
                 refreshFromServer();
                 resetMenus(false);
-            } else {
-                resetMenus(true);
             }
         }
     }

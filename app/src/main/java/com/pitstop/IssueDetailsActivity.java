@@ -60,7 +60,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = IssueDetailsActivity.class.getSimpleName();
 
-
     private BluetoothAutoConnectService autoConnectService;
     private Intent serviceIntent;
 
