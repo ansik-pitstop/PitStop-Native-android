@@ -116,15 +116,6 @@ public class CarIssue implements Parcelable {
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
         CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
 
-        //CarIssue carIssue = new CarIssue();
-        //carIssue.setId(issueObject.getInt("id"));
-        //carIssue.setCarId(carId);
-        //carIssue.setStatus(issueObject.getString("status"));
-        //carIssue.setDoneAt(issueObject.getString("doneAt"));
-        //carIssue.setPriority(Integer.parseInt(issueObject.getString("priority")));
-        //carIssue.setIssueType(issueObject.getString("issueType"));
-        //carIssue.setIssueDetail(CarIssueDetail.createCarIssueDetail(issueObject.getJSONObject("issueDetail")));
-
         carIssue.setCarId(carId);
 
         JSONObject issueDetail = issueObject.getJSONObject("issueDetail");
@@ -136,6 +127,8 @@ public class CarIssue implements Parcelable {
                 carIssue.setAction(issueDetail.getString("action"));
             } else if(carIssue.getIssueType().equals(DTC)) {
                 carIssue.setAction("Engine issue: Code");
+            } else if(carIssue.getIssueType().equals(RECALL)) {
+                carIssue.setAction("Recall:");
             } else {
                 carIssue.setAction("");
             }
@@ -147,6 +140,7 @@ public class CarIssue implements Parcelable {
         if(carIssue.getIssueType().equals(DTC) && !issueObject.getJSONObject("issueDetail").isNull("isPending")
                 && issueObject.getJSONObject("issueDetail").getBoolean("isPending")) {
             carIssue.setIssueType(PENDING_DTC);
+            carIssue.setAction("Potential Engine issue: Code");
         }
 
         return carIssue;

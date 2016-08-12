@@ -742,25 +742,23 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.description.setText(carIssue.getDescription());
                 holder.description.setEllipsize(TextUtils.TruncateAt.END);
                 if(carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                    holder.title.setText(carIssue.getItem());
                     holder.imageView.setImageDrawable(getResources()
                             .getDrawable(R.drawable.ic_error_red_600_24dp));
 
                 } else if(carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.title.setText(String.format("Engine issue: Code %s", carIssue.getItem()));
                     holder.imageView.setImageDrawable(getResources().
                             getDrawable(R.drawable.car_engine_red));
 
                 } else if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                    holder.title.setText(String.format("Potential engine issue: Code %s", carIssue.getItem()));
                     holder.imageView.setImageDrawable(getResources().
                             getDrawable(R.drawable.car_engine_yellow));
                 } else {
                     holder.description.setText(carIssue.getDescription());
-                    holder.title.setText(carIssue.getItem());
                     holder.imageView.setImageDrawable(getResources()
                             .getDrawable(R.drawable.ic_warning_amber_300_24dp));
                 }
+
+                holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
 
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override

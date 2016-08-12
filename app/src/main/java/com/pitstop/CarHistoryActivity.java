@@ -314,22 +314,16 @@ public class CarHistoryActivity extends AppCompatActivity {
             }
 
             if(issue.getIssueType().equals(CarIssue.RECALL)) {
-                title.setText(issue.getItem());
                 imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
-
             } else if(issue.getIssueType().equals(CarIssue.DTC)) {
-                title.setText(String.format("Engine issue: Code %s", issue.getItem()));
                 imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_red));
-
             } else if(issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                title.setText(String.format("Potential engine issue: Code %s", issue.getItem()));
                 imageView.setImageDrawable(getResources().getDrawable(R.drawable.car_engine_yellow));
-
             } else {
-                title.setText(issue.getItem());
                 imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
             }
 
+            title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
