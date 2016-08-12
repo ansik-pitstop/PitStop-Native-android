@@ -228,8 +228,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-        resetMenus(true);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -282,12 +280,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
                 refreshFromServer();
                 resetMenus(false);
+            } else {
+                resetMenus(true);
             }
         }
     }
 
-    public void resetMenus(boolean check){
-        if(carList.size()==0&&check){
+    public void resetMenus(boolean refresh){
+        if(carList.size()==0&&refresh){
             refreshFromServer();
         }
         int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);

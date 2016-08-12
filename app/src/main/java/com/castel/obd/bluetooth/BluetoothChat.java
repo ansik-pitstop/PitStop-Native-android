@@ -29,13 +29,8 @@ public class BluetoothChat {
 	}
 
 	public synchronized void connectBluetooth(BluetoothDevice device) {
-		if(connectThread == null) {
-			Log.w(TAG, "connect thread is null");
-			connectThread = new ConnectThread(device);
-			connectThread.start();
-		} else {
-			Log.w(TAG, "connect thread is not null");
-		}
+		connectThread = new ConnectThread(device);
+		connectThread.start();
 	}
 
 	public void closeConnect() {

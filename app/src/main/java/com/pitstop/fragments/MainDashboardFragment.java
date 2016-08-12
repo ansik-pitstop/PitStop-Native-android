@@ -530,11 +530,15 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
 
     public void onServerRefreshed() {
-        carIssueList = ((MainActivity)getActivity()).getCarIssueList();
+        if(getActivity() != null) {
+            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
+        }
     }
 
     public void onLocalRefreshed() {
-        carIssueList = ((MainActivity)getActivity()).getCarIssueList();
+        if(getActivity() != null) {
+            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
+        }
     }
 
 
@@ -543,6 +547,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * And retrieve available car issues
      * */
     public void setCarDetailsUI() {
+        if (dashboardCar == null) {
+            return;
+        }
         setDealership();
         populateCarIssuesAdapter();
 
@@ -570,7 +577,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     private void setDealership() {
-
         Dealership shop = dashboardCar.getDealership();
         shop = (shop == null)?shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId()):shop;
         dashboardCar.setDealership(shop);
