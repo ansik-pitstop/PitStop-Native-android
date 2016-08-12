@@ -181,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onCreate(Bundle savedInstanceState) {
         application = (GlobalApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
+        networkHelper = new NetworkHelper(getApplicationContext());
         super.onCreate(savedInstanceState);
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
@@ -214,9 +216,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCanceledOnTouchOutside(false);
-
-        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        networkHelper = new NetworkHelper(getApplicationContext());
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(this);
@@ -556,7 +555,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 callback.onServerRefreshed();
             }
         }else{
-            Snackbar.make(findViewById(R.id.drawer_layout),"You are not connected to internet",Snackbar.LENGTH_SHORT).show();
+            View drawerLayout = findViewById(R.id.drawer_layout);
+            if(drawerLayout != null) {
+                Snackbar.make(mDrawerLayout, "You are not connected to internet", Snackbar.LENGTH_SHORT).show();
+            }
             refreshFromLocal();
             resetMenus(false);
         }

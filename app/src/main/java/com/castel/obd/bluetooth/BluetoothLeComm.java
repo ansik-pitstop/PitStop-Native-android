@@ -509,6 +509,19 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
+            if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
+
+                final byte[] data = characteristic.getValue();
+                final String hexData = Utils.bytesToHexString(data);
+
+                if(Utils.isEmpty(hexData)) {
+                    return;
+                }
+
+                if(status == BluetoothGatt.GATT_SUCCESS) {
+                    mObdManager.receiveDataAndParse(hexData);
+                }
+            }
         }
 
         @Override

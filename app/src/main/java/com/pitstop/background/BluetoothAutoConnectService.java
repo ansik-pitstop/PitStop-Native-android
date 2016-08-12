@@ -350,20 +350,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(isGettingVin) {
-            if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
-                Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
-                long moreThanOneYear = 32000000;
-                long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
-                long currentTime = System.currentTimeMillis()/1000;
-                long diff = currentTime - deviceTime;
-                if(diff > moreThanOneYear) {
-                    syncObdDevice();
-                } else {
-                    saveSyncedDevice(parameterPackageInfo.deviceId);
-                    getVinFromCar();
-                    isGettingVin = false;
-                }
-            }
+            isGettingVin = false;
+            //if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
+            //    Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
+            //    long moreThanOneYear = 32000000;
+            //    long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
+            //    long currentTime = System.currentTimeMillis()/1000;
+            //    long diff = currentTime - deviceTime;
+            //    if(diff > moreThanOneYear) {
+            //        syncObdDevice();
+            //    } else {
+            //        saveSyncedDevice(parameterPackageInfo.deviceId);
+            //        getVinFromCar();
+            //        isGettingVin = false;
+            //    }
+            //}
         }
 
         if(callbacks != null) {
@@ -657,7 +658,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #getParameterData(ParameterPackageInfo) for info returned
      * on the vin query.
      * */
-    private void getVinFromCar() {
+    public void getVinFromCar() {
         Log.i(TAG, "Calling getCarVIN from Bluetooth auto-connect");
         bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
     }
@@ -726,7 +727,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @param deviceId
      *          The device id of the currently connected obd device
      */
-    private void saveSyncedDevice(String deviceId) {
+    public void saveSyncedDevice(String deviceId) {
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

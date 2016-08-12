@@ -58,10 +58,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
-    private boolean serviceIsBound;
-    private boolean hasBluetoothVinEntryFailed = false;
-    private static final int CAM_PERM_REQ = 103;
-    public static int ADD_CAR_SUCCESS = 51;
+    private boolean needToSetTime = false;
     private static final int RC_PENDING_ADD_CAR = 102;
     private int vinAttempts = 0;
 
@@ -306,6 +303,21 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         Log.i(TAG,"getParameterData()");
 
+        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
+            Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
+            long moreThanOneYear = 32000000;
+            long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
+            long currentTime = System.currentTimeMillis()/1000;
+            long diff = currentTime - deviceTime;
+            if(diff > moreThanOneYear) {
+                autoConnectService.syncObdDevice();
+                needToSetTime = true;
+            } else {
+                autoConnectService.saveSyncedDevice(parameterPackageInfo.deviceId);
+                autoConnectService.getVinFromCar();
+            }
+        }
+
         if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             Log.i(TAG,"VIN response received");
 
@@ -331,7 +343,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 callback.showLoading("Loaded car VIN");
                 makeCar();
 
-            } else if(vinAttempts > 8){
+            } else if(!needToSetTime || vinAttempts > 8){
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+pendingCar.getVin());
