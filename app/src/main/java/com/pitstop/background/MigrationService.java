@@ -13,7 +13,7 @@ import android.util.Log;
 
 import com.parse.ParseUser;
 import com.pitstop.MainActivity;
-import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.model.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.R;

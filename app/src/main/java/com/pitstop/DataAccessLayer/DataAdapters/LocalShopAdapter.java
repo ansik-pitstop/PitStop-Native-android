@@ -3,11 +3,9 @@ package com.pitstop.DataAccessLayer.DataAdapters;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
+import com.pitstop.model.Dealership;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 import java.util.ArrayList;

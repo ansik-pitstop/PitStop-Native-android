@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.castel.obd.util.Utils;
+import com.pitstop.AddCarProcesses.AddCarActivity;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.NetworkHelper;
@@ -19,7 +20,7 @@ import org.json.JSONObject;
 /**
  * Created by David Liu on 2/21/2016.
  */
-@Deprecated
+
 public class PendingAddCarActivity extends AppCompatActivity{
 
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
@@ -84,7 +85,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
 
     private void goBackToAddCar() {
         SharedPreferences settings = getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
-
+        // TODO: this stuff might not be needed
         Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
         intent.putExtra(ADD_CAR_DTCS,settings.getString(ADD_CAR_DTCS,""));

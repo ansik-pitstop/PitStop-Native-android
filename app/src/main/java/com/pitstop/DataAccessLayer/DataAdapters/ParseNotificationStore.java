@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.pitstop.DataAccessLayer.DTOs.ParseNotification;
+import com.pitstop.model.ParseNotification;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 import java.util.ArrayList;

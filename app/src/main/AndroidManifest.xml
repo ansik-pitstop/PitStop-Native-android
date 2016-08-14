@@ -108,14 +108,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CarDetailsActivity"
-            android:label="@string/title_activity_car_details"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-        <activity
             android:name=".ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
         <activity

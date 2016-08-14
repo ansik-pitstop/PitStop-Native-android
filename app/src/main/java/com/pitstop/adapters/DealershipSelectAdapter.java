@@ -1,6 +1,5 @@
 package com.pitstop.adapters;
 
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,7 @@ import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
+import com.pitstop.model.Dealership;
 import com.pitstop.R;
 
 import java.util.ArrayList;

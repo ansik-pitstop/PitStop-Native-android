@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DTOs;
+package com.pitstop.model;
 
 import com.castel.obd.info.PIDInfo;
 

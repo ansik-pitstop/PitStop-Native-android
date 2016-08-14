@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -19,12 +18,9 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.model.User;
 import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.R;
-
-import java.io.File;
-import java.io.IOException;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;

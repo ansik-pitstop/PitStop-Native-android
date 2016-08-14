@@ -24,7 +24,8 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.PendingAddCarActivity;
+import com.pitstop.model.Car;
 import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
@@ -245,10 +246,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if(result != null) {
-                if(result.getContents() != null) {
+            if (result != null) {
+                if (result.getContents() != null) {
                     String VIN = result.getContents();
-                    if(VIN.length() == 18) {
+                    if (VIN.length() == 18) {
                         VIN = VIN.substring(1, 18);
                     }
                     try {
@@ -258,16 +259,20 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                         e.printStackTrace();
                     }
                     View vinField = findViewById(R.id.VIN);
-                    if(vinField != null) {
+                    if (vinField != null) {
                         ((EditText) vinField).setText(VIN);
                     }
                     Log.i(TAG, "Barcode read: " + VIN);
                     if (AddCarUtils.isValidVin(VIN)) {
                     } else {
-                        Toast.makeText(AddCarActivity.this,"Invalid VIN",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddCarActivity.this, "Invalid VIN", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
+        } else if(requestCode == AddCarUtils.RC_PENDING_ADD_CAR) {
+            Log.i(TAG, "Adding car from pending");
+            showLoading("Adding car");
+            addCarUtils.runVinTask();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

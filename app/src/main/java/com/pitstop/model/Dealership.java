@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DTOs;
+package com.pitstop.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

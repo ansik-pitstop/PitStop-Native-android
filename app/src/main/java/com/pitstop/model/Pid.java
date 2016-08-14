@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DTOs;
+package com.pitstop.model;
 
 import com.google.gson.annotations.Expose;
 

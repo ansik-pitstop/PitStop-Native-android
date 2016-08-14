@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.model.Car;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 import java.util.ArrayList;

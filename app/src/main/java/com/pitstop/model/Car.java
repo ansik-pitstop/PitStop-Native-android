@@ -1,11 +1,9 @@
-package com.pitstop.DataAccessLayer.DTOs;
+package com.pitstop.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;

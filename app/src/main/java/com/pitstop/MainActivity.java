@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -49,10 +48,10 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
-import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
-import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
+import com.pitstop.AddCarProcesses.AddCarActivity;
+import com.pitstop.model.Car;
+import com.pitstop.model.CarIssue;
+import com.pitstop.model.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarIssueAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
@@ -84,7 +83,6 @@ import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 /**
  * Created by David on 6/8/2016.
@@ -369,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if(data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
 
-            if(requestCode == RC_ADD_CAR && resultCode==AddCarActivity.ADD_CAR_SUCCESS) {
+            if(requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 }
@@ -478,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
-                        application.setCurrentUser(com.pitstop.DataAccessLayer.DTOs.User.jsonToUserObject(response));
+                        application.setCurrentUser(com.pitstop.model.User.jsonToUserObject(response));
                         startActivityForResult(intent, RC_SETTINGS);
                         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     } else {
@@ -1084,7 +1082,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         e.printStackTrace();
                     }
 
-                    com.pitstop.DataAccessLayer.DTOs.User user = application.getCurrentUser();
+                    com.pitstop.model.User user = application.getCurrentUser();
 
                     final HashMap<String, Object> customProperties = new HashMap<>();
                     customProperties.put("VIN", dashboardCar.getVin());

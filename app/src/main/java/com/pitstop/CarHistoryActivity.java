@@ -15,8 +15,8 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DTOs.CarIssue;
+import com.pitstop.model.Car;
+import com.pitstop.model.CarIssue;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 

@@ -37,7 +37,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.model.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;

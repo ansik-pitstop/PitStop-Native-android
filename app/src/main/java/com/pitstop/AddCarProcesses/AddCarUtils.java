@@ -22,8 +22,8 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
+import com.pitstop.model.Car;
+import com.pitstop.model.Dealership;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.MainActivity;
@@ -59,7 +59,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
     private boolean needToSetTime = false;
-    private static final int RC_PENDING_ADD_CAR = 102;
+    static final int RC_PENDING_ADD_CAR = 1043;
     private int vinAttempts = 0;
 
     long vinRetrievalStartTime = 0;
@@ -401,7 +401,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         }
     }
 
-    private void runVinTask() {
+    void runVinTask() {
         if(mashapeAsync == null) {
             mashapeAsync = new CallMashapeAsync();
         } else if(mashapeAsync.getStatus().equals(AsyncTask.Status.PENDING)) {

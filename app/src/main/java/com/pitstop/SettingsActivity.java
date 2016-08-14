@@ -24,10 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.pitstop.DataAccessLayer.DTOs.Car;
-import com.pitstop.DataAccessLayer.DTOs.Dealership;
-import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
-import com.pitstop.DataAccessLayer.DTOs.User;
+import com.pitstop.model.Car;
+import com.pitstop.model.Dealership;
+import com.pitstop.model.IntentProxyObject;
+import com.pitstop.model.User;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;

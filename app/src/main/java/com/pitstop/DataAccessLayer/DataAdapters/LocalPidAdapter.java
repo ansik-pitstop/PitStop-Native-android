@@ -4,9 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import com.pitstop.DataAccessLayer.DTOs.Pid;
+import com.pitstop.model.Pid;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 import java.util.ArrayList;
