@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -116,9 +115,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         filters.add(new ScanFilter.Builder().setServiceUuid(serviceUuid).build());
 
         mObdManager = new ObdManager(context);
-        int initSuccess = mObdManager.initializeObd();
-
-        Log.d(TAG, "init result: " + initSuccess);
+        //int initSuccess = mObdManager.initializeObd();
+        //Log.d(TAG, "init result: " + initSuccess);
     }
 
     @Override
@@ -511,6 +509,19 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
+            if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
+
+                final byte[] data = characteristic.getValue();
+                final String hexData = Utils.bytesToHexString(data);
+
+                if(Utils.isEmpty(hexData)) {
+                    return;
+                }
+
+                if(status == BluetoothGatt.GATT_SUCCESS) {
+                    mObdManager.receiveDataAndParse(hexData);
+                }
+            }
         }
 
         @Override

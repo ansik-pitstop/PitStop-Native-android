@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -35,7 +36,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         setContentView(R.layout.activity_pending_add_car);
         application = (GlobalApplication) getApplicationContext();
         SharedPreferences settings =
-                getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+                getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
         Intent intentFromMainActivity = getIntent();
         if(intentFromMainActivity != null) {
             String vin = intentFromMainActivity.getStringExtra(ADD_CAR_VIN);
@@ -82,7 +83,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
     };
 
     private void goBackToAddCar() {
-        SharedPreferences settings = getSharedPreferences(MainActivity.pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
 
         Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));

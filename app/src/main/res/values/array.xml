@@ -98,4 +98,38 @@
         <item>0x00</item>
     </string-array>
 
+    <string-array name="DiagnosisProtocol">
+        <item>NONE</item>
+        <item>VPW(Passenger cars)</item>
+        <item>PWM (Passenger cars)</item>
+        <item>CAN11(Passenger cars)</item>
+        <item>CAN29(Passenger cars)</item>
+        <item>KWP2000(Passenger cars)</item>
+        <item>KWP2000M(Passenger cars)</item>
+        <item>ISO9141(Passenger cars)</item>
+        <item>J939 (Commercial vehicles)</item>
+        <item>J1708(Commercial vehicles)</item>
+        <item>HINO_K1(Commercial vehicles)</item>
+        <item>HINO_K2(Commercial vehicles)</item>
+        <item>HINO_CAN(Commercial vehicles)</item>
+        <item>MAN(Commercial vehicles)</item>
+    </string-array>
+
+    <string-array name="AlarmStatus">
+        <item>Power on</item>
+        <item>Power on</item>
+        <item>Ignition on</item>
+        <item>High engine coolant temprature </item>
+        <item>High engine RPM </item>
+        <item>Low voltage</item>
+        <item>Idle engine</item>
+        <item>Fatigue driving</item>
+        <item>Speeding</item>
+        <item>Crash</item>
+        <item>Vibration</item>
+        <item>Towing</item>
+        <item>Dangerous driving</item>
+        <item>Acceleration</item>
+        <item>Deceleration</item>
+    </string-array>
 </resources>

@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.info.PIDInfo;
@@ -14,6 +15,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
 import com.pitstop.application.GlobalApplication;
 
+import static com.pitstop.utils.LogUtils.LOGD;
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
 
@@ -47,7 +49,7 @@ public class NetworkHelper {
 
     private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -62,7 +64,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -78,7 +80,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
@@ -93,7 +95,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -105,7 +107,7 @@ public class NetworkHelper {
 
     private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                .header("Client-Id", clientId)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -195,6 +197,19 @@ public class NetworkHelper {
         put("user", callback, body);
     }
 
+    public void loginSocial(String accessToken, String provider, RequestCallback callback) {
+        Log.i(TAG, "login");
+        JSONObject credentials = new JSONObject();
+        try {
+            credentials.put("accessToken", accessToken);
+            credentials.put("provider", provider);
+            credentials.put("installationId", ParseInstallation.getCurrentInstallation().getInstallationId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("login/social", callback, credentials);
+    }
     public void loginAsync(String userName, String password, RequestCallback callback) {
         LOGI(TAG, "login");
         JSONObject credentials = new JSONObject();
@@ -415,6 +430,21 @@ public class NetworkHelper {
         get("user/" + userId, callback);
     }
 
+    public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
+        LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("userId", userId);
+            json.put("firstName", firstName);
+            json.put("lastName", lastName);
+            json.put("phone", phoneNumber);
+            put("user/", callback, json);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void resetPassword(String email, RequestCallback callback) {
         LOGI(TAG, "resetPassword: " + email);
 
@@ -430,7 +460,7 @@ public class NetworkHelper {
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
-                    .header("Client-Id", BuildConfig.DEBUG ? clientId : clientId)
+                    .header("Client-Id", clientId)
                     .body(new JSONObject().put("refreshToken", refreshToken))
                     .requestCallBack(callback)
                     .requestType(RequestType.POST)

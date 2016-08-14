@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
@@ -33,56 +34,105 @@ public class MixpanelHelper {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("App Status",
-                new JSONObject("{'Status':'" + value + "','Device':'Android'}"));
+        JSONObject json = new JSONObject();
+        json.put("Status", value);
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("App Status", json);
     }
 
     public void trackViewAppeared(String value) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("View Appeared",
-                new JSONObject("{'View':'" + value + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
+        json.put("View", value);
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("View Appeared", json);
     }
 
     public void trackConnectionStatus(String value) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("Peripheral Connection Status",
-                new JSONObject("{'Status':'" + value + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("Peripheral Connection Status", json);
     }
 
     public void trackButtonTapped(String value, String view) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("Button Tapped",
-                new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}");
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("Button Tapped", json);
     }
 
     public void trackScrolledInView(String view) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("Scrolled in View",
-                new JSONObject("{'View':'" + view + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("Scrolled in View", json);
     }
 
     public void trackCarAdded(String view, String mileage, String method) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("Button Tapped",
-                new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
-                        + "','Method of Adding Car':'" + method + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
+                + "','Method of Adding Car':'" + method + "','Device':'Android'}");
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("Button Tapped", json);
     }
 
     public void trackMigrationProgress(String status, int userId) throws JSONException {
         if(BuildConfig.DEBUG) {
             return;
         }
-        application.getMixpanelAPI().track("Migration status",
-                new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}"));
+        JSONObject json = new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}");
+        json.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            json.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track("Migration status", json);
+    }
+
+    public void trackCustom(String event, JSONObject properties) throws JSONException{
+        if(BuildConfig.DEBUG) {
+            return;
+        }
+        properties.put("Device", "Android");
+        User user = application.getCurrentUser();
+        if(application.getCurrentUser() != null) {
+            properties.put("Username", user.getEmail());
+        }
+        application.getMixpanelAPI().track(event, properties);
     }
 }

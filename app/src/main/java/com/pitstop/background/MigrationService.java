@@ -12,10 +12,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.parse.ParseUser;
+import com.pitstop.MainActivity;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
-import com.pitstop.MainActivity;
 import com.pitstop.R;
 import com.pitstop.SplashScreen;
 import com.pitstop.application.GlobalApplication;

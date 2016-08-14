@@ -45,7 +45,7 @@
             android:text="GET DTCS"
             android:id="@+id/btn_get_3"
             android:onClick="getDTC"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
 
@@ -56,7 +56,7 @@
             android:text="getParam"
             android:id="@+id/button3"
             android:onClick="getParam"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
 
@@ -66,7 +66,7 @@
             android:text="GET PIDS"
             android:id="@+id/button4"
             android:onClick="getPIDS"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
 
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:text="setinterval"
             android:onClick="setFixedUpload"
-            android:background="@drawable/color_button_add_car"
+            android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
 
@@ -91,7 +91,7 @@
             android:text="get RTC"
             android:textColor="#fff"
             android:onClick="getRtc"
-            android:background="@drawable/color_button_add_car"/>
+            android:background="@drawable/color_button_primary"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
             android:text="set RTC"
             android:textColor="#fff"
             android:onClick="setRtc"
-            android:background="@drawable/color_button_add_car"/>
+            android:background="@drawable/color_button_primary"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -107,7 +107,7 @@
             android:text="reset RTC"
             android:textColor="#fff"
             android:onClick="resetRtc"
-            android:background="@drawable/color_button_add_car"/>
+            android:background="@drawable/color_button_primary"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -115,7 +115,7 @@
             android:text="setparam"
             android:textColor="#fff"
             android:onClick="setParam"
-            android:background="@drawable/color_button_add_car"/>
+            android:background="@drawable/color_button_primary"/>
 
     </LinearLayout>
 

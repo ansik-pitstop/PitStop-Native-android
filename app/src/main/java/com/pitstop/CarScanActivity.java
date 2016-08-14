@@ -20,9 +20,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -123,7 +123,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         || ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
                 } else {
-                    autoConnectService.startBluetoothSearch();
+                    //autoConnectService.startBluetoothSearch();
                 }
             }
         }
@@ -141,8 +141,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_scan);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
@@ -164,6 +162,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         setupUiReferences();
         baseMileage = dashboardCar.getTotalMileage();
         carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
+
+        if(!BuildConfig.DEBUG) {
+            findViewById(R.id.update_mileage).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -183,14 +185,26 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     @Override
-    public void onBackPressed() {
-        returnToMainActivity(null);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id ==  android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    public void returnToMainActivity(View view) {
+    @Override
+    public void finish() {
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    public void returnToMainActivity(View view) {
         finish();
     }
 
@@ -316,6 +330,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            try {
+                                mixpanelHelper.trackButtonTapped("Confirm Scan", TAG);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            updatedMileageOrDtcsFound = true;
+
                             showingDialog = false;
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString())
@@ -350,7 +372,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                         progressDialog.setMessage("Connecting to car");
                                         progressDialog.show();
                                         carSearchStartTime = System.currentTimeMillis();
-                                        autoConnectService.startBluetoothSearch();
+                                        autoConnectService.startBluetoothSearch();  // for car scan
                                         handler.postDelayed(connectCar, 3000);
                                     }
                                 }
@@ -427,10 +449,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         }
 
                         for(CarIssue issue : issues) {
-                            if(issue.getIssueType().equals(CarIssue.RECALL)) {
-                                ++recalls;
-                            } else if(issue.getIssueType().contains(CarIssue.SERVICE)) {
-                                ++services;
+                            if(!issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
+                                if (issue.getIssueType().equals(CarIssue.RECALL)) {
+                                    ++recalls;
+                                } else if (issue.getIssueType().contains(CarIssue.SERVICE)) {
+                                    ++services;
+                                }
                             }
                         }
 
@@ -593,10 +617,16 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     @Override
                     public void run() {
                         carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                        carMileage.setText(String.valueOf(newTotalMileage));
+                        //carMileage.setText(String.valueOf(newTotalMileage));
                     }
                 });
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
         }
 
         if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
@@ -714,7 +744,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                             int[] grantResults) {
         if(requestCode == MainActivity.RC_LOCATION_PERM) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();
+                autoConnectService.startBluetoothSearch();  // after permissions granted
             } else {
                 Snackbar.make(findViewById(R.id.car_scan_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {

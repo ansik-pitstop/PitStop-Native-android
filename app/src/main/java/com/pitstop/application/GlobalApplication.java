@@ -1,14 +1,17 @@
 package com.pitstop.application;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -22,7 +25,6 @@ import com.pitstop.R;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -46,15 +48,18 @@ public class GlobalApplication extends Application {
 
     private UserAdapter userAdapter;
 
+    // Build a RemoteInput for receiving voice input in a Car Notification
+    public static RemoteInput remoteInput = null;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
 
-        userAdapter = new UserAdapter(this);
-
         MultiDex.install(this);
+
+        userAdapter = new UserAdapter(this);
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
@@ -63,14 +68,18 @@ public class GlobalApplication extends Application {
 
         // Parse
         Parse.enableLocalDatastore(this);
+        FacebookSdk.sdkInitialize(this);
         if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
 
-        Parse.initialize(getApplicationContext(), BuildConfig.DEBUG ? getString(R.string.parse_appID_dev) : getString(R.string.parse_appID_prod),
-                BuildConfig.DEBUG ? getString(R.string.parse_clientID_dev) : getString(R.string.parse_clientID_prod));
+        Parse.initialize(getApplicationContext(), BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
+                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev),
+
+                BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
+                        getString(R.string.parse_clientID_prod) : getString(R.string.parse_clientID_dev));
 
         ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
             @Override
@@ -208,15 +217,16 @@ public class GlobalApplication extends Application {
 
     public String getAccessToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfAccessToken, null);
+        return settings.getString(pfAccessToken, "");
     }
 
     public String getRefreshToken() {
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfRefreshToken, null);
+        return settings.getString(pfRefreshToken, "");
     }
 
     public void logOutUser() {
+        Log.i(TAG, "Logging user out");
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
@@ -229,6 +239,8 @@ public class GlobalApplication extends Application {
         editor.apply();
 
         ParseUser.logOut();
+
+        AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
     }

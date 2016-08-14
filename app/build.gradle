@@ -15,6 +15,7 @@ android {
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
     def isStaging = true
+
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def file = output.outputFile
@@ -26,23 +27,32 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 50
-        versionName "2.0.18"
+        versionCode 62
+        versionName "2.1.7"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
-        release {
+        debug { // for development, dev backend, no mixpanel
+            buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
+            buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
+            buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
+            buildConfigField "String", "BETA_TYPE", "\"beta\""
+            buildConfigField "String", "DEBUG_TYPE", "\"debug\""
+            buildConfigField "String", "RELEASE_TYPE", "\"release\""
+        }
+        beta.initWith(buildTypes.debug)
+        beta { // for release to beta in Play Store, dev backend, mixpanel
+            debuggable false
+        }
+        release.initWith(buildTypes.debug)
+        release { // for release to production, prod backend, mixpanel
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "CLIENT_ID", "\"8pLSeDGJdlW89dzfbfI4uNr0x2Blo4FG8TEkCB5LXKgtfVf8\""
             buildConfigField "String", "SERVER_URL", "\"https://api.getpitstop.io/\""
             buildConfigField "String", "ENDPOINT_TYPE", "\"release\""
-        }
-        debug {
-            buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
-            buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
-            buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
         }
     }
     packagingOptions {
@@ -71,6 +81,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'
+    compile 'com.facebook.android:facebook-android-sdk:4.12.1'
     compile 'com.goebl:david-webb:1.3.0'
     compile 'io.smooch:core:latest.release'
     compile 'io.smooch:ui:latest.release'

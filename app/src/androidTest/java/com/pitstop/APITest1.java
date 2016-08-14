@@ -39,7 +39,7 @@ public class APITest1 {
     @Test
     public void aPITest1() {
         ViewInteraction appCompatButton = onView(
-                allOf(withId(com.pitstop.R.id.skip_btn), withText("Skip"),
+                allOf(withId(com.pitstop.R.id.log_in_skip), withText("LOG IN"),
                         withParent(allOf(withId(com.pitstop.R.id.splash_layout),
                                 withParent(withId(android.R.id.content)))),
                         isDisplayed()));
@@ -89,7 +89,7 @@ public class APITest1 {
         appCompatButton3.perform(click());
 //
         ViewInteraction appCompatButton4 = onView(
-                allOf(withId(com.pitstop.R.id.button2), withText("Sign Up"), isDisplayed()));
+                allOf(withId(R.id.sign_log_switcher_button), withText("Sign Up"), isDisplayed()));
         appCompatButton4.perform(click());
 //
         ViewInteraction appCompatEditText5 = onView(
@@ -109,7 +109,7 @@ public class APITest1 {
         appCompatEditText8.perform(replaceText("123654"));
 //
         ViewInteraction appCompatButton5 = onView(
-                allOf(withId(com.pitstop.R.id.button2), withText("Sign Up"), isDisplayed()));
+                allOf(withId(R.id.sign_log_switcher_button), withText("Sign Up"), isDisplayed()));
         appCompatButton5.perform(click());
 //
         ViewInteraction appCompatEditText9 = onView(
@@ -119,7 +119,7 @@ public class APITest1 {
         pressBack();
 //
         ViewInteraction appCompatButton6 = onView(
-                allOf(withId(com.pitstop.R.id.button2), withText("Sign Up"), isDisplayed()));
+                allOf(withId(R.id.sign_log_switcher_button), withText("Sign Up"), isDisplayed()));
         appCompatButton6.perform(click());
 //
         ViewInteraction appCompatEditText10 = onView(
@@ -137,7 +137,7 @@ public class APITest1 {
         pressBack();
 //
         ViewInteraction appCompatButton7 = onView(
-                allOf(withId(com.pitstop.R.id.button2), withText("Sign Up"), isDisplayed()));
+                allOf(withId(com.pitstop.R.id.sign_log_switcher_button), withText("Sign Up"), isDisplayed()));
         appCompatButton7.perform(click());
 //
         pressBack();
@@ -243,7 +243,7 @@ public class APITest1 {
         appCompatButton11.perform(click());
 
         ViewInteraction actionMenuItemView = onView(
-                allOf(withId(com.pitstop.R.id.add), withContentDescription("Add car"), isDisplayed()));
+                allOf(withId(R.id.add_car_root), withContentDescription("Add car"), isDisplayed()));
         actionMenuItemView.perform(click());
 
         //ViewInteraction cardView = onView(
@@ -286,7 +286,7 @@ public class APITest1 {
         ViewInteraction appCompatButton13 = onView(
                 allOf(withId(com.pitstop.R.id.car_scan_btn), withText("Scan"),
                         withParent(allOf(withId(com.pitstop.R.id.car_details_components_layout),
-                                withParent(withId(com.pitstop.R.id.car_info_relative_layout)))),
+                                withParent(withId(R.id.car_info_layout)))),
                         isDisplayed()));
         appCompatButton13.perform(click());
 

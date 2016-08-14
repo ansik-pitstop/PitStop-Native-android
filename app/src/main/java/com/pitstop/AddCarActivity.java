@@ -59,6 +59,7 @@ import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.background.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -273,6 +274,12 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
     public void onBackPressed() {
         if(dialog.isShowing()) {
             hideLoading();
@@ -343,7 +350,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                         VIN = VIN.substring(1, 18);
                     }
                     try {
-                        application.getMixpanelAPI().track("Scanned VIN",
+                        mixpanelHelper.trackCustom("Scanned VIN",
                                 new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -563,7 +570,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                 }
 
                 case 1: {
-                    if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
+                    if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
                         autoConnectService.startBluetoothSearch();
                     } else {
                         vinAttempts++;
@@ -717,7 +724,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
             List<ParameterInfo> parameterValues = parameterPackageInfo.value;
             VIN = parameterValues.get(0).value;
             try {
-                application.getMixpanelAPI().track("Retrieved VIN from device",
+                mixpanelHelper.trackCustom("Retrieved VIN from device",
                         new JSONObject("{'VIN':'" + VIN + "','Device':'Android'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1065,13 +1072,8 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                if(scannerID != null) {
-                                    networkHelper.createNewScanner(newCar.getId(), scannerID, new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-
-                                        }
-                                    });
+                                if(scannerID != null && !scannerID.isEmpty()) {
+                                    networkHelper.createNewScanner(newCar.getId(), scannerID, null);
                                 }
 
                                 returnToMainActivity(newCar);
@@ -1100,7 +1102,7 @@ public class AddCarActivity extends AppCompatActivity implements ObdManager.IBlu
 
     private void returnToMainActivity(Car addedCar) {
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainActivity.pfCurrentCar, addedCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, addedCar.getId()).commit();
 
         networkHelper.setMainCar(application.getCurrentUserId(), addedCar.getId(), null);
 

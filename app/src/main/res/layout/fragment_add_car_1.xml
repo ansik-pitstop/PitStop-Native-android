@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:background="#efefef"
+            android:layout_marginBottom="-50dp"
+            android:paddingTop="100dp"
+            android:elevation="-1dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Do you have the Pitstop Device?"
+                android:id="@+id/textView45"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="18dp"
+                android:textSize="18sp"
+                android:textColor="#000"
+                android:elevation="-1dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NO"
+                    android:id="@+id/button5"
+                    android:layout_weight="1"
+                    android:background="@drawable/color_button_rectangle_dark_grey"
+                    android:elevation="-1dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:onClick="noDongleClicked"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YES"
+                    android:id="@+id/button2"
+                    android:layout_weight="1"
+                    android:background="@drawable/color_button_rectangle_grey"
+                    android:elevation="-1dp"
+                    android:textColor="@color/primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:onClick="yesDongleClicked"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:id="@+id/imageView16"
+        android:src="@drawable/device"
+        android:layout_gravity="center"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_marginTop="-50dp"
+        android:cropToPadding="false" />
+
+</FrameLayout>

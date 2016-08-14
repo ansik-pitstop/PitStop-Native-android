@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/bg"
+        android:src="@drawable/slider3"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -19,40 +25,45 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:id="@+id/imageView5"
-            android:layout_gravity="center_horizontal"
-            android:background="@mipmap/ic_launcher" />
+            android:layout_margin="32dp"
+            android:src="@drawable/whitelogo" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome to Pitstop"
-            android:id="@+id/textView2"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/abc_primary_text_material_light"
-            android:textSize="24dp"
-            android:fontFamily="sans-serif-light" />
-
-        <EditText
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="First Name"
-            android:id="@+id/firstName"
-            android:singleLine="true"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Last Name"
-            android:id="@+id/lastName"
-            android:singleLine="true"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="First Name"
+                android:id="@+id/firstName"
+                android:singleLine="true"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:layout_weight="1"
+                android:textColorHint="#dedede"
+                android:textColor="#efefef"
+                android:backgroundTint="#dedede" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Last Name"
+                android:id="@+id/lastName"
+                android:singleLine="true"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:textIsSelectable="false"
+                android:layout_weight="1"
+                android:textColorHint="#dedede"
+                android:textColor="#efefef"
+                android:backgroundTint="#dedede" />
+        </LinearLayout>
 
         <EditText
             android:layout_width="match_parent"
@@ -62,7 +73,11 @@
             android:hint="Phone Number"
             android:id="@+id/phone"
             android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:textIsSelectable="false"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -70,7 +85,10 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:hint="Email"
-            android:id="@+id/email" />
+            android:id="@+id/email"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -80,32 +98,41 @@
             android:layout_marginBottom="12dp"
             android:ems="10"
             android:imeOptions="actionSend"
-            android:id="@+id/password" />
+            android:id="@+id/password"
+            android:textColorHint="#dedede"
+            android:textColor="#efefef"
+            android:backgroundTint="#dedede" />
 
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Log In"
             android:textColor="#fff"
-            android:onClick="login"
-            android:background="@drawable/color_button_add_car"
+            android:onClick="loginOrSignUp"
+            android:background="@drawable/color_button_highlight"
             android:id="@+id/login_btn"
             android:elevation="6dp"
             android:layout_marginBottom="12dp"
             android:elegantTextHeight="true"
             android:layout_gravity="center_horizontal" />
-
         <Button
-            android:layout_width="fill_parent"
-            android:textColor="#fff"
+            android:id="@+id/fb_login_butt"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/color_button_add_car"
-            android:text="Sign Up"
-            android:elegantTextHeight="true"
-            android:id="@+id/button2"
-            android:elevation="6dp"
-            android:onClick="signUp"
-            android:layout_gravity="center_horizontal" />
+            android:drawableLeft="@drawable/fb_logo"
+            android:paddingLeft="34dp"
+            android:text="Log In with Facebook"
+            android:onClick="loginFacebook"
+            android:textColor="#efefef"
+            android:background="@drawable/color_button_fb"
+            android:paddingTop="1dp" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/fb_login"
+            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/forgot_password"
@@ -114,8 +141,25 @@
             android:text="Forgot password?"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:textAllCaps="false"
+            android:textColor="#fff"
             android:onClick="forgotPassword"
             android:layout_marginTop="12dp"/>
+
     </LinearLayout>
 
-</LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:textColor="#fff"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:elegantTextHeight="true"
+        android:id="@+id/sign_log_switcher_button"
+        android:elevation="6dp"
+        android:onClick="signUpSwitcher"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="#00ffffff"
+        android:layout_margin="6dp" />
+
+</RelativeLayout>

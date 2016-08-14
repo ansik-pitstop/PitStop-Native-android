@@ -2,7 +2,6 @@ package com.castel.obd.bluetooth;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.castel.obd.OBD;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
@@ -12,7 +11,6 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
-import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.MainActivity;
 
@@ -196,16 +194,16 @@ public class ObdManager {
      */
     private void determinePackageType(String info, int result) {
         if (0 == result) {
-            Log.i(TAG,"Receiving result 0 - ObdManager");
+            Log.d(TAG,"Receiving result 0 - ObdManager");
             obdLoginPackageParse(info);
         } else if (2 == result) {
-            Log.i(TAG,"Receiving result 2 - ObdManager");
+            Log.d(TAG,"Receiving result 2 - ObdManager");
             obdResponsePackageParse(info);
         } else if (3 == result) {
-            Log.i(TAG,"Receiving result 3 - ObdManager");
+            Log.d(TAG,"Receiving result 3 - ObdManager");
             obdParameterPackageParse(info);
         } else if (4 == result || 5 == result || 6 == result) {
-            Log.i(TAG,"Receiving result 4 or 5 or 6 - ObdManager");
+            Log.d(TAG,"Receiving result 4 or 5 or 6 - ObdManager");
             obdIODataPackageParse(info);
         }
     }
@@ -289,7 +287,7 @@ public class ObdManager {
 
 
     /**
-     *
+     *  Callbacks for obd functions
      */
     public interface IBluetoothDataListener {
         void getBluetoothState(int state);

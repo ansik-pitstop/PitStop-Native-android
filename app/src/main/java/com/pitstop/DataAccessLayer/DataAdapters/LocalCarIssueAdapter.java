@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.pitstop.DataAccessLayer.DTOs.Car;
 import com.pitstop.DataAccessLayer.DTOs.CarIssue;
 import com.pitstop.DataAccessLayer.DTOs.CarIssueDetail;
 import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
@@ -27,8 +28,7 @@ public class LocalCarIssueAdapter {
             + TABLES.CAR_ISSUES.KEY_ITEM + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_DESCRIPTION + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_ACTION+ " TEXT, "
-            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
-            + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
+            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER" + ")";
 
     private LocalDatabaseHelper databaseHelper;
 
@@ -45,9 +45,11 @@ public class LocalCarIssueAdapter {
         db.close();
     }
 
-    public void storeCarIssues(List<CarIssue> carIssues) {
-        for(CarIssue carIssue : carIssues) {
-            storeCarIssue(carIssue);
+    public void storeCarIssues(List<Car> cars) {
+        for(Car car : cars) {
+            for(CarIssue issue : car.getIssues()) {
+                storeCarIssue(issue);
+            }
         }
     }
 
@@ -57,7 +59,7 @@ public class LocalCarIssueAdapter {
         ContentValues values = carIssueObjectToContentValues(carIssue);
 
         int rows = db.update(TABLES.CAR_ISSUES.TABLE_NAME, values,
-                TABLES.CAR_ISSUES.KEY_CAR_ISSUE_ID+"=?",
+                TABLES.COMMON.KEY_OBJECT_ID+"=?",
                 new String[] {String.valueOf(carIssue.getId())});
         db.close();
         return rows;
@@ -125,12 +127,11 @@ public class LocalCarIssueAdapter {
         carIssue.setStatus(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_STATUS)));
         carIssue.setIssueType(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ISSUE_TYPE)));
         carIssue.setPriority(c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_PRIORITY)));
+        carIssue.setDoneAt(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_TIMESTAMP)));
 
-        CarIssueDetail carIssueDetail = new CarIssueDetail();
-        carIssueDetail.setItem(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)));
-        carIssueDetail.setDescription(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)));
-        carIssueDetail.setAction(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION)));
-        carIssue.setIssueDetail(carIssueDetail);
+        carIssue.setItem(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)));
+        carIssue.setDescription(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)));
+        carIssue.setAction(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION)));
 
         return carIssue;
     }
@@ -143,9 +144,11 @@ public class LocalCarIssueAdapter {
         values.put(TABLES.CAR_ISSUES.KEY_STATUS, carIssue.getStatus());
         values.put(TABLES.CAR_ISSUES.KEY_ISSUE_TYPE, carIssue.getIssueType());
         values.put(TABLES.CAR_ISSUES.KEY_PRIORITY, carIssue.getPriority());
-        values.put(TABLES.CAR_ISSUES.KEY_ITEM, carIssue.getIssueDetail().getItem());
-        values.put(TABLES.CAR_ISSUES.KEY_DESCRIPTION, carIssue.getIssueDetail().getDescription());
-        values.put(TABLES.CAR_ISSUES.KEY_ACTION, carIssue.getIssueDetail().getAction());
+        values.put(TABLES.CAR_ISSUES.KEY_TIMESTAMP, carIssue.getDoneAt());
+
+        values.put(TABLES.CAR_ISSUES.KEY_ITEM, carIssue.getItem());
+        values.put(TABLES.CAR_ISSUES.KEY_DESCRIPTION, carIssue.getDescription());
+        values.put(TABLES.CAR_ISSUES.KEY_ACTION, carIssue.getAction());
 
         return values;
     }

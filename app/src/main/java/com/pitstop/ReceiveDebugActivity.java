@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.castel.obd.bluetooth.BluetoothManage;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
@@ -104,7 +104,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
                 }
             });
         }
-        if (state == BluetoothManage.CONNECTED) {
+        if (state == IBluetoothCommunicator.CONNECTED) {
             BTSTATUS.setText(R.string.bluetooth_connected);
         } else {
             BTSTATUS.setText(R.string.bluetooth_disconnected);
@@ -184,7 +184,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
 
     public void getDTC(View view) {
-        if (service.getState() != BluetoothManage.CONNECTED) {
+        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
             service.startBluetoothSearch();
         }else {
             service.getDTCs();
@@ -194,7 +194,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getState() != BluetoothManage.CONNECTED) {
+        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
             service.startBluetoothSearch();
         }else {
             service.getPIDs();

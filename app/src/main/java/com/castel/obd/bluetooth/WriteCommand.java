@@ -8,8 +8,6 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
-import com.pitstop.MainActivity;
-
 /**
  * Created by Paul Soladoye on 19/04/2016.
  */

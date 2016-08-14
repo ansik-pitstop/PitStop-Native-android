@@ -63,6 +63,14 @@
             </intent-filter>
         </receiver>
 
+        <!--<meta-data
+            android:name="com.parse.push.notification_icon"
+            android:resource="@drawable/common_plus_signin_btn_icon_dark_disabled" />-->
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
         <meta-data
             android:name="com.mixpanel.android.MPConfig.ResourcePackageName"
             android:value="com.pitstop" />
@@ -80,22 +88,18 @@
 
         <!-- activities -->
 
+        <!--meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/android_auto" /-->
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".AddCarActivity"
-            android:label="@string/title_activity_add_car"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-        <activity
             android:name=".SplashScreen"
             android:label="@string/app_name"
+            android:theme="@style/AppNoActionBarTheme"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -118,13 +122,7 @@
             android:name=".PendingAddCarActivity"
             android:label="Please Connect to Internet" />
         <activity
-            android:name=".Debug.PIDDebugActivity"
-            android:label="@string/title_activity_piddebug" />
-        <activity
-            android:name=".EnvironmentalCheckActivity"
-            android:label="@string/title_activity_enviornmental_check" />
-        <activity
-            android:name=".DisplayItemActivity"
+            android:name=".IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
             android:screenOrientation="portrait" />
 
@@ -143,7 +141,19 @@
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.MainActivity" />
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".AddCarProcesses.AddCarActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".CarHistoryActivity"
@@ -152,7 +162,7 @@
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pitstop.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".SelectDealershipActivity"
@@ -163,7 +173,12 @@
             android:name=".CarScanActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
 
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -177,6 +192,7 @@
         <!-- Parse push notification stuff -->
 
         <service android:name="com.parse.PushService" />
+
 
         <receiver
             android:name=".PitstopPushBroadcastReceiver"
@@ -234,6 +250,45 @@
             </intent-filter>
         </service-->
 
+        <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
+            <intent-filter>
+                <action android:name="com.pitstop.auto.MESSAGE_HEARD"/>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver-->
+
+        <!--receiver android:name=".auto.AndroidAutoReplyReceiver">
+            <intent-filter>
+                <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
+            </intent-filter>
+        </receiver-->
+
+        <service android:name="io.smooch.core.service.SmoochService" />
+        <service
+            android:name="io.smooch.core.GcmInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="io.smooch.core.GcmRegistrationIntentService"
+            android:exported="false" />
+        <service
+            android:name="io.smooch.core.GcmService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

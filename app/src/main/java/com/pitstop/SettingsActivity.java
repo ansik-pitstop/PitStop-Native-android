@@ -30,10 +30,10 @@ import com.pitstop.DataAccessLayer.DTOs.IntentProxyObject;
 import com.pitstop.DataAccessLayer.DTOs.User;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalCarAdapter;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalShopAdapter;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
 import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.fragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -51,6 +51,8 @@ public class SettingsActivity extends AppCompatActivity {
     private ArrayList<Integer> ids = new ArrayList<>();
     private ArrayList<String> dealers = new ArrayList<>();
 
+    private MixpanelHelper mixpanelHelper;
+
     private Car dashboardCar;
     private boolean localUpdatePerformed = false;
     private LocalCarAdapter localCarAdapter;
@@ -59,6 +61,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         localCarAdapter = new LocalCarAdapter(this);
         populateCarNamesAndIdList();
@@ -90,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity {
         carList = localCarAdapter.getAllCars();
 
         for(Car car : carList) {
-            if(car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainActivity.pfCurrentCar, -1)) {
+            if(car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
                 dashboardCar = car;
             }
 
@@ -137,6 +141,7 @@ public class SettingsActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK,intent);
         super.finish();
+        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     public static class SettingsFragment extends PreferenceFragment {
@@ -282,7 +287,7 @@ public class SettingsActivity extends AppCompatActivity {
                         int result = localCarAdapter.updateCar(itemCar);
 
                         try {
-                            ((GlobalApplication) getActivity().getApplicationContext()).getMixpanelAPI().track("Button Tapped",
+                            mixpanelHelper.trackCustom("Button Tapped",
                                     new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
                                             TAG, itemCar.getMake(), itemCar.getModel())));
                         } catch (JSONException e1) {
@@ -535,14 +540,14 @@ public class SettingsActivity extends AppCompatActivity {
                     listener.localUpdatePerformed();
 
                     try {
-                        ((GlobalApplication) getActivity().getApplicationContext()).getMixpanelAPI().track("Button Tapped",
+                        mixpanelHelper.trackCustom("Button Tapped",
                                 new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
                                         TAG, newDashboardCar.getMake(), newDashboardCar.getModel())));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainActivity.pfCurrentCar, newDashboardCar.getId()).apply();
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainDashboardFragment.pfCurrentCar, newDashboardCar.getId()).apply();
 
                     networkHelper.setMainCar(currentUser.getId(), newDashboardCar.getId(), null);
 

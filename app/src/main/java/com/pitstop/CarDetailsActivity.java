@@ -52,7 +52,7 @@ import com.pitstop.database.models.DTCs;
 import com.pitstop.database.models.Recalls;
 import com.pitstop.database.models.Services;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.utils.ConnectedCarRecyclerAdapter;
+import com.pitstop.adapters.ConnectedCarRecyclerAdapter;
 import com.pitstop.utils.PIDParser;
 
 import org.json.JSONArray;
@@ -207,8 +207,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         findViewById(R.id.evcheck_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(CarDetailsActivity.this, EnvironmentalCheckActivity.class);
-                startActivity(intent);
+
             }
         });
 
@@ -1021,7 +1020,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.car_details_list_item, parent, false);
+                    .inflate(R.layout.list_item_issue, parent, false);
             ViewHolder vh = new ViewHolder(v);
             return vh;
         }
@@ -1050,7 +1049,7 @@ public class CarDetailsActivity extends AppCompatActivity implements ObdManager.
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(CarDetailsActivity.this, DisplayItemActivity.class);
+                        Intent intent = new Intent(CarDetailsActivity.this, IssueDetailsActivity.class);
                         intent.putExtra("Model", dataList.get(i));
                         intent.putExtra("VIN",VIN);
                         startActivity(intent);
