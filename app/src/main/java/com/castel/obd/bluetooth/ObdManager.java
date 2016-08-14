@@ -12,7 +12,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.MainActivity;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

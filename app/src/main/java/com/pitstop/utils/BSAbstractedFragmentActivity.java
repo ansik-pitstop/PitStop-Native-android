@@ -3,7 +3,7 @@ package com.pitstop.utils;
 import android.support.v4.app.FragmentActivity;
 
 import com.castel.obd.bluetooth.ObdManager;
-import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 
 /**
  * Created by david on 7/21/2016.

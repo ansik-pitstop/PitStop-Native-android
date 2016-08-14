@@ -1,31 +1,18 @@
 package com.pitstop.adapters;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.R;
-import com.pitstop.SplashScreen;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;

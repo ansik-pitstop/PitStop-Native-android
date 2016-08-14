@@ -1,7 +1,7 @@
 package com.pitstop.utils;
 
 import com.pitstop.BuildConfig;
-import com.pitstop.model.User;
+import com.pitstop.models.User;
 import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;

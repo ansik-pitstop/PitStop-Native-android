@@ -18,8 +18,8 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.model.User;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
+import com.pitstop.models.User;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
 
 import io.smooch.core.Settings;

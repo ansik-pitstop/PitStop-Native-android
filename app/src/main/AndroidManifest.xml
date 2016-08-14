@@ -57,7 +57,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <receiver android:name=".background.BootBroadcastReceiver">
+        <receiver android:name=".utils.BootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -92,12 +92,12 @@
             android:resource="@xml/android_auto" /-->
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".SplashScreen"
+            android:name=".ui.SplashScreen"
             android:label="@string/app_name"
             android:theme="@style/AppNoActionBarTheme"
             android:screenOrientation="portrait">
@@ -108,68 +108,68 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ReceiveDebugActivity"
+            android:name=".ui.ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
         <activity
-            android:name=".PendingAddCarActivity"
+            android:name=".ui.PendingAddCarActivity"
             android:label="Please Connect to Internet" />
         <activity
-            android:name=".IssueDetailsActivity"
+            android:name=".ui.IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".background.BluetoothAutoConnectService"
+            android:name=".bluetooth.BluetoothAutoConnectService"
             android:label="Background Service" />
 
         <service
-            android:name=".background.MigrationService"
+            android:name=".utils.MigrationService"
             android:exported="false"/>
 
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.MainActivity" />
         </activity>
 
         <activity
-            android:name=".AddCarProcesses.AddCarActivity"
+            android:name=".ui.AddCarActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustResize"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.MainActivity" />
         </activity>
         <activity
-            android:name=".CarHistoryActivity"
+            android:name=".ui.CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.MainActivity" />
         </activity>
         <activity
-            android:name=".SelectDealershipActivity"
+            android:name=".ui.SelectDealershipActivity"
             android:label="Select Dealership"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".CarScanActivity"
+            android:name=".ui.CarScanActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.MainActivity" />
         </activity>
 
         <receiver android:name=".utils.GcmReceiver"
@@ -187,7 +187,7 @@
 
 
         <receiver
-            android:name=".PitstopPushBroadcastReceiver"
+            android:name=".utils.PitstopPushBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />

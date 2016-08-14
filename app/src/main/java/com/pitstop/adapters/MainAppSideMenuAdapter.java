@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.pitstop.model.Car;
+import com.pitstop.models.Car;
 import com.pitstop.R;
 
 /**

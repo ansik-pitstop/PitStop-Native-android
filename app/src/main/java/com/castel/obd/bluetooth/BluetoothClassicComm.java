@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -17,14 +16,13 @@ import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Paul Soladoye on 12/04/2016.

@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 
 import android.support.test.espresso.contrib.RecyclerViewActions;
 
+import com.pitstop.ui.SplashScreen;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.*;
