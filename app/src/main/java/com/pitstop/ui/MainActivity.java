@@ -770,6 +770,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void hideLoading() {
         if(progressDialog != null) {
             progressDialog.dismiss();
+        } else {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCanceledOnTouchOutside(false);
         }
         isLoading = false;
     }
