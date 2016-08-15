@@ -180,10 +180,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.w(TAG, "onCreate 1");
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
         super.onCreate(savedInstanceState);
+
+        Log.w(TAG, "onCreate 2");
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -261,26 +264,23 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
+        Log.w(TAG, "onAttachFragment");
         if (fragment instanceof MainDashboardFragment) {
             // Always refresh from the server if entering from log in activity
             if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
                 Log.i(TAG, "refresh from login");
                 refreshFromServer();
-                resetMenus(false);
             } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
                 // In the event the user pressed back button while in the select dealership activity
                 // then load required data from local db.
                 refreshFromLocal();
-                resetMenus(false);
             } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
                 // On opening a push notification, load required data from server
                 refreshFromServer();
-                resetMenus(false);
             } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
                 refreshFromServer();
-                resetMenus(false);
             } else {
-                resetMenus(true);
+                refreshFromServer();
             }
         }
     }
@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onResume() {
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.i(TAG, "onResume");
+        Log.w(TAG, "onResume");
 
         resetMenus(false);
 
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "onActivity");
+        Log.i(TAG, "onActivityResult");
 
         if(data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER,false);
@@ -536,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void refreshFromServer() {
         if(NetworkHelper.isConnected(this)) {
-            Log.d("random", "refresh called");
+            Log.d(TAG, "refresh called");
             if(carLocalStore == null) {
                 carLocalStore = new LocalCarAdapter(this);
             }
@@ -547,9 +547,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             carIssueLocalStore.deleteAllCarIssues();
             carIssueList.clear();
             getCarDetails();
-            if (isLoading) {
-                hideLoading();
-            }
             if (callback != null) {
 
                 callback.onServerRefreshed();
@@ -561,6 +558,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
             refreshFromLocal();
             resetMenus(false);
+            if (isLoading) {
+                hideLoading();
+            }
         }
     }
 
@@ -580,8 +580,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Get list of cars associated with current user
      * */
     private void getCarDetails() {
-
-
         showLoading("Retrieving car details");
 
         // Try local store
@@ -608,10 +606,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         networkHelper.getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if(response == null || response.isEmpty() || response.equals("{}")) {
+                if(response != null && response.equals("{}")) {
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
+                } else if(response == null || response.isEmpty() || requestError != null) {
+                    Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                    hideLoading();
                 } else {
                     int mainCarId = -1;
                     try {
@@ -679,12 +680,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
                                     mainAppSideMenuAdapter.notifyDataSetChanged();
+                                    hideLoading();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     Toast.makeText(MainActivity.this,
                                             "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                                    hideLoading();
                                 }
                             } else {
+                                hideLoading();
                                 Log.e(TAG, "Load cars error: " + requestError.getMessage());
                                 Toast.makeText(MainActivity.this,
                                         "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
@@ -764,10 +768,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
 
     public void hideLoading() {
-        progressDialog.dismiss();
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
         isLoading = false;
-
-
     }
 
     public void showLoading(String text) {

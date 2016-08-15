@@ -268,6 +268,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public void onResume() {
         super.onResume();
 
+        Log.w(TAG, "onResume");
 
         handler.postDelayed(carConnectedRunnable, 1000);
     }
@@ -282,6 +283,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     @Override
     public void onAttach(Context context) {
+        Log.w(TAG, "onAttach");
         super.onAttach(context);
 
         application = (GlobalApplication) getActivity().getApplicationContext();
