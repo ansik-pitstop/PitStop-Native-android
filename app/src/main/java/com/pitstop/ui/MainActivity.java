@@ -180,13 +180,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.w(TAG, "onCreate 1");
+        Log.i(TAG, "onCreate 1");
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
         super.onCreate(savedInstanceState);
 
-        Log.w(TAG, "onCreate 2");
+        Log.i(TAG, "onCreate 2");
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -230,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        refreshFromServer();
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -264,25 +266,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        Log.w(TAG, "onAttachFragment");
-        if (fragment instanceof MainDashboardFragment) {
-            // Always refresh from the server if entering from log in activity
-            if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-                Log.i(TAG, "refresh from login");
-                refreshFromServer();
-            } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-                // In the event the user pressed back button while in the select dealership activity
-                // then load required data from local db.
-                refreshFromLocal();
-            } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-                // On opening a push notification, load required data from server
-                refreshFromServer();
-            } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-                refreshFromServer();
-            } else {
-                refreshFromServer();
-            }
-        }
+        //if (fragment instanceof MainDashboardFragment) {
+        //    // Always refresh from the server if entering from log in activity
+        //    if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
+        //        Log.i(TAG, "refresh from login");
+        //        refreshFromServer();
+        //    } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+        //        // In the event the user pressed back button while in the select dealership activity
+        //        // then load required data from local db.
+        //        refreshFromLocal();
+        //    } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
+        //        // On opening a push notification, load required data from server
+        //        refreshFromServer();
+        //    } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
+        //        refreshFromServer();
+        //    } else {
+        //        refreshFromServer();
+        //    }
+        //}
     }
 
     public void resetMenus(boolean refresh){
@@ -606,11 +607,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         networkHelper.getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if(response != null && response.equals("{}")) {
+                if((response != null && response.equals("{}")) || requestError != null) {
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
-                } else if(response == null || response.isEmpty() || requestError != null) {
+                } else if(response == null || response.isEmpty()) {
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
                 } else {

@@ -116,9 +116,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private View rootview;
 
-    /** Callbacks for service binding, passed to bindService() */
-
-
     private class CarListAdapter extends BaseAdapter {
         private List<Car> ownedCars;
 
@@ -267,9 +264,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     @Override
     public void onResume() {
         super.onResume();
-
-        Log.w(TAG, "onResume");
-
+        //Log.w(TAG, "onResume");
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
@@ -283,7 +278,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     @Override
     public void onAttach(Context context) {
-        Log.w(TAG, "onAttach");
+        //Log.w(TAG, "onAttach");
         super.onAttach(context);
 
         application = (GlobalApplication) getActivity().getApplicationContext();
