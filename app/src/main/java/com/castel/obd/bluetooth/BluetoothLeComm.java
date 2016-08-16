@@ -54,7 +54,6 @@ import java.util.concurrent.Semaphore;
  * Manage LE connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
 
     private Context mContext;
@@ -72,9 +71,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 12000;
-    private BluetoothLeScanner mLEScanner;
-    private ScanSettings settings;
-    private List<ScanFilter> filters;
+    //private BluetoothLeScanner mLEScanner;
+    //private ScanSettings settings;
+    //private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
     private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
@@ -105,14 +104,14 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build();
-
-        filters = new ArrayList<>();
-        ParcelUuid serviceUuid = ParcelUuid.fromString(OBD_IDD_212_MAIN_SERVICE.toString());
-        filters.add(new ScanFilter.Builder().setServiceUuid(serviceUuid).build());
+        //mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        //settings = new ScanSettings.Builder()
+        //        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        //        .build();
+//
+        //filters = new ArrayList<>();
+        //ParcelUuid serviceUuid = ParcelUuid.fromString(OBD_IDD_212_MAIN_SERVICE.toString());
+        //filters.add(new ScanFilter.Builder().setServiceUuid(serviceUuid).build());
 
         mObdManager = new ObdManager(context);
         //int initSuccess = mObdManager.initializeObd();
@@ -133,9 +132,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
+        if(!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
-            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
             return;
         }
 
@@ -300,20 +298,21 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     /**
      * @param device
      */
-    public void connectToDevice(BluetoothDevice device) {
-        //if(device.getBondState() == BluetoothDevice.BOND_NONE) {
-        //    Log.i(TAG, "Bonding to device");
-        //    device.createBond();
-        //}
-        if(mGatt == null) {
-            Log.i(TAG, "Connecting to device");
-            scanLeDevice(false);// will stop after first device detection
-            showConnectingNotification();
-            mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-            btConnectionState = CONNECTING;
-            boolean mtuSuccess = mGatt.requestMtu(512);
-            Log.i(TAG, "mtu request " + (mtuSuccess ? "success" : "failed"));
-        }
+    public void connectToDevice(final BluetoothDevice device) {
+        Log.i(TAG, "Connecting to device");
+        scanLeDevice(false);// will stop after first device detection
+        showConnectingNotification();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+                } else {
+                    mGatt = device.connectGatt(mContext, true, gattCallback);
+                }
+            }
+        });
+        btConnectionState = CONNECTING;
     }
 
     public void bluetoothStateChanged(int state) {
@@ -337,9 +336,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
             return;
         }
-
-        //Log.i(TAG,"Getting saved macAddress - BluetoothLeComm");
-        String macAddress = OBDInfoSP.getMacAddress(mContext);
 
         //scanLeDevice(true);
 
@@ -383,11 +379,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             }, SCAN_PERIOD);
 
             Log.i(TAG, "Starting le scan");
-            mLEScanner.startScan(new ArrayList<ScanFilter>(), settings, mScanCallback);
+            mBluetoothAdapter.startLeScan(mScanCallback);
             mIsScanning = true;
         } else {
             Log.i(TAG, "Stopping scan");
-            mLEScanner.stopScan(mScanCallback);
+            mBluetoothAdapter.stopLeScan(mScanCallback);
             mIsScanning = false;
         }
 
@@ -399,25 +395,15 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      *
      *
      */
-    private ScanCallback mScanCallback = new ScanCallback() {
+    private BluetoothAdapter.LeScanCallback mScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice btDevice = result.getDevice();
-            Log.v(TAG, "Result: "+result.toString());
-
-            if(btDevice.getName() != null
-                    && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
-                connectToDevice(btDevice);
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            if(device.getName() != null) {
+                Log.v(TAG, "Found device: "+device.getName());
+                if(device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+                    connectToDevice(device);
+                }
             }
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.i(TAG, "Scan Failed Error Code: " + errorCode);
         }
     };
 
@@ -449,11 +435,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         e.printStackTrace();
                     }
                     needToScan = false;
-
+                    dataListener.getBluetoothState(btConnectionState);
                     btConnectionState = CONNECTED;
                     gatt.discoverServices();
-                    BluetoothDevice device = gatt.getDevice();
-                    OBDInfoSP.saveMacAddress(mContext, device.getAddress());
 
                     break;
                 }
@@ -519,7 +503,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 }
 
                 if(status == BluetoothGatt.GATT_SUCCESS) {
-                    mObdManager.receiveDataAndParse(hexData);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mObdManager.receiveDataAndParse(hexData);
+                        }
+                    });
                 }
             }
         }
@@ -536,7 +525,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                     return;
                 }
 
-                mObdManager.receiveDataAndParse(hexData);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mObdManager.receiveDataAndParse(hexData);
+                    }
+                });
             }
 
 

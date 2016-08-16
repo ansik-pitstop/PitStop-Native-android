@@ -324,7 +324,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
-    public void showLoading(String string) {
+    public void showLoading(final String string) {
         progressDialog.setMessage(string);
         if(!progressDialog.isShowing()) {
             progressDialog.show();
