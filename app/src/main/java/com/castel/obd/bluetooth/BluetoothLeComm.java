@@ -36,6 +36,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -228,21 +229,36 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             return;
         }
 
-        byte[] bytes;
-
-        if(type == 0) {
-            bytes = mObdManager.getBytesToSend(payload);
-        } else {
-            bytes = mObdManager.getBytesToSendPassive(payload);
+        if (type == 0) { // get instruction string from json payload
+            try {
+                payload = new JSONObject(payload).getString("instruction");
+            } catch(JSONException e) {
+                e.printStackTrace();
+                return;
+            }
         }
 
-        if(bytes == null) {
-            return;
-        }
+        ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
 
-        Log.i(TAG, "btConnstate: "+btConnectionState + " mGatt value: "+ (mGatt!=null));
-        if (btConnectionState == CONNECTED && mGatt != null ) {
-            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
+        while(payload.length() > 20) {
+            sendData.add(payload.substring(0, 20));
+            payload = payload.substring(20);
+        }
+        sendData.add(payload);
+
+        for(String data : sendData) {
+            byte[] bytes;
+
+            bytes = mObdManager.getBytesToSendPassive(data);
+
+            if (bytes == null) {
+                return;
+            }
+
+            Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
+            if (btConnectionState == CONNECTED && mGatt != null) {
+                queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
+            }
         }
     }
 
@@ -574,5 +590,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     @Override
     public void writeRawInstruction(String instruction) {
         sendCommandPassive(instruction);
+    }
+
+    @Override
+    public void initDevice() {
+        mObdManager.initializeObd();
     }
 }

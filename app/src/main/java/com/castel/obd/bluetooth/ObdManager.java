@@ -115,7 +115,6 @@ public class ObdManager {
         return OBD.getParameter(tlvTag);
     }
 
-
     /**
      * @param payload
      */
@@ -222,7 +221,7 @@ public class ObdManager {
         if ("0".equals(loginPackageInfo.flag)) {
             dataListener.deviceLogin(loginPackageInfo);
         } else if ("1".equals(loginPackageInfo.flag)) {
-            //passiveCommandListener.sendCommandPassive(loginPackageInfo.instruction);
+            passiveCommandListener.sendCommandPassive(loginPackageInfo.instruction);
             dataListener.deviceLogin(loginPackageInfo);
         }
     }

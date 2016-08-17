@@ -235,4 +235,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         service.writeLoginInstruction();
     }
 
+    public void initialize(View view) {
+        service.initialize();
+    }
 }

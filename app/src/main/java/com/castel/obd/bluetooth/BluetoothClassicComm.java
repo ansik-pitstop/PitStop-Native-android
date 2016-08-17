@@ -384,4 +384,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public void writeRawInstruction(String instruction) {
         sendCommandPassive(instruction);
     }
+
+    @Override
+    public void initDevice() {
+        mObdManager.initializeObd();
+    }
 }
