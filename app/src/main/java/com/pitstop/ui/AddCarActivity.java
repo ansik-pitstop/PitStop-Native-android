@@ -114,6 +114,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     public void noDongleClicked(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Yes I have Pitstop Hardware", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle",1);
         ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
@@ -138,6 +143,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     }
     public void yesDongleClicked(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle",1);
         ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
