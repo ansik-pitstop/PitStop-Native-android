@@ -1,5 +1,6 @@
 package com.castel.obd.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,11 +12,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -84,13 +80,16 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
+            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
+            //UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_READ_CHAR =
-            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
+            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
+            //UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_WRITE_CHAR =
-            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
+            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
+            //UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID CONFIG_DESCRIPTOR =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"); // 212B
 
     private int btConnectionState = DISCONNECTED;
 
@@ -314,6 +313,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     /**
      * @param device
      */
+    @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         Log.i(TAG, "Connecting to device");
         scanLeDevice(false);// will stop after first device detection
@@ -322,6 +322,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             @Override
             public void run() {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+                } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
                 } else {
                     mGatt = device.connectGatt(mContext, true, gattCallback);
