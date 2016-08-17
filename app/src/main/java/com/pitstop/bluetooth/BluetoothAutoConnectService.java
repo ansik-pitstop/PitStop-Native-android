@@ -535,6 +535,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG,"Device login: "+loginPackageInfo.deviceId);
             Log.i(TAG,"Device result: "+loginPackageInfo.result);
             Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
+            Log.i(TAG,"Device instruction: "+loginPackageInfo.instruction);
+
+            sharedPreferences.edit().putString("loginInstruction", loginPackageInfo.instruction).apply();
+
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
@@ -720,6 +724,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdGetParameter(tag);
     }
 
+    public void writeLoginInstruction() {
+        String instruction = sharedPreferences.getString("loginInstruction", null);
+        if(instruction == null) {
+            Log.w(TAG, "No saved login instruction");
+        } else {
+            bluetoothCommunicator.writeRawInstruction(instruction);
+        }
+    }
 
     private void sendForPIDS(){
         Log.d(TAG, "Sending for PIDS - auto-connect service");
@@ -922,10 +934,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataObject.setPids(pids.toString());
 
         if(data.result == 4) {
-            Log.d(TAG, "Pid array --> DB");
-            Log.d(TAG, pidDataObject.getPids());
-            Log.d(TAG, "rtcTime: " + pidDataObject.getRtcTime());
-            Log.d(TAG, "mileage: " + pidDataObject.getMileage());
+            Log.i(TAG, "Pid array --> DB");
+            Log.i(TAG, pidDataObject.getPids());
+            Log.i(TAG, "rtcTime: " + pidDataObject.getRtcTime());
+            Log.i(TAG, "mileage: " + pidDataObject.getMileage());
         }
 
         //JSONObject freezeData = extractFreezeData(data);

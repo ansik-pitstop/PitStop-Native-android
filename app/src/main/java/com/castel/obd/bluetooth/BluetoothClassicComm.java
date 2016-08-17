@@ -379,4 +379,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             btConnectionState = state;
         }
     }
+
+    @Override
+    public void writeRawInstruction(String instruction) {
+        sendCommandPassive(instruction);
+    }
 }

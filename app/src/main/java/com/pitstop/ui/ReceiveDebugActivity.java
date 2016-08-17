@@ -23,9 +23,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 
-/**
- * TODO move to DEBUG folder
- */
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     TextView BTSTATUS;
@@ -175,7 +172,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             }
         });
 
-        Log.e(TAG, dataPackageInfo.toString());
+        //Log.e(TAG, dataPackageInfo.toString());
     }
 
     @Override
@@ -232,6 +229,10 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void setParam(View view) {
         service.setFixedUpload();
+    }
+
+    public void sendLoginInstruction(View view) {
+        service.writeLoginInstruction();
     }
 
 }

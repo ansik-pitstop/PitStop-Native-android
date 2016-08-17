@@ -8,13 +8,15 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
+import java.util.List;
+
 /**
  * Created by Paul Soladoye on 19/04/2016.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class WriteCommand extends BluetoothCommand {
+public class WriteCommand {
 
-    private byte[] bytes;
+    public byte[] bytes;
     private WRITE_TYPE type;
 
     public WriteCommand(byte[] bytes, WRITE_TYPE type) {
@@ -22,7 +24,6 @@ public class WriteCommand extends BluetoothCommand {
         this.type = type;
     }
 
-    @Override
     public void execute(BluetoothGatt gatt) {
         BluetoothGattService mainObdGattService =
                 gatt.getService(BluetoothLeComm.OBD_IDD_212_MAIN_SERVICE);
@@ -49,16 +50,15 @@ public class WriteCommand extends BluetoothCommand {
             gatt.setCharacteristicNotification(obdReadCharacteristic, true);
 
             // Enable remote notification
-            BluetoothGattDescriptor descriptor =
-                    obdReadCharacteristic.getDescriptor(BluetoothLeComm.CONFIG_DESCRIPTOR);
-            Log.i("WriteCommandDebug", "descriptor: " + descriptor.getUuid());
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            boolean result = gatt.writeDescriptor(descriptor);
-            Log.i("WriteCommandDebug", "Writing descriptor... result: "+result);
-
+            List<BluetoothGattDescriptor> descriptors =
+                    obdReadCharacteristic.getDescriptors();
+            for(BluetoothGattDescriptor descriptor : descriptors) {
+                Log.i("WriteCommandDebug", "descriptor: " + descriptor.getUuid());
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                boolean result = gatt.writeDescriptor(descriptor);
+                Log.i("WriteCommandDebug", "Writing descriptor... result: " + result);
+            }
         }
-
-
     }
 
     public enum WRITE_TYPE {

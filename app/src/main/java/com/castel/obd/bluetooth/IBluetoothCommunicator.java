@@ -22,6 +22,7 @@ public interface IBluetoothCommunicator {
     void obdSetMonitor(int type, String valueList);
     void obdSetParameter(String tlvTagList, String valueList);
     void obdGetParameter(String tlvTag);
+    void writeRawInstruction(String instruction);
     void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener);
     boolean hasDiscoveredServices();
     void close();

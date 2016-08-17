@@ -61,7 +61,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private MixpanelHelper mixpanelHelper;
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager mObdManager;
-    private final LinkedList<BluetoothCommand> mCommandQueue = new LinkedList<>();
+    private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
     //Semaphore lock to coordinate command executions, to ensure only one is
@@ -247,7 +247,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     }
 
 
-    private void queueCommand(BluetoothCommand command) {
+    private void queueCommand(WriteCommand command) {
         synchronized (mCommandQueue) {
             Log.i(TAG,"Queue command");
             mCommandQueue.add(command);
@@ -552,10 +552,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     //Runnable to execute a command from the queue
     class ExecuteCommandRunnable implements Runnable{
 
-        private BluetoothCommand mCommand;
+        private WriteCommand mCommand;
         private BluetoothGatt mGatt;
 
-        public ExecuteCommandRunnable(BluetoothCommand command, BluetoothGatt gatt) {
+        public ExecuteCommandRunnable(WriteCommand command, BluetoothGatt gatt) {
             mCommand = command;
             mGatt = gatt;
 
@@ -566,7 +566,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             //Acquire semaphore lock to ensure no other operations can run until this one completed
             mCommandLock.acquireUninterruptibly();
             //Tell the command to start itself.
+            Log.i(TAG, "WriteCommand: " + Utils.bytesToHexString(mCommand.bytes));
             mCommand.execute(mGatt);
         }
+    }
+
+    @Override
+    public void writeRawInstruction(String instruction) {
+        sendCommandPassive(instruction);
     }
 }
