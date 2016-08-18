@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
+import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -80,14 +81,14 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_READ_CHAR =
-            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_WRITE_CHAR =
-            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID CONFIG_DESCRIPTOR =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"); // 212B
 
@@ -192,7 +193,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             return;
         }
 
-        String payload = mObdManager.obdGetParameter(tlvTag);
+        //String payload = mObdManager.obdGetParameter(tlvTag);
+        String payload = DataPackageUtil.qiPackage(0, "0");
         writeToObd(payload, 0);
     }
 
@@ -230,10 +232,10 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
         if (type == 0) { // get instruction string from json payload
             try {
-                payload = new JSONObject(payload).getString("instruction");
+                String temp = new JSONObject(payload).getString("instruction");
+                payload = temp;
             } catch(JSONException e) {
                 e.printStackTrace();
-                return;
             }
         }
 
@@ -516,6 +518,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 final byte[] data = characteristic.getValue();
                 final String hexData = Utils.bytesToHexString(data);
 
+                Log.i(TAG, "Data Read: " + hexData);
+
                 if(Utils.isEmpty(hexData)) {
                     return;
                 }
@@ -538,6 +542,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
                 final byte[] data = characteristic.getValue();
                 final String hexData = Utils.bytesToHexString(data);
+
+                Log.i(TAG, "Data Read: " + hexData);
 
                 if(Utils.isEmpty(hexData)) {
                     return;

@@ -140,7 +140,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                 bluetoothCommunicator = new BluetoothLeComm(this);  // TODO: BLE
             } else {
-                bluetoothCommunicator = new BluetoothLeComm(this);
+                bluetoothCommunicator = new BluetoothClassicComm(this);
             }
 
             bluetoothCommunicator.setBluetoothDataListener(this);
@@ -1256,7 +1256,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                         bluetoothCommunicator = new BluetoothLeComm(BluetoothAutoConnectService.this); // TODO: BLE
                     } else {
-                        bluetoothCommunicator = new BluetoothLeComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
                     }
 
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);

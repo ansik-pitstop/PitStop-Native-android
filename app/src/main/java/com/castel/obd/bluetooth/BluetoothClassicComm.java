@@ -173,8 +173,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             return;
         }
 
-        if (mBluetoothAdapter.isDiscovering() || btConnectionState == CONNECTING) {
+        if (mBluetoothAdapter.isDiscovering()) {
             Log.i(TAG,"Already discovering - BluetoothClassicComm");
+            //mBluetoothAdapter.cancelDiscovery();
             return;
         }
 
@@ -199,6 +200,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
+
+        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 13000);
     }
 
     Runnable runnable = new Runnable() {
