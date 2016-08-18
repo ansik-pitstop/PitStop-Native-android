@@ -251,36 +251,36 @@ public class IssueDetailsActivity extends AppCompatActivity {
         TextView severityTextView = (TextView) view.findViewById(R.id.severity_text);
 
         // clear DTCs will clear all DTCs in module and backend
-        if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC) || carIssue.getIssueType().equals(CarIssue.DTC)) {
-            View clearDtcButton = view.findViewById(R.id.btnClearDtc);
-            clearDtcButton.setVisibility(View.VISIBLE);
-            clearDtcButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
-                        Toast.makeText(IssueDetailsActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
-                    } else {
-                        new AlertDialog.Builder(IssueDetailsActivity.this)
-                                .setTitle("Are you sure you want to clear all engine codes?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        autoConnectService.clearDTCs();
-                                        clearDtcs();
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                })
-                                .show();
-                    }
-                }
-            });
-        }
+        //if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC) || carIssue.getIssueType().equals(CarIssue.DTC)) {
+        //    View clearDtcButton = view.findViewById(R.id.btnClearDtc);
+        //    clearDtcButton.setVisibility(View.VISIBLE);
+        //    clearDtcButton.setOnClickListener(new View.OnClickListener() {
+        //        @Override
+        //        public void onClick(View v) {
+        //            if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
+        //                Toast.makeText(IssueDetailsActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
+        //            } else {
+        //                new AlertDialog.Builder(IssueDetailsActivity.this)
+        //                        .setTitle("Are you sure you want to clear all engine codes?")
+        //                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        //                            @Override
+        //                            public void onClick(DialogInterface dialogInterface, int i) {
+        //                                autoConnectService.clearDTCs();
+        //                                clearDtcs();
+        //                                dialogInterface.dismiss();
+        //                            }
+        //                        })
+        //                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        //                            @Override
+        //                            public void onClick(DialogInterface dialog, int which) {
+        //                                dialog.cancel();
+        //                            }
+        //                        })
+        //                        .show();
+        //            }
+        //        }
+        //    });
+        //}
 
         String title = carIssue.getAction() + " "
                 + carIssue.getItem();
