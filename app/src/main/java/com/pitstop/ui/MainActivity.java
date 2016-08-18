@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if(dashboardCar==null){
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
-            }
+            } // TODO: Fix
             callback.setDashboardCar(MainActivity.carList);
             callback.setCarDetailsUI();
         }
@@ -592,8 +592,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             Log.i(TAG,"Trying local store for cars");
             MainActivity.carList = localCars;
 
-            callback.setDashboardCar(MainActivity.carList);
-            callback.setCarDetailsUI();
+            if(callback != null) {
+                callback.setDashboardCar(MainActivity.carList);
+                callback.setCarDetailsUI();
+            }
             hideLoading();
         }
     }
@@ -607,11 +609,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         networkHelper.getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if((response != null && response.equals("{}")) || requestError != null) {
+                if(response != null && response.equals("{}")) {
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
-                } else if(response == null || response.isEmpty()) {
+                } else if(response == null || response.isEmpty() || requestError != null) {
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
                 } else {

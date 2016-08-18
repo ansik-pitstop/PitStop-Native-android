@@ -199,6 +199,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
+        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 13564);
     }
 
     Runnable runnable = new Runnable() {
