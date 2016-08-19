@@ -273,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof MainDashboardFragment) {
+            // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
             if(createdOrAttached) {
                 refreshFromServer();
             } else {
@@ -281,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
+    // repopulate car list
     public void resetMenus(boolean refresh){
         if(carList.size()==0&&refresh){
             refreshFromServer();
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if(dashboardCar==null){
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
-            } // TODO: Fix
+            }
             callback.setDashboardCar(MainActivity.carList);
             callback.setCarDetailsUI();
         }

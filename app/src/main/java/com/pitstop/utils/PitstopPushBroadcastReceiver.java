@@ -18,8 +18,8 @@ import com.pitstop.R;
 import com.pitstop.models.ParseNotification;
 import com.pitstop.database.ParseNotificationStore;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.LoginActivity;
+import com.pitstop.ui.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

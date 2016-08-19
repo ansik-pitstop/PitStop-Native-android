@@ -157,7 +157,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     radioLayout.setVisibility(View.GONE);
-//                    skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
                     firstName.setVisibility(View.GONE);
                     lastName.setVisibility(View.GONE);
@@ -364,7 +363,7 @@ public class LoginActivity extends AppCompatActivity {
             // creating json to post
             if(!facebookSignup) {
                 JSONObject json = new JSONObject();
-                try { // TODO: put names and phone number from second screen
+                try {
                     json.put("firstName", firstName.getText().toString());
                     json.put("lastName", lastName.getText().toString());
                     json.put("email", email.getText().toString().replace(" ", ""));
