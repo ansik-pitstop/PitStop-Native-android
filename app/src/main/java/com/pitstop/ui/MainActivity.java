@@ -629,6 +629,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         requestServiceButton.setVisibility(View.GONE);
                     }
                     tabLayout.setVisibility(View.GONE);
+                    viewPager.setPagingEnabled(false);
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
                 } else {
@@ -669,6 +670,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.GONE);
                                         }
+                                        viewPager.setPagingEnabled(false);
                                         tabLayout.setVisibility(View.GONE);
                                     } else {
                                         if(mainCarIdCopy != -1) {
@@ -694,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.VISIBLE);
                                         }
+                                        viewPager.setPagingEnabled(true);
                                         tabLayout.setVisibility(View.VISIBLE);
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();

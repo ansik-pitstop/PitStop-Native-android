@@ -29,4 +29,6 @@
     <color name="light_grey">#f0f0f0</color>
     <color name="grey">#e0e0e0</color>
     <color name="dark_grey">#c0c0c0</color>
+
+    <color name="love">#ff00ee</color>
 </resources>
