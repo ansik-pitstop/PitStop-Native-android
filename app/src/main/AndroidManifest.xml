@@ -196,6 +196,7 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
+
         <receiver
             android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -211,37 +212,7 @@
 
         <!-- smooch stuff -->
 
-        <!--receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="${applicationId}"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-            </intent-filter>
-        </receiver-->
-
-        <!--service android:name="io.smooch.core.service.SmoochService" />
-        <service
-            android:name="io.smooch.core.GcmInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="io.smooch.core.GcmRegistrationIntentService"
-            android:exported="false" />
-        <service
-            android:name="io.smooch.core.GcmService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service-->
+        <service android:name="io.smooch.core.service.SmoochService" />
 
         <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
             <intent-filter>
@@ -257,25 +228,6 @@
                 <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
             </intent-filter>
         </receiver-->
-
-        <service android:name="io.smooch.core.service.SmoochService" />
-        <!--service
-            android:name="io.smooch.core.GcmInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service-->
-        <!--service
-            android:name="io.smooch.core.GcmRegistrationIntentService"
-            android:exported="false" />
-        <service
-            android:name="io.smooch.core.GcmService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service-->
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
