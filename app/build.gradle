@@ -27,8 +27,8 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 69
-        versionName "2.1.10"
+        versionCode 70
+        versionName "2.1.11"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
