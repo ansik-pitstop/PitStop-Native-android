@@ -85,6 +85,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private ImageView engineIssuesState;
     private TextView engineIssuesText, engineIssuesCount;
 
+    private int searchAttempts = 0;
+
     private TextView carMileage;
     private Button carScanButton;
     private DecoView arcView;
@@ -692,6 +694,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
 
                 case 2: {
+                    searchAttempts = 0;
                     progressDialog.dismiss();
                     tryAgainDialog();
                     break;
@@ -728,10 +731,17 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 handler.sendEmptyMessage(1);
                 handler.removeCallbacks(connectCar);
             } else if(seconds > 15) {
-                handler.sendEmptyMessage(2);
-                handler.removeCallbacks(connectCar);
+                if(searchAttempts++ > 2) {
+                    handler.sendEmptyMessage(2);
+                    handler.removeCallbacks(connectCar);
+                } else {
+                    Log.i(TAG, "Search attempt: " + searchAttempts);
+                    carSearchStartTime = System.currentTimeMillis();
+                    autoConnectService.startBluetoothSearch();
+                    handler.postDelayed(connectCar, 1000);
+                }
             } else {
-                handler.post(connectCar);
+                handler.postDelayed(connectCar, 1000);
             }
         }
     };

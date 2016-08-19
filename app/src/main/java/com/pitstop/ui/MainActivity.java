@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                 } else {
-                    //autoConnectService.startBluetoothSearch();
+                    autoConnectService.startBluetoothSearch();
                 }
             }
         }
