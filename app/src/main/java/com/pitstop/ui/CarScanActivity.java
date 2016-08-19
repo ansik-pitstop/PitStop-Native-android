@@ -359,27 +359,27 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                     localCarAdapter.updateCar(dashboardCar);
                                                     baseMileage = mileage;
                                                     carMileage.setText(String.valueOf(mileage));
+
+                                                    if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
+                                                        networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
+                                                    }
+
+                                                    if(view == null) {
+                                                        if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
+                                                            startCarScan();
+                                                        } else {
+                                                            progressDialog.setMessage("Connecting to car");
+                                                            progressDialog.show();
+                                                            carSearchStartTime = System.currentTimeMillis();
+                                                            autoConnectService.startBluetoothSearch();  // for car scan
+                                                            handler.postDelayed(connectCar, 3000);
+                                                        }
+                                                    }
                                                 } else {
                                                     Toast.makeText(CarScanActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });
-
-                                if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
-                                    networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
-                                }
-
-                                if(view == null) {
-                                    if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
-                                        startCarScan();
-                                    } else {
-                                        progressDialog.setMessage("Connecting to car");
-                                        progressDialog.show();
-                                        carSearchStartTime = System.currentTimeMillis();
-                                        autoConnectService.startBluetoothSearch();  // for car scan
-                                        handler.postDelayed(connectCar, 3000);
-                                    }
-                                }
 
                                 dialogInterface.dismiss();
                             }
