@@ -211,7 +211,7 @@
 
         <!-- smooch stuff -->
 
-        <receiver
+        <!--receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -222,7 +222,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
             </intent-filter>
-        </receiver>
+        </receiver-->
 
         <!--service android:name="io.smooch.core.service.SmoochService" />
         <service
@@ -259,14 +259,14 @@
         </receiver-->
 
         <service android:name="io.smooch.core.service.SmoochService" />
-        <service
+        <!--service
             android:name="io.smooch.core.GcmInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
-        </service>
-        <service
+        </service-->
+        <!--service
             android:name="io.smooch.core.GcmRegistrationIntentService"
             android:exported="false" />
         <service
@@ -275,7 +275,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </service-->
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=

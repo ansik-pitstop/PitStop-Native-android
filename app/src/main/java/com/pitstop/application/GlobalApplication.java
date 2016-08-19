@@ -59,7 +59,7 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
         Smooch.init(this, settings);
 
         // Parse

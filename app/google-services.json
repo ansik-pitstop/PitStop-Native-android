@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "309712221750",
-    "project_id": "api-5154625761437339405-514629"
+    "firebase_url": "https://api-5154625761437339405-514629.firebaseio.com",
+    "project_id": "api-5154625761437339405-514629",
+    "storage_bucket": "api-5154625761437339405-514629.appspot.com"
   },
   "client": [
     {
@@ -11,7 +13,12 @@
           "package_name": "com.ansik.pitstop"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "309712221750-4fnr971kb6nnvvintm1pkjnao32jmv8c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCt4uuZH175Jhpq4ZAd2DORc6nc12hN-HQ"
@@ -26,7 +33,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

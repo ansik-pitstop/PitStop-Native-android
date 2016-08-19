@@ -52,7 +52,7 @@ public class RequestError {
     public static RequestError getUnknownError() {
         RequestError requestError = new RequestError();
         requestError.setError("unknown_error");
-        requestError.setMessage("Something went wrong");
+        requestError.setMessage("Couldn't connect to server.  Please try again.");
 
         return requestError;
     }

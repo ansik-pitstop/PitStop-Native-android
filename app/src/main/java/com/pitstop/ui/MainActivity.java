@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
 
         progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
@@ -610,7 +611,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
-                } else if(response == null || response.isEmpty() || requestError != null) {
+                } else if(response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
+                    View mainView = findViewById(R.id.main_view);
+                    View noCarText = findViewById(R.id.no_car_text);
+                    View noConnectText = findViewById(R.id.no_connect_text);
+                    View requestServiceButton = findViewById(R.id.request_service_btn);
+                    if(mainView != null) {
+                        mainView.setVisibility(View.GONE);
+                    }
+                    if(noCarText != null) {
+                        noCarText.setVisibility(View.GONE);
+                    }
+                    if(noConnectText != null) {
+                        noConnectText.setVisibility(View.VISIBLE);
+                    }
+                    if(requestServiceButton != null) {
+                        requestServiceButton.setVisibility(View.GONE);
+                    }
+                    tabLayout.setVisibility(View.GONE);
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
                 } else {
@@ -630,11 +648,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             if (requestError == null) {
                                 View mainView = findViewById(R.id.main_view);
                                 View noCarText = findViewById(R.id.no_car_text);
+                                View noConnectText = findViewById(R.id.no_connect_text);
                                 View requestServiceButton = findViewById(R.id.request_service_btn);
                                 try {
                                     carList = Car.createCarsList(response);
 
-                                    if (carList.isEmpty()) {
+                                    if (carList.isEmpty()) { // show add first car text
                                         if (isLoading) {
                                             hideLoading();
                                         }
@@ -643,6 +662,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.VISIBLE);
+                                        }
+                                        if(noConnectText != null) {
+                                            noConnectText.setVisibility(View.GONE);
                                         }
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.GONE);
@@ -665,6 +687,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.GONE);
+                                        }
+                                        if(noConnectText != null) {
+                                            noConnectText.setVisibility(View.GONE);
                                         }
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.VISIBLE);
