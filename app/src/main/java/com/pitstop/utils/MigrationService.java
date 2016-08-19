@@ -17,7 +17,7 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.R;
-import com.pitstop.ui.SplashScreen;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
@@ -64,7 +64,7 @@ public class MigrationService extends Service {
 
         final PendingIntent donePendingIntent = PendingIntent.getActivity(this, 45435, doneIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Intent failedIntent = new Intent(this, SplashScreen.class);
+        Intent failedIntent = new Intent(this, LoginActivity.class);
         failedIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         final PendingIntent failedPendingIntent = PendingIntent.getActivity(this, 45435, failedIntent, PendingIntent.FLAG_UPDATE_CURRENT);

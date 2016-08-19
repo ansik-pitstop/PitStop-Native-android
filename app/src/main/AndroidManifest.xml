@@ -97,7 +97,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".ui.SplashScreen"
+            android:name=".ui.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppNoActionBarTheme"
             android:screenOrientation="portrait">

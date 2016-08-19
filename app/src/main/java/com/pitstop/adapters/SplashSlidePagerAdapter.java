@@ -131,7 +131,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             //facebookLoginButton = (LoginButton) rootView.findViewById(R.id.fb_login_butt);
             //facebookLoginButton.setReadPermissions("email", "public_profile");
             //facebookLoginButton.setFragment(this);
-            //facebookLoginButton.registerCallback(((SplashScreen) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
+            //facebookLoginButton.registerCallback(((LoginActivity) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
             //    @Override
             //    public void onSuccess(LoginResult loginResult) {
             //        networkHelper.loginSocial(loginResult.getAccessToken().getToken(), "facebook", new RequestCallback() {
@@ -141,8 +141,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             //                if(requestError == null) {
             //                    Intent intent = new Intent(getActivity(), MainActivity.class);
             //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //                    intent.putExtra(SplashScreen.LOGIN_REFRESH, true);
-            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, SplashScreen.ACTIVITY_NAME);
+            //                    intent.putExtra(LoginActivity.LOGIN_REFRESH, true);
+            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, LoginActivity.ACTIVITY_NAME);
             //                    startActivity(intent);
             //                }
             //            }

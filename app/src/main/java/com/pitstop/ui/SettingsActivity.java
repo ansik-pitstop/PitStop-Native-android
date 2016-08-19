@@ -476,7 +476,7 @@ public class SettingsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Intent intent = new Intent(this.getActivity(), SplashScreen.class);
+            Intent intent = new Intent(this.getActivity(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             Log.i(TAG, "navigateToLogin ran");

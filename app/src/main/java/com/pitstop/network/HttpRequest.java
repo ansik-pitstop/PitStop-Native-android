@@ -10,7 +10,7 @@ import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
 import com.pitstop.BuildConfig;
-import com.pitstop.ui.SplashScreen;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.NetworkHelper;
 
@@ -212,7 +212,7 @@ public class HttpRequest {
             LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
             Toast.makeText(application, "Your session has expired.  Please log in again.", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(application, SplashScreen.class);
+            Intent intent = new Intent(application, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             application.startActivity(intent);
         }
