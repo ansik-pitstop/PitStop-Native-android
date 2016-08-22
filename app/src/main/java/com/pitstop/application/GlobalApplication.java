@@ -114,7 +114,7 @@ public class GlobalApplication extends Application {
     }
 
     public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 
     /**

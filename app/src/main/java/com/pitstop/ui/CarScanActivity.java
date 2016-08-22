@@ -608,7 +608,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
 
-        if(dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+        if(dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
             final double newTotalMileage = ((int) ((baseMileage
                     + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
 
