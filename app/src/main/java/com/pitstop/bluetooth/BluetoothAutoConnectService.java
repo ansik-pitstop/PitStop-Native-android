@@ -116,6 +116,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
+    public boolean manuallyUpdateMileage = false;
+
     // queue for sending trip flags
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private boolean isSendingTripRequest = false;
@@ -748,6 +750,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      *      The data returned from obd device for result 4
      */
     private void processResultFourData(final DataPackageInfo data) {
+        if(manuallyUpdateMileage) {
+            Log.i(TAG, "Currently scanning car, ignoring trips");
+            return;
+        }
         if(data.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
             Log.i(TAG, "Trip end flag received");
             Log.v(TAG, "Trip end package: " + data.toString());
@@ -942,6 +948,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else if(data.result == 5) {
             Log.i(TAG, "received PID data for result 5");
+            manuallyUpdateMileage = false;
             //if(pidDataObject.getTripId() == -1) {
             //    pidsWithNoTripId.add(pidDataObject);
             //} else if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
