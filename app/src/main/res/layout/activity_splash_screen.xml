@@ -4,7 +4,7 @@
     style="@style/AppNoActionBarTheme"
     android:id="@+id/splash_layout"
     android:orientation="vertical"
-    tools:context=".SplashScreen">
+    tools:context=".ui.LoginActivity">
 
     <android.support.v4.view.ViewPager
         xmlns:android="http://schemas.android.com/apk/res/android"

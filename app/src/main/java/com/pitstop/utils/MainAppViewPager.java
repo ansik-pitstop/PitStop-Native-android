@@ -26,6 +26,15 @@ public class MainAppViewPager extends ViewPager {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(enabled) {
+            return super.onTouchEvent(ev);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (this.enabled && getCurrentItem() == 1) {
             return super.onInterceptTouchEvent(event);

@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".SelectDealershipActivity">
+    tools:context=".ui.SelectDealershipActivity">
 
     <item
         android:id="@+id/refresh"
@@ -13,5 +13,5 @@
     <item
         android:id="@+id/log_out"
         android:title="Log out"
-        tools:context=".SelectDealershipActivity" />
+        tools:context=".ui.SelectDealershipActivity" />
 </menu>

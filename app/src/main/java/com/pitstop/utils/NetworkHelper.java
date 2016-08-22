@@ -9,13 +9,12 @@ import android.widget.Toast;
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.CarIssue;
-import com.pitstop.DataAccessLayer.ServerAccess.HttpRequest;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestType;
+import com.pitstop.models.CarIssue;
+import com.pitstop.network.HttpRequest;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestType;
 import com.pitstop.application.GlobalApplication;
 
-import static com.pitstop.utils.LogUtils.LOGD;
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
 

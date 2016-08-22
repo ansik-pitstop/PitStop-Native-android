@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -19,12 +18,9 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.User;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
+import com.pitstop.models.User;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
-
-import java.io.File;
-import java.io.IOException;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -63,7 +59,7 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
         Smooch.init(this, settings);
 
         // Parse
@@ -103,7 +99,7 @@ public class GlobalApplication extends Application {
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().set("$phone", user.getPhone());
-            mixpanelAPI.getPeople().set("$name", user.getFirstName());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
             mixpanelAPI.getPeople().set("$email", user.getEmail());
         } else {
             Log.d(TAG, "Can't set up mixpanel; current user is null");
@@ -118,7 +114,7 @@ public class GlobalApplication extends Application {
     }
 
     public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 
     /**

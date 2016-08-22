@@ -15,16 +15,13 @@ import com.pitstop.R;
  * Created by David on 7/11/2016.
  */
 public class AddCarViewPager extends ViewPager {
-    private boolean enabled;
 
     public AddCarViewPager(Context context) {
         super(context);
-        this.enabled = true;
     }
 
     public AddCarViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.enabled = true;
     }
 
     @Override
@@ -35,10 +32,6 @@ public class AddCarViewPager extends ViewPager {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         return false;
-    }
-
-    public void setPagingEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override

@@ -1,31 +1,18 @@
 package com.pitstop.adapters;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.R;
-import com.pitstop.SplashScreen;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
@@ -144,7 +131,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             //facebookLoginButton = (LoginButton) rootView.findViewById(R.id.fb_login_butt);
             //facebookLoginButton.setReadPermissions("email", "public_profile");
             //facebookLoginButton.setFragment(this);
-            //facebookLoginButton.registerCallback(((SplashScreen) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
+            //facebookLoginButton.registerCallback(((LoginActivity) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
             //    @Override
             //    public void onSuccess(LoginResult loginResult) {
             //        networkHelper.loginSocial(loginResult.getAccessToken().getToken(), "facebook", new RequestCallback() {
@@ -154,8 +141,8 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             //                if(requestError == null) {
             //                    Intent intent = new Intent(getActivity(), MainActivity.class);
             //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //                    intent.putExtra(SplashScreen.LOGIN_REFRESH, true);
-            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, SplashScreen.ACTIVITY_NAME);
+            //                    intent.putExtra(LoginActivity.LOGIN_REFRESH, true);
+            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, LoginActivity.ACTIVITY_NAME);
             //                    startActivity(intent);
             //                }
             //            }
