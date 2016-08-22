@@ -358,7 +358,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                     dashboardCar.setTotalMileage(mileage);
                                                     localCarAdapter.updateCar(dashboardCar);
                                                     baseMileage = mileage;
-                                                    carMileage.setText(String.valueOf(mileage));
+                                                    carMileage.setText(input.getText().toString());
 
                                                     if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
                                                         networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);

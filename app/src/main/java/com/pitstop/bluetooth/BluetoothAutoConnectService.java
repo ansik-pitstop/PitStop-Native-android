@@ -210,8 +210,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getBluetoothState(int state) {
         if(state==IBluetoothCommunicator.CONNECTED) {
             //show a custom notification
-            Bitmap icon = BitmapFactory.decodeResource(getResources(),
-                    R.mipmap.ic_push);
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
 
             Car connectedCar = localCarAdapter.getCarByScanner(getCurrentDeviceId());
 
