@@ -22,6 +22,7 @@
         <item name="android:colorAccent">@color/highlight</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/label_text_dark</item>
+        <item name="android:datePickerDialogTheme">@style/DatePickerDialogTheme</item>
     </style>
     >
 

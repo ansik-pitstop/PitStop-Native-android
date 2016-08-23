@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -193,39 +195,87 @@ public class IssueDetailsActivity extends AppCompatActivity {
         userInput.setInputType(InputType.TYPE_CLASS_TEXT);
         alertDialog.setView(userInput);
 
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':'1'}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                additionalComment[0] = userInput.getText().toString();
-                sendRequest(additionalComment[0]);
-            }
-        });
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        final int currentYear = calendar.get(Calendar.YEAR);
+        final int currentMonth = calendar.get(Calendar.MONTH);
+        final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+        DatePickerDialog datePicker = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        if(year < currentYear || (year == currentYear
+                                && (monthOfYear < currentMonth
+                                || (monthOfYear == currentMonth && dayOfMonth < currentDay)))) {
+                            Toast.makeText(IssueDetailsActivity.this, "Please choose a date in the future", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Calendar selectedDate = Calendar.getInstance();
+                        selectedDate.set(year, monthOfYear, dayOfMonth);
+                        final String dateString = calendar.toString();
+
+                        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    mixpanelHelper.trackCustom("Button Tapped",
+                                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                                    + "','Device':'Android','Number of Services Requested':'1'}"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                additionalComment[0] = userInput.getText().toString();
+                                sendRequest(additionalComment[0], dateString);
+                            }
+                        });
+
+                        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                dialog.cancel();
+                            }
+                        });
+
+                        alertDialog.show();
+                    }
+                },
+                currentYear,
+                currentMonth,
+                currentDay);
+
+        TextView titleView = new TextView(this);
+        titleView.setText("Please choose a tentative date for service");
+        titleView.setBackgroundColor(getResources().getColor(R.color.primary_dark));
+        titleView.setTextColor(getResources().getColor(R.color.white_text));
+        titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titleView.setTextSize(18);
+        titleView.setPadding(10,10,10,10);
+
+        datePicker.setCustomTitle(titleView);
+        datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onCancel(DialogInterface dialog) {
                 try {
                     mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                dialog.cancel();
             }
         });
 
-        alertDialog.show();
+        datePicker.show();
     }
 
-    private void sendRequest(String additionalComment) {
+    private void sendRequest(String additionalComment, String date) {
         networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, new RequestCallback() {
+                additionalComment, date, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {

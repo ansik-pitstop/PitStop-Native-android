@@ -509,7 +509,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                 datePicker.setCustomTitle(titleView);
 
-
                                 datePicker.show();
                             }
 

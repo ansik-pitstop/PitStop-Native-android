@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -33,8 +34,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -74,6 +77,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -881,6 +885,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        // show calendar and then ask for additional comments
+
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Enter additional comment");
 
@@ -889,37 +896,82 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         userInput.setInputType(InputType.TYPE_CLASS_TEXT);
         alertDialog.setView(userInput);
 
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    application.getMixpanelAPI().track("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':"
-                                    + dashboardCar.getActiveIssues().size() + "}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        final int currentYear = calendar.get(Calendar.YEAR);
+        final int currentMonth = calendar.get(Calendar.MONTH);
+        final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-                additionalComment[0] = userInput.getText().toString();
-                sendRequest(additionalComment[0]);
-            }
-        });
+        DatePickerDialog datePicker = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        if(year < currentYear || (year == currentYear
+                                && (monthOfYear < currentMonth
+                                || (monthOfYear == currentMonth && dayOfMonth < currentDay)))) {
+                            Toast.makeText(MainActivity.this, "Please choose a date in the future", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        Calendar selectedDate = Calendar.getInstance();
+                        selectedDate.set(year, monthOfYear, dayOfMonth);
+                        final String dateString = calendar.toString();
+
+                        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    mixpanelHelper.trackCustom("Button Tapped",
+                                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                                                    + "','Device':'Android','Number of Services Requested':'1'}"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                additionalComment[0] = userInput.getText().toString();
+                                sendRequest(additionalComment[0], dateString);
+                            }
+                        });
+
+                        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                dialog.cancel();
+                            }
+                        });
+
+                        alertDialog.show();
+                    }
+                },
+                currentYear,
+                currentMonth,
+                currentDay);
+
+        TextView titleView = new TextView(this);
+        titleView.setText("Please choose a tentative date for service");
+        titleView.setBackgroundColor(getResources().getColor(R.color.primary_dark));
+        titleView.setTextColor(getResources().getColor(R.color.white_text));
+        titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titleView.setTextSize(18);
+        titleView.setPadding(10,10,10,10);
+
+        datePicker.setCustomTitle(titleView);
+        datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onCancel(DialogInterface dialog) {
                 try {
                     mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                dialog.cancel();
             }
         });
 
-        alertDialog.show();
+        datePicker.show();
     }
 
     public void startChat(View view) {
@@ -978,10 +1030,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Request service for all issues currently displayed or custom request
      * @see #requestMultiService(View)
      * */
-    private void sendRequest(String additionalComment) {
+    private void sendRequest(String additionalComment, String date) {
 
         networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(),
-                dashboardCar.getShopId(), additionalComment, new RequestCallback() {
+                dashboardCar.getShopId(), additionalComment, null, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {

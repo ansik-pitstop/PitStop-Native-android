@@ -388,7 +388,7 @@ public class NetworkHelper {
         postNoAuth("scan/pids", callback, body);
     }
 
-    public void requestService(int userId, int carId, int shopId, String comments,
+    public void requestService(int userId, int carId, int shopId, String comments, String date,
                                       RequestCallback callback) {
         LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
 
@@ -398,30 +398,13 @@ public class NetworkHelper {
             body.put("carId", carId);
             body.put("shopId", shopId);
             body.put("comments", comments);
+            body.put("date", date);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         post("utility/serviceRequest", callback, body);
 
-    }
-
-    public void requestService(int userId, int carId, int shopId, String comments,
-                                      int issueId, RequestCallback callback) {
-        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
-
-        JSONObject body = new JSONObject();
-        try {
-            body.put("userId", userId);
-            body.put("carId", carId);
-            body.put("shopId", shopId);
-            body.put("comments", comments);
-            body.put("issueId", issueId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("utility/serviceRequest", callback, body);
     }
 
     public void getUser(int userId, RequestCallback callback) {
