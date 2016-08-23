@@ -214,7 +214,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
                         Calendar selectedDate = Calendar.getInstance();
                         selectedDate.set(year, monthOfYear, dayOfMonth);
-                        final String dateString = calendar.toString();
+                        final String dateString = calendar.getTime().toString();
 
                         alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
                             @Override

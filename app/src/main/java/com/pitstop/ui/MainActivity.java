@@ -915,7 +915,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                         Calendar selectedDate = Calendar.getInstance();
                         selectedDate.set(year, monthOfYear, dayOfMonth);
-                        final String dateString = calendar.toString();
+                        final String dateString = calendar.getTime().toString();
 
                         alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
                             @Override
