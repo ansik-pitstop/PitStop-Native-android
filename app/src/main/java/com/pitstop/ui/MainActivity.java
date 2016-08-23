@@ -241,6 +241,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        createdOrAttached = false;
+    }
+
     private void setupViewPager(ViewPager viewPager) {
         MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
