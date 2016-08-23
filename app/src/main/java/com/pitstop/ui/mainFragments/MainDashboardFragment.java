@@ -204,6 +204,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             selectedCar.add((Car) carAdapter.getItem(which));
                         }
                     });
+                    dialog.setNeutralButton("Add New Car", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(getActivity(), AddCarActivity.class);
+                            getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+                        }
+                    });
                     dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             askForCar = false;
@@ -226,7 +233,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                             if(requestError == null) {
                                                 Toast.makeText(getActivity(), "Device added successfully", Toast.LENGTH_SHORT).show();
                                                 sharedPreferences.edit().putInt(pfCurrentCar, selectedCar.get(0).getId()).commit();
-                                                //TODO: DEBUG THIS
                                                 ((MainActivity)getActivity()).refreshFromServer();
                                             } else {
                                                 Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();

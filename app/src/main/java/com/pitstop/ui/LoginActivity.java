@@ -51,14 +51,14 @@ import com.pitstop.adapters.SplashSlidePagerAdapter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SplashScreen extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     final static String pfName = "com.pitstop.login.name";
     public static String ACTIVITY_NAME = "splash_screen";
 
     public static String LOGIN_REFRESH = "login_refresh";
 
-    public static final String TAG = SplashScreen.class.getSimpleName();
+    public static final String TAG = LoginActivity.class.getSimpleName();
 
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -157,7 +157,6 @@ public class SplashScreen extends AppCompatActivity {
                     }
 
                     radioLayout.setVisibility(View.GONE);
-//                    skipButton.setVisibility(View.GONE);
                     loginButton.setVisibility(View.VISIBLE);
                     firstName.setVisibility(View.GONE);
                     lastName.setVisibility(View.GONE);
@@ -332,7 +331,7 @@ public class SplashScreen extends AppCompatActivity {
             }
 
             if(!NetworkHelper.isConnected(this)) {
-                Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
                 return;
             }
             if((!email.getText().toString().equals(""))
@@ -347,24 +346,24 @@ public class SplashScreen extends AppCompatActivity {
 
             showLoading("Loading");
             if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
-                Toast.makeText(SplashScreen.this, "First and last name are required", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, "First and last name are required", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             if(password.getText().toString().length()<6 && !facebookSignup){
-                Toast.makeText(SplashScreen.this, "Password length must be greater than 6", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, "Password length must be greater than 6", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
-                Toast.makeText(SplashScreen.this, "Invalid phone number", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, "Invalid phone number", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             // creating json to post
             if(!facebookSignup) {
                 JSONObject json = new JSONObject();
-                try { // TODO: put names and phone number from second screen
+                try {
                     json.put("firstName", firstName.getText().toString());
                     json.put("lastName", lastName.getText().toString());
                     json.put("email", email.getText().toString().replace(" ", ""));
@@ -385,7 +384,7 @@ public class SplashScreen extends AppCompatActivity {
                             login(email.getText().toString(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
-                            Toast.makeText(SplashScreen.this, "This email is already in use", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "This email is already in use", Toast.LENGTH_SHORT).show();
                             hideLoading();
                         }
                     }
@@ -405,7 +404,7 @@ public class SplashScreen extends AppCompatActivity {
                                     application.setUpMixPanel();
                                     goToMainActivity(true);
                                 } else {
-                                    Toast.makeText(SplashScreen.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -578,7 +577,7 @@ public class SplashScreen extends AppCompatActivity {
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -586,7 +585,7 @@ public class SplashScreen extends AppCompatActivity {
 
 
     private void goToMainActivity(boolean refresh) {
-        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, refresh);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
@@ -600,7 +599,7 @@ public class SplashScreen extends AppCompatActivity {
         }
 
         if(!NetworkHelper.isConnected(this)) {
-            Toast.makeText(SplashScreen.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
+            Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -612,7 +611,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void migrationFailedDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(SplashScreen.this);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(LoginActivity.this);
         dialog.setMessage("Update failed. Please contact us at info@getpitstop.io.");
         dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -640,7 +639,7 @@ public class SplashScreen extends AppCompatActivity {
 
         application.setTokens(accessToken, refreshToken);
 
-        Intent migrationIntent = new Intent(SplashScreen.this, MigrationService.class);
+        Intent migrationIntent = new Intent(LoginActivity.this, MigrationService.class);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_ID, userId);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_REFRESH, refreshToken);
         migrationIntent.putExtra(MigrationService.USER_MIGRATION_ACCESS, accessToken);
@@ -648,7 +647,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void startMainActivity(boolean update) {
-        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, update);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
@@ -688,7 +687,7 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onPause() {
         application.getMixpanelAPI().flush();
-        Log.i(MainActivity.TAG, "SplashScreen on pause");
+        Log.i(MainActivity.TAG, "LoginActivity on pause");
         hideLoading();
 
         try {
@@ -702,7 +701,7 @@ public class SplashScreen extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i(MainActivity.TAG, "SplashScreen onDestroy");
+        Log.i(MainActivity.TAG, "LoginActivity onDestroy");
         super.onDestroy();
     }
 
@@ -731,11 +730,11 @@ public class SplashScreen extends AppCompatActivity {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
-                            Toast.makeText(SplashScreen.this, String.format("An email has been sent to %s with further instructions. ", email) +
+                            Toast.makeText(LoginActivity.this, String.format("An email has been sent to %s with further instructions. ", email) +
                                     "It may take up to a few minutes to arrive.",
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(SplashScreen.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

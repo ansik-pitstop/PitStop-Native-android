@@ -59,7 +59,7 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
         Smooch.init(this, settings);
 
         // Parse
@@ -99,7 +99,7 @@ public class GlobalApplication extends Application {
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().set("$phone", user.getPhone());
-            mixpanelAPI.getPeople().set("$name", user.getFirstName());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
             mixpanelAPI.getPeople().set("$email", user.getEmail());
         } else {
             Log.d(TAG, "Can't set up mixpanel; current user is null");
@@ -114,7 +114,7 @@ public class GlobalApplication extends Application {
     }
 
     public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 
     /**

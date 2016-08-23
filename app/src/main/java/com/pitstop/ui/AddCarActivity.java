@@ -114,6 +114,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     public void noDongleClicked(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("Yes I have Pitstop Hardware", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle",1);
         ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
@@ -138,6 +143,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     }
     public void yesDongleClicked(View view) {
+        try {
+            mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle",1);
         ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
@@ -378,7 +388,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         // Alert message
         alertDialog.setMessage("Could not connect to device. " +
                 "\n\nMake sure your vehicle engine is on and " +
-                "OBD device is properly plugged in.\n\nTry again ?");
+                "OBD device is properly plugged in.\n\nYou may also try turning off the Bluetooth on your phone and then turning it back on.\n\nTry again ?");
         alertDialog.setCancelable(false);
 
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {

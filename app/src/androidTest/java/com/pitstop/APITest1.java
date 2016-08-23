@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 
 import android.support.test.espresso.contrib.RecyclerViewActions;
 
-import com.pitstop.ui.SplashScreen;
+import com.pitstop.ui.LoginActivity;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 public class APITest1 {
 
     @Rule
-    public ActivityTestRule<SplashScreen> mActivityTestRule = new ActivityTestRule<>(SplashScreen.class);
+    public ActivityTestRule<LoginActivity> mActivityTestRule = new ActivityTestRule<>(LoginActivity.class);
 
     @Test
     public void aPITest1() {

@@ -76,7 +76,7 @@
             android:value="com.pitstop" />
         <meta-data
             android:name="com.mixpanel.android.MPConfig.EnableDebugLogging"
-            android:value="true" />
+            android:value="false" />
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
@@ -97,10 +97,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".ui.SplashScreen"
+            android:name=".ui.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppNoActionBarTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -195,6 +196,7 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
+
         <receiver
             android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -203,44 +205,11 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="${applicationId}" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="abc" />
-            </intent-filter>
         </receiver>
 
         <!-- smooch stuff -->
 
-        <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="${applicationId}"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-            </intent-filter>
-        </receiver>
-
-        <!--service android:name="io.smooch.core.service.SmoochService" />
-        <service
-            android:name="io.smooch.core.GcmInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="io.smooch.core.GcmRegistrationIntentService"
-            android:exported="false" />
-        <service
-            android:name="io.smooch.core.GcmService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service-->
+        <service android:name="io.smooch.core.service.SmoochService" />
 
         <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
             <intent-filter>
@@ -256,25 +225,6 @@
                 <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
             </intent-filter>
         </receiver-->
-
-        <service android:name="io.smooch.core.service.SmoochService" />
-        <service
-            android:name="io.smooch.core.GcmInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="io.smooch.core.GcmRegistrationIntentService"
-            android:exported="false" />
-        <service
-            android:name="io.smooch.core.GcmService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=

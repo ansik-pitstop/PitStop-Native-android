@@ -62,6 +62,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private boolean needToSetTime = false;
     public static final int RC_PENDING_ADD_CAR = 1043;
     private int vinAttempts = 0;
+    private int linkingAttempts = 0;
 
     long vinRetrievalStartTime = 0;
     private long searchTime = 0;
@@ -294,6 +295,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         if((responsePackageInfo.type+responsePackageInfo.value)
                 .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
+            linkingAttempts = 0;
             Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
             callback.showLoading("Device successfully linked");
             mHandler.postDelayed(vinDetectionRunnable, 2000);
@@ -320,6 +322,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         }
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
+            linkingAttempts = 0;
             Log.i(TAG,"VIN response received");
 
             callback.showLoading("Getting car VIN");
@@ -513,7 +516,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             public void done(String response, RequestError requestError) {
                 if(requestError == null) {
                     if(response.equals("{}")) {
-                        //TODO
                         saveCarToServer(carInfo);
                     } else {
                         callback.hideLoading("Car Already Exists!");
@@ -581,8 +583,14 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             int seconds = (int) (timeDiff / 1000);
 
             if(seconds > 10 && isGettingVinAndCarIsConnected) {
-                mHandler.sendEmptyMessage(1);
-                mHandler.postDelayed(vinDetectionRunnable, 2000);
+                if(linkingAttempts++ > 4) {
+                    mHandler.removeCallbacks(vinDetectionRunnable);
+                    linkingAttempts = 0;
+                    callback.openRetryDialog();
+                } else {
+                    mHandler.sendEmptyMessage(1);
+                    mHandler.postDelayed(vinDetectionRunnable, 2000);
+                }
                 return;
             }
 

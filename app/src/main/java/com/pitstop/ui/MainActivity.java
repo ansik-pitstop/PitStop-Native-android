@@ -49,7 +49,6 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.utils.PitstopPushBroadcastReceiver;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -69,6 +68,7 @@ import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.utils.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.PitstopPushBroadcastReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private Car dashboardCar;
     private GlobalApplication application;
 
+    private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
+
     private NetworkHelper networkHelper;
     public static MainDashboardCallback callback;
     private MainAppSideMenuAdapter mainAppSideMenuAdapter;
@@ -164,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
                 } else {
-                    //autoConnectService.startBluetoothSearch();
+                    autoConnectService.startBluetoothSearch();
                 }
             }
         }
@@ -218,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
 
         progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
@@ -231,7 +234,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        refreshFromServer();
+        if(createdOrAttached) {
+            refreshFromServer();
+        } else {
+            createdOrAttached = true;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        createdOrAttached = false;
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -266,26 +279,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        //if (fragment instanceof MainDashboardFragment) {
-        //    // Always refresh from the server if entering from log in activity
-        //    if (getIntent().getBooleanExtra(SplashScreen.LOGIN_REFRESH, false)) {
-        //        Log.i(TAG, "refresh from login");
-        //        refreshFromServer();
-        //    } else if (SelectDealershipActivity.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-        //        // In the event the user pressed back button while in the select dealership activity
-        //        // then load required data from local db.
-        //        refreshFromLocal();
-        //    } else if (PitstopPushBroadcastReceiver.ACTIVITY_NAME.equals(getIntent().getStringExtra(FROM_ACTIVITY))) {
-        //        // On opening a push notification, load required data from server
-        //        refreshFromServer();
-        //    } else if (getIntent().getBooleanExtra(FROM_NOTIF, false)) {
-        //        refreshFromServer();
-        //    } else {
-        //        refreshFromServer();
-        //    }
-        //}
+        if (fragment instanceof MainDashboardFragment) {
+            // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
+            if(createdOrAttached) {
+                refreshFromServer();
+            } else {
+                createdOrAttached = true;
+            }
+        }
     }
 
+    // repopulate car list
     public void resetMenus(boolean refresh){
         if(carList.size()==0&&refresh){
             refreshFromServer();
@@ -592,8 +596,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             Log.i(TAG,"Trying local store for cars");
             MainActivity.carList = localCars;
 
-            callback.setDashboardCar(MainActivity.carList);
-            callback.setCarDetailsUI();
+            if(callback != null) {
+                callback.setDashboardCar(MainActivity.carList);
+                callback.setCarDetailsUI();
+            }
             hideLoading();
         }
     }
@@ -611,7 +617,25 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
-                } else if(response == null || response.isEmpty() || requestError != null) {
+                } else if(response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
+                    View mainView = findViewById(R.id.main_view);
+                    View noCarText = findViewById(R.id.no_car_text);
+                    View noConnectText = findViewById(R.id.no_connect_text);
+                    View requestServiceButton = findViewById(R.id.request_service_btn);
+                    if(mainView != null) {
+                        mainView.setVisibility(View.GONE);
+                    }
+                    if(noCarText != null) {
+                        noCarText.setVisibility(View.GONE);
+                    }
+                    if(noConnectText != null) {
+                        noConnectText.setVisibility(View.VISIBLE);
+                    }
+                    if(requestServiceButton != null) {
+                        requestServiceButton.setVisibility(View.GONE);
+                    }
+                    tabLayout.setVisibility(View.GONE);
+                    viewPager.setPagingEnabled(false);
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
                 } else {
@@ -631,11 +655,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             if (requestError == null) {
                                 View mainView = findViewById(R.id.main_view);
                                 View noCarText = findViewById(R.id.no_car_text);
+                                View noConnectText = findViewById(R.id.no_connect_text);
                                 View requestServiceButton = findViewById(R.id.request_service_btn);
                                 try {
                                     carList = Car.createCarsList(response);
 
-                                    if (carList.isEmpty()) {
+                                    if (carList.isEmpty()) { // show add first car text
                                         if (isLoading) {
                                             hideLoading();
                                         }
@@ -645,9 +670,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.VISIBLE);
                                         }
+                                        if(noConnectText != null) {
+                                            noConnectText.setVisibility(View.GONE);
+                                        }
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.GONE);
                                         }
+                                        viewPager.setPagingEnabled(false);
                                         tabLayout.setVisibility(View.GONE);
                                     } else {
                                         if(mainCarIdCopy != -1) {
@@ -667,9 +696,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if(noCarText != null) {
                                             noCarText.setVisibility(View.GONE);
                                         }
+                                        if(noConnectText != null) {
+                                            noConnectText.setVisibility(View.GONE);
+                                        }
                                         if(requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.VISIBLE);
                                         }
+                                        viewPager.setPagingEnabled(true);
                                         tabLayout.setVisibility(View.VISIBLE);
                                         callback.setDashboardCar(carList);
                                         carLocalStore.deleteAllCars();

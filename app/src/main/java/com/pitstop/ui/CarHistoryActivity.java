@@ -129,7 +129,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     private String formatDate(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"
         String[] splittedDate = rawDate.split("-");
         String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         splittedDate[2] = splittedDate[2].substring(0, 2);
 
