@@ -199,7 +199,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
-        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 13564);
+        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 14464);
     }
 
     Runnable runnable = new Runnable() {
@@ -298,10 +298,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
-                    //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    //    boolean bondResult = device.createBond();
-                    //    Log.i(TAG, "Create bond result: " + String.valueOf(bondResult));
-                    //}
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {
