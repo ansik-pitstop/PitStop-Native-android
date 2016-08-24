@@ -61,9 +61,11 @@ public class ServiceRequestUtil {
         final Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         final int currentYear = calendar.get(Calendar.YEAR);
-        final int currentMonth = !isFirstBooking ? calendar.get(Calendar.MONTH)
-                : (calendar.get(Calendar.MONTH) + 3) % 12; // 3 months in future for first booking
+        final int currentMonth = calendar.get(Calendar.MONTH);
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        final int monthToShow = !isFirstBooking ? calendar.get(Calendar.MONTH)
+                : (calendar.get(Calendar.MONTH) + 3) % 12; // 3 months in future for first booking
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
@@ -73,12 +75,12 @@ public class ServiceRequestUtil {
         titleView.setTextColor(context.getResources().getColor(R.color.white_text));
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         titleView.setTextSize(18);
-        titleView.setPadding(20,15,20,15);
+        titleView.setPadding(20,10,20,10);
 
         datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
-                datePicker.updateDate(currentYear, currentMonth, currentDay);
+                datePicker.updateDate(currentYear, monthToShow, currentDay);
 
                 datePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -93,15 +95,6 @@ public class ServiceRequestUtil {
                         }
                     }
                 });
-
-                //if(isFirstBooking) {
-                //    datePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
-                //        @Override
-                //        public void onClick(View v) {
-                //            Toast.makeText(context, "fuck you just book it", Toast.LENGTH_SHORT).show();
-                //        }
-                //    });
-                //}
             }
         });
 
@@ -137,7 +130,7 @@ public class ServiceRequestUtil {
         titleView.setTextColor(context.getResources().getColor(R.color.white_text));
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         titleView.setTextSize(18);
-        titleView.setPadding(20,15,20,15);
+        titleView.setPadding(20,10,20,10);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
