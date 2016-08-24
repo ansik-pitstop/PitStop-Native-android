@@ -19,15 +19,24 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.castel.obd.data.OBDInfoSP;
+import com.castel.obd.info.ParameterInfo;
+import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.util.Utils;
+import com.castel.obd215b.info.DTCInfo;
+import com.castel.obd215b.info.PIDInfo;
+import com.castel.obd215b.info.SettingInfo;
+import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
-import com.pitstop.ui.MainActivity;
+import com.castel.obd215b.util.DataParseUtil;
+import com.castel.obd215b.util.DateUtil;
+import com.castel.obd215b.util.LogUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -50,7 +59,7 @@ import java.util.concurrent.Semaphore;
  * Manage LE connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
 
     private Context mContext;
     private GlobalApplication application;
@@ -79,20 +88,20 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_READ_CHAR =
-            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID OBD_WRITE_CHAR =
-            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
-            //UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+            //UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
     public static final UUID CONFIG_DESCRIPTOR =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"); // 212B
 
     private int btConnectionState = DISCONNECTED;
 
-    public BluetoothLeComm(Context context) {
+    public Bluetooth215BComm(Context context) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
@@ -191,8 +200,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             return;
         }
 
-        String payload = mObdManager.obdGetParameter(tlvTag);
-        writeToObd(payload, 0);
+        //String payload = mObdManager.obdGetParameter(tlvTag);
+        String payload = DataPackageUtil.qiPackage(1, "0");
+        writeToObd(payload, 1);
     }
 
     @Override
@@ -255,7 +265,11 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
             Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
             if (btConnectionState == CONNECTED && mGatt != null) {
-                queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
+                try {
+                    queueCommand(new WriteCommand(data.getBytes("UTF-8"), WriteCommand.WRITE_TYPE.DATA)); // TODO: different bytes depending on device
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -432,7 +446,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+        public void onConnectionStateChange(final BluetoothGatt gatt, int status, int newState) {
             Log.i(TAG, "onConnectionStateChange Status: " + status + " new State " + newState);
 
             switch (newState) {
@@ -455,7 +469,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                     needToScan = false;
                     dataListener.getBluetoothState(btConnectionState);
                     btConnectionState = CONNECTED;
-                    gatt.discoverServices();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            gatt.discoverServices();
+                        }
+                    }, 500);
 
                     break;
                 }
@@ -514,21 +533,22 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
 
                 final byte[] data = characteristic.getValue();
-                final String hexData = Utils.bytesToHexString(data);
+                String readData = "";
 
-                Log.d(TAG, "Data Read: " + hexData);
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
 
-                if(Utils.isEmpty(hexData)) {
+                Log.d(TAG, "Data Read: " + readData);
+
+                if(readData.isEmpty()) {
                     return;
                 }
 
                 if(status == BluetoothGatt.GATT_SUCCESS) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mObdManager.receiveDataAndParse(hexData);
-                        }
-                    });
+                    parseReadData(readData);
                 }
             }
         }
@@ -539,20 +559,22 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
 
                 final byte[] data = characteristic.getValue();
-                final String hexData = Utils.bytesToHexString(data);
 
-                Log.d(TAG, "Data Read: " + hexData);
+                String readData = "";
 
-                if(Utils.isEmpty(hexData)) {
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d(TAG, "Data Read: " + readData);
+
+                if(readData.isEmpty()) {
                     return;
                 }
 
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mObdManager.receiveDataAndParse(hexData);
-                    }
-                });
+                parseReadData(readData);
             }
 
 
@@ -570,6 +592,158 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             dequeueCommand();
         }
     };
+
+    private StringBuilder sbRead = new StringBuilder();
+
+    private void parseReadData(String msg) {
+        sbRead.append(msg);
+
+        if (sbRead.toString().contains("\r\n")) {
+            String msgInfo = sbRead.toString().replace("\r\n",
+                    "\\r\\n");
+
+
+            LogUtil.e("read: " + msgInfo);
+
+            sbRead = new StringBuilder();
+            if (Constants.INSTRUCTION_IDR.equals(DataParseUtil
+                    .parseMsgType(msgInfo))) {
+
+                //String dateStr = DateUtil
+                //        .getSystemTime("yyyy-MM-dd HH:mm:ss");
+                //FileProcess.write(dateStr + "\n" + msgInfo + "\n",
+                //        "215B_IDR_Data.txt");
+//
+                //idrInfo = DataParseUtil.parseIDR(msgInfo);
+                //idrInfo.time = dateStr;
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_IDR);
+                //intent.putExtra(EXTRA_DATA, idrInfo);
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+                //// intent.putExtra(EXTRA_INIT_DATA, msgInfo);
+//
+                //String reply_msg = DataPackageUtil.replyIDRPackage();
+//
+                //// IDR??
+                //Intent intent2 = new Intent();
+                //intent2.setAction(UartService.ACTION_WRITE);
+                //intent2.putExtra(UartService.EXTRA_WEITE, reply_msg);
+                //LocalBroadcastManager.getInstance(this).sendBroadcast(intent2);
+
+            } else if (Constants.INSTRUCTION_CI
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //boolean bResult = DataParseUtil
+                //        .parseSetting(msgInfo);
+//
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_CI);
+                //intent.putExtra(EXTRA_DATA, bResult);
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+//
+                ////
+                //broadcastContent(ACTION_COMMAND_TEST,
+                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
+            } else if (Constants.INSTRUCTION_SI
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //boolean bResult = DataParseUtil
+                //        .parseSetting(msgInfo);
+//
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_SI);
+                //intent.putExtra(EXTRA_DATA, bResult);
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+//
+                //broadcastContent(ACTION_COMMAND_TEST,
+                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data)+ msgInfo + "\n");
+            } else if (Constants.INSTRUCTION_QI
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                SettingInfo settingInfo = DataParseUtil
+                        .parseQI(msgInfo);
+
+                ParameterPackageInfo parameterPackageInfo = new ParameterPackageInfo();
+                parameterPackageInfo.deviceId = settingInfo.terminalSN;
+                parameterPackageInfo.result = 1;
+                parameterPackageInfo.value = new ArrayList<>();
+
+                if(settingInfo.vehicleVINCode != null) {
+                    parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
+                }
+                if(settingInfo.vehicleVINCode != null) {
+                    parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
+                }
+                dataListener.getParameterData(parameterPackageInfo);
+            } else if (Constants.INSTRUCTION_PIDT
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                // PIDInfo pidInfo = DataParseUtil.parsePIDT(msgInfo);
+//
+                // intent.putExtra(EXTRA_DATA_TYPE,
+                //         Constants.INSTRUCTION_PIDT);
+                // intent.putExtra(EXTRA_DATA, pidInfo);
+                // LocalBroadcastManager.getInstance(this)
+                //         .sendBroadcast(intent);
+//
+                // broadcastContent(ACTION_COMMAND_TEST,
+                //         COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
+            } else if (Constants.INSTRUCTION_PID
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
+//
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_PID);
+                //intent.putExtra(EXTRA_DATA, pidInfo);
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+//
+                //broadcastContent(ACTION_COMMAND_TEST,
+                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
+            } else if (Constants.INSTRUCTION_DTC
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //DTCInfo dtcInfo = DataParseUtil.parseDTC(msgInfo);
+//
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_DTC);
+                //intent.putExtra(EXTRA_DATA, dtcInfo);
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+//
+                //broadcastContent(ACTION_COMMAND_TEST,
+                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data)+ msgInfo + "\n");
+            } else if (Constants.INSTRUCTION_OTA
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //LogUtil.i("--????OTA????--:" + msgInfo);
+//
+                //// ???????
+                //mRecieveTerminate = System.currentTimeMillis();
+                //LogUtil.v("send next data2");
+                //broadcastUpdateContent(ACTION_PACKAGE_CONTENT,
+                //        "\n"+getResources().getString(R.string.report_data) + msgInfo+"\n"
+                //                + DateUtil.getSystemTime()+"\n");
+//
+                //intent.putExtra(EXTRA_DATA_TYPE,
+                //        Constants.INSTRUCTION_OTA);
+                //intent.putExtra(EXTRA_DATA,
+                //        DataParseUtil.parseOTA(msgInfo));
+                //intent.putExtra(EXTRA_DATA1, DataParseUtil.parseUpgradeType(msgInfo));
+//
+                //LocalBroadcastManager.getInstance(this)
+                //        .sendBroadcast(intent);
+
+            } else if (Constants.INSTRUCTION_TEST
+                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                //LogUtil.i("--??????--:" + msgInfo);
+                //broadcastContent(ACTION_HARDWARE_TEST,
+                //        HARDWARE_TEST_DATA, "\n"+getResources().getString(R.string.report_data) + msgInfo);
+            }
+
+            if (!Constants.INSTRUCTION_TEST.equals(DataParseUtil
+                    .parseMsgType(msgInfo))) {
+                LogUtil.i("??????2:" + msgInfo);
+            }
+        }
+    }
 
     //Runnable to execute a command from the queue
     class ExecuteCommandRunnable implements Runnable{

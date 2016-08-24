@@ -8,6 +8,10 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
+import com.castel.obd215b.util.LogUtil;
+import com.castel.obd215b.util.Utils;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -26,23 +30,35 @@ public class WriteCommand {
 
     public void execute(BluetoothGatt gatt) {
         BluetoothGattService mainObdGattService =
-                gatt.getService(BluetoothLeComm.OBD_IDD_212_MAIN_SERVICE);
+                gatt.getService(Bluetooth215BComm.OBD_IDD_212_MAIN_SERVICE);  // TODO: make work with both devices
+
+        if(mainObdGattService == null) {
+            return;
+        }
 
         if(type == WRITE_TYPE.DATA) {
 
             BluetoothGattCharacteristic obdWriteCharacteristic =
-                    mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_WRITE_CHAR);
-            obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                    mainObdGattService.getCharacteristic(Bluetooth215BComm.OBD_WRITE_CHAR);
+            //obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
-            Log.i("WriteCommandDebug", "Writing characteristic...");
+            Log.d("Write data", Utils.bytesToHexString(bytes));
             boolean result =  gatt.writeCharacteristic(obdWriteCharacteristic);
+
+            String send = "";
+            try {
+                send = new String(bytes,"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            Log.e("String sent", send);
 
             Log.i("WriteCommandDebug", "Write result "+result);
 
         } else if( type == WRITE_TYPE.NOTIFICATION) {
 
             BluetoothGattCharacteristic obdReadCharacteristic =
-                    mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_READ_CHAR);
+                    mainObdGattService.getCharacteristic(Bluetooth215BComm.OBD_READ_CHAR);
 
             Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 

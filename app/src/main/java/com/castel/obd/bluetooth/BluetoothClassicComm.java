@@ -286,7 +286,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG,device.getName() + " " + device.getAddress());
 
-                if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+                if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
                     mBluetoothChat.connectBluetooth(device);
                     Log.i(TAG,"Connecting to device - BluetoothClassicComm");
@@ -296,7 +296,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+                if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
                     //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     //    boolean bondResult = device.createBond();
@@ -317,7 +317,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG,"Pairing state changed - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
-                        (device.getName().contains(ObdManager.BT_DEVICE_NAME))) {
+                        (device.getName().contains(ObdManager.BT_DEVICE_NAME_212))) {
                     Log.i(TAG,"Connected to a PAIRED device - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
                     dataListener.getBluetoothState(btConnectionState);
@@ -328,7 +328,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                if(device.getName()!= null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+                if(device.getName()!= null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     try {

@@ -25,6 +25,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.Bluetooth215BComm;
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -142,7 +143,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                 bluetoothCommunicator = new BluetoothLeComm(this);  // TODO: BLE
             } else {
-                bluetoothCommunicator = new BluetoothClassicComm(this);
+                bluetoothCommunicator = new Bluetooth215BComm(this);
             }
 
             bluetoothCommunicator.setBluetoothDataListener(this);
@@ -1262,7 +1263,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                         bluetoothCommunicator = new BluetoothLeComm(BluetoothAutoConnectService.this); // TODO: BLE
                     } else {
-                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new Bluetooth215BComm(BluetoothAutoConnectService.this);
                     }
 
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
