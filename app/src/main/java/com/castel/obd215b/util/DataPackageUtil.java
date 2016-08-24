@@ -5,6 +5,12 @@ import com.castel.obd215b.info.SettingInfo;
 
 public class DataPackageUtil {
 
+	// parameter IDs
+	public static final String TERMINAL_ID_PARAM = "A01";
+	public static final String BT_NAME_PARAM = "A02";
+	public static final String RTC_TIME_PARAM = "A03";
+	public static final String VIN_PARAM = "A07";
+
 	public static String ciPackage(String controlEventID, String terminalSN) {
 		String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
 				+ Constants.INSTRUCTION_CI + "," + controlEventID + ","
@@ -14,9 +20,6 @@ public class DataPackageUtil {
 		String crc = Utils.toHexString(OBD.CRC(crcData));
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
 
 		return msg;
 	}
@@ -31,9 +34,6 @@ public class DataPackageUtil {
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
-
 		return msg;
 	}
 
@@ -45,9 +45,6 @@ public class DataPackageUtil {
 		String crc = Utils.toHexString(OBD.CRC(crcData));
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
 
 		return msg;
 	}
@@ -69,9 +66,6 @@ public class DataPackageUtil {
 		String crc = Utils.toHexString(OBD.CRC(crcData));
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
 
 		return msg;
 	}
@@ -99,8 +93,22 @@ public class DataPackageUtil {
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
+		return msg;
+	}
+
+	public static String getParameter(String param) {
+		String crcData = Constants.INSTRUCTION_HEAD
+				+ "0"
+				+ ","
+				+ Constants.INSTRUCTION_QI
+				+ ","
+				+ param
+				+ ","
+				+ Constants.INSTRUCTION_STAR;
+
+		String crc = Utils.toHexString(OBD.CRC(crcData));
+
+		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
 		return msg;
 	}
@@ -320,9 +328,6 @@ public class DataPackageUtil {
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
-
 		return msg;
 	}
 
@@ -332,7 +337,6 @@ public class DataPackageUtil {
 		String crc = Utils.toHexString(OBD.CRC(crcData));
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-		LogUtil.e("hardwareTestPackage cmd: " + msg);
 
 		return msg;
 	}
@@ -345,9 +349,6 @@ public class DataPackageUtil {
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 		// LogUtil.e("发送数据:" + crcData);
 		// LogUtil.e("校验码:" + crc);
-
-		LogUtil.e("write:");
-		LogUtil.i(msg.replace("\r\n", "\\r\\n"));
 
 		return msg;
 	}

@@ -36,6 +36,7 @@ import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
+import com.castel.obd215b.util.DataPackageUtil;
 import com.google.gson.Gson;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Car;
@@ -138,6 +139,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         networkHelper = new NetworkHelper(getApplicationContext());
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
+
+            if(bluetoothCommunicator != null) {
+                bluetoothCommunicator.close();
+                bluetoothCommunicator = null;
+            }
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -611,7 +617,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     public void getVinFromCar() {
         Log.i(TAG, "Calling getCarVIN from Bluetooth auto-connect");
-        bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
+        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
+            bluetoothCommunicator.obdGetParameter(DataPackageUtil.VIN_PARAM);
+        } else {
+            bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
+        }
     }
 
 
@@ -622,7 +632,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public void getObdDeviceTime() {
         Log.i(TAG, "Getting device time");
-        bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
+        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
+            bluetoothCommunicator.obdGetParameter(DataPackageUtil.RTC_TIME_PARAM);
+        } else {
+            bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
+        }
     }
 
 

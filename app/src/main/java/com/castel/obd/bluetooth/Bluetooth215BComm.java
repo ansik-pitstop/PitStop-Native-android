@@ -31,8 +31,6 @@ import com.castel.obd215b.info.SettingInfo;
 import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.castel.obd215b.util.DataParseUtil;
-import com.castel.obd215b.util.DateUtil;
-import com.castel.obd215b.util.LogUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -200,8 +198,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        //String payload = mObdManager.obdGetParameter(tlvTag);
-        String payload = DataPackageUtil.qiPackage(1, "0");
+        String payload = DataPackageUtil.getParameter(tlvTag);
         writeToObd(payload, 1);
     }
 
@@ -328,6 +325,10 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
      */
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
+        if(btConnectionState == CONNECTING) {
+            return;
+        }
+        btConnectionState = CONNECTING;
         Log.i(TAG, "Connecting to device");
         scanLeDevice(false);// will stop after first device detection
         showConnectingNotification();
@@ -343,7 +344,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 }
             }
         });
-        btConnectionState = CONNECTING;
     }
 
     public void bluetoothStateChanged(int state) {
@@ -574,7 +574,14 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                     return;
                 }
 
-                parseReadData(readData);
+                final String dataToParse = readData;
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        parseReadData(dataToParse);
+                    }
+                });
             }
 
 
@@ -601,9 +608,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         if (sbRead.toString().contains("\r\n")) {
             String msgInfo = sbRead.toString().replace("\r\n",
                     "\\r\\n");
-
-
-            LogUtil.e("read: " + msgInfo);
 
             sbRead = new StringBuilder();
             if (Constants.INSTRUCTION_IDR.equals(DataParseUtil
@@ -740,7 +744,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
             if (!Constants.INSTRUCTION_TEST.equals(DataParseUtil
                     .parseMsgType(msgInfo))) {
-                LogUtil.i("??????2:" + msgInfo);
             }
         }
     }
