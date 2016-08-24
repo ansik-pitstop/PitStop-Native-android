@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,27 +61,7 @@ public class ServiceRequestUtil {
         final int currentMonth = calendar.get(Calendar.MONTH);
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePicker = new DatePickerDialog(context,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        if(year < currentYear || (year == currentYear
-                                && (monthOfYear < currentMonth
-                                || (monthOfYear == currentMonth && dayOfMonth < currentDay)))) {
-                            Toast.makeText(context, "Please choose a date in the future", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        Calendar selectedDate = Calendar.getInstance();
-                        selectedDate.set(year, monthOfYear, dayOfMonth);
-                        final String dateString = calendar.getTime().toString();
-
-                        askForTime();
-                    }
-                },
-                currentYear,
-                currentMonth,
-                currentDay);
+        final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
         TextView titleView = new TextView(context);
         titleView.setText("Please choose a tentative date for service");
@@ -89,6 +70,27 @@ public class ServiceRequestUtil {
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         titleView.setTextSize(18);
         titleView.setPadding(10,10,10,10);
+
+        datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                datePicker.updateDate(currentYear, currentMonth, currentDay);
+
+                datePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(datePicker.selectedYear < currentYear || (datePicker.selectedYear == currentYear
+                                && (datePicker.selectedMonth < currentMonth
+                                || (datePicker.selectedMonth == currentMonth && datePicker.selectedDay < currentDay)))) {
+                            Toast.makeText(context, "Please choose a date in the future", Toast.LENGTH_SHORT).show();
+                        } else {
+                            dialog.dismiss();
+                            askForTime(datePicker.selectedDay, datePicker.selectedMonth, datePicker.selectedYear);
+                        }
+                    }
+                });
+            }
+        });
 
         datePicker.setCustomTitle(titleView);
         datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -105,8 +107,45 @@ public class ServiceRequestUtil {
         datePicker.show();
     }
 
-    private void askForTime(int day, int month, int year) {
+    private void askForTime(final int day, final int month, final int year) {
+        final int maxHour = 17;
+        final int minHour = 8;
 
+        final LimitedTimePicker timePicker = new LimitedTimePicker();
+
+        timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                timePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(timePicker.selectedHour < minHour || timePicker.selectedHour > maxHour
+                                || (timePicker.selectedHour == maxHour && timePicker.selectedMinute != 0)) {
+                            Toast.makeText(context, "Please choose a time between 8:00 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Calendar selectedTime = Calendar.getInstance();
+                            selectedTime.set(year, month, day, timePicker.selectedHour, timePicker.selectedMinute);
+                            timePicker.dismiss();
+                            askForComments(selectedTime.getTime().toString());
+                        }
+                    }
+                });
+
+            }
+        });
+
+        timePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                try {
+                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        timePicker.show();
     }
 
     private void askForComments(final String dateString) {
@@ -170,16 +209,40 @@ public class ServiceRequestUtil {
     }
 
     private class LimitedTimePicker extends TimePickerDialog {
-        int maxHour;
-        int minHour;
+        int selectedHour = 8;
+        int selectedMinute = 0;
 
-        public LimitedTimePicker(OnTimeSetListener listener) {
-            super(context, listener, 8, 0, false);
+        public LimitedTimePicker() {
+            super(context, null, 8, 0, false);
         }
 
         @Override
         public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
             super.onTimeChanged(view, hourOfDay, minute);
+
+            selectedHour = hourOfDay;
+            selectedMinute = minute;
+        }
+    }
+
+    private class LimitedDatePicker extends DatePickerDialog {
+        int selectedYear = 0;
+        int selectedMonth = 0;
+        int selectedDay = 0;
+
+        public LimitedDatePicker(int day, int month, int year) {
+            super(context, null, year, month, year);
+            selectedYear = year;
+            selectedMonth = month;
+            selectedDay = day;
+        }
+
+        @Override
+        public void onDateChanged(DatePicker view, int year, int month, int day) {
+            super.onDateChanged(view, year, month, day);
+            selectedDay = day;
+            selectedMonth = month;
+            selectedYear = year;
         }
     }
 }
