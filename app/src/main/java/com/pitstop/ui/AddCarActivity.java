@@ -35,7 +35,7 @@ import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.utils.AddCarViewPager;
+import com.pitstop.ui.addCarFragments.AddCarViewPager;
 import com.pitstop.utils.BSAbstractedFragmentActivity;
 import com.pitstop.utils.MixpanelHelper;
 

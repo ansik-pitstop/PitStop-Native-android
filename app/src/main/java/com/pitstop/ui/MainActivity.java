@@ -1,13 +1,10 @@
 package com.pitstop.ui;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -27,17 +24,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -68,17 +61,15 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
-import com.pitstop.utils.MainAppViewPager;
+import com.pitstop.ui.mainFragments.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.PitstopPushBroadcastReceiver;
 import com.pitstop.utils.ServiceRequestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

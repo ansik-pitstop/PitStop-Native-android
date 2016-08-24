@@ -64,12 +64,12 @@ public class ServiceRequestUtil {
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
         TextView titleView = new TextView(context);
-        titleView.setText("Please choose a tentative date for service");
+        titleView.setText("Please choose a date for your service");
         titleView.setBackgroundColor(context.getResources().getColor(R.color.primary_dark));
         titleView.setTextColor(context.getResources().getColor(R.color.white_text));
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         titleView.setTextSize(18);
-        titleView.setPadding(10,10,10,10);
+        titleView.setPadding(20,15,20,15);
 
         datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -113,6 +113,14 @@ public class ServiceRequestUtil {
 
         final LimitedTimePicker timePicker = new LimitedTimePicker();
 
+        TextView titleView = new TextView(context);
+        titleView.setText("Please choose a tentative time for your service");
+        titleView.setBackgroundColor(context.getResources().getColor(R.color.primary_dark));
+        titleView.setTextColor(context.getResources().getColor(R.color.white_text));
+        titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titleView.setTextSize(18);
+        titleView.setPadding(20,15,20,15);
+
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
@@ -144,6 +152,8 @@ public class ServiceRequestUtil {
                 }
             }
         });
+
+        timePicker.setCustomTitle(titleView);
 
         timePicker.show();
     }
