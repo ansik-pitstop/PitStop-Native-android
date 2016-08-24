@@ -227,7 +227,7 @@ public class ServiceRequestUtil {
 
     private void sendRequest(String additionalComment, String date) {
         networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, date, new RequestCallback() {
+                additionalComment, date, isFirstBooking, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if(requestError == null) {
