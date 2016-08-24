@@ -344,7 +344,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         if(dashboardCar != null) {
-
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -374,7 +373,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-                presentShowcaseSequence();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentShowcaseSequence();
+                    }
+                }, 1300);
             } else if(requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if(shouldRefreshFromServer) {
                     refreshFromServer();
@@ -878,7 +882,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             e.printStackTrace();
         }
 
-        new ServiceRequestUtil(this, dashboardCar).start();
+        // view is null for request from tutorial
+        new ServiceRequestUtil(this, dashboardCar, view == null).start();
     }
 
     public void startChat(View view) {
@@ -940,9 +945,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         boolean hasSeenTutorial = preferences.getBoolean(pfTutorial,false);
-        if(hasSeenTutorial) {
-            return;
-        }
+        //if(hasSeenTutorial) {
+        //    return;
+        //}
 
         Log.i(TAG, "running present show case");
 
@@ -954,12 +959,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             e.printStackTrace();
         }
 
-        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-            @Override
-            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                preferences.edit().putBoolean(pfTutorial,true).apply();
-            }
-        });
+        //sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+        //    @Override
+        //    public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
+        //        preferences.edit().putBoolean(pfTutorial,true).apply();
+        //    }
+        //});
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
@@ -1030,12 +1035,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 .setDismissText("OK")
                 .build());
 
-        final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.linearLayout5))
                 .setTitleText("Add a car")
                 .setContentText("Click here to add a new car.")
                 .setDismissOnTouch(true)
-                .setDismissText("Get Started")
+                .setDismissText("OK")
                 .withRectangleShape(true)
                 .setListener(new IShowcaseListener() {
                     @Override
@@ -1046,6 +1051,26 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
                     }
                 })
+                .build());
+
+        final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
+                .setTarget(findViewById(R.id.request_service_btn))
+                .setTitleText("Request Service")
+                .setContentText("Let's schedule your first service appointment now.  " +
+                        "This is a tentative date and your dealership will follow up with you before it. " +
+                        "We'll also give you 280% off your first service!")
+                .setDismissOnTouch(true)
+                .setDismissText("Get Started")
+                .withRectangleShape(true)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+                    }
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        requestMultiService(null);
+                    }
+                })
                 .build();
 
         sequence.addSequenceItem(finalShowcase);
@@ -1054,6 +1079,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
                 if(materialShowcaseView.equals(finalShowcase)) {
+                    preferences.edit().putBoolean(pfTutorial,true).apply();
+
                     try {
                         mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
                     } catch (JSONException e) {

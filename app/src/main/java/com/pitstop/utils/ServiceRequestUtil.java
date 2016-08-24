@@ -42,9 +42,12 @@ public class ServiceRequestUtil {
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
 
-    public ServiceRequestUtil(Context context, Car dashboardCar) {
+    private final boolean isFirstBooking;
+
+    public ServiceRequestUtil(Context context, Car dashboardCar, boolean isFirstBooking) {
         this.context = context;
         this.dashboardCar = dashboardCar;
+        this.isFirstBooking = isFirstBooking;
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         networkHelper = new NetworkHelper(context.getApplicationContext());
@@ -58,7 +61,8 @@ public class ServiceRequestUtil {
         final Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         final int currentYear = calendar.get(Calendar.YEAR);
-        final int currentMonth = calendar.get(Calendar.MONTH);
+        final int currentMonth = !isFirstBooking ? calendar.get(Calendar.MONTH)
+                : (calendar.get(Calendar.MONTH) + 3) % 12; // 3 months in future for first booking
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
@@ -89,8 +93,22 @@ public class ServiceRequestUtil {
                         }
                     }
                 });
+
+                //if(isFirstBooking) {
+                //    datePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                //        @Override
+                //        public void onClick(View v) {
+                //            Toast.makeText(context, "fuck you just book it", Toast.LENGTH_SHORT).show();
+                //        }
+                //    });
+                //}
             }
         });
+
+        if(isFirstBooking) {
+            datePicker.setCancelable(false);
+            datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
+        }
 
         datePicker.setCustomTitle(titleView);
         datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -114,7 +132,7 @@ public class ServiceRequestUtil {
         final LimitedTimePicker timePicker = new LimitedTimePicker();
 
         TextView titleView = new TextView(context);
-        titleView.setText("Please choose a tentative time for your service");
+        titleView.setText("Please choose a time for your service");
         titleView.setBackgroundColor(context.getResources().getColor(R.color.primary_dark));
         titleView.setTextColor(context.getResources().getColor(R.color.white_text));
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -139,6 +157,14 @@ public class ServiceRequestUtil {
                     }
                 });
 
+                //if(isFirstBooking) {
+                //    timePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                //        @Override
+                //        public void onClick(View v) {
+                //            Toast.makeText(context, "Please ", Toast.LENGTH_SHORT).show();
+                //        }
+                //    });
+                //}
             }
         });
 
@@ -152,6 +178,11 @@ public class ServiceRequestUtil {
                 }
             }
         });
+
+        if(isFirstBooking) {
+            timePicker.setCancelable(false);
+            timePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
+        }
 
         timePicker.setCustomTitle(titleView);
 
@@ -173,7 +204,7 @@ public class ServiceRequestUtil {
                 try {
                     mixpanelHelper.trackCustom("Button Tapped",
                             new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':'1'}"));
+                                    + "','Device':'Android','Number of Services Requested':'" + dashboardCar.getActiveIssues().size() + "'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -182,17 +213,21 @@ public class ServiceRequestUtil {
             }
         });
 
-        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        if(!isFirstBooking) {
+            alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    dialog.dismiss();
                 }
-                dialog.cancel();
-            }
-        });
+            });
+        } else {
+            alertDialog.setCancelable(false);
+        }
 
         alertDialog.show();
     }

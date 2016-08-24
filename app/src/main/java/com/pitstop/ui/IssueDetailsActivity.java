@@ -188,7 +188,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        new ServiceRequestUtil(this, dashboardCar).start();
+        new ServiceRequestUtil(this, dashboardCar, false).start();
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {
