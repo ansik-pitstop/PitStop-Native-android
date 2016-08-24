@@ -59,8 +59,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -298,8 +300,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-        if((responsePackageInfo.type+responsePackageInfo.value)
-                .equals(ObdManager.RTC_TAG)) {
+        if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             currentDeviceId = responsePackageInfo.deviceId;
             saveSyncedDevice(responsePackageInfo.deviceId);
@@ -357,20 +358,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(isGettingVin) {
             isGettingVin = false;
-            //if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
-            //    Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
-            //    long moreThanOneYear = 32000000;
-            //    long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
-            //    long currentTime = System.currentTimeMillis()/1000;
-            //    long diff = currentTime - deviceTime;
-            //    if(diff > moreThanOneYear) {
-            //        syncObdDevice();
-            //    } else {
-            //        saveSyncedDevice(parameterPackageInfo.deviceId);
-            //        getVinFromCar();
-            //        isGettingVin = false;
-            //    }
-            //}
         }
 
         if(callbacks != null) {
@@ -649,8 +636,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG,"Resetting RTC time - BluetoothAutoConn");
 
         long systemTime = System.currentTimeMillis();
-        bluetoothCommunicator
-                .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
+        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(systemTime);
+            String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
+
+            bluetoothCommunicator
+                    .obdSetParameter(DataPackageUtil.RTC_TIME_PARAM, dateString);
+        } else {
+            bluetoothCommunicator
+                    .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
+        }
     }
 
     public void resetObdDeviceTime() {

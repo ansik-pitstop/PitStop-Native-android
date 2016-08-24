@@ -101,8 +101,27 @@ public class DataPackageUtil {
 				+ "0"
 				+ ","
 				+ Constants.INSTRUCTION_QI
-				+ ","
+				+ ",1,"
 				+ param
+				+ ","
+				+ Constants.INSTRUCTION_STAR;
+
+		String crc = Utils.toHexString(OBD.CRC(crcData));
+
+		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+
+		return msg;
+	}
+
+	public static String setParameter(String param, String value) {
+		String crcData = Constants.INSTRUCTION_HEAD
+				+ "0"
+				+ ","
+				+ Constants.INSTRUCTION_SI
+				+ ",1,"
+				+ param
+				+ ","
+				+ value
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 

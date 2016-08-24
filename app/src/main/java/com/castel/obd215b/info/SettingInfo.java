@@ -5,22 +5,22 @@ import java.io.Serializable;
 public class SettingInfo implements Serializable {
 	public String terminalSN = "";
 	public String bluetoothDeviceName = "";
-	public String terminalRTCTime = "";
+	public String terminalRTCTime = null;
 	public String terminalWorkMode = "0";
 	public String theFuelConsumptionType = "10";
 	public String theengineEmission = "";
-	public String vehicleVINCode = "";
+	public String vehicleVINCode = null;
 	public String licensePlateNumber = "";
 	public String totalMileage = "";
 	public String totalFuelConsumption = "";
 	public String engineFlameOurDelayTime = "";
-	public String swVersion = ""; // 终端软件版本号
-	public String hardwareVersion = ""; // 终端硬件版本号
+	public String swVersion = "";
+	public String hardwareVersion = "";
 	public String pidCollectType = "";
 	public String comprehensiveDataIntervalTime = "";
-	public String obdswVersion = ""; // OBD软件版本号
-	public String obdhardwareVersion = ""; // OBD硬件版本号
-	public String historyCompletionSwitch = "";  // 历史数据补全功能
+	public String obdswVersion = "";
+	public String obdhardwareVersion = "";
+	public String historyCompletionSwitch = "";
 
 	public String powerOnAlarmSwitch = "1";
 	public String ignitiOnAlarmSwitch = "1";
@@ -44,9 +44,9 @@ public class SettingInfo implements Serializable {
 	public String dangerousDrivingThresholdValue = "";
 	public String fatigueDrivingSwitch = "1";
 	public String fatigueDrivingThresholdValue = "";
-	public String accelerationAlarmSwitch = "1";  // 急加速
+	public String accelerationAlarmSwitch = "1";
 	public String accelerationAlarmThresholdValue = "";
-	public String slowdownAlarmSwitch = "1";  // 急减速
+	public String slowdownAlarmSwitch = "1";
 	public String slowdownAlarmThresholdValue = "";
 	
 	@Override

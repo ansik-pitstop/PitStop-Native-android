@@ -22,6 +22,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
+import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -45,6 +46,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -306,12 +309,24 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         Log.i(TAG,"getParameterData()");
 
-        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
+        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)
+                || parameterPackageInfo.value.get(0).tlvTag.equals(DataPackageUtil.RTC_TIME_PARAM)) {
+
             Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
             long moreThanOneYear = 32000000;
             long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
             long currentTime = System.currentTimeMillis()/1000;
-            long diff = currentTime - deviceTime;
+
+            if(parameterPackageInfo.value.get(0).tlvTag.equals(DataPackageUtil.RTC_TIME_PARAM)) {
+                try {
+                    deviceTime = new SimpleDateFormat("yyMMddHHmmss").parse(String.valueOf(deviceTime)).getTime() / 1000;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            long diff = Math.abs(currentTime - deviceTime);
+
             if(diff > moreThanOneYear) {
                 autoConnectService.syncObdDevice();
                 needToSetTime = true;

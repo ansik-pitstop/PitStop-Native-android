@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
+import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.Utils;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.PIDInfo;
@@ -188,7 +189,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        String payload = mObdManager.obdSetParameter(tlvTagList, valueList);
+        String payload = DataPackageUtil.setParameter(tlvTagList, valueList);
         writeToObd(payload, 0);
     }
 
@@ -651,17 +652,12 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
             } else if (Constants.INSTRUCTION_SI
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                //boolean bResult = DataParseUtil
-                //        .parseSetting(msgInfo);
-//
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_SI);
-                //intent.putExtra(EXTRA_DATA, bResult);
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-//
-                //broadcastContent(ACTION_COMMAND_TEST,
-                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data)+ msgInfo + "\n");
+                boolean bResult = DataParseUtil
+                        .parseSetting(msgInfo);
+
+                Log.i(TAG, "SI result: " + bResult);
+
+                //dataListener.setParameterResponse();
             } else if (Constants.INSTRUCTION_QI
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 SettingInfo settingInfo = DataParseUtil
@@ -672,12 +668,13 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 parameterPackageInfo.result = 1;
                 parameterPackageInfo.value = new ArrayList<>();
 
-                if(settingInfo.vehicleVINCode != null) {
-                    parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
+                if(settingInfo.terminalRTCTime != null) {
+                    parameterPackageInfo.value.add(new ParameterInfo(DataPackageUtil.RTC_TIME_PARAM, settingInfo.terminalRTCTime));
                 }
                 if(settingInfo.vehicleVINCode != null) {
                     parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
                 }
+
                 dataListener.getParameterData(parameterPackageInfo);
             } else if (Constants.INSTRUCTION_PIDT
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
