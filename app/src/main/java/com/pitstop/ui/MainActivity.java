@@ -945,9 +945,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         boolean hasSeenTutorial = preferences.getBoolean(pfTutorial,false);
-        if(hasSeenTutorial) {
-            return;
-        }
+        //if(hasSeenTutorial) {
+        //    return;
+        //}
 
         Log.i(TAG, "running present show case");
 

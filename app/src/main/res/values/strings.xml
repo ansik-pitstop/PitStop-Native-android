@@ -53,9 +53,9 @@
 
     <!-- Strings for welcome screen -->
     <string name="welcome">Welcome to Pitstop</string>
-    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whathappen">What\'s About to Happen?</string>
-    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whatneeded">What is needed from you</string>
     <string name="bluetooth_header">Bluetooth for Module</string>
     <string name="internet_header">Internet Connection</string>
