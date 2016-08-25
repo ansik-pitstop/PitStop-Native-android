@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 public class DTCInfo implements Serializable {
 
+	public String terminalId;
 	public int dtcType;
 	public String diagnosisProtocol;
 	public int dtcNumber;
@@ -12,7 +13,7 @@ public class DTCInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "DTCInfo [dtcType=" + dtcType + ", diagnosisProtocol="
+		return "DTCInfo [terminalId=" + terminalId + ", dtcType=" + dtcType + ", diagnosisProtocol="
 				+ diagnosisProtocol + ", dtcNumber=" + dtcNumber + ", dtcs="
 				+ Arrays.toString(dtcs) + "]";
 	}

@@ -22,16 +22,19 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.Utils;
 import com.castel.obd215b.info.DTCInfo;
+import com.castel.obd215b.info.IDRInfo;
 import com.castel.obd215b.info.PIDInfo;
 import com.castel.obd215b.info.SettingInfo;
 import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.castel.obd215b.util.DataParseUtil;
+import com.castel.obd215b.util.DateUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -170,7 +173,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
         String payload = mObdManager.obdSetCtrl(type);
         Log.i(TAG, "Set ctrl result: " + payload);
-        writeToObd(payload, 0);
+        writeToObd(payload, 1);
     }
 
     @Override
@@ -179,8 +182,9 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        String payload = mObdManager.obdSetMonitor(type, valueList);
-        writeToObd(payload, 0);
+        //String payload = mObdManager.obdSetMonitor(type, valueList);
+        String payload = DataPackageUtil.dtcPackage("0", "0");
+        writeToObd(payload, 1);
     }
 
     @Override
@@ -190,7 +194,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         }
 
         String payload = DataPackageUtil.setParameter(tlvTagList, valueList);
-        writeToObd(payload, 0);
+        writeToObd(payload, 1);
     }
 
     @Override
@@ -614,27 +618,12 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             if (Constants.INSTRUCTION_IDR.equals(DataParseUtil
                     .parseMsgType(msgInfo))) {
 
-                //String dateStr = DateUtil
-                //        .getSystemTime("yyyy-MM-dd HH:mm:ss");
-                //FileProcess.write(dateStr + "\n" + msgInfo + "\n",
-                //        "215B_IDR_Data.txt");
-//
-                //idrInfo = DataParseUtil.parseIDR(msgInfo);
-                //idrInfo.time = dateStr;
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_IDR);
-                //intent.putExtra(EXTRA_DATA, idrInfo);
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-                //// intent.putExtra(EXTRA_INIT_DATA, msgInfo);
-//
-                //String reply_msg = DataPackageUtil.replyIDRPackage();
-//
-                //// IDR??
-                //Intent intent2 = new Intent();
-                //intent2.setAction(UartService.ACTION_WRITE);
-                //intent2.putExtra(UartService.EXTRA_WEITE, reply_msg);
-                //LocalBroadcastManager.getInstance(this).sendBroadcast(intent2);
+                String dateStr = DateUtil.getSystemTime("yyyy-MM-dd HH:mm:ss");
+
+                IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
+                idrInfo.time = dateStr;
+
+                //Log.i(TAG, idrInfo.toString());
 
             } else if (Constants.INSTRUCTION_CI
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
@@ -702,16 +691,28 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
             } else if (Constants.INSTRUCTION_DTC
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                //DTCInfo dtcInfo = DataParseUtil.parseDTC(msgInfo);
-//
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_DTC);
-                //intent.putExtra(EXTRA_DATA, dtcInfo);
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-//
-                //broadcastContent(ACTION_COMMAND_TEST,
-                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data)+ msgInfo + "\n");
+                Log.i(TAG, msgInfo);
+                DTCInfo dtcInfo = DataParseUtil.parseDTC(msgInfo);
+
+                Log.i(TAG, dtcInfo.toString());
+
+                DataPackageInfo dataPackageInfo = new DataPackageInfo();
+
+                dataPackageInfo.result = 6;
+                StringBuilder sb = new StringBuilder();
+                if(dtcInfo.dtcs != null) {
+                    for (String dtc : dtcInfo.dtcs) {
+                        sb.append(dtc.substring(4));
+                        sb.append(",");
+                    }
+                }
+                if(sb.length() > 0) {
+                    sb.deleteCharAt(sb.length() - 1);
+                }
+                dataPackageInfo.dtcData = sb.toString();
+                dataPackageInfo.deviceId = dtcInfo.terminalId;
+                dataPackageInfo.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+                dataListener.getIOData(dataPackageInfo);
             } else if (Constants.INSTRUCTION_OTA
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 //LogUtil.i("--????OTA????--:" + msgInfo);

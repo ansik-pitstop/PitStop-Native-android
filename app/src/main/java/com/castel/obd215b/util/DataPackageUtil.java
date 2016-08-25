@@ -101,7 +101,7 @@ public class DataPackageUtil {
 				+ "0"
 				+ ","
 				+ Constants.INSTRUCTION_QI
-				+ ",1,"
+				+ ",2,A01,"
 				+ param
 				+ ","
 				+ Constants.INSTRUCTION_STAR;

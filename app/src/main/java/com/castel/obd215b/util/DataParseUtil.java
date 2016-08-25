@@ -65,14 +65,13 @@ public class DataParseUtil {
 		idrInfo.snapshot = msgs[24];
 //		idrInfo.checkingCode = msgs[28].substring(0, 5);
 
-		LogUtil.i(idrInfo.toString());
-
 		return idrInfo;
 	}
 
 	public static DTCInfo parseDTC(String msg) {
 		DTCInfo dtcInfo = new DTCInfo();
 		String[] msgs = msg.split(",");
+		dtcInfo.terminalId = msgs[0].substring(2);
 		dtcInfo.dtcType = Integer.parseInt(msgs[2]);
 		LogUtil.d("故障码："+dtcInfo.dtcType);
 		
@@ -87,8 +86,6 @@ public class DataParseUtil {
 				dtcInfo.dtcs[i] = msgs[5 + i];
 			}
 //		}
-
-		LogUtil.i(dtcInfo.toString());
 
 		return dtcInfo;
 	}
@@ -200,7 +197,6 @@ public class DataParseUtil {
 				settingInfo.slowdownAlarmThresholdValue = msgs[positionValue];
 			}
 		}
-		LogUtil.i(settingInfo.toString());
 
 		return settingInfo;
 	}

@@ -380,8 +380,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.v(TAG, dataPackageInfo.toString());
 
-
-
         if(dataPackageInfo.dataNumber != null) {
             lastDataNum = dataPackageInfo.dataNumber;
         }
@@ -718,7 +716,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void getDTCs() {
         Log.i(TAG, "calling getting DTCs - auto-connect service");
-        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
+        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
+            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
+        } else {
+            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
+        }
     }
 
     public void getPendingDTCs() {
