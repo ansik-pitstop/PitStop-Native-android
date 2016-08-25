@@ -184,7 +184,7 @@ public class ServiceRequestUtil {
 
     private void askForComments(final String dateString) {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("Enter additional comment");
+        alertDialog.setTitle("Enter additional comments");
 
         final String[] additionalComment = {""};
         final EditText userInput = new EditText(context);

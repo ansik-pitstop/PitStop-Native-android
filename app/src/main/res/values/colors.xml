@@ -31,4 +31,6 @@
     <color name="dark_grey">#c0c0c0</color>
 
     <color name="love">#ff00ee</color>
+
+    <color name="darkBlueTrans">#ea031223</color>
 </resources>

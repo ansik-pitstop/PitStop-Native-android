@@ -96,7 +96,7 @@
         android:layout_below="@+id/toolbar">
 
         <LinearLayout
-            android:id="@+id/linearLayout7"
+            android:id="@+id/carName"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
-                    android:text="Car name"
+                    android:text="Your car"
                     android:layout_marginRight="8dp"
                     android:layout_toLeftOf="@+id/car_details_components_layout"
                     android:layout_centerVertical="true"
@@ -155,7 +155,7 @@
             android:id="@+id/linearLayout6"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_below="@+id/linearLayout7"
+            android:layout_below="@+id/carName"
             android:layout_marginBottom="6dp"
             android:weightSum="2">
 

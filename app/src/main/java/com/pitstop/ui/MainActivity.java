@@ -959,99 +959,48 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             e.printStackTrace();
         }
 
-        //sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-        //    @Override
-        //    public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-        //        preferences.edit().putBoolean(pfTutorial,true).apply();
-        //    }
-        //});
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
+                preferences.edit().putBoolean(pfTutorial,true).apply();
+            }
+        });
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
-                        .setTarget(findViewById(R.id.car_scan_btn))
-                        .setTitleText("Scan Car")
-                        .setContentText("Click here to scan your car for issues")
+                        .setTarget(findViewById(R.id.carName))
+                        .withoutShape()
+                        .setTitleText("Welcome to Pitstop")
+                        .setContentText("With Pitstop you can find any issues your car may have and easily request service.")
                         .setDismissOnTouch(true)
                         .setDismissText("OK")
-                        .setListener(new IShowcaseListener() {
-                            @Override
-                            public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-                            }
-
-                            @Override
-                            public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                                viewPager.setCurrentItem(1);
-                            }
-                        })
+                        .setMaskColour(getResources().getColor(R.color.darkBlueTrans))
                         .build()
         );
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
-                        .setTarget(findViewById(R.id.dealership_actions))
-                        .setTitleText("Your Dealership")
-                        .setContentText("Feel free to click these to " +
-                                "message/call/get directions to your dealership. " +
-                                "You can change your dealership in the settings.")
+                        .setTarget(findViewById(R.id.car_issues_list))
+                        .withRectangleShape()
+                        .setTitleText("Car Issues")
+                        .setContentText("These are the services your car requires.  Swipe them to the side to dismiss them.")
                         .setDismissOnTouch(true)
                         .setDismissText("OK")
-                        .withRectangleShape(true)
-                        .setListener(new IShowcaseListener() {
-                            @Override
-                            public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-                            }
-                            @Override
-                            public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                                viewPager.setCurrentItem(0);
-                            }
-                        })
+                        .setMaskColour(getResources().getColor(R.color.darkBlueTrans))
                         .build()
         );
 
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.car_issues_list))
-                .setTitleText("Car Issues")
-                .setContentText("These are the issues for your current car.  Swipe issues away to dismiss them.")
-                .setDismissOnTouch(true)
-                .setDismissText("OK")
-                .withRectangleShape(true)
-                .setListener(new IShowcaseListener() {
-                    @Override
-                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-                    }
-                    @Override
-                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                        mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
-                    }
-                })
-                .build());
-
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.left_drawer_listview))
-                .setTitleText("Your Cars")
-                .setContentText("These are your cars.  You can change your current car here.")
-                .setDismissOnTouch(true)
-                .withRectangleShape(true)
-                .setDismissText("OK")
-                .build());
-
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.linearLayout5))
-                .setTitleText("Add a car")
-                .setContentText("Click here to add a new car.")
-                .setDismissOnTouch(true)
-                .setDismissText("OK")
-                .withRectangleShape(true)
-                .setListener(new IShowcaseListener() {
-                    @Override
-                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-                    }
-                    @Override
-                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-                    }
-                })
-                .build());
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(findViewById(R.id.request_service_btn))
+                        .withRectangleShape()
+                        .setTitleText("Request Service")
+                        .setContentText("With Pitstop, you can get these services done with the click of a button.")
+                        .setDismissOnTouch(true)
+                        .setDismissText("OK")
+                        .setMaskColour(getResources().getColor(R.color.darkBlueTrans))
+                        .build()
+        );
 
         final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.request_service_btn))
@@ -1062,6 +1011,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 .setDismissOnTouch(true)
                 .setDismissText("Get Started")
                 .withRectangleShape(true)
+                .setMaskColour(getResources().getColor(R.color.darkBlueTrans))
                 .setListener(new IShowcaseListener() {
                     @Override
                     public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
@@ -1079,8 +1029,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
                 if(materialShowcaseView.equals(finalShowcase)) {
-                    preferences.edit().putBoolean(pfTutorial,true).apply();
-
                     try {
                         mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
                     } catch (JSONException e) {
