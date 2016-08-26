@@ -554,23 +554,36 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
             if (OBD_READ_CHAR_212.equals(characteristic.getUuid())) {
-
                 final byte[] data = characteristic.getValue();
-                String readData = "";
-
-                if(lastConnectedDevice == DeviceType.d212b) {
-                    readData = Utils.bytesToHexString(data);
-                } else if(lastConnectedDevice == DeviceType.d215b) {
-                    try {
-                        readData = new String(data, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+                final String readData = Utils.bytesToHexString(data);
 
                 Log.d(TAG, "Data Read: " + readData);
 
                 if(readData == null || readData.isEmpty()) {
+                    return;
+                }
+
+                if(status == BluetoothGatt.GATT_SUCCESS) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mObdManager.receiveDataAndParse(readData);
+                        }
+                    });
+                }
+            } else if(OBD_READ_CHAR_215.equals(characteristic.getUuid())) {
+                final byte[] data = characteristic.getValue();
+                String readData = "";
+
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d(TAG, "Data Read: " + readData);
+
+                if(readData.isEmpty()) {
                     return;
                 }
 
@@ -580,11 +593,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if(lastConnectedDevice == DeviceType.d212b) {
-                                mObdManager.receiveDataAndParse(dataToParse);
-                            } else if(lastConnectedDevice == DeviceType.d215b) {
-                                parseReadData(dataToParse);
-                            }
+                            parseReadData(dataToParse);
                         }
                     });
                 }
@@ -598,21 +607,34 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
                 final byte[] data = characteristic.getValue();
 
-                String readData = "";
-
-                if(lastConnectedDevice == DeviceType.d212b) {
-                    readData = Utils.bytesToHexString(data);
-                } else if(lastConnectedDevice == DeviceType.d215b) {
-                    try {
-                        readData = new String(data, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+                final String readData = Utils.bytesToHexString(data);
 
                 Log.d(TAG, "Data Read: " + readData);
 
                 if(readData == null || readData.isEmpty()) {
+                    return;
+                }
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mObdManager.receiveDataAndParse(readData);
+                    }
+                });
+            } else if(OBD_READ_CHAR_215.equals(characteristic.getUuid())) {
+                final byte[] data = characteristic.getValue();
+
+                String readData = "";
+
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d(TAG, "Data Read: " + readData);
+
+                if(readData.isEmpty()) {
                     return;
                 }
 
@@ -621,11 +643,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if(lastConnectedDevice == DeviceType.d212b) {
-                            mObdManager.receiveDataAndParse(dataToParse);
-                        } else if(lastConnectedDevice == DeviceType.d215b) {
-                            parseReadData(dataToParse);
-                        }
+                        parseReadData(dataToParse);
                     }
                 });
             }

@@ -60,12 +60,6 @@ public class WriteCommand {
             Log.d("Write data", Utils.bytesToHexString(bytes));
             boolean result =  gatt.writeCharacteristic(obdWriteCharacteristic);
 
-            String send = "";
-            try {
-                send = new String(bytes,"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
             Log.i("WriteCommandDebug", "Write result "+result);
 
         } else if( type == WRITE_TYPE.NOTIFICATION) {
