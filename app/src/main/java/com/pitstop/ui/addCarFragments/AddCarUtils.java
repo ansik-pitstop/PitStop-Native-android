@@ -317,14 +317,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
             long currentTime = System.currentTimeMillis()/1000;
 
-            if(parameterPackageInfo.value.get(0).tlvTag.equals(DataPackageUtil.RTC_TIME_PARAM)) {
-                try {
-                    deviceTime = new SimpleDateFormat("yyMMddHHmmss").parse(String.valueOf(deviceTime)).getTime() / 1000;
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-
             long diff = Math.abs(currentTime - deviceTime);
 
             if(diff > moreThanOneYear) {

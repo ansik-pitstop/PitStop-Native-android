@@ -42,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -539,9 +540,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION, lastConnectedDevice));
                 hasDiscoveredServices = true;
 
-                // Setting bluetooth state as connected because, you can't communicate with
-                // device until services have been discovered
-                //btConnectionState = CONNECTED;
                 dataListener.getBluetoothState(btConnectionState);
 
             } else {
@@ -666,6 +664,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
     private StringBuilder sbRead = new StringBuilder();
 
+    // parser for 215B data
     private void parseReadData(String msg) {
         sbRead.append(msg);
 
@@ -717,7 +716,12 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 parameterPackageInfo.value = new ArrayList<>();
 
                 if(settingInfo.terminalRTCTime != null) {
-                    parameterPackageInfo.value.add(new ParameterInfo(DataPackageUtil.RTC_TIME_PARAM, settingInfo.terminalRTCTime));
+                    try {
+                        long rtcTime = new SimpleDateFormat("yyMMddHHmmss").parse(settingInfo.terminalRTCTime).getTime() / 1000;
+                        parameterPackageInfo.value.add(new ParameterInfo(DataPackageUtil.RTC_TIME_PARAM, String.valueOf(rtcTime)));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
                 if(settingInfo.vehicleVINCode != null) {
                     parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
@@ -882,14 +886,14 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         String payload = null;
 
         if(lastConnectedDevice == DeviceType.d212b) {
-            payload = DataPackageUtil.siSingle(DataPackageUtil.RTC_TIME_PARAM, String.valueOf(rtcTime / 1000));
+            payload = mObdManager.obdSetParameter(ObdManager.RTC_TAG, String.valueOf(rtcTime / 1000));
             writeToObd(payload, 0); // 212 parser returns json
         } else if(lastConnectedDevice == DeviceType.d215b) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(rtcTime);
             String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
 
-            payload = mObdManager.obdSetParameter(ObdManager.RTC_TAG, dateString);
+            payload = DataPackageUtil.siSingle(DataPackageUtil.RTC_TIME_PARAM, dateString);
             writeToObd(payload, 1);
         }
     }
