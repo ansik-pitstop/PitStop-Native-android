@@ -12,6 +12,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
 import com.pitstop.application.GlobalApplication;
 
@@ -471,18 +472,23 @@ public class NetworkHelper {
         }
     }
 
-    public void setMainCar(int userId, int carId, RequestCallback callback) {
+    public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("settings", new JSONObject().put("mainCar", carId));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("user/" + userId + "/settings", callback, body);
+        getUser(userId, new RequestCallback() { // need to add option instead of replace
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null) {
+                    try {
+                        JSONObject options = new JSONObject(response).getJSONObject("settings");
+                        options.put("settings", new JSONObject().put("mainCar", carId));
+                        put("user/" + userId + "/settings", callback, options);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     public void getLatestTrip(String scannerId, RequestCallback callback) {
