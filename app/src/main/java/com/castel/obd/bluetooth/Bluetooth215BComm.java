@@ -348,6 +348,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         if(btConnectionState == CONNECTING) {
             return;
         }
+        mCommandQueue.clear();
         btConnectionState = CONNECTING;
         Log.i(TAG, "Connecting to device");
         scanLeDevice(false);// will stop after first device detection
@@ -388,31 +389,31 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        //scanLeDevice(true);
+        scanLeDevice(true);
 
-        if (mGatt != null && !needToScan) {
-            try {
-                //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
-                // Previously connected device.  Try to reconnect.
-                if (mGatt.connect()) {
-                    Log.i(TAG, "Trying to connect to device - BluetoothLeComm");
-                    btConnectionState = CONNECTING;
-                } else {
-                    //mGatt = null;
-                    Log.i(TAG, "Could not connect to previous device, scanning...");
-                    scanLeDevice(true);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Exception thrown by connect");
-                e.printStackTrace();
-                mGatt.close();
-                mGatt = null;
-                scanLeDevice(true);
-            }
-        } else  {
-            Log.i(TAG, "mGatt is null or bluetooth adapter reset");
-            scanLeDevice(true);
-        }
+        //if (mGatt != null && !needToScan) {
+        //    try {
+        //        //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
+        //        // Previously connected device.  Try to reconnect.
+        //        if (mGatt.connect()) {
+        //            Log.i(TAG, "Trying to connect to device - BluetoothLeComm");
+        //            btConnectionState = CONNECTING;
+        //        } else {
+        //            //mGatt = null;
+        //            Log.i(TAG, "Could not connect to previous device, scanning...");
+        //            scanLeDevice(true);
+        //        }
+        //    } catch (Exception e) {
+        //        Log.e(TAG, "Exception thrown by connect");
+        //        e.printStackTrace();
+        //        mGatt.close();
+        //        mGatt = null;
+        //        scanLeDevice(true);
+        //    }
+        //} else  {
+        //    Log.i(TAG, "mGatt is null or bluetooth adapter reset");
+        //    scanLeDevice(true);
+        //}
     }
 
 
