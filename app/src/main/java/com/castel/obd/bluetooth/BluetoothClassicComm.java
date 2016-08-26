@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 12/04/2016.
  */
-public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+public abstract class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;

@@ -13,6 +13,7 @@ import com.castel.obd215b.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Paul Soladoye on 19/04/2016.
@@ -23,14 +24,28 @@ public class WriteCommand {
     public byte[] bytes;
     private WRITE_TYPE type;
 
-    public WriteCommand(byte[] bytes, WRITE_TYPE type) {
+    private UUID serviceUuid;
+    private UUID writeChar;
+    private UUID readChar;
+
+    public WriteCommand(byte[] bytes, WRITE_TYPE type, Bluetooth215BComm.DeviceType deviceType) {
         this.bytes = bytes;
         this.type = type;
+
+        if(deviceType == Bluetooth215BComm.DeviceType.d212b) {
+            serviceUuid = Bluetooth215BComm.OBD_IDD_212_MAIN_SERVICE;
+            writeChar = Bluetooth215BComm.OBD_WRITE_CHAR_212;
+            readChar = Bluetooth215BComm.OBD_READ_CHAR_212;
+        } else if(deviceType == Bluetooth215BComm.DeviceType.d215b) {
+            serviceUuid = Bluetooth215BComm.OBD_IDD_215_MAIN_SERVICE;
+            writeChar = Bluetooth215BComm.OBD_WRITE_CHAR_215;
+            readChar = Bluetooth215BComm.OBD_READ_CHAR_215;
+        }
     }
 
     public void execute(BluetoothGatt gatt) {
         BluetoothGattService mainObdGattService =
-                gatt.getService(Bluetooth215BComm.OBD_IDD_212_MAIN_SERVICE);  // TODO: make work with both devices
+                gatt.getService(serviceUuid);
 
         if(mainObdGattService == null) {
             return;
@@ -39,8 +54,8 @@ public class WriteCommand {
         if(type == WRITE_TYPE.DATA) {
 
             BluetoothGattCharacteristic obdWriteCharacteristic =
-                    mainObdGattService.getCharacteristic(Bluetooth215BComm.OBD_WRITE_CHAR);
-            //obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                    mainObdGattService.getCharacteristic(writeChar);
+            obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
             Log.d("Write data", Utils.bytesToHexString(bytes));
             boolean result =  gatt.writeCharacteristic(obdWriteCharacteristic);
@@ -51,14 +66,12 @@ public class WriteCommand {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            Log.e("String sent", send);
-
             Log.i("WriteCommandDebug", "Write result "+result);
 
         } else if( type == WRITE_TYPE.NOTIFICATION) {
 
             BluetoothGattCharacteristic obdReadCharacteristic =
-                    mainObdGattService.getCharacteristic(Bluetooth215BComm.OBD_READ_CHAR);
+                    mainObdGattService.getCharacteristic(readChar);
 
             Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 

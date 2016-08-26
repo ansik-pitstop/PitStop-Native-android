@@ -19,17 +19,14 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.Utils;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.IDRInfo;
-import com.castel.obd215b.info.PIDInfo;
 import com.castel.obd215b.info.SettingInfo;
 import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
@@ -45,7 +42,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -85,23 +84,34 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
     private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
 
-    private static String TAG = "BleCommDebug";
+    private static final String TAG = Bluetooth215BComm.class.getSimpleName();
 
     private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            //UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
+    public static final UUID OBD_READ_CHAR_212 =
+            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
+    public static final UUID OBD_WRITE_CHAR_212 =
+            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
+
+    public static final UUID OBD_IDD_215_MAIN_SERVICE =
             UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_READ_CHAR =
-            //UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
+    public static final UUID OBD_READ_CHAR_215 =
             UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_WRITE_CHAR =
-            //UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
+    public static final UUID OBD_WRITE_CHAR_215 =
             UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
+
     public static final UUID CONFIG_DESCRIPTOR =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"); // 212B
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private int btConnectionState = DISCONNECTED;
+
+    private DeviceType lastConnectedDevice;
+
+    public enum DeviceType {
+        d212b, d215b
+    }
 
     public Bluetooth215BComm(Context context) {
 
@@ -193,7 +203,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        String payload = DataPackageUtil.setParameter(tlvTagList, valueList);
+        String payload = DataPackageUtil.siSingle(tlvTagList, valueList);
         writeToObd(payload, 1);
     }
 
@@ -203,7 +213,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        String payload = DataPackageUtil.getParameter(tlvTag);
+        String payload = DataPackageUtil.qiSingle(tlvTag);
         writeToObd(payload, 1);
     }
 
@@ -268,7 +278,11 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
             if (btConnectionState == CONNECTED && mGatt != null) {
                 try {
-                    queueCommand(new WriteCommand(data.getBytes("UTF-8"), WriteCommand.WRITE_TYPE.DATA)); // TODO: different bytes depending on device
+                    if(lastConnectedDevice == DeviceType.d212b) {
+                        queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA, lastConnectedDevice));
+                    } else if(lastConnectedDevice == DeviceType.d215b) {
+                        queueCommand(new WriteCommand(data.getBytes("UTF-8"), WriteCommand.WRITE_TYPE.DATA, lastConnectedDevice));
+                    }
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -437,7 +451,11 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if(device.getName() != null) {
                 Log.v(TAG, "Found device: "+device.getName());
-                if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212) || device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    lastConnectedDevice = DeviceType.d212b;
+                    connectToDevice(device);
+                } else if(device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                    lastConnectedDevice = DeviceType.d215b;
                     connectToDevice(device);
                 }
             }
@@ -518,7 +536,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 Log.i(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
-                queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION));
+                queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION, lastConnectedDevice));
                 hasDiscoveredServices = true;
 
                 // Setting bluetooth state as connected because, you can't communicate with
@@ -535,25 +553,40 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
-            if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
+            if (OBD_READ_CHAR_212.equals(characteristic.getUuid())) {
 
                 final byte[] data = characteristic.getValue();
                 String readData = "";
 
-                try {
-                    readData = new String(data, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                if(lastConnectedDevice == DeviceType.d212b) {
+                    readData = Utils.bytesToHexString(data);
+                } else if(lastConnectedDevice == DeviceType.d215b) {
+                    try {
+                        readData = new String(data, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 Log.d(TAG, "Data Read: " + readData);
 
-                if(readData.isEmpty()) {
+                if(readData == null || readData.isEmpty()) {
                     return;
                 }
 
+                final String dataToParse = readData;
+
                 if(status == BluetoothGatt.GATT_SUCCESS) {
-                    parseReadData(readData);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(lastConnectedDevice == DeviceType.d212b) {
+                                mObdManager.receiveDataAndParse(dataToParse);
+                            } else if(lastConnectedDevice == DeviceType.d215b) {
+                                parseReadData(dataToParse);
+                            }
+                        }
+                    });
                 }
             }
         }
@@ -561,21 +594,25 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
 
-            if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
+            if (OBD_READ_CHAR_212.equals(characteristic.getUuid())) {
 
                 final byte[] data = characteristic.getValue();
 
                 String readData = "";
 
-                try {
-                    readData = new String(data, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                if(lastConnectedDevice == DeviceType.d212b) {
+                    readData = Utils.bytesToHexString(data);
+                } else if(lastConnectedDevice == DeviceType.d215b) {
+                    try {
+                        readData = new String(data, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 Log.d(TAG, "Data Read: " + readData);
 
-                if(readData.isEmpty()) {
+                if(readData == null || readData.isEmpty()) {
                     return;
                 }
 
@@ -584,7 +621,11 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        parseReadData(dataToParse);
+                        if(lastConnectedDevice == DeviceType.d212b) {
+                            mObdManager.receiveDataAndParse(dataToParse);
+                        } else if(lastConnectedDevice == DeviceType.d215b) {
+                            parseReadData(dataToParse);
+                        }
                     }
                 });
             }
@@ -776,5 +817,117 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
     @Override
     public void initDevice() {
         mObdManager.initializeObd();
+    }
+
+    // functions
+
+    @Override
+    public void getVin() {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if(lastConnectedDevice == DeviceType.d212b) {
+            payload = mObdManager.obdGetParameter(ObdManager.VIN_TAG);
+            writeToObd(payload, 0); // 212 parser returns json
+        } else if(lastConnectedDevice == DeviceType.d215b) {
+            payload = DataPackageUtil.qiSingle(DataPackageUtil.VIN_PARAM);
+            writeToObd(payload, 1);
+        }
+    }
+
+    @Override
+    public void getRtc() {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if(lastConnectedDevice == DeviceType.d212b) {
+            payload = mObdManager.obdGetParameter(ObdManager.RTC_TAG);
+            writeToObd(payload, 0); // 212 parser returns json
+        } else if(lastConnectedDevice == DeviceType.d215b) {
+            payload = DataPackageUtil.qiSingle(DataPackageUtil.RTC_TIME_PARAM);
+            writeToObd(payload, 1);
+        }
+    }
+
+    @Override
+    public void setRtc(long rtcTime) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if(lastConnectedDevice == DeviceType.d212b) {
+            payload = DataPackageUtil.siSingle(DataPackageUtil.RTC_TIME_PARAM, String.valueOf(rtcTime / 1000));
+            writeToObd(payload, 0); // 212 parser returns json
+        } else if(lastConnectedDevice == DeviceType.d215b) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(rtcTime);
+            String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
+
+            payload = mObdManager.obdSetParameter(ObdManager.RTC_TAG, dateString);
+            writeToObd(payload, 1);
+        }
+    }
+
+    @Override
+    public void getSupportedPids() {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if(lastConnectedDevice == DeviceType.d212b) {
+            payload = mObdManager.obdGetParameter(ObdManager.PID_TAG);
+            writeToObd(payload, 0); // 212 parser returns json
+        } else if(lastConnectedDevice == DeviceType.d215b) {
+            payload = DataPackageUtil.pidtPackage("0");
+            writeToObd(payload, 1);
+        }
+    }
+
+    // sets pids to check and sets data interval
+    @Override
+    public void setPidsToSend(String pids) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if(lastConnectedDevice == DeviceType.d212b) {
+            payload = mObdManager.obdSetParameter(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids);
+            writeToObd(payload, 0); // 212 parser returns json
+            return;
+        } else if(lastConnectedDevice == DeviceType.d215b) {
+            payload = DataPackageUtil.siMulti("A14,A15,A18",  pids.replace(",", "/") + "10,1");
+            writeToObd(payload, 1);
+        }
+    }
+
+    @Override
+    public void getDtcs() {
+        if (btConnectionState != CONNECTED) {
+            return;
+        }
+
+        String payload = null;
+
+        if (lastConnectedDevice == DeviceType.d212b) {
+            payload = mObdManager.obdSetMonitor(ObdManager.TYPE_DTC, "");
+            writeToObd(payload, 0); // 212 parser returns json
+            payload = mObdManager.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
+            writeToObd(payload, 0); // 212 parser returns json
+        } else if (lastConnectedDevice == DeviceType.d215b) {
+            payload = DataPackageUtil.dtcPackage("0", "0");
+            writeToObd(payload, 1);
+        }
     }
 }

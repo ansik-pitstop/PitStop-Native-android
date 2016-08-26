@@ -149,7 +149,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                bluetoothCommunicator = new BluetoothLeComm(this);  // TODO: BLE
+                bluetoothCommunicator = new Bluetooth215BComm(this);  // TODO: BLE
             } else {
                 bluetoothCommunicator = new Bluetooth215BComm(this);
             }
@@ -352,7 +352,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //setFixedUpload();
 
             pidI = 0;
-            sendForPIDS();
+            //sendForPIDS();
             gettingPID=false;
         }
 
@@ -377,7 +377,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
-
         Log.v(TAG, dataPackageInfo.toString());
 
         if(dataPackageInfo.dataNumber != null) {
@@ -428,11 +427,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId);
         }
 
-        counter ++;
+        counter++;
         //keep looking for pids until all pids are recieved
-        if(pidI!=pids.length&&dataPackageInfo.result!=5){
-            sendForPIDS();
-        }
+        //if(pidI!=pids.length&&dataPackageInfo.result!=5){
+        //    sendForPIDS();
+        //}
         //because theres a lot of status 5, keep looking
         if(dataPackageInfo.result==5){
             status5counter++;
@@ -602,11 +601,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * */
     public void getVinFromCar() {
         Log.i(TAG, "Calling getCarVIN from Bluetooth auto-connect");
-        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
-            bluetoothCommunicator.obdGetParameter(DataPackageUtil.VIN_PARAM);
-        } else {
-            bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
-        }
+        bluetoothCommunicator.getVin();
     }
 
 
@@ -617,11 +612,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public void getObdDeviceTime() {
         Log.i(TAG, "Getting device time");
-        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
-            bluetoothCommunicator.obdGetParameter(DataPackageUtil.RTC_TIME_PARAM);
-        } else {
-            bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
-        }
+        bluetoothCommunicator.getRtc();
     }
 
 
@@ -633,31 +624,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void syncObdDevice() {
         Log.i(TAG,"Resetting RTC time - BluetoothAutoConn");
 
-        long systemTime = System.currentTimeMillis();
-        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(systemTime);
-            String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
-
-            bluetoothCommunicator
-                    .obdSetParameter(DataPackageUtil.RTC_TIME_PARAM, dateString);
-        } else {
-            bluetoothCommunicator
-                    .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(systemTime / 1000));
-        }
+        bluetoothCommunicator.setRtc(System.currentTimeMillis());
     }
 
     public void resetObdDeviceTime() {
         Log.i(TAG,"Setting RTC time to 200x - BluetoothAutoConn");
 
-        bluetoothCommunicator
-                .obdSetParameter(ObdManager.RTC_TAG, String.valueOf(1088804101));
+        bluetoothCommunicator.setRtc(1088804101);
     }
 
     public void setFixedUpload() { // to make result 4 pids send every 10 seconds
         Log.i(TAG, "Setting fixed upload parameters");
-        bluetoothCommunicator.obdSetParameter(ObdManager.FIXED_UPLOAD_TAG,
-                "01;01;01;10;2;2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
+        bluetoothCommunicator.setPidsToSend("2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
     }
 
     public void setParam(String tag, String values) {
@@ -710,22 +688,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void getPIDs(){ // supported pids
         Log.i(TAG,"getting PIDs - auto-connect service");
-        bluetoothCommunicator.obdGetParameter(ObdManager.PID_TAG);
+        bluetoothCommunicator.getSupportedPids();
         gettingPID = true;
     }
 
     public void getDTCs() {
         Log.i(TAG, "calling getting DTCs - auto-connect service");
-        if(bluetoothCommunicator instanceof Bluetooth215BComm) {
-            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
-        } else {
-            bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_DTC, "");
-        }
+        bluetoothCommunicator.getDtcs();
     }
 
     public void getPendingDTCs() {
-        Log.i(TAG, "Getting pending DTCs");
-        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
+        //Log.i(TAG, "Getting pending DTCs");
+        //bluetoothCommunicator.getDtcs();
     }
 
     public void clearDTCs() {
@@ -1273,7 +1247,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                        bluetoothCommunicator = new BluetoothLeComm(BluetoothAutoConnectService.this); // TODO: BLE
+                        bluetoothCommunicator = new Bluetooth215BComm(BluetoothAutoConnectService.this); // TODO: BLE
                     } else {
                         bluetoothCommunicator = new Bluetooth215BComm(BluetoothAutoConnectService.this);
                     }

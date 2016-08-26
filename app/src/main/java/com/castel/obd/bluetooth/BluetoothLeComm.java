@@ -50,7 +50,7 @@ import java.util.concurrent.Semaphore;
  * Manage LE connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+public abstract class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
 
     private Context mContext;
     private GlobalApplication application;
@@ -255,7 +255,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
             Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
             if (btConnectionState == CONNECTED && mGatt != null) {
-                queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
+                //queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
             }
         }
     }
@@ -494,7 +494,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 Log.i(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
-                queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION));
+                //queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION));
                 hasDiscoveredServices = true;
 
                 // Setting bluetooth state as connected because, you can't communicate with

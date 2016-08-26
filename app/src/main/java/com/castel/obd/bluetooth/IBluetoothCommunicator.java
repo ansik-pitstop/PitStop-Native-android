@@ -28,4 +28,15 @@ public interface IBluetoothCommunicator {
     void close();
     void initDevice();
     void bluetoothStateChanged(int state);
+
+    // parameters
+    void getVin();
+    void getRtc();
+    void setRtc(long rtcTime);
+    void getSupportedPids();
+    void setPidsToSend(String pids);
+
+    // monitor
+    void getDtcs(); // pending and stored
+
 }

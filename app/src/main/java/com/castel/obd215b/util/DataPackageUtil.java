@@ -1,5 +1,7 @@
 package com.castel.obd215b.util;
 
+import android.util.Log;
+
 import com.castel.obd.OBD;
 import com.castel.obd215b.info.SettingInfo;
 
@@ -96,7 +98,7 @@ public class DataPackageUtil {
 		return msg;
 	}
 
-	public static String getParameter(String param) {
+	public static String qiSingle(String param) {
 		String crcData = Constants.INSTRUCTION_HEAD
 				+ "0"
 				+ ","
@@ -113,7 +115,39 @@ public class DataPackageUtil {
 		return msg;
 	}
 
-	public static String setParameter(String param, String value) {
+	public static String qiMulti(String... params) {
+		if(params.length == 0) {
+			return "";
+		}
+
+		StringBuilder paramString = new StringBuilder();
+
+		for(int i = 0; i < params.length ; i++) {
+			paramString.append(params[i]);
+			if(i != params.length - 1) {
+				paramString.append(",");
+			}
+		}
+
+		String crcData = Constants.INSTRUCTION_HEAD
+				+ "0"
+				+ ","
+				+ Constants.INSTRUCTION_QI
+				+ ","
+				+ (params.length + 1)
+				+ ",A01,"
+				+ paramString.toString()
+				+ ","
+				+ Constants.INSTRUCTION_STAR;
+
+		String crc = Utils.toHexString(OBD.CRC(crcData));
+
+		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+
+		return msg;
+	}
+
+	public static String siSingle(String param, String value) {
 		String crcData = Constants.INSTRUCTION_HEAD
 				+ "0"
 				+ ","
@@ -122,6 +156,34 @@ public class DataPackageUtil {
 				+ param
 				+ ","
 				+ value
+				+ ","
+				+ Constants.INSTRUCTION_STAR;
+
+		String crc = Utils.toHexString(OBD.CRC(crcData));
+
+		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+
+		return msg;
+	}
+
+	public static String siMulti(String params, String values) {
+		int numberOfParams = params.split(",").length;
+
+		if (values.split(",").length != numberOfParams) {
+			Log.w("siMulti", "Number of params and values must match");
+			return "";
+		}
+
+		String crcData = Constants.INSTRUCTION_HEAD
+				+ "0"
+				+ ","
+				+ Constants.INSTRUCTION_SI
+				+ ","
+				+ numberOfParams
+				+ ","
+				+ params
+				+ ","
+				+ values
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
