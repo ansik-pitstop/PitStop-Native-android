@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
-    boolean signup  = false;
+    boolean signup = false;
     boolean backPressed = false;
     boolean facebookSignup = false;
 
@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(MainActivity.TAG, "Calling on create");
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
-        setContentView(R.layout.activity_splash_screen);
+        setContentView(R.layout.activity_login);
 
         if(BuildConfig.DEBUG) {
             Toast.makeText(this, "This is a debug build - " + BuildConfig.ENDPOINT_TYPE, Toast.LENGTH_LONG).show();
@@ -129,7 +129,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 setUpUIReferences();
-                if(position==2){
+//                if(position == 2){
+                if(position == SplashSlidePagerAdapter.PAGE_LOGIN){
                     findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
@@ -181,7 +182,9 @@ public class LoginActivity extends AppCompatActivity {
                     findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
                     radioLayout.setVisibility(View.VISIBLE);
 //                    skipButton.setVisibility(View.VISIBLE);
-                    for(int i = 0; i<3; i++){
+
+//                    for(int i = 0; i<3; i++){
+                    for(int i = 0; i<2; i++){
                         ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
                     }
                     ((RadioButton)radioLayout.getChildAt(position)).setChecked(true);
@@ -227,7 +230,6 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public void onBackPressed() {
         backPressed = true;
@@ -240,7 +242,8 @@ public class LoginActivity extends AppCompatActivity {
                 application.logOutUser();
             }
             // Otherwise, select the previous step.
-            if(signup && mPager.getCurrentItem()==2&&firstName.getVisibility()== View.VISIBLE) {
+//            if(signup && mPager.getCurrentItem() == 2 && firstName.getVisibility() == View.VISIBLE) {
+            if(signup && mPager.getCurrentItem() == SplashSlidePagerAdapter.PAGE_LOGIN && firstName.getVisibility() == View.VISIBLE) {
                 firstName.setVisibility(View.GONE);
                 lastName.setVisibility(View.GONE);
                 phoneNumber.setVisibility(View.GONE);
@@ -272,9 +275,10 @@ public class LoginActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Retrieve views using findViewById()
+     */
     private void setUpUIReferences() {
-
-
         firstName = (EditText) findViewById(R.id.firstName);
         lastName = (EditText) findViewById(R.id.lastName);
         password = (EditText) findViewById(R.id.password);
@@ -510,7 +514,6 @@ public class LoginActivity extends AppCompatActivity {
                 hideLoading();
                 migrationFailedDialog();
             }
-
         }
     };
 
@@ -583,7 +586,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     private void goToMainActivity(boolean refresh) {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -591,6 +593,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(intent);
     }
+
     public void login(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Login with Email", TAG);
@@ -655,7 +658,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void goToLogin(View view) {
-        mPager.setCurrentItem(2);
+        mPager.setCurrentItem(SplashSlidePagerAdapter.PAGE_LOGIN);
         if(((Button)view).getText().equals("Sign Up")&&!signup){
             signUpSwitcher(view);
         }else if (((Button)view).getText().equals("Log In")&&signup){

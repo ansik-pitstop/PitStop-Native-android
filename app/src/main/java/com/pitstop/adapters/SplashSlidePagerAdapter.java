@@ -25,13 +25,16 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static final int NUM_PAGES = 3;
+//    private static final int NUM_PAGES = 3;
+    private static final int NUM_PAGES = 2;
+
+    public static final int PAGE_LOGIN = 1;
 
     ArrayList<Fragment> fragments = new ArrayList<>();
 
     public SplashSlidePagerAdapter(FragmentManager fm) {
         super(fm);
-        fragments.add(new SplashFragment1());
+//        fragments.add(new SplashFragment1());
         fragments.add(new SplashFragment2());
         fragments.add(new SplashFragment3());
     }
@@ -47,20 +50,22 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     }
 
 
-    public static class SplashFragment1 extends Fragment {
-        public SplashFragment1() {}
+//    public static class SplashFragment1 extends Fragment {
+//        public SplashFragment1() {}
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                                 Bundle savedInstanceState) {
+//            ViewGroup rootView = (ViewGroup) inflater.inflate(
+//                    R.layout.splash_1, container, false);
+//
+////            Picasso.with(getContext()).load(R.drawable.slider1).into((ImageView)rootView.findViewById(R.id.bg));
+//
+//            return rootView;
+//        }
+//    }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            ViewGroup rootView = (ViewGroup) inflater.inflate(
-                    R.layout.splash_1, container, false);
-
-//            Picasso.with(getContext()).load(R.drawable.slider1).into((ImageView)rootView.findViewById(R.id.bg));
-
-            return rootView;
-        }
-    }public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                           int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions

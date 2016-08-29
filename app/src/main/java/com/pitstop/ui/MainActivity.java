@@ -852,7 +852,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
-
     @Override
     public void onRequestPermissionsResult (int requestCode, String[] permissions,
                                             int[] grantResults) {
@@ -871,6 +870,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         }
     }
+
     /**
      * Request service for all issues currently displayed or custom request
      * */
@@ -945,9 +945,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         boolean hasSeenTutorial = preferences.getBoolean(pfTutorial,false);
-        //if(hasSeenTutorial) {
-        //    return;
-        //}
+        if(hasSeenTutorial) {
+            return;
+        }
 
         Log.i(TAG, "running present show case");
 
