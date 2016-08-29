@@ -28,19 +28,12 @@ public class WriteCommand {
     private UUID writeChar;
     private UUID readChar;
 
-    public WriteCommand(byte[] bytes, WRITE_TYPE type, Bluetooth215BComm.DeviceType deviceType) {
+    public WriteCommand(byte[] bytes, WRITE_TYPE type, UUID serviceUuid, UUID writeChar, UUID readChar) {
         this.bytes = bytes;
         this.type = type;
-
-        if(deviceType == Bluetooth215BComm.DeviceType.d212b) {
-            serviceUuid = Bluetooth215BComm.OBD_IDD_212_MAIN_SERVICE;
-            writeChar = Bluetooth215BComm.OBD_WRITE_CHAR_212;
-            readChar = Bluetooth215BComm.OBD_READ_CHAR_212;
-        } else if(deviceType == Bluetooth215BComm.DeviceType.d215b) {
-            serviceUuid = Bluetooth215BComm.OBD_IDD_215_MAIN_SERVICE;
-            writeChar = Bluetooth215BComm.OBD_WRITE_CHAR_215;
-            readChar = Bluetooth215BComm.OBD_READ_CHAR_215;
-        }
+        this.serviceUuid = serviceUuid;
+        this.writeChar = writeChar;
+        this.readChar = readChar;
     }
 
     public void execute(BluetoothGatt gatt) {

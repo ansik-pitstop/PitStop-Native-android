@@ -94,7 +94,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private DataPackageInfo lastData = null;
 
     private int counter = 1;
-    private int status5counter = 0;
 
     private NetworkHelper networkHelper;
 
@@ -432,10 +431,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //if(pidI!=pids.length&&dataPackageInfo.result!=5){
         //    sendForPIDS();
         //}
-        //because theres a lot of status 5, keep looking
-        if(dataPackageInfo.result==5){
-            status5counter++;
-        }
 
         if (callbacks != null) {
             Log.d(TAG, "calling service callbacks for getIOdata - auto-connect service");

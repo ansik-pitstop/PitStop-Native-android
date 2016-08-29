@@ -86,7 +86,7 @@ public class ObdManager {
     /**
      * @param type
      */
-    public String obdSetCtrl(int type) {
+    public static String obdSetCtrl(int type) {
         return OBD.setCtrl(type);
     }
 
@@ -95,7 +95,7 @@ public class ObdManager {
      * @param type
      * @param valueList
      */
-    public String obdSetMonitor(int type, String valueList) {
+    public static String obdSetMonitor(int type, String valueList) {
         return OBD.setMonitor(type, valueList);
     }
 
@@ -104,7 +104,7 @@ public class ObdManager {
      * @param tlvTagList
      * @param valueList
      */
-    public String obdSetParameter(String tlvTagList, String valueList) {
+    public static String obdSetParameter(String tlvTagList, String valueList) {
         return OBD.setParameter(tlvTagList, valueList);
     }
 
@@ -112,14 +112,14 @@ public class ObdManager {
     /**
      * @param tlvTag
      */
-    public String obdGetParameter(String tlvTag) {
+    public static String obdGetParameter(String tlvTag) {
         return OBD.getParameter(tlvTag);
     }
 
     /**
      * @param payload
      */
-    public byte[] getBytesToSend(String payload) {
+    public static byte[] getBytesToSend(String payload) {
         if (Utils.isEmpty(payload)) {
             return null;
         }
@@ -140,7 +140,7 @@ public class ObdManager {
     /**
      * @param payload
      */
-    public byte[] getBytesToSendPassive(String payload) {
+    public static byte[] getBytesToSendPassive(String payload) {
         if (Utils.isEmpty(payload)) {
             return null;
         }
