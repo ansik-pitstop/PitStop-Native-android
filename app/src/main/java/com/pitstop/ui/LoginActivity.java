@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
-    boolean signup = false;
+    boolean signup = true;
     boolean backPressed = false;
     boolean facebookSignup = false;
 

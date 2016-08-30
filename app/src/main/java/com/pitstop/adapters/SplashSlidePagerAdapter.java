@@ -26,7 +26,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
      * The number of pages (wizard steps) to show in this demo.
      */
 //    private static final int NUM_PAGES = 3;
-    private static final int NUM_PAGES = 2;
+    private static final int NUM_PAGES = 2; //We removed the first page of the splash screen - Aug 30th
 
     public static final int PAGE_LOGIN = 1;
 
@@ -48,8 +48,6 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return NUM_PAGES;
     }
-
-
 //    public static class SplashFragment1 extends Fragment {
 //        public SplashFragment1() {}
 //
@@ -102,6 +100,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
 
         return inSampleSize;
     }
+
     public static class SplashFragment2 extends Fragment {
         public SplashFragment2() {}
 
@@ -111,7 +110,6 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             ViewGroup rootView = (ViewGroup) inflater.inflate(
                     R.layout.splash_2, container, false);
 //            Picasso.with(getContext()).load(R.drawable.slider2).into((ImageView)rootView.findViewById(R.id.bg));
-
 
             return rootView;
         }
@@ -130,40 +128,6 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
                                  Bundle savedInstanceState) {
             ViewGroup rootView = (ViewGroup) inflater.inflate(
                     R.layout.splash_login, container, false);
-
-            //networkHelper = new NetworkHelper(getActivity().getApplicationContext());
-//
-            //facebookLoginButton = (LoginButton) rootView.findViewById(R.id.fb_login_butt);
-            //facebookLoginButton.setReadPermissions("email", "public_profile");
-            //facebookLoginButton.setFragment(this);
-            //facebookLoginButton.registerCallback(((LoginActivity) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
-            //    @Override
-            //    public void onSuccess(LoginResult loginResult) {
-            //        networkHelper.loginSocial(loginResult.getAccessToken().getToken(), "facebook", new RequestCallback() {
-            //            @Override
-            //            public void done(String response, RequestError requestError) {
-            //                Log.wtf("FACEBOOK RESPONSE", response);
-            //                if(requestError == null) {
-            //                    Intent intent = new Intent(getActivity(), MainActivity.class);
-            //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //                    intent.putExtra(LoginActivity.LOGIN_REFRESH, true);
-            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, LoginActivity.ACTIVITY_NAME);
-            //                    startActivity(intent);
-            //                }
-            //            }
-            //        });
-            //    }
-
-            //    @Override
-            //    public void onCancel() {
-            //        Log.wtf("FACEBOOK RESPONSE", "cancel");
-            //    }
-
-            //    @Override
-            //    public void onError(FacebookException error) {
-            //        Log.wtf("FACEBOOK RESPONSE", "error");
-            //    }
-            //});
 
             return rootView;
         }

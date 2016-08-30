@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
     private final static String pfTutorial = "com.pitstop.tutorial";
+    //TODO: preference - tutorial started with sales man
+    private final static String pfTutorialStart = "com.pitstop.tutorial.start";
 
     public static final String TAG = "MainActivity";
     public static final int LOC_PERM_REQ = 112;
@@ -945,9 +947,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         boolean hasSeenTutorial = preferences.getBoolean(pfTutorial,false);
-        if(hasSeenTutorial) {
-            return;
-        }
+        //TODO: coordinate with backend
+        boolean startTutorialWithDealership = preferences.getBoolean(pfTutorialStart, false);
+
+//        if(hasSeenTutorial) {
+//            return;
+//        }
 
         Log.i(TAG, "running present show case");
 
@@ -962,7 +967,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                preferences.edit().putBoolean(pfTutorial,true).apply();
+//            uncomment it when done testing
+//                preferences.edit().putBoolean(pfTutorial,true).apply();
             }
         });
 
@@ -1005,9 +1011,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final MaterialShowcaseView finalShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.request_service_btn))
                 .setTitleText("Request Service")
-                .setContentText("Let's schedule your first service appointment now.  " +
-                        "This is a tentative date and your dealership will follow up with you before it. " +
-                        "We'll also give you 280% off your first service!")
+//                .setContentText("Let's schedule your first service appointment now.  " +
+//                        "This is a tentative date and your dealership will follow up with you before it. " +
+//                        "We'll also give you 280% off your first service!")
+                .setContentText(R.string.first_service_booking_1)
                 .setDismissOnTouch(true)
                 .setDismissText("Get Started")
                 .withRectangleShape(true)
@@ -1025,6 +1032,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         sequence.addSequenceItem(finalShowcase);
 
+        //TODO see if this snippet should be moved
         sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {

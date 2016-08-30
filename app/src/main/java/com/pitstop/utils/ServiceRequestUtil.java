@@ -1,11 +1,15 @@
 package com.pitstop.utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.InputType;
@@ -26,6 +30,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import io.smooch.core.Smooch;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
 /**
  * Created by Ben Wu on 2016-08-24.
@@ -41,6 +48,11 @@ import io.smooch.core.Smooch;
 public class ServiceRequestUtil {
 
     private static final String TAG = ServiceRequestUtil.class.getSimpleName();
+    //Identical as that in MainActivity, considering if store in strings.xml rather than hard code
+    private final static String pfTutorial = "com.pitstop.tutorial";
+    //TODO: preference - tutorial started with sales man
+    private final static String pfTutorialStart = "com.pitstop.tutorial.start";
+
 
     private Context context;
     private Car dashboardCar;
@@ -70,7 +82,9 @@ public class ServiceRequestUtil {
      * Prompt user for service information
      */
     public void start() {
-        askForDate();
+        showTutorialSequence();
+//        askForDate();
+
 //        askForTime();
 //        summaryRequest();
     }
@@ -86,15 +100,17 @@ public class ServiceRequestUtil {
         final int currentMonth = calendar.get(Calendar.MONTH);
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        final int monthToShow = !isFirstBooking ? calendar.get(Calendar.MONTH)
-                : (calendar.get(Calendar.MONTH) + 3) % 12; // 3 months in future for first booking
+        final int monthToShow = !isFirstBooking ? currentMonth : (currentMonth + 3) % 12;
+
+        final int yearToShow = (!isFirstBooking && monthToShow < currentMonth) ? currentYear + 1 : currentYear;
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
         datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
-                datePicker.updateDate(currentYear, monthToShow, currentDay);
+//                datePicker.updateDate(currentYear, monthToShow, currentDay);
+                datePicker.updateDate(yearToShow, monthToShow, currentDay);
                 datePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -140,10 +156,9 @@ public class ServiceRequestUtil {
      * before this, time is by default set to current time
      */
     private void askForTime() {
-        final int maxHour = 17;
-        final int minHour = 8;
 
-        final LimitedTimePicker timePicker = new LimitedTimePicker();
+        final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
+                    0, false);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -151,14 +166,13 @@ public class ServiceRequestUtil {
                 timePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(timePicker.selectedHour < minHour || timePicker.selectedHour > maxHour
-                                || (timePicker.selectedHour == maxHour && timePicker.selectedMinute != 0)) {
-                            Toast.makeText(context, "Please choose a time between 8:00 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
+                        if(timePicker.selectedHour < LimitedTimePicker.MIN_HOUR || timePicker.selectedHour > LimitedTimePicker.MAX_HOUR
+                                || (timePicker.selectedHour == LimitedTimePicker.MAX_HOUR && timePicker.selectedMinute != 0)) {
+                            Toast.makeText(context, "Please choose a time between 9:00 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
                         } else {
                             calendar.set(Calendar.HOUR_OF_DAY, timePicker.selectedHour);
                             calendar.set(Calendar.MINUTE, timePicker.selectedMinute);
                             timePicker.dismiss();
-                            Log.d(TAG, calendar.getTime().toString() + " TIME HERE");
                             summaryRequest();
                         }
                     }
@@ -193,8 +207,17 @@ public class ServiceRequestUtil {
      * After user confirms, this request will be sent
      */
     private void summaryRequest(){
+
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean salesmanAside = preferences.getBoolean(pfTutorialStart, false);
+
         final AlertDialog.Builder summaryDialog = new AlertDialog.Builder(context);
         View view = (mLayoutInflater).inflate(R.layout.dialog_request_service_master, null);
+
+        if (salesmanAside) {
+            //Prompt the user for salesman's name
+            ((EditText)view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_2);
+        }
 
         final EditText commentEditText = (EditText) view.findViewById(R.id.dialog_service_request_additional_comments);
         TextView dateText = (TextView)view.findViewById(R.id.dialog_service_request_date_selection);
@@ -340,12 +363,76 @@ public class ServiceRequestUtil {
                 });
     }
 
+    private void showTutorialSequence(){
+
+        //TODO: see if tutorial has already been shown
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        boolean hasSeenTutorial = preferences.getBoolean(pfTutorial, false);
+
+        if (hasSeenTutorial) {
+            askForDate();
+            return;
+        }
+
+        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity)context);
+
+        //TODO: see if this part need to be logged in mixpanel
+
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
+                preferences.edit().putBoolean(pfTutorial, true).apply();
+            }
+        });
+
+        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+            @Override
+            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+                askForDate();
+            }
+        });
+
+        sequence.addSequenceItem(new MaterialShowcaseView.Builder((Activity) context)
+                .withoutShape()
+                .setContentText(R.string.first_service_booking_2)
+                .setDismissOnTouch(true)
+                .setMaskColour(ContextCompat.getColor(context, R.color.darkBlueTrans))
+                .build()
+        );
+
+        sequence.start();
+
+    }
+
+//    private class LimitedTimePicker extends TimePickerDialog {
+//        int selectedHour = 9;
+//        int selectedMinute = 0;
+//
+//        public LimitedTimePicker() {
+//            super(context, null, 8, 0, false);
+//        }
+//
+//        @Override
+//        public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+//            super.onTimeChanged(view, hourOfDay, minute);
+//
+//            selectedHour = hourOfDay;
+//            selectedMinute = minute;
+//        }
+//    }
+
     private class LimitedTimePicker extends TimePickerDialog {
-        int selectedHour = 8;
+
+        public static final int MAX_HOUR = 17;
+        public static final int MIN_HOUR = 9;
+
+        int selectedHour = 9;
         int selectedMinute = 0;
 
-        public LimitedTimePicker() {
-            super(context, null, 8, 0, false);
+        public LimitedTimePicker(Context context, OnTimeSetListener listener,
+                                 int hourOfDay, int minute, boolean is24HourView) {
+            super(context, listener, hourOfDay, minute, is24HourView);
         }
 
         @Override
@@ -377,8 +464,5 @@ public class ServiceRequestUtil {
             selectedYear = year;
         }
     }
-
-
-
 
 }
