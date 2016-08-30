@@ -97,15 +97,13 @@ public class Device212B implements AbstractDevice {
 
     @Override
     public String getDtcs() {
-        return OBD.setMonitor(TYPE_DTC, "") + OBD.setMonitor(TYPE_PENDING_DTC, "");
+        return OBD.setMonitor(TYPE_DTC, "");// + OBD.setMonitor(TYPE_PENDING_DTC, "");
     }
 
     // read data handler
 
     @Override
-    public void onCharacteristicChanged(BluetoothGattCharacteristic characteristic) {
-        final byte[] data = characteristic.getValue();
-
+    public void onCharacteristicChanged(byte[] data) {
         final String readData = Utils.bytesToHexString(data);
 
         Log.d(TAG, "Data Read: " + readData);
@@ -113,22 +111,16 @@ public class Device212B implements AbstractDevice {
         if(readData == null || readData.isEmpty()) {
             return;
         }
-
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                receiveDataAndParse(readData);
-            }
-        });
+        receiveDataAndParse(readData);
     }
 
     @Override
-    public void onCharacteristicRead(BluetoothGattCharacteristic characteristic, int status) {
+    public void onCharacteristicRead(byte[] data, int status) {
         if(status != BluetoothGatt.GATT_SUCCESS) {
             return;
         }
 
-        onCharacteristicChanged(characteristic);
+        onCharacteristicChanged(data);
     }
 
     // data parsers

@@ -112,9 +112,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="login"
+            android:text="Pids"
             android:textColor="#fff"
-            android:onClick="sendLoginInstruction"
+            android:onClick="getPids"
             android:background="@drawable/color_button_primary"/>
 
     </LinearLayout>

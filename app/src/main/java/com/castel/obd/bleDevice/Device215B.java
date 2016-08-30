@@ -108,9 +108,7 @@ public class Device215B implements AbstractDevice {
     // read data handler
 
     @Override
-    public void onCharacteristicChanged(BluetoothGattCharacteristic characteristic) {
-        final byte[] data = characteristic.getValue();
-
+    public void onCharacteristicChanged(byte[] data) {
         String readData = "";
 
         try {
@@ -136,12 +134,12 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void onCharacteristicRead(BluetoothGattCharacteristic characteristic, int status) {
+    public void onCharacteristicRead(byte[] data, int status) {
         if(status != BluetoothGatt.GATT_SUCCESS) {
             return;
         }
 
-        onCharacteristicChanged(characteristic);
+        onCharacteristicChanged(data);
     }
 
     private String qiSingle(String param) {

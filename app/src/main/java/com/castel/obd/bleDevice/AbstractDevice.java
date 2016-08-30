@@ -17,9 +17,9 @@ public interface AbstractDevice {
 
     byte[] getBytes(String payload);
 
-    void onCharacteristicRead(BluetoothGattCharacteristic characteristic, int status);
+    void onCharacteristicRead(byte[] data, int status);
 
-    void onCharacteristicChanged(BluetoothGattCharacteristic characteristic);
+    void onCharacteristicChanged(byte[] data);
 
     // parameters
     String getVin();

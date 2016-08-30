@@ -81,9 +81,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 12000;
-    //private BluetoothLeScanner mLEScanner;
-    //private ScanSettings settings;
-    //private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
     private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
@@ -111,8 +108,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
     private int btConnectionState = DISCONNECTED;
 
-    private DeviceType lastConnectedDevice;
-
     private AbstractDevice deviceInterface;
 
     public enum DeviceType {
@@ -129,15 +124,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        //mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        //settings = new ScanSettings.Builder()
-        //        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-        //        .build();
-//
-        //filters = new ArrayList<>();
-        //ParcelUuid serviceUuid = ParcelUuid.fromString(OBD_IDD_212_MAIN_SERVICE.toString());
-        //filters.add(new ScanFilter.Builder().setServiceUuid(serviceUuid).build());
 
         mObdManager = new ObdManager(context);
         //int initSuccess = mObdManager.initializeObd();
@@ -449,11 +435,9 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             if(device.getName() != null) {
                 Log.v(TAG, "Found device: "+device.getName());
                 if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-                    lastConnectedDevice = DeviceType.d212b;
                     deviceInterface = new Device212B(mContext, dataListener, Bluetooth215BComm.this);
                     connectToDevice(device);
                 } else if(device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-                    lastConnectedDevice = DeviceType.d215b;
                     deviceInterface = new Device215B(mContext, dataListener);
                     connectToDevice(device);
                 }
@@ -549,13 +533,28 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
-                                                 characteristic, int status) {
-            deviceInterface.onCharacteristicRead(characteristic, status);
+                                                 characteristic, final int status) {
+
+            final byte[] bytes = characteristic.getValue();
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    deviceInterface.onCharacteristicRead(bytes, status);
+                }
+            });
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            deviceInterface.onCharacteristicChanged(characteristic);
+            final byte[] bytes = characteristic.getValue();
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    deviceInterface.onCharacteristicChanged(bytes);
+                }
+            });
         }
 
         @Override
@@ -638,7 +637,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        deviceInterface.getSupportedPids();
+        writeToObd(deviceInterface.getSupportedPids());
     }
 
     // sets pids to check and sets data interval
@@ -648,9 +647,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        deviceInterface.setPidsToSend(pids);
-
-        String payload = null;
+        writeToObd(deviceInterface.setPidsToSend(pids));
     }
 
     @Override
@@ -659,6 +656,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        deviceInterface.getDtcs();
+        writeToObd(deviceInterface.getDtcs());
     }
 }

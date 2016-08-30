@@ -255,7 +255,8 @@ public abstract class BluetoothLeComm implements IBluetoothCommunicator, ObdMana
 
             Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
             if (btConnectionState == CONNECTED && mGatt != null) {
-                //queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
+                queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA, OBD_IDD_212_MAIN_SERVICE,
+                        OBD_WRITE_CHAR, OBD_READ_CHAR));
             }
         }
     }
@@ -526,7 +527,8 @@ public abstract class BluetoothLeComm implements IBluetoothCommunicator, ObdMana
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mObdManager.receiveDataAndParse(hexData);
+                            mObdManager.
+                                    receiveDataAndParse(hexData);
                         }
                     });
                 }

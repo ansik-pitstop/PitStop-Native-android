@@ -180,6 +180,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     }
 
+    public void getPids(View view) {
+        service.getPIDs();
+    }
 
     public void getDTC(View view) {
         if (service.getState() != IBluetoothCommunicator.CONNECTED) {
