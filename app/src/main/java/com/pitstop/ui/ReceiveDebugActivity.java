@@ -180,8 +180,13 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     }
 
+    public void getSupportedPids(View view) {
+        service.getSupportedPids();
+    }
+
     public void getPids(View view) {
-        service.getPIDs();
+        String values = ((EditText) findViewById(R.id.values)).getText().toString();
+        service.getPids(values);
     }
 
     public void getDTC(View view) {
@@ -198,7 +203,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         if (service.getState() != IBluetoothCommunicator.CONNECTED) {
             service.startBluetoothSearch();
         }else {
-            service.getPIDs();
+            service.getSupportedPids();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }

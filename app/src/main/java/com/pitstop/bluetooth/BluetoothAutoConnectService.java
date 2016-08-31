@@ -26,8 +26,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.Bluetooth215BComm;
-import com.castel.obd.bluetooth.BluetoothClassicComm;
-import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -36,7 +34,6 @@ import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
-import com.castel.obd215b.util.DataPackageUtil;
 import com.google.gson.Gson;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Car;
@@ -59,10 +56,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -439,7 +434,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(counter==50){
             if(!isGettingVin) {
-                getPIDs();
+                getSupportedPids();
             }
         }
         if(counter%500==0){
@@ -681,7 +676,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
 
-    public void getPIDs(){ // supported pids
+    public void getSupportedPids(){ // supported pids
         Log.i(TAG,"getting PIDs - auto-connect service");
         bluetoothCommunicator.getSupportedPids();
         gettingPID = true;
@@ -695,6 +690,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getPendingDTCs() {
         //Log.i(TAG, "Getting pending DTCs");
         //bluetoothCommunicator.getDtcs();
+    }
+
+    public void getPids(String pids) {
+        Log.i(TAG, "getting pids");
+        bluetoothCommunicator.getPids(pids);
     }
 
     public void clearDTCs() {

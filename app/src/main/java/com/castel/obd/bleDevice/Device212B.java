@@ -86,6 +86,11 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
+    public String getPids(String pids) {
+        return null; // 212 does not need to explicitly get pids
+    }
+
+    @Override
     public String getSupportedPids() {
         return OBD.getParameter(PID_TAG);
     }

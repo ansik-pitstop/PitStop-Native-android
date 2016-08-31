@@ -33,6 +33,7 @@ public interface IBluetoothCommunicator {
     void getVin();
     void getRtc();
     void setRtc(long rtcTime);
+    void getPids(String pids);
     void getSupportedPids();
     void setPidsToSend(String pids);
 

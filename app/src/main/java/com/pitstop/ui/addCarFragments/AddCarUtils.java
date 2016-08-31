@@ -354,7 +354,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 callback.showLoading("Loaded car VIN");
                 makeCar();
 
-            } else if(!needToSetTime || vinAttempts > 8){
+            } else if(vinAttempts > 8){ // // TODO: time set check for 215b
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+pendingCar.getVin());

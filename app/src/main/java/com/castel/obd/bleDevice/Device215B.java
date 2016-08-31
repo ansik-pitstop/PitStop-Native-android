@@ -91,6 +91,12 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
+    public String getPids(String pids) {
+        int count = pids.split(",").length;
+        return pidPackage("0", count, pids, "0");
+    }
+
+    @Override
     public String getSupportedPids() {
         return pidtPackage("0");
     }
@@ -117,20 +123,13 @@ public class Device215B implements AbstractDevice {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "Data Read: " + readData);
+        Log.d(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
         if(readData.isEmpty()) {
             return;
         }
 
-        final String dataToParse = readData;
-
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                parseReadData(dataToParse);
-            }
-        });
+        parseReadData(readData);
     }
 
     @Override
@@ -199,6 +198,27 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + Constants.INSTRUCTION_STAR;
 
+        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+
+        String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+
+        return msg;
+    }
+
+    private String pidPackage(String controlEventID, int pidNum,
+                                    String pids, String terminalSN) {
+        String crcData = "";
+        if (0 == pidNum) {
+            crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
+                    + Constants.INSTRUCTION_PID + "," + controlEventID + ","
+                    + Constants.INSTRUCTION_STAR;
+        } else {
+            crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
+                    + Constants.INSTRUCTION_PID + "," + controlEventID + ","
+                    + pidNum + "," + pids + "," + Constants.INSTRUCTION_STAR;
+        }
+
+        // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
         String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
@@ -345,35 +365,6 @@ public class Device215B implements AbstractDevice {
                 dataPackageInfo.deviceId = dtcInfo.terminalId;
                 dataPackageInfo.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
                 dataListener.getIOData(dataPackageInfo);
-            } else if (Constants.INSTRUCTION_OTA
-                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                //LogUtil.i("--????OTA????--:" + msgInfo);
-//
-                //// ???????
-                //mRecieveTerminate = System.currentTimeMillis();
-                //LogUtil.v("send next data2");
-                //broadcastUpdateContent(ACTION_PACKAGE_CONTENT,
-                //        "\n"+getResources().getString(R.string.report_data) + msgInfo+"\n"
-                //                + DateUtil.getSystemTime()+"\n");
-//
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_OTA);
-                //intent.putExtra(EXTRA_DATA,
-                //        DataParseUtil.parseOTA(msgInfo));
-                //intent.putExtra(EXTRA_DATA1, DataParseUtil.parseUpgradeType(msgInfo));
-//
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-
-            } else if (Constants.INSTRUCTION_TEST
-                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                //LogUtil.i("--??????--:" + msgInfo);
-                //broadcastContent(ACTION_HARDWARE_TEST,
-                //        HARDWARE_TEST_DATA, "\n"+getResources().getString(R.string.report_data) + msgInfo);
-            }
-
-            if (!Constants.INSTRUCTION_TEST.equals(DataParseUtil
-                    .parseMsgType(msgInfo))) {
             }
         }
     }

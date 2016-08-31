@@ -48,6 +48,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -260,7 +261,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
             bytes = deviceInterface.getBytes(data);
 
-            if (bytes == null) {
+            if (bytes == null || bytes.length == 0) {
                 return;
             }
 
@@ -629,6 +630,15 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         }
 
         writeToObd(deviceInterface.setRtc(rtcTime));
+    }
+
+    @Override
+    public void getPids(String pids) {
+        if(btConnectionState != CONNECTED) {
+            return;
+        }
+
+        writeToObd(deviceInterface.getPids(pids));
     }
 
     @Override

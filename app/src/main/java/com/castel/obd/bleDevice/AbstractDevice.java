@@ -25,6 +25,7 @@ public interface AbstractDevice {
     String getVin();
     String getRtc();
     String setRtc(long rtcTime);
+    String getPids(String pids);
     String getSupportedPids();
     String setPidsToSend(String pids);
 
