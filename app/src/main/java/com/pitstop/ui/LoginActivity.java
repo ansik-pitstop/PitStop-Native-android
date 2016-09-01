@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_login);
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Toast.makeText(this, "This is a debug build - " + BuildConfig.ENDPOINT_TYPE, Toast.LENGTH_LONG).show();
         }
 
@@ -130,7 +130,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 setUpUIReferences();
 //                if(position == 2){
-                if(position == SplashSlidePagerAdapter.PAGE_LOGIN){
+                if (position == SplashSlidePagerAdapter.PAGE_LOGIN) {
                     findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
                     try {
                         mixpanelHelper.trackViewAppeared("Login");
@@ -139,17 +139,19 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
-                    if(facebookLoginButton != null) {
+                    if (facebookLoginButton != null) {
                         facebookLoginButton.setReadPermissions("public_profile", "email");
                         facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                             @Override
                             public void onSuccess(LoginResult loginResult) {
                                 loginSocial(loginResult.getAccessToken().getToken(), "facebook");
                             }
+
                             @Override
                             public void onCancel() {
                                 Log.d("Facebook", "cancel");
                             }
+
                             @Override
                             public void onError(FacebookException error) {
                                 Log.d("Facebook", "error" + error.getMessage());
@@ -172,22 +174,22 @@ public class LoginActivity extends AppCompatActivity {
 
                                 handled = true;
                                 View view = getCurrentFocus();
-                                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
                             }
                             return handled;
                         }
                     });
-                }else{
+                } else {
                     findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
                     radioLayout.setVisibility(View.VISIBLE);
 //                    skipButton.setVisibility(View.VISIBLE);
 
 //                    for(int i = 0; i<3; i++){
-                    for(int i = 0; i<2; i++){
-                        ((RadioButton)radioLayout.getChildAt(i)).setChecked(false);
+                    for (int i = 0; i < 2; i++) {
+                        ((RadioButton) radioLayout.getChildAt(i)).setChecked(false);
                     }
-                    ((RadioButton)radioLayout.getChildAt(position)).setChecked(true);
+                    ((RadioButton) radioLayout.getChildAt(position)).setChecked(true);
                 }
 
             }
@@ -208,13 +210,13 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         ParseUser currentUser = ParseUser.getCurrentUser();
-        if(currentUser != null) {
+        if (currentUser != null) {
             showLoading("Logging in");
             loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
         } else if (!application.isLoggedIn()
                 || application.getAccessToken() == null || application.getRefreshToken() == null) {
             Log.i(TAG, "Not logged in");
-        } else if(AccessToken.getCurrentAccessToken() != null) {
+        } else if (AccessToken.getCurrentAccessToken() != null) {
             startMainActivity(false);
         } else {
             showLoading("Logging in...");
@@ -238,12 +240,12 @@ public class LoginActivity extends AppCompatActivity {
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
         } else {
-            if(facebookSignup) {
+            if (facebookSignup) {
                 application.logOutUser();
             }
             // Otherwise, select the previous step.
 //            if(signup && mPager.getCurrentItem() == 2 && firstName.getVisibility() == View.VISIBLE) {
-            if(signup && mPager.getCurrentItem() == SplashSlidePagerAdapter.PAGE_LOGIN && firstName.getVisibility() == View.VISIBLE) {
+            if (signup && mPager.getCurrentItem() == SplashSlidePagerAdapter.PAGE_LOGIN && firstName.getVisibility() == View.VISIBLE) {
                 firstName.setVisibility(View.GONE);
                 lastName.setVisibility(View.GONE);
                 phoneNumber.setVisibility(View.GONE);
@@ -252,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.sign_log_switcher_button).setVisibility(View.VISIBLE);
 //                findViewById(R.id.login_or).setVisibility(View.GONE);
                 findViewById(R.id.fb_login_butt).setVisibility(View.VISIBLE);
-                ((Button)findViewById(R.id.login_btn)).setText("SIGN UP");
+                ((Button) findViewById(R.id.login_btn)).setText("SIGN UP");
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
@@ -296,20 +298,20 @@ public class LoginActivity extends AppCompatActivity {
             firstName.setVisibility(View.GONE);
             lastName.setVisibility(View.GONE);
             phoneNumber.setVisibility(View.GONE);
-            ((Button)findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
-            ((Button)findViewById(R.id.login_btn)).setText("Log In");
-            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
+            ((Button) findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
+            ((Button) findViewById(R.id.login_btn)).setText("Log In");
+            ((Button) findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
             signup = !signup;
-        }else{
+        } else {
             try {
                 mixpanelHelper.trackButtonTapped("Register", TAG);
                 mixpanelHelper.trackViewAppeared("Register");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            ((Button)findViewById(R.id.fb_login_butt)).setText("Sign up with facebook");
-            ((Button)findViewById(R.id.login_btn)).setText("Sign Up");
-            ((Button)findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
+            ((Button) findViewById(R.id.fb_login_butt)).setText("Sign up with facebook");
+            ((Button) findViewById(R.id.login_btn)).setText("Sign Up");
+            ((Button) findViewById(R.id.sign_log_switcher_button)).setText("LOG IN");
             signup = !signup;
         }
     }
@@ -320,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(facebookLoginButton != null) {
+        if (facebookLoginButton != null) {
             facebookLoginButton.performClick();
         }
     }
@@ -334,38 +336,38 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            if(!NetworkHelper.isConnected(this)) {
+            if (!NetworkHelper.isConnected(this)) {
                 Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
                 return;
             }
-            if((!email.getText().toString().equals(""))
-                    &&(!password.getText().toString().equals(""))
-                    &&firstName.getVisibility()!= View.VISIBLE){
+            if ((!email.getText().toString().equals(""))
+                    && (!password.getText().toString().equals(""))
+                    && firstName.getVisibility() != View.VISIBLE) {
                 finalizeProfile();
                 return;
-            }else if(firstName.getVisibility()!= View.VISIBLE && !facebookSignup){
-                Snackbar.make(splashLayout, "Email or Password Field are not filled",Snackbar.LENGTH_SHORT).show();
+            } else if (firstName.getVisibility() != View.VISIBLE && !facebookSignup) {
+                Snackbar.make(splashLayout, "Email or Password Field are not filled", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
             showLoading("Loading");
-            if(Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
+            if (Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
                 Toast.makeText(LoginActivity.this, "First and last name are required", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
-            if(password.getText().toString().length()<6 && !facebookSignup){
+            if (password.getText().toString().length() < 6 && !facebookSignup) {
                 Toast.makeText(LoginActivity.this, "Password length must be greater than 6", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
-            if(phoneNumber.getText().toString().length()!=10 && phoneNumber.getText().toString().length()!=11){
+            if (phoneNumber.getText().toString().length() != 10 && phoneNumber.getText().toString().length() != 11) {
                 Toast.makeText(LoginActivity.this, "Invalid phone number", Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
             }
             // creating json to post
-            if(!facebookSignup) {
+            if (!facebookSignup) {
                 JSONObject json = new JSONObject();
                 try {
                     json.put("firstName", firstName.getText().toString());
@@ -384,7 +386,7 @@ public class LoginActivity extends AppCompatActivity {
                 networkHelper.signUpAsync(json, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
+                        if (requestError == null) {
                             login(email.getText().toString(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
@@ -403,7 +405,7 @@ public class LoginActivity extends AppCompatActivity {
                         new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if(requestError == null) {
+                                if (requestError == null) {
                                     application.setCurrentUser(user);
                                     application.setUpMixPanel();
                                     goToMainActivity(true);
@@ -413,7 +415,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
             }
-        }else{
+        } else {
             try {
                 mixpanelHelper.trackButtonTapped("Login with Email", TAG);
 
@@ -423,7 +425,7 @@ public class LoginActivity extends AppCompatActivity {
                     e2.printStackTrace();
                 }
 
-                if(!NetworkHelper.isConnected(this)) {
+                if (!NetworkHelper.isConnected(this)) {
                     Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
                             .setAction("Retry", new View.OnClickListener() {
                                 @Override
@@ -447,7 +449,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void finalizeProfile() {
-        mPager.setOnTouchListener(new View.OnTouchListener(){
+        mPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 return false;
@@ -460,7 +462,7 @@ public class LoginActivity extends AppCompatActivity {
         password.setVisibility(View.GONE);
         findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
         findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
-        ((Button)findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+        ((Button) findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
     }
 
     private void loginSocial(final String fbAccessToken, final String provider) {
@@ -478,7 +480,7 @@ public class LoginActivity extends AppCompatActivity {
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
                         application.logInUser(accessToken, refreshToken, user);
-                        if(user.getPhone() == null || user.getPhone().equals("null")) {
+                        if (user.getPhone() == null || user.getPhone().equals("null")) {
                             signup = true;
                             hideLoading();
                             finalizeProfile();
@@ -508,7 +510,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean success = intent.getBooleanExtra(MigrationService.USER_MIGRATION_SUCCESS, false);
             Log.d(TAG, "migration result received: " + success);
             unregisterReceiver(this);
-            if(success) {
+            if (success) {
                 startMainActivity(true);
             } else {
                 hideLoading();
@@ -523,7 +525,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
-                if(requestError == null) { // start migration
+                if (requestError == null) { // start migration
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         User user = User.jsonToUserObject(response);
@@ -532,8 +534,8 @@ public class LoginActivity extends AppCompatActivity {
 
                         application.setCurrentUser(user);
 
-                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
-                            && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
+                        if (jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                                && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
                             startMainActivity(true);
                         } else {
@@ -545,7 +547,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     application.setUpMixPanel();
                     goToMainActivity(true);
-                } else if(requestError.getMessage().contains("is already used") && application.getAccessToken() != null
+                } else if (requestError.getMessage().contains("is already used") && application.getAccessToken() != null
                         && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
                     migrationFailedDialog();
                 }
@@ -558,7 +560,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
-                if(requestError == null) {
+                if (requestError == null) {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
 
@@ -566,7 +568,7 @@ public class LoginActivity extends AppCompatActivity {
                         String accessToken = jsonObject.getString("accessToken");
                         String refreshToken = jsonObject.getString("refreshToken");
 
-                        if(jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
+                        if (jsonObject.has("user") && jsonObject.getJSONObject("user").has("migration")
                                 && jsonObject.getJSONObject("user").getJSONObject("migration").getBoolean("isMigrationDone")) {
                             application.logInUser(accessToken, refreshToken, user);
                             startMainActivity(true);
@@ -577,6 +579,7 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     application.setUpMixPanel();
+
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
@@ -601,7 +604,7 @@ public class LoginActivity extends AppCompatActivity {
             e2.printStackTrace();
         }
 
-        if(!NetworkHelper.isConnected(this)) {
+        if (!NetworkHelper.isConnected(this)) {
             Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
             return;
         }
@@ -659,25 +662,25 @@ public class LoginActivity extends AppCompatActivity {
 
     public void goToLogin(View view) {
         mPager.setCurrentItem(SplashSlidePagerAdapter.PAGE_LOGIN);
-        if(((Button)view).getText().equals("Sign Up")&&!signup){
+        if (((Button) view).getText().equals("Sign Up") && !signup) {
             signUpSwitcher(view);
-        }else if (((Button)view).getText().equals("Log In")&&signup){
+        } else if (((Button) view).getText().equals("Log In") && signup) {
             signUpSwitcher(view);
         }
     }
 
-    private void showLoading(String text){
+    private void showLoading(String text) {
         Log.i(TAG, "Show loading: " + text);
-        if(isFinishing())
+        if (isFinishing())
             return;
 
         progressDialog.setMessage(text);
-        if(!progressDialog.isShowing()) {
+        if (!progressDialog.isShowing()) {
             progressDialog.show();
         }
     }
 
-    private void hideLoading(){
+    private void hideLoading() {
         Log.i(MainActivity.TAG, "hiding loading");
         progressDialog.dismiss();
     }
@@ -732,9 +735,9 @@ public class LoginActivity extends AppCompatActivity {
                 networkHelper.resetPassword(email, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
+                        if (requestError == null) {
                             Toast.makeText(LoginActivity.this, String.format("An email has been sent to %s with further instructions. ", email) +
-                                    "It may take up to a few minutes to arrive.",
+                                            "It may take up to a few minutes to arrive.",
                                     Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();

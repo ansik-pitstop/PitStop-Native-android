@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--public final static String pfName = "com.pitstop.credentials";-->
+    <string name="pFName">com.pitstop.credentials</string>
+
+    <string name="pfLoginName">com.pitstop.login.name</string>
+    <string name="pfCodeForObjectID">com.pitstop.login.objectID</string>
+    <string name="pfCurrentCar">ccom.pitstop.currentcar</string>
+    <string name="pfShopName">com.pitstop.shop.name</string>
+    <string name="pfCodeForShopObjectID">com.pitstop.shop.objectID</string>
+
+
+
+    <!--A boolean value to determine if the use has seen the tutorial -->
+    <string name="pfTutorialShown">com.pitstop.tutorial</string>
+    <!--A boolean value to determine if the fsb discount is available to this user given this dealership-->
+    <string name="pfFirstBookingDiscountAvailability">com.pitstop.tutorial.discount.availability</string>
+    <!--An int value of the fsb discount amount-->
+    <string name="pfFirstBookingDiscountAmount">com.pitstop.tutorial.discount.amount</string>
+    <!--A string value of the fsb discount unit-->
+    <string name="pfFirstBookingDiscountUnit">com.pitstop.tutorial.discount.unit</string>
+
+</resources>

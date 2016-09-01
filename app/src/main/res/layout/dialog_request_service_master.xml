@@ -14,16 +14,16 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Date"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"/>
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="Date"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/dialog_service_request_date_selection"
@@ -51,9 +51,6 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Time"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -61,7 +58,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"/>
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="Time"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/dialog_service_request_time_selection"
@@ -97,8 +97,47 @@
             <EditText
                 android:id="@+id/dialog_service_request_additional_comments"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:hint="@string/service_request_dialog_additional_comments_hint"/>
+                android:layout_height="wrap_content"
+                android:hint="@string/service_request_dialog_additional_comments_hint_1"/>
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/dialog_service_request_salesman_info"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="vertical"-->
+                <!--android:visibility="gone">-->
+
+                <!--<TextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginTop="@dimen/activity_vertical_margin_small"-->
+                    <!--android:text="@string/service_request_dialog_additional_comments_hint_2"-->
+                    <!--android:textStyle="bold"/>-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content">-->
+
+                    <!--<EditText-->
+                        <!--android:id="@+id/dialog_service_request_salesman_first_name"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_marginEnd="@dimen/activity_horizontal_margin"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:hint="First name"/>-->
+
+                    <!--<EditText-->
+                        <!--android:id="@+id/dialog_service_request_salesman_last_name"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:hint="Last name"/>-->
+
+                <!--</LinearLayout>-->
+
+
+            <!--</LinearLayout>-->
+
 
         </RelativeLayout>
 

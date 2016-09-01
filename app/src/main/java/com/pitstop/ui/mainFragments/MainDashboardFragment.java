@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,8 +70,6 @@ import java.util.concurrent.TimeUnit;
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
         MainActivity.MainDashboardCallback {
 
-
-
     public final static String pfName = "com.pitstop.login.name";
     private final static String pfTutorial = "com.pitstop.tutorial";
     public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
@@ -96,7 +95,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private TextView carName, dealershipName;
     private RelativeLayout carScan;
-
+    private Button requestServiceButton;
 
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -157,7 +156,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * Monitor app connection to device, so that ui can be updated
      * appropriately.
      * */
-
 
     public Runnable carConnectedRunnable = new Runnable() {
         @Override
@@ -274,7 +272,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
-
     @Override
     public void onPause() {
         handler.removeCallbacks(carConnectedRunnable);
@@ -316,9 +313,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         return rootview;
     }
 
-
-
-
     /**
      * UI update methods
      */
@@ -332,7 +326,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         carIssueListView.setAdapter(carIssuesAdapter);
 
         setSwipeDeleteListener(carIssueListView);
-
 
         carName = (TextView) rootview.findViewById(R.id.car_name);
         serviceCountText = (TextView) rootview.findViewById(R.id.service_count_text);
@@ -400,6 +393,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         });
 
         connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
+
+        //Request Service Button
+        requestServiceButton = (Button) rootview.findViewById(R.id.request_service_btn);
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
@@ -522,14 +518,10 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         recyclerView.addOnItemTouchListener(swipeTouchListener);
     }
 
-
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-
-
 
     public void onServerRefreshed() {
         if(getActivity() != null) {
@@ -542,7 +534,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             carIssueList = ((MainActivity) getActivity()).getCarIssueList();
         }
     }
-
 
     /**
      * Update ui with current car info
@@ -617,7 +608,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
 
     }
-
 
     @Override
     public void getBluetoothState(int state) {
@@ -825,7 +815,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     }
 
-
     @Override
     public void activityResultCallback(int requestCode, int resultCode, Intent data) {
         boolean shouldRefreshFromServer = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER,false);
@@ -841,4 +830,5 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
 
     }
+
 }

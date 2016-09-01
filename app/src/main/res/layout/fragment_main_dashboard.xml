@@ -449,7 +449,7 @@
         android:id="@+id/request_service_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Request Service"
+        android:text="@string/service_request_button"
         android:onClick="requestMultiService"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"

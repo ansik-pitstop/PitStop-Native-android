@@ -127,6 +127,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void onBackPressed() {
         try {
@@ -509,6 +510,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         List<Car> selectedCar = new ArrayList<>();
+
         private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());

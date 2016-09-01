@@ -12,6 +12,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
 import com.pitstop.application.GlobalApplication;
 
@@ -209,6 +210,7 @@ public class NetworkHelper {
 
         post("login/social", callback, credentials);
     }
+
     public void loginAsync(String userName, String password, RequestCallback callback) {
         LOGI(TAG, "login");
         JSONObject credentials = new JSONObject();
@@ -409,8 +411,38 @@ public class NetworkHelper {
         }
 
         post("utility/serviceRequest", callback, body);
-
     }
+
+    /**
+     * Called when sending request for service via "send request" button, etc.
+     * @param userId
+     * @param carId
+     * @param shopId
+     * @param state for now valid values are ["tentative","requested"]
+     * @param appointmentTimestamp e.g. 2016-08-31T20:43:25+00:00
+     * @param callback
+     */
+    public void requestService(int userId, int carId, int shopId, String state, String appointmentTimestamp,
+                                    String comments, RequestCallback callback){
+        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
+
+        JSONObject body = new JSONObject();
+        JSONObject options = new JSONObject();
+        try {
+            body.put("userId", userId);
+            body.put("carId", carId);
+            body.put("shopId", shopId);
+            body.put("comments", comments);
+            options.put("state", state);
+            options.put("appointmentDate", appointmentTimestamp);
+            body.put("options", options);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("utility/serviceRequest", callback, body);
+    }
+
 
     public void getUser(int userId, RequestCallback callback) {
         LOGI(TAG, "getUser: " + userId);
@@ -473,6 +505,27 @@ public class NetworkHelper {
         put("user/" + userId + "/settings", callback, body);
     }
 
+    //In master dev
+//    public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
+//        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
+//
+//        getUser(userId, new RequestCallback() {
+//        // need to add option instead of replace
+//            @Override
+//            public void done(String response, RequestError requestError) {
+//                if(requestError == null) {
+//                    try {
+//                        JSONObject options = new JSONObject(response).getJSONObject("settings");
+//                        options.put("settings", new JSONObject().put("mainCar", carId));
+//                        put("user/" + userId + "/settings", callback, options);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//    }
+
     public void getLatestTrip(String scannerId, RequestCallback callback) {
         LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
 
@@ -493,4 +546,32 @@ public class NetworkHelper {
 
         putNoAuth("scan/trip", callback, body);
     }
+
+    public void getUserSettingsById(int userId, RequestCallback callback){
+        //GET /settings?userId=
+        LOGI(TAG, "getUserSettingsById: " + userId);
+        get("settings/?userId=" + userId, callback);
+    }
+
+    public void updateTutorialShown(int userId, RequestCallback callback){
+        LOGI(TAG, "setUserSettingsById: " + userId + " Tutorial Shown");
+
+        JSONObject body = new JSONObject();
+        JSONObject user = new JSONObject();
+
+        try{
+            user.put("hasSeenTutorial", true);
+            body.put("user", user);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        //PUT /user/{userId}/settings
+        put("user/" + userId + "/settings", callback, body);
+    }
+
+
+
+
+
 }

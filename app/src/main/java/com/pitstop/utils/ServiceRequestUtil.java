@@ -3,21 +3,16 @@ package com.pitstop.utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.text.Editable;
 import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,7 +25,6 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,11 +42,12 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 public class ServiceRequestUtil {
 
     private static final String TAG = ServiceRequestUtil.class.getSimpleName();
-    //Identical as that in MainActivity, considering if store in strings.xml rather than hard code
-    private final static String pfTutorial = "com.pitstop.tutorial";
-    //TODO: preference - tutorial started with sales man
-    private final static String pfTutorialStart = "com.pitstop.tutorial.start";
 
+    private static final String STATE_TENTATIVE = "tentative";
+    private static final String STATE_REQUESTED = "requested";
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
 
     private Context context;
     private Car dashboardCar;
@@ -63,10 +58,13 @@ public class ServiceRequestUtil {
     private final boolean isFirstBooking;
 
     private Calendar calendar;
-    private String dateTime;
+    private String timestamp;
     private String comments;
 
     private final LayoutInflater mLayoutInflater;
+    private TextView dateText, timeText;
+
+    private final GlobalApplication mApplication;
 
     public ServiceRequestUtil(Context context, Car dashboardCar, boolean isFirstBooking) {
         this.context = context;
@@ -76,24 +74,24 @@ public class ServiceRequestUtil {
         mixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         networkHelper = new NetworkHelper(context.getApplicationContext());
         mLayoutInflater = LayoutInflater.from(context);
+
+        mApplication = (GlobalApplication)context.getApplicationContext();
     }
 
     /**
      * Prompt user for service information
      */
     public void start() {
-        showTutorialSequence();
-//        askForDate();
-
-//        askForTime();
-//        summaryRequest();
+        askForDate(false);
     }
 
     /**
      * Ask for service Date
      * Update the calendar variable with selected date
+     *
+     * @param modify prompt the user for service time if false, otherwise skip asking for time
      */
-    private void askForDate() {
+    private void askForDate(final boolean modify) {
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         final int currentYear = calendar.get(Calendar.YEAR);
@@ -101,7 +99,6 @@ public class ServiceRequestUtil {
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         final int monthToShow = !isFirstBooking ? currentMonth : (currentMonth + 3) % 12;
-
         final int yearToShow = (!isFirstBooking && monthToShow < currentMonth) ? currentYear + 1 : currentYear;
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
@@ -109,27 +106,29 @@ public class ServiceRequestUtil {
         datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
-//                datePicker.updateDate(currentYear, monthToShow, currentDay);
                 datePicker.updateDate(yearToShow, monthToShow, currentDay);
                 datePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(datePicker.selectedYear < currentYear || (datePicker.selectedYear == currentYear
+                        if (datePicker.selectedYear < currentYear || (datePicker.selectedYear == currentYear
                                 && (datePicker.selectedMonth < currentMonth
                                 || (datePicker.selectedMonth == currentMonth && datePicker.selectedDay < currentDay)))) {
                             Toast.makeText(context, "Please choose a date in the future", Toast.LENGTH_SHORT).show();
                         } else {
                             dialog.dismiss();
                             calendar.set(datePicker.selectedYear, datePicker.selectedMonth, datePicker.selectedDay);
-                            askForTime();
-//                            askForTime(datePicker.selectedDay, datePicker.selectedMonth, datePicker.selectedYear);
+                            if (modify) {
+                                updateDateSelectionView();
+                            } else {
+                                askForTime(modify);
+                            }
                         }
                     }
                 });
             }
         });
 
-        if(isFirstBooking) {
+        if (isFirstBooking) {
             datePicker.setCancelable(false);
             datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
         }
@@ -155,10 +154,9 @@ public class ServiceRequestUtil {
      * Update the calendar variable with selected time,
      * before this, time is by default set to current time
      */
-    private void askForTime() {
-
+    private void askForTime(final boolean modify) {
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
-                    0, false);
+                0, true);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -166,14 +164,18 @@ public class ServiceRequestUtil {
                 timePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(timePicker.selectedHour < LimitedTimePicker.MIN_HOUR || timePicker.selectedHour > LimitedTimePicker.MAX_HOUR
+                        if (timePicker.selectedHour < LimitedTimePicker.MIN_HOUR || timePicker.selectedHour > LimitedTimePicker.MAX_HOUR
                                 || (timePicker.selectedHour == LimitedTimePicker.MAX_HOUR && timePicker.selectedMinute != 0)) {
                             Toast.makeText(context, "Please choose a time between 9:00 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
                         } else {
                             calendar.set(Calendar.HOUR_OF_DAY, timePicker.selectedHour);
                             calendar.set(Calendar.MINUTE, timePicker.selectedMinute);
                             timePicker.dismiss();
-                            summaryRequest();
+                            if (modify) {
+                                updateTimeSelectionView();
+                            } else {
+                                summaryRequest();
+                            }
                         }
                     }
                 });
@@ -191,7 +193,7 @@ public class ServiceRequestUtil {
             }
         });
 
-        if(isFirstBooking) {
+        if (isFirstBooking) {
             timePicker.setCancelable(false);
             timePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
         }
@@ -206,38 +208,31 @@ public class ServiceRequestUtil {
      * Also summary the request (date, time, comments) making it intuitive
      * After user confirms, this request will be sent
      */
-    private void summaryRequest(){
+    private void summaryRequest() {
 
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean salesmanAside = preferences.getBoolean(pfTutorialStart, false);
+        final AlertDialog.Builder summaryDialogBuilder = new AlertDialog.Builder(context);
+        final View view = (mLayoutInflater).inflate(R.layout.dialog_request_service_master, null);
 
-        final AlertDialog.Builder summaryDialog = new AlertDialog.Builder(context);
-        View view = (mLayoutInflater).inflate(R.layout.dialog_request_service_master, null);
-
-        if (salesmanAside) {
+        if (isFirstBooking) {
             //Prompt the user for salesman's name
-            ((EditText)view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_2);
+            ((EditText) view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_2);
+        } else {
+            ((EditText) view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_1);
         }
 
         final EditText commentEditText = (EditText) view.findViewById(R.id.dialog_service_request_additional_comments);
-        TextView dateText = (TextView)view.findViewById(R.id.dialog_service_request_date_selection);
-        TextView timeText = (TextView)view.findViewById(R.id.dialog_service_request_time_selection);
+        dateText = (TextView) view.findViewById(R.id.dialog_service_request_date_selection);
+        timeText = (TextView) view.findViewById(R.id.dialog_service_request_time_selection);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd");
-        SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
-
-        String date = dateFormat.format(calendar.getTime());
-        String time = timeFormat.format(calendar.getTime());
-
-        dateText.setText(date);
-        timeText.setText(time);
+        updateDateSelectionView();
+        updateTimeSelectionView();
 
         //Provide means to modify the date
         view.findViewById(R.id.dialog_service_request_date_card)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        askForDate();
+                        askForDate(true);
                     }
                 });
 
@@ -246,12 +241,12 @@ public class ServiceRequestUtil {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        askForTime();
+                        askForTime(true);
                     }
                 });
 
         //Create the summary dialog
-        summaryDialog.setView(view)
+        summaryDialogBuilder.setView(view)
                 .setCustomTitle(mLayoutInflater.inflate(R.layout.service_request_dialog_summary_title, null))
                 .setPositiveButton("SEND", new DialogInterface.OnClickListener() {
                     @Override
@@ -264,15 +259,22 @@ public class ServiceRequestUtil {
                             e.printStackTrace();
                         }
                         comments = commentEditText.getText().toString();
-                        dateTime = calendar.getTime().toString();
-                        sendRequest(comments, dateTime);
+
+                        //format the timestamp before sending the network request because the server use ISO8601 format
+                        timestamp = TimestampFormatUtil.format(calendar, TimestampFormatUtil.ISO8601);
+                        if (isFirstBooking) {
+                            sendRequestWithState(STATE_TENTATIVE, timestamp, comments);
+                        } else {
+                            sendRequestWithState(STATE_REQUESTED, timestamp, comments);
+                        }
                     }
                 });
-        if (isFirstBooking){
-            summaryDialog.setCancelable(false)
+
+        if (isFirstBooking) {
+            summaryDialogBuilder.setCancelable(false)
                     .setNegativeButton("", null);
-        } else{
-            summaryDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+        } else {
+            summaryDialogBuilder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
@@ -285,9 +287,106 @@ public class ServiceRequestUtil {
                 }
             });
         }
-        summaryDialog.create().show();
 
+        summaryDialogBuilder.create().show();
     }
+
+    /**
+     * Update the textview in summary dialog with date selection
+     */
+    private void updateDateSelectionView() {
+        if (dateText != null) {
+            dateText.setText(dateFormat.format(calendar.getTime()));
+        }
+    }
+
+    /**
+     * Update the textview in summary dialog with time selection
+     */
+    private void updateTimeSelectionView() {
+        if (timeText != null) {
+            timeText.setText(timeFormat.format(calendar.getTime()));
+        }
+    }
+
+    /**
+     * Based on the given date time value and user comment,
+     * sends network request to request service
+     * @param additionalComment
+     * @param date
+     */
+    private void sendRequest(String additionalComment, String date) {
+        networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
+                additionalComment, date, isFirstBooking, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError == null) {
+                            Toast.makeText(context, "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
+                            for (CarIssue issue : dashboardCar.getActiveIssues()) {
+                                if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
+                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                                }
+                            }
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(context, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void sendRequestWithState(String state, String timestamp, String comments) {
+        networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(),
+                dashboardCar.getShopId(), state, timestamp, comments, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError == null) {
+                            Toast.makeText(context, "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
+                            for (CarIssue issue : dashboardCar.getActiveIssues()) {
+                                if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
+                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                                }
+                            }
+                        } else {
+                            Log.e(TAG, "service request: " + requestError.getMessage());
+                            Toast.makeText(context, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+//    private void showTutorialSequence() {
+//        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mApplication);
+//        final String prefTutorialShown = context.getResources().getString(R.string.pfTutorialShown);
+//        final boolean hasSeenTutorial = preferences.getBoolean(prefTutorialShown, false);
+//
+//        if (hasSeenTutorial) {
+//            askForDate(false);
+//            return;
+//        }
+//
+//        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity) context);
+//
+//        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+//            @Override
+//            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+//                preferences.edit().putBoolean(prefTutorialShown, true).apply();
+//                askForDate(false);
+//            }
+//        });
+//
+//        sequence.addSequenceItem(new MaterialShowcaseView.Builder((Activity) context)
+//                .withoutShape()
+//                .setContentText(R.string.first_service_booking_2)
+//                .setDismissOnTouch(true)
+//                .setMaskColour(ContextCompat.getColor(context, R.color.darkBlueTrans))
+//                .build()
+//        );
+//
+//        sequence.start();
+//    }
 
     /**
      * Left unused after refactoring
@@ -317,7 +416,7 @@ public class ServiceRequestUtil {
             }
         });
 
-        if(!isFirstBooking) {
+        if (!isFirstBooking) {
             alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -335,92 +434,6 @@ public class ServiceRequestUtil {
 
         alertDialog.show();
     }
-
-    /**
-     * Based on the given date time value and user comment,
-     * sends network request to request service
-     * @param additionalComment
-     * @param date
-     */
-    private void sendRequest(String additionalComment, String date) {
-        networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, date, isFirstBooking, new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            Toast.makeText(context, "Service request sent", Toast.LENGTH_SHORT).show();
-                            Smooch.track("User Requested Service");
-                            for(CarIssue issue : dashboardCar.getActiveIssues()) {
-                                if(issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
-                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
-                                }
-                            }
-                        } else {
-                            Log.e(TAG, "service request: " + requestError.getMessage());
-                            Toast.makeText(context, "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void showTutorialSequence(){
-
-        //TODO: see if tutorial has already been shown
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        boolean hasSeenTutorial = preferences.getBoolean(pfTutorial, false);
-
-        if (hasSeenTutorial) {
-            askForDate();
-            return;
-        }
-
-        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity)context);
-
-        //TODO: see if this part need to be logged in mixpanel
-
-        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-            @Override
-            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                preferences.edit().putBoolean(pfTutorial, true).apply();
-            }
-        });
-
-        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-            @Override
-            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-                askForDate();
-            }
-        });
-
-        sequence.addSequenceItem(new MaterialShowcaseView.Builder((Activity) context)
-                .withoutShape()
-                .setContentText(R.string.first_service_booking_2)
-                .setDismissOnTouch(true)
-                .setMaskColour(ContextCompat.getColor(context, R.color.darkBlueTrans))
-                .build()
-        );
-
-        sequence.start();
-
-    }
-
-//    private class LimitedTimePicker extends TimePickerDialog {
-//        int selectedHour = 9;
-//        int selectedMinute = 0;
-//
-//        public LimitedTimePicker() {
-//            super(context, null, 8, 0, false);
-//        }
-//
-//        @Override
-//        public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-//            super.onTimeChanged(view, hourOfDay, minute);
-//
-//            selectedHour = hourOfDay;
-//            selectedMinute = minute;
-//        }
-//    }
 
     private class LimitedTimePicker extends TimePickerDialog {
 
