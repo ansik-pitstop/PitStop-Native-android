@@ -2,6 +2,8 @@ package com.castel.obd.bleDevice;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import com.castel.obd.bluetooth.Bluetooth215BComm;
+
 import java.util.UUID;
 
 /**
@@ -14,6 +16,8 @@ public interface AbstractDevice {
     UUID getReadChar();
 
     UUID getWriteChar();
+
+    Bluetooth215BComm.CommType commType();
 
     byte[] getBytes(String payload);
 

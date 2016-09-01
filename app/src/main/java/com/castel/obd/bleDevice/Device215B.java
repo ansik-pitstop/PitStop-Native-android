@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.bluetooth.Bluetooth215BComm;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
@@ -39,6 +40,9 @@ public class Device215B implements AbstractDevice {
     public static final String BT_NAME_PARAM = "A02";
     public static final String RTC_TIME_PARAM = "A03";
     public static final String VIN_PARAM = "A07";
+    public static final String SAMPLED_PID_PARAM = "A14";
+    public static final String IDR_INTERVAL_PARAM = "A15";
+    public static final String HISTORICAL_DATA_PARAM = "A18";
 
 
     ObdManager.IBluetoothDataListener dataListener;
@@ -50,6 +54,11 @@ public class Device215B implements AbstractDevice {
     }
 
     // functions
+
+    @Override
+    public Bluetooth215BComm.CommType commType() {
+        return Bluetooth215BComm.CommType.LE;
+    }
 
     @Override
     public UUID getServiceUuid() {
@@ -103,7 +112,7 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public String setPidsToSend(String pids) {
-        return siMulti("A14,A15,A18",  pids.replace(",", "/") + "10,1");
+        return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM + "," + HISTORICAL_DATA_PARAM,  pids.replace(",", "/") + "10,1");
     }
 
     @Override

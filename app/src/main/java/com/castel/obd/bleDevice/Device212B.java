@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.bluetooth.Bluetooth215BComm;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
@@ -48,6 +49,11 @@ public class Device212B implements AbstractDevice {
     // functions
 
     @Override
+    public Bluetooth215BComm.CommType commType() {
+        return Bluetooth215BComm.CommType.CLASSIC;
+    }
+
+    @Override
     public UUID getServiceUuid() {
         return UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
     }
@@ -87,7 +93,7 @@ public class Device212B implements AbstractDevice {
 
     @Override
     public String getPids(String pids) {
-        return null; // 212 does not need to explicitly get pids
+        return ""; // 212 does not need to explicitly get pids
     }
 
     @Override

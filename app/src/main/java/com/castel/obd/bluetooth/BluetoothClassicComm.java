@@ -298,10 +298,6 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
-                    //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    //    boolean bondResult = device.createBond();
-                    //    Log.i(TAG, "Create bond result: " + String.valueOf(bondResult));
-                    //}
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {

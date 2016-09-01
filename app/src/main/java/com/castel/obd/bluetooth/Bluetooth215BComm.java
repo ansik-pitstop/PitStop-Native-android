@@ -11,30 +11,27 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
 import com.castel.obd.bleDevice.Device215B;
-import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.ParameterInfo;
-import com.castel.obd.info.ParameterPackageInfo;
+import com.castel.obd.data.OBDInfoSP;
+import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
-import com.castel.obd215b.info.DTCInfo;
-import com.castel.obd215b.info.IDRInfo;
-import com.castel.obd215b.info.SettingInfo;
-import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
-import com.castel.obd215b.util.DataParseUtil;
-import com.castel.obd215b.util.DateUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -44,13 +41,9 @@ import com.pitstop.utils.MixpanelHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,7 +64,6 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private ObdManager.IBluetoothDataListener dataListener;
-    private ObdManager mObdManager;
     private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
@@ -80,11 +72,14 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
     Semaphore mCommandLock = new Semaphore(1,true);
 
     private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
     private static final long SCAN_PERIOD = 12000;
-    private BluetoothGatt mGatt;
+    private BluetoothGatt mGatt; // for ble communication
     private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
+
+    private List<String> dataLists = new ArrayList<String>();
+    private ObdManager mObdManager;
+    private BluetoothChat mBluetoothChat; // for bt classic communication
 
     private static final String TAG = Bluetooth215BComm.class.getSimpleName();
 
@@ -111,8 +106,8 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
     private AbstractDevice deviceInterface;
 
-    public enum DeviceType {
-        d212b, d215b
+    public enum CommType {
+        CLASSIC, LE
     }
 
     public Bluetooth215BComm(Context context) {
@@ -121,21 +116,17 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
-        mHandler = new Handler();
+        mObdManager = new ObdManager(context);
+        mBluetoothChat = new BluetoothChat(mHandler);
+
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        mObdManager = new ObdManager(context);
-        //int initSuccess = mObdManager.initializeObd();
-        //Log.d(TAG, "init result: " + initSuccess);
     }
 
     @Override
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
         this.dataListener = dataListener;
-        mObdManager.setDataListener(this.dataListener);
-        mObdManager.setPassiveCommandListener(this);
     }
 
     @Override
@@ -174,7 +165,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
             return;
         }
 
-        String payload = mObdManager.obdSetCtrl(type);
+        String payload = ObdManager.obdSetCtrl(type);
         Log.i(TAG, "Set ctrl result: " + payload);
         writeToObd(payload);
     }
@@ -330,23 +321,31 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         if(btConnectionState == CONNECTING) {
             return;
         }
-        mCommandQueue.clear();
-        btConnectionState = CONNECTING;
-        Log.i(TAG, "Connecting to device");
-        scanLeDevice(false);// will stop after first device detection
-        showConnectingNotification();
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else {
-                    mGatt = device.connectGatt(mContext, true, gattCallback);
-                }
-            }
-        });
+
+        switch(deviceInterface.commType()) {
+            case LE:
+                mCommandQueue.clear();
+                btConnectionState = CONNECTING;
+                Log.i(TAG, "Connecting to device");
+                scanLeDevice(false);// will stop after first device detection
+                showConnectingNotification();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+                        } else {
+                            mGatt = device.connectGatt(mContext, true, gattCallback);
+                        }
+                    }
+                }, 2000);
+                break;
+            case CLASSIC:
+                mBluetoothChat.connectBluetooth(device);
+                break;
+        }
     }
 
     public void bluetoothStateChanged(int state) {
@@ -363,6 +362,11 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
         if(btConnectionState == CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
+            return;
+        }
+
+        if(btConnectionState == CONNECTING) {
+            Log.i(TAG, "Bluetooth already connecting");
             return;
         }
 
@@ -481,7 +485,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
                         public void run() {
                             gatt.discoverServices();
                         }
-                    }, 500);
+                    }, 2000);
 
                     break;
                 }
@@ -600,7 +604,7 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
 
     @Override
     public void initDevice() {
-        mObdManager.initializeObd();
+
     }
 
     // functions
@@ -667,5 +671,176 @@ public class Bluetooth215BComm implements IBluetoothCommunicator, ObdManager.IPa
         }
 
         writeToObd(deviceInterface.getDtcs());
+    }
+
+
+
+
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mObdManager.isParse() && dataLists.size() > 0) {
+                mObdManager.receiveDataAndParse(dataLists.get(0));
+                dataLists.remove(0);
+            }
+            mHandler.postDelayed(this, 500);
+        }
+    };
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.v(TAG, "BluetoothClassicComm message handler");
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case CANCEL_DISCOVERY:
+                {
+                    Log.i(TAG,"CANCEL_DISCOVERY - BluetoothClassicComm");
+                    if (mBluetoothAdapter.isDiscovering()) {
+                        mBluetoothAdapter.cancelDiscovery();
+                    }
+                    break;
+                }
+                case BLUETOOTH_CONNECT_SUCCESS:
+                {
+                    Log.i(TAG,"Bluetooth connect success - BluetoothClassicComm");
+                    btConnectionState = CONNECTED;
+                    Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
+                    OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
+                    Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
+                    dataListener.getBluetoothState(btConnectionState);
+
+                    break;
+                }
+                case BLUETOOTH_CONNECT_FAIL:
+                {
+                    btConnectionState = DISCONNECTED;
+                    LogUtil.i("Bluetooth state:DISCONNECTED");
+                    Log.i(TAG, "Bluetooth connection failed - BluetoothClassicComm");
+                    if (mBluetoothAdapter.isDiscovering()) {
+                        mBluetoothAdapter.cancelDiscovery();
+                    }
+                    OBDInfoSP.saveMacAddress(mContext, "");
+                    Log.i(TAG,"Retry connection");
+                    Log.i(TAG, "Sending out bluetooth state on dataListener");
+                    dataListener.getBluetoothState(btConnectionState);
+                    break;
+                }
+                case BLUETOOTH_CONNECT_EXCEPTION:
+                {
+                    btConnectionState = DISCONNECTED;
+                    LogUtil.i("Bluetooth state:DISCONNECTED");
+                    Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
+                    dataListener.getBluetoothState(btConnectionState);
+                    break;
+                }
+                case BLUETOOTH_READ_DATA:
+                {
+                    if (!Utils.isEmpty(Utils.bytesToHexString((byte[]) msg.obj))) {
+                        Log.v(TAG, "Bluetooth read data... - BluetoothClassicComm");
+                        dataLists.add(Utils.bytesToHexString((byte[]) msg.obj));
+                    }
+                    break;
+                }
+            }
+        }
+    };
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "BReceiver onReceive - BluetoothClassicComm");
+
+            String action = intent.getAction();
+            LogUtil.i(action);
+
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                Log.v(TAG,"A device found - BluetoothClassicComm");
+                BluetoothDevice device = intent
+                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.v(TAG,device.getName() + " " + device.getAddress());
+
+                if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
+                    mBluetoothChat.connectBluetooth(device);
+                    Log.i(TAG,"Connecting to device - BluetoothClassicComm");
+                    Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
+                }
+
+            } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    Log.i(TAG, "Connected to device: " + device.getName());
+                    btConnectionState = CONNECTED;
+                    LogUtil.i("Bluetooth state:CONNECTED");
+                    try {
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    dataListener.getBluetoothState(btConnectionState);
+                }
+            } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+
+                Log.i(TAG,"Pairing state changed - BluetoothClassicComm");
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
+                        (device.getName().contains(ObdManager.BT_DEVICE_NAME_212))) {
+                    Log.i(TAG,"Connected to a PAIRED device - BluetoothClassicComm");
+                    btConnectionState = CONNECTED;
+                    dataListener.getBluetoothState(btConnectionState);
+                }
+
+            } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                //Log.i(TAG, "Disconnection from a remote device - BluetoothClassicComm");
+
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                if(device.getName()!= null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    btConnectionState = DISCONNECTED;
+                    LogUtil.i("Bluetooth state:DISCONNECTED");
+                    try {
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    dataListener.getBluetoothState(btConnectionState);
+                }
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
+
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                Log.i(TAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                Log.i(TAG,"Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
+                if (btConnectionState != CONNECTED) {
+                    btConnectionState = DISCONNECTED;
+                    Log.i(TAG,"Not connected - setting get bluetooth state on dListeners");
+                    dataListener.getBluetoothState(btConnectionState);
+                }
+            }else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
+                //if(mBluetoothAdapter.isEnabled())
+                //    connectBluetooth();
+                //Log.i(TAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
+                //dataListener.getBluetoothState(btConnectionState);
+            }
+        }
+    };
+
+    private void registerBluetoothReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        mContext.registerReceiver(mReceiver, filter);
     }
 }
