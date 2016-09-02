@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -94,6 +96,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        context.registerReceiver(receiver, intentFilter);
     }
 
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
@@ -126,6 +131,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void close() {
         if(communicator != null) {
             communicator.close();
+        }
+        try {
+            mContext.unregisterReceiver(receiver);
+        } catch (Exception e) {
+            Log.d(TAG, "Receiver not registered");
         }
     }
 
@@ -221,7 +231,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         switch(deviceInterface.commType()) {
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
-                Log.i(TAG, "Connecting to device");
+                Log.i(TAG, "Connecting to LE device");
                 showConnectingNotification();
                 communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
@@ -264,7 +274,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return;
         }
 
-        scanLeDevice(true);
+        mBluetoothAdapter.startDiscovery();
+
+        //scanLeDevice(true);
 
         //if (mGatt != null && !needToScan) {
         //    try {
@@ -291,6 +303,24 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         //}
     }
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getName() != null) {
+                    Log.v(TAG, "Found device: "+device.getName());
+                    if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                        deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this);
+                        connectToDevice(device);
+                    } else if(device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                        deviceInterface = new Device215B(mContext, dataListener);
+                        connectToDevice(device);
+                    }
+                }
+            }
+        }
+    };
 
     /**
      * @param enable
