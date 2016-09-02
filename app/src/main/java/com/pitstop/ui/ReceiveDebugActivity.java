@@ -210,7 +210,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getParam(View view) {
         String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
-        service.getFreeze(tag);
+        //service.getFreeze(tag);
     }
 
     public void getVin(View view) {
@@ -239,11 +239,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         service.setFixedUpload();
     }
 
-    public void sendLoginInstruction(View view) {
-        service.writeLoginInstruction();
-    }
-
     public void initialize(View view) {
-        service.initialize();
+        //service.initialize();
     }
 }

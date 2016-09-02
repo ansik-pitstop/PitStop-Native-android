@@ -121,7 +121,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     @Override
     public void sendCommandPassive(String payload) {
-        if(btConnectionState == BluetoothCommunicator.CONNECTED) {
+        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
