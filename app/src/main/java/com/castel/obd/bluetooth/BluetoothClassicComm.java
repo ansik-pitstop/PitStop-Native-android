@@ -16,6 +16,7 @@ import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;

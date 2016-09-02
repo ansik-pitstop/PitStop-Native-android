@@ -1,6 +1,6 @@
 package com.castel.obd.bleDevice;
 
-import com.castel.obd.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 
 import java.util.UUID;
 

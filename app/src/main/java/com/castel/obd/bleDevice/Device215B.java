@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;

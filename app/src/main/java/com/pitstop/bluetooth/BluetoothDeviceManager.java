@@ -1,4 +1,4 @@
-package com.castel.obd.bluetooth;
+package com.pitstop.bluetooth;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -20,10 +20,12 @@ import android.util.Log;
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
 import com.castel.obd.bleDevice.Device215B;
-import com.castel.obd215b.util.DataPackageUtil;
+import com.castel.obd.bluetooth.BluetoothClassicComm;
+import com.castel.obd.bluetooth.BluetoothCommunicator;
+import com.castel.obd.bluetooth.BluetoothLeComm;
+import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -97,6 +99,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
+        // for classic discovery
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         context.registerReceiver(receiver, intentFilter);
     }
@@ -303,6 +306,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         //}
     }
 
+    // for classic discovery
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

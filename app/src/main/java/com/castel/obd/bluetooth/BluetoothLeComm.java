@@ -24,6 +24,7 @@ import android.util.Log;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
