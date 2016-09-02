@@ -1,13 +1,10 @@
 package com.castel.obd.bleDevice;
 
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd.bluetooth.Bluetooth215BComm;
+import com.castel.obd.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
@@ -49,8 +46,8 @@ public class Device212B implements AbstractDevice {
     // functions
 
     @Override
-    public Bluetooth215BComm.CommType commType() {
-        return Bluetooth215BComm.CommType.CLASSIC;
+    public BluetoothDeviceManager.CommType commType() {
+        return BluetoothDeviceManager.CommType.CLASSIC;
     }
 
     @Override
@@ -114,7 +111,7 @@ public class Device212B implements AbstractDevice {
     // read data handler
 
     @Override
-    public void onCharacteristicChanged(byte[] data) {
+    public void parseData(byte[] data) {
         final String readData = Utils.bytesToHexString(data);
 
         Log.d(TAG, "Data Read: " + readData);
@@ -123,15 +120,6 @@ public class Device212B implements AbstractDevice {
             return;
         }
         receiveDataAndParse(readData);
-    }
-
-    @Override
-    public void onCharacteristicRead(byte[] data, int status) {
-        if(status != BluetoothGatt.GATT_SUCCESS) {
-            return;
-        }
-
-        onCharacteristicChanged(data);
     }
 
     // data parsers

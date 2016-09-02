@@ -1,18 +1,14 @@
 package com.castel.obd.bleDevice;
 
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd.bluetooth.Bluetooth215BComm;
+import com.castel.obd.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
-import com.castel.obd.util.Utils;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.IDRInfo;
 import com.castel.obd215b.info.SettingInfo;
@@ -56,8 +52,8 @@ public class Device215B implements AbstractDevice {
     // functions
 
     @Override
-    public Bluetooth215BComm.CommType commType() {
-        return Bluetooth215BComm.CommType.LE;
+    public BluetoothDeviceManager.CommType commType() {
+        return BluetoothDeviceManager.CommType.LE;
     }
 
     @Override
@@ -123,7 +119,7 @@ public class Device215B implements AbstractDevice {
     // read data handler
 
     @Override
-    public void onCharacteristicChanged(byte[] data) {
+    public void parseData(byte[] data) {
         String readData = "";
 
         try {
@@ -139,15 +135,6 @@ public class Device215B implements AbstractDevice {
         }
 
         parseReadData(readData);
-    }
-
-    @Override
-    public void onCharacteristicRead(byte[] data, int status) {
-        if(status != BluetoothGatt.GATT_SUCCESS) {
-            return;
-        }
-
-        onCharacteristicChanged(data);
     }
 
     private String qiSingle(String param) {

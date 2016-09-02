@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
-import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
@@ -27,7 +26,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 12/04/2016.
  */
-public abstract class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+public class BluetoothClassicComm implements BluetoothCommunicator {
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;
@@ -39,105 +38,30 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
 
     private boolean isMacAddress = false;
 
-    private List<String> dataLists = new ArrayList<String>();
+    private BluetoothDeviceManager deviceManager;
+
+    private List<byte[]> dataLists = new ArrayList<>();
 
     private ObdManager.IBluetoothDataListener dataListener;
-    private static String TAG = "BtClassicComm";
+    private static String TAG = BluetoothClassicComm.class.getSimpleName();
 
-    public BluetoothClassicComm(Context context) {
+    public BluetoothClassicComm(Context context, BluetoothDeviceManager deviceManager) {
         Log.i(TAG, "classicComm Constructor");
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
         mObdManager = new ObdManager(context);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
-        registerBluetoothReceiver();
 
-        //int initSuccess = mObdManager.initializeObd();
-        //Log.d(TAG, "init result: " + initSuccess);
+        this.deviceManager = deviceManager;
+        registerBluetoothReceiver();
 
         mHandler.postDelayed(runnable, 500);
     }
 
     @Override
-    public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
-        this.dataListener = dataListener;
-        mObdManager.setDataListener(this.dataListener);
-        mObdManager.setPassiveCommandListener(this);
-    }
-
-    @Override
-    public boolean hasDiscoveredServices() {
-        return true;
-    }
-
-    @Override
-    public void startScan() {
-        connectBluetooth();
-    }
-
-    @Override
-    public void stopScan() {
-
-    }
-
-    @Override
     public int getState() {
         return btConnectionState;
-    }
-
-    @Override
-    public void obdSetCtrl(int type) {
-        if(btConnectionState != CONNECTED) {
-            return;
-        }
-
-        String result = mObdManager.obdSetCtrl(type);
-        Log.i(TAG, "Set ctrl result: " + result);
-        writeToObd(result);
-    }
-
-    @Override
-    public void obdSetMonitor(int type, String valueList) {
-        if(btConnectionState != CONNECTED) {
-            return;
-        }
-
-        String result = mObdManager.obdSetMonitor(type, valueList);
-        writeToObd(result);
-    }
-
-    @Override
-    public void obdSetParameter(String tlvTagList, String valueList) {
-        if(btConnectionState != CONNECTED) {
-            return;
-        }
-
-        String result = mObdManager.obdSetParameter(tlvTagList, valueList);
-        writeToObd(result);
-    }
-
-    @Override
-    public void obdGetParameter(String tlvTag) {
-        if(btConnectionState != CONNECTED) {
-            return;
-        }
-
-        String result = mObdManager.obdGetParameter(tlvTag);
-        writeToObd(result);
-    }
-
-    @Override
-    public void sendCommandPassive(String instruction) {
-        byte[] bytes = mObdManager.getBytesToSendPassive(instruction);
-
-        if(bytes == null) {
-            return;
-        }
-
-        if (btConnectionState == CONNECTED && null != mBluetoothChat.connectedThread) {
-            mBluetoothChat.connectedThread.write(bytes);
-        }
     }
 
     @Override
@@ -153,10 +77,9 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
         mHandler.removeCallbacks(runnable);
     }
 
-    private void writeToObd(String payload) {
-
-        byte[] bytes = mObdManager.getBytesToSend(payload);
-        if(bytes == null) {
+    @Override
+    public void writeData(byte[] bytes) {
+        if(bytes == null || bytes.length == 0) {
             return;
         }
 
@@ -165,48 +88,16 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
         }
     }
 
-    private void connectBluetooth() {
-        Log.d(TAG, "connectBluetooth()");
-
-        if (btConnectionState == CONNECTED) {
-            Log.i(TAG,"Bluetooth is connected - BluetoothClassicComm");
-            return;
-        }
-
-        if (mBluetoothAdapter.isDiscovering() || btConnectionState == CONNECTING) {
-            Log.i(TAG,"Already discovering - BluetoothClassicComm");
-            return;
-        }
-
-        Log.i(TAG,"Connecting to bluetooth - BluetoothClassicComm");
-        btConnectionState = CONNECTING;
-        mBluetoothChat.closeConnect();
-
-        if (!mBluetoothAdapter.isEnabled()) {
-            Log.i(TAG,"Bluetooth not enabled");
-            mBluetoothAdapter.enable();
-        }
-
-        Log.i(TAG,"Getting saved macAddress - BluetoothClassicComm");
-        String macAddress = OBDInfoSP.getMacAddress(mContext);
-
-        if (!"".equals(macAddress)) {
-            isMacAddress = true;
-            Log.i(TAG,"Using macAddress "+macAddress+" to connect to device - BluetoothClassicComm");
-            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
-            mBluetoothChat.connectBluetooth(device);
-        } else {
-            Log.i(TAG,"Starting discovery - BluetoothClassicComm");
-            mBluetoothAdapter.startDiscovery();
-        }
-        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 13564);
+    @Override
+    public void connectToDevice(BluetoothDevice device) {
+        mBluetoothChat.connectBluetooth(device);
     }
 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
             if (!mObdManager.isParse() && dataLists.size() > 0) {
-                mObdManager.receiveDataAndParse(dataLists.get(0));
+                deviceManager.readData(dataLists.get(0));
                 dataLists.remove(0);
             }
             mHandler.postDelayed(this, 500);
@@ -234,7 +125,7 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                     Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
                     OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
                     Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
 
                     break;
                 }
@@ -249,7 +140,7 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                     OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG,"Retry connection");
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION:
@@ -257,14 +148,14 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_READ_DATA:
                 {
-                    if (!Utils.isEmpty(Utils.bytesToHexString((byte[]) msg.obj))) {
+                    if (msg.obj != null && ((byte[]) msg.obj).length > 0) {
                         Log.v(TAG, "Bluetooth read data... - BluetoothClassicComm");
-                        dataLists.add(Utils.bytesToHexString((byte[]) msg.obj));
+                        dataLists.add((byte[]) msg.obj);
                     }
                     break;
                 }
@@ -306,7 +197,7 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                         e.printStackTrace();
                     }
 
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 
@@ -316,7 +207,7 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                         (device.getName().contains(ObdManager.BT_DEVICE_NAME_212))) {
                     Log.i(TAG,"Connected to a PAIRED device - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
@@ -332,7 +223,7 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                 }
 
                 NotificationManager mNotificationManager =
@@ -346,13 +237,8 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
                 if (btConnectionState != CONNECTED) {
                     btConnectionState = DISCONNECTED;
                     Log.i(TAG,"Not connected - setting get bluetooth state on dListeners");
-                    dataListener.getBluetoothState(btConnectionState);
+                    deviceManager.connectionStateChange(btConnectionState);
                 }
-            }else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)){
-                //if(mBluetoothAdapter.isEnabled())
-                //    connectBluetooth();
-                //Log.i(TAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
-                //dataListener.getBluetoothState(btConnectionState);
             }
         }
     };
@@ -375,15 +261,5 @@ public abstract class BluetoothClassicComm implements IBluetoothCommunicator, Ob
         } else if(state == CONNECTED) {
             btConnectionState = state;
         }
-    }
-
-    @Override
-    public void writeRawInstruction(String instruction) {
-        sendCommandPassive(instruction);
-    }
-
-    @Override
-    public void initDevice() {
-        mObdManager.initializeObd();
     }
 }
