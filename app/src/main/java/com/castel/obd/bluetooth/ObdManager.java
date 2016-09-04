@@ -12,6 +12,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 import java.io.IOException;
@@ -303,6 +304,8 @@ public class ObdManager {
         void deviceLogin(LoginPackageInfo loginPackageInfo);
 
         void parameterData(ParameterPackage parameterPackage);
+
+        void dtcData(DtcPackage dtcPackage);
     }
 
 

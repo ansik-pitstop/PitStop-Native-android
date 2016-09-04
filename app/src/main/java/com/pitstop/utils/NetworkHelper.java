@@ -244,17 +244,17 @@ public class NetworkHelper {
     }
 
     public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
-                                 List<PIDInfo> freezeData, RequestCallback callback) {
+                                 RequestCallback callback) {
         LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
                 " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
 
         JSONObject body = new JSONObject();
-        JSONArray data = new JSONArray();
+        //JSONArray data = new JSONArray(); // TODO: Freeze data
 
         try {
-            for(PIDInfo info : freezeData) {
-                data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
-            }
+            //for(PIDInfo info : freezeData) {
+            //    data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
+            //}
 
             body.put("carId", carId);
             body.put("issueType", CarIssue.DTC);

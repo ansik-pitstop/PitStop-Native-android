@@ -23,6 +23,7 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.castel.obd215b.util.DataPackageUtil;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -434,22 +435,17 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(TAG, "getIOData()");
-        Log.i(TAG, "result: "+dataPackageInfo.result);
-
-        if (dataPackageInfo.result == 6 && askForDTC) {
-            Log.i(TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");
+    public void dtcData(DtcPackage dtcPackage) {
+        if (askForDTC) {
+            Log.i(TAG, "Received dtc data: " + dtcPackage.dtcNumber);
             dtcs = "";
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                Log.i(TAG,"Parsing DTCs");
-                String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    dtcs+= ObdDataUtil.parseDTCs(dtc)+",";
+            if(dtcPackage.dtcs != null){
+                for(String dtc : dtcPackage.dtcs) {
+                    dtcs+= dtc;
                 }
             }
 
-            Log.i(TAG, "getIOData --- Adding car");
+            Log.i(TAG, "Adding car");
             if(NetworkHelper.isConnected(context)){
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
@@ -465,6 +461,40 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
             askForDTC=false;
         }
+    }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+        //Log.i(TAG, "getIOData()");
+        //Log.i(TAG, "result: "+dataPackageInfo.result);
+//
+        //if (dataPackageInfo.result == 6 && askForDTC) {
+        //    Log.i(TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");
+        //    dtcs = "";
+        //    if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+        //        Log.i(TAG,"Parsing DTCs");
+        //        String[] DTCs = dataPackageInfo.dtcData.split(",");
+        //        for(String dtc : DTCs) {
+        //            dtcs+= ObdDataUtil.parseDTCs(dtc)+",";
+        //        }
+        //    }
+//
+        //    Log.i(TAG, "getIOData --- Adding car");
+        //    if(NetworkHelper.isConnected(context)){
+        //        Log.i(TAG, "Internet connection found");
+        //        runVinTask();
+        //    } else {
+        //        Log.i(TAG, "No internet");
+        //        callback.runOnUiThread(new Runnable() {
+        //            @Override
+        //            public void run() {
+        //                callback.hideLoading(null);
+        //                startPendingAddCarActivity();
+        //            }
+        //        });
+        //    }
+        //    askForDTC=false;
+        //}
     }
 
     @Override

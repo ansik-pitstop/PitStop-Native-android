@@ -45,6 +45,7 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -61,6 +62,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -610,6 +612,39 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private Set<String> dtcCodes = new HashSet<>();
 
     @Override
+    public void dtcData(DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null && askingForDtcs) {
+            dtcCodes.addAll(Arrays.asList(dtcPackage.dtcs));
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    numberOfIssues = services + recalls + dtcCodes.size();
+                    updateCarHealthMeter();
+
+                    if(numberOfIssues != 0) {
+                        updatedMileageOrDtcsFound = true;
+                    }
+
+                    loadingEngineIssues.setVisibility(View.GONE);
+                    engineIssuesStateLayout.setVisibility(View.GONE);
+                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    engineIssuesText.setText("Engine issues");
+
+                    Log.i(TAG, "Finished car scan, dtcs found");
+                    handler.removeCallbacks(runnable);
+
+                    Drawable background = engineIssuesCountLayout.getBackground();
+                    GradientDrawable gradientDrawable = (GradientDrawable) background;
+                    gradientDrawable.setColor(Color.rgb(203, 77, 69));
+                }
+            });
+        }
+    }
+
+    @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
@@ -639,38 +674,38 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             });
         }
 
-        if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
-
-            String[] dtcs = dataPackageInfo.dtcData.split(",");
-            for(String dtc : dtcs) {
-                dtcCodes.add(dtc);
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    numberOfIssues = services + recalls + dtcCodes.size();
-                    updateCarHealthMeter();
-
-                    if(numberOfIssues != 0) {
-                        updatedMileageOrDtcsFound = true;
-                    }
-
-                    loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesStateLayout.setVisibility(View.GONE);
-                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
-                    engineIssuesText.setText("Engine issues");
-
-                    Log.i(TAG, "Finished car scan, dtcs found");
-                    handler.removeCallbacks(runnable);
-
-                    Drawable background = engineIssuesCountLayout.getBackground();
-                    GradientDrawable gradientDrawable = (GradientDrawable) background;
-                    gradientDrawable.setColor(Color.rgb(203, 77, 69));
-                }
-            });
-        }
+        //if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
+//
+        //    String[] dtcs = dataPackageInfo.dtcData.split(",");
+        //    for(String dtc : dtcs) {
+        //        dtcCodes.add(dtc);
+        //    }
+//
+        //    runOnUiThread(new Runnable() {
+        //        @Override
+        //        public void run() {
+        //            numberOfIssues = services + recalls + dtcCodes.size();
+        //            updateCarHealthMeter();
+//
+        //            if(numberOfIssues != 0) {
+        //                updatedMileageOrDtcsFound = true;
+        //            }
+//
+        //            loadingEngineIssues.setVisibility(View.GONE);
+        //            engineIssuesStateLayout.setVisibility(View.GONE);
+        //            engineIssuesCountLayout.setVisibility(View.VISIBLE);
+        //            engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+        //            engineIssuesText.setText("Engine issues");
+//
+        //            Log.i(TAG, "Finished car scan, dtcs found");
+        //            handler.removeCallbacks(runnable);
+//
+        //            Drawable background = engineIssuesCountLayout.getBackground();
+        //            GradientDrawable gradientDrawable = (GradientDrawable) background;
+        //            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+        //        }
+        //    });
+        //}
     }
 
     private long startTime = 0;

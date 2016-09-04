@@ -32,6 +32,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Car;
@@ -390,6 +391,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     /**
+     * Process dtc data from obd
+     * @param dtcPackage
+     */
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data: " + dtcPackage.toString());
+        if(dtcPackage.dtcNumber > 0) {
+            saveDtcs(dtcPackage);
+        }
+
+        callbacks.dtcData(dtcPackage);
+    }
+
+    /**
      * result=4 --> trip data uploaded by terminal
      * result=5 --> PID data uploaded by terminal
      * result=6 --> OBD monitor data uploaded from the terminal after the monitor command
@@ -441,19 +456,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG, "getting io data - auto-connect service");
 
-        if(dataPackageInfo.result == 6) { //save dtcs
-            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
-        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
-            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
-        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {
-            saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId);
-        }
+        // TODO: Remove after generic dtc package implemented
+        //if(dataPackageInfo.result == 6) { //save dtcs
+        //    saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
+        //} else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
+        //    saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
+        //} else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {
+        //    saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId);
+        //}
 
         counter++;
-        //keep looking for pids until all pids are recieved
-        //if(pidI!=pids.length&&dataPackageInfo.result!=5){
-        //    sendForPIDS();
-        //}
 
         if (callbacks != null) {
             Log.d(TAG, "calling service callbacks for getIOdata - auto-connect service");
@@ -477,7 +489,53 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     }
 
-    private void saveDtcs(final DataPackageInfo dataPackageInfo, final boolean isPendingDtc, final String deviceId) {
+    private void saveDtcs(final DtcPackage dtcPackage) {
+        Car car = localCarAdapter.getCarByScanner(dtcPackage.deviceId);
+
+        if(NetworkHelper.isConnected(this)) {
+            if (car != null) {
+                networkHelper.getCarsById(car.getId(), new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError == null) {
+                            try {
+                                Car car = Car.createCar(response);
+
+                                HashSet<String> dtcNames = new HashSet<>();
+                                for (CarIssue issue : car.getActiveIssues()) {
+                                    dtcNames.add(issue.getItem());
+                                }
+
+                                for (final String dtc : dtcPackage.dtcs) {
+                                    if (!dtcNames.contains(dtc)) {
+                                        networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                                dtcPackage.rtcTime, dtc, dtcPackage.isPending,
+                                                new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        Log.i(TAG, "DTC added: " + dtc);
+                                                    }
+                                                });
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+            }
+        } else if(car != null) {
+            Log.i(TAG, "Saving dtcs offline");
+            for (final String dtc : dtcPackage.dtcs) {
+                dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dtcPackage.rtcTime,
+                        dtc, dtcPackage.isPending));
+            }
+        }
+    }
+
+    // 212 specific
+    private void saveDtcs(final DataPackageInfo dataPackageInfo, final boolean isPendingDtc, final String deviceId) { // TODO: remove after gtc package implemented
         Log.i(TAG, "save DTCs - auto-connect service");
         String dtcs = "";
         final ArrayList<String> dtcArr = new ArrayList<>();
@@ -511,7 +569,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 for (final String dtc : dtcArr) {
                                     if (!dtcNames.contains(dtc)) {
                                         networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                                dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                                                dataPackageInfo.rtcTime, dtc, isPendingDtc,
                                                 new RequestCallback() {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
@@ -1252,7 +1310,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                     for(final Dtc dtc : dtcsToSend) {
                         networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
-                                dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(), dtc.getFreezeData(),
+                                dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(),
                                 new RequestCallback() {
                                     @Override
                                     public void done(String response, RequestError requestError) {

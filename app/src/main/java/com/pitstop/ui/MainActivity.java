@@ -50,6 +50,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -755,9 +756,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void parameterData(ParameterPackage parameterPackage) {}
 
     @Override
-    public void getIOData(final DataPackageInfo dataPackageInfo) {
-        if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
-
+    public void dtcData(final DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null) {
             final HashSet<String> activeIssueNames = new HashSet<>();
 
             if(dashboardCar == null) {
@@ -773,11 +774,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 public void run() {
                     boolean newDtcFound = false;
 
-                    if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                        String[] DTCs = dataPackageInfo.dtcData.split(",");
-                        for(String dtc : DTCs) {
-                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-                            if(!activeIssueNames.contains(parsedDtc)) {
+                    if(dtcPackage.dtcs.length > 0){
+                        for(String dtc : dtcPackage.dtcs) {
+                            if(!activeIssueNames.contains(dtc)) {
                                 newDtcFound = true;
                             }
                         }
@@ -794,6 +793,48 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             });
         }
+    }
+
+    @Override
+    public void getIOData(final DataPackageInfo dataPackageInfo) {
+        //if(dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+//
+        //    final HashSet<String> activeIssueNames = new HashSet<>();
+//
+        //    if(dashboardCar == null) {
+        //        return;
+        //    }
+//
+        //    for(CarIssue issues : dashboardCar.getActiveIssues()) {
+        //        activeIssueNames.add(issues.getItem());
+        //    }
+//
+        //    runOnUiThread(new Runnable() {
+        //        @Override
+        //        public void run() {
+        //            boolean newDtcFound = false;
+//
+        //            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
+        //                String[] DTCs = dataPackageInfo.dtcData.split(",");
+        //                for(String dtc : DTCs) {
+        //                    String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+        //                    if(!activeIssueNames.contains(parsedDtc)) {
+        //                        newDtcFound = true;
+        //                    }
+        //                }
+        //            }
+//
+        //            if(newDtcFound) {
+        //                new Handler().postDelayed(new Runnable() {
+        //                    @Override
+        //                    public void run() {
+        //                        refreshFromServer();
+        //                    }
+        //                }, 1111);
+        //            }
+        //        }
+        //    });
+        //}
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.ui.addCarFragments.AddCar1Fragment;
 import com.pitstop.ui.addCarFragments.AddCar2NoDongleFragment;
@@ -315,6 +316,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+
     }
 
     @Override

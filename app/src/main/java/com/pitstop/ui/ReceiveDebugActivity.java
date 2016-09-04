@@ -22,6 +22,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
@@ -135,6 +136,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
         Log.i(TAG, "parameterData: " + parameterPackage.toString());
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+        
     }
 
     @Override

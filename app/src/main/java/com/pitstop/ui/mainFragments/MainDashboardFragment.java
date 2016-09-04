@@ -39,6 +39,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.ui.MainActivity;
@@ -639,6 +640,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
 
     }
 
