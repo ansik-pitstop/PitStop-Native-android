@@ -32,6 +32,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -175,7 +176,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        //handler.postDelayed(runnable, 15000);
+        //handler.postDelayed(runnable, 15000); // TODO: put in auto periodic scan
     }
 
     @Override
@@ -308,7 +309,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #syncObdDevice()
      * */
     @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) { // TODO: remove after adding generic package
 
         Log.i(TAG, "getParameterData(): "+parameterPackageInfo.value.get(0).value);
 
@@ -352,6 +353,41 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    /**
+     * Handles the data returned from a parameter query command
+     * @param parameterPackage
+     */
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+        Log.i(TAG, "parameterData: " + parameterPackage.toString());
+
+        if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
+            Log.i(TAG, "Supported pids returned");
+            String[] pids = parameterPackage.value.split(","); // pids returned separated by commas
+            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
+            StringBuilder sb = new StringBuilder();
+            int pidCount = 0;
+            // go through the priority list and get the first 10 pids that are supported
+            for(String dataType : PID_PRIORITY) {
+                if(pidCount >= 10) {
+                    break;
+                }
+                if(supportedPidsSet.contains(dataType)) {
+                    sb.append(dataType);
+                    sb.append(",");
+                    ++pidCount;
+                }
+            }
+            if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
+                supportedPids = sb.substring(0, sb.length() - 1);
+            } else {
+                supportedPids = DEFAULT_PIDS;
+            }
+            deviceManager.setPidsToSend(supportedPids);
+        }
+
+        callbacks.parameterData(parameterPackage);
+    }
 
     /**
      * result=4 --> trip data uploaded by terminal

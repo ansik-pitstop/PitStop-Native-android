@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd215b.info.PIDInfo;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -16,6 +17,7 @@ import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -268,20 +270,6 @@ public class Device215B implements AbstractDevice {
 
                 //Log.i(TAG, idrInfo.toString());
 
-            } else if (Constants.INSTRUCTION_CI
-                    .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                //boolean bResult = DataParseUtil
-                //        .parseSetting(msgInfo);
-//
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_CI);
-                //intent.putExtra(EXTRA_DATA, bResult);
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-//
-                ////
-                //broadcastContent(ACTION_COMMAND_TEST,
-                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
             } else if (Constants.INSTRUCTION_SI
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 boolean bResult = DataParseUtil
@@ -295,36 +283,51 @@ public class Device215B implements AbstractDevice {
                 SettingInfo settingInfo = DataParseUtil
                         .parseQI(msgInfo);
 
-                ParameterPackageInfo parameterPackageInfo = new ParameterPackageInfo();
-                parameterPackageInfo.deviceId = settingInfo.terminalSN;
-                parameterPackageInfo.result = 1;
-                parameterPackageInfo.value = new ArrayList<>();
+                ParameterPackage parameterPackage = new ParameterPackage();
+                parameterPackage.deviceId = settingInfo.terminalSN;
 
+                // assumes only one parameter queried per command
                 if(settingInfo.terminalRTCTime != null) {
                     try {
                         long rtcTime = new SimpleDateFormat("yyMMddHHmmss").parse(settingInfo.terminalRTCTime).getTime() / 1000;
-                        parameterPackageInfo.value.add(new ParameterInfo(DataPackageUtil.RTC_TIME_PARAM, String.valueOf(rtcTime)));
+                        parameterPackage.success = true;
+                        parameterPackage.paramType = ParameterPackage.ParamType.RTC_TIME;
+                        parameterPackage.value = String.valueOf(rtcTime);
                     } catch (ParseException e) {
                         e.printStackTrace();
+                        parameterPackage.success = false;
                     }
-                }
-                if(settingInfo.vehicleVINCode != null) {
-                    parameterPackageInfo.value.add(new ParameterInfo(ObdManager.VIN_TAG, settingInfo.vehicleVINCode));
+                } else if(settingInfo.vehicleVINCode != null) {
+                    parameterPackage.success = true;
+                    parameterPackage.paramType = ParameterPackage.ParamType.VIN;
+                    parameterPackage.value = settingInfo.vehicleVINCode;
+                } else {
+                    parameterPackage.success = false;
                 }
 
-                dataListener.getParameterData(parameterPackageInfo);
+                dataListener.parameterData(parameterPackage);
             } else if (Constants.INSTRUCTION_PIDT
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                // PIDInfo pidInfo = DataParseUtil.parsePIDT(msgInfo);
-//
-                // intent.putExtra(EXTRA_DATA_TYPE,
-                //         Constants.INSTRUCTION_PIDT);
-                // intent.putExtra(EXTRA_DATA, pidInfo);
-                // LocalBroadcastManager.getInstance(this)
-                //         .sendBroadcast(intent);
-//
-                // broadcastContent(ACTION_COMMAND_TEST,
-                //         COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
+                PIDInfo pidInfo = DataParseUtil.parsePIDT(msgInfo);
+
+                ParameterPackage parameterPackage = new ParameterPackage();
+                parameterPackage.deviceId = pidInfo.terminalId;
+
+                StringBuilder sb = new StringBuilder();
+
+                for(String pid : pidInfo.pids) { // rebuild pid string
+                    sb.append(pid);
+                    sb.append(",");
+                }
+                if(sb.length() > 0) {
+                    sb.deleteCharAt(sb.length() - 1);
+                    parameterPackage.value = sb.toString();
+                    parameterPackage.paramType = ParameterPackage.ParamType.SUPPORTED_PIDS;
+                } else {
+                    parameterPackage.success = false;
+                }
+
+                dataListener.parameterData(parameterPackage);
             } else if (Constants.INSTRUCTION_PID
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 //PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);

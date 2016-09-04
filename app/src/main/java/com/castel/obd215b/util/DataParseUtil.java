@@ -204,6 +204,7 @@ public class DataParseUtil {
 	public static PIDInfo parsePIDT(String msg) {
 		String[] msgs = msg.split(",");
 		PIDInfo pidInfo = new PIDInfo();
+		pidInfo.terminalId = msgs[0].substring(2);
 		pidInfo.diagnoseProtocol = msgs[2];
 		pidInfo.pidNumber = Integer.parseInt(msgs[3]);
 		if (0 < pidInfo.pidNumber) {
@@ -226,7 +227,7 @@ public class DataParseUtil {
 		if (0 < pidInfo.pidNumber) {
 			for (int i = 0; i < pidInfo.pidNumber*2; i = i + 2) {
 				pidInfo.pids.add(msgs[i + 4]);
-				pidInfo.pidVlaues.add(msgs[i + 5]);
+				pidInfo.pidValues.add(msgs[i + 5]);
 			}
 		}
 

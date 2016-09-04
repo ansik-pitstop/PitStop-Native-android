@@ -30,6 +30,7 @@ import org.json.JSONException;
 
 import java.util.List;
 
+@Deprecated
 public class SelectDealershipActivity extends AppCompatActivity {
 
     private GlobalApplication application;

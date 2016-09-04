@@ -14,6 +14,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 import java.util.UUID;
 
@@ -209,12 +210,45 @@ public class Device212B implements AbstractDevice {
      */
 
     private void obdParameterPackageParse(String info) {
+        // 212 specific package
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
                 ParameterPackageInfo.class);
-        dataListener.getParameterData(parameterPackageInfo);
+        //dataListener.getParameterData(parameterPackageInfo);
+
+        //generic parameter package
+        ParameterPackage parameterPackage = new ParameterPackage();
+        parameterPackage.deviceId = parameterPackageInfo.deviceId;
+        parameterPackage.success = parameterPackageInfo.result == 0;
+
+        if(parameterPackageInfo.value != null && parameterPackageInfo.value.size() > 0) {
+            parameterPackage.paramType = getParamType(parameterPackageInfo.value.get(0).tlvTag);
+            parameterPackage.value = parameterPackageInfo.value.get(0).value;
+
+            if(parameterPackage.paramType == null) {
+                Log.w(TAG, "Unrecognized tlv tag: " + parameterPackageInfo.value.get(0).tlvTag);
+            }
+        } else {
+            parameterPackage.success = false;
+        }
+
+        dataListener.parameterData(parameterPackage);
+
         Log.i(TAG,"result: "+ parameterPackageInfo.result);
         Log.i(TAG, "Data: " + parameterPackageInfo.value.get(0).tlvTag);
         Log.i(TAG, "Data: " + parameterPackageInfo.value.get(0).value);
+    }
+
+    private ParameterPackage.ParamType getParamType(String tlvTag) {
+        switch(tlvTag) {
+            case PID_TAG:
+                return ParameterPackage.ParamType.SUPPORTED_PIDS;
+            case RTC_TAG:
+                return ParameterPackage.ParamType.RTC_TIME;
+            case VIN_TAG:
+                return ParameterPackage.ParamType.VIN;
+            default:
+                return null;
+        }
     }
 
 

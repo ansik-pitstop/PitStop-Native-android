@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PIDInfo implements Serializable {
+	public String terminalId;
 	public String diagnoseProtocol;
 	public int pidNumber;
 	public List<String> pids = new ArrayList<String>();
-	public List<String> pidVlaues = new ArrayList<String>();
+	public List<String> pidValues = new ArrayList<String>();
 }

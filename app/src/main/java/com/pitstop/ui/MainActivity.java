@@ -50,6 +50,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.IntentProxyObject;
@@ -749,6 +750,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {}
 
     @Override
     public void getIOData(final DataPackageInfo dataPackageInfo) {

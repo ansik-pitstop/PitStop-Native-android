@@ -43,7 +43,6 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     private List<byte[]> dataLists = new ArrayList<>();
 
-    private ObdManager.IBluetoothDataListener dataListener;
     private static String TAG = BluetoothClassicComm.class.getSimpleName();
 
     public BluetoothClassicComm(Context context, BluetoothDeviceManager deviceManager) {

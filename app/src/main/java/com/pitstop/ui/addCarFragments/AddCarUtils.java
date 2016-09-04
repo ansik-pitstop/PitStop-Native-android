@@ -23,6 +23,7 @@ import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.castel.obd215b.util.DataPackageUtil;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -355,6 +356,67 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 makeCar();
 
             } else if(vinAttempts > 8){ // // TODO: time set check for 215b
+                // same as in manual input plus vin hint
+                Log.i(TAG, "Vin value returned not valid");
+                Log.i(TAG,"VIN: "+pendingCar.getVin());
+                vinAttempts = 0;
+                callback.resetScreen();
+                callback.hideLoading("Vin value returned not valid, please use Manual Input!");
+            } else {
+                Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
+                Log.i(TAG,"VIN: "+pendingCar.getVin());
+                vinAttempts++;
+                isGettingVinAndCarIsConnected = true;
+                mHandler.postDelayed(vinDetectionRunnable, 2000);
+            }
+        }
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+        Log.i(TAG, "parameterData()");
+
+        if(parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME) {
+            Log.i(TAG, "Device time returned: "+parameterPackage.value);
+            long moreThanOneYear = 32000000;
+            long deviceTime = Long.valueOf(parameterPackage.value);
+            long currentTime = System.currentTimeMillis()/1000;
+
+            long diff = Math.abs(currentTime - deviceTime);
+
+            if(diff > moreThanOneYear) {
+                autoConnectService.syncObdDevice();
+                needToSetTime = true;
+            } else {
+                autoConnectService.saveSyncedDevice(parameterPackage.deviceId);
+                autoConnectService.getVinFromCar();
+            }
+        }
+
+        if(parameterPackage.paramType == ParameterPackage.ParamType.VIN) {
+            linkingAttempts = 0;
+            Log.i(TAG,"VIN response received");
+
+            callback.showLoading("Getting car VIN");
+
+            isGettingVinAndCarIsConnected = false;
+            pendingCar.setScannerId(parameterPackage.deviceId);
+
+            pendingCar.setVin(parameterPackage.value);
+            try {
+                new MixpanelHelper(context).trackCustom("Retrieved VIN from device",
+                        new JSONObject("{'VIN':'" + pendingCar.getVin() + "','Device':'Android'}"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (isValidVin(pendingCar.getVin())) {
+                vinAttempts = 0;
+                Log.i(TAG,"VIN is valid");
+                autoConnectService.setFixedUpload();
+                callback.showLoading("Loaded car VIN");
+                makeCar();
+
+            } else if(vinAttempts > 8){ // TODO: time set check for 215b
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
                 Log.i(TAG,"VIN: "+pendingCar.getVin());

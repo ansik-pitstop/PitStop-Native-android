@@ -45,6 +45,7 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.database.LocalCarAdapter;
@@ -600,7 +601,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    }
 
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
     }
 
     private Set<String> dtcCodes = new HashSet<>();

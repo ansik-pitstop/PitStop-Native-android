@@ -9,6 +9,17 @@ public class ParameterPackage {
     }
 
     public ParamType paramType;
+    public boolean success;
     public String deviceId;
     public String value;
+
+    @Override
+    public String toString() {
+        return "ParameterPackage{" +
+                "paramType=" + paramType +
+                ", success=" + success +
+                ", deviceId='" + deviceId + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
