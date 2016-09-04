@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -50,7 +49,6 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
@@ -178,13 +176,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate 1");
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
         super.onCreate(savedInstanceState);
-
-        Log.i(TAG, "onCreate 2");
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -235,9 +230,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
-
-        //Debug
-        retrieveUserSettings();
     }
 
     @Override
@@ -258,22 +250,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-
-        if (dashboardCar != null) {
-            //This should be done if the user hasn't seen the tutorial
-            boolean isTutorialDone = PreferenceManager.getDefaultSharedPreferences(application)
-                    .getBoolean(getString(R.string.pfTutorialShown), false);
-
-            Log.d("#$1MainAct onResume", "isTutorialDone " + isTutorialDone);
-
-            if (!isTutorialDone) {
-                try {
-                    presentShowcaseSequence();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -383,12 +359,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        presentShowcaseSequence();
-//                    }
-//                }, 1300);
+                Log.d("OnActivityResult", "CarList: " + carList.size());
+                Log.d("OnActivityResult", LoginActivity.sState);
+                if (carList.size() == 0 && LoginActivity.sState == LoginActivity.SIGNUP){
+                    LoginActivity.switchStateForTutorial();
+                    prepareAndStartTutorialSequence();
+                }
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -886,7 +862,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
-
     public void startAddCarActivity(View view) {
         Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
         startActivityForResult(intent, RC_ADD_CAR);
@@ -979,22 +954,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Tutorial
+     * Given the user has not seen tutorial, show tutorial sequence
      */
-//    private void presentShowcaseSequence() {
-    private synchronized void presentShowcaseSequence() {
+    private void presentShowcaseSequence() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         Log.d("#$2", "presentShowcaseSequence() start");
-        networkHelper.updateTutorialShown(application.getCurrentUserId(), new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError != null){
-                    Toast.makeText(MainActivity.this, "FOR DEBUG - error occur in updating hasSeenTutorial fields", Toast.LENGTH_SHORT).show();
-                    Log.d("UpdateTutorialShown", "Code:" + requestError.getStatusCode() + "\n" + "Message: " + requestError.getMessage() + "\n Error: " + requestError.getError());
-                }
-            }
-        });
 
         final String prefDiscountAvailable = getResources().getString(R.string.pfFirstBookingDiscountAvailability);
         final String prefDiscountAmount = getResources().getString(R.string.pfFirstBookingDiscountAmount);
@@ -1020,11 +985,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             final String discountUnit = preferences.getString(prefDiscountUnit, null);
 
             if (discountAmount != 0 && discountUnit != null) {
-                firstServicePromotion.append("You can also receive a discount of ");
-                if (discountUnit.contains("%")){
+                firstServicePromotion.append(" You can also receive a discount of ");
+                if (discountUnit.contains("%")) {
                     firstServicePromotion.append(discountAmount + discountUnit + " towards your first service");
-                } else{
-                    firstServicePromotion.append(discountUnit + (int)discountAmount +" towards your first service");
+                } else {
+                    firstServicePromotion.append(discountUnit + (int) discountAmount + " towards your first service.");
                 }
             }
 
@@ -1066,7 +1031,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         discountSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                if(materialShowcaseView.equals(firstBookingDiscountShowcase)){
+                if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
                     //update the local sharedPreference
                     preferences.edit().putBoolean(getString(R.string.pfTutorialShown), true).commit();
                     Log.d("#$5 DKsequence", "After edit, pfTutorialShown:" + preferences.getBoolean(getString(R.string.pfTutorialShown), false));
@@ -1147,56 +1112,51 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * This method is supposed to retrieve the necessary user settings from the api and
      * stored them locally in the SharePreferences
      */
-    private void retrieveUserSettings() {
-        //Attempt to retrieve the user settings - hasSeenTutorial
+    private void prepareAndStartTutorialSequence() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
+        Log.d("FSBretrieveUserSetting", LoginActivity.sState);
+        Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
+        Log.d("FSB", "Start getting user settings");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if (response != null) Log.d(TAG, response);
-                if (requestError != null) Log.d(TAG, requestError.toString());
+
+                if (response != null) Log.d("FSB", response);
+                if (requestError != null) Log.d("FSB", requestError.toString());
 
                 if (isLoading) hideLoading();
 
                 if (requestError == null && response != null) {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
-                        if (jsonObject.has("user")) {
-                            JSONObject user = jsonObject.getJSONObject("user");
-                            // true||null don't run tutorial
-                            // false run tutorial
-                            if (user.has("hasSeenTutorial")) {
-                                boolean hasSeenTutorial = user.getBoolean("hasSeenTutorial");
-                                PreferenceManager.getDefaultSharedPreferences(application)
-                                        .edit().putBoolean(getString(R.string.pfTutorialShown), hasSeenTutorial).apply();
-                                Toast.makeText(MainActivity.this, "HasSeenTutorial " + hasSeenTutorial, Toast.LENGTH_SHORT).show();
-                                Log.d("RetrieveUserSettings", "HasSeenTutorial " + hasSeenTutorial);
-                            }else{
-                                Log.d("RetrieveUserSettings", "User does not have 'hasSeenTutorial'");
-                            }
-                        }
-
                         if (jsonObject.has("shop")) {
+                            Log.d("FSB", "Response has shop");
                             JSONObject shop = jsonObject.getJSONObject("shop");
                             JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
                             if (firstAppointmentDiscount.getString("unit") == null) {
-                                PreferenceManager.getDefaultSharedPreferences(application)
-                                        .edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), -1)
+                                preferences.edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), -1)
                                         .putString(getString(R.string.pfFirstBookingDiscountUnit), null)
-                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false).apply();
+                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false).commit();
+                                Log.d("RetrieveShopSettings", "Unit: " + firstAppointmentDiscount.getString("unit") +
+                                        firstAppointmentDiscount.getDouble("amount"));
                             } else {
-                                PreferenceManager.getDefaultSharedPreferences(application)
-                                        .edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), (float) firstAppointmentDiscount.getDouble("amount"))
+                                Log.d("FSB", "Promotion value available");
+                                preferences.edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), (float) firstAppointmentDiscount.getDouble("amount"))
                                         .putString(getString(R.string.pfFirstBookingDiscountUnit), firstAppointmentDiscount.getString("unit"))
-                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), true).apply();
+                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), true).commit();
                             }
                         }
                     } catch (JSONException je) {
                         je.printStackTrace();
-                        Toast.makeText(MainActivity.this, "Error occurred in retrieving user settings", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Error occurred in retrieving first service booking promotion");
                     }
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Toast.makeText(MainActivity.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
+                }
+                try {
+                    presentShowcaseSequence();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });

@@ -10,8 +10,6 @@
     <string name="pfShopName">com.pitstop.shop.name</string>
     <string name="pfCodeForShopObjectID">com.pitstop.shop.objectID</string>
 
-
-
     <!--A boolean value to determine if the use has seen the tutorial -->
     <string name="pfTutorialShown">com.pitstop.tutorial</string>
     <!--A boolean value to determine if the fsb discount is available to this user given this dealership-->

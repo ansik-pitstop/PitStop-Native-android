@@ -175,9 +175,6 @@ public class GlobalApplication extends Application {
         ParseUser.logOut();
 
         setCurrentUser(currentUser);
-
-
-
     }
 
     public int getCurrentUserId() {

@@ -46,7 +46,7 @@ public class ServiceRequestUtil {
     private static final String STATE_TENTATIVE = "tentative";
     private static final String STATE_REQUESTED = "requested";
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
 
     private Context context;
@@ -337,6 +337,9 @@ public class ServiceRequestUtil {
     }
 
     private void sendRequestWithState(String state, String timestamp, String comments) {
+
+        Log.d("Service Request", "Timestamp: " + timestamp);
+
         networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(),
                 dashboardCar.getShopId(), state, timestamp, comments, new RequestCallback() {
                     @Override
@@ -356,37 +359,6 @@ public class ServiceRequestUtil {
                     }
                 });
     }
-
-//    private void showTutorialSequence() {
-//        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mApplication);
-//        final String prefTutorialShown = context.getResources().getString(R.string.pfTutorialShown);
-//        final boolean hasSeenTutorial = preferences.getBoolean(prefTutorialShown, false);
-//
-//        if (hasSeenTutorial) {
-//            askForDate(false);
-//            return;
-//        }
-//
-//        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity) context);
-//
-//        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-//            @Override
-//            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-//                preferences.edit().putBoolean(prefTutorialShown, true).apply();
-//                askForDate(false);
-//            }
-//        });
-//
-//        sequence.addSequenceItem(new MaterialShowcaseView.Builder((Activity) context)
-//                .withoutShape()
-//                .setContentText(R.string.first_service_booking_2)
-//                .setDismissOnTouch(true)
-//                .setMaskColour(ContextCompat.getColor(context, R.color.darkBlueTrans))
-//                .build()
-//        );
-//
-//        sequence.start();
-//    }
 
     /**
      * Left unused after refactoring

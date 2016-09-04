@@ -58,6 +58,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public static String LOGIN_REFRESH = "login_refresh";
 
+    public static final String LOGIN = "com.pitstop.ui.LoginActivity.LOGIN";
+    public static final String SIGNUP = "com.pitstop.ui.LoginActivity.SIGNUP";
+    public static String sState = LOGIN;
+
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     GlobalApplication application;
@@ -220,7 +224,6 @@ public class LoginActivity extends AppCompatActivity {
             startMainActivity(false);
         } else {
             showLoading("Logging in...");
-
             startMainActivity(false);
         }
     }
@@ -387,6 +390,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
+                            Log.d("SIGNUP", "SignUp login");
                             login(email.getText().toString(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
@@ -415,6 +419,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
             }
+            sState = SIGNUP;
         } else {
             try {
                 mixpanelHelper.trackButtonTapped("Login with Email", TAG);
@@ -445,6 +450,7 @@ public class LoginActivity extends AppCompatActivity {
             } catch (JSONException e2) {
                 e2.printStackTrace();
             }
+            sState = LOGIN;
         }
     }
 
@@ -594,6 +600,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, refresh);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
+
         startActivity(intent);
     }
 
@@ -756,4 +763,10 @@ public class LoginActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+    public static void switchStateForTutorial(){
+        sState = LOGIN;
+    }
+
+
 }
