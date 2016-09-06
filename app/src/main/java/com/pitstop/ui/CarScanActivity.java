@@ -47,6 +47,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.database.LocalCarAdapter;
@@ -607,6 +608,11 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
     }
 
     private Set<String> dtcCodes = new HashSet<>();

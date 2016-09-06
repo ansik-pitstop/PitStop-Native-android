@@ -34,6 +34,7 @@ import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -388,6 +389,71 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         callbacks.parameterData(parameterPackage);
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+        if (pidPackage.pids.size() == 0) {
+            Log.i(TAG, "No pids returned");
+            return;
+        }
+
+        Log.i(TAG, "pidData: " + pidPackage.toString());
+
+        Pid pidDataObject = new Pid();
+        JSONArray pids = new JSONArray();
+
+        Car car = localCarAdapter.getCarByScanner(pidPackage.deviceId);
+
+        double mileage;
+        double calculatedMileage;
+
+        if(pidPackage.tripMileage != null && !pidPackage.tripMileage.isEmpty()) {
+            mileage = Double.parseDouble(pidPackage.tripMileage) / 1000;
+            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
+        } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
+            mileage = Double.parseDouble(lastData.tripMileage)/1000;
+            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
+        } else {
+            mileage = 0;
+            calculatedMileage = 0;
+        }
+
+        pidDataObject.setMileage(mileage); // trip mileage from device
+        pidDataObject.setCalculatedMileage(calculatedMileage);
+        pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
+        pidDataObject.setTripId(lastDeviceTripId);
+        pidDataObject.setRtcTime(pidPackage.rtcTime);
+        pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
+
+        StringBuilder sb = new StringBuilder();
+        for(Map.Entry<String, String> pidEntry : pidPackage.pids.entrySet()) {
+            sb.append(pidEntry.getKey());
+            sb.append(": ");
+            sb.append(pidEntry.getValue());
+            sb.append(" / ");
+            try {
+                JSONObject pid = new JSONObject();
+                pid.put("id", pidEntry.getKey());
+                pid.put("data", pidEntry.getValue());
+                pids.put(pid);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            //Log.d(TAG, "PID json: " + json);
+        }
+
+        Log.i(TAG, "PIDs received: " + sb.toString());
+
+        pidDataObject.setPids(pids.toString());
+
+        if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
+            localPid.createPIDData(pidDataObject);
+        }
+
+        if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
+            sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId);
+        }
     }
 
     /**
@@ -922,7 +988,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     /**
      * Process data package sent from device for pids. Store pids locally, once
      * we have 100 data points, send the data to the server.
-     * @see #sendPidDataToServer(DataPackageInfo)
+     * @see #sendPidDataToServer(String, String)
      * @see #extractFreezeData(DataPackageInfo)
      *
      * @param data
@@ -1008,7 +1074,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-            sendPidDataToServer(data);
+            sendPidDataToServer(data.rtcTime, data.deviceId);
         }
 
         if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE < 5) {
@@ -1076,9 +1142,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     /**
      * Send pid data to server on 100 data points received
      * @see #processPIDData(DataPackageInfo)
-     * @param data
+     * @param rtcTime
+     * @param deviceId
      */
-    private void sendPidDataToServer(final DataPackageInfo data) {
+    private void sendPidDataToServer(final String rtcTime, final String deviceId) {
         if(isSendingPids) {
             Log.i(TAG, "Already sending pids");
             return;
@@ -1116,9 +1183,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(lastTripId != -1) {
             for(JSONArray pids : pidArrays) {
                 if(pids.length() == 0) {
+                    isSendingPids = false;
                     continue;
                 }
-                networkHelper.savePids(lastTripId, data.deviceId, pids,
+                networkHelper.savePids(lastTripId, deviceId, pids,
                         new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
@@ -1138,7 +1206,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
+            tripRequestQueue.add(new TripStart(lastDeviceTripId, rtcTime, deviceId));
             executeTripRequests();
         }
     }
@@ -1148,7 +1216,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #processPIDData(DataPackageInfo)
      * @param data
      */
-    private void sendPidDataResult4ToServer(DataPackageInfo data) {
+    private void sendPidDataResult4ToServer(DataPackageInfo data) { // TODO: Replace all usages with sendPidDataToServer
         if(isSendingPids) {
             Log.i(TAG, "Already sending pids");
             return;
@@ -1215,7 +1283,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     /**
      * Extract freeze data from data package sent from device
-     * @see #sendPidDataToServer(DataPackageInfo)
      * @param data
      * @return JSONObject
      */

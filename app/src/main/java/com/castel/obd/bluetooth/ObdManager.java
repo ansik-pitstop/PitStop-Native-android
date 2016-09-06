@@ -14,6 +14,7 @@ import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -290,7 +291,7 @@ public class ObdManager {
     /**
      *  Callbacks for obd functions
      */
-    public interface IBluetoothDataListener {
+    public interface IBluetoothDataListener {  // TODO: Remove unnecessary functions
         void getBluetoothState(int state);
 
         void setCtrlResponse(ResponsePackageInfo responsePackageInfo);
@@ -304,6 +305,8 @@ public class ObdManager {
         void deviceLogin(LoginPackageInfo loginPackageInfo);
 
         void parameterData(ParameterPackage parameterPackage);
+
+        void pidData(PidPackage pidPackage);
 
         void dtcData(DtcPackage dtcPackage);
     }

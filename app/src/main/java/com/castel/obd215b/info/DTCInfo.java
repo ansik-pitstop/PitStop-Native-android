@@ -13,7 +13,7 @@ public class DTCInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "DTCInfo [terminalId=" + terminalId + ", dtcType=" + dtcType + ", diagnosisProtocol="
+		return "DTCInfo [deviceId=" + terminalId + ", dtcType=" + dtcType + ", diagnosisProtocol="
 				+ diagnosisProtocol + ", dtcNumber=" + dtcNumber + ", dtcs="
 				+ Arrays.toString(dtcs) + "]";
 	}

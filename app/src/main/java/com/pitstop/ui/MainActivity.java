@@ -52,6 +52,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.IntentProxyObject;
@@ -754,6 +755,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void parameterData(ParameterPackage parameterPackage) {}
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
 
     @Override
     public void dtcData(final DtcPackage dtcPackage) {
