@@ -18,11 +18,13 @@ import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,7 +112,7 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public String setPidsToSend(String pids) {
-        return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM + "," + HISTORICAL_DATA_PARAM,  pids.replace(",", "/") + "10,1");
+        return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM,  pids.replace(",", "/") + ",2");
     }
 
     @Override
@@ -130,7 +132,7 @@ public class Device215B implements AbstractDevice {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
+        Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
         if(readData.isEmpty()) {
             return;
@@ -176,11 +178,24 @@ public class Device215B implements AbstractDevice {
     }
 
     private String siMulti(String params, String values) {
-        int numberOfParams = params.split(",").length;
+        String[] splitParams = params.split(",");
+        String[] splitValues = values.split(",");
 
-        if (values.split(",").length != numberOfParams) {
-            Log.w("siMulti", "Number of params and values must match");
+        int numberOfParams = splitParams.length;
+
+        if (splitValues.length != numberOfParams) {
+            Log.w(TAG, "siMulti: Number of params and values must match");
             return "";
+        }
+
+        StringBuilder paramAndValues = new StringBuilder();
+
+        for(int i = 0 ; i < numberOfParams ; i++) {
+            paramAndValues.append(splitParams[i]);
+            paramAndValues.append(",");
+            paramAndValues.append(splitValues[i]);
+            paramAndValues.append(",");
+
         }
 
         String crcData = Constants.INSTRUCTION_HEAD
@@ -190,10 +205,7 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + numberOfParams
                 + ","
-                + params
-                + ","
-                + values
-                + ","
+                + paramAndValues.toString()
                 + Constants.INSTRUCTION_STAR;
 
         String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
@@ -270,7 +282,30 @@ public class Device215B implements AbstractDevice {
 
                 // TODO: dtc and pids
 
-                //Log.i(TAG, idrInfo.toString());
+                if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {
+                    PidPackage pidPackage = new PidPackage();
+                    try {
+                        pidPackage.rtcTime = String.valueOf(parseRtcTime(idrInfo.ignitionTime)
+                                + Long.parseLong(idrInfo.runTime));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        pidPackage.rtcTime = "0";
+                    }
+                    pidPackage.pids = parsePids(idrInfo.pid);
+                    pidPackage.tripMileage = idrInfo.mileage;
+                    pidPackage.deviceId = idrInfo.terminalSN;
+                    pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+                    try {
+                        pidPackage.tripId = String.valueOf(parseRtcTime(idrInfo.ignitionTime));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        pidPackage.tripId = "0";
+                    }
+
+                    dataListener.pidData(pidPackage);
+                }
+
+                Log.d(TAG, idrInfo.toString());
 
             } else if (Constants.INSTRUCTION_SI
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
@@ -291,7 +326,7 @@ public class Device215B implements AbstractDevice {
                 // assumes only one parameter queried per command
                 if(settingInfo.terminalRTCTime != null) {
                     try {
-                        long rtcTime = new SimpleDateFormat("yyMMddHHmmss").parse(settingInfo.terminalRTCTime).getTime() / 1000;
+                        long rtcTime = parseRtcTime(settingInfo.terminalRTCTime);
                         parameterPackage.success = true;
                         parameterPackage.paramType = ParameterPackage.ParamType.RTC_TIME;
                         parameterPackage.value = String.valueOf(rtcTime);
@@ -332,16 +367,15 @@ public class Device215B implements AbstractDevice {
                 dataListener.parameterData(parameterPackage);
             } else if (Constants.INSTRUCTION_PID
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
+                // PIDs are never explicitly requested
+
                 //PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
+                //PidPackage pidPackage = new PidPackage();
+                //HashMap<String, String> pidNap = new HashMap<>();
 //
-                //intent.putExtra(EXTRA_DATA_TYPE,
-                //        Constants.INSTRUCTION_PID);
-                //intent.putExtra(EXTRA_DATA, pidInfo);
-                //LocalBroadcastManager.getInstance(this)
-                //        .sendBroadcast(intent);
-//
-                //broadcastContent(ACTION_COMMAND_TEST,
-                //        COMMAND_TEST_WRITE, getResources().getString(R.string.report_data) + msgInfo + "\n");
+                //for(int i = 0 ; i < pidInfo.pids.size() ; i++) {
+                //    pidNap.put(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
+                //}
             } else if (Constants.INSTRUCTION_DTC
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 Log.i(TAG, msgInfo);
@@ -374,6 +408,24 @@ public class Device215B implements AbstractDevice {
                 dataListener.dtcData(dtcPackage);
             }
         }
+    }
+
+    private long parseRtcTime(String rtcTime) throws ParseException {
+        return new SimpleDateFormat("yyMMddHHmmss").parse(rtcTime).getTime() / 1000;
+    }
+
+    private HashMap<String, String> parsePids(String unparsedPidString) {
+        HashMap<String, String> pidMap = new HashMap<>();
+
+        // unparsedPidString should look like "2105/7C/210C/2ED3/210D/0A/210F/19/2110/BCAB/212F/32"
+
+        String[] pidArray = unparsedPidString.split("/");
+
+        for(int i = 0 ; i + 1 < pidArray.length ; i += 2) {
+            pidMap.put(pidArray[i], pidArray[i + 1]);
+        }
+
+        return pidMap;
     }
 
 }

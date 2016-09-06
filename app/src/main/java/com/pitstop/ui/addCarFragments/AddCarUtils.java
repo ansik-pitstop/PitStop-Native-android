@@ -333,7 +333,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
         if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             linkingAttempts = 0;
-            Log.i(TAG,"VIN response received");
+            Log.i(TAG,"VIN response received: " + parameterPackageInfo.value.get(0));
 
             callback.showLoading("Getting car VIN");
 

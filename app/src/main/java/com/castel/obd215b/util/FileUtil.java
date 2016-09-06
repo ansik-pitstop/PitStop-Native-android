@@ -24,7 +24,7 @@ public class FileUtil {
 
 	public void readDTC(Context ctx) {
 		try {
-			InputStream is = ctx.getAssets().open("DTC.bak");
+			InputStream is = ctx.getAssets().open("DTC_215B.bak");
 			BufferedReader bf = new BufferedReader(new InputStreamReader(is));
 
 			String line = null;

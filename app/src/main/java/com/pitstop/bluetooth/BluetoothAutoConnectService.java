@@ -361,7 +361,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
-        Log.i(TAG, "parameterData: " + parameterPackage.toString());
+        Log.d(TAG, "parameterData: " + parameterPackage.toString());
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
             Log.i(TAG, "Supported pids returned");
@@ -388,7 +388,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager.setPidsToSend(supportedPids);
         }
 
-        callbacks.parameterData(parameterPackage);
+        if(callbacks != null) {
+            callbacks.parameterData(parameterPackage);
+        }
     }
 
     @Override
@@ -398,7 +400,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        Log.i(TAG, "pidData: " + pidPackage.toString());
+        counter++;
+
+        if(counter==20){
+            if(!isGettingVin) {
+                getSupportedPids();
+            }
+        }
+
+        Log.d(TAG, "pidData: " + pidPackage.toString());
 
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
@@ -422,7 +432,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataObject.setMileage(mileage); // trip mileage from device
         pidDataObject.setCalculatedMileage(calculatedMileage);
         pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
-        pidDataObject.setTripId(lastDeviceTripId);
+        pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
         pidDataObject.setRtcTime(pidPackage.rtcTime);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
 
@@ -452,7 +462,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-            sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId);
+            sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
         }
     }
 
@@ -462,7 +472,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void dtcData(DtcPackage dtcPackage) {
-        Log.i(TAG, "DTC data: " + dtcPackage.toString());
+        Log.d(TAG, "DTC data: " + dtcPackage.toString());
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
         }
@@ -988,7 +998,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     /**
      * Process data package sent from device for pids. Store pids locally, once
      * we have 100 data points, send the data to the server.
-     * @see #sendPidDataToServer(String, String)
+     * @see #sendPidDataToServer(String, String, String)
      * @see #extractFreezeData(DataPackageInfo)
      *
      * @param data
@@ -1074,7 +1084,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-            sendPidDataToServer(data.rtcTime, data.deviceId);
+            sendPidDataToServer(data.rtcTime, data.deviceId, data.tripId);
         }
 
         if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE < 5) {
@@ -1145,7 +1155,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @param rtcTime
      * @param deviceId
      */
-    private void sendPidDataToServer(final String rtcTime, final String deviceId) {
+    private void sendPidDataToServer(final String rtcTime, final String deviceId, final String tripId) {
         if(isSendingPids) {
             Log.i(TAG, "Already sending pids");
             return;
@@ -1206,7 +1216,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            tripRequestQueue.add(new TripStart(lastDeviceTripId, rtcTime, deviceId));
+            tripRequestQueue.add(new TripStart(Long.parseLong(tripId), rtcTime, deviceId));
             executeTripRequests();
         }
     }
