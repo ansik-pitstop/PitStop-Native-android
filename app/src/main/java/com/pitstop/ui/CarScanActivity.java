@@ -358,7 +358,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                     dashboardCar.setTotalMileage(mileage);
                                                     localCarAdapter.updateCar(dashboardCar);
                                                     baseMileage = mileage;
-                                                    carMileage.setText(String.valueOf(mileage));
+                                                    carMileage.setText(input.getText().toString());
 
                                                     if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
                                                         networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
@@ -415,6 +415,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private void startCarScan() {
+        Log.i(TAG, "Starting car scan");
+        autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
         recallsCountLayout.setVisibility(View.GONE);
         loadingRecalls.setVisibility(View.VISIBLE);
@@ -656,6 +658,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
                     engineIssuesText.setText("Engine issues");
 
+                    Log.i(TAG, "Finished car scan, dtcs found");
+                    handler.removeCallbacks(runnable);
+
                     Drawable background = engineIssuesCountLayout.getBackground();
                     GradientDrawable gradientDrawable = (GradientDrawable) background;
                     gradientDrawable.setColor(Color.rgb(203, 77, 69));
@@ -674,6 +679,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             }
             switch (msg.what) {
                 case 0: {
+                    Log.i(TAG, "Finished car scan, no dtcs");
                     if(dtcCodes.isEmpty()) {
                         loadingEngineIssues.setVisibility(View.GONE);
                         engineIssuesCountLayout.setVisibility(View.GONE);
