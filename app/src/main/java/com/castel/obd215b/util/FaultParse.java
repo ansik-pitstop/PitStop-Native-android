@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.castel.obd215b.info.FualtInfo;
+import com.castel.obd215b.info.FaultInfo;
 
 import android.content.Context;
 import android.util.Log;
 
 public class FaultParse {
 
-	public static List<FualtInfo> parse(Context context, String[] faults) {
+	public static List<FaultInfo> parse(Context context, String[] faults) {
 		int[] tt1 = new int[faults.length];
 		for (int i = 0; i < faults.length; i++) {
 			tt1[i] = Integer.parseInt(faults[i], 16);
@@ -19,9 +19,9 @@ public class FaultParse {
 
 		FileUtil.getInstance().readDTC(context);
 
-		List<FualtInfo> fualtValues = new ArrayList<FualtInfo>();
+		List<FaultInfo> fualtValues = new ArrayList<FaultInfo>();
 		for (int ii = 0; ii < tt1.length; ii++) {
-			FualtInfo fualtValue = new FualtInfo();
+			FaultInfo fualtValue = new FaultInfo();
 			int tt = tt1[ii];
 			Log.e("gf", String.valueOf(tt));
 			String b = "";
@@ -97,13 +97,13 @@ public class FaultParse {
 		return fualtValues;
 	}
 	
-	public static List<FualtInfo> parseCommercial(Context context, String[] faults) {
-		List<FualtInfo> fualtValues = new ArrayList<FualtInfo>();
+	public static List<FaultInfo> parseCommercial(Context context, String[] faults) {
+		List<FaultInfo> fualtValues = new ArrayList<FaultInfo>();
 		String fileCN = "malfunction_commercial.properties";
 		LogUtil.i("file name CN:" + fileCN);
 		int[] tt1 = new int[faults.length];
 		for (int i = 0; i < faults.length; i++) {
-			FualtInfo fualtValue = new FualtInfo();
+			FaultInfo fualtValue = new FaultInfo();
 			String explainCN = "";
 			fualtValue.code = "0x"+faults[i];
 			explainCN = FileUtil.getInstance()

@@ -1,7 +1,6 @@
 package com.pitstop.bluetooth.dataPackages;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Ben Wu on 2016-09-02.

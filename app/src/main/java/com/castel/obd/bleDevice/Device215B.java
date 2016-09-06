@@ -4,26 +4,26 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd215b.info.FaultInfo;
 import com.castel.obd215b.info.PIDInfo;
+import com.castel.obd215b.util.FaultParse;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.ParameterInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.IDRInfo;
 import com.castel.obd215b.info.SettingInfo;
 import com.castel.obd215b.util.Constants;
-import com.castel.obd215b.util.DataPackageUtil;
 import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -347,23 +347,29 @@ public class Device215B implements AbstractDevice {
 
                 Log.i(TAG, dtcInfo.toString());
 
-                DataPackageInfo dataPackageInfo = new DataPackageInfo();
+                Log.i(TAG, "Parsing DTC data");
 
-                dataPackageInfo.result = 6;
-                StringBuilder sb = new StringBuilder();
-                if(dtcInfo.dtcs != null) {
-                    for (String dtc : dtcInfo.dtcs) {
-                        sb.append(dtc.substring(4));
-                        sb.append(",");
-                    }
+                DtcPackage dtcPackage = new DtcPackage(); // TODO: test parser
+
+                dtcPackage.isPending = dtcInfo.dtcType == 1;
+
+                List<FaultInfo> faultInfo = FaultParse.parse(context, dtcInfo.dtcs);
+
+                String[] dtcCodes = new String[faultInfo.size()];
+
+                for(int i = 0 ; i < faultInfo.size() ; i++) {
+                    dtcCodes[i] = faultInfo.get(i).code;
                 }
-                if(sb.length() > 0) {
-                    sb.deleteCharAt(sb.length() - 1);
-                }
-                dataPackageInfo.dtcData = sb.toString();
-                dataPackageInfo.deviceId = dtcInfo.terminalId;
-                dataPackageInfo.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-                dataListener.getIOData(dataPackageInfo);
+
+                dtcPackage.dtcs = dtcCodes;
+
+                dtcPackage.dtcNumber = dtcCodes.length;
+
+                dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+
+                dtcPackage.deviceId = dtcInfo.terminalId;
+
+                dataListener.dtcData(dtcPackage);
             }
         }
     }

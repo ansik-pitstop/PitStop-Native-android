@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.util.ObdDataUtil;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
@@ -14,6 +15,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 
 import java.util.UUID;
@@ -266,9 +268,37 @@ public class Device212B implements AbstractDevice {
                 Log.i(TAG, "Saving OBDInfo (DeviceId and DataNumber) - ObdManager");
                 OBDInfoSP.saveInfo(context, dataPackageInfo.deviceId,
                         dataPackageInfo.dataNumber);
-                Log.i(TAG,"dataNumber:" + dataPackageInfo.dataNumber);
+                Log.i(TAG, "dataNumber:" + dataPackageInfo.dataNumber);
             }
 
+            String tripFlag = dataPackageInfo.tripFlag;
+
+            // process dtc data
+            if (dataPackageInfo.dtcData != null && dataPackageInfo.result == 6 ||
+                    (tripFlag != null && (tripFlag.equals("6") || tripFlag.equals("5")))) { // TODO: Check if dtcData null works
+
+                Log.i(TAG, "Parsing DTC data");
+
+                DtcPackage dtcPackage = new DtcPackage();
+
+                dtcPackage.isPending = (tripFlag != null && tripFlag.equals("5"));
+
+                dtcPackage.rtcTime = dataPackageInfo.rtcTime;
+
+                dtcPackage.deviceId = dataPackageInfo.deviceId;
+
+                String[] unparsedDtcs = dataPackageInfo.dtcData.split(",");
+
+                dtcPackage.dtcs = new String[unparsedDtcs.length];
+
+                for(int i = 0 ; i < unparsedDtcs.length ; i++) {
+                    dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                }
+
+                dtcPackage.dtcNumber = unparsedDtcs.length;
+
+                dataListener.dtcData(dtcPackage);
+            }
         }
 
         dataListener.getIOData(dataPackageInfo);
