@@ -298,7 +298,9 @@ public class Device212B implements AbstractDevice {
                 dtcPackage.dtcs = new String[unparsedDtcs.length];
 
                 for(int i = 0 ; i < unparsedDtcs.length ; i++) {
-                    dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                    if(unparsedDtcs[i].length() > 0) {
+                        dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                    }
                 }
 
                 dtcPackage.dtcNumber = unparsedDtcs.length;
