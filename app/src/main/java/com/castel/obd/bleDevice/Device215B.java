@@ -268,6 +268,8 @@ public class Device215B implements AbstractDevice {
                 IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
                 idrInfo.time = dateStr;
 
+                // TODO: dtc and pids
+
                 //Log.i(TAG, idrInfo.toString());
 
             } else if (Constants.INSTRUCTION_SI

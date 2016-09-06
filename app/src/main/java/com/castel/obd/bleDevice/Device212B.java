@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.info.PIDInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
@@ -17,7 +18,12 @@ import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -299,7 +305,53 @@ public class Device212B implements AbstractDevice {
 
                 dataListener.dtcData(dtcPackage);
             }
+
+            if(dataPackageInfo.result == 4 && dataPackageInfo.obdData != null
+                    && dataPackageInfo.obdData.size() > 0) {
+                PidPackage templatePidPackage = new PidPackage();
+
+                templatePidPackage.deviceId = dataPackageInfo.deviceId;
+                templatePidPackage.tripMileage = dataPackageInfo.tripMileage;
+                templatePidPackage.tripId = dataPackageInfo.tripId;
+                templatePidPackage.rtcTime = dataPackageInfo.rtcTime;
+                templatePidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
+                // pid map for aggregated pid
+                HashMap<String, String[]> aggregatePidMap = new HashMap<>();
+
+                int numberOfDataPoints = dataPackageInfo.obdData.get(0).value.split(",").length;
+
+                // parse aggregate data to individual pid snapshots
+                // e.g. {"id":"210D","data":"87,87,87,87,87"} to 5 {"id":"210D","data":"87"}
+                for(PIDInfo pidInfo : dataPackageInfo.obdData) {
+                    aggregatePidMap.put(pidInfo.pidType, pidInfo.value.split(","));
+                }
+
+                // maps for individual pid data points
+                ArrayList<HashMap<String, String>> pidMapList = new ArrayList<>();
+
+                for(int i = 0 ; i <numberOfDataPoints ; i++) {
+                    pidMapList.add(new HashMap<String, String>());
+                }
+
+                for(PIDInfo pidInfo : dataPackageInfo.obdData) {
+                    String[] aggregateValues = aggregatePidMap.get(pidInfo.pidType);
+                    for (int i = 0; i < numberOfDataPoints; i++) {
+                        HashMap<String, String> mapToUpdate = pidMapList.get(i);
+                        mapToUpdate.put(pidInfo.pidType, aggregateValues[i]);
+                        pidMapList.set(i, mapToUpdate);
+                    }
+                }
+
+                for(int i = 0 ; i < pidMapList.size() ; i++) {
+                    PidPackage pidPackage = new PidPackage(templatePidPackage);
+                    pidPackage.rtcTime = String.valueOf(Long.parseLong(pidPackage.rtcTime) - 2 * (numberOfDataPoints - i - 1));
+                    pidPackage.pids = pidMapList.get(i);
+                    dataListener.pidData(pidPackage);
+                }
+            }
         }
+
 
         dataListener.getIOData(dataPackageInfo);
     }

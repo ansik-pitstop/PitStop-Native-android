@@ -393,7 +393,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void pidData(PidPackage pidPackage) {
-        if (pidPackage.pids.size() == 0) {
+        if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned");
             return;
         }
