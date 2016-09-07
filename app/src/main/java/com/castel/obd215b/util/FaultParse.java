@@ -19,9 +19,9 @@ public class FaultParse {
 
 		FileUtil.getInstance().readDTC(context);
 
-		List<FaultInfo> fualtValues = new ArrayList<FaultInfo>();
+		List<FaultInfo> faultInfos = new ArrayList<FaultInfo>();
 		for (int ii = 0; ii < tt1.length; ii++) {
-			FaultInfo fualtValue = new FaultInfo();
+			FaultInfo fault = new FaultInfo();
 			int tt = tt1[ii];
 			Log.e("gf", String.valueOf(tt));
 			String b = "";
@@ -52,7 +52,7 @@ public class FaultParse {
 				if (tmp.indexOf(b) > 0) {
 					code = tmp.substring(tmp.length() - 5, tmp.length());
 					LogUtil.i("code" + code);
-					fualtValue.code = code;
+					fault.code = code;
 					di = ll.size();
 					found = true;
 				}
@@ -87,14 +87,14 @@ public class FaultParse {
 	        	explain = explainEN;
 			
 			if (!Utils.isEmpty(explainCN)) {
-				fualtValue.meaning = explain;
+				fault.meaning = explain;
 			} else {
-				fualtValue.meaning = "";
+				fault.meaning = "";
 			}
 
-			fualtValues.add(fualtValue);
+			faultInfos.add(fault);
 		}
-		return fualtValues;
+		return faultInfos;
 	}
 	
 	public static List<FaultInfo> parseCommercial(Context context, String[] faults) {

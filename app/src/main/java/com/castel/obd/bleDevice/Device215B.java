@@ -19,6 +19,7 @@ import com.castel.obd215b.util.DateUtil;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -272,6 +273,8 @@ public class Device215B implements AbstractDevice {
                     "\\r\\n");
 
             sbRead = new StringBuilder();
+
+            // determine response type
             if (Constants.INSTRUCTION_IDR.equals(DataParseUtil
                     .parseMsgType(msgInfo))) {
 
@@ -280,7 +283,26 @@ public class Device215B implements AbstractDevice {
                 IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
                 idrInfo.time = dateStr;
 
-                // TODO: dtc and pids
+                long ignitionTime; // ignition time parsed as unix time seconds
+                try {
+                    ignitionTime = parseRtcTime(idrInfo.ignitionTime);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    ignitionTime = 0;
+                }
+
+                // TODO: dtcs
+
+                // Trip end/start
+                if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
+                    TripInfoPackage tripInfoPackage = new TripInfoPackage();
+                    tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
+                    tripInfoPackage.tripId = ignitionTime;
+                    tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
+                    tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
+
+                    dataListener.tripData(tripInfoPackage);
+                }
 
                 if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {
                     PidPackage pidPackage = new PidPackage();
@@ -292,7 +314,7 @@ public class Device215B implements AbstractDevice {
                         pidPackage.rtcTime = "0";
                     }
                     pidPackage.pids = parsePids(idrInfo.pid);
-                    pidPackage.tripMileage = idrInfo.mileage;
+                    pidPackage.tripMileage = String.valueOf(Double.parseDouble(idrInfo.mileage) / 1000);
                     pidPackage.deviceId = idrInfo.terminalSN;
                     pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
                     try {
@@ -385,9 +407,11 @@ public class Device215B implements AbstractDevice {
 
                 Log.i(TAG, "Parsing DTC data");
 
-                DtcPackage dtcPackage = new DtcPackage(); // TODO: test parser
+                DtcPackage dtcPackage = new DtcPackage();
 
                 dtcPackage.isPending = dtcInfo.dtcType == 1;
+
+                // dtc example: dtcs=[03111105, 03111312, 03111334, 03110340]
 
                 List<FaultInfo> faultInfo = FaultParse.parse(context, dtcInfo.dtcs);
 

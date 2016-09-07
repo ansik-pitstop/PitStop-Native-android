@@ -19,6 +19,7 @@ import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
 import org.json.JSONException;
 
@@ -277,17 +278,17 @@ public class Device212B implements AbstractDevice {
                 Log.i(TAG, "dataNumber:" + dataPackageInfo.dataNumber);
             }
 
-            String tripFlag = dataPackageInfo.tripFlag;
+            final String tripFlag = dataPackageInfo.tripFlag != null ? dataPackageInfo.tripFlag : "-1";
 
             // process dtc data
             if (dataPackageInfo.dtcData != null && dataPackageInfo.result == 6 ||
-                    (tripFlag != null && (tripFlag.equals("6") || tripFlag.equals("5")))) { // TODO: Check if dtcData null works
+                    tripFlag.equals("6") || tripFlag.equals("5")) { // TODO: Check if dtcData null works
 
                 Log.i(TAG, "Parsing DTC data");
 
                 DtcPackage dtcPackage = new DtcPackage();
 
-                dtcPackage.isPending = (tripFlag != null && tripFlag.equals("5"));
+                dtcPackage.isPending = tripFlag.equals("5");
 
                 dtcPackage.rtcTime = dataPackageInfo.rtcTime;
 
@@ -308,8 +309,9 @@ public class Device212B implements AbstractDevice {
                 dataListener.dtcData(dtcPackage);
             }
 
-            if(dataPackageInfo.result == 4 && dataPackageInfo.obdData != null
-                    && dataPackageInfo.obdData.size() > 0) {
+            // fixed upload pids
+            if(dataPackageInfo.result == 4 && tripFlag.equals("1")
+                    && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
                 PidPackage templatePidPackage = new PidPackage();
 
                 templatePidPackage.deviceId = dataPackageInfo.deviceId;
@@ -325,18 +327,18 @@ public class Device212B implements AbstractDevice {
 
                 // parse aggregate data to individual pid snapshots
                 // e.g. {"id":"210D","data":"87,87,87,87,87"} to 5 {"id":"210D","data":"87"}
-                for(PIDInfo pidInfo : dataPackageInfo.obdData) {
+                for (PIDInfo pidInfo : dataPackageInfo.obdData) {
                     aggregatePidMap.put(pidInfo.pidType, pidInfo.value.split(","));
                 }
 
                 // maps for individual pid data points
                 ArrayList<HashMap<String, String>> pidMapList = new ArrayList<>();
 
-                for(int i = 0 ; i <numberOfDataPoints ; i++) {
+                for (int i = 0; i < numberOfDataPoints; i++) {
                     pidMapList.add(new HashMap<String, String>());
                 }
 
-                for(PIDInfo pidInfo : dataPackageInfo.obdData) {
+                for (PIDInfo pidInfo : dataPackageInfo.obdData) {
                     String[] aggregateValues = aggregatePidMap.get(pidInfo.pidType);
                     for (int i = 0; i < numberOfDataPoints; i++) {
                         HashMap<String, String> mapToUpdate = pidMapList.get(i);
@@ -345,11 +347,28 @@ public class Device212B implements AbstractDevice {
                     }
                 }
 
-                for(int i = 0 ; i < pidMapList.size() ; i++) {
+                for (int i = 0; i < pidMapList.size(); i++) {
                     PidPackage pidPackage = new PidPackage(templatePidPackage);
                     pidPackage.rtcTime = String.valueOf(Long.parseLong(pidPackage.rtcTime) - 2 * (numberOfDataPoints - i - 1));
                     pidPackage.pids = pidMapList.get(i);
                     dataListener.pidData(pidPackage);
+                }
+            }
+
+            // trip start or trip end flag or real-time data
+            if((dataPackageInfo.result == 4 && (tripFlag.equals("0") || tripFlag.equals("9"))) ||
+                    dataPackageInfo.result == 5) {
+                TripInfoPackage tripInfoPackage = new TripInfoPackage();
+                tripInfoPackage.tripId = Long.parseLong(dataPackageInfo.tripId);
+                tripInfoPackage.mileage = Double.parseDouble(dataPackageInfo.tripMileage) / 1000;
+                tripInfoPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);
+
+                if(dataPackageInfo.result == 5) {
+                    tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
+                } else if(tripFlag.equals("0")) {
+                    tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                } else if(tripFlag.equals("9")) {
+                    tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 }
             }
         }
