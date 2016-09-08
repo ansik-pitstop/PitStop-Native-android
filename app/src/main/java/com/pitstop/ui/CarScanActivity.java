@@ -48,6 +48,7 @@ import com.pitstop.R;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.database.LocalCarAdapter;
@@ -604,6 +605,32 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+        if(tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage = ((int) (baseMileage + tripInfoPackage.mileage * 100)) / 100.0; // round to 2 decimal places
+
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+
+            if(dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                    }
+                });
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
+        }
     }
 
     @Override

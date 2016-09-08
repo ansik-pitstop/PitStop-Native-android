@@ -8,6 +8,7 @@ public class TripInfoPackage {
         START, END, UPDATE
     }
 
+    public String deviceId;
     public long tripId; // device specific
     public double mileage; // in kilometres
     public double rtcTime; // unix time in seconds

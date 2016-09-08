@@ -359,6 +359,7 @@ public class Device212B implements AbstractDevice {
             if((dataPackageInfo.result == 4 && (tripFlag.equals("0") || tripFlag.equals("9"))) ||
                     dataPackageInfo.result == 5) {
                 TripInfoPackage tripInfoPackage = new TripInfoPackage();
+                tripInfoPackage.deviceId = dataPackageInfo.deviceId;
                 tripInfoPackage.tripId = Long.parseLong(dataPackageInfo.tripId);
                 tripInfoPackage.mileage = Double.parseDouble(dataPackageInfo.tripMileage) / 1000;
                 tripInfoPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);

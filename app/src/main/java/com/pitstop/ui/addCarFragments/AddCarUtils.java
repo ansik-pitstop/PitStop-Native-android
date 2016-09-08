@@ -26,6 +26,7 @@ import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -372,6 +373,11 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 mHandler.postDelayed(vinDetectionRunnable, 2000);
             }
         }
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
     }
 
     @Override

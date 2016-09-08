@@ -25,6 +25,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
@@ -132,6 +133,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
     }
 
     @Override
