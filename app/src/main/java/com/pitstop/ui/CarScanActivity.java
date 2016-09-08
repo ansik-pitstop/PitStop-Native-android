@@ -158,7 +158,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            JSONObject properties = new JSONObject();
+            properties.put("View", TAG);
+            properties.put("Car Make", dashboardCar.getMake());
+            properties.put("Car Model", dashboardCar.getModel());
+//            mixpanelHelper.trackViewAppeared(TAG);
+            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -214,12 +219,30 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == MainActivity.RC_ENABLE_BT
-                && resultCode == MainActivity.RC_ENABLE_BT) {
-            carScanButton.performClick();
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case MainActivity.RC_ENABLE_BT:
+                try{
+                    if (resultCode == RESULT_OK){
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, TAG);
+                        carScanButton.performClick();
+                    } else {
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, TAG);
+                    }
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
+
+//        if(requestCode == MainActivity.RC_ENABLE_BT
+//                && resultCode == MainActivity.RC_ENABLE_BT) {
+//            carScanButton.performClick();
+//        } else {
+//            super.onActivityResult(requestCode, resultCode, data);
+//        }
     }
 
     private void setupUiReferences() {
@@ -334,8 +357,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+
+                            //The user confirm scan after update the Mileage
                             try {
-                                mixpanelHelper.trackButtonTapped("Confirm Scan", TAG);
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, TAG);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -437,11 +462,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         checkForEngineIssues();
     }
 
+    /**
+     *
+     */
     private void checkForServices() {
-
         services = 0;
         recalls = 0;
-
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -514,6 +540,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
+    /**
+     *
+     */
     private void checkForEngineIssues() {
         dtcCodes.clear();
         askingForDtcs = true;
@@ -542,7 +571,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Retry Scan (Vehicle not connected)", TAG);
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -554,7 +583,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Cancel (Vehicle not connected)", TAG);
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, TAG);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -605,14 +634,21 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private Set<String> dtcCodes = new HashSet<>();
 
+    /**
+     *
+     * @param dataPackageInfo
+     */
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
 
+        final double newTotalMileage = ((int) ((baseMileage
+                + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
+
         if(dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
-            final double newTotalMileage = ((int) ((baseMileage
-                    + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
+//            final double newTotalMileage = ((int) ((baseMileage
+//                    + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
 
             Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
 
@@ -690,6 +726,20 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     }
                     updateCarHealthMeter();
                     carScanButton.setEnabled(true);
+
+                    // Finished car scan
+                    //Mixpanel.sharedInstance().track
+                    // ("Scan Complete", properties: ["View": "Scan",
+                    // "Mileage Updated To" : \(mileage), "Device": "iOS"])
+                    try{
+                        JSONObject properties = new JSONObject();
+                        properties.put("View", TAG);
+                        properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
+                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETED, properties);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
                     break;
                 }
 
@@ -774,5 +824,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         .show();
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        try{
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, TAG);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        super.onBackPressed();
     }
 }

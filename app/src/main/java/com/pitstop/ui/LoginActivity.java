@@ -137,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (position == SplashSlidePagerAdapter.PAGE_LOGIN) {
                     findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
                     try {
-                        mixpanelHelper.trackViewAppeared("Login");
+                        mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW_APPEARED);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -189,7 +189,6 @@ public class LoginActivity extends AppCompatActivity {
                     radioLayout.setVisibility(View.VISIBLE);
 //                    skipButton.setVisibility(View.VISIBLE);
 
-//                    for(int i = 0; i<3; i++){
                     for (int i = 0; i < 2; i++) {
                         ((RadioButton) radioLayout.getChildAt(i)).setChecked(false);
                     }
@@ -261,8 +260,15 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
-
         }
+
+        // When the user tap back to move to previous screen
+        try{
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, TAG);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -307,8 +313,8 @@ public class LoginActivity extends AppCompatActivity {
             signup = !signup;
         } else {
             try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
-                mixpanelHelper.trackViewAppeared("Register");
+                //when the user tap Register in the Register view, not in the login/signup switch button
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.REGISTER_VIEW_APPEARED);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -321,7 +327,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void loginFacebook(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Login with Facebook", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -330,22 +336,30 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Invoked when "SIGN UP" / "LOG IN" button is tapped on the splash_login page
+     * @param view
+     */
     public void loginOrSignUp(final View view) {
-        if (signup) {//if signing up
-            try {
-                mixpanelHelper.trackButtonTapped("Register", TAG);
-                mixpanelHelper.trackViewAppeared("Register");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        if (signup) {
+            //if signing up
 
             if (!NetworkHelper.isConnected(this)) {
                 Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
                 return;
             }
+
             if ((!email.getText().toString().equals(""))
                     && (!password.getText().toString().equals(""))
                     && firstName.getVisibility() != View.VISIBLE) {
+
+                // The user tapped on the SIGNUP button after he entered his email and password
+                try{
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.REGISTER_BUTTON_TAPPED, TAG);
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+
                 finalizeProfile();
                 return;
             } else if (firstName.getVisibility() != View.VISIBLE && !facebookSignup) {
@@ -369,8 +383,17 @@ public class LoginActivity extends AppCompatActivity {
                 hideLoading();
                 return;
             }
+
+            // At this point, the user tapped the "FINALIZE PROFILE" button after entering his information
+            try{
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.CONFIRM_INFORMATION_CONTINUE, TAG);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+
             // creating json to post
             if (!facebookSignup) {
+                // If the user is signing up with the email
                 JSONObject json = new JSONObject();
                 try {
                     json.put("firstName", firstName.getText().toString());
@@ -391,6 +414,14 @@ public class LoginActivity extends AppCompatActivity {
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
                             Log.d("SIGNUP", "SignUp login");
+
+                            // Track REGISTER_WITH_EMAIL
+                            try {
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, TAG);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                             login(email.getText().toString(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
@@ -400,6 +431,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
             } else {
+                //if the user is signing up with Facebook
                 final User user = application.getCurrentUser();
                 user.setFirstName(firstName.getText().toString());
                 user.setLastName(lastName.getText().toString());
@@ -421,35 +453,31 @@ public class LoginActivity extends AppCompatActivity {
             }
             sState = SIGNUP;
         } else {
+            // Login
             try {
-                mixpanelHelper.trackButtonTapped("Login with Email", TAG);
-
-                try {
-                    mixpanelHelper.trackButtonTapped("Login with Email", TAG);
-                } catch (JSONException e2) {
-                    e2.printStackTrace();
-                }
-
-                if (!NetworkHelper.isConnected(this)) {
-                    Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
-                            .setAction("Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    signUpSwitcher(null);
-                                }
-                            })
-                            .show();
-                    return;
-                }
-
-                showLoading("Logging in...");
-                final String usernameInput = email.getText().toString().toLowerCase();
-                final String passwordInput = password.getText().toString();
-
-                login(usernameInput, passwordInput);
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, TAG);
             } catch (JSONException e2) {
                 e2.printStackTrace();
             }
+
+            if (!NetworkHelper.isConnected(this)) {
+                Snackbar.make(findViewById(R.id.splash_layout), "Please check your internet connection", Snackbar.LENGTH_SHORT)
+                        .setAction("Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                signUpSwitcher(null);
+                            }
+                        })
+                        .show();
+                return;
+            }
+
+            showLoading("Logging in...");
+            final String usernameInput = email.getText().toString().toLowerCase();
+            final String passwordInput = password.getText().toString();
+
+            login(usernameInput, passwordInput);
+
             sState = LOGIN;
         }
     }
@@ -469,6 +497,14 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
         findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
         ((Button) findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
+
+        // Confirm your information view shows up
+        // Prompt the user for the name and phone number
+        try{
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.CONFIRM_INFORMATION_VIEW_APPEARED);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
     private void loginSocial(final String fbAccessToken, final String provider) {
@@ -606,7 +642,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Login with Email", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, TAG);
         } catch (JSONException e2) {
             e2.printStackTrace();
         }
@@ -762,9 +798,17 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         dialog.show();
+
+        //Track FORGOT_PASSWORD
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_FORGOT_PASSWORD, TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public static void switchStateForTutorial(){
+    public static void switchStateForTutorial() {
         sState = LOGIN;
     }
 

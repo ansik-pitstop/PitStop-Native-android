@@ -155,8 +155,10 @@ public class ServiceRequestUtil {
      * before this, time is by default set to current time
      */
     private void askForTime(final boolean modify) {
+//        final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
+//                0, true);
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
-                0, true);
+                0, false);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override

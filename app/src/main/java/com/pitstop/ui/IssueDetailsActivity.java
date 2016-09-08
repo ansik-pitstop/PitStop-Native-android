@@ -116,7 +116,11 @@ public class IssueDetailsActivity extends AppCompatActivity {
         }
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            JSONObject properties = new JSONObject();
+            properties.put("View", TAG);
+            properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
+//            mixpanelHelper.trackViewAppeared(TAG);
+            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -174,6 +178,11 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        try{
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
         finish();
     }
 

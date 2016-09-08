@@ -79,13 +79,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
-        mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(),this);
-        mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3",0);
+        mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(), this);
+        mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
 
-        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
-        addCarUtils = new AddCarUtils((GlobalApplication)getApplicationContext(),this);
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
+        addCarUtils = new AddCarUtils((GlobalApplication) getApplicationContext(), this);
 
     }
 
@@ -108,28 +108,35 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             super.onBackPressed();
         } else {
             // Otherwise, select the previous step.
-            ((TextView)findViewById(R.id.step_text)).setText("STEP "+Integer.toString(mPager.getCurrentItem()) + "/3");
+            ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        }
+
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BACK, TAG);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
     public void noDongleClicked(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Yes I have Pitstop Hardware", TAG);
+//            mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE, TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle",1);
-        ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
+        mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
+        ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
     }
 
     public void selectDealershipClicked(View view) {
         Fragment fragment = mPagerAdapter.getItem(2);
-        if(fragment!=null&&fragment instanceof AddCarChooseDealershipFragment){
-            AddCarChooseDealershipFragment addCarChooseDealershipFragment = (AddCarChooseDealershipFragment)fragment;
-            if(addCarChooseDealershipFragment.getShop() == null) {
+        if (fragment != null && fragment instanceof AddCarChooseDealershipFragment) {
+            AddCarChooseDealershipFragment addCarChooseDealershipFragment = (AddCarChooseDealershipFragment) fragment;
+            if (addCarChooseDealershipFragment.getShop() == null) {
                 Toast.makeText(this, "No dealership was selected", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -142,20 +149,21 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             addCarUtils.addCarToServer(null);
         }
     }
+
     public void yesDongleClicked(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("No I do not have Pitstop Hardware", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE, TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle",1);
-        ((TextView)findViewById(R.id.step_text)).setText("STEP 2/3");
+        mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle", 1);
+        ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
     }
 
     public void searchForCar(View view) {
-        if (mPagerAdapter.getItem(1)!=null&&mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
+        if (mPagerAdapter.getItem(1) != null && mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
             EditText vinEditText = (EditText) findViewById(R.id.VIN);
             addCarUtils.setVin(vinEditText.getText().toString());
             if (addCarUtils.isValidVin()) {
@@ -169,7 +177,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             } else {
                 hideLoading("Invalid VIN");
             }
-        }else if(mPagerAdapter.getItem(1)!=null){
+        } else if (mPagerAdapter.getItem(1) != null) {
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
@@ -180,14 +188,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     }
 
-
     private boolean checkBackCamera() {
         final int CAMERA_FACING_BACK = 0;
         int cameraCount = Camera.getNumberOfCameras();
         Camera.CameraInfo info = new Camera.CameraInfo();
-        for(int i = 0; i < cameraCount; i++) {
-            Camera.getCameraInfo(i,info);
-            if(CAMERA_FACING_BACK == info.facing) {
+        for (int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i, info);
+            if (CAMERA_FACING_BACK == info.facing) {
                 return true;
             }
         }
@@ -196,24 +203,30 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     public void startScanner(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Scan VIN Barcode", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if(!checkBackCamera()) {
-            Toast.makeText(this,"This device does not have a back facing camera",
+        if (!checkBackCamera()) {
+            Toast.makeText(this, "This device does not have a back facing camera",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Log.i(TAG,"Starting barcode scanner");
+        Log.i(TAG, "Starting barcode scanner");
 
         IntentIntegrator barcodeScanner = new IntentIntegrator(this);
         barcodeScanner.setBeepEnabled(false);
         barcodeScanner.initiateScan();
-    }
 
+        //When the Barcode Scanner view appears
+        try {
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_BARCODE_SCANNER_VIEW_APPEARED);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -227,7 +240,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     protected void onPause() {
-        ((GlobalApplication)getApplicationContext()).getMixpanelAPI().flush();
+        ((GlobalApplication) getApplicationContext()).getMixpanelAPI().flush();
 
         try {
             unregisterReceiver(bluetoothReceiver);
@@ -243,7 +256,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onDestroy() {
         hideLoading(null);
 
-        if(serviceIsBound) {
+        if (serviceIsBound) {
             addCarUtils.unbindService();
         }
         addCarUtils.cancelMashape();
@@ -258,7 +271,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == IntentIntegrator.REQUEST_CODE) {
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null) {
                 if (result.getContents() != null) {
@@ -283,7 +296,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                     }
                 }
             }
-        } else if(requestCode == AddCarUtils.RC_PENDING_ADD_CAR) {
+        } else if (requestCode == AddCarUtils.RC_PENDING_ADD_CAR) {
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
             addCarUtils.runVinTask();
@@ -324,10 +337,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void hideLoading(String string) {
-        if(progressDialog.isShowing()) {
+        if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        if(string!=null) {
+        if (string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
 
@@ -336,7 +349,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public void showLoading(String string) {
         progressDialog.setMessage(string);
-        if(!progressDialog.isShowing()) {
+        if (!progressDialog.isShowing()) {
             progressDialog.show();
         }
     }
@@ -351,7 +364,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override
-            public void onTick(long millisUntilFinished) {}
+            public void onTick(long millisUntilFinished) {
+            }
 
             @Override
             public void onFinish() {
@@ -364,11 +378,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void resetScreen() {
-        if(mPager.getCurrentItem()==1){
-            if(findViewById(R.id.VIN) != null) {
+        if (mPager.getCurrentItem() == 1) {
+            if (findViewById(R.id.VIN) != null) {
                 ((EditText) findViewById(R.id.VIN)).setText("");
             }
-        } else if(mPager.getCurrentItem() == 2) {
+        } else if (mPager.getCurrentItem() == 2) {
             mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
             mPager.setCurrentItem(1);
         }
@@ -378,7 +392,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     public void openRetryDialog() {
         hideLoading(null);
 
-        if(isFinishing()) { // You don't want to add a dialog to a finished activity
+        if (isFinishing()) { // You don't want to add a dialog to a finished activity
             return;
         }
 
@@ -406,6 +420,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             }
         });
         alertDialog.show();
+
+        // Mixpanel - Try to connect bluetooth again
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, TAG);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -415,9 +436,19 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void postMileageInput() {
-        mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership",2);
-        ((TextView)findViewById(R.id.step_text)).setText("STEP 3/3");
+        mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
+        ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(2);
+
+        // Go to the selectDealership fragment
+        try {
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW_APPEARED);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
+
+
+
 }

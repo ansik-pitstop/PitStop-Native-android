@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
                 Log.d("OnActivityResult", "CarList: " + carList.size());
                 Log.d("OnActivityResult", LoginActivity.sState);
-                if (carList.size() == 0 && LoginActivity.sState == LoginActivity.SIGNUP){
+                if (carList.size() == 0 && LoginActivity.sState == LoginActivity.SIGNUP) {
                     LoginActivity.switchStateForTutorial();
                     prepareAndStartTutorialSequence();
                 }
@@ -903,7 +903,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void startChat(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Chat with " + dashboardCar.getDealership().getName(), TAG);
+            mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(), TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -954,12 +954,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Given the user has not seen tutorial, show tutorial sequence
+     * Given the tutorial should be shown to the user, show tutorial sequence
      */
     private void presentShowcaseSequence() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
-
-        Log.d("#$2", "presentShowcaseSequence() start");
 
         final String prefDiscountAvailable = getResources().getString(R.string.pfFirstBookingDiscountAvailability);
         final String prefDiscountAmount = getResources().getString(R.string.pfFirstBookingDiscountAmount);
@@ -971,7 +969,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final MaterialShowcaseSequence discountSequence = new MaterialShowcaseSequence(this);
 
         try {
-            mixpanelHelper.trackViewAppeared("Tutorial Onboarding");
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.TUTORIAL_VIEW_APPEARED);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -979,8 +977,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         StringBuilder firstServicePromotion = new StringBuilder();
         firstServicePromotion.append(getResources().getString(R.string.first_service_booking_1));
 
-        Log.d("#$3", "firstBookingDiscountAvailable " + firstBookingDiscountAvailable);
         if (firstBookingDiscountAvailable) {
+
             final float discountAmount = preferences.getFloat(prefDiscountAmount, 0f);
             final String discountUnit = preferences.getString(prefDiscountUnit, null);
 
@@ -1034,47 +1032,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
                     //update the local sharedPreference
                     preferences.edit().putBoolean(getString(R.string.pfTutorialShown), true).commit();
-                    Log.d("#$5 DKsequence", "After edit, pfTutorialShown:" + preferences.getBoolean(getString(R.string.pfTutorialShown), false));
-                }
-            }
-        });
 
-        discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-            @Override
-            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-                if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    com.pitstop.models.User user = application.getCurrentUser();
-
-                    final HashMap<String, Object> customProperties = new HashMap<>();
-                    customProperties.put("VIN", dashboardCar.getVin());
-                    customProperties.put("Car Make", dashboardCar.getMake());
-                    customProperties.put("Car Model", dashboardCar.getModel());
-                    customProperties.put("Car Year", dashboardCar.getYear());
-                    customProperties.put("Email", dashboardCar.getDealership().getEmail());
-
-                    if (user != null) {
-                        customProperties.put("Phone", user.getPhone());
-                        User.getCurrentUser().setFirstName(user.getFirstName());
-                        User.getCurrentUser().setEmail(user.getEmail());
-                    }
-                    User.getCurrentUser().addProperties(customProperties);
-
-                    if (user != null && !BuildConfig.DEBUG) {
-                        Smooch.getConversation().sendMessage(
-                                new io.smooch.core.Message(user.getFirstName() +
-                                        (user.getLastName() == null || user.getLastName().equals("null")
-                                                ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                    }
-
-                    Smooch.track("User Logged In");
-
-                    //Change the color and text of the request service button
                     try {
                         Button requestServiceButton = ((Button) viewPager.findViewById(R.id.request_service_btn));
                         requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
@@ -1084,6 +1042,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+                    //Log tutorial GET_STARTED tapped
+                    try {
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.TUTORIAL_GET_STARTED_TAPPED, TAG);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
         });
@@ -1091,7 +1057,40 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-                //Change the color and text of the request service button
+                try {
+                    mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                com.pitstop.models.User user = application.getCurrentUser();
+
+                final HashMap<String, Object> customProperties = new HashMap<>();
+                customProperties.put("VIN", dashboardCar.getVin());
+                customProperties.put("Car Make", dashboardCar.getMake());
+                customProperties.put("Car Model", dashboardCar.getModel());
+                customProperties.put("Car Year", dashboardCar.getYear());
+                customProperties.put("Email", dashboardCar.getDealership().getEmail());
+
+                if (user != null) {
+                    customProperties.put("Phone", user.getPhone());
+                    User.getCurrentUser().setFirstName(user.getFirstName());
+                    User.getCurrentUser().setEmail(user.getEmail());
+                }
+                User.getCurrentUser().addProperties(customProperties);
+
+//                if (user != null && !BuildConfig.DEBUG) {
+                if (user != null) {
+                    Log.d("MainActivity Smooch", "Sending message");
+                    Smooch.getConversation().sendMessage(
+                            new io.smooch.core.Message(user.getFirstName() +
+                                    (user.getLastName() == null || user.getLastName().equals("null")
+                                            ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                }
+
+                Smooch.track("User Logged In");
+
+                //Change the color and text back to the original request service button
                 try {
                     Button requestServiceButton = ((Button) viewPager.findViewById(R.id.request_service_btn));
                     requestServiceButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.color_button_rectangle_primary));
@@ -1099,6 +1098,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
         });
 
@@ -1109,8 +1109,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * This method is supposed to retrieve the necessary user settings from the api and
-     * stored them locally in the SharePreferences
+     * <p>This method is supposed to retrieve the necessary shop settings from the api and
+     * stored them locally in the SharePreferences</p>
+     * Including
+     * <ul>
+     * <li>boolean enableDiscountTutorial</li>
+     * <li>float amount</li>
+     * <li>String unit</li>
+     * </ul>
      */
     private void prepareAndStartTutorialSequence() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
@@ -1126,7 +1132,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 if (isLoading) hideLoading();
 
-                if (requestError == null && response != null) {
+/*                if (requestError == null && response != null) {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.has("shop")) {
@@ -1145,6 +1151,32 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         .putString(getString(R.string.pfFirstBookingDiscountUnit), firstAppointmentDiscount.getString("unit"))
                                         .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), true).commit();
                             }
+
+                        }
+                    } catch (JSONException je) {
+                        je.printStackTrace();
+                        Log.d(TAG, "Error occurred in retrieving first service booking promotion");
+                    }
+                }*/
+
+                if (requestError == null && response != null) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.has("shop")) {
+                            Log.d("FSB", "Response has shop");
+                            JSONObject shop = jsonObject.getJSONObject("shop");
+                            JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
+                            boolean enableDiscountTutorial = shop.getBoolean("enableDiscountTutorial");
+                            float amount = (float) firstAppointmentDiscount.getDouble("amount");
+                            String unit = firstAppointmentDiscount.getString("unit");
+
+
+                            preferences.edit()
+                                    .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), enableDiscountTutorial)
+                                    .putFloat(getString(R.string.pfFirstBookingDiscountAmount), amount)
+                                    .putString(getString(R.string.pfFirstBookingDiscountUnit), unit)
+                                    .commit();
+
                         }
                     } catch (JSONException je) {
                         je.printStackTrace();
@@ -1153,6 +1185,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                 }
+
+                //Show the tutorial
                 try {
                     presentShowcaseSequence();
                 } catch (Exception e) {

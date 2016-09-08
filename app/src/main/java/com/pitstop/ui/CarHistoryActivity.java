@@ -149,6 +149,16 @@ public class CarHistoryActivity extends AppCompatActivity {
                 + Integer.parseInt(splittedDate[0]) * 365;
     }
 
+    @Override
+    public void onBackPressed() {
+        try{
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        super.onBackPressed();
+    }
+
     /**
      *  Adapter for groups of issues
      */

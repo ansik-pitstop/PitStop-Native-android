@@ -81,7 +81,12 @@ public class AddCar2NoDongleFragment extends Fragment {
                         case KeyEvent.KEYCODE_DPAD_CENTER:
                         case KeyEvent.KEYCODE_ENTER:
                             searchButton.performClick();
+                            //When user taps Enter on the keyboard after typing their mileage and/or VIN in order to add car
                             return true;
+
+                        case KeyEvent.KEYCODE_BACK:
+                            //When user taps the screen to dismiss the keyboard
+                            break;
                         default:
                             break;
                     }

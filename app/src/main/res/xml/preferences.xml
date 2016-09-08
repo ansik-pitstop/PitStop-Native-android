@@ -34,8 +34,8 @@
 
     </PreferenceCategory>
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">
-        <Preference android:title="Privacy policy"
-            android:key="@string/pref_privacy_policy" />
+        <Preference android:title="Privacy policy" android:key="@string/pref_privacy_policy" />
+        <Preference android:title="Term of use" android:key="@string/pref_term_of_use"/>
         <Preference
             android:key="@string/pref_logout_key"
             android:title="@string/pref_logout_label"/>

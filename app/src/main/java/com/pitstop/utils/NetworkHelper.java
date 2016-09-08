@@ -197,6 +197,26 @@ public class NetworkHelper {
         put("user", callback, body);
     }
 
+    /**
+     * Allow the user to change his/her phone number in the preference
+     * @param userId
+     * @param phoneNumber
+     * @param callback
+     */
+    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback){
+        LOGI(TAG, "updatePhoneNumber: userId: " + userId + " phoneNUmber: " + phoneNumber);
+        JSONObject body = new JSONObject();
+
+        try{
+            body.put("userId", userId);
+            body.put("phone", phoneNumber);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        put("user", callback, body);
+    }
+
     public void loginSocial(String accessToken, String provider, RequestCallback callback) {
         Log.i(TAG, "login");
         JSONObject credentials = new JSONObject();
