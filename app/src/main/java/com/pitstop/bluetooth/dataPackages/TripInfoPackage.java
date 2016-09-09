@@ -9,8 +9,19 @@ public class TripInfoPackage {
     }
 
     public String deviceId;
-    public long tripId; // device specific
+    public int tripId; // device specific
     public double mileage; // in kilometres
     public double rtcTime; // unix time in seconds
     public TripFlag flag;
+
+    @Override
+    public String toString() {
+        return "TripInfoPackage{" +
+                "deviceId='" + deviceId + '\'' +
+                ", tripId=" + tripId +
+                ", mileage=" + mileage +
+                ", rtcTime=" + rtcTime +
+                ", flag=" + flag +
+                '}';
+    }
 }

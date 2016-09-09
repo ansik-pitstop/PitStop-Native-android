@@ -121,6 +121,11 @@ public class Device215B implements AbstractDevice {
         return dtcPackage("0", "0");
     }
 
+    @Override
+    public String getPendingDtcs() {
+        return "";
+    }
+
     // read data handler
 
     @Override
@@ -298,7 +303,7 @@ public class Device215B implements AbstractDevice {
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
-                    tripInfoPackage.tripId = ignitionTime;
+                    tripInfoPackage.tripId = (int) ignitionTime;
                     tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
                     tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
 
@@ -412,9 +417,17 @@ public class Device215B implements AbstractDevice {
 
                 dtcPackage.isPending = dtcInfo.dtcType == 1;
 
-                // dtc example: dtcs=[03111105, 03111312, 03111334, 03110340]
+                // dtc example:
+                // $$HT-IDD215B-S00V002,DTC,1,04,4,07470107,07470207,07470307,07474307,*308F\r\n
+                // DTCInfo [deviceId=HT-IDD215B-S00V002, dtcType=1, diagnosisProtocol=04, dtcNumber=4, dtcs=[07470107, 07470207, 07470307, 07474307]]
 
-                List<FaultInfo> faultInfo = FaultParse.parse(context, dtcInfo.dtcs);
+                String[] unparsedDtcCodes = new String[dtcInfo.dtcs.length];
+
+                for(int i = 0 ; i < unparsedDtcCodes.length ; i++) {
+                    unparsedDtcCodes[i] = dtcInfo.dtcs[i].substring(4);
+                }
+
+                List<FaultInfo> faultInfo = FaultParse.parse(context, unparsedDtcCodes);
 
                 String[] dtcCodes = new String[faultInfo.size()];
 

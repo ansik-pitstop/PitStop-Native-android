@@ -25,7 +25,7 @@ public class FaultParse {
 			int tt = tt1[ii];
 			Log.e("gf", String.valueOf(tt));
 			String b = "";
-			String a = Integer.toHexString(tt).toString();
+			String a = Integer.toHexString(tt);
 
 			Log.e("gf", a);
 			

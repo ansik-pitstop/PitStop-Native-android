@@ -610,7 +610,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if(tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage = ((int) (baseMileage + tripInfoPackage.mileage * 100)) / 100.0; // round to 2 decimal places
+            final double newTotalMileage = ((int) ((baseMileage + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
             Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
 

@@ -107,7 +107,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
-    private long lastDeviceTripId = -1; // from device
+    private int lastDeviceTripId = -1; // from device
     private final String pfDeviceTripId = "lastDeviceTripId";
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
@@ -157,7 +157,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
-        lastDeviceTripId = sharedPreferences.getLong(pfDeviceTripId, -1);
+        lastDeviceTripId = sharedPreferences.getInt(pfDeviceTripId, -1);
         lastTripMileage = sharedPreferences.getInt(pfTripMileage, 0);
 
         initPidPriorityList();
@@ -371,7 +371,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(tripInfoPackage.tripId != 0) {
             lastDeviceTripId = tripInfoPackage.tripId;
-            sharedPreferences.edit().putLong(pfDeviceTripId, lastDeviceTripId).apply();
+            sharedPreferences.edit().putInt(pfDeviceTripId, lastDeviceTripId).apply();
 
             if(tripInfoPackage.flag == TripInfoPackage.TripFlag.START) {
                 Log.i(TAG, "Trip start flag received");
@@ -466,7 +466,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         // if trip id is different, start a new trip
         if(pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
                 && localCarAdapter.getCarByScanner(pidPackage.deviceId) != null) {
-            long newTripId = Long.valueOf(pidPackage.tripId);
+            int newTripId = Integer.valueOf(pidPackage.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
                 sharedPreferences.edit().putLong(pfDeviceTripId, newTripId).apply();

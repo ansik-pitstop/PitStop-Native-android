@@ -115,7 +115,12 @@ public class Device212B implements AbstractDevice {
 
     @Override
     public String getDtcs() {
-        return OBD.setMonitor(TYPE_DTC, "");// + OBD.setMonitor(TYPE_PENDING_DTC, "");
+        return OBD.setMonitor(TYPE_DTC, "");
+    }
+
+    @Override
+    public String getPendingDtcs() {
+        return OBD.setMonitor(TYPE_PENDING_DTC, "");
     }
 
     // read data handler
@@ -281,7 +286,7 @@ public class Device212B implements AbstractDevice {
             final String tripFlag = dataPackageInfo.tripFlag != null ? dataPackageInfo.tripFlag : "-1";
 
             // process dtc data
-            if (dataPackageInfo.dtcData != null && dataPackageInfo.result == 6 ||
+            if ((dataPackageInfo.dtcData != null && dataPackageInfo.result == 6) ||
                     tripFlag.equals("6") || tripFlag.equals("5")) { // TODO: Check if dtcData null works
 
                 Log.i(TAG, "Parsing DTC data");
@@ -356,11 +361,15 @@ public class Device212B implements AbstractDevice {
             }
 
             // trip start or trip end flag or real-time data
-            if((dataPackageInfo.result == 4 && (tripFlag.equals("0") || tripFlag.equals("9"))) ||
-                    dataPackageInfo.result == 5) {
+            if(((dataPackageInfo.result == 4 && (tripFlag.equals("0") || tripFlag.equals("9"))) ||
+                    dataPackageInfo.result == 5) && !dataPackageInfo.tripMileage.isEmpty()) {
                 TripInfoPackage tripInfoPackage = new TripInfoPackage();
                 tripInfoPackage.deviceId = dataPackageInfo.deviceId;
-                tripInfoPackage.tripId = Long.parseLong(dataPackageInfo.tripId);
+                try {
+                    tripInfoPackage.tripId = Integer.parseInt(dataPackageInfo.tripId);
+                } catch(NumberFormatException e) {
+                    tripInfoPackage.tripId = 0;
+                }
                 tripInfoPackage.mileage = Double.parseDouble(dataPackageInfo.tripMileage) / 1000;
                 tripInfoPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);
 
@@ -371,6 +380,7 @@ public class Device212B implements AbstractDevice {
                 } else if(tripFlag.equals("9")) {
                     tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 }
+                dataListener.tripData(tripInfoPackage);
             }
         }
 

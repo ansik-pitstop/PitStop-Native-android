@@ -30,6 +30,8 @@ public interface AbstractDevice {
     String setPidsToSend(String pids);
 
     // monitor
-    String getDtcs(); // pending and stored
+    String getDtcs(); // stored
+    String getPendingDtcs(); // pending
+
 
 }

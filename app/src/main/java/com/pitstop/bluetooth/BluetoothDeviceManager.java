@@ -432,5 +432,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         writeToObd(deviceInterface.getDtcs());
+        writeToObd(deviceInterface.getPendingDtcs());
     }
 }
