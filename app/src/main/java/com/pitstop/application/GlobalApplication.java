@@ -24,6 +24,8 @@ import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
 
+import org.json.JSONObject;
+
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -249,6 +251,11 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
+    }
+
+    public void modifyMixpanelSettings(String field, Object value){
+//        getMixpanelAPI().getPeople().set(settings);
+        getMixpanelAPI().getPeople().set(field, value);
     }
 
 }

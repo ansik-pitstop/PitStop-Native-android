@@ -563,8 +563,7 @@ public class SettingsActivity extends AppCompatActivity {
                         currentUser.setFirstName(firstName);
                         currentUser.setLastName(lastName);
                         application.setCurrentUser(currentUser);
-
-                        //TODO reset mixpanel
+                        application.modifyMixpanelSettings("$name", firstName + (lastName == null ? "" : " " + lastName));
 
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -590,9 +589,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                         currentUser.setPhone(phoneNumber);
                         application.setCurrentUser(currentUser);
-
-                        //TODO reset mixpanel
-                        
+                        application.modifyMixpanelSettings("$phone", phoneNumber);
 
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();

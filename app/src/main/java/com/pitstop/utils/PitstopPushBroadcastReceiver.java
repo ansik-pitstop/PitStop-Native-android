@@ -151,7 +151,9 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             openedActivity = true;
 
             GlobalApplication application = (GlobalApplication) context.getApplicationContext();
+
             new MixpanelHelper(application).trackAppStatus(MixpanelHelper.APP_LAUNCHED_FROM_PUSH);
+
         } catch (JSONException e) {
             Log.e(TAG, "Unexpected JSONException when receiving push data: ", e);
         }

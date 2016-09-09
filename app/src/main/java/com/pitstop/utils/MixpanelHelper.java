@@ -47,11 +47,15 @@ public class MixpanelHelper {
     public static final String LOGIN_LOGIN_WITH_EMAIL = "Login with Email";
     public static final String LOGIN_RETURN = "Return (on keyboard)";
     public static final String LOGIN_TAPPED_TO_HIDE_KEYBOARD = "Tapped to Hide Keyboard";
+    public static final String LOGIN_REGISTER_WITH_FACEBOOK = "Register with Facebook"; // Added
     public static final String LOGIN_VIEW_APPEARED = "Login";
+    public static final String ONBOARDING_VIEW_APPEARED = "Onboarding"; // Added
     public static final String REGISTER_BUTTON_TAPPED = "Register";
     public static final String REGISTER_VIEW_APPEARED = "Register";
     public static final String CONFIRM_INFORMATION_VIEW_APPEARED = "Confirm Information";
     public static final String CONFIRM_INFORMATION_CONTINUE = "Continue";
+    public static final String FORGOT_PASSWORD_CANCEL = "Cancel Forgot Password";
+    public static final String FORGOT_PASSWORD_CONFIRM = "Confirm Forgot Password";
 
 //    Tutorial/Onboarding view
     public static final String TUTORIAL_VIEW_APPEARED = "Tutorial Onboarding";
@@ -96,7 +100,7 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject();
         json.put("Status", value);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -112,7 +116,7 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", value);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -128,7 +132,7 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Status", value);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -145,7 +149,7 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         json.put("Button", value);
         json.put("View", view);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -161,7 +165,7 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", view);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -181,7 +185,7 @@ public class MixpanelHelper {
         json.put("View", view);
         json.put("Mileage", mileage);
         json.put("Method of Adding Car", method);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -198,19 +202,19 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         json.put("Status", status);
         json.put("UserId", userId);
-        json.put("Device", "Android");
+//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-        application.getMixpanelAPI().track("Migration status", json);
+        application.getMixpanelAPI().track("Migration Status", json);
     }
 
     public void trackCustom(String event, JSONObject properties) throws JSONException{
         if(BuildConfig.DEBUG) {
             return;
         }
-        properties.put("Device", "Android");
+//        properties.put("Device", "Android");
         User user = application.getCurrentUser();
         if(application.getCurrentUser() != null) {
             properties.put("Username", user.getEmail());

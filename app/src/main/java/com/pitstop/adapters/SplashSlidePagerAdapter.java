@@ -1,5 +1,6 @@
 package com.pitstop.adapters;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,8 +9,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import com.facebook.login.widget.LoginButton;
 import com.pitstop.R;
@@ -28,6 +32,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
 //    private static final int NUM_PAGES = 3;
     private static final int NUM_PAGES = 2; //We removed the first page of the splash screen - Aug 30th
 
+    public static final int PAGE_ONBOARD = 0;
     public static final int PAGE_LOGIN = 1;
 
     ArrayList<Fragment> fragments = new ArrayList<>();
@@ -38,6 +43,14 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
         fragments.add(new SplashFragment2());
         fragments.add(new SplashFragment3());
     }
+
+//    public SplashSlidePagerAdapter(FragmentManager fm, Activity activity) {
+//        super(fm);
+////        fragments.add(new SplashFragment1());
+//        fragments.add(new SplashFragment2());
+//        fragments.add(new SplashFragment3());
+//        mActivity = activity;
+//    }
 
     @Override
     public Fragment getItem(int position) {
@@ -114,6 +127,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
             return rootView;
         }
     }
+
     public static class SplashFragment3 extends Fragment {
 
         // facebook things

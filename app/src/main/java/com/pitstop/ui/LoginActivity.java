@@ -1,5 +1,6 @@
 package com.pitstop.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -128,73 +130,82 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 setUpUIReferences();
+                //Hide the keyboard
             }
 
             @Override
             public void onPageSelected(int position) {
                 setUpUIReferences();
-//                if(position == 2){
-                if (position == SplashSlidePagerAdapter.PAGE_LOGIN) {
-                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
-                    try {
-                        mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW_APPEARED);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
-                    if (facebookLoginButton != null) {
-                        facebookLoginButton.setReadPermissions("public_profile", "email");
-                        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                            @Override
-                            public void onSuccess(LoginResult loginResult) {
-                                loginSocial(loginResult.getAccessToken().getToken(), "facebook");
-                            }
-
-                            @Override
-                            public void onCancel() {
-                                Log.d("Facebook", "cancel");
-                            }
-
-                            @Override
-                            public void onError(FacebookException error) {
-                                Log.d("Facebook", "error" + error.getMessage());
-                            }
-                        });
-                    }
-
-                    radioLayout.setVisibility(View.GONE);
-                    loginButton.setVisibility(View.VISIBLE);
-                    firstName.setVisibility(View.GONE);
-                    lastName.setVisibility(View.GONE);
-                    phoneNumber.setVisibility(View.GONE);
-
-                    password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            boolean handled = false;
-                            if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                loginOrSignUp(null);
-
-                                handled = true;
-                                View view = getCurrentFocus();
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-                            }
-                            return handled;
+                switch (position) {
+                    case SplashSlidePagerAdapter.PAGE_ONBOARD:
+                        findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
+                        try {
+                            Log.d("Mixpanel", "Onboarding view appeared");
+                            mixpanelHelper.trackViewAppeared(MixpanelHelper.ONBOARDING_VIEW_APPEARED);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-                } else {
-                    findViewById(R.id.log_in_sign_up_container).setVisibility(View.VISIBLE);
-                    radioLayout.setVisibility(View.VISIBLE);
+                        radioLayout.setVisibility(View.VISIBLE);
 //                    skipButton.setVisibility(View.VISIBLE);
 
-                    for (int i = 0; i < 2; i++) {
-                        ((RadioButton) radioLayout.getChildAt(i)).setChecked(false);
-                    }
-                    ((RadioButton) radioLayout.getChildAt(position)).setChecked(true);
-                }
+                        for (int i = 0; i < 2; i++) {
+                            ((RadioButton) radioLayout.getChildAt(i)).setChecked(false);
+                        }
+                        ((RadioButton) radioLayout.getChildAt(position)).setChecked(true);
+                        break;
 
+                    case SplashSlidePagerAdapter.PAGE_LOGIN:
+                        findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
+                        try {
+                            Log.d("Mixpanel", "Login view appeared");
+                            mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW_APPEARED);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
+                        if (facebookLoginButton != null) {
+                            facebookLoginButton.setReadPermissions("public_profile", "email");
+                            facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                                @Override
+                                public void onSuccess(LoginResult loginResult) {
+                                    loginSocial(loginResult.getAccessToken().getToken(), "facebook");
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    Log.d("Facebook", "cancel");
+                                }
+
+                                @Override
+                                public void onError(FacebookException error) {
+                                    Log.d("Facebook", "error" + error.getMessage());
+                                }
+                            });
+                        }
+
+                        radioLayout.setVisibility(View.GONE);
+                        loginButton.setVisibility(View.VISIBLE);
+                        firstName.setVisibility(View.GONE);
+                        lastName.setVisibility(View.GONE);
+                        phoneNumber.setVisibility(View.GONE);
+
+                        password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                            @Override
+                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                boolean handled = false;
+                                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                                    loginOrSignUp(null);
+
+                                    handled = true;
+                                    View view = getCurrentFocus();
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
+                                }
+                                return handled;
+                            }
+                        });
+                        break;
+                }
             }
 
             @Override
@@ -263,9 +274,9 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // When the user tap back to move to previous screen
-        try{
+        try {
             mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, TAG);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -302,8 +313,19 @@ public class LoginActivity extends AppCompatActivity {
         skipButton = (Button) findViewById(R.id.sign_up_skip);
     }
 
+    /**
+     * Invoked when the signUp/Login switcher button on the top right was tapped
+     *
+     * @param view The signup/login switcher button
+     */
     public void signUpSwitcher(final View view) {
         if (signup) {
+            try {
+                Log.d("Mixpanel", "Login view appeared");
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW_APPEARED);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             firstName.setVisibility(View.GONE);
             lastName.setVisibility(View.GONE);
             phoneNumber.setVisibility(View.GONE);
@@ -313,7 +335,7 @@ public class LoginActivity extends AppCompatActivity {
             signup = !signup;
         } else {
             try {
-                //when the user tap Register in the Register view, not in the login/signup switch button
+                Log.d("Mixpanel", "Register view appeared");
                 mixpanelHelper.trackViewAppeared(MixpanelHelper.REGISTER_VIEW_APPEARED);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -325,25 +347,40 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Invoked when the "Login with Facebook" button is tapped (The blue one)
+     *
+     * @param view
+     */
     public void loginFacebook(View view) {
         try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, TAG);
-        } catch (JSONException e) {
+            if (signup) {
+                Log.d("Mixpanel", "Regitser with facebook");
+                application.modifyMixpanelSettings("Registered With", "Facebook");
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, TAG);
+                sState = SIGNUP;
+            } else {
+                Log.d("Mixpanel", "Login with facebook");
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, TAG);
+                sState = LOGIN;
+            }
+        }catch (JSONException e){
             e.printStackTrace();
         }
+
         if (facebookLoginButton != null) {
             facebookLoginButton.performClick();
         }
     }
 
     /**
-     * Invoked when "SIGN UP" / "LOG IN" button is tapped on the splash_login page
+     * Invoked when "SIGN UP" / "LOG IN" button is tapped on the splash_login page (The green one)
+     *
      * @param view
      */
     public void loginOrSignUp(final View view) {
         if (signup) {
             //if signing up
-
             if (!NetworkHelper.isConnected(this)) {
                 Toast.makeText(LoginActivity.this, "Please check your internet connection", Toast.LENGTH_LONG).show();
                 return;
@@ -354,9 +391,10 @@ public class LoginActivity extends AppCompatActivity {
                     && firstName.getVisibility() != View.VISIBLE) {
 
                 // The user tapped on the SIGNUP button after he entered his email and password
-                try{
+                try {
+                    Log.d("Mixpanel", "Register button tapped");
                     mixpanelHelper.trackButtonTapped(MixpanelHelper.REGISTER_BUTTON_TAPPED, TAG);
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
@@ -385,9 +423,10 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             // At this point, the user tapped the "FINALIZE PROFILE" button after entering his information
-            try{
+            try {
+                Log.d("Mixpanel", "Confirm information countinue");
                 mixpanelHelper.trackButtonTapped(MixpanelHelper.CONFIRM_INFORMATION_CONTINUE, TAG);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
 
@@ -416,7 +455,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d("SIGNUP", "SignUp login");
 
                             // Track REGISTER_WITH_EMAIL
+                            application.modifyMixpanelSettings("Registered With", "Email");
                             try {
+                                Log.d("Mixpanel", "Register with email");
                                 mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, TAG);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -431,7 +472,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                //if the user is signing up with Facebook
                 final User user = application.getCurrentUser();
                 user.setFirstName(firstName.getText().toString());
                 user.setLastName(lastName.getText().toString());
@@ -445,6 +485,12 @@ public class LoginActivity extends AppCompatActivity {
                                     application.setCurrentUser(user);
                                     application.setUpMixPanel();
                                     goToMainActivity(true);
+                                    try {
+                                        Log.d("Mixpanel", "Register facebook");
+                                        mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, TAG);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 } else {
                                     Toast.makeText(LoginActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                                 }
@@ -455,6 +501,7 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             // Login
             try {
+                Log.d("Mixpanel", "Login with email");
                 mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, TAG);
             } catch (JSONException e2) {
                 e2.printStackTrace();
@@ -482,6 +529,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * <p>If the user is signing up (in whatever way), we need them to enter their name and phone number</p>
+     * <p>
+     * <p>This method changes the visibility of related views, allow the user to put in their info</p>
+     */
     private void finalizeProfile() {
         mPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -500,9 +552,10 @@ public class LoginActivity extends AppCompatActivity {
 
         // Confirm your information view shows up
         // Prompt the user for the name and phone number
-        try{
+        try {
+            Log.d("Mixpanel", "Confirm information view appeared");
             mixpanelHelper.trackViewAppeared(MixpanelHelper.CONFIRM_INFORMATION_VIEW_APPEARED);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
@@ -642,6 +695,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(View view) {
         try {
+            Log.d("Mixpanel", "Login with email");
             mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, TAG);
         } catch (JSONException e2) {
             e2.printStackTrace();
@@ -703,6 +757,12 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * <h1>Notice</h1>
+     * This onclick method has two different buttons refer to it
+     *
+     * @param view - The "LOG IN" or the "SIGN UP" button in the boarding view
+     */
     public void goToLogin(View view) {
         mPager.setCurrentItem(SplashSlidePagerAdapter.PAGE_LOGIN);
         if (((Button) view).getText().equals("Sign Up") && !signup) {
@@ -760,6 +820,11 @@ public class LoginActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Invoked when the user tap on the "Forgot Password" button
+     *
+     * @param view The "Forgot Password" button
+     */
     public void forgotPassword(View view) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
@@ -787,6 +852,11 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+                try {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CONFIRM, TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -794,6 +864,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+                try {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CANCEL, TAG);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -812,5 +887,31 @@ public class LoginActivity extends AppCompatActivity {
         sState = LOGIN;
     }
 
+    public void setUIOnTapDismissKeyboard(View view) {
+        // Set up touch listener for non-text box views to hide keyboard.
+        if (!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard(LoginActivity.this);
+                    return false;
+                }
+            });
+        }
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setUIOnTapDismissKeyboard(innerView);
+            }
+        }
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(
+                activity.getCurrentFocus().getWindowToken(), 0);
+    }
 
 }
