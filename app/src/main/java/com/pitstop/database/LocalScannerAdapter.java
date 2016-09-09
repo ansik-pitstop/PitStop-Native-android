@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
-import com.pitstop.DataAccessLayer.LocalDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;

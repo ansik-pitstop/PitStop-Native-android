@@ -15,11 +15,11 @@ import android.widget.Toast;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.AddCarProcesses.AddCarActivity;
 import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
-import com.pitstop.DataAccessLayer.DataAdapters.LocalScannerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.ui.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
