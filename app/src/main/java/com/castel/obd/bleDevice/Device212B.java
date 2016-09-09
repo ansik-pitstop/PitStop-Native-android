@@ -314,6 +314,11 @@ public class Device212B implements AbstractDevice {
                 dataListener.dtcData(dtcPackage);
             }
 
+            if(dataPackageInfo.result == 5) {
+                PidPackage pidPackage = new PidPackage();
+                pidPackage.realTime = true;
+            }
+
             // fixed upload pids
             if(dataPackageInfo.result == 4 && tripFlag.equals("1")
                     && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
@@ -324,6 +329,7 @@ public class Device212B implements AbstractDevice {
                 templatePidPackage.tripId = dataPackageInfo.tripId;
                 templatePidPackage.rtcTime = dataPackageInfo.rtcTime;
                 templatePidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+                templatePidPackage.realTime = false;
 
                 // pid map for aggregated pid
                 HashMap<String, String[]> aggregatePidMap = new HashMap<>();

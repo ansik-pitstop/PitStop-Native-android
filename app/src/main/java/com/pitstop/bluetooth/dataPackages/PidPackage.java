@@ -11,6 +11,7 @@ public class PidPackage {
     public String tripMileage;
     public String rtcTime;
     public String timestamp;
+    public boolean realTime;
     public HashMap<String, String> pids; // key is pid type, value is value
 
     public PidPackage() {

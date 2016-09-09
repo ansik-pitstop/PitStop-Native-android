@@ -453,6 +453,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        if(pidPackage.realTime) { // notify that real time received
+            manuallyUpdateMileage = false;
+        }
+
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned");
             return;

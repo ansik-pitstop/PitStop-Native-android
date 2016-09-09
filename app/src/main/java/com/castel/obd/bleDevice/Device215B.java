@@ -323,6 +323,7 @@ public class Device215B implements AbstractDevice {
                     pidPackage.tripMileage = String.valueOf(Double.parseDouble(idrInfo.mileage) / 1000);
                     pidPackage.deviceId = idrInfo.terminalSN;
                     pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+                    pidPackage.realTime = true;
                     try {
                         pidPackage.tripId = String.valueOf(parseRtcTime(idrInfo.ignitionTime));
                     } catch (ParseException e) {
