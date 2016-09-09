@@ -62,8 +62,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
+<<<<<<< Temporary merge branch 1:app/src/main/java/com/pitstop/AddCarProcesses/AddCarUtils.java
+    private static final int RC_PENDING_ADD_CAR = 102;
+=======
     private boolean needToSetTime = false;
     public static final int RC_PENDING_ADD_CAR = 1043;
+>>>>>>> Temporary merge branch 2:app/src/main/java/com/pitstop/ui/addCarFragments/AddCarUtils.java
     private int vinAttempts = 0;
     private int linkingAttempts = 0;
 
@@ -470,9 +474,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
 
         protected String doInBackground(String... msg) {
-
             String error = "";
-
             try {
                 StringBuilder response = new StringBuilder();
                 URL url = new URL("https://vindecoder.p.mashape.com/decode_vin?vin=" + pendingCar.getVin());
@@ -610,7 +612,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     networkHelper.createNewScanner(newCar.getId(), pendingCar.getScannerId(), null);
                                 }
 
-                                //Conflicts - Sep 9th
                                 autoConnectService.saveScanner();
 
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
@@ -702,9 +703,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener, LoadingActivityInterface {
         public void carSuccessfullyAdded(Car car);
+
         void resetScreen();
+
         void openRetryDialog();
+
         BluetoothAutoConnectService getAutoConnectService();
+
         void postMileageInput();
     }
+
+
 }

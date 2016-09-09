@@ -1,4 +1,4 @@
-package com.pitstop.DataAccessLayer.DTOs;
+package com.pitstop.models;
 
 /**
  * Created by Ben Wu on 2016-08-04.

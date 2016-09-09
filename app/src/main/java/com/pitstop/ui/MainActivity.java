@@ -56,6 +56,7 @@ import com.pitstop.models.IntentProxyObject;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.adapters.MainAppSideMenuAdapter;
