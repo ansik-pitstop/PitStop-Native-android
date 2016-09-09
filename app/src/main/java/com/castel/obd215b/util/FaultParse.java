@@ -23,12 +23,9 @@ public class FaultParse {
 		for (int ii = 0; ii < tt1.length; ii++) {
 			FaultInfo fault = new FaultInfo();
 			int tt = tt1[ii];
-			Log.e("gf", String.valueOf(tt));
 			String b = "";
-			String a = Integer.toHexString(tt);
+			String a = Integer.toHexString(tt).toUpperCase();
 
-			Log.e("gf", a);
-			
 			if (a.length() == 1) {
 				b = "00,0" + a;
 			} else if (a.length() == 2) {
@@ -40,18 +37,15 @@ public class FaultParse {
 			} else {
 				b = "00,00";
 			}
-			
-			Log.e("gf", b);
 
 			String code = "";
 			List<String> ll = FileUtil.DTC_list;
 			boolean found = false;
 			for (int di = 0; di < ll.size() - 1; di++) {
 
-				String tmp = ll.get(di).toString();
+				String tmp = ll.get(di);
 				if (tmp.indexOf(b) > 0) {
 					code = tmp.substring(tmp.length() - 5, tmp.length());
-					LogUtil.i("code" + code);
 					fault.code = code;
 					di = ll.size();
 					found = true;
@@ -66,18 +60,13 @@ public class FaultParse {
 			fileCN = "malfunction_all.properties";
 			fileEN = "malfunction_all_en.properties";
 			String explain;
-			
-			LogUtil.i("file name CN:" + fileCN);
-			LogUtil.i("file name EN:" + fileEN);
+
 			String explainCN = "";
 			String explainEN = "";
 			explainCN = FileUtil.getInstance()
 					.readProperties(context, fileCN, code).trim();
 			explainEN = FileUtil.getInstance()
 					.readProperties(context, fileEN, code).trim();
-			LogUtil.i("explainCN:" + explainCN);
-			LogUtil.i("explainEN:" + explainEN);
-
 			
 			Locale locale = context.getResources().getConfiguration().locale;
 	        String language = locale.getLanguage();
@@ -100,7 +89,6 @@ public class FaultParse {
 	public static List<FaultInfo> parseCommercial(Context context, String[] faults) {
 		List<FaultInfo> fualtValues = new ArrayList<FaultInfo>();
 		String fileCN = "malfunction_commercial.properties";
-		LogUtil.i("file name CN:" + fileCN);
 		int[] tt1 = new int[faults.length];
 		for (int i = 0; i < faults.length; i++) {
 			FaultInfo fualtValue = new FaultInfo();
