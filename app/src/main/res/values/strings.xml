@@ -16,6 +16,8 @@
     <string name="pref_username_key">pref_username_key</string>
     <string name="pref_phone_number_key">pref_phone_number_key</string>
     <string name="pref_privacy_policy">pref_privacy_policy</string>
+    <string name="pref_term_of_use">pref_term_of_use</string> <!--Term of use-->
+
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
@@ -53,9 +55,9 @@
 
     <!-- Strings for welcome screen -->
     <string name="welcome">Welcome to Pitstop</string>
-    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whathappen">What\'s About to Happen?</string>
-    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whatneeded">What is needed from you</string>
     <string name="bluetooth_header">Bluetooth for Module</string>
     <string name="internet_header">Internet Connection</string>
@@ -64,5 +66,27 @@
     <string name="internet_desc">Turn on your internet connection in order for us to tell you what\'s going on with your car</string>
     <string name="car_desc">Turn your car on in order for the module to send data back to the app</string>
 
+    <!-- UartService -->
+    <string name="report_data">Terminal upload data:</string>
+
+    <!-- Service request dialog-->
+    <string name="service_request_dialog_pick_date_hint">Tap to pick a date</string>
+    <string name="service_request_dialog_pick_time_hint">Tap to pick a time</string>
+    <string name="service_request_dialog_additional_comments_hint_1">Additional comments</string>
+    <string name="service_request_dialog_additional_comments_hint_2">The name of your salesman</string>
+    <string name="service_request_dialog_time_picker_title">Please pick a time for your service</string>
+    <string name="service_request_dialog_date_picker_title">Please pick a date for your service</string>
+    <string name="service_request_dialog_summary_title">Request Summary</string>
+
+    <!--First time service booking-->
+    <!--<string name="first_service_booking_1">Welcome to Pitstop!\n\nLet\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
+    <!--discount-->
+    <!--<string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
+    <string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today. </string>
+    <string name="first_service_booking_2">Pitstop has calculated an estimated time we believe you will be due for your 1st service appointment.\n\nWhen your appointment is getting close, we will send you a reminder letting you know you whether or not you are due for service.\n\nThe power of being connected.</string>
+    <string name="first_service_booking_tutorial_button_text">Book 1st service appointment</string>
+
+    <!--for views-->
+    <string name="service_request_button">Request Service</string>
 
 </resources>

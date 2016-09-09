@@ -29,10 +29,10 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.MainActivity;
+import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -67,7 +67,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
     //Semaphore lock to coordinate command executions, to ensure only one is
     //currently started and waiting on a response.
-    Semaphore mCommandLock = new Semaphore(1,true);
+    Semaphore mCommandLock = new Semaphore(1, true);
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
@@ -133,13 +133,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void startScan() {
-        if(!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
+        if (!mBluetoothAdapter.isEnabled() || mLEScanner == null) {
             Log.i(TAG, "Scan unable to start");
             mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
             return;
         }
 
-        if(mIsScanning) {
+        if (mIsScanning) {
             Log.i(TAG, "Already scanning");
             return;
         }
@@ -159,7 +159,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void obdSetCtrl(int type) {
-        if(btConnectionState != CONNECTED) {
+        if (btConnectionState != CONNECTED) {
             return;
         }
 
@@ -170,7 +170,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void obdSetMonitor(int type, String valueList) {
-        if(btConnectionState != CONNECTED) {
+        if (btConnectionState != CONNECTED) {
             return;
         }
 
@@ -180,7 +180,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void obdSetParameter(String tlvTagList, String valueList) {
-        if(btConnectionState != CONNECTED) {
+        if (btConnectionState != CONNECTED) {
             return;
         }
 
@@ -190,7 +190,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void obdGetParameter(String tlvTag) {
-        if(btConnectionState != CONNECTED) {
+        if (btConnectionState != CONNECTED) {
             return;
         }
 
@@ -200,7 +200,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void sendCommandPassive(String payload) {
-        if(btConnectionState != CONNECTED) {
+        if (btConnectionState != CONNECTED) {
             return;
         }
 
@@ -232,24 +232,24 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      *
      */
     private void writeToObd(String payload, int type) {
-        if(!hasDiscoveredServices) {
+        if (!hasDiscoveredServices) {
             return;
         }
 
         byte[] bytes;
 
-        if(type == 0) {
+        if (type == 0) {
             bytes = mObdManager.getBytesToSend(payload);
         } else {
             bytes = mObdManager.getBytesToSendPassive(payload);
         }
 
-        if(bytes == null) {
+        if (bytes == null) {
             return;
         }
 
-        Log.i(TAG, "btConnstate: "+btConnectionState + " mGatt value: "+ (mGatt!=null));
-        if (btConnectionState == CONNECTED && mGatt != null ) {
+        Log.i(TAG, "btConnstate: " + btConnectionState + " mGatt value: " + (mGatt != null));
+        if (btConnectionState == CONNECTED && mGatt != null) {
             queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA));
         }
     }
@@ -257,7 +257,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     private void queueCommand(BluetoothCommand command) {
         synchronized (mCommandQueue) {
-            Log.i(TAG,"Queue command");
+            Log.i(TAG, "Queue command");
             mCommandQueue.add(command);
             //Schedule a new runnable to process that command (one command at a time executed only)
             ExecuteCommandRunnable runnable = new ExecuteCommandRunnable(command, mGatt);
@@ -268,7 +268,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     //Remove the current command from the queue, and release the lock
     //signalling the next queued command (if any) that it can start
-    protected void dequeueCommand(){
+    protected void dequeueCommand() {
         Log.i(TAG, "dequeue command");
         mCommandQueue.pop();
         mCommandLock.release();
@@ -311,7 +311,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         //    Log.i(TAG, "Bonding to device");
         //    device.createBond();
         //}
-        if(mGatt == null) {
+        if (mGatt == null) {
             Log.i(TAG, "Connecting to device");
             scanLeDevice(false);// will stop after first device detection
             showConnectingNotification();
@@ -323,7 +323,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     }
 
     public void bluetoothStateChanged(int state) {
-        if(state == BluetoothAdapter.STATE_OFF) {
+        if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
         }
     }
@@ -334,12 +334,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private void connectBluetooth() {
 
-        if(btConnectionState == CONNECTED) {
+        if (btConnectionState == CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
             return;
         }
 
-        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
             return;
         }
@@ -368,7 +368,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 mGatt = null;
                 scanLeDevice(true);
             }
-        } else  {
+        } else {
             Log.i(TAG, "mGatt is null or bluetooth adapter reset");
             scanLeDevice(true);
         }
@@ -400,7 +400,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     }
 
 
-
     /**
      *
      *
@@ -409,9 +408,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice btDevice = result.getDevice();
-            Log.v(TAG, "Result: "+result.toString());
+            Log.v(TAG, "Result: " + result.toString());
 
-            if(btDevice.getName() != null
+            if (btDevice.getName() != null
                     && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                 connectToDevice(btDevice);
             }
@@ -439,15 +438,13 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
             switch (newState) {
 
-                case BluetoothProfile.STATE_CONNECTING:
-                {
+                case BluetoothProfile.STATE_CONNECTING: {
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
                     break;
                 }
 
-                case BluetoothProfile.STATE_CONNECTED:
-                {
+                case BluetoothProfile.STATE_CONNECTED: {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     try {
                         mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
@@ -464,14 +461,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                     break;
                 }
 
-                case BluetoothProfile.STATE_DISCONNECTING:
-                {
+                case BluetoothProfile.STATE_DISCONNECTING: {
                     Log.i(TAG, "gattCallback STATE_DISCONNECTING");
                     break;
                 }
 
-                case BluetoothProfile.STATE_DISCONNECTED:
-                {
+                case BluetoothProfile.STATE_DISCONNECTED: {
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     try {
@@ -515,6 +510,19 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
+            if (OBD_READ_CHAR.equals(characteristic.getUuid())) {
+
+                final byte[] data = characteristic.getValue();
+                final String hexData = Utils.bytesToHexString(data);
+
+                if (Utils.isEmpty(hexData)) {
+                    return;
+                }
+
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    mObdManager.receiveDataAndParse(hexData);
+                }
+            }
         }
 
         @Override
@@ -525,7 +533,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                 final byte[] data = characteristic.getValue();
                 final String hexData = Utils.bytesToHexString(data);
 
-                if(Utils.isEmpty(hexData)) {
+                if (Utils.isEmpty(hexData)) {
                     return;
                 }
 
@@ -549,7 +557,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
     };
 
     //Runnable to execute a command from the queue
-    class ExecuteCommandRunnable implements Runnable{
+    class ExecuteCommandRunnable implements Runnable {
 
         private BluetoothCommand mCommand;
         private BluetoothGatt mGatt;

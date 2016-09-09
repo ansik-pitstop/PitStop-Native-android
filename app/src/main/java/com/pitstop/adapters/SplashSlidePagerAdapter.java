@@ -1,31 +1,22 @@
 package com.pitstop.adapters;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestCallback;
-import com.pitstop.DataAccessLayer.ServerAccess.RequestError;
 import com.pitstop.R;
-import com.pitstop.SplashScreen;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
@@ -38,16 +29,28 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static final int NUM_PAGES = 3;
+//    private static final int NUM_PAGES = 3;
+    private static final int NUM_PAGES = 2; //We removed the first page of the splash screen - Aug 30th
+
+    public static final int PAGE_ONBOARD = 0;
+    public static final int PAGE_LOGIN = 1;
 
     ArrayList<Fragment> fragments = new ArrayList<>();
 
     public SplashSlidePagerAdapter(FragmentManager fm) {
         super(fm);
-        fragments.add(new SplashFragment1());
+//        fragments.add(new SplashFragment1());
         fragments.add(new SplashFragment2());
         fragments.add(new SplashFragment3());
     }
+
+//    public SplashSlidePagerAdapter(FragmentManager fm, Activity activity) {
+//        super(fm);
+////        fragments.add(new SplashFragment1());
+//        fragments.add(new SplashFragment2());
+//        fragments.add(new SplashFragment3());
+//        mActivity = activity;
+//    }
 
     @Override
     public Fragment getItem(int position) {
@@ -58,22 +61,22 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return NUM_PAGES;
     }
+//    public static class SplashFragment1 extends Fragment {
+//        public SplashFragment1() {}
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                                 Bundle savedInstanceState) {
+//            ViewGroup rootView = (ViewGroup) inflater.inflate(
+//                    R.layout.splash_1, container, false);
+//
+////            Picasso.with(getContext()).load(R.drawable.slider1).into((ImageView)rootView.findViewById(R.id.bg));
+//
+//            return rootView;
+//        }
+//    }
 
-
-    public static class SplashFragment1 extends Fragment {
-        public SplashFragment1() {}
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            ViewGroup rootView = (ViewGroup) inflater.inflate(
-                    R.layout.splash_1, container, false);
-
-//            Picasso.with(getContext()).load(R.drawable.slider1).into((ImageView)rootView.findViewById(R.id.bg));
-
-            return rootView;
-        }
-    }public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                           int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
@@ -110,6 +113,7 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
 
         return inSampleSize;
     }
+
     public static class SplashFragment2 extends Fragment {
         public SplashFragment2() {}
 
@@ -120,10 +124,10 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
                     R.layout.splash_2, container, false);
 //            Picasso.with(getContext()).load(R.drawable.slider2).into((ImageView)rootView.findViewById(R.id.bg));
 
-
             return rootView;
         }
     }
+
     public static class SplashFragment3 extends Fragment {
 
         // facebook things
@@ -138,40 +142,6 @@ public class SplashSlidePagerAdapter extends FragmentStatePagerAdapter {
                                  Bundle savedInstanceState) {
             ViewGroup rootView = (ViewGroup) inflater.inflate(
                     R.layout.splash_login, container, false);
-
-            //networkHelper = new NetworkHelper(getActivity().getApplicationContext());
-//
-            //facebookLoginButton = (LoginButton) rootView.findViewById(R.id.fb_login_butt);
-            //facebookLoginButton.setReadPermissions("email", "public_profile");
-            //facebookLoginButton.setFragment(this);
-            //facebookLoginButton.registerCallback(((SplashScreen) getActivity()).callbackManager, new FacebookCallback<LoginResult>() {
-            //    @Override
-            //    public void onSuccess(LoginResult loginResult) {
-            //        networkHelper.loginSocial(loginResult.getAccessToken().getToken(), "facebook", new RequestCallback() {
-            //            @Override
-            //            public void done(String response, RequestError requestError) {
-            //                Log.wtf("FACEBOOK RESPONSE", response);
-            //                if(requestError == null) {
-            //                    Intent intent = new Intent(getActivity(), MainActivity.class);
-            //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //                    intent.putExtra(SplashScreen.LOGIN_REFRESH, true);
-            //                    intent.putExtra(MainActivity.FROM_ACTIVITY, SplashScreen.ACTIVITY_NAME);
-            //                    startActivity(intent);
-            //                }
-            //            }
-            //        });
-            //    }
-
-            //    @Override
-            //    public void onCancel() {
-            //        Log.wtf("FACEBOOK RESPONSE", "cancel");
-            //    }
-
-            //    @Override
-            //    public void onError(FacebookException error) {
-            //        Log.wtf("FACEBOOK RESPONSE", "error");
-            //    }
-            //});
 
             return rootView;
         }

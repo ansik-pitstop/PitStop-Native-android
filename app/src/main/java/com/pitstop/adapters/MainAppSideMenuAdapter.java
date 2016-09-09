@@ -9,11 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.pitstop.DataAccessLayer.DTOs.Car;
+import com.pitstop.models.Car;
 import com.pitstop.R;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by David on 6/9/2016.

@@ -1,10 +1,10 @@
 package com.pitstop.application;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -19,12 +19,12 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.User;
-import com.pitstop.DataAccessLayer.DataAdapters.UserAdapter;
+import com.pitstop.models.User;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
+import com.pitstop.ui.MainActivity;
 
-import java.io.File;
-import java.io.IOException;
+import org.json.JSONObject;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -63,7 +63,7 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
-        settings.setGoogleCloudMessagingAutoRegistrationEnabled(false);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
         Smooch.init(this, settings);
 
         // Parse
@@ -92,7 +92,7 @@ public class GlobalApplication extends Application {
             }
         });
 
-        // Mixpanel
+        // MixPanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
@@ -103,7 +103,7 @@ public class GlobalApplication extends Application {
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().set("$phone", user.getPhone());
-            mixpanelAPI.getPeople().set("$name", user.getFirstName());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
             mixpanelAPI.getPeople().set("$email", user.getEmail());
         } else {
             Log.d(TAG, "Can't set up mixpanel; current user is null");
@@ -118,7 +118,7 @@ public class GlobalApplication extends Application {
     }
 
     public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 
     /**
@@ -148,7 +148,6 @@ public class GlobalApplication extends Application {
         }
         return appStart;
     }
-
 
     public AppStart checkAppStart(int currentVersionCode, int lastVersionCode) {
         if (lastVersionCode == -1) {
@@ -226,6 +225,7 @@ public class GlobalApplication extends Application {
     }
 
     public void logOutUser() {
+        Log.i(TAG, "Logging user out");
         SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
@@ -235,13 +235,27 @@ public class GlobalApplication extends Application {
         editor.putString(pfAccessToken, null);
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
+
         editor.apply();
+
+        //Reset values about tutorial and fsb
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit()
+                .putBoolean(getString(R.string.pfTutorialShown), false)
+                .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
+                .apply();
+
 
         ParseUser.logOut();
 
         AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
+    }
+
+    public void modifyMixpanelSettings(String field, Object value){
+//        getMixpanelAPI().getPeople().set(settings);
+        getMixpanelAPI().getPeople().set(field, value);
     }
 
 }

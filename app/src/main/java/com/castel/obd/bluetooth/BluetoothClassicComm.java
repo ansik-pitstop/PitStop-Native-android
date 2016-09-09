@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -20,14 +19,13 @@ import com.pitstop.AddCarProcesses.AddCarActivity;
 import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
 import com.pitstop.DataAccessLayer.DataAdapters.LocalScannerAdapter;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.background.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Paul Soladoye on 12/04/2016.
@@ -182,6 +180,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     }
 
     private void connectBluetooth() {
+        Log.d(TAG, "connectBluetooth()");
 
         if (btConnectionState == CONNECTED) {
             Log.i(TAG,"Bluetooth is connected - BluetoothClassicComm");
@@ -214,6 +213,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             Log.i(TAG,"Starting discovery - BluetoothClassicComm");
             mBluetoothAdapter.startDiscovery();
         }
+        mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 14464);
     }
 
     Runnable runnable = new Runnable() {
@@ -262,7 +262,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     }
                     OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG,"Retry connection");
-                    startScan();
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
                     dataListener.getBluetoothState(btConnectionState);
                     break;
@@ -326,13 +325,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
                 if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
-                    //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    //    boolean bondResult = device.createBond();
-                    //    Log.i(TAG, "Create bond result: " + String.valueOf(bondResult));
-                    //}
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
                     try {

@@ -6,15 +6,12 @@
     android:id="@+id/item_list_item_layout"
     android:weightSum="1">
 
-
-
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="137dp"
         android:layout_marginTop="10dp">
 
         <LinearLayout
-            xmlns:autofit="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"

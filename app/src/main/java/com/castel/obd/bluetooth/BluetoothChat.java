@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
+import android.util.Log;
 
-import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 
 import java.io.IOException;
@@ -17,6 +17,8 @@ public class BluetoothChat {
 	private final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+	private static final String TAG = BluetoothChat.class.getSimpleName();
+
 	public ConnectThread connectThread;
 	public ConnectedThread connectedThread;
 
@@ -26,12 +28,13 @@ public class BluetoothChat {
 		mHandler = handler;
 	}
 
-	public void connectBluetooth(BluetoothDevice device) {
+	public synchronized void connectBluetooth(BluetoothDevice device) {
 		connectThread = new ConnectThread(device);
 		connectThread.start();
 	}
 
 	public void closeConnect() {
+		Log.w(TAG, "Closing connection threads");
 		if (null != connectedThread) {
 			connectedThread.cancel();
 			connectedThread = null;
@@ -42,6 +45,7 @@ public class BluetoothChat {
 		}
 	}
 
+	// establish connection with socket
 	private class ConnectThread extends Thread {
 		private final BluetoothSocket mmSocket;
 		private BluetoothDevice mmDevice;
@@ -63,12 +67,12 @@ public class BluetoothChat {
 
 		@Override
 		public void run() {
-			LogUtil.i("蓝牙开始连接");
+			Log.i(TAG, "Creating connect thread");
 
 			mHandler.sendEmptyMessage(IBluetoothCommunicator.CANCEL_DISCOVERY);
 			try {
 				if(mmSocket!=null) {
-					LogUtil.i("Connecting to socket");
+					Log.i(TAG, "Connecting to socket");
 
 					if(!mmSocket.isConnected()) {
 						mmSocket.connect();
@@ -83,14 +87,18 @@ public class BluetoothChat {
 				}
 
 			} catch (IOException connectException) {
-				connectException.printStackTrace();
+				if(mmSocket.isConnected()) {
+					Log.e(TAG, "Already connected to socket");
+				} else {
+					connectException.printStackTrace();
 
-				try {
-					LogUtil.i("Couldn't connect to socket");
-					mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
-					mmSocket.close();
-				} catch (IOException e2) {
-					e2.printStackTrace();
+					try {
+						Log.i(TAG, "Couldn't connect to socket");
+						mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
+						mmSocket.close();
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
 				}
 			}
 		}
@@ -106,12 +114,15 @@ public class BluetoothChat {
 		}
 	}
 
+	// handle read and write from device
 	class ConnectedThread extends Thread {
 		private BluetoothSocket mmSocket;
 		private InputStream mmInStream;
 		private OutputStream mmOutStream;
 
 		public ConnectedThread(BluetoothSocket socket) {
+			Log.i(TAG, "Creating connected thread");
+
 			mmSocket = socket;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
@@ -128,6 +139,7 @@ public class BluetoothChat {
 
 		@Override
 		public void run() {
+			Log.w(TAG, "Running connected thread");
 			byte[] buffer = new byte[1024];
 			int count;
 
@@ -137,7 +149,7 @@ public class BluetoothChat {
 						count = mmInStream.read(buffer);
 
 						if (-1 == count) {
-							LogUtil.i("read exception");
+							Log.i(TAG, "read exception");
 							mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 							break;
 						}
@@ -145,13 +157,12 @@ public class BluetoothChat {
 						byte[] data = new byte[count];
 						System.arraycopy(buffer, 0, data, 0, count);
 
-						LogUtil.e("read");
-						LogUtil.i(Utils.bytesToHexString(data));
+						Log.i("Reading Raw Data", Utils.bytesToHexString(data));
 
 						mHandler.sendMessage(mHandler.obtainMessage(
 								IBluetoothCommunicator.BLUETOOTH_READ_DATA, data));
 					} catch (IOException e) {
-						LogUtil.i("read exception");
+						Log.i(TAG, "read exception");
 						closeConnect();
 						mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 						break;
@@ -161,8 +172,7 @@ public class BluetoothChat {
 		}
 
 		public void write(byte[] bytes) {
-			LogUtil.e("write");
-			LogUtil.i(Utils.bytesToHexString(bytes));
+			Log.i("Writing Raw Data", Utils.bytesToHexString(bytes));
 			try {
 				if (null != mmOutStream) {
 					mmOutStream.write(bytes);

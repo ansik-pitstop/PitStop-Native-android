@@ -11,6 +11,8 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:datePickerDialogTheme">@style/DatePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/DatePickerDialogTheme</item>
     </style>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -21,6 +23,8 @@
         <item name="android:colorAccent">@color/highlight</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/label_text_dark</item>
+        <item name="android:datePickerDialogTheme">@style/DatePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/DatePickerDialogTheme</item>
     </style>
     >
 
@@ -37,6 +41,10 @@
         <item name="android:background">@color/primary</item>
         <item name="android:colorAccent">@color/highlight</item>
         <item name="android:colorControlActivated">@color/primary_light</item>
+    </style>
+
+    <style name="DatePickerDialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorAccent">@color/primary</item>
     </style>
 
 </resources>

@@ -2,16 +2,12 @@ package com.pitstop.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.View;
 
-import com.pitstop.AddCarProcesses.AddCarChooseDealershipFragment;
+import com.pitstop.ui.addCarFragments.AddCarChooseDealershipFragment;
 import com.pitstop.utils.LoadingActivityInterface;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by david on 6/9/2016.
