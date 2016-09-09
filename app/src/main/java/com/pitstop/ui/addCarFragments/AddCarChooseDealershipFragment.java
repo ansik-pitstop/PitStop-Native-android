@@ -44,7 +44,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
 
     private LoadingActivityInterface callback;
 
-    public AddCarChooseDealershipFragment setCallbackActivity(LoadingActivityInterface activityCallback){
+    public AddCarChooseDealershipFragment setCallbackActivity(LoadingActivityInterface activityCallback) {
         callback = activityCallback;
         return this;
     }
@@ -58,7 +58,9 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
 
         localStore = new LocalShopAdapter(getContext());
         networkHelper = new NetworkHelper(getActivity().getApplicationContext());
+
         setup();
+
         return rootView;
     }
 
@@ -66,20 +68,18 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
         return shop;
     }
 
-
-
     private void setup() {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.dealership_recycler_list);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        if(callback==null&&getActivity() instanceof AddCarActivity){
-            callback=((AddCarActivity)getActivity());
+        if (callback == null && getActivity() instanceof AddCarActivity) {
+            callback = ((AddCarActivity) getActivity());
         }
         callback.showLoading("Loading");
 
-        if(NetworkHelper.isConnected(getContext())) {
+        if (NetworkHelper.isConnected(getContext())) {
             Log.i(TAG, "Internet connection found");
             hadInternetConnection = true;
 
@@ -109,10 +109,10 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
                 callback.hideLoading(null);
                 setUpAdapter(dealerships);
             }
-        }else{
+        } else {
             Log.i(TAG, "No internet");
             hadInternetConnection = false;
-            if(!localStore.getAllDealerships().isEmpty()) {
+            if (!localStore.getAllDealerships().isEmpty()) {
                 callback.hideLoading(null);
                 setUpAdapter(localStore.getAllDealerships());
                 callback.hideLoading("Proceed Offline");
@@ -120,7 +120,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
                 callback.hideLoading("No Internet");
             }
         }
-        final EditText dealershipQueryEditText = (EditText)rootView.findViewById(R.id.dealership_query);
+        final EditText dealershipQueryEditText = (EditText) rootView.findViewById(R.id.dealership_query);
         dealershipQueryEditText.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -130,7 +130,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(adapter != null) {
+                if (adapter != null) {
                     adapter.getFilter().filter(charSequence);
                 }
             }
@@ -143,14 +143,14 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
     }
 
     private void setUpAdapter(List<Dealership> list) {
-        adapter = new DealershipSelectAdapter(list,this);
+        adapter = new DealershipSelectAdapter(list, this);
         recyclerView.setAdapter(adapter);
     }
-
 
     @Override
     public void dealershipSelectedCallback(Dealership shop) {
         Log.i(TAG, "Dealership selected: " + shop.getName());
         this.shop = shop;
     }
+
 }

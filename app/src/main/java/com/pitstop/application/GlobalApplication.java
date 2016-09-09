@@ -1,6 +1,7 @@
 package com.pitstop.application;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -21,6 +22,9 @@ import com.pitstop.BuildConfig;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
+import com.pitstop.ui.MainActivity;
+
+import org.json.JSONObject;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -88,7 +92,7 @@ public class GlobalApplication extends Application {
             }
         });
 
-        // Mixpanel
+        // MixPanel
         mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "butt" : getString(R.string.prod_mixpanel_api_token));
     }
 
@@ -144,7 +148,6 @@ public class GlobalApplication extends Application {
         }
         return appStart;
     }
-
 
     public AppStart checkAppStart(int currentVersionCode, int lastVersionCode) {
         if (lastVersionCode == -1) {
@@ -232,13 +235,27 @@ public class GlobalApplication extends Application {
         editor.putString(pfAccessToken, null);
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
+
         editor.apply();
+
+        //Reset values about tutorial and fsb
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit()
+                .putBoolean(getString(R.string.pfTutorialShown), false)
+                .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
+                .apply();
+
 
         ParseUser.logOut();
 
         AccessToken.setCurrentAccessToken(null);
 
         userAdapter.deleteAllUsers();
+    }
+
+    public void modifyMixpanelSettings(String field, Object value){
+//        getMixpanelAPI().getPeople().set(settings);
+        getMixpanelAPI().getPeople().set(field, value);
     }
 
 }

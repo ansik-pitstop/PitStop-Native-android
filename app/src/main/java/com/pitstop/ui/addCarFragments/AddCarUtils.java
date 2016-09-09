@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -50,7 +51,9 @@ import java.util.List;
 /**
  * Created by david on 7/21/2016.
  */
-public class AddCarUtils implements ObdManager.IBluetoothDataListener{
+public class AddCarUtils implements ObdManager.IBluetoothDataListener {
+
+    private static final String TAG = AddCarUtils.class.getSimpleName();
 
     AddCarActivity callback;
     GlobalApplication context;
@@ -70,9 +73,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     private boolean askForDTC = false;
 
     private boolean isSearchingForCar = false, isGettingVinAndCarIsConnected = false;
-    /** Callbacks for service binding, passed to bindService() */
+
+    private boolean isCarAddedManually = false;
+
+    /**
+     * Callbacks for service binding, passed to bindService()
+     */
     private ServiceConnection serviceConnection;
 
+    private String dtcs;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -80,7 +89,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             Log.i(TAG, "Add car handler message received: " + msg.what);
             switch (msg.what) {
                 case 0: {
-                    if(connectionAttempts++ == 3) {
+                    if (connectionAttempts++ == 3) {
                         isSearchingForCar = false;
                         callback.openRetryDialog();
                     } else {
@@ -91,7 +100,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 }
 
                 case 1: {
-                    if(autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
                         autoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
                     } else {
                         vinAttempts++;
@@ -103,13 +112,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
         }
     };
-    private String dtcs;
 
-    public AddCarUtils(GlobalApplication context, AddCarActivity callback){
+    public AddCarUtils(GlobalApplication context, AddCarActivity callback) {
         this.context = context;
         this.callback = callback;
         pendingCar = new Car();
-        serviceConnection = new BluetoothServiceConnection(context,callback);
+        serviceConnection = new BluetoothServiceConnection(context, callback);
         mashapeAsync = new CallMashapeAsync();
         mixpanelHelper = new MixpanelHelper(context);
         networkHelper = new NetworkHelper(context);
@@ -118,12 +126,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-
-    private static final String TAG = AddCarUtils.class.getSimpleName();
-
-
     public void cancelMashape() {
-        if(mashapeAsync!=null&&mashapeAsync.getStatus().equals(AsyncTask.Status.RUNNING)){
+        if (mashapeAsync != null && mashapeAsync.getStatus().equals(AsyncTask.Status.RUNNING)) {
             mashapeAsync.cancel(true);
             mashapeAsync = new CallMashapeAsync();
         }
@@ -131,7 +135,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         mHandler.removeCallbacks(carSearchRunnable);
         mHandler.removeCallbacks(vinDetectionRunnable);
     }
-    public void unbindService(){
+
+    public void unbindService() {
         callback.unbindService(serviceConnection);
         pendingCar = null;
     }
@@ -139,27 +144,31 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     public void setVin(String vin) {
         pendingCar.setVin(vin);
     }
+
     public static boolean isValidVin(String vin) {
-        Log.i(TAG,"isValidVin()-- func");
+        Log.i(TAG, "isValidVin()-- func");
         return vin != null && vin.length() == 17;
     }
-    
-    public void updateMileage(String mileage){
-        if(mileage!=null) {
+
+    public void updateMileage(String mileage) {
+        if (mileage != null) {
             pendingCar.setBaseMileage(Integer.parseInt(mileage));
         }
         callback.postMileageInput();
     }
+
     public void addCarToServer(String mileage) {
-        if(autoConnectService==null){
+        if (autoConnectService == null) {
             autoConnectService = callback.getAutoConnectService();
             autoConnectService.setCallbacks(this);
         }
-        if(mileage!=null) {
+        if (mileage != null) {
             pendingCar.setBaseMileage(Integer.parseInt(mileage));
         }
         callback.showLoading("Adding car");
         if (isValidVin(pendingCar.getVin())) { // valid VIN is already entered
+
+            isCarAddedManually = true;
 
             // Vin is manually entered or retrieved using the barcode scanner
             try {
@@ -172,7 +181,10 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             makeCar();
 
         } else {
-            if(ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+
+            isCarAddedManually = false;
+
+            if (ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
                 callback.hideLoading("Location permissions are required");
             } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
@@ -185,8 +197,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                     callback.showLoading("Linking with Device, give it a few seconds");
                     Log.i(TAG, "Getting car vin with device connected");
+
+                    // Linked with the peripheral, getting car vin
+
                     autoConnectService.getCarVIN();
                     vinRetrievalStartTime = System.currentTimeMillis();
                     isGettingVinAndCarIsConnected = true;
@@ -199,7 +215,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     autoConnectService.startBluetoothSearch(2);  // search for car
                     isSearchingForCar = true;
                     searchTime = System.currentTimeMillis();
-                    if(mileage != null) {
+                    if (mileage != null) {
                         connectionAttempts = 0;
                     }
                     mHandler.postDelayed(carSearchRunnable, 3000);
@@ -213,27 +229,27 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
      * Create a new Car
      */
     private void makeCar() {
-        Log.i(TAG,"makeCar() -- function");
+        Log.i(TAG, "makeCar() -- function");
 
-        Log.i(TAG,"Making car -- make car function");
-        if(autoConnectService==null){
+        Log.i(TAG, "Making car -- make car function");
+        if (autoConnectService == null) {
             autoConnectService = callback.getAutoConnectService();
             autoConnectService.setCallbacks(this);
         }
-        if(autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+        if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
 
             Log.i(TAG, "Now connected to device");
 
             callback.showLoading("Loading car engine codes");
-            askForDTC=true;
-            Log.i(TAG,"Make car --- Getting DTCs");
+            askForDTC = true;
+            Log.i(TAG, "Make car --- Getting DTCs");
             autoConnectService.getDTCs();
             autoConnectService.getPendingDTCs();
         } else {
             Log.i(TAG, "Device not connected");
             Log.i(TAG, "Checking internet connection");
 
-            if(NetworkHelper.isConnected(context)) {
+            if (NetworkHelper.isConnected(context)) {
                 Log.i(TAG, "Internet connection found");
 
                 Log.i(TAG, "Adding car --- make car func");
@@ -246,8 +262,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
         }
     }
+
     private void startPendingAddCarActivity() {
-        Intent intent = new Intent(context,PendingAddCarActivity.class);
+        Intent intent = new Intent(context, PendingAddCarActivity.class);
         intent.putExtra(PendingAddCarActivity.ADD_CAR_MILEAGE, pendingCar.getBaseMileage());
         intent.putExtra(PendingAddCarActivity.ADD_CAR_DTCS, dtcs);
         intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, pendingCar.getScannerId());
@@ -257,9 +274,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
     @Override
     public void getBluetoothState(int state) {
-        Log.i(TAG,"getBluetoothState func--");
-        if(state == IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
-            if(isSearchingForCar) {
+        Log.i(TAG, "getBluetoothState func--");
+        if (state == IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS) {
+            if (isSearchingForCar) {
                 isSearchingForCar = false;
                 callback.runOnUiThread(new Runnable() {
                     @Override
@@ -267,13 +284,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                         callback.showLoading("Linking with Device, give it a few seconds");
                     }
                 });
-                Log.i(TAG,"Getting car vin --- getBluetoothState");
+                Log.i(TAG, "Getting car vin --- getBluetoothState");
                 autoConnectService.getCarVIN();
                 vinRetrievalStartTime = System.currentTimeMillis();
                 isGettingVinAndCarIsConnected = true;
                 mHandler.postDelayed(vinDetectionRunnable, 3000);
             }
-        } else if(state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
+        } else if (state == IBluetoothCommunicator.CONNECTING && isSearchingForCar) {
             callback.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -284,15 +301,16 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+    }
 
     /**
      * After resetting device time, the bluetooth connection is lost.
-     * */
+     */
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(TAG,"Set parameter");
-        if((responsePackageInfo.type+responsePackageInfo.value)
+        Log.i(TAG, "Set parameter");
+        if ((responsePackageInfo.type + responsePackageInfo.value)
                 .equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
             linkingAttempts = 0;
@@ -304,15 +322,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-        Log.i(TAG,"getParameterData()");
+        Log.i(TAG, "getParameterData()");
 
-        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
-            Log.i(TAG, "Device time returned: "+parameterPackageInfo.value.get(0).value);
+        if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
+            Log.i(TAG, "Device time returned: " + parameterPackageInfo.value.get(0).value);
             long moreThanOneYear = 32000000;
             long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
-            long currentTime = System.currentTimeMillis()/1000;
+            long currentTime = System.currentTimeMillis() / 1000;
             long diff = currentTime - deviceTime;
-            if(diff > moreThanOneYear) {
+            if (diff > moreThanOneYear) {
                 autoConnectService.syncObdDevice();
                 needToSetTime = true;
             } else {
@@ -321,9 +339,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
         }
 
-        if(parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
+        if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             linkingAttempts = 0;
-            Log.i(TAG,"VIN response received");
+            Log.i(TAG, "VIN response received");
 
             callback.showLoading("Getting car VIN");
 
@@ -342,21 +360,21 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
             if (isValidVin(pendingCar.getVin())) {
                 vinAttempts = 0;
-                Log.i(TAG,"VIN is valid");
+                Log.i(TAG, "VIN is valid");
                 autoConnectService.setFixedUpload();
                 callback.showLoading("Loaded car VIN");
                 makeCar();
 
-            } else if(!needToSetTime || vinAttempts > 8){
+            } else if (!needToSetTime || vinAttempts > 8) {
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
-                Log.i(TAG,"VIN: "+pendingCar.getVin());
+                Log.i(TAG, "VIN: " + pendingCar.getVin());
                 vinAttempts = 0;
                 callback.resetScreen();
                 callback.hideLoading("Vin value returned not valid, please use Manual Input!");
             } else {
                 Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
-                Log.i(TAG,"VIN: "+pendingCar.getVin());
+                Log.i(TAG, "VIN: " + pendingCar.getVin());
                 vinAttempts++;
                 isGettingVinAndCarIsConnected = true;
                 mHandler.postDelayed(vinDetectionRunnable, 2000);
@@ -367,21 +385,21 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.i(TAG, "getIOData()");
-        Log.i(TAG, "result: "+dataPackageInfo.result);
+        Log.i(TAG, "result: " + dataPackageInfo.result);
 
         if (dataPackageInfo.result == 6 && askForDTC) {
-            Log.i(TAG,"Result: "+dataPackageInfo.result+ " Asking for dtcs --getIOData()");
+            Log.i(TAG, "Result: " + dataPackageInfo.result + " Asking for dtcs --getIOData()");
             dtcs = "";
-            if(dataPackageInfo.dtcData!=null&&dataPackageInfo.dtcData.length()>0){
-                Log.i(TAG,"Parsing DTCs");
+            if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
+                Log.i(TAG, "Parsing DTCs");
                 String[] DTCs = dataPackageInfo.dtcData.split(",");
-                for(String dtc : DTCs) {
-                    dtcs+= ObdDataUtil.parseDTCs(dtc)+",";
+                for (String dtc : DTCs) {
+                    dtcs += ObdDataUtil.parseDTCs(dtc) + ",";
                 }
             }
 
             Log.i(TAG, "getIOData --- Adding car");
-            if(NetworkHelper.isConnected(context)){
+            if (NetworkHelper.isConnected(context)) {
                 Log.i(TAG, "Internet connection found");
                 runVinTask();
             } else {
@@ -394,29 +412,29 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     }
                 });
             }
-            askForDTC=false;
+            askForDTC = false;
         }
     }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+        if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             Log.i(TAG, "Device disconnected");
         }
     }
 
     public void runVinTask() {
-        if(mashapeAsync == null) {
+        if (mashapeAsync == null) {
             mashapeAsync = new CallMashapeAsync();
-        } else if(mashapeAsync.getStatus().equals(AsyncTask.Status.PENDING)) {
-            Log.i("VIN DECODER","Pending TASK");
-        } else if(mashapeAsync.getStatus().equals(AsyncTask.Status.RUNNING)) {
+        } else if (mashapeAsync.getStatus().equals(AsyncTask.Status.PENDING)) {
+            Log.i("VIN DECODER", "Pending TASK");
+        } else if (mashapeAsync.getStatus().equals(AsyncTask.Status.RUNNING)) {
             mashapeAsync.cancel(true);
             mashapeAsync = null;
             mashapeAsync = new CallMashapeAsync();
-        } else if(mashapeAsync.getStatus().equals(AsyncTask.Status.FINISHED)) {
+        } else if (mashapeAsync.getStatus().equals(AsyncTask.Status.FINISHED)) {
             mashapeAsync = null;
-            mashapeAsync  = new CallMashapeAsync();
+            mashapeAsync = new CallMashapeAsync();
         }
         mashapeAsync.execute();
     }
@@ -447,37 +465,32 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
 
             Log.i(TAG, "On post execute");
 
-            if(!Utils.isEmpty(error)) {
+            if (!Utils.isEmpty(error)) {
                 callback.hideLoading(error);
             }
         }
 
         protected String doInBackground(String... msg) {
-
             String error = "";
-
             try {
-
-                StringBuilder response  = new StringBuilder();
-                URL url = new URL("https://vindecoder.p.mashape.com/decode_vin?vin="+pendingCar.getVin());
+                StringBuilder response = new StringBuilder();
+                URL url = new URL("https://vindecoder.p.mashape.com/decode_vin?vin=" + pendingCar.getVin());
                 // Starts the query
 
-                HttpURLConnection httpconn = (HttpURLConnection)url.openConnection();
+                HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
                 httpconn.addRequestProperty("Content-Type", "application/x-zip");
                 httpconn.addRequestProperty("X-Mashape-Key", context.getString(R.string.mashape_key));
                 httpconn.addRequestProperty("Accept", "application/json");
-                if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK)
-                {
+                if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     BufferedReader input = new BufferedReader(
-                            new InputStreamReader(httpconn.getInputStream()),8192);
+                            new InputStreamReader(httpconn.getInputStream()), 8192);
                     String strLine = null;
-                    while ((strLine = input.readLine()) != null)
-                    {
+                    while ((strLine = input.readLine()) != null) {
                         response.append(strLine);
                     }
                     input.close();
                 }
-                if(new JSONObject(response.toString()).getBoolean("success")) {
+                if (new JSONObject(response.toString()).getBoolean("success")) {
                     Log.i(TAG, "Call to mashape succeed");
                     //load mashape info
                     final JSONObject jsonObject =
@@ -496,7 +509,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
     }
 
     private void scannerIdCheck(final JSONObject carInfo) {
-        Log.i(TAG,"ScannerIdCheck() -- func");
+        Log.i(TAG, "ScannerIdCheck() -- func");
 
         vinCheck(carInfo);
     }
@@ -514,12 +527,42 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         networkHelper.getCarsByVin(pendingCar.getVin(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if(requestError == null) {
-                    if(response.equals("{}")) {
+                if (requestError == null) {
+                    if (response.equals("{}")) {
                         saveCarToServer(carInfo);
                     } else {
                         callback.hideLoading("Car Already Exists!");
                         callback.resetScreen();
+
+                        // Car exists
+                        //"Car": make + " " + model
+                        Car existedCar = null;
+                        try {
+                            existedCar = Car.createCar(response);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (existedCar != null) {
+                            int carUserId = existedCar.getUserId();
+                            String value;
+                            if (carUserId == context.getCurrentUserId()) {
+                                value = MixpanelHelper.ADD_CAR_CAR_EXIST_FOR_CURRENT_USER;
+                            } else {
+                                value = MixpanelHelper.ADD_CAR_CAR_EXIST_FOR_ANOTHER_USER;
+                            }
+
+                            try {
+                                JSONObject json = new JSONObject();
+                                json.put("Car", existedCar.getMake() + " " + existedCar.getModel());
+                                json.put("Button", value);
+                                json.put("View", "AddCarActivity");
+                                mixpanelHelper.trackCustom("Button Tapped", json);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
                     }
                 } else {
                     callback.hideLoading("There was an error, please try again");
@@ -529,6 +572,14 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
         });
     }
 
+    /**
+     * <p>This method will sum up the car info and post the car to the server</p>
+     * <p>This method can also checks if the scanner id exists in the backend, if that so,
+     * the callback of network request will receive a requestError from the backend notifying the user that
+     * this device has already been used in another car.</p>
+     *
+     * @param carInfo
+     */
     private void saveCarToServer(JSONObject carInfo) {
         Log.i("shop selected:", String.valueOf(pendingCar.getShopId()));
 
@@ -549,23 +600,39 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                     public void done(String response, RequestError requestError) {
                         callback.showLoading("Final Touches");
 
-                        if(requestError == null) {
+                        if (requestError == null) {
                             Log.i(TAG, "Create car response: " + response);
                             try {
                                 Car newCar = Car.createCar(response);
 
-                                if(pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
+                                if (pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
                                     networkHelper.createNewScanner(newCar.getId(), pendingCar.getScannerId(), null);
                                 }
 
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
                                 networkHelper.setMainCar(context.getCurrentUserId(), newCar.getId(), null);
                                 callback.carSuccessfullyAdded(newCar);
+
+                                //mixpanel Added car successfully
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Add Car");
+                                properties.put("View", "AddCarActivity");
+                                properties.put("Mileage", newCar.getBaseMileage());
+                                properties.put("Method of Adding Car", isCarAddedManually ? "Manually" : "Through Device");
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 callback.hideLoading("There was an error adding your car, please try again");
                             }
                         } else {
+                            //Scanner id exists in backend
+                            try {
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, "AddCarActivity");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.e(TAG, "Error in posting button tracking info to mixpanel");
+                            }
                             callback.hideLoading(requestError.getMessage());
                             Log.e(TAG, "Create new car: " + requestError.getMessage());
                         }
@@ -581,11 +648,20 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if(seconds > 10 && isGettingVinAndCarIsConnected) {
-                if(linkingAttempts++ > 4) {
+            if (seconds > 10 && isGettingVinAndCarIsConnected) {
+                if (linkingAttempts++ > 4) {
                     mHandler.removeCallbacks(vinDetectionRunnable);
                     linkingAttempts = 0;
                     callback.openRetryDialog();
+
+                    //Try to get Vin again
+                    try {
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_GET_SET_RTC_AGAIN, "AddCarActivity");
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_TRY_GET_VIN_AGAIN, "AddCarActivity");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 } else {
                     mHandler.sendEmptyMessage(1);
                     mHandler.postDelayed(vinDetectionRunnable, 2000);
@@ -593,13 +669,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
                 return;
             }
 
-            if(!isGettingVinAndCarIsConnected) {
+            if (!isGettingVinAndCarIsConnected) {
                 mHandler.removeCallbacks(vinDetectionRunnable);
                 return;
             }
 
             mHandler.postDelayed(vinDetectionRunnable, 2000);
-
         }
     };
 
@@ -609,7 +684,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - searchTime;
             int seconds = (int) (timeDiff / 1000);
-            if(seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
+            if (seconds > 15 && (isSearchingForCar) && autoConnectService.getState()
                     == IBluetoothCommunicator.DISCONNECTED) {
                 mHandler.sendEmptyMessage(0);
                 mHandler.removeCallbacks(carSearchRunnable);
@@ -620,13 +695,18 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener{
             }
         }
     };
-    public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener,LoadingActivityInterface {
+
+    public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener, LoadingActivityInterface {
         public void carSuccessfullyAdded(Car car);
+
         void resetScreen();
+
         void openRetryDialog();
+
         BluetoothAutoConnectService getAutoConnectService();
 
         void postMileageInput();
     }
+
 
 }

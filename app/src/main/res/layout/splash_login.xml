@@ -12,6 +12,7 @@
         android:scaleType="centerCrop" />
 
     <LinearLayout
+        android:id="@+id/splash_login_linear_layout"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
@@ -106,7 +107,7 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Log In"
+            android:text="Sign Up"
             android:textColor="#fff"
             android:onClick="loginOrSignUp"
             android:background="@drawable/color_button_highlight"
@@ -115,13 +116,14 @@
             android:layout_marginBottom="12dp"
             android:elegantTextHeight="true"
             android:layout_gravity="center_horizontal" />
+
         <Button
             android:id="@+id/fb_login_butt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/fb_logo"
             android:paddingLeft="34dp"
-            android:text="Log In with Facebook"
+            android:text="Sign Up with Facebook"
             android:onClick="loginFacebook"
             android:textColor="#efefef"
             android:background="@drawable/color_button_fb"
@@ -151,7 +153,7 @@
         android:layout_width="wrap_content"
         android:textColor="#fff"
         android:layout_height="wrap_content"
-        android:text="Sign Up"
+        android:text="Log In"
         android:elegantTextHeight="true"
         android:id="@+id/sign_log_switcher_button"
         android:elevation="6dp"

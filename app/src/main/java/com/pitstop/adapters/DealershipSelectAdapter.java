@@ -21,11 +21,13 @@ import java.util.List;
  * Created by David on 7/22/2016.
  */
 public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSelectAdapter.ViewHolder> implements Filterable {
+
     public List<Dealership> shops;
     private int chosen;
     private DealershipSelectAdapterCallback callback;
     private DealershipAdapterFilter adapterFilter;
-    public DealershipSelectAdapter(List<Dealership> shops,DealershipSelectAdapterCallback callback) {
+
+    public DealershipSelectAdapter(List<Dealership> shops, DealershipSelectAdapterCallback callback) {
         this.shops = shops;
         this.chosen = 0;
         this.callback = callback;
@@ -47,15 +49,15 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
 
         holder.dealershipName.setText(shop.getName());
         holder.dealershipAddress.setText(shop.getAddress());
-        if(position==chosen){
+        if (position == chosen) {
             holder.checkbox.setChecked(true);
-        }else{
+        } else {
             holder.checkbox.setChecked(false);
         }
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chosen=position;
+                chosen = position;
                 notifyDataSetChanged();
                 callback.dealershipSelectedCallback(shop);
             }
@@ -69,12 +71,12 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
 
     @Override
     public Filter getFilter() {
-        if(adapterFilter == null)
+        if (adapterFilter == null)
             adapterFilter = new DealershipAdapterFilter(this, shops);
         return adapterFilter;
     }
 
-    public class DealershipAdapterFilter extends Filter{
+    public class DealershipAdapterFilter extends Filter {
 
         private final DealershipSelectAdapter adapter;
         private final List<Dealership> originalList;
@@ -112,8 +114,8 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             adapter.shops.clear();
             adapter.shops.addAll((ArrayList<Dealership>) filterResults.values);
-            adapter.chosen=0;
-            if(!adapter.shops.isEmpty()) {
+            adapter.chosen = 0;
+            if (!adapter.shops.isEmpty()) {
                 callback.dealershipSelectedCallback(adapter.shops.get(chosen));
             }
             adapter.notifyDataSetChanged();
@@ -137,7 +139,7 @@ public class DealershipSelectAdapter extends RecyclerView.Adapter<DealershipSele
         }
     }
 
-    public interface DealershipSelectAdapterCallback{
-        public void dealershipSelectedCallback(Dealership shop);
+    public interface DealershipSelectAdapterCallback {
+        void dealershipSelectedCallback(Dealership shop);
     }
 }

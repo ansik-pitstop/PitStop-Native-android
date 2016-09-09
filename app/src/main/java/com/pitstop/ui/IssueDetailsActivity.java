@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,6 +33,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.ServiceRequestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,7 +116,11 @@ public class IssueDetailsActivity extends AppCompatActivity {
         }
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            JSONObject properties = new JSONObject();
+            properties.put("View", TAG);
+            properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
+//            mixpanelHelper.trackViewAppeared(TAG);
+            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -171,6 +178,11 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        try{
+            mixpanelHelper.trackButtonTapped("Back", TAG);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
         finish();
     }
 
@@ -185,59 +197,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(IssueDetailsActivity.this);
-        alertDialog.setTitle("Enter additional comment");
-
-        final String[] additionalComment = {""};
-        final EditText userInput = new EditText(IssueDetailsActivity.this);
-        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        alertDialog.setView(userInput);
-
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':'1'}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                additionalComment[0] = userInput.getText().toString();
-                sendRequest(additionalComment[0]);
-            }
-        });
-
-        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                dialog.cancel();
-            }
-        });
-
-        alertDialog.show();
-    }
-
-    private void sendRequest(String additionalComment) {
-        networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
-                            Toast.makeText(IssueDetailsActivity.this, "Service request sent", Toast.LENGTH_SHORT).show();
-                            Smooch.track("User Requested Service");
-                            networkHelper.servicePending(dashboardCar.getId(), carIssue.getId(), null);
-                        } else {
-                            Log.e(TAG, "service request: " + requestError.getMessage());
-                            Toast.makeText(IssueDetailsActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        new ServiceRequestUtil(this, dashboardCar, false).start();
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {

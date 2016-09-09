@@ -11,7 +11,9 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,7 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
         localCarAdapter = new LocalCarAdapter(this);
         populateCarNamesAndIdList();
 
-        SettingsFragment settingsFragment =  new SettingsFragment();
+        SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
             @Override
             public void localUpdatePerformed() {
@@ -80,8 +82,8 @@ public class SettingsActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("cars", cars);
         bundle.putIntegerArrayList("ids", ids);
-        bundle.putStringArrayList("dealers",dealers);
-        bundle.putParcelable("mainCar",dashboardCar);
+        bundle.putStringArrayList("dealers", dealers);
+        bundle.putParcelable("mainCar", dashboardCar);
 
         IntentProxyObject intentProxyObject = new IntentProxyObject();
         intentProxyObject.setCarList(carList);
@@ -89,14 +91,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         settingsFragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment ).commit();
+                .replace(android.R.id.content, settingsFragment).commit();
     }
 
     private void populateCarNamesAndIdList() {
         carList = localCarAdapter.getAllCars();
 
-        for(Car car : carList) {
-            if(car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
+        for (Car car : carList) {
+            if (car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
                 dashboardCar = car;
             }
 
@@ -120,17 +122,18 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
 
-        if (id ==  android.R.id.home){
+        if (id == android.R.id.home) {
             finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void onBackPressed() {
         try {
-            new MixpanelHelper((GlobalApplication) getApplicationContext()).trackButtonTapped("Back", TAG);
+            mixpanelHelper.trackButtonTapped("Back", TAG);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -141,7 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void finish() {
         Intent intent = new Intent();
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
-        setResult(MainActivity.RESULT_OK,intent);
+        setResult(MainActivity.RESULT_OK, intent);
         super.finish();
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
@@ -172,9 +175,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         private NetworkHelper networkHelper;
 
-        public SettingsFragment() {}
+        public SettingsFragment() {
+        }
 
-        public void setOnInfoUpdatedListener (OnInfoUpdated listener) {
+        public void setOnInfoUpdatedListener(OnInfoUpdated listener) {
             this.listener = listener;
         }
 
@@ -202,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity {
             mainCar = bundle.getParcelable("mainCar");
 
             IntentProxyObject listObject = bundle.getParcelable("carList");
-            if(listObject != null) {
+            if (listObject != null) {
                 carList = listObject.getCarList();
             } else {
                 carList = localCarAdapter.getAllCars();
@@ -212,14 +216,14 @@ public class SettingsActivity extends AppCompatActivity {
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
-            if(mainCar != null) {
+            if (mainCar != null) {
                 final Preference mainCarPreference = findPreference("current_car");
                 mainCarPreference.setSummary("Tap to switch car");
-                mainCarPreference.setTitle(mainCar.getMake() +" "+ mainCar.getModel());
+                mainCarPreference.setTitle(mainCar.getMake() + " " + mainCar.getModel());
                 mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if(listAdapter.getCount() == 1) {
+                        if (listAdapter.getCount() == 1) {
                             Toast.makeText((getActivity()).getApplicationContext(),
                                     "You have only one added vehicle.", Toast.LENGTH_SHORT).show();
                             return true;
@@ -236,13 +240,13 @@ public class SettingsActivity extends AppCompatActivity {
             final List<String> shopIds = new ArrayList<>();
 
             // Try local store for dealerships
-            if(dealerships.isEmpty()) {
+            if (dealerships.isEmpty()) {
                 Log.i(TAG, "Local store has no dealerships");
 
                 networkHelper.getShops(new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
-                        if(requestError == null) {
+                        if (requestError == null) {
                             try {
                                 List<Dealership> dealers = Dealership.createDealershipList(response);
                                 shopAdapter.deleteAllDealerships();
@@ -289,14 +293,17 @@ public class SettingsActivity extends AppCompatActivity {
                         int result = localCarAdapter.updateCar(itemCar);
 
                         try {
+//                            mixpanelHelper.trackCustom("Button Tapped",
+//                                    new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
+//                                            TAG, itemCar.getMake(), itemCar.getModel())));
                             mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
+                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
                                             TAG, itemCar.getMake(), itemCar.getModel())));
                         } catch (JSONException e1) {
                             e1.printStackTrace();
                         }
 
-                        if(result != 0) {
+                        if (result != 0) {
                             // Car shop was updated
                             listener.localUpdatePerformed();
                         }
@@ -304,12 +311,12 @@ public class SettingsActivity extends AppCompatActivity {
                         networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if(requestError == null) {
+                                if (requestError == null) {
                                     networkHelper.updateCarShop(itemCar.getId(), shopId,
                                             new RequestCallback() {
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
-                                                    if(requestError == null) {
+                                                    if (requestError == null) {
                                                         Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
                                                         Toast.makeText(getActivity(), "Car dealership updated", Toast.LENGTH_SHORT).show();
                                                         listener.localUpdatePerformed();
@@ -394,6 +401,7 @@ public class SettingsActivity extends AppCompatActivity {
                     });
 
                     alertDialog.show();
+
                     return true;
                 }
             });
@@ -401,8 +409,45 @@ public class SettingsActivity extends AppCompatActivity {
             Preference emailPreference = findPreference(getString(R.string.pref_email_key));
             emailPreference.setTitle(currentUser.getEmail());
 
-            Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
+            final Preference phoneNumberPreference = findPreference(getString(R.string.pref_phone_number_key));
             phoneNumberPreference.setTitle(currentUser.getPhone());
+            phoneNumberPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+
+                    final EditText phoneInput = new EditText(getActivity());
+                    phoneInput.setText(currentUser.getPhone());
+                    phoneInput.setHint("Phone number");
+                    phoneInput.setInputType(InputType.TYPE_CLASS_PHONE);
+
+                    final LinearLayout changePhoneLayout = new LinearLayout(getActivity());
+                    changePhoneLayout.setOrientation(LinearLayout.VERTICAL);
+                    changePhoneLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    ));
+                    changePhoneLayout.addView(phoneInput);
+
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+                    alertDialog.setTitle("Edit phone")
+                            .setView(changePhoneLayout)
+                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String phone = phoneInput.getText().toString();
+                                    updateUserPhone(phone, phoneNumberPreference);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            }).create().show();
+
+                    return true;
+                }
+            });
 
             findPreference(getString(R.string.pref_privacy_policy)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -416,6 +461,21 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 }
             });
+
+            //Term of use
+            findPreference(getString(R.string.pref_term_of_use)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    try{
+                        mixpanelHelper.trackButtonTapped("Terms of Use", TAG);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/AppAgreement.pdf")));
+                    return true;
+                }
+            });
+
 
 
             //logging out
@@ -485,7 +545,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void updateUserName(final String firstName, final String lastName, final Preference namePreference) {
             try {
-                mixpanelHelper.trackButtonTapped("Name", TAG);
+//                mixpanelHelper.trackButtonTapped("Name", TAG);
+                mixpanelHelper.trackButtonTapped("First Name", TAG);
+                mixpanelHelper.trackButtonTapped("Last Name", TAG);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
@@ -501,6 +563,34 @@ public class SettingsActivity extends AppCompatActivity {
                         currentUser.setFirstName(firstName);
                         currentUser.setLastName(lastName);
                         application.setCurrentUser(currentUser);
+                        application.modifyMixpanelSettings("$name", firstName + (lastName == null ? "" : " " + lastName));
+
+                    } else {
+                        Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        private void updateUserPhone(final String phoneNumber, final Preference phonePreference) {
+            try {
+                mixpanelHelper.trackButtonTapped("Phone", TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            networkHelper.updateUserPhone(application.getCurrentUserId(), phoneNumber, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null) {
+                        phonePreference.setTitle(phoneNumber);
+
+                        Toast.makeText(getActivity(), "Phone successfully updated", Toast.LENGTH_SHORT).show();
+
+                        currentUser.setPhone(phoneNumber);
+                        application.setCurrentUser(currentUser);
+                        application.modifyMixpanelSettings("$phone", phoneNumber);
+
                     } else {
                         Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     }
@@ -509,6 +599,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         List<Car> selectedCar = new ArrayList<>();
+
         private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
@@ -533,7 +624,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     final Car newDashboardCar = selectedCar.get(0);
 
-                    if(formerDashboardCar.getVin().equals(newDashboardCar.getVin())) {
+                    if (formerDashboardCar.getVin().equals(newDashboardCar.getVin())) {
                         return;
                     }
 
@@ -572,22 +663,22 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             @Override
-            public int getCount () {
+            public int getCount() {
                 return ownedCars.size();
             }
 
             @Override
-            public Object getItem (int position) {
+            public Object getItem(int position) {
                 return ownedCars.get(position);
             }
 
             @Override
-            public long getItemId (int position) {
+            public long getItemId(int position) {
                 return 0;
             }
 
             @Override
-            public View getView (int position, View convertView, ViewGroup parent) {
+            public View getView(int position, View convertView, ViewGroup parent) {
                 LayoutInflater inflater = (LayoutInflater) getActivity()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View rowView = inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);

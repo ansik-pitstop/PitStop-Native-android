@@ -17,6 +17,7 @@ import com.pitstop.R;
 public class AddCarMilageDialog extends DialogFragment {
 
     AddCarUtils utils;
+
     public AddCarMilageDialog setCallback(AddCarUtils utils){
         this.utils = utils;
         return this;

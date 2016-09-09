@@ -1,4 +1,4 @@
-package com.pitstop.utils;
+package com.pitstop.ui.mainFragments;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -13,6 +13,10 @@ import com.pitstop.R;
  * Created by David on 7/11/2016.
  */
 public class MainAppViewPager extends ViewPager {
+
+    public static final int PAGE_NUM_MAIN_DASHBOARD = 0;
+    public static final int PAGE_NUM_MAIN_TOOL = 1;
+
     private boolean enabled;
 
     public MainAppViewPager(Context context) {

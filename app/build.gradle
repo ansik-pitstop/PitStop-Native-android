@@ -26,25 +26,27 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 76
-        versionName "2.1.13"
+        versionCode 80
+        versionName "2.1.14"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-        buildConfigField "String", "BETA_TYPE", "\"beta\""
-        buildConfigField "String", "DEBUG_TYPE", "\"debug\""
-        buildConfigField "String", "RELEASE_TYPE", "\"release\""
     }
     buildTypes {
         debug { // for development, dev backend, no mixpanel
             buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
             buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
+            buildConfigField "String", "BETA_TYPE", "\"beta\""
+            buildConfigField "String", "DEBUG_TYPE", "\"debug\""
+            buildConfigField "String", "RELEASE_TYPE", "\"release\""
         }
         beta.initWith(buildTypes.debug)
         beta { // for release to beta in Play Store, dev backend, mixpanel
             debuggable false
         }
+        release.initWith(buildTypes.debug)
         release { // for release to production, prod backend, mixpanel
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "CLIENT_ID", "\"8pLSeDGJdlW89dzfbfI4uNr0x2Blo4FG8TEkCB5LXKgtfVf8\""
@@ -87,9 +89,9 @@ dependencies {
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
-    //compile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    //compile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
-    //compile 'com.android.support.test:runner:0.5'
+    compile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    compile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+    compile 'com.android.support.test:runner:0.5'
 }
 
 apply plugin: 'com.google.gms.google-services'

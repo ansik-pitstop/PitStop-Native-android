@@ -28,9 +28,21 @@ public class Car implements Parcelable {
     private String tankSize;
     private String cityMileage;
     private String highwayMileage;
+
+    /**
+     * Mileage entered by the user when they added their car
+     */
     private double baseMileage;
+    /**
+     * Current mileage either on what user manually entered and the mileage from user trips
+     */
     private double totalMileage;
+    /**
+     * <p>The mileage that's shown for live mileage updates in the car scan activity</p>
+     * <p>gets updated locally every 2 seconds but that's sent to the backend</p>
+     */
     private double displayedMileage; // for live mileage updates
+
     private int numberOfRecalls = 0;
     private int numberOfServices;
     private boolean currentCar;

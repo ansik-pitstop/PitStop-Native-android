@@ -10,6 +10,8 @@
     <color name="evcheck_dark">#1f974a</color>
     <color name="not_connected">#e53a52</color>
 
+    <color name="service_button_tutorial">#29d767</color>
+
     <!-- Smooch chat -->
     <color name="Smooch_accent">@color/primary</color>
     <color name="Smooch_accentDark">@color/primary</color>
@@ -31,4 +33,6 @@
     <color name="dark_grey">#c0c0c0</color>
 
     <color name="love">#ff00ee</color>
+
+    <color name="darkBlueTrans">#ea031223</color>
 </resources>

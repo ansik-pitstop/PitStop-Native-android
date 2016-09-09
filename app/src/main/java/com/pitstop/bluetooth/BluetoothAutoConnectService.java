@@ -720,7 +720,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdGetParameter(tag);
     }
 
-
     private void sendForPIDS(){
         Log.d(TAG, "Sending for PIDS - auto-connect service");
         gettingPIDs = true;
