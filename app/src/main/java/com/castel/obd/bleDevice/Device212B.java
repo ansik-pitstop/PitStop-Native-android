@@ -299,17 +299,22 @@ public class Device212B implements AbstractDevice {
 
                 dtcPackage.deviceId = dataPackageInfo.deviceId;
 
-                String[] unparsedDtcs = dataPackageInfo.dtcData.split(",");
+                if(dataPackageInfo.dtcData.isEmpty()) {
+                    dtcPackage.dtcs = new String[0];
+                    dtcPackage.dtcNumber = 0;
+                } else {
 
-                dtcPackage.dtcs = new String[unparsedDtcs.length];
+                    String[] unparsedDtcs = dataPackageInfo.dtcData.split(",");
 
-                for(int i = 0 ; i < unparsedDtcs.length ; i++) {
-                    if(unparsedDtcs[i].length() > 0) {
-                        dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                    dtcPackage.dtcs = new String[unparsedDtcs.length];
+
+                    for (int i = 0; i < unparsedDtcs.length; i++) {
+                        if (unparsedDtcs[i].length() > 0) {
+                            dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                        }
                     }
+                    dtcPackage.dtcNumber = unparsedDtcs.length;
                 }
-
-                dtcPackage.dtcNumber = unparsedDtcs.length;
 
                 dataListener.dtcData(dtcPackage);
             }
@@ -317,6 +322,7 @@ public class Device212B implements AbstractDevice {
             if(dataPackageInfo.result == 5) {
                 PidPackage pidPackage = new PidPackage();
                 pidPackage.realTime = true;
+                dataListener.pidData(pidPackage);
             }
 
             // fixed upload pids

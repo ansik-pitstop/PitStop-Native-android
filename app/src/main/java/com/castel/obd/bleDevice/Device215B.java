@@ -138,7 +138,7 @@ public class Device215B implements AbstractDevice {
             e.printStackTrace();
         }
 
-        Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
+        //Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
         if(readData.isEmpty()) {
             return;
@@ -276,6 +276,8 @@ public class Device215B implements AbstractDevice {
         if (sbRead.toString().contains("\r\n")) {
             String msgInfo = sbRead.toString().replace("\r\n",
                     "\\r\\n");
+
+            Log.v(TAG, "Data Read: " + msgInfo);
 
             sbRead = new StringBuilder();
 
@@ -422,7 +424,7 @@ public class Device215B implements AbstractDevice {
                 // $$HT-IDD215B-S00V002,DTC,1,04,4,07470107,07470207,07470307,07474307,*308F\r\n
                 // DTCInfo [deviceId=HT-IDD215B-S00V002, dtcType=1, diagnosisProtocol=04, dtcNumber=4, dtcs=[07470107, 07470207, 07470307, 07474307]]
 
-                String[] unparsedDtcCodes = new String[dtcInfo.dtcs.length];
+                String[] unparsedDtcCodes = new String[dtcInfo.dtcs != null ? dtcInfo.dtcs.length : 0];
 
                 for(int i = 0 ; i < unparsedDtcCodes.length ; i++) {
                     unparsedDtcCodes[i] = dtcInfo.dtcs[i].substring(4);

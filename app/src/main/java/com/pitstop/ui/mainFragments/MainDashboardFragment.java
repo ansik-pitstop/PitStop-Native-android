@@ -674,6 +674,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private void populateCarIssuesAdapter() {
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
+        if(carIssueLocalStore == null) {
+            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
+        }
         List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
         if(carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
