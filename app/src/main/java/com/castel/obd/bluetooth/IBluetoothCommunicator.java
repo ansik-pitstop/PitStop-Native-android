@@ -26,4 +26,5 @@ public interface IBluetoothCommunicator {
     boolean hasDiscoveredServices();
     void close();
     void bluetoothStateChanged(int state);
+    String getConnectedDeviceName();
 }

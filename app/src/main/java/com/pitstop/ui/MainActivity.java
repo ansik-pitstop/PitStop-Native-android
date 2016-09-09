@@ -30,7 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -722,6 +722,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         carLocalStore.storeCars(carList);
                                         carIssueLocalStore.deleteAllCarIssues();
                                         carIssueLocalStore.storeCarIssues(carList);
+
+                                        LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
+                                        for(Car car : carList) { // populate scanner table with scanner ids associated with the cars
+                                            if(car.getScannerId() != null) {
+                                                if(scannerAdapter.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
+                                                    scannerAdapter.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                                                }
+                                            }
+                                        }
+
                                         callback.setCarDetailsUI();
                                     }
 
@@ -1198,9 +1208,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public interface MainDashboardCallback {
         void activityResultCallback(int requestCode, int resultCode, Intent data);
-
         void onServerRefreshed();
-
         void onLocalRefreshed();
 
         void setDashboardCar(List<Car> carList);

@@ -207,6 +207,12 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         writeToObd(payload, -1);
     }
 
+    @Override
+    public String getConnectedDeviceName() {
+        // TODO: this
+        return ":D-|--<";
+    }
+
     /**
      * After using a given BLE device, the app must call this method to ensure resources are
      * released properly.

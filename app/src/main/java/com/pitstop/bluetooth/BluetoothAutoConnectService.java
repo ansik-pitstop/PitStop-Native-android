@@ -47,9 +47,12 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
-import com.pitstop.models.TripEnd;
-import com.pitstop.models.TripIndicator;
-import com.pitstop.models.TripStart;
+import com.pitstop.database.Database;
+import com.pitstop.database.LocalDataRetriever;
+import com.pitstop.database.models.Responses;
+import com.pitstop.model.TripEnd;
+import com.pitstop.model.TripIndicator;
+import com.pitstop.model.TripStart;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -103,7 +106,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String lastDataNum = "";
 
     private SharedPreferences sharedPreferences;
-    private LocalCarAdapter localCarAdapter;
+    private LocalCarAdapter carAdapter;
+
+    private LocalScannerAdapter scannerAdapter;
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
@@ -152,7 +157,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         localPid = new LocalPidAdapter(this);
         localPidResult4 = new LocalPidResult4Adapter(this);
-        localCarAdapter = new LocalCarAdapter(this);
+        carAdapter = new LocalCarAdapter(this);
+        scannerAdapter = new LocalScannerAdapter(this);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -214,7 +220,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //show a custom notification
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
 
-            Car connectedCar = localCarAdapter.getCarByScanner(getCurrentDeviceId());
+            Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
 
             String carName = connectedCar == null ? "Click here to find out more" :
                     connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
@@ -402,7 +408,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         // if trip id is different, start a new trip
         if(dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()
-                && localCarAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
+                && carAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
             int newTripId = Integer.parseInt(dataPackageInfo.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
@@ -482,7 +488,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.i(TAG, "DTCs found: " + dtcs);
 
-        Car car = localCarAdapter.getCarByScanner(dataPackageInfo.deviceId);
+        Car car = carAdapter.getCarByScanner(dataPackageInfo.deviceId);
 
         if(NetworkHelper.isConnected(this)) {
             if (car != null) {
@@ -531,20 +537,48 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
-            Log.i(TAG,"Device login: "+loginPackageInfo.deviceId);
-            Log.i(TAG,"Device result: "+loginPackageInfo.result);
-            Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
+        if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
+            Log.i(TAG, "Device login: " + loginPackageInfo.deviceId);
+            Log.i(TAG, "Device result: " + loginPackageInfo.result);
+            Log.i(TAG, "Device flag: " + loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
-        } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+
+            if (!AddCarActivity.addingCar) {
+                saveScanner(); // TODO: move this
+            }
+        } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
 
-        if(callbacks != null) {
+        if (callbacks != null) {
             callbacks.deviceLogin(loginPackageInfo);
         }
 
+    }
+
+    public void saveScanner() {
+        if (currentDeviceId == null) {
+            return;
+        }
+        String btName = bluetoothCommunicator.getConnectedDeviceName();
+        Log.i(TAG, "Connected device name: " + btName);
+
+        Car car = carAdapter.getCarByScanner(currentDeviceId);
+        ObdScanner scanner = scannerAdapter.getScannerByScannerId(currentDeviceId);
+        if (btName != null && (car != null || AddCarActivity.addingCar)) {
+            Log.i(TAG, "Saving scanner locally");
+            if (scanner != null) {
+                scanner.setDeviceName(btName);
+                scanner.setCarId(car != null ? car.getId() : 0);
+                scannerAdapter.updateScanner(scanner);
+            } else {
+                scannerAdapter.storeScanner(new ObdScanner(car != null ? car.getId() : 0, currentDeviceId,
+                        bluetoothCommunicator.getConnectedDeviceName()));
+            }
+        } else {
+            Log.i(TAG, "Connected to unrecognized device");
+        }
     }
 
     public class BluetoothBinder extends Binder {
@@ -776,11 +810,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripRequestQueue.add(new TripEnd(lastTripId, data.rtcTime, data.tripMileage));
                 executeTripRequests();
             }
-            Car car = localCarAdapter.getCarByScanner(data.deviceId);
+            Car car = carAdapter.getCarByScanner(data.deviceId);
             if(car != null) {
                 double newMileage = car.getTotalMileage() + Double.parseDouble(data.tripMileage) / 1000;
                 car.setTotalMileage(newMileage);
-                localCarAdapter.updateCar(car);
+                carAdapter.updateCar(car);
             }
         } else if(data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // not needed if trips based on device trip id
             Log.i(TAG, "Trip start flag received");
@@ -808,7 +842,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(((TripStart) nextAction).getScannerId() == null) {
                     tripRequestQueue.pop();
                 }
-                if(localCarAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
+                if(carAdapter.getCarByScanner(((TripStart) nextAction).getScannerId()) == null) {
                     isSendingTripRequest = false;
                     return;
                 }
@@ -886,7 +920,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
-        Car car = localCarAdapter.getCarByScanner(data.deviceId);
+        Car car = carAdapter.getCarByScanner(data.deviceId);
 
         double mileage;
         double calculatedMileage;

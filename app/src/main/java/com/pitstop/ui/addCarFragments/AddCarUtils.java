@@ -301,8 +301,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
 
     /**
      * After resetting device time, the bluetooth connection is lost.
@@ -471,7 +470,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
 
         protected String doInBackground(String... msg) {
+
             String error = "";
+
             try {
                 StringBuilder response = new StringBuilder();
                 URL url = new URL("https://vindecoder.p.mashape.com/decode_vin?vin=" + pendingCar.getVin());
@@ -609,6 +610,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     networkHelper.createNewScanner(newCar.getId(), pendingCar.getScannerId(), null);
                                 }
 
+                                //Conflicts - Sep 9th
+                                autoConnectService.saveScanner();
+
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
                                 networkHelper.setMainCar(context.getCurrentUserId(), newCar.getId(), null);
                                 callback.carSuccessfullyAdded(newCar);
@@ -698,15 +702,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener, LoadingActivityInterface {
         public void carSuccessfullyAdded(Car car);
-
         void resetScreen();
-
         void openRetryDialog();
-
         BluetoothAutoConnectService getAutoConnectService();
-
         void postMileageInput();
     }
-
-
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+
+
 /**
  * Created by Paul Soladoye on 3/16/2016.
  */
@@ -11,8 +13,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     // Logcat tag
     private static final String LOG = "LocalDatabaseHelper";
 
-    private static final int DATABASE_VERSION = 17;
-    public static final String DATABASE_NAME = "PITSTOP_DB";
+    private static final int DATABASE_VERSION = 18;
+    private static final String DATABASE_NAME = "PITSTOP_DB";
 
     public LocalDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,6 +29,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalShopAdapter.CREATE_TABLE_DEALERSHIP);
         db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
         db.execSQL(UserAdapter.CREATE_TABLE_USER);
+        db.execSQL(LocalScannerAdapter.CREATE_TABLE_CAR_ISSUES);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SHOP.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.SCANNER.TABLE_NAME);
         onCreate(db);
     }
 }

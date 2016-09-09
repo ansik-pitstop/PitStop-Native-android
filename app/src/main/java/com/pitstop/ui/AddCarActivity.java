@@ -50,6 +50,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     private final String TAG = AddCarActivity.class.getSimpleName();
     public static int ADD_CAR_SUCCESS = 51;
 
+    public static boolean addingCar = false;
+
     AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
@@ -84,9 +86,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
 
+//        80
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         addCarUtils = new AddCarUtils((GlobalApplication) getApplicationContext(), this);
 
+//        57
+//        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
+//        addCarUtils = new AddCarUtils((GlobalApplication)getApplicationContext(),this);
     }
 
     private void setupUIReferences() {
@@ -235,6 +241,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        addingCar = true;
+
         super.onResume();
     }
 
@@ -247,6 +255,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         } catch (Exception e) {
 
         }
+        addingCar = false;
 
         //hideLoading();
         super.onPause();
@@ -364,8 +373,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override
-            public void onTick(long millisUntilFinished) {
-            }
+            public void onTick(long millisUntilFinished) {}
 
             @Override
             public void onFinish() {
@@ -448,7 +456,4 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
-
-
-
 }
