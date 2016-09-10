@@ -661,9 +661,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     }
 
                     loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesStateLayout.setVisibility(View.GONE);
-                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    if(dtcCodes.size() != 0) {
+                        engineIssuesStateLayout.setVisibility(View.GONE);
+                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    } else {
+                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCountLayout.setVisibility(View.GONE);
+                    }
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");
