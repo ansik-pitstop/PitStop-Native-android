@@ -305,7 +305,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+    }
 
     /**
      * After resetting device time, the bluetooth connection is lost.

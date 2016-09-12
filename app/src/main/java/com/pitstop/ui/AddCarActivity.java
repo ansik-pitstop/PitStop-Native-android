@@ -166,7 +166,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the "SEARCH FOR VEHICLE" or "Add Vehicle" button is tapped in the second step of the add car process
-     *
+     * <p/>
      * If the
      *
      * @param view the "Search for vehicle"/"Add vehicle" button
@@ -183,7 +183,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
-                if (!AddCarUtils.gotMileage){
+                if (!AddCarUtils.gotMileage) {
                     AddCarMilageDialog dialog = new AddCarMilageDialog();
                     dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
                 } else {
@@ -192,14 +192,14 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             } else {
                 hideLoading("Invalid VIN");
             }
-        // Otherwise, if the user is in the AddCar2YesDongleFragment
+            // Otherwise, if the user is in the AddCar2YesDongleFragment
         } else if (mPagerAdapter.getItem(1) != null) {
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-            if (!AddCarUtils.gotMileage){
+            if (!AddCarUtils.gotMileage) {
                 AddCarMilageDialog dialog = new AddCarMilageDialog();
                 dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
             } else {
@@ -447,7 +447,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         // Mixpanel - Try to connect bluetooth again
         try {
             mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, TAG);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
