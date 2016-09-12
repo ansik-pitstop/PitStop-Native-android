@@ -18,10 +18,14 @@ import com.pitstop.R;
 
 /**
  * Created by David on 7/20/2016.
+ *
+ *
  */
 public class AddCar2NoDongleFragment extends Fragment {
+
     private static final String TAG = AddCar2NoDongleFragment.class.getSimpleName();
     private ViewGroup rootView;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -70,14 +74,10 @@ public class AddCar2NoDongleFragment extends Fragment {
                 }
             }
         });
-        VINField.setOnKeyListener(new View.OnKeyListener()
-        {
-            public boolean onKey(View v, int keyCode, KeyEvent event)
-            {
-                if (event.getAction() == KeyEvent.ACTION_DOWN)
-                {
-                    switch (keyCode)
-                    {
+        VINField.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
                         case KeyEvent.KEYCODE_DPAD_CENTER:
                         case KeyEvent.KEYCODE_ENTER:
                             searchButton.performClick();

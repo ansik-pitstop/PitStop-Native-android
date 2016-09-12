@@ -13,15 +13,18 @@ import com.pitstop.R;
 
 /**
  * Created by David on 7/20/2016.
+ *
+ * <p>Fragment that asks user if he has the pitstop device</p>
  */
 public class AddCar1Fragment extends Fragment {
+
     private ViewGroup rootView;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_add_car_1, container, false);
-
         return rootView;
     }
 }

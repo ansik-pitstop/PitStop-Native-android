@@ -164,7 +164,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         mPager.setCurrentItem(1);
     }
 
+    /**
+     * Invoked when the "SEARCH FOR VEHICLE" or "Add Vehicle" button is tapped in the second step of the add car process
+     *
+     * If the
+     *
+     * @param view the "Search for vehicle"/"Add vehicle" button
+     */
     public void searchForCar(View view) {
+        // If in the AddCar2NoDongleFragment
         if (mPagerAdapter.getItem(1) != null && mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
             EditText vinEditText = (EditText) findViewById(R.id.VIN);
             addCarUtils.setVin(vinEditText.getText().toString());
@@ -174,19 +182,29 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 // Hide keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-                AddCarMilageDialog dialog = new AddCarMilageDialog();
-                dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
+
+                if (!AddCarUtils.gotMileage){
+                    AddCarMilageDialog dialog = new AddCarMilageDialog();
+                    dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
+                } else {
+                    postMileageInput();
+                }
             } else {
                 hideLoading("Invalid VIN");
             }
+        // Otherwise, if the user is in the AddCar2YesDongleFragment
         } else if (mPagerAdapter.getItem(1) != null) {
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-            AddCarMilageDialog dialog = new AddCarMilageDialog();
-            dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
+            if (!AddCarUtils.gotMileage){
+                AddCarMilageDialog dialog = new AddCarMilageDialog();
+                dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
+            } else {
+                postMileageInput();
+            }
         }
     }
 
@@ -453,7 +471,5 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
-
-
 
 }

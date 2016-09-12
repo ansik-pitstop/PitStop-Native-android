@@ -76,6 +76,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     private boolean isCarAddedManually = false;
 
+    public static boolean gotMileage = false;
+
     /**
      * Callbacks for service binding, passed to bindService()
      */
@@ -124,6 +126,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         autoConnectService = callback.getAutoConnectService();
         callback.bindService(new Intent(context, BluetoothAutoConnectService.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
+        gotMileage = false;
     }
 
     public void cancelMashape() {
@@ -153,6 +156,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     public void updateMileage(String mileage) {
         if (mileage != null) {
             pendingCar.setBaseMileage(Integer.parseInt(mileage));
+            gotMileage = true;
         }
         callback.postMileageInput();
     }
