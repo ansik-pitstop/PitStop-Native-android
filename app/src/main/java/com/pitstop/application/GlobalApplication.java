@@ -176,6 +176,12 @@ public class GlobalApplication extends Application {
 
         ParseUser.logOut();
 
+        //Login to smooch with userId
+        int userId = currentUser.getId();
+        if (userId != -1){
+            Smooch.login(String.valueOf(userId), null);
+        }
+
         setCurrentUser(currentUser);
     }
 
@@ -249,6 +255,9 @@ public class GlobalApplication extends Application {
         ParseUser.logOut();
 
         AccessToken.setCurrentAccessToken(null);
+
+        // Logout from Smooch for the next login
+        Smooch.logout();
 
         userAdapter.deleteAllUsers();
     }

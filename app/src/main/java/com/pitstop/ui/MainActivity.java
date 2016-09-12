@@ -1145,33 +1145,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 if (isLoading) hideLoading();
 
-/*                if (requestError == null && response != null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        if (jsonObject.has("shop")) {
-                            Log.d("FSB", "Response has shop");
-                            JSONObject shop = jsonObject.getJSONObject("shop");
-                            JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
-                            if (firstAppointmentDiscount.getString("unit") == null) {
-                                preferences.edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), -1)
-                                        .putString(getString(R.string.pfFirstBookingDiscountUnit), null)
-                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false).commit();
-                                Log.d("RetrieveShopSettings", "Unit: " + firstAppointmentDiscount.getString("unit") +
-                                        firstAppointmentDiscount.getDouble("amount"));
-                            } else {
-                                Log.d("FSB", "Promotion value available");
-                                preferences.edit().putFloat(getString(R.string.pfFirstBookingDiscountAmount), (float) firstAppointmentDiscount.getDouble("amount"))
-                                        .putString(getString(R.string.pfFirstBookingDiscountUnit), firstAppointmentDiscount.getString("unit"))
-                                        .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), true).commit();
-                            }
-
-                        }
-                    } catch (JSONException je) {
-                        je.printStackTrace();
-                        Log.d(TAG, "Error occurred in retrieving first service booking promotion");
-                    }
-                }*/
-
                 if (requestError == null && response != null) {
                     try {
                         JSONObject jsonObject = new JSONObject(response);

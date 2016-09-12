@@ -13,6 +13,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -94,20 +96,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(android.R.id.content, settingsFragment).commit();
     }
 
-    private void populateCarNamesAndIdList() {
-        carList = localCarAdapter.getAllCars();
-
-        for (Car car : carList) {
-            if (car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
-                dashboardCar = car;
-            }
-
-            cars.add(car.getMake() + " " + car.getModel());
-            ids.add(car.getId());
-            dealers.add(String.valueOf(car.getShopId()));
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -120,7 +108,6 @@ public class SettingsActivity extends AppCompatActivity {
             startActivity(i);
             return true;
         }
-
 
         if (id == android.R.id.home) {
             finish();
@@ -147,6 +134,31 @@ public class SettingsActivity extends AppCompatActivity {
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    private void populateCarNamesAndIdList() {
+        carList = localCarAdapter.getAllCars();
+
+        for (Car car : carList) {
+            if (car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
+                dashboardCar = car;
+            }
+
+            cars.add(car.getMake() + " " + car.getModel());
+            ids.add(car.getId());
+            dealers.add(String.valueOf(car.getShopId()));
+        }
     }
 
     public static class SettingsFragment extends PreferenceFragment {
@@ -419,6 +431,7 @@ public class SettingsActivity extends AppCompatActivity {
                     phoneInput.setText(currentUser.getPhone());
                     phoneInput.setHint("Phone number");
                     phoneInput.setInputType(InputType.TYPE_CLASS_PHONE);
+                    phoneInput.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
                     final LinearLayout changePhoneLayout = new LinearLayout(getActivity());
                     changePhoneLayout.setOrientation(LinearLayout.VERTICAL);
@@ -691,14 +704,4 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
-        return true;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
 }

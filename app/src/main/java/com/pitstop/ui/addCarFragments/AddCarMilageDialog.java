@@ -40,24 +40,7 @@ public class AddCarMilageDialog extends DialogFragment {
         final AlertDialog d = builder.setView(rootView)
                 .setTitle("Input Mileage")
                 // Add action buttons
-//                .setPositiveButton("Add Car", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        if(TextUtils.isEmpty(mileageEditText.getText().toString())) {
-//                            utils.callback.hideLoading("Please enter mileage");
-//                        } else if(mileageEditText.getText().toString().length() > 9) {
-//                            utils.callback.hideLoading("Please enter valid mileage");
-//                        } else{
-//                            utils.updateMileage(mileageEditText.getText().toString());
-//                        }
-//                    }
-//                })
                 .setPositiveButton("Add Car", null)
-//                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        AddCarMilageDialog.this.getDialog().cancel();
-//                    }
-//                })
                 .setNegativeButton("Cancel", null)
                 .create();
 

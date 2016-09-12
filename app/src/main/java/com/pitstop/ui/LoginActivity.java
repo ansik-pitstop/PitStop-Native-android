@@ -53,6 +53,8 @@ import com.pitstop.adapters.SplashSlidePagerAdapter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.smooch.core.Smooch;
+
 public class LoginActivity extends AppCompatActivity {
 
     final static String pfName = "com.pitstop.login.name";
@@ -295,6 +297,38 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        application.getMixpanelAPI().flush();
+        Log.i(MainActivity.TAG, "LoginActivity on pause");
+        hideLoading();
+
+        try {
+            unregisterReceiver(migrationReceiver);
+        } catch (Exception e) {
+            // Receiver not registered
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(MainActivity.TAG, "LoginActivity onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -670,11 +704,11 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             startMigration(accessToken, refreshToken, user.getId());
                         }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     application.setUpMixPanel();
-
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
@@ -786,38 +820,6 @@ public class LoginActivity extends AppCompatActivity {
     private void hideLoading() {
         Log.i(MainActivity.TAG, "hiding loading");
         progressDialog.dismiss();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        application.getMixpanelAPI().flush();
-        Log.i(MainActivity.TAG, "LoginActivity on pause");
-        hideLoading();
-
-        try {
-            unregisterReceiver(migrationReceiver);
-        } catch (Exception e) {
-            // Receiver not registered
-        }
-
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.i(MainActivity.TAG, "LoginActivity onDestroy");
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
