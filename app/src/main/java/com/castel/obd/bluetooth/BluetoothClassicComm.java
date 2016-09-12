@@ -312,7 +312,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         }
                     }
 
-                    if(AddCarActivity.addingCar || scannerAdapter.getAllScanners().isEmpty() || shouldConnect) {
+                    if(AddCarActivity.addingCar || /*scannerAdapter.getAllScanners().isEmpty() ||*/ shouldConnect) {
                         Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
                         connectedDeviceName = device.getName();
                         mBluetoothChat.connectBluetooth(device);

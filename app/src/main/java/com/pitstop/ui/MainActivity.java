@@ -47,7 +47,6 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
-import com.pitstop.DataAccessLayer.DTOs.ObdScanner;
 import com.pitstop.R;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;

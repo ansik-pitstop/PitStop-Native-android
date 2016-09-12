@@ -62,12 +62,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
-<<<<<<< Temporary merge branch 1:app/src/main/java/com/pitstop/AddCarProcesses/AddCarUtils.java
-    private static final int RC_PENDING_ADD_CAR = 102;
-=======
     private boolean needToSetTime = false;
     public static final int RC_PENDING_ADD_CAR = 1043;
->>>>>>> Temporary merge branch 2:app/src/main/java/com/pitstop/ui/addCarFragments/AddCarUtils.java
     private int vinAttempts = 0;
     private int linkingAttempts = 0;
 
