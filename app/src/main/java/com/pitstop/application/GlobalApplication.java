@@ -1,7 +1,6 @@
 package com.pitstop.application;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -22,9 +21,6 @@ import com.pitstop.BuildConfig;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
-import com.pitstop.ui.MainActivity;
-
-import org.json.JSONObject;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;

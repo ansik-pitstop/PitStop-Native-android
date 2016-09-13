@@ -8,11 +8,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -52,6 +56,9 @@ import com.pitstop.adapters.SplashSlidePagerAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import io.smooch.core.Smooch;
 
@@ -238,6 +245,24 @@ public class LoginActivity extends AppCompatActivity {
             showLoading("Logging in...");
             startMainActivity(false);
         }
+
+        //For debug
+        // Add code to print out the key hash
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(
+                    "com.ansik.pitstop",
+                    PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        } catch (NoSuchAlgorithmException e) {
+
+        }
+
     }
 
     @Override
@@ -383,8 +408,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Invoked when the "Login with Facebook" button is tapped (The blue one)
-     *
-     * @param view
+     * @param view The Login/Signup with Facebook button in the splash screen
      */
     public void loginFacebook(View view) {
         try {
