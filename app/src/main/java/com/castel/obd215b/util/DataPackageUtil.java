@@ -428,8 +428,6 @@ public class DataPackageUtil {
 		String crc = Utils.toHexString(OBD.CRC(crcData));
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-		// LogUtil.e("发送数据:" + crcData);
-		// LogUtil.e("校验码:" + crc);
 
 		return msg;
 	}

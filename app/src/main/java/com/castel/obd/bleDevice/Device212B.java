@@ -84,6 +84,11 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
+    public String requestData() {
+        return null;
+    }
+
+    @Override
     public String getVin() {
         return OBD.getParameter(VIN_TAG);
     }

@@ -149,7 +149,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         if(payload == null || payload.isEmpty()) {
-            Log.w(TAG, "Nothing to write");
             return;
         }
 
@@ -433,5 +432,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         writeToObd(deviceInterface.getDtcs());
         writeToObd(deviceInterface.getPendingDtcs());
+    }
+
+    public void requestData() {
+        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+            return;
+        }
+
+        writeToObd(deviceInterface.requestData());
     }
 }

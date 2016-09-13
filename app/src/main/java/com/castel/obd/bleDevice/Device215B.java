@@ -7,6 +7,7 @@ import com.castel.obd.OBD;
 import com.castel.obd215b.info.FaultInfo;
 import com.castel.obd215b.info.PIDInfo;
 import com.castel.obd215b.util.FaultParse;
+import com.castel.obd215b.util.Utils;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -82,6 +83,11 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
+    public String requestData() {
+        return replyIDRPackage();
+    }
+
+    @Override
     public String getVin() {
         return qiSingle(VIN_PARAM);
     }
@@ -147,6 +153,22 @@ public class Device215B implements AbstractDevice {
         parseReadData(readData);
     }
 
+    public String replyIDRPackage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Constants.INSTRUCTION_HEAD);
+        sb.append("0,");
+        sb.append(Constants.INSTRUCTION_IDR);
+        sb.append(",0,");
+        sb.append(Constants.INSTRUCTION_STAR);
+
+        String crcData = sb.toString();
+        String crc = Utils.toHexString(OBD.CRC(crcData));
+
+        String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+
+        return msg;
+    }
+
     private String qiSingle(String param) {
         String crcData = Constants.INSTRUCTION_HEAD
                 + "0"
@@ -157,7 +179,7 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + Constants.INSTRUCTION_STAR;
 
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = Utils.toHexString(OBD.CRC(crcData));
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -176,7 +198,7 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + Constants.INSTRUCTION_STAR;
 
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = Utils.toHexString(OBD.CRC(crcData));
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -334,6 +356,53 @@ public class Device215B implements AbstractDevice {
                     }
 
                     dataListener.pidData(pidPackage);
+                } else { // to request a new IDR package
+                    PidPackage pidPackage = new PidPackage();
+                    pidPackage.realTime = false;
+                    dataListener.pidData(pidPackage);
+                }
+
+                if(idrInfo.dtc != null && !idrInfo.dtc.isEmpty()) {
+                    // dtc example: "0/07470107/07470207/07470307/07474307"
+
+                    String[] unparsedDtcCodes = idrInfo.dtc.split("/");
+
+                    if(unparsedDtcCodes.length > 1) {
+                        Log.i(TAG, "Parsing DTC data: " + idrInfo.dtc);
+
+                        DtcPackage dtcPackage = new DtcPackage();
+
+                        dtcPackage.isPending = idrInfo.dtc.charAt(0) == '1';
+
+                        // first element is dtc type
+                        for(int i = 1 ; i < unparsedDtcCodes.length ; i++) {
+                            unparsedDtcCodes[i] = unparsedDtcCodes[i].substring(4);
+                        }
+
+                        List<FaultInfo> faultInfo = FaultParse.parse(context, unparsedDtcCodes);
+
+                        String[] dtcCodes = new String[faultInfo.size()];
+
+                        for(int i = 1 ; i < faultInfo.size() ; i++) {
+                            dtcCodes[i] = faultInfo.get(i).code;
+                        }
+
+                        dtcPackage.dtcs = dtcCodes;
+
+                        dtcPackage.dtcNumber = dtcCodes.length;
+
+                        try {
+                            dtcPackage.rtcTime = String.valueOf(parseRtcTime(idrInfo.ignitionTime)
+                                    + Long.parseLong(idrInfo.runTime));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            dtcPackage.rtcTime = "0";
+                        }
+
+                        dtcPackage.deviceId = idrInfo.terminalSN;
+
+                        dataListener.dtcData(dtcPackage);
+                    }
                 }
 
                 Log.d(TAG, idrInfo.toString());

@@ -21,6 +21,8 @@ public interface AbstractDevice {
 
     void parseData(byte[] data);
 
+    String requestData(); // for 215 to ask for IDR
+
     // parameters
     String getVin();
     String getRtc();
