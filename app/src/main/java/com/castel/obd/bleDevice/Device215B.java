@@ -320,8 +320,6 @@ public class Device215B implements AbstractDevice {
                     ignitionTime = 0;
                 }
 
-                // TODO: dtcs
-
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
@@ -467,15 +465,24 @@ public class Device215B implements AbstractDevice {
                 dataListener.parameterData(parameterPackage);
             } else if (Constants.INSTRUCTION_PID
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
-                // PIDs are never explicitly requested
+                // PIDs are never explicitly requested except in debug activity
+                PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
+                PidPackage pidPackage = new PidPackage();
+                HashMap<String, String> pidMap = new HashMap<>();
 
-                //PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
-                //PidPackage pidPackage = new PidPackage();
-                //HashMap<String, String> pidNap = new HashMap<>();
-//
-                //for(int i = 0 ; i < pidInfo.pids.size() ; i++) {
-                //    pidNap.put(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
-                //}
+                for(int i = 0 ; i < pidInfo.pids.size() ; i++) {
+                    pidMap.put(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
+                }
+
+                pidPackage.pids = pidMap;
+                pidPackage.realTime = false;
+                pidPackage.tripId = "0";
+                pidPackage.rtcTime = "0";
+                pidPackage.deviceId = pidInfo.terminalId;
+                pidPackage.tripMileage = "0";
+                pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
+                dataListener.pidData(pidPackage);
             } else if (Constants.INSTRUCTION_DTC
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 Log.i(TAG, msgInfo);

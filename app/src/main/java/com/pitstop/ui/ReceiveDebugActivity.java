@@ -27,6 +27,8 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
+import java.util.Map;
+
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     TextView BTSTATUS;
@@ -141,13 +143,37 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void parameterData(ParameterPackage parameterPackage) {
+    public void parameterData(final ParameterPackage parameterPackage) {
         Log.i(TAG, "parameterData: " + parameterPackage.toString());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView) findViewById(R.id.debug_log)).setText("Parameter data: " + parameterPackage.toString());
+            }
+        });
     }
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        final StringBuilder pidList = new StringBuilder();
 
+        pidList.append("PIDS:\n");
+
+        for(Map.Entry<String, String> pid : pidPackage.pids.entrySet()) {
+            pidList.append(pid.getKey());
+            pidList.append(": ");
+            pidList.append(pid.getValue());
+            pidList.append("\n");
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView) findViewById(R.id.debug_log)).setText(pidList.toString());
+            }
+        });
     }
 
     @Override
