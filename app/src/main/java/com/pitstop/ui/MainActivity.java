@@ -245,11 +245,20 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         try {
             if (dashboardCar == null || dashboardCar.getDealership() == null) {
-                mixpanelHelper.trackViewAppeared(TAG);
+                switch (viewPager.getCurrentItem()) {
+                    case MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD:
+                        mixpanelHelper.trackViewAppeared(MixpanelHelper.DASHBOARD_VIEW);
+                        break;
+                    case MainAppViewPager.PAGE_NUM_MAIN_TOOL:
+                        mixpanelHelper.trackViewAppeared(MixpanelHelper.TOOLS_VIEW);
+                        break;
+                }
             } else {
+                String view = viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW;
                 mixpanelHelper.trackCustom("View Appeared",
-                        new JSONObject("{'View':'" + TAG + "','Dealership':'" + dashboardCar.getDealership().getName()
-                                + "','Device':'Android'}"));
+                        new JSONObject("{'View':'" + view + "','Dealership':'" + dashboardCar.getDealership().getName()
+                                + "'}"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -262,10 +271,46 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         createdOrAttached = false;
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager(final ViewPager viewPager) {
         MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
         adapter.addFragment(new MainToolFragment(), "TOOLS");
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //Track user changed page
+                switch (position) {
+                    case MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD:
+                        Log.d(TAG, "Dashboard shows up");
+                        try {
+                            mixpanelHelper.trackButtonTapped("Dashboard", MixpanelHelper.DASHBOARD_VIEW);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case MainAppViewPager.PAGE_NUM_MAIN_TOOL:
+                        Log.d(TAG, "Tools shows up");
+                        try {
+                            mixpanelHelper.trackButtonTapped("Tools", MixpanelHelper.TOOLS_VIEW);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -276,6 +321,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 super.onDrawerClosed(view);
                 getSupportActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+
+                try {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_CLOSE_SIDE_MENU,
+                            viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             /** Called when a drawer has settled in a completely open state. */
@@ -283,6 +336,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 super.onDrawerOpened(drawerView);
                 getSupportActionBar().setTitle(mDrawerTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+
+                try {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_OPEN_SIDE_MENU,
+                            viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -410,8 +471,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void scanClicked(View view) {
         try {
             mixpanelHelper.trackCustom("Button Tapped",
-                    new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
-                            TAG, dashboardCar.getMake(), dashboardCar.getModel())));
+                    new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                            viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW
+                            , dashboardCar.getMake(), dashboardCar.getModel())));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -432,7 +495,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void refreshClicked(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Refresh", TAG);
+            mixpanelHelper.trackButtonTapped("Refresh",
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -453,7 +518,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void addClicked(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Add Car", TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED,
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -469,7 +536,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void settingsClicked(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Settings", TAG);
+            mixpanelHelper.trackButtonTapped("Settings",
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -527,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void clickServiceHistory(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("History", TAG);
+            mixpanelHelper.trackButtonTapped("History", MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -543,6 +612,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         public void onItemClick(AdapterView parent, View view, int position, long id) {
             selectItem(position);
             resetMenus(false);
+
+            // Track new selected car
+            String button = dashboardCar.getMake() + " " + dashboardCar.getModel();
+            try {
+                mixpanelHelper.trackButtonTapped("Select Current Car: " + button, viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -727,9 +805,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         carIssueLocalStore.storeCarIssues(carList);
 
                                         LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
-                                        for(Car car : carList) { // populate scanner table with scanner ids associated with the cars
-                                            if(car.getScannerId() != null) {
-                                                if(scannerAdapter.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
+                                        for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
+                                            if (car.getScannerId() != null) {
+                                                if (scannerAdapter.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
                                                     scannerAdapter.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
                                                 }
                                             }
@@ -905,7 +983,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void requestMultiService(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Request Service", TAG);
+            mixpanelHelper.trackButtonTapped("Request Service",
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -914,9 +994,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         new ServiceRequestUtil(this, dashboardCar, view == null).start();
     }
 
+    /**
+     * Invoked when the message dealer button is tapped on the MainDashboardFragment
+     *
+     * @param view
+     */
     public void startChat(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(), TAG);
+            mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(),
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -940,7 +1027,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void navigateToDealer(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), TAG);
+            mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
+                    MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -955,7 +1043,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void callDealer(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(), TAG);
+            mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
+                    MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1058,7 +1147,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                     //Log tutorial GET_STARTED tapped
                     try {
-                        mixpanelHelper.trackButtonTapped(MixpanelHelper.TUTORIAL_GET_STARTED_TAPPED, TAG);
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.TUTORIAL_GET_STARTED_TAPPED, MixpanelHelper.DASHBOARD_VIEW);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -1071,7 +1160,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", TAG);
+                    mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1184,7 +1273,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public interface MainDashboardCallback {
         void activityResultCallback(int requestCode, int resultCode, Intent data);
+
         void onServerRefreshed();
+
         void onLocalRefreshed();
 
         void setDashboardCar(List<Car> carList);

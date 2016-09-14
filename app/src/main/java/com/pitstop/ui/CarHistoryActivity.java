@@ -97,7 +97,7 @@ public class CarHistoryActivity extends AppCompatActivity {
         issueGroup.setAdapter(new IssueGroupAdapter(sortedIssues, headers));
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -152,7 +152,7 @@ public class CarHistoryActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         try{
-            mixpanelHelper.trackButtonTapped("Back", TAG);
+            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SERVICE_HISTORY_VIEW);
         } catch (JSONException e){
             e.printStackTrace();
         }
@@ -257,7 +257,7 @@ public class CarHistoryActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
-                        mixpanelHelper.trackButtonTapped(issue.getItem(), TAG);
+                        mixpanelHelper.trackButtonTapped(issue.getItem(), MixpanelHelper.SERVICE_HISTORY_VIEW);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

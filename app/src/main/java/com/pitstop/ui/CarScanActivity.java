@@ -159,7 +159,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
         try {
             JSONObject properties = new JSONObject();
-            properties.put("View", TAG);
+            properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
             properties.put("Car Make", dashboardCar.getMake());
             properties.put("Car Model", dashboardCar.getModel());
 //            mixpanelHelper.trackViewAppeared(TAG);
@@ -223,10 +223,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             case MainActivity.RC_ENABLE_BT:
                 try{
                     if (resultCode == RESULT_OK){
-                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, TAG);
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
                         carScanButton.performClick();
                     } else {
-                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, TAG);
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
@@ -360,7 +360,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
                             //The user confirm scan after update the Mileage
                             try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, TAG);
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -425,7 +425,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     public void startCarScan(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Start car scan", TAG);
+            mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -571,7 +571,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, TAG);
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -583,7 +583,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, TAG);
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -730,7 +730,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     // "Mileage Updated To" : \(mileage), "Device": "iOS"])
                     try{
                         JSONObject properties = new JSONObject();
-                        properties.put("View", TAG);
+                        properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
                         properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
                         mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETED, properties);
                     } catch (JSONException e){
@@ -826,7 +826,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     @Override
     public void onBackPressed() {
         try{
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, TAG);
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, MixpanelHelper.SCAN_CAR_VIEW);
         }catch (JSONException e){
             e.printStackTrace();
         }

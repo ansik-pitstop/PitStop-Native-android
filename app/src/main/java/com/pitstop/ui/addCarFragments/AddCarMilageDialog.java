@@ -73,7 +73,10 @@ public class AddCarMilageDialog extends DialogFragment {
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                InputMethodManager imm = (InputMethodManager) utils.callback.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(mileageEditText.getWindowToken(), 0);
                                 AddCarMilageDialog.this.getDialog().cancel();
+                                utils.cancelUpdateMileage();
                             }
                         });
             }

@@ -75,7 +75,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
         super.onResume();
 
         try {
-            mixpanelHelper.trackViewAppeared(TAG);
+            mixpanelHelper.trackViewAppeared("Select Dealership");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -108,7 +108,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         try {
-            mixpanelHelper.trackButtonTapped("Back", TAG);
+            mixpanelHelper.trackButtonTapped("Back", "Select Dealership");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -219,7 +219,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Log.i(TAG, "Dealership selected: " + shop.getName());
                     try {
-                        mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), TAG);
+                        mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), "Select Dealership");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

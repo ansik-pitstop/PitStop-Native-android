@@ -120,7 +120,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         try {
-            mixpanelHelper.trackButtonTapped("Back", TAG);
+            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SETTINGS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -203,7 +203,7 @@ public class SettingsActivity extends AppCompatActivity {
             mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
             try {
-                mixpanelHelper.trackViewAppeared(TAG);
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.SETTINGS_VIEW);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -309,8 +309,8 @@ public class SettingsActivity extends AppCompatActivity {
 //                                    new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
 //                                            TAG, itemCar.getMake(), itemCar.getModel())));
                             mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
-                                            TAG, itemCar.getMake(), itemCar.getModel())));
+                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                            MixpanelHelper.SETTINGS_VIEW, itemCar.getMake(), itemCar.getModel())));
                         } catch (JSONException e1) {
                             e1.printStackTrace();
                         }
@@ -466,7 +466,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     try {
-                        mixpanelHelper.trackButtonTapped("Privacy Policy", TAG);
+                        mixpanelHelper.trackButtonTapped("Privacy Policy", MixpanelHelper.SETTINGS_VIEW);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -480,7 +480,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     try{
-                        mixpanelHelper.trackButtonTapped("Terms of Use", TAG);
+                        mixpanelHelper.trackButtonTapped("Terms of Use", MixpanelHelper.SETTINGS_VIEW);
                     } catch (JSONException e){
                         e.printStackTrace();
                     }
@@ -544,7 +544,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void navigateToLogin() {
             try {
-                mixpanelHelper.trackButtonTapped("Logout", TAG);
+                mixpanelHelper.trackButtonTapped("Logout", MixpanelHelper.SETTINGS_VIEW);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -559,8 +559,8 @@ public class SettingsActivity extends AppCompatActivity {
         private void updateUserName(final String firstName, final String lastName, final Preference namePreference) {
             try {
 //                mixpanelHelper.trackButtonTapped("Name", TAG);
-                mixpanelHelper.trackButtonTapped("First Name", TAG);
-                mixpanelHelper.trackButtonTapped("Last Name", TAG);
+                mixpanelHelper.trackButtonTapped("First Name", MixpanelHelper.SETTINGS_VIEW);
+                mixpanelHelper.trackButtonTapped("Last Name", MixpanelHelper.SETTINGS_VIEW);
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
@@ -587,7 +587,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void updateUserPhone(final String phoneNumber, final Preference phonePreference) {
             try {
-                mixpanelHelper.trackButtonTapped("Phone", TAG);
+                mixpanelHelper.trackButtonTapped("Phone", MixpanelHelper.SETTINGS_VIEW);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -647,8 +647,8 @@ public class SettingsActivity extends AppCompatActivity {
 
                     try {
                         mixpanelHelper.trackCustom("Button Tapped",
-                                new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Device':'Android', 'Make':'%s', 'Model':'%s'}",
-                                        TAG, newDashboardCar.getMake(), newDashboardCar.getModel())));
+                                new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                        MixpanelHelper.SETTINGS_VIEW, newDashboardCar.getMake(), newDashboardCar.getModel())));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

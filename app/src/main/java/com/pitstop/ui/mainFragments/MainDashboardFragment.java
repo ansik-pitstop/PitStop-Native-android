@@ -163,6 +163,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             handler.sendEmptyMessage(0);
         }
     };
+
     public Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -209,7 +210,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
 
                             try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_NEW_CAR, TAG);
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_NEW_CAR, MixpanelHelper.DASHBOARD_VIEW);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -220,7 +221,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             askForCar = false;
                             dialog.dismiss();
                             try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_CANCEL, TAG);
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -250,7 +251,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                     });
 
                             try{
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_VIN, TAG);
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_VIN, MixpanelHelper.DASHBOARD_VIEW);
                             } catch (JSONException e){
                                 e.printStackTrace();
                             }
@@ -359,8 +360,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             public void onClick(View v) {
                 try {
                     mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'carModel':'%s', 'Device':'Android'}",
-                                    TAG, dashboardCar.getMake(), dashboardCar.getModel())));
+                            new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                    MixpanelHelper.DASHBOARD_VIEW, dashboardCar.getMake(), dashboardCar.getModel())));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -380,7 +381,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             public void onClick(View v) {
 
                 try {
-                    mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), TAG);
+                    mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), MixpanelHelper.DASHBOARD_VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -398,7 +399,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             @Override
             public void onClick(View v) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), TAG);
+                    mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), MixpanelHelper.DASHBOARD_VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -439,7 +440,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         == CustomAdapter.VIEW_TYPE_EMPTY) {
                                     return false;
                                 }
-
                                 return true;
                             }
 
@@ -459,7 +459,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                 //Swipe to start deleting(completing) the selected issue
                                 try{
-                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), TAG);
+                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
                                 } catch (JSONException e){
                                     e.printStackTrace();
                                 }
@@ -498,7 +498,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                     try {
                                                         mixpanelHelper.trackButtonTapped("Completed Service: " +
                                                                 (carIssue.getAction() == null ? "" : (carIssue.getAction() + " ")) +
-                                                                carIssue.getItem() + " " + timeCompleted, TAG);
+                                                                carIssue.getItem() + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
@@ -539,7 +539,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                     public void onCancel(DialogInterface dialog) {
                                         try {
                                             mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                        + issue.getAction() + " " + issue.getItem(), TAG);
+                                                        + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -808,7 +808,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     @Override
                     public void onClick(View view) {
                         try {
-                            mixpanelHelper.trackButtonTapped(carIssueList.get(position).getItem(), TAG);
+                            mixpanelHelper.trackButtonTapped(carIssueList.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

@@ -453,7 +453,13 @@ public class NetworkHelper {
             body.put("userId", userId);
             body.put("carId", carId);
             body.put("shopId", shopId);
-            body.put("comments", comments);
+//            body.put("comments", comments);
+            if (state == ServiceRequestUtil.STATE_TENTATIVE){
+                body.put("comments", "");
+                options.put("salesPerson", comments);
+            } else {
+                body.put("comments", comments);
+            }
             options.put("state", state);
             options.put("appointmentDate", appointmentTimestamp);
             body.put("options", options);

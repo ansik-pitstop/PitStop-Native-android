@@ -22,13 +22,13 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="dashboard_car"
-        android:title="Main Car">
-        <Preference
-            android:key="current_car"
-            />
-    </PreferenceCategory>
+    <!--<PreferenceCategory-->
+        <!--android:key="dashboard_car"-->
+        <!--android:title="Main Car">-->
+        <!--<Preference-->
+            <!--android:key="current_car"-->
+            <!--/>-->
+    <!--</PreferenceCategory>-->
 
     <PreferenceCategory android:title="My Vehicles (Tap to change dealership)" android:key="@string/pref_vehicles">
 

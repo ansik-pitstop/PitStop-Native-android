@@ -114,17 +114,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
                 clearDtcButton.setVisibility(View.INVISIBLE);
             }
         }
-
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put("View", TAG);
-            properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
-//            mixpanelHelper.trackViewAppeared(TAG);
-            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         serviceIntent = new Intent(this, BluetoothAutoConnectService.class);
         //startService(serviceIntent);
     }
@@ -133,6 +122,16 @@ public class IssueDetailsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        // Track view appeared
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put("View", MixpanelHelper.ISSUE_DETAIL_VIEW);
+            properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
+            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -179,7 +178,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         try{
-            mixpanelHelper.trackButtonTapped("Back", TAG);
+            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.ISSUE_DETAIL_VIEW);
         } catch (JSONException e){
             e.printStackTrace();
         }
@@ -188,7 +187,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     public void requestService(View view) {
         try {
-            mixpanelHelper.trackButtonTapped("Request Service", TAG);
+            mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }

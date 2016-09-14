@@ -43,8 +43,8 @@ public class ServiceRequestUtil {
 
     private static final String TAG = ServiceRequestUtil.class.getSimpleName();
 
-    private static final String STATE_TENTATIVE = "tentative";
-    private static final String STATE_REQUESTED = "requested";
+    public static final String STATE_TENTATIVE = "tentative";
+    public static final String STATE_REQUESTED = "requested";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
