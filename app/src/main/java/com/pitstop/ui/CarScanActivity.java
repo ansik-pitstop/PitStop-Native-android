@@ -70,6 +70,11 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private static String TAG = CarScanActivity.class.getSimpleName();
 
+    private static final int CHECKED_CAR_ENGINE_ISSUE = 0;
+    private static final int BLUETOOTH_DEVICE_CAR_CONNECTED = 1;
+    private static final int BLUETOOTH_DEVICE_CAR_TIMEOUT = 2;
+    private static final int GET_RESULT_5_TIMEOUT = 3;
+
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
@@ -621,7 +626,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     public void getBluetoothState(int state) {
         Log.i(TAG, "getBluetoothState: " + state);
         if (state == IBluetoothCommunicator.CONNECTED) {
-            handler.sendEmptyMessage(1);
+//            handler.sendEmptyMessage(1);
+            handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
             handler.removeCallbacks(checkEngineIssuesRunnable);
         }
     }
@@ -717,7 +723,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 return;
             }
             switch (msg.what) {
-                case 0: {
+//                case 0: {
+                case CHECKED_CAR_ENGINE_ISSUE: {
                     Log.i(TAG, "Finished car scan, no dtcs");
                     if (dtcCodes.isEmpty()) {
                         loadingEngineIssues.setVisibility(View.GONE);
@@ -746,18 +753,26 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     break;
                 }
 
-                case 1: {
+//                case 1: {
+                case BLUETOOTH_DEVICE_CAR_CONNECTED: {
                     progressDialog.dismiss();
                     startCarScan();
                     break;
                 }
 
-                case 2: {
+//                case 2: {
+                case BLUETOOTH_DEVICE_CAR_TIMEOUT: {
                     searchAttempts = 0;
                     progressDialog.dismiss();
                     tryAgainDialog();
                     break;
                 }
+
+                case GET_RESULT_5_TIMEOUT:{
+                    //TODO do things
+                    break;
+                }
+
             }
         }
     };
@@ -771,7 +786,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             if (seconds > 20 && askingForDtcs) {
                 askingForDtcs = false;
-                handler.sendEmptyMessage(0);
+//                handler.sendEmptyMessage(0);
+                handler.sendEmptyMessage(CHECKED_CAR_ENGINE_ISSUE);
                 handler.removeCallbacks(checkEngineIssuesRunnable);
             } else {
                 handler.post(checkEngineIssuesRunnable);
@@ -779,6 +795,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
+//    /**
+//     * This runnable is used to
+//     */
 //    private Runnable getResult5Runnable = new Runnable() {
 //        @Override
 //        public void run() {
@@ -818,11 +837,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long timeDiff = currentTime - carSearchStartTime;
             int seconds = (int) (timeDiff / 1000);
             if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.isCommunicatingWithDevice()) {
-                handler.sendEmptyMessage(1);
+//                handler.sendEmptyMessage(1);
+                handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
                 handler.removeCallbacks(connectCarRunnable);
             } else if (seconds > 15) {
                 if (searchAttempts++ > 2) {
-                    handler.sendEmptyMessage(2);
+//                    handler.sendEmptyMessage(2);
+                    handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_TIMEOUT);
                     handler.removeCallbacks(connectCarRunnable);
                 } else {
                     Log.i(TAG, "Search attempt: " + searchAttempts);
