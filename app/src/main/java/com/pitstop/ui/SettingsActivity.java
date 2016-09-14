@@ -228,24 +228,24 @@ public class SettingsActivity extends AppCompatActivity {
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
-            if (mainCar != null) {
-                final Preference mainCarPreference = findPreference("current_car");
-                mainCarPreference.setSummary("Tap to switch car");
-                mainCarPreference.setTitle(mainCar.getMake() + " " + mainCar.getModel());
-                mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (listAdapter.getCount() == 1) {
-                            Toast.makeText((getActivity()).getApplicationContext(),
-                                    "You have only one added vehicle.", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
-
-                        switchCarDialog(mainCar, mainCarPreference);
-                        return true;
-                    }
-                });
-            }
+//            if (mainCar != null) {
+//                final Preference mainCarPreference = findPreference("current_car");
+//                mainCarPreference.setSummary("Tap to switch car");
+//                mainCarPreference.setTitle(mainCar.getMake() + " " + mainCar.getModel());
+//                mainCarPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                    @Override
+//                    public boolean onPreferenceClick(Preference preference) {
+//                        if (listAdapter.getCount() == 1) {
+//                            Toast.makeText((getActivity()).getApplicationContext(),
+//                                    "You have only one added vehicle.", Toast.LENGTH_SHORT).show();
+//                            return true;
+//                        }
+//
+//                        switchCarDialog(mainCar, mainCarPreference);
+//                        return true;
+//                    }
+//                });
+//            }
 
             final List<Dealership> dealerships = shopAdapter.getAllDealerships();
             final List<String> shops = new ArrayList<>();
