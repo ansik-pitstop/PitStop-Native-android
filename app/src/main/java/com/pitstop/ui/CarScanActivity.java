@@ -114,6 +114,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private NetworkHelper networkHelper;
 
     private boolean askingForDtcs = false;
+    private boolean result5Retrieved = false;
     private Set<String> dtcCodes = new HashSet<>();
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -480,6 +481,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
      *
      */
     private void checkForServices() {
+        Log.d(TAG, "Start check for services");
         services = 0;
         recalls = 0;
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
@@ -558,14 +560,19 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
      *
      */
     private void checkForEngineIssues() {
+        Log.d(TAG, "Start checking for engine issues");
         dtcCodes.clear();
         askingForDtcs = true;
+        result5Retrieved = false;
         startTime = System.currentTimeMillis();
         handler.post(checkEngineIssuesRunnable);
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
 
+    /**
+     * Prompt the user to try again when connecting to bluetooth(peripheral) get timeout
+     */
     private void tryAgainDialog() {
 
         if (isFinishing()) { // You don't want to add a dialog to a finished activity
@@ -606,6 +613,31 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             }
         });
         alertDialog.show();
+    }
+
+    /**
+     * Show user that it takes a long time to retrieve all historical data
+     */
+    private void showHistoricalDataAlert(){
+        if (isFinishing()){
+            return;
+        }
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Uploading historical data");
+        dialog.setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
+        "while and the device is still uploading all of that data to the phone which could take a" +
+        "while. You can continue driving and the engine codes will eventually popup on your phone.");
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO potentially mixpanel
+                dialog.cancel();
+            }
+        }).setNegativeButton("", null);
+
+        dialog.show();
     }
 
     private void updateCarHealthMeter() {
@@ -656,6 +688,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
 
         if (dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+            result5Retrieved = true;
             final double newTotalMileage = ((int) ((baseMileage
                     + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
 
@@ -769,7 +802,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
 
                 case GET_RESULT_5_TIMEOUT:{
-                    //TODO do things
+                    progressDialog.dismiss();
+                    showHistoricalDataAlert();
                     break;
                 }
 
@@ -795,21 +829,27 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-//    /**
-//     * This runnable is used to
-//     */
-//    private Runnable getResult5Runnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            long currentTime = System.currentTimeMillis();
-//            long timeDiff = currentTime - startTime;
-//
-//            int seconds = (int) (timeDiff - startTime);
-//
-//
-//
-//        }
-//    }
+    /**
+     * This runnable is used to observe timeout on getting historical data
+     */
+    private Runnable getResult5Runnable = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - startTime;
+
+            int seconds = (int) (timeDiff - startTime);
+
+            //TODO change back to 30 seconds
+            if (seconds > 1 && !result5Retrieved){
+                result5Retrieved = true;
+                handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
+                handler.removeCallbacks(getResult5Runnable);
+            } else {
+                handler.post(getResult5Runnable);
+            }
+        }
+    };
 
 
 //    private Runnable runnable = new Runnable() {

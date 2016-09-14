@@ -391,8 +391,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.v(TAG, dataPackageInfo.toString());
 
-
-
         if(dataPackageInfo.dataNumber != null) {
             lastDataNum = dataPackageInfo.dataNumber;
         }
@@ -642,7 +640,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
     }
 
-
     /**
      * Send command to obd device to retrieve the current device time.
      * @see #getParameterData(ParameterPackageInfo) for device time returned
@@ -652,7 +649,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "Getting device time");
         bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
     }
-
 
     /**
      * Sync obd device time with current mobile device time.
