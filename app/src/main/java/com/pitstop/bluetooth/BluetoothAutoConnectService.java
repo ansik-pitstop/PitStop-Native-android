@@ -475,7 +475,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             int newTripId = Integer.valueOf(pidPackage.tripId);
             if(newTripId != lastDeviceTripId) {
                 lastDeviceTripId = newTripId;
-                sharedPreferences.edit().putLong(pfDeviceTripId, newTripId).apply();
+                sharedPreferences.edit().putInt(pfDeviceTripId, newTripId).apply();
 
                 if(lastData != null) {
                     sendPidDataResult4ToServer(lastData);
