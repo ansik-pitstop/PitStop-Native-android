@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingTop="4dp"
+    android:paddingRight="16dp"
+    android:id="@+id/container"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBox"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:checked="false"
+        android:textColorHint="@color/highlight"
+        android:textColor="@color/highlight"
+        android:textColorHighlight="@color/highlight"
+        android:clickable="false" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dealership"
+        android:id="@+id/dealership_name"
+        android:textSize="18sp"/>
+
+    <RelativeLayout
+        android:id="@+id/address_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dealership_name"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp">
+        <ImageView
+            android:id="@+id/location_image"
+            android:layout_width="12sp"
+            android:layout_height="12sp"
+            android:src="@drawable/ic_pin_drop_red_400_18dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/location_image"
+            android:text="Address"
+            android:id="@+id/dealership_address"
+            android:layout_marginLeft="5dp"
+            android:textSize="12sp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/grey"/>
+
+</RelativeLayout>
