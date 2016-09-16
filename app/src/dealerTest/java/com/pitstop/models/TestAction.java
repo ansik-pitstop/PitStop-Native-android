@@ -5,12 +5,17 @@ package com.pitstop.models;
  */
 public class TestAction {
 
-    enum TYPE {
+    public enum Type {
         CONNECT, CHECK_TIME, PID, DTC, VIN, RESET
     }
 
     public String title;
     public String description;
-    public TYPE type;
+    public Type type;
 
+    public TestAction(String title, String description, Type type) {
+        this.title = title;
+        this.description = description;
+        this.type = type;
+    }
 }

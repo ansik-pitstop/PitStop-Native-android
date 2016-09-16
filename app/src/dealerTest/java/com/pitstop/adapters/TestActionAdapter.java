@@ -1,10 +1,14 @@
 package com.pitstop.adapters;
 
+import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.models.TestAction;
@@ -20,16 +24,17 @@ public class TestActionAdapter extends PagerAdapter {
     public static int MAX_ELEVATION_FACTOR = 8;
 
     private List<CardView> mViews;
-    private List<String> mData;
     private float mBaseElevation;
+    private Context context;
 
-    public TestActionAdapter(TestAction testActions) {
+    private List<TestAction> testActions;
 
-        mData = new ArrayList<>();
+    public TestActionAdapter(Context context, List<TestAction> testActions) {
+        this.context = context;
+        this.testActions = testActions;
         mViews = new ArrayList<>();
 
-        for (int i = 0; i < 5; i++) {
-            mData.add("");
+        for (int i = 0 ; i < testActions.size() ; i++) {
             mViews.add(null);
         }
     }
@@ -44,7 +49,7 @@ public class TestActionAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mData.size();
+        return testActions.size();
     }
 
     @Override
@@ -62,6 +67,27 @@ public class TestActionAdapter extends PagerAdapter {
             mBaseElevation = cardView.getCardElevation();
         }
 
+        TextView title = (TextView) view.findViewById(R.id.cardTitle);
+        TextView description = (TextView) view.findViewById(R.id.cardDescription);
+        Button testButton = (Button) view.findViewById(R.id.testButton);
+
+        final TestAction action = testActions.get(position);
+
+        if(title != null) {
+            title.setText(action.title);
+        }
+        if(description != null) {
+            description.setText(action.description);
+        }
+        if(testButton != null) {
+            testButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    doTest(action.type);
+                }
+            });
+        }
+
         cardView.setMaxCardElevation(mBaseElevation * MAX_ELEVATION_FACTOR);
         mViews.set(position, cardView);
         return view;
@@ -71,6 +97,29 @@ public class TestActionAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View) object);
         mViews.set(position, null);
+    }
+
+    private void doTest(TestAction.Type type) {
+        switch (type) {
+            case CONNECT:
+                Toast.makeText(context, "Connect", Toast.LENGTH_SHORT).show();
+                break;
+            case CHECK_TIME:
+                Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
+                break;
+            case PID:
+                Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();
+                break;
+            case DTC:
+                Toast.makeText(context, "Engine Codes", Toast.LENGTH_SHORT).show();
+                break;
+            case VIN:
+                Toast.makeText(context, "VIN", Toast.LENGTH_SHORT).show();
+                break;
+            case RESET:
+                Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
 }

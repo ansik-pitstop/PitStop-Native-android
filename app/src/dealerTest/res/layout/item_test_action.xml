@@ -18,7 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="Card title" />
+            android:textAlignment="textEnd"
+            android:text="Test Action" />
 
         <TextView
             android:id="@+id/cardDescription"
@@ -30,7 +31,8 @@
             android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit.  Etiam eget ligula eu lectus lobortis condimentum." />
 
         <Button
-            style="@style/AddCarButtonStyle"
+            android:id="@+id/testButton"
+            style="@style/TestAppButtonStyle"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
