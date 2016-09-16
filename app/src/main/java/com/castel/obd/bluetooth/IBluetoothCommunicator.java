@@ -27,4 +27,9 @@ public interface IBluetoothCommunicator {
     void close();
     void bluetoothStateChanged(int state);
     String getConnectedDeviceName();
+
+    /**
+     * Added by Yifan
+     */
+    void connectPendingDevice();
 }

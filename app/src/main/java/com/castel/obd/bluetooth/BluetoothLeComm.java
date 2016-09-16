@@ -94,6 +94,9 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     private int btConnectionState = DISCONNECTED;
 
+    private BluetoothDevice mPendingDevice;
+    private boolean devicePending = false;
+
     public BluetoothLeComm(Context context) {
 
         mContext = context;
@@ -226,6 +229,14 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         mGatt = null;
     }
 
+    @Override
+    public void connectPendingDevice() {
+        // TODO: 16/9/15 Implement this for BLE as well
+
+
+
+
+    }
 
     /**
      *
@@ -576,4 +587,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             mCommand.execute(mGatt);
         }
     }
+
+
 }

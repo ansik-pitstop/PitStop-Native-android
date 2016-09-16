@@ -518,20 +518,6 @@ public class NetworkHelper {
         }
     }
 
-//    public void setMainCar(int userId, int carId, RequestCallback callback) {
-//        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
-//
-//        JSONObject body = new JSONObject();
-//
-//        try {
-//            body.put("settings", new JSONObject().put("mainCar", carId));
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        put("user/" + userId + "/settings", callback, body);
-//    }
-
     //In master dev
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
@@ -624,6 +610,11 @@ public class NetworkHelper {
         }
         //PUT /user/{userId}/settings
         put("user/" + userId + "/settings", callback, settings);
+    }
+
+    public void validateScannerId(String scannerId, RequestCallback callback){
+        LOGI(TAG, "validate scanner id: " + scannerId);
+        get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
 }

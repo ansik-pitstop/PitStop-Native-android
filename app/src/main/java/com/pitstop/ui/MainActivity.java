@@ -1,11 +1,15 @@
 package com.pitstop.ui;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -91,6 +95,10 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
  */
 public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
+    public static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String ACTION_OBD_DEVICE_DISCOVERED = "Obd - discovered";
+
     public static List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
 
@@ -99,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static LocalCarAdapter carLocalStore;
     public static LocalCarIssueAdapter carIssueLocalStore;
     public static LocalShopAdapter shopLocalStore;
+    public static LocalScannerAdapter scannerLocalStore;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
@@ -117,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String FROM_ACTIVITY = "from_activity";
     private final static String pfTutorial = "com.pitstop.tutorial";
 
-    public static final String TAG = "MainActivity";
     public static final int LOC_PERM_REQ = 112;
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -177,6 +185,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     };
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch (action){
+                case ACTION_OBD_DEVICE_DISCOVERED:
+                    viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
+                    showPairDeviceWithCarDialog();
+                    break;
+            }
+        }
+    };
+
+    private MainDashboardFragment mDashboardFragment = new MainDashboardFragment();
+    private MainToolFragment mToolFragment = new MainToolFragment();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         application = (GlobalApplication) getApplicationContext();
@@ -212,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
@@ -221,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         carLocalStore = new LocalCarAdapter(this);
         carIssueLocalStore = new LocalCarIssueAdapter(this);
         shopLocalStore = new LocalShopAdapter(this);
+        scannerLocalStore = new LocalScannerAdapter(this);
 
         viewPager = (MainAppViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -271,10 +295,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         createdOrAttached = false;
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerBroadcastReceiver();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterBroadcastReceiver();
+        super.onStop();
+    }
+
     private void setupViewPager(final ViewPager viewPager) {
         MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
-        adapter.addFragment(new MainToolFragment(), "TOOLS");
+//        adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
+//        adapter.addFragment(new MainToolFragment(), "TOOLS");
+        adapter.addFragment(mDashboardFragment, "DASHBOARD");
+        adapter.addFragment(mToolFragment, "TOOLS");
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -1282,4 +1320,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         void setCarDetailsUI();
     }
+
+    /**
+     * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
+     */
+    private void showPairDeviceWithCarDialog(){
+        mDashboardFragment.handler.sendEmptyMessage(MainDashboardFragment.MSG_SHOW_SELECT_CAR_DIALOG);
+    }
+
+    private void registerBroadcastReceiver(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_OBD_DEVICE_DISCOVERED);
+        this.registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void unregisterBroadcastReceiver(){
+        this.unregisterReceiver(mBroadcastReceiver);
+    }
+
 }

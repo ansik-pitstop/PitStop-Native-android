@@ -78,6 +78,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private static String DEVICE_ID = "deviceId";
     private static String DEVICE_IDS = "deviceIds";
 
+    public static final String ACTION_CONNECT_PENDING_CAR = "connect pending car";
+
     private final IBinder mBinder = new BluetoothBinder();
     private IBluetoothCommunicator bluetoothCommunicator;
     private ObdManager.IBluetoothDataListener callbacks;
@@ -133,6 +135,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String supportedPids = "";
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
+    private Handler handler = new Handler(); // for periodic bluetooth scans
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -170,6 +174,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        // added such that we can manually connect pending car
+        intentFilter.addAction(ACTION_CONNECT_PENDING_CAR);
         registerReceiver(connectionReceiver, intentFilter);
 
         Runnable runnable = new Runnable() { // start background search
@@ -180,7 +186,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     Log.d(TAG, "Running periodic scan");
                     startBluetoothSearch(4); // periodic scan
                 }
-
                 handler.postDelayed(this, 120000);
             }
         };
@@ -722,7 +727,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public int getState() {
         return bluetoothCommunicator.getState();
     }
-
 
     public void getPIDs(){ // supported pids
         Log.i(TAG,"getting PIDs - auto-connect service");
@@ -1301,11 +1305,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 });
                     }
                 }
+            } else if (intent.getAction().equals(ACTION_CONNECT_PENDING_CAR)){
+                bluetoothCommunicator.connectPendingDevice();
             }
         }
     };
-
-    private Handler handler = new Handler(); // for periodic bluetooth scans
 
     public int getLastTripId() {
         return lastTripId;
@@ -1333,4 +1337,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         PID_PRIORITY.add("2103");
         PID_PRIORITY.add("212E");
     }
+
+    public String getConnectedDeviceName(){
+        return bluetoothCommunicator.getConnectedDeviceName();
+    }
+
 }
