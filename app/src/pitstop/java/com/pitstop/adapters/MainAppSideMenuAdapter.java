@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.models.Car;
 
 /**
  * Created by David on 6/9/2016.

@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.application.GlobalApplication;

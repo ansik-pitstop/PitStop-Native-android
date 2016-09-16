@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.models.Dealership;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

@@ -36,6 +36,8 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
 import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.Pid;
 import com.pitstop.database.LocalCarAdapter;

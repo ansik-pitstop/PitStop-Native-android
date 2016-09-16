@@ -24,6 +24,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.models.Car;
 import com.pitstop.ui.addCarFragments.AddCar1Fragment;
 import com.pitstop.ui.addCarFragments.AddCar2NoDongleFragment;
 import com.pitstop.ui.addCarFragments.AddCar2YesDongleFragment;
