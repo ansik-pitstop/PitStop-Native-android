@@ -1,6 +1,7 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.models.TestAction;
+import com.pitstop.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,26 +102,9 @@ public class TestActionAdapter extends PagerAdapter {
     }
 
     private void doTest(TestAction.Type type) {
-        switch (type) {
-            case CONNECT:
-                Toast.makeText(context, "Connect", Toast.LENGTH_SHORT).show();
-                break;
-            case CHECK_TIME:
-                Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
-                break;
-            case PID:
-                Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();
-                break;
-            case DTC:
-                Toast.makeText(context, "Engine Codes", Toast.LENGTH_SHORT).show();
-                break;
-            case VIN:
-                Toast.makeText(context, "VIN", Toast.LENGTH_SHORT).show();
-                break;
-            case RESET:
-                Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
-                break;
-        }
+        Intent testBroadcast = new Intent(MainActivity.TEST_ACTION_ACTION);
+        testBroadcast.putExtra(MainActivity.TEST_ACTION_TYPE, type);
+        context.sendBroadcast(testBroadcast);
     }
 
 }
