@@ -676,7 +676,14 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     networkHelper.createNewScanner(newCar.getId(), pendingCar.getScannerId(), null);
                                 }
 
-                                autoConnectService.saveScanner();
+                                if (pendingCar.getScannerId() != null){
+                                    autoConnectService.saveScanner();
+                                } else {
+                                    autoConnectService.saveEmptyScanner(pendingCar.getId());
+                                }
+
+                                Log.d(TAG, "After successfully posting car to server, scanner saved Locally");
+
 
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar, newCar.getId()).commit();
                                 networkHelper.setMainCar(context.getCurrentUserId(), newCar.getId(), null);

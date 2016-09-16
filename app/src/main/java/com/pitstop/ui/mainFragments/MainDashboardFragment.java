@@ -197,6 +197,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     break;
 
                 case MSG_SHOW_SELECT_CAR_DIALOG:
+                    Log.d(TAG, "Dashboard fragment handler select car message received");
                     showSelectCarDialog();
                     break;
 
@@ -578,17 +579,16 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * Show the dialog which ask user which car is he/she sitting in
      * because we have discovered a unrecognized OBD device and some user cars don't have scanner
      */
-    private void showSelectCarDialog(){
+    private void showSelectCarDialog() {
+        Log.d(TAG, "Prepare to show the select car dialog");
         final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
         if (autoConnectService != null
-                && scannerLocalStore.anyCarLackScanner()
                 // We don't want to show user this dialog multiple times (only once)
                 && askForCar
                 // If the dialog is showing, we don't want it to show twice
                 && !dialogShowing
                 && dashboardCar != null
-                && autoConnectService.getCurrentDeviceId() != null
-                && !scannerLocalStore.deviceNameExists(autoConnectService.getConnectedDeviceName())) {
+                /*&& !scannerLocalStore.deviceNameExists(autoConnectService.getConnectedDeviceName())*/) {
 
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -633,7 +633,18 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                                 // save scanner locally
                                                 autoConnectService.saveScanner();
                                                 // save scanner on backend
-                                                networkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(), null);
+                                                networkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
+                                                        new RequestCallback() {
+                                                            @Override
+                                                            public void done(String response, RequestError requestError) {
+                                                                if (requestError != null) {
+                                                                    Log.d(TAG, "Create new scanner failed!");
+                                                                    Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
+                                                                            + "Message: " + requestError.getMessage() + "\n"
+                                                                            + "Error: " + requestError.getError());
+                                                                }
+                                                            }
+                                                        });
 
                                                 ((MainActivity) getActivity()).refreshFromServer();
                                             }
@@ -673,7 +684,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     /**
      * Inform BACS to connect to the device
      */
-    private void sendConnectPendingDeviceIntent(){
+    private void sendConnectPendingDeviceIntent() {
         Intent connectIntent = new Intent();
         connectIntent.setAction(BluetoothAutoConnectService.ACTION_CONNECT_PENDING_CAR);
         getActivity().sendBroadcast(connectIntent);

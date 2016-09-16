@@ -35,6 +35,7 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
@@ -84,6 +85,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private IBluetoothCommunicator bluetoothCommunicator;
     private ObdManager.IBluetoothDataListener callbacks;
 
+    private GlobalApplication application;
+
     private boolean isGettingVin = false;
     private boolean gettingPIDs = false;
     private boolean gettingPID = false;
@@ -109,7 +112,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private SharedPreferences sharedPreferences;
     private LocalCarAdapter carAdapter;
-
     private LocalScannerAdapter scannerAdapter;
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
@@ -142,6 +144,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
+        application = (GlobalApplication) getApplicationContext();
+
         networkHelper = new NetworkHelper(getApplicationContext());
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
@@ -159,10 +163,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 startBluetoothSearch(3);  // start search when service starts
             }
         }
-        localPid = new LocalPidAdapter(this);
-        localPidResult4 = new LocalPidResult4Adapter(this);
-        carAdapter = new LocalCarAdapter(this);
-        scannerAdapter = new LocalScannerAdapter(this);
+//        localPid = new LocalPidAdapter(this);
+//        localPidResult4 = new LocalPidResult4Adapter(this);
+//        carAdapter = new LocalCarAdapter(this);
+//        scannerAdapter = new LocalScannerAdapter(this);
+        localPid = new LocalPidAdapter(application);
+        localPidResult4 = new LocalPidResult4Adapter(application);
+        carAdapter = new LocalCarAdapter(application);
+        scannerAdapter = new LocalScannerAdapter(application);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -583,6 +591,39 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG, "Connected to unrecognized device");
         }
     }
+
+    public void saveEmptyScanner(int carId){
+        ObdScanner scanner = new ObdScanner();
+        scanner.setCarId(carId);
+        scanner.setScannerId("");
+        scanner.setDeviceName("");
+        scanner.setDatanum("");
+        scannerAdapter.storeScanner(scanner);
+    }
+
+//    public void saveScanner() {
+//        if (currentDeviceId == null) {
+//            return;
+//        }
+//        String btName = bluetoothCommunicator.getConnectedDeviceName();
+//        Log.i(TAG, "Connected device name: " + btName);
+//
+//        Car car = carAdapter.getCarByScanner(currentDeviceId);
+//        ObdScanner scanner = scannerAdapter.getScannerByScannerId(currentDeviceId);
+//        if (btName != null && (car != null || AddCarActivity.addingCar)) {
+//            Log.i(TAG, "Saving scanner locally");
+//            if (scanner != null) {
+//                scanner.setDeviceName(btName);
+//                scanner.setCarId(car != null ? car.getId() : 0);
+//                scannerAdapter.updateScanner(scanner);
+//            } else {
+//                scannerAdapter.storeScanner(new ObdScanner(car != null ? car.getId() : 0, currentDeviceId,
+//                        bluetoothCommunicator.getConnectedDeviceName()));
+//            }
+//        } else {
+//            Log.i(TAG, "Connected to unrecognized device");
+//        }
+//    }
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {

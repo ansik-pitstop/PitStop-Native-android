@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.nfc.Tag;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -249,6 +250,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         Intent intent = new Intent();
         intent.setAction(MainActivity.ACTION_OBD_DEVICE_DISCOVERED);
         // This intent will be observed by the MainActivity.
+        Log.d(TAG, "OBD device discovered intent sent!");
         mContext.sendBroadcast(intent);
     }
 
@@ -343,6 +345,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                 String deviceName = device.getName();
 
+                Log.d(TAG, "Device found: " + deviceName);
+
                 if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME)) {
                     List<ObdScanner> scanners = scannerAdapter.getAllScanners();
 //                    boolean shouldConnect = false; // if any scanner has "null" name or name matches
@@ -355,6 +359,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                             break;
                         }
                     }
+
+                    Log.d(TAG, "Device found - device found locally?" + deviceFoundLocally);
+                    Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
+                    Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
+                    Log.d(TAG, "Scanner Adapter device name exists?" + scannerAdapter.deviceNameExists(deviceName));
 
                     // If the user is adding car/this device exists locally, we should add it such that we can add car/receives data from device
                     if (AddCarActivity.addingCar || /*scannerAdapter.getAllScanners().isEmpty() ||*/ deviceFoundLocally) {
@@ -370,6 +379,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         // If some cars in the local database does not have a scanner pair with it,
                         // we should potentially connect to this device!
 
+                        Log.d(TAG, "Found pending device");
+
                         // Prepare the device
                         mPendingDevice = device;
                         devicePending = true;
@@ -378,6 +389,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } else {
                         Log.i(TAG, "Found unrecognized OBD device, ignoring");
                     }
+                } else{
+                    Log.d(TAG, "Device name does not contain OBD, ignore");
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
@@ -430,6 +443,12 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
+
+                if (devicePending){
+                    startScan();
+                    return;
+                }
+
                 if (btConnectionState != CONNECTED) {
                     btConnectionState = DISCONNECTED;
                     Log.i(TAG, "Not connected - setting get bluetooth state on dListeners");

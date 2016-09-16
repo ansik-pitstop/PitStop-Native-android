@@ -843,7 +843,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             int seconds = (int) (timeDiff / 1000);
 
             //TODO change back to 30 seconds
-            if (seconds > 1 && !result5Retrieved) {
+            if (seconds > 0.0001 && !result5Retrieved) {
                 result5Retrieved = true;
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);

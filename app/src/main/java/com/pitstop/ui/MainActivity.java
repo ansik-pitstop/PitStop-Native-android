@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             String action = intent.getAction();
             switch (action){
                 case ACTION_OBD_DEVICE_DISCOVERED:
+                    Log.d(TAG, "OBD device discovered intent received!");
                     viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
                     showPairDeviceWithCarDialog();
                     break;
@@ -846,11 +847,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         carIssueLocalStore.deleteAllCarIssues();
                                         carIssueLocalStore.storeCarIssues(carList);
 
-                                        LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
+//                                        LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
                                         for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
                                             if (car.getScannerId() != null) {
-                                                if (scannerAdapter.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
-                                                    scannerAdapter.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                                                if (scannerLocalStore.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
+                                                    scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
                                                 }
                                             }
                                         }
@@ -1329,6 +1330,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
      */
     private void showPairDeviceWithCarDialog(){
+        Log.d(TAG, "Dashboard fragment handler select car message sent");
         mDashboardFragment.handler.sendEmptyMessage(MainDashboardFragment.MSG_SHOW_SELECT_CAR_DIALOG);
     }
 
