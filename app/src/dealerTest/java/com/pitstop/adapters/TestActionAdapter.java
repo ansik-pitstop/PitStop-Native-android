@@ -107,4 +107,38 @@ public class TestActionAdapter extends PagerAdapter {
         context.sendBroadcast(testBroadcast);
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        mViews = new ArrayList<>();
+
+        for (int i = 0 ; i < testActions.size() ; i++) {
+            mViews.add(null);
+        }
+        super.notifyDataSetChanged();
+    }
+
+    public void updateItem(final TestAction action, int position) {
+        testActions.set(position, action);
+        CardView cardView = getCardViewAt(position);
+        if(cardView != null) {
+            TextView title = (TextView) cardView.findViewById(R.id.cardTitle);
+            TextView description = (TextView) cardView.findViewById(R.id.cardDescription);
+            Button testButton = (Button) cardView.findViewById(R.id.testButton);
+
+            if(title != null) {
+                title.setText(action.title);
+            }
+            if(description != null) {
+                description.setText(action.description);
+            }
+            if(testButton != null) {
+                testButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        doTest(action.type);
+                    }
+                });
+            }
+        }
+    }
 }

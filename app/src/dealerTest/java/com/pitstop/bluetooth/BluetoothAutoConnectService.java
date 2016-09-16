@@ -38,6 +38,7 @@ import com.google.gson.Gson;
 
 import com.pitstop.models.Dtc;
 import com.pitstop.models.Pid;
+import com.pitstop.utils.MessageListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +65,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private final IBinder mBinder = new BluetoothBinder();
     private IBluetoothCommunicator bluetoothCommunicator;
-    private ObdManager.IBluetoothDataListener callbacks;
+    private MessageListener callbacks;
 
     private boolean isGettingVin = false;
     private boolean gettingPIDs = false;
@@ -163,35 +164,30 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getBluetoothState(int state) {
         if (callbacks != null) {
-            callbacks.getBluetoothState(state);
         }
     }
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
         if(callbacks != null) {
-            callbacks.setCtrlResponse(responsePackageInfo);
         }
     }
 
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         if(callbacks!=null) {
-            callbacks.setParameterResponse(responsePackageInfo);
         }
     }
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
         if(callbacks != null) {
-            callbacks.getParameterData(parameterPackageInfo);
         }
     }
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         if (callbacks != null) {
-            callbacks.getIOData(dataPackageInfo);
         }
     }
 
@@ -208,7 +204,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(callbacks != null) {
-            callbacks.deviceLogin(loginPackageInfo);
+
         }
 
     }
@@ -219,8 +215,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    public void setCallbacks(ObdManager.IBluetoothDataListener callBacks) {
-        this.callbacks = callBacks;
+    public void setCallbacks(MessageListener callbacks) {
+        this.callbacks = callbacks;
     }
 
     public void startBluetoothSearch(int... source) {
