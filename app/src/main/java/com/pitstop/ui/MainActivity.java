@@ -241,10 +241,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-        carLocalStore = new LocalCarAdapter(this);
-        carIssueLocalStore = new LocalCarIssueAdapter(this);
-        shopLocalStore = new LocalShopAdapter(this);
-        scannerLocalStore = new LocalScannerAdapter(this);
+//        carLocalStore = new LocalCarAdapter(this);
+//        carIssueLocalStore = new LocalCarIssueAdapter(this);
+//        shopLocalStore = new LocalShopAdapter(this);
+//        scannerLocalStore = new LocalScannerAdapter(this);
+        carLocalStore = new LocalCarAdapter(application);
+        carIssueLocalStore = new LocalCarIssueAdapter(application);
+        shopLocalStore = new LocalShopAdapter(application);
+        scannerLocalStore = new LocalScannerAdapter(application);
 
         viewPager = (MainAppViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);

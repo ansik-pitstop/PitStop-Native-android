@@ -566,6 +566,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         result5Retrieved = false;
         startTime = System.currentTimeMillis();
         handler.post(checkEngineIssuesRunnable);
+        handler.post(getResult5Runnable);
         autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
@@ -618,24 +619,25 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     /**
      * Show user that it takes a long time to retrieve all historical data
      */
-    private void showHistoricalDataAlert(){
-        if (isFinishing()){
+    private void showHistoricalDataAlert() {
+        if (isFinishing()) {
             return;
         }
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Uploading historical data");
-        dialog.setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
-        "while and the device is still uploading all of that data to the phone which could take a" +
-        "while. You can continue driving and the engine codes will eventually popup on your phone.");
-        dialog.setCancelable(false);
-        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //TODO potentially mixpanel
-                dialog.cancel();
-            }
-        }).setNegativeButton("", null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this)
+                .setTitle("Uploading historical data")
+                .setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
+                        "while and the device is still uploading all of that data to the phone which could take a" +
+                        "while. You can continue driving and the engine codes will eventually popup on your phone.")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //TODO potentially mixpanel
+                        dialog.cancel();
+                    }
+                })
+                .setNegativeButton("", null);
 
         dialog.show();
     }
@@ -801,7 +803,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     break;
                 }
 
-                case GET_RESULT_5_TIMEOUT:{
+                case GET_RESULT_5_TIMEOUT: {
                     progressDialog.dismiss();
                     showHistoricalDataAlert();
                     break;
@@ -838,10 +840,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
 
-            int seconds = (int) (timeDiff - startTime);
+            int seconds = (int) (timeDiff / 1000);
 
             //TODO change back to 30 seconds
-            if (seconds > 1 && !result5Retrieved){
+            if (seconds > 1 && !result5Retrieved) {
                 result5Retrieved = true;
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);

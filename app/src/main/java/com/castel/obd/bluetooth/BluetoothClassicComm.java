@@ -65,7 +65,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        scannerAdapter = new LocalScannerAdapter(mContext);
+//        scannerAdapter = new LocalScannerAdapter(mContext);
+        scannerAdapter = new LocalScannerAdapter(application);
 
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
@@ -221,6 +222,45 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mHandler.sendEmptyMessageDelayed(CANCEL_DISCOVERY, 14464);
     }
 
+    private void registerBluetoothReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        mContext.registerReceiver(mReceiver, filter);
+    }
+
+    public void bluetoothStateChanged(int state) {
+        if (state == BluetoothAdapter.STATE_OFF) {
+            btConnectionState = DISCONNECTED;
+        } else if (state == CONNECTED) {
+            btConnectionState = state;
+        }
+    }
+
+    /**
+     * Inform the UI to show the selectCar dialog
+     */
+    private void sendObdDeviceDiscoveredIntent(){
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.ACTION_OBD_DEVICE_DISCOVERED);
+        // This intent will be observed by the MainActivity.
+        mContext.sendBroadcast(intent);
+    }
+
+    @Override
+    public void connectPendingDevice(){
+        if (mPendingDevice != null){
+            connectedDeviceName = mPendingDevice.getName();
+            mBluetoothChat.connectBluetooth(mPendingDevice);
+        }
+        devicePending = false;
+    }
+
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -324,9 +364,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         Log.i(TAG, "Connecting to device - BluetoothClassicComm");
 
                         Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
-                    } else if (scannerAdapter.anyCarLackScanner()
-                            && !scannerAdapter.deviceNameExists(deviceName)
-                            && !devicePending){
+                    } else if (!devicePending
+                            && scannerAdapter.anyCarLackScanner()
+                            && !scannerAdapter.deviceNameExists(deviceName)){
                         // If some cars in the local database does not have a scanner pair with it,
                         // we should potentially connect to this device!
 
@@ -395,52 +435,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.i(TAG, "Not connected - setting get bluetooth state on dListeners");
                     dataListener.getBluetoothState(btConnectionState);
                 }
-            } else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)) {
-                //if(mBluetoothAdapter.isEnabled())
-                //    connectBluetooth();
-                //Log.i(TAG,"Bluetooth state:SCAN_MODE_CHNAGED- setting dListeners btState");
-                //dataListener.getBluetoothState(btConnectionState);
             }
         }
     };
-
-    private void registerBluetoothReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        mContext.registerReceiver(mReceiver, filter);
-    }
-
-    public void bluetoothStateChanged(int state) {
-        if (state == BluetoothAdapter.STATE_OFF) {
-            btConnectionState = DISCONNECTED;
-        } else if (state == CONNECTED) {
-            btConnectionState = state;
-        }
-    }
-
-    /**
-     * Inform the UI to show the selectCar dialog
-     */
-    private void sendObdDeviceDiscoveredIntent(){
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_OBD_DEVICE_DISCOVERED);
-        // This intent will be observed by the MainActivity.
-        mContext.sendBroadcast(intent);
-    }
-
-    @Override
-    public void connectPendingDevice(){
-        if (mPendingDevice != null){
-            connectedDeviceName = mPendingDevice.getName();
-            mBluetoothChat.connectBluetooth(mPendingDevice);
-        }
-        devicePending = false;
-    }
-
 }

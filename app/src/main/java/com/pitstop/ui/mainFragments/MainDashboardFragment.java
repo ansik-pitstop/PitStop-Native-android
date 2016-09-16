@@ -576,6 +576,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     /**
      * Show the dialog which ask user which car is he/she sitting in
+     * because we have discovered a unrecognized OBD device and some user cars don't have scanner
      */
     private void showSelectCarDialog(){
         final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();

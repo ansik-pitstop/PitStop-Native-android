@@ -237,7 +237,6 @@ public class GlobalApplication extends Application {
         editor.putString(pfAccessToken, null);
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
-
         editor.apply();
 
         //Reset values about tutorial and fsb
