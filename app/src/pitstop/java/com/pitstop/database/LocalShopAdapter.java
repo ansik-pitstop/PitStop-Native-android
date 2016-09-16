@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.pitstop.models.Dealership;
-
 import java.util.ArrayList;
 import java.util.List;
 

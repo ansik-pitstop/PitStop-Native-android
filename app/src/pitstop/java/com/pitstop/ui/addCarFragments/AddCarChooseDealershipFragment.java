@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.pitstop.models.Dealership;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;

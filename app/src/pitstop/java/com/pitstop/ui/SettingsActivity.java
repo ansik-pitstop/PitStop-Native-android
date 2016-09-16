@@ -28,9 +28,6 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.User;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalShopAdapter;

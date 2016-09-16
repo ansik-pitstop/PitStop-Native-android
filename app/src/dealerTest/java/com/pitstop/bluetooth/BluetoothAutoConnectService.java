@@ -35,15 +35,9 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
 import com.google.gson.Gson;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+
 import com.pitstop.models.Dtc;
 import com.pitstop.models.Pid;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.R;
-import com.pitstop.models.TripEnd;
-import com.pitstop.models.TripIndicator;
-import com.pitstop.models.TripStart;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,10 +99,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
     public boolean manuallyUpdateMileage = false;
-
-    // queue for sending trip flags
-    final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
-    private boolean isSendingTripRequest = false;
 
     private static String TAG = "BtAutoConnectDebug";
 
@@ -338,93 +328,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getPendingDTCs() {
         Log.i(TAG, "Getting pending DTCs");
         bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
-    }
-
-    private void processPIDData(DataPackageInfo data) {
-        if (data.obdData.isEmpty()) {
-            Log.i(TAG, "obdData is empty");
-            return;
-        }
-
-        Pid pidDataObject = new Pid();
-        JSONArray pids = new JSONArray();
-
-        Car car = localCarAdapter.getCarByScanner(data.deviceId);
-
-        double mileage;
-        double calculatedMileage;
-
-        if(data.tripMileage != null && !data.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(data.tripMileage) / 1000;
-            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-        } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(lastData.tripMileage)/1000;
-            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-        } else {
-            mileage = 0;
-            calculatedMileage = 0;
-        }
-
-        pidDataObject.setMileage(mileage); // trip mileage from device
-        pidDataObject.setCalculatedMileage(calculatedMileage);
-        pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
-        pidDataObject.setTripId(lastDeviceTripId);
-        pidDataObject.setRtcTime(data.rtcTime);
-        pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
-
-        for(PIDInfo pidInfo : data.obdData) {
-            //String json  = GSON.toJson(pidInfo);
-            try {
-                JSONObject pid = new JSONObject();
-                pid.put("id",pidInfo.pidType);
-                pid.put("data",pidInfo.value);
-                pids.put(pid);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            //Log.d(TAG, "PID json: " + json);
-        }
-
-        pidDataObject.setPids(pids.toString());
-
-        if(data.result == 4) {
-            Log.d(TAG, "Pid array --> DB");
-            Log.d(TAG, pidDataObject.getPids());
-            Log.d(TAG, "rtcTime: " + pidDataObject.getRtcTime());
-            Log.d(TAG, "mileage: " + pidDataObject.getMileage());
-        }
-
-        //JSONObject freezeData = extractFreezeData(data);
-        //Log.d(TAG,"Freeze data --->Extract");
-        //Log.d(TAG,freezeData.toString());
-
-        if(data.result == 4) {
-            Log.i(TAG, "creating PID data for result 4 - " + localPidResult4.getPidDataEntryCount());
-
-            ArrayList<Pid> parsedPids = parsePidSet(pidDataObject);
-
-            if(parsedPids != null) {
-                for (Pid pid : parsedPids) {
-                    localPidResult4.createPIDData(pid);
-                }
-            }
-        } else if(data.result == 5) {
-            Log.i(TAG, "received PID data for result 5");
-            manuallyUpdateMileage = false;
-            //if(pidDataObject.getTripId() == -1) {
-            //    pidsWithNoTripId.add(pidDataObject);
-            //} else if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
-            //    localPid.createPIDData(pidDataObject);
-            //}
-        }
-
-        if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-            sendPidDataToServer(data);
-        }
-
-        if(localPidResult4.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPidResult4.getPidDataEntryCount() % PID_CHUNK_SIZE < 5) {
-            sendPidDataResult4ToServer(data);
-        }
     }
 
     /**

@@ -45,8 +45,6 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;

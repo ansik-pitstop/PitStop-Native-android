@@ -10,7 +10,6 @@ import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.pitstop.models.Dealership;
 import com.pitstop.R;
 
 import java.util.ArrayList;

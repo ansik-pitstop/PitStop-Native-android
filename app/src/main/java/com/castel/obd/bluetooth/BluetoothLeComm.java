@@ -280,7 +280,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         .setContentTitle("Connecting to car");
 
         Intent resultIntent = new Intent(mContext, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
 
         stackBuilder.addParentStack(MainActivity.class);

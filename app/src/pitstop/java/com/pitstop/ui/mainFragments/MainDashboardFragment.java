@@ -43,9 +43,6 @@ import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListen
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.CarScanActivity;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
-import com.pitstop.models.Dealership;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;

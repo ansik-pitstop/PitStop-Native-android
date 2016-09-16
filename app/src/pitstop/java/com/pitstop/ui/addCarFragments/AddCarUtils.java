@@ -23,8 +23,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.AddCarActivity;

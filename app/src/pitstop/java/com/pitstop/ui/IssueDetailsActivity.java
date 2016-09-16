@@ -24,8 +24,6 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.R;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
