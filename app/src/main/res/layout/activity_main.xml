@@ -76,7 +76,8 @@
 
             <Button
                 android:id="@+id/testButton"
-                style="@style/TestAppButtonStyle"
+                android:background="@drawable/color_button_highlight"
+                android:textColor="@color/white"
                 android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

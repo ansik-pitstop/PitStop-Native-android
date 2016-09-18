@@ -34,7 +34,7 @@
     </style>
 
     <style name="TestAppButtonStyle" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:background">@drawable/color_button_highlight</item>
+        <item name="android:background">@drawable/color_button_primary_dark</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

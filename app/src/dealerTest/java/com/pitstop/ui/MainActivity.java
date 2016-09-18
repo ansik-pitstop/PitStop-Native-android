@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        bluetoothService.disconnectFromDevice();
+        unbindService(serviceConnection);
         try {
             unregisterReceiver(testActionReceiver);
         } catch (Exception e) {
@@ -192,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         break;
                     case CHECK_TIME:
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
+                        bluetoothService.getCarVIN();
                         break;
                     case PID:
                         Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();
