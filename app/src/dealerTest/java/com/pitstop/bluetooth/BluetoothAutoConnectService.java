@@ -113,17 +113,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                    getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                bluetoothCommunicator = new BluetoothClassicComm(this);  // TODO: BLE
-            } else {
-                bluetoothCommunicator = new BluetoothClassicComm(this);
-            }
-
+            bluetoothCommunicator = new BluetoothClassicComm(this);
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
                     && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                BluetoothAdapter.getDefaultAdapter().enable();
                 startBluetoothSearch(3);  // start search when service starts
             }
         }
@@ -221,7 +215,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void startBluetoothSearch(int... source) {
         Log.d(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""));
+        if (bluetoothCommunicator == null) {
+            bluetoothCommunicator = new BluetoothClassicComm(this);
+        }
         bluetoothCommunicator.startScan();
+    }
+
+    public void disconnectFromDevice() {
+        Log.i(TAG, "Disconnecting from device");
+        if(bluetoothCommunicator != null) {
+            bluetoothCommunicator.close();
+            bluetoothCommunicator = null;
+        }
     }
 
     /**

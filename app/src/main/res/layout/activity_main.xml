@@ -5,6 +5,12 @@
     android:background="@color/primary">
 
     <ImageView
+        android:id="@+id/disconnectedBackground"
+        android:src="@color/primary_dark_dark"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
         android:id="@+id/logo"
         android:layout_width="250dp"
         android:layout_height="75dp"
@@ -66,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Connect to the device to start testing.  Make sure the device is plugged in and the vehicle engine is running." />
+                android:text="Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running." />
 
             <Button
                 android:id="@+id/testButton"

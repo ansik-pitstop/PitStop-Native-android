@@ -1,5 +1,6 @@
 package com.pitstop.ui;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -16,13 +18,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.adapters.TestActionAdapter;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -31,6 +29,9 @@ import com.pitstop.utils.MessageListener;
 import com.pitstop.utils.ShadowTransformer;
 
 import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by BEN! on 15/9/2016.
@@ -42,11 +43,15 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     public static final String TEST_ACTION_ACTION = "com.ansik.pitstop.TEST_ACTION_ACTION";
     public static final String TEST_ACTION_TYPE = "com.ansik.pitstop.action_type";
 
-    private ViewPager viewPager;
+    @BindView(R.id.viewPager)
+    ViewPager viewPager;
     private TestActionAdapter adapter;
     private ShadowTransformer shadowTransformer;
 
-    private View connectCard;
+    @BindView(R.id.disconnectedBackground)
+    View disconnectBackground;
+    @BindView(R.id.connectCard)
+    View connectCard;
 
     private ArrayList<TestAction> testActions = new ArrayList<>();
 
@@ -54,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private Intent serviceIntent;
 
     public static final int RC_LOCATION_PERM = 101;
-    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION};
+    public static final String[] LOC_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION};
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -91,8 +96,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         registerReceiver(testActionReceiver, new IntentFilter(TEST_ACTION_ACTION));
 
-        connectCard = findViewById(R.id.connectCard);
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        ButterKnife.bind(this);
+
+        //disconnectBackground = findViewById(R.id.disconnectedBackground);
+        //connectCard = findViewById(R.id.connectCard);
+        //viewPager = (ViewPager) findViewById(R.id.viewPager)
+
         adapter = new TestActionAdapter(this, testActions);
         shadowTransformer = new ShadowTransformer(viewPager, adapter);
 
@@ -131,19 +140,25 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
     }
 
+    // callback for OBD function result
     @Override
-    public void processMessage(String message) {
+    public void processMessage(int status, String message) {
 
     }
 
     public void connectToDevice(View view) {
         connectCard.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
             @Override
-            public void run() {
+            public void run() { // TODO: move to connect success callback
                 connectCard.setVisibility(View.GONE);
                 viewPager.animate().alpha(1f).setDuration(500);
             }
         });
+        disconnectBackground.animate().alpha(0f).setDuration(500);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = this.getWindow();
+            window.setStatusBarColor(getResources().getColor(R.color.highlight));
+        }
         viewPager.animate().alpha(0f).setDuration(0);
         viewPager.setVisibility(View.VISIBLE);
         bluetoothService.startBluetoothSearch();
@@ -166,8 +181,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                                 viewPager.setVisibility(View.GONE);
                                 connectCard.setVisibility(View.VISIBLE);
                                 connectCard.animate().alpha(1f).setDuration(500);
+                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    Window window = MainActivity.this.getWindow();
+                                    window.setStatusBarColor(getResources().getColor(R.color.primary_dark_dark));
+                                }
                             }
                         });
+                        disconnectBackground.animate().alpha(1f).setDuration(500);
+                        bluetoothService.disconnectFromDevice();
                         break;
                     case CHECK_TIME:
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
