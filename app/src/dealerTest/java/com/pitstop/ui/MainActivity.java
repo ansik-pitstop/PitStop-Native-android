@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.pitstop.R;
 import com.pitstop.adapters.TestActionAdapter;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothAutoConnectService.State;
 import com.pitstop.models.TestAction;
 import com.pitstop.utils.MessageListener;
 import com.pitstop.utils.ShadowTransformer;
@@ -144,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     // callback for OBD function result
     @Override
-    public void processMessage(int status, String message) {
-
+    public void processMessage(int status, State state, String message) {
+        Log.i(TAG, "Received message: " + message + ", status: " + status);
     }
 
     public void connectToDevice(View view) {
@@ -194,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         break;
                     case CHECK_TIME:
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
-                        bluetoothService.getCarVIN();
+                        bluetoothService.getObdDeviceTime();
                         break;
                     case PID:
                         Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();

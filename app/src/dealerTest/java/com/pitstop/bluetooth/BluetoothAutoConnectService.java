@@ -1,7 +1,6 @@
 package com.pitstop.bluetooth;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,22 +8,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -34,12 +24,8 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.ObdDataUtil;
-import com.google.gson.Gson;
 
-import com.pitstop.models.Dtc;
 import com.pitstop.models.Pid;
-import com.pitstop.models.TestAction;
 import com.pitstop.utils.MessageListener;
 import com.pitstop.utils.TestTimer;
 
@@ -47,12 +33,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +55,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private State state = State.NONE;
 
-    private enum State {
+    public enum State {
         NONE, CONNECTING, GET_RTC, VERIFY_RTC, READ_PIDS, READ_DTCS, GET_VIN, RESET
     }
 
@@ -151,10 +137,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         if(state == State.VERIFY_RTC) {
+            sendMessageToUi(MessageListener.STATUS_UPDATE, "Device set time, syncing device...");
             getVinFromCar();
-        }
-
-        if(callbacks!=null) {
         }
     }
 
@@ -166,24 +150,32 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 final long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
                 final long currentTime = System.currentTimeMillis() / 1000;
                 final long diff = currentTime - deviceTime;
+
+                String readableDate = new SimpleDateFormat("MM d, yyyy").format(new Date(deviceTime * 1000));
+
+                sendMessageToUi(MessageListener.STATUS_UPDATE, "Device time received:" + readableDate);
+
                 if (diff > moreThanOneYear) {
                     state = State.VERIFY_RTC;
+                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time");
                     vinAttempts = 0;
                     syncObdDevice();
                 } else {
+                    Log.i(TAG, "RTC success");
                     rtcSuccess = true;
-                    if(callbacks != null) {
-
-                    }
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time does not need to be set");
                     listenForPids();
                 }
             }
         } else if(state == State.VERIFY_RTC) {
             if(parameterPackageInfo.value.size() > 0 && parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
-                if(parameterPackageInfo.value.get(0).value.length() == 17) {
+                if(parameterPackageInfo.value.get(0).value.length() == 17) { // successfully synced device
+                    Log.i(TAG, "RTC success");
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device successfully synced");
                     rtcSuccess = true;
                     listenForPids();
-                } else if(vinAttempts++ < 6) {
+                } else if(vinAttempts++ < 6) { // may still be syncing, try again
+                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Syncing device...");
                     if(testTimer != null) {
                         testTimer.cancel();
                     }
@@ -193,22 +185,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             getVinFromCar();
                         }
                     };
-                } else {
-
+                } else { // vin not retrievable
+                    sendMessageToUi(MessageListener.STATUS_FAILED, "Could not verify device sync");
+                    listenForPids();
                 }
             }
         } else if(state == State.GET_VIN) {
             if(parameterPackageInfo.value.size() > 0 && parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
                 if(parameterPackageInfo.value.get(0).value.length() == 17) {
                     vinSuccess = true;
-                }
-                if(callbacks != null) {
-
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "VIN retrieved successfully: " + parameterPackageInfo.value.get(0).value);
+                } else {
+                    sendMessageToUi(MessageListener.STATUS_FAILED, "Could not get valid VIN");
                 }
             }
-        }
-
-        if(callbacks != null) {
         }
     }
 
@@ -218,12 +208,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
             Log.i(TAG, "PID Success");
             pidSuccess = true;
+
+            StringBuilder pids = new StringBuilder();
+            for(PIDInfo pid : dataPackageInfo.obdData) {
+                pids.append("\n");
+                pids.append(pid.pidType);
+                pids.append(": ");
+                pids.append(pid.value);
+            }
+
+            sendMessageToUi(MessageListener.STATUS_UPDATE, "Data retrieved: " + pids.toString());
         } else if(state == State.READ_DTCS && dataPackageInfo.dtcData != null) {
             Log.i(TAG, "DTC Success");
             dtcSuccess = true;
-        }
-
-        if (callbacks != null) {
+            sendMessageToUi(MessageListener.STATUS_UPDATE, "Engine codes received: " + dataPackageInfo.dtcData);
         }
     }
 
@@ -238,11 +236,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
-
-        if(callbacks != null) {
-
-        }
-
     }
 
     // test pids for 20 seconds
@@ -251,11 +244,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(testTimer != null) {
             testTimer.cancel();
         }
-        testTimer = new TestTimer(20000) {
+        testTimer = new TestTimer(12000) {
             @Override
             public void onFinish() {
-                if(callbacks != null) {
-
+                if(pidSuccess) {
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Successfully received sensor data");
+                } else {
+                    sendMessageToUi(MessageListener.STATUS_FAILED, "Could not get sensor data");
                 }
                 listenForDtcs();
             }
@@ -268,16 +263,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(testTimer != null) {
             testTimer.cancel();
         }
-        testTimer = new TestTimer(20000) {
+        testTimer = new TestTimer(8000) {
             @Override
             public void onFinish() {
-                if(callbacks != null) {
-
+                if(dtcSuccess) {
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Successfully received engine codes");
+                } else {
+                    sendMessageToUi(MessageListener.STATUS_FAILED, "Could not get engine codes");
                 }
                 state = State.GET_VIN;
                 getVinFromCar();
             }
         };
+    }
+
+    private void sendMessageToUi(int status, String message) {
+        if(callbacks != null) {
+            callbacks.processMessage(status, state, message);
+        }
     }
 
     public class BluetoothBinder extends Binder {
@@ -345,6 +348,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getObdDeviceTime() {
         Log.i(TAG, "Getting device time");
         state = State.GET_RTC;
+        sendMessageToUi(MessageListener.STATUS_UPDATE, "Getting device time");
         bluetoothCommunicator.obdGetParameter(ObdManager.RTC_TAG);
     }
 
