@@ -32,4 +32,6 @@ public interface IBluetoothCommunicator {
      * Added by Yifan
      */
     void connectPendingDevice();
+    void manuallyDisconnectCurrentDevice();
+    void cancelPendingDevice();
 }

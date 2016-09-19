@@ -161,7 +161,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * Monitor app connection to device, so that ui can be updated
      * appropriately.
      */
-
     public Runnable carConnectedRunnable = new Runnable() {
         @Override
         public void run() {
@@ -592,10 +591,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
+            final LocalScannerAdapter scannerAdapter = MainActivity.scannerLocalStore;
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setCancelable(false)
-                    .setTitle("New Module Detected. Please select the car this device is connected to.")
+                    .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
                     .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -612,54 +612,27 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 return;
                             }
                             ((MainActivity) getActivity()).showLoading("Hold on, we are thinking..");
-                            networkHelper.validateScannerId(autoConnectService.getCurrentDeviceId(), new RequestCallback() {
-                                @Override
-                                public void done(String response, RequestError requestError) {
-                                    ((MainActivity) getActivity()).hideLoading();
-                                    if (requestError != null) {
-                                        Log.d(TAG, requestError.toString());
-                                        Toast.makeText(getActivity(), "Some error occurred, please try again.", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        try {
-                                            JSONObject result = new JSONObject(response);
-                                            if (result.has("scannerId")) { //invalid
-                                                Toast.makeText(getActivity(), "This device is already in use and still active.", Toast.LENGTH_SHORT).show();
-                                            } else { //valid scanner id, create new Scanner on backend, store scanner locally
-                                                Toast.makeText(getActivity(), "OK, we have linked the device with your car!", Toast.LENGTH_SHORT).show();
-                                                dialog.dismiss();
 
-                                                // Inform BACS to connect to the device
-                                                sendConnectPendingDeviceIntent();
-                                                // save scanner locally
-                                                autoConnectService.saveScanner();
-                                                // save scanner on backend
-                                                networkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
-                                                        new RequestCallback() {
-                                                            @Override
-                                                            public void done(String response, RequestError requestError) {
-                                                                if (requestError != null) {
-                                                                    Log.d(TAG, "Create new scanner failed!");
-                                                                    Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
-                                                                            + "Message: " + requestError.getMessage() + "\n"
-                                                                            + "Error: " + requestError.getError());
-                                                                }
-                                                            }
-                                                        });
+                            // At this point, check if the picked car has scanner;
+                            if(scannerAdapter.carHasDevice(selectedCar.get(0).getId())){
+                                // If yes, notify the user that this car has scanner;
+                                Log.d(TAG, "Picked car already has device linked to it");
+                                Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
+                                return;
+                            } else {
+                                Log.d(TAG, "Picked car lack device");
+                                // If no, then to determine whether if we should link the device and the car,
+                                // we need to connect, get the device id, then validate the device id;
+                                sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
+                            }
 
-                                                ((MainActivity) getActivity()).refreshFromServer();
-                                            }
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                            });
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             askForCar = false;
+                            sendCancelPendingDeviceIntent();
                             dialog.dismiss();
                         }
                     })
@@ -684,10 +657,20 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     /**
      * Inform BACS to connect to the device
      */
-    private void sendConnectPendingDeviceIntent() {
+    private void sendConnectPendingDeviceIntent(int selectedCarId) {
         Intent connectIntent = new Intent();
         connectIntent.setAction(BluetoothAutoConnectService.ACTION_CONNECT_PENDING_CAR);
+        connectIntent.putExtra(BluetoothAutoConnectService.EXTRA_SELECTED_CAR_ID, selectedCarId);
         getActivity().sendBroadcast(connectIntent);
+    }
+
+    /**
+     * Inform BACS to cancel pending device
+     */
+    private void sendCancelPendingDeviceIntent(){
+        Intent cancelIntent = new Intent();
+        cancelIntent.setAction(BluetoothAutoConnectService.ACTION_CANCEL_PENDING_DEVICE);
+        getActivity().sendBroadcast(cancelIntent);
     }
 
     @Override

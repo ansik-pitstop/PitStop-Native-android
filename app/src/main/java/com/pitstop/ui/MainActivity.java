@@ -1,13 +1,11 @@
 package com.pitstop.ui;
 
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -35,7 +33,6 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -50,7 +47,6 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
@@ -97,7 +93,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    /**
+     * Used in communication between MainActivity and BluetoothAutoConnectService
+     */
     public static final String ACTION_OBD_DEVICE_DISCOVERED = "Obd - discovered";
+    public static final String ACTION_DEVICE_ID_INVALID = "Obd - device id invalid";
+    public static final String ACTION_PAIRED_DEVICE_WITH_CAR = "Obd - paired device with car";
+    public static final String ACTION_NETWORK_ERROR = "Network error happened";
 
     public static List<Car> carList = new ArrayList<>();
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -189,11 +191,27 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            switch (action){
+            switch (action) {
                 case ACTION_OBD_DEVICE_DISCOVERED:
                     Log.d(TAG, "OBD device discovered intent received!");
                     viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
                     showPairDeviceWithCarDialog();
+                    break;
+                case ACTION_NETWORK_ERROR:
+                    Log.d(TAG, "Network error occurred");
+                    if (isLoading) hideLoading();
+                    Toast.makeText(MainActivity.this, "Sorry, some network error occurred.", Toast.LENGTH_SHORT).show();
+                    break;
+                case ACTION_DEVICE_ID_INVALID:
+                    Log.d(TAG, "Device ID invalid");
+                    if (isLoading) hideLoading();
+                    Toast.makeText(MainActivity.this, "Picked car has device!", Toast.LENGTH_SHORT).show();
+                    break;
+                case ACTION_PAIRED_DEVICE_WITH_CAR:
+                    Log.d(TAG, "Successfully paried device with car");
+                    if (isLoading) hideLoading();
+                    Toast.makeText(MainActivity.this, "OK, we have linked the device with your car!", Toast.LENGTH_SHORT).show();
+                    refreshFromServer();
                     break;
             }
         }
@@ -292,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -453,6 +472,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
+
     }
 
     @Override
@@ -847,14 +867,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         carIssueLocalStore.deleteAllCarIssues();
                                         carIssueLocalStore.storeCarIssues(carList);
 
-//                                        LocalScannerAdapter scannerAdapter = new LocalScannerAdapter(MainActivity.this);
+                                        // Populate the scanner table
                                         for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
-                                            if (car.getScannerId() != null) {
-                                                if (scannerLocalStore.getScannerByScannerId(car.getScannerId()).getScannerId() == null) { // create new row
-                                                    scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
-                                                }
+                                            if (!scannerLocalStore.isCarExist(car.getId())){
+                                                scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                                                Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
                                             }
                                         }
+                                        Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
                                         callback.setCarDetailsUI();
                                     }
@@ -1202,6 +1222,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+
+                if (!materialShowcaseView.equals(firstBookingDiscountShowcase)) return;
+
                 try {
                     mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
                 } catch (JSONException e) {
@@ -1329,19 +1352,23 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /**
      * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
      */
-    private void showPairDeviceWithCarDialog(){
+    private void showPairDeviceWithCarDialog() {
         Log.d(TAG, "Dashboard fragment handler select car message sent");
         mDashboardFragment.handler.sendEmptyMessage(MainDashboardFragment.MSG_SHOW_SELECT_CAR_DIALOG);
     }
 
-    private void registerBroadcastReceiver(){
+    private void registerBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_OBD_DEVICE_DISCOVERED);
+        intentFilter.addAction(ACTION_DEVICE_ID_INVALID);
+        intentFilter.addAction(ACTION_PAIRED_DEVICE_WITH_CAR);
+        intentFilter.addAction(ACTION_NETWORK_ERROR);
         this.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
-    private void unregisterBroadcastReceiver(){
+    private void unregisterBroadcastReceiver() {
         this.unregisterReceiver(mBroadcastReceiver);
     }
+
 
 }

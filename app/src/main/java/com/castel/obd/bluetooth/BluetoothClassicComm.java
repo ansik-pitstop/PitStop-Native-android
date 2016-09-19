@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.Tag;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -73,6 +74,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         //Log.d(TAG, "init result: " + initSuccess);
 
         mHandler.postDelayed(runnable, 500);
+
     }
 
     @Override
@@ -263,6 +265,19 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         devicePending = false;
     }
 
+    @Override
+    public void manuallyDisconnectCurrentDevice() {
+        btConnectionState = DISCONNECTED;
+        mBluetoothChat.closeConnect();
+    }
+
+    @Override
+    public void cancelPendingDevice() {
+        devicePending = false;
+        mPendingDevice = null;
+        btConnectionState = DISCONNECTED;
+    }
+
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -333,6 +348,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "BReceiver onReceive - BluetoothClassicComm");
 
+            Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
+            Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
+
             String action = intent.getAction();
             LogUtil.i(action);
 
@@ -348,13 +366,12 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.d(TAG, "Device found: " + deviceName);
 
                 if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME)) {
+
                     List<ObdScanner> scanners = scannerAdapter.getAllScanners();
-//                    boolean shouldConnect = false; // if any scanner has "null" name or name matches
                     boolean deviceFoundLocally = false; // if any scanner has "null" name or name matches
                     for (ObdScanner scanner : scanners) {
                         // check if any sc
-//                        if (scanner.getDeviceName() == null || scanner.getDeviceName().equals(device.getName())) {
-                        if (scanner.getDeviceName().equals(deviceName)) {
+                        if (scanner.getDeviceName() != null && scanner.getDeviceName().equals(deviceName)) {
                             deviceFoundLocally = true;
                             break;
                         }
@@ -378,7 +395,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                             && !scannerAdapter.deviceNameExists(deviceName)){
                         // If some cars in the local database does not have a scanner pair with it,
                         // we should potentially connect to this device!
-
                         Log.d(TAG, "Found pending device");
 
                         // Prepare the device

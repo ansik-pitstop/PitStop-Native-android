@@ -31,7 +31,7 @@ public class LocalPidResult4Adapter {
 
 
     public LocalPidResult4Adapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     /**

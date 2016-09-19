@@ -31,7 +31,7 @@ public class LocalCarIssueAdapter {
     private LocalDatabaseHelper databaseHelper;
 
     public LocalCarIssueAdapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     public void storeCarIssue(CarIssue carIssue) {
@@ -150,6 +150,15 @@ public class LocalCarIssueAdapter {
 
         return values;
     }
+
+    public void deleteAllRows(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, null, null);
+
+        db.close();
+    }
+
 }
 
 

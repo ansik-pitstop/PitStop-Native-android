@@ -617,6 +617,4 @@ public class NetworkHelper {
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
-
-
 }

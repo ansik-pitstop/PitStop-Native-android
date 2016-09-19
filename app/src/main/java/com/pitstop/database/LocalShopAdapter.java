@@ -28,7 +28,7 @@ public class LocalShopAdapter {
     private LocalDatabaseHelper databaseHelper;
 
     public LocalShopAdapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     /**
@@ -114,4 +114,13 @@ public class LocalShopAdapter {
 
         return dealership;
     }
+
+    public void deleteAllRows(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.SHOP.TABLE_NAME, null, null);
+
+        db.close();
+    }
+
 }

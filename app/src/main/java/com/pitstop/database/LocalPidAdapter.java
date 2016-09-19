@@ -31,7 +31,7 @@ public class LocalPidAdapter {
 
 
     public LocalPidAdapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     /**
@@ -114,4 +114,13 @@ public class LocalPidAdapter {
             }
         }
     }
+
+    public void deleteAllRows(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.PID.TABLE_NAME, null, null);
+
+        db.close();
+    }
+
 }

@@ -26,7 +26,7 @@ public class ParseNotificationStore {
     private LocalDatabaseHelper databaseHelper;
 
     public ParseNotificationStore(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
 

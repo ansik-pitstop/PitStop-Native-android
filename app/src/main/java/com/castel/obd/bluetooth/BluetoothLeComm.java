@@ -244,6 +244,19 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         devicePending = false;
     }
 
+    @Override
+    public void manuallyDisconnectCurrentDevice() {
+        // TODO: 16/9/19 See how to disconnect on ble 
+        mGatt.close();
+    }
+
+    @Override
+    public void cancelPendingDevice() {
+        devicePending = false;
+        mPendingDevice = null;
+        btConnectionState = DISCONNECTED;
+    }
+
     /**
      *
      *

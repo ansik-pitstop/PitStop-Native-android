@@ -13,22 +13,21 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     // Logcat tag
     private static final String LOG = "LocalDatabaseHelper";
 
-    private static LocalScannerAdapter instance;
+    private static LocalDatabaseHelper instance;
 
     private static final int DATABASE_VERSION = 18;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private Context mContext;
 
-    public LocalScannerAdapter getInstance(Context context){
+    public static LocalDatabaseHelper getInstance(Context context){
         if (instance == null) {
-            instance = new LocalScannerAdapter(context.getApplicationContext());
+            instance = new LocalDatabaseHelper(context.getApplicationContext());
         }
         return instance;
     }
 
-    // TODO: 16/9/16 Figure out what is going on with the database opening 
-    public LocalDatabaseHelper(Context context) {
+    private LocalDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mContext = context;
     }

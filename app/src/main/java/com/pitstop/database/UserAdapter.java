@@ -25,7 +25,7 @@ public class UserAdapter  {
     private LocalDatabaseHelper databaseHelper;
 
     public UserAdapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     public void storeUserData(User user) {
