@@ -10,28 +10,65 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="250dp"
-        android:layout_height="75dp"
-        android:layout_marginTop="48dp"
-        android:src="@drawable/whitelogo"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/logoLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="Test App"
-        android:textSize="24sp"
-        android:textColor="@color/white"
-        android:layout_below="@id/logo"/>
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="75dp"
+            android:layout_marginTop="54dp"
+            android:src="@drawable/whitelogo"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test App"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/logView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="4dp"
+            android:text="Results"/>
+
+        <TextView
+            android:id="@+id/logText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:maxLines = "10000" />
+
+    </LinearLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"
         android:visibility="invisible"
         android:layout_width="match_parent"
-        android:layout_height="330dp"
+        android:layout_height="300dp"
         android:layout_alignParentBottom="true"
         android:clipToPadding="false"
         android:overScrollMode="never"

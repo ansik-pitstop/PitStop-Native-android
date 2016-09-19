@@ -16,9 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -53,11 +55,19 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     View disconnectBackground;
     @BindView(R.id.connectCard)
     View connectCard;
+    @BindView(R.id.logoLayout)
+    View logoLayout;
+    @BindView(R.id.logText)
+    TextView logTextView;
+    @BindView(R.id.logView)
+    View logView;
 
     private ArrayList<TestAction> testActions = new ArrayList<>();
 
     private BluetoothAutoConnectService bluetoothService;
     private Intent serviceIntent;
+
+    private StringBuilder logText = new StringBuilder();
 
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -99,9 +109,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         ButterKnife.bind(this);
 
-        //disconnectBackground = findViewById(R.id.disconnectedBackground);
-        //connectCard = findViewById(R.id.connectCard);
-        //viewPager = (ViewPager) findViewById(R.id.viewPager)
+        logTextView.setMovementMethod(new ScrollingMovementMethod());
 
         adapter = new TestActionAdapter(this, testActions);
         shadowTransformer = new ShadowTransformer(viewPager, adapter);
@@ -147,18 +155,21 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void processMessage(int status, State state, String message) {
         Log.i(TAG, "Received message: " + message + ", status: " + status);
+        logText.append(message);
+        logText.append("\n");
+        logTextView.setText(logText);
     }
 
     public void connectToDevice(View view) {
         connectCard.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
             @Override
             public void run() { // TODO: move to connect success callback
+                disconnectBackground.animate().alpha(0f).setDuration(500);
                 connectCard.setVisibility(View.GONE);
                 viewPager.animate().alpha(1f).setDuration(500);
             }
         });
-        disconnectBackground.animate().alpha(0f).setDuration(500);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = this.getWindow();
             window.setStatusBarColor(getResources().getColor(R.color.highlight));
         }
@@ -178,24 +189,47 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         break;
                     case DISCONNECT:
                         Toast.makeText(context, "Disconnect", Toast.LENGTH_SHORT).show();
-                        viewPager.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
+                        logView.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
                             @Override
                             public void run() {
-                                viewPager.setVisibility(View.GONE);
-                                connectCard.setVisibility(View.VISIBLE);
-                                connectCard.animate().alpha(1f).setDuration(500);
-                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    Window window = MainActivity.this.getWindow();
-                                    window.setStatusBarColor(getResources().getColor(R.color.primary_dark_dark));
-                                }
+                                viewPager.animate().alpha(0f).setDuration(500).translationY(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logoLayout.animate().alpha(1f).setDuration(500).withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                connectCard.setVisibility(View.VISIBLE);
+                                                connectCard.animate().alpha(1f).setDuration(500);
+                                                disconnectBackground.animate().alpha(1f).setDuration(500);
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                    Window window = MainActivity.this.getWindow();
+                                                    window.setStatusBarColor(getResources().getColor(R.color.primary_dark_dark));
+                                                }
+                                            }
+                                        }).start();
+                                        logView.setVisibility(View.GONE);
+                                        viewPager.setVisibility(View.GONE);
+                                    }
+                                });
                             }
-                        });
-                        disconnectBackground.animate().alpha(1f).setDuration(500);
+                        }).start();
                         bluetoothService.disconnectFromDevice();
                         break;
                     case CHECK_TIME:
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
                         bluetoothService.getObdDeviceTime();
+                        logoLayout.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                viewPager.animate().y(30).setDuration(500).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logView.setVisibility(View.VISIBLE);
+                                        logView.animate().alpha(1f).setDuration(500).start();
+                                    }
+                                }).start();
+                            }
+                        }).start();
                         break;
                     case PID:
                         Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();
