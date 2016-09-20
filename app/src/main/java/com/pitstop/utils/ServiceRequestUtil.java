@@ -312,6 +312,7 @@ public class ServiceRequestUtil {
     }
 
     /**
+     * @deprecated replaced by {@link #sendRequestWithState(String, String, String)}
      * Based on the given date time value and user comment,
      * sends network request to request service
      * @param additionalComment

@@ -48,6 +48,7 @@ import org.json.JSONObject;
 public class AddCarActivity extends BSAbstractedFragmentActivity implements AddCarUtils.AddCarUtilsCallback {
 
     private final String TAG = AddCarActivity.class.getSimpleName();
+
     public static int ADD_CAR_SUCCESS = 51;
 
     public static boolean addingCar = false;
@@ -58,7 +59,18 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     private MixpanelHelper mixpanelHelper;
     private AddCarUtils addCarUtils;
 
-    public static boolean hasDevice;
+    /**
+     * <p>This variable is used to keep track of if user is adding car with device.</p>
+     * <p>This variable's value is <em>written</em> when:<br>
+     * 1.When the user tap NO when being asked if he has device, the value will be false.<br>
+     * 2.When the user tap YES when being asked if he has device, the value will be true.</p>
+     *
+     * This variable's value is <em>read</em> in:<br>
+     * 1.AddCarActivity and AddCarUtils, to write logs in Mixpanel<br>
+     * 2.BluetoothAutoConnectService, BluetoothClassicComm and BluetoothLeComm, to determine whether if we should connect to
+     * the detected IDD prefix device<br>
+     */
+    public static boolean addingCarWithDevice = false;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -135,7 +147,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 Toast.makeText(this, "No dealership was selected", Toast.LENGTH_SHORT).show();
                 return;
             }
-            try {
+
+
+            addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
+            addCarUtils.addCarToServer(null);
+
+            try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();
                 properties.put("Button", "Selected " + ((AddCarChooseDealershipFragment) fragment).getShop().getName())
                         .put("View", MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW)
@@ -144,8 +161,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
-            addCarUtils.addCarToServer(null);
         }
     }
 
@@ -155,9 +170,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
      */
     public void yesDongleClicked(View view) {
 
-        hasDevice = true;
+        addingCarWithDevice = true;
 
-        try {
+        try { // Log in Mixpanel
             mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -166,6 +181,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
+
     }
 
     /**
@@ -174,7 +190,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
      */
     public void noDongleClicked(View view) {
 
-        hasDevice = false;
+        addingCarWithDevice = false;
 
         try {
             mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
@@ -189,17 +205,17 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the "SEARCH FOR VEHICLE" or "Add Vehicle" button is tapped in the second step of the add car process
-     * <p/>
-     * If the
+     *
      *
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
     public void searchForCar(View view) {
-        try{
+
+        try{ // Log in Mixpanel
             JSONObject properties = new JSONObject();
-            properties.put("Button", hasDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
+            properties.put("Button", addingCarWithDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
             properties.put("View", MixpanelHelper.ADD_CAR_VIEW);
-            properties.put("Method of Adding Car", hasDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
+            properties.put("Method of Adding Car", addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
         } catch (JSONException e){
             e.printStackTrace();
@@ -254,6 +270,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         return false;
     }
 
+    /**
+     * Invoked when the "Scan VIN Barcode" button is tapped
+     * @param view the "Scan VIN Barcode" button
+     */
     public void startScanner(View view) {
         try {
             mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
@@ -288,6 +308,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         addingCar = true;
 
         super.onResume();
@@ -412,7 +433,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void carSuccessfullyAdded(Car car) {
-
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
@@ -429,7 +449,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 finish();
             }
         }.start();
-
     }
 
     @Override

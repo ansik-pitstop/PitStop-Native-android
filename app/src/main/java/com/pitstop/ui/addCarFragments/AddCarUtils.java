@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -171,7 +170,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             properties.put("Button", MixpanelHelper.ADD_CAR_CONFIRM_ADD_VEHICLE);
             properties.put("View", MixpanelHelper.ADD_CAR_VIEW);
             properties.put("Mileage", Integer.parseInt(mileage));
-            properties.put("Method of Adding Car", AddCarActivity.hasDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
+            properties.put("Method of Adding Car", AddCarActivity.addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -194,7 +193,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             JSONObject properties = new JSONObject();
             properties.put("Button", MixpanelHelper.ADD_CAR_CANCEL_ADD_VEHICLE);
             properties.put("View", MixpanelHelper.ADD_CAR_VIEW);
-            properties.put("Method of Adding Car", AddCarActivity.hasDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
+            properties.put("Method of Adding Car", AddCarActivity.addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
         } catch (JSONException e) {
             e.printStackTrace();

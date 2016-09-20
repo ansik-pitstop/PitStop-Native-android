@@ -560,7 +560,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
-            if (!AddCarActivity.addingCar) {
+//            if (!AddCarActivity.addingCar) {
+            if (!AddCarActivity.addingCarWithDevice) {
                 saveScanner(); // TODO: move this
             }
 
@@ -649,7 +650,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         String btName = bluetoothCommunicator.getConnectedDeviceName();
         Log.i(TAG, "Connected device name: " + btName);
 
-        if (btName != null && (car != null || AddCarActivity.addingCar)) {
+//        if (btName != null && (car != null || AddCarActivity.addingCar)) {
+        if (btName != null && (car != null || AddCarActivity.addingCarWithDevice)) {
             Log.i(TAG, "Saving scanner locally");
             if (scanner != null) {
                 scanner.setDeviceName(btName);
