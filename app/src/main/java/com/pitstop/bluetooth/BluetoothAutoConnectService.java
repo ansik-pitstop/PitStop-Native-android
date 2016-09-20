@@ -554,18 +554,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
+            // Here's where the app get the device id for the first time
             Log.i(TAG, "Device login: " + loginPackageInfo.deviceId);
             Log.i(TAG, "Device result: " + loginPackageInfo.result);
             Log.i(TAG, "Device flag: " + loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
-//            if (!AddCarActivity.addingCar) {
             if (!AddCarActivity.addingCarWithDevice) {
                 saveScanner(); // TODO: move this
             }
 
-            // TODO: 16/9/19 Here's where the app get the device id for the first time
             // If connected to the pending device
             if (isConnectingPendingDevice) {
                 isConnectingPendingDevice = false;
@@ -650,7 +649,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         String btName = bluetoothCommunicator.getConnectedDeviceName();
         Log.i(TAG, "Connected device name: " + btName);
 
-//        if (btName != null && (car != null || AddCarActivity.addingCar)) {
         if (btName != null && (car != null || AddCarActivity.addingCarWithDevice)) {
             Log.i(TAG, "Saving scanner locally");
             if (scanner != null) {

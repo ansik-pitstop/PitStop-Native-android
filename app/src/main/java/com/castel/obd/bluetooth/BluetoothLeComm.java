@@ -444,7 +444,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if (deviceName == null || !deviceName.contains(ObdManager.BT_DEVICE_NAME))
                 return;
 
-//            if (AddCarActivity.addingCar || mScannerAdapter.deviceNameExists(deviceName)) {
             if (AddCarActivity.addingCarWithDevice || mScannerAdapter.deviceNameExists(deviceName)) { // TODO: 16/9/20 Test this
                 connectToDevice(btDevice);
             } else if (!devicePending && mScannerAdapter.anyCarLackScanner()){

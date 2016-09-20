@@ -385,7 +385,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.d(TAG, "Scanner Adapter device name exists?" + scannerAdapter.deviceNameExists(deviceName));
 
                     // If the user is adding car/this device exists locally, we should add it such that we can add car/receives data from device
-//                    if (AddCarActivity.addingCar || /*scannerAdapter.getAllScanners().isEmpty() ||*/ deviceFoundLocally) {
                     if (AddCarActivity.addingCarWithDevice || /*scannerAdapter.getAllScanners().isEmpty() ||*/ deviceFoundLocally) { // TODO: 16/9/20 Test this
                         Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
                         connectedDeviceName = deviceName;
