@@ -7,8 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.Tag;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -34,6 +32,9 @@ import java.util.List;
  * Created by Paul Soladoye on 12/04/2016.
  */
 public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+
+    private static String TAG = "BtClassicComm";
+
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;
@@ -43,20 +44,21 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private BluetoothChat mBluetoothChat;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothDevice mPendingDevice;
 
+    /**
+     * For detecting unrecognized IDD device
+     */
+    private BluetoothDevice mPendingDevice;
+    private LocalScannerAdapter scannerAdapter;
     private boolean devicePending = false;
 
     private boolean isMacAddress = false;
-
-    private LocalScannerAdapter scannerAdapter;
 
     private String connectedDeviceName;
 
     private List<String> dataLists = new ArrayList<String>();
 
     private ObdManager.IBluetoothDataListener dataListener;
-    private static String TAG = "BtClassicComm";
 
     public BluetoothClassicComm(Context context) {
         Log.i(TAG, "classicComm Constructor");
@@ -67,14 +69,12 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-//        scannerAdapter = new LocalScannerAdapter(mContext);
         scannerAdapter = new LocalScannerAdapter(application);
 
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
 
         mHandler.postDelayed(runnable, 500);
-
     }
 
     @Override
@@ -269,6 +269,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     public void manuallyDisconnectCurrentDevice() {
         btConnectionState = DISCONNECTED;
         mBluetoothChat.closeConnect();
+        mBluetoothChat = new BluetoothChat(mHandler);
+        mPendingDevice = null;
+        devicePending = false;
     }
 
     @Override
@@ -348,9 +351,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "BReceiver onReceive - BluetoothClassicComm");
 
-            Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
-            Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
-
             String action = intent.getAction();
             LogUtil.i(action);
 
@@ -364,6 +364,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 String deviceName = device.getName();
 
                 Log.d(TAG, "Device found: " + deviceName);
+                Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
+                Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
 
                 if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME)) {
 

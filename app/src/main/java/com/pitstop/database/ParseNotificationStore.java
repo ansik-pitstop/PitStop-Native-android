@@ -22,13 +22,11 @@ public class ParseNotificationStore {
             + TABLES.COMMON.KEY_OBJECT_ID + " TEXT, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
-
     private LocalDatabaseHelper databaseHelper;
 
     public ParseNotificationStore(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
-
 
     public void storeNotification(ParseNotification parseNotification) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -41,7 +39,6 @@ public class ParseNotificationStore {
         db.insert(TABLES.NOTIFICATION.TABLE_NAME, null, values);
         db.close();
     }
-
 
     public List<ParseNotification> getAllNotifications() {
         List<ParseNotification> parseNotifications = new ArrayList<>();
@@ -69,7 +66,6 @@ public class ParseNotificationStore {
         }
         db.close();
     }
-
 
     private ParseNotification cursorToParseNotification(Cursor c) {
         ParseNotification parseNotification = new ParseNotification();

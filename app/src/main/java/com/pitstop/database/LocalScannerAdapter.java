@@ -190,14 +190,6 @@ public class LocalScannerAdapter {
         return size;
     }
 
-    public void deleteAllRows() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        db.delete(TABLES.SCANNER.TABLE_NAME, null, null);
-
-        db.close();
-    }
-
     public boolean carHasDevice(int pickedCarId){
         boolean result = false;
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
@@ -215,5 +207,13 @@ public class LocalScannerAdapter {
             }
         }
         return result;
+    }
+
+    public void deleteAllRows() {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.SCANNER.TABLE_NAME, null, null);
+
+        db.close();
     }
 }

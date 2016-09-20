@@ -55,14 +55,6 @@ public class UserAdapter  {
         return user;
     }
 
-    public void deleteAllUsers() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        db.delete(TABLES.USER.TABLE_NAME, null, null);
-
-        db.close();
-    }
-
     private User cursorToUser(Cursor c) {
         User user = new User();
         user.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
@@ -74,7 +66,6 @@ public class UserAdapter  {
         return user;
     }
 
-
     private ContentValues userObjectToContentValues(User user) {
         ContentValues values = new ContentValues();
         values.put(TABLES.COMMON.KEY_OBJECT_ID, user.getId());
@@ -84,5 +75,13 @@ public class UserAdapter  {
         values.put(TABLES.USER.KEY_PHONE, user.getPhone());
 
         return values;
+    }
+
+    public void deleteAllUsers() {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.USER.TABLE_NAME, null, null);
+
+        db.close();
     }
 }

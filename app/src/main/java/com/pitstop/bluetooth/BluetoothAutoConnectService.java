@@ -74,9 +74,7 @@ import java.util.Map;
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener {
 
     private static String TAG = "BtAutoConnectDebug";
-
-    private static Gson GSON = new Gson();
-
+    
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
     private static String DEVICE_IDS = "deviceIds";
@@ -178,10 +176,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 startBluetoothSearch(3);  // start search when service starts
             }
         }
-//        localPid = new LocalPidAdapter(this);
-//        localPidResult4 = new LocalPidResult4Adapter(this);
-//        carAdapter = new LocalCarAdapter(this);
-//        scannerAdapter = new LocalScannerAdapter(this);
+
         localPid = new LocalPidAdapter(application);
         localPidResult4 = new LocalPidResult4Adapter(application);
         carAdapter = new LocalCarAdapter(application);
@@ -207,7 +202,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
                 // Change back to this after testing
 //                handler.postDelayed(this, 120000);
-                handler.postDelayed(this, 30000);
+                handler.postDelayed(this, 120000);
             }
         };
 
@@ -230,8 +225,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.d(TAG, "Receiver not registered");
         }
 
-        super.onDestroy();
         bluetoothCommunicator.close();
+        super.onDestroy();
     }
 
     @Nullable
@@ -277,59 +272,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
 
-//            // If connected to the pending device
-//            if (isConnectingPendingDevice) {
-//                isConnectingPendingDevice = false;
-//
-//                // getCurrentDeviceId() returns null here
-//                Log.d(TAG, "Current Device ID: " + getCurrentDeviceId());
-//                Log.d(TAG, "Pending car ID: " + pendingCarId);
-//
-//                // validate scanner id
-//                networkHelper.validateScannerId(getCurrentDeviceId(), new RequestCallback() {
-//                    @Override
-//                    public void done(String response, RequestError requestError) {
-//                        if (requestError != null) {
-//                            Log.d(TAG, requestError.toString());
-//                            notifyUserMainActivity(MainActivity.ACTION_NETWORK_ERROR);
-//                        } else {
-//                            try {
-//                                JSONObject result = new JSONObject(response);
-//                                if (result.has("scannerId")) { //invalid
-//                                    // Notify the user about why we cannot connect to this device
-//                                    notifyUserMainActivity(MainActivity.ACTION_DEVICE_ID_INVALID);
-//                                    // We've connected to device we aren't supposed to (in order to get the device ID and validate it)
-//                                    // So after we found out that device is not valid (currently active and in use), we should disconnect
-//                                    bluetoothCommunicator.manuallyDisconnectCurrentDevice();
-//                                } else { //valid scanner id, create new Scanner on backend, store scanner locally
-//                                    // save scanner locally
-//                                    saveScanner();
-//                                    // save scanner on backend
-//                                    networkHelper.createNewScanner(pendingCarId, getCurrentDeviceId(),
-//                                            new RequestCallback() {
-//                                                @Override
-//                                                public void done(String response, RequestError requestError) {
-//                                                    if (requestError != null) {
-//                                                        // Error occurred during creating new scanner
-//                                                        Log.d(TAG, "Create new scanner failed!");
-//                                                        Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
-//                                                                + "Message: " + requestError.getMessage() + "\n"
-//                                                                + "Error: " + requestError.getError());
-//                                                    } else {
-//                                                        // Successfully created scanner (linking car with scanner)
-//                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRED_DEVICE_WITH_CAR);
-//                                                    }
-//                                                }
-//                                            });
-//                                }
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }
-//                });
-//            }
-
         } else {
             /**
              * Set device connection state for connected car indicator,
@@ -367,7 +309,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-
     /**
      * @param responsePackageInfo The response from device for a parameter that
      *                            was successfully set.
@@ -387,7 +328,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             callbacks.setParameterResponse(responsePackageInfo);
         }
     }
-
 
     /**
      * @param parameterPackageInfo The response sent from device upon querying the
@@ -667,7 +607,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                                 + "Message: " + requestError.getMessage() + "\n"
                                                                 + "Error: " + requestError.getError());
                                                     } else {
-                                                        // save scanner locally
+                                                        // After we created a new scanner on he backend, save scanner locally
                                                         saveScanner();
                                                         // Successfully created scanner (linking car with scanner)
                                                         notifyUserMainActivity(MainActivity.ACTION_PAIRED_DEVICE_WITH_CAR);
@@ -1563,71 +1503,61 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            switch (action){
-                case BluetoothDevice.ACTION_BOND_STATE_CHANGED: // device pairing listener
-                    Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
-                    if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
-                        startBluetoothSearch(5);  // start search after pairing in case it disconnects after pair
-                    }
-                    break;
-
-                case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    Log.i(TAG, "Bluetooth adapter state changed: " + state);
-                    bluetoothCommunicator.bluetoothStateChanged(state);
-                    if (state == BluetoothAdapter.STATE_OFF) {
+            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)){
+                Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
+                if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
+                    startBluetoothSearch(5);  // start search after pairing in case it disconnects after pair
+                }
+            } else if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)){
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                Log.i(TAG, "Bluetooth adapter state changed: " + state);
+                bluetoothCommunicator.bluetoothStateChanged(state);
+                if (state == BluetoothAdapter.STATE_OFF) {
+                    bluetoothCommunicator.close();
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.cancel(notifID);
+                } else if (state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
+                    if (bluetoothCommunicator != null) {
                         bluetoothCommunicator.close();
-                        NotificationManager mNotificationManager =
-                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.cancel(notifID);
-                    } else if (state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
-                        if (bluetoothCommunicator != null) {
-                            bluetoothCommunicator.close();
-                        }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                                getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                            bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this); // TODO: BLE
-                        } else {
-                            bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
-                        }
-
-                        bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
-                        if (BluetoothAdapter.getDefaultAdapter() != null
-                                && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                            startBluetoothSearch(6); // start search when turning bluetooth on
-                        }
                     }
-                    break;
-
-                case ConnectivityManager.CONNECTIVITY_ACTION: // internet connectivity listener
-                    if (NetworkHelper.isConnected(BluetoothAutoConnectService.this)) {
-                        Log.i(TAG, "Sending stored PIDS and DTCS");
-                        executeTripRequests();
-                        if (lastData != null) {
-                            sendPidDataResult4ToServer(lastData);
-                        }
-                        for (final Dtc dtc : dtcsToSend) {
-                            networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
-                                    dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(), dtc.getFreezeData(),
-                                    new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-                                            Log.i(TAG, "DTC added: " + dtc);
-                                        }
-                                    });
-                        }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                            getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this); // TODO: BLE
+                    } else {
+                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
                     }
-                    break;
 
-                case ACTION_CONNECT_PENDING_CAR:
-                    connectPendingDevice();
-                    pendingCarId = intent.getIntExtra(EXTRA_SELECTED_CAR_ID, -1);
-                    break;
-
-                case ACTION_CANCEL_PENDING_DEVICE:
-                    isConnectingPendingDevice =false;
-                    bluetoothCommunicator.cancelPendingDevice();
-                    break;
+                    bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);
+                    if (BluetoothAdapter.getDefaultAdapter() != null
+                            && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                        startBluetoothSearch(6); // start search when turning bluetooth on
+                    }
+                }
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)){ // internet connectivity listener
+                if (NetworkHelper.isConnected(BluetoothAutoConnectService.this)) {
+                    Log.i(TAG, "Sending stored PIDS and DTCS");
+                    executeTripRequests();
+                    if (lastData != null) {
+                        sendPidDataResult4ToServer(lastData);
+                    }
+                    for (final Dtc dtc : dtcsToSend) {
+                        networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
+                                dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(), dtc.getFreezeData(),
+                                new RequestCallback() {
+                                    @Override
+                                    public void done(String response, RequestError requestError) {
+                                        Log.i(TAG, "DTC added: " + dtc);
+                                    }
+                                });
+                    }
+                }
+            } else if (ACTION_CONNECT_PENDING_CAR.equals(action)){
+                pendingCarId = intent.getIntExtra(EXTRA_SELECTED_CAR_ID, -1);
+                connectPendingDevice();
+            } else if (ACTION_CANCEL_PENDING_DEVICE.equals(action)) {
+                isConnectingPendingDevice = false;
+                bluetoothCommunicator.cancelPendingDevice();
             }
         }
     }

@@ -47,6 +47,9 @@ public class GlobalApplication extends Application {
 
     private static MixpanelAPI mixpanelAPI;
 
+    /**
+     * Database open helper
+     */
     private UserAdapter mUserAdapter;
     private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
@@ -66,12 +69,7 @@ public class GlobalApplication extends Application {
 
         MultiDex.install(this);
 
-        mUserAdapter = new UserAdapter(this);
-        mLocalScannerAdapter = new LocalScannerAdapter(this);
-        mLocalCarAdapter = new LocalCarAdapter(this);
-        mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
-        mLocalPidAdapter = new LocalPidAdapter(this);
-        mLocalShopAdapter = new LocalShopAdapter(this);
+        initiateDatabase();
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
@@ -270,17 +268,36 @@ public class GlobalApplication extends Application {
         // Logout from Smooch for the next login
         Smooch.logout();
 
+        cleanUpDatabase();
+    }
+
+    public void modifyMixpanelSettings(String field, Object value){
+        getMixpanelAPI().getPeople().set(field, value);
+    }
+
+    /**
+     * Initiate database open helper when the app start
+     */
+    private void initiateDatabase(){
+        mUserAdapter = new UserAdapter(this);
+        mLocalScannerAdapter = new LocalScannerAdapter(this);
+        mLocalCarAdapter = new LocalCarAdapter(this);
+        mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
+        mLocalPidAdapter = new LocalPidAdapter(this);
+        mLocalShopAdapter = new LocalShopAdapter(this);
+    }
+
+
+    /**
+     *
+     */
+    private void cleanUpDatabase(){
         mUserAdapter.deleteAllUsers();
         mLocalScannerAdapter.deleteAllRows();
         mLocalPidAdapter.deleteAllRows();
         mLocalCarAdapter.deleteAllRows();
         mLocalCarIssueAdapter.deleteAllRows();
         mLocalShopAdapter.deleteAllRows();
-
-    }
-
-    public void modifyMixpanelSettings(String field, Object value){
-        getMixpanelAPI().getPeople().set(field, value);
     }
 
 }

@@ -195,7 +195,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
     public void searchForCar(View view) {
-
         try{
             JSONObject properties = new JSONObject();
             properties.put("Button", hasDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);

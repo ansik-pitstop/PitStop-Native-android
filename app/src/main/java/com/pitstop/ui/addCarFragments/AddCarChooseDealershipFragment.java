@@ -32,13 +32,22 @@ import java.util.List;
  */
 public class AddCarChooseDealershipFragment extends Fragment implements DealershipSelectAdapter.DealershipSelectAdapterCallback {
 
+    private static final String TAG = AddCarChooseDealershipFragment.class.getSimpleName();
+
     private Dealership shop;
 
-    private static final String TAG = AddCarChooseDealershipFragment.class.getSimpleName();
     ViewGroup rootView;
+    /**
+     * Recycler view adapter
+     */
     private DealershipSelectAdapter adapter;
     private RecyclerView recyclerView;
+
+    /**
+     * Database open helper
+     */
     private LocalShopAdapter localStore;
+
     private boolean hadInternetConnection;
     private NetworkHelper networkHelper;
 
@@ -69,16 +78,13 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
     }
 
     private void setup() {
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.dealership_recycler_list);
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
-        if (callback == null && getActivity() instanceof AddCarActivity) {
-            callback = ((AddCarActivity) getActivity());
-        }
-        callback.showLoading("Loading");
 
+        setupViews();
+
+        setupCallbackActivity();
+
+        // Detect internet connection and retrieve dealership info from backend/local
+        // As well as setting up recycler view contents
         if (NetworkHelper.isConnected(getContext())) {
             Log.i(TAG, "Internet connection found");
             hadInternetConnection = true;
@@ -120,9 +126,19 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
                 callback.hideLoading("No Internet");
             }
         }
+    }
+
+    /**
+     * Find views and setup listener
+     */
+    private void setupViews(){
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.dealership_recycler_list);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
         final EditText dealershipQueryEditText = (EditText) rootView.findViewById(R.id.dealership_query);
         dealershipQueryEditText.addTextChangedListener(new TextWatcher() {
-
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -140,6 +156,16 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
 
             }
         });
+    }
+
+    /**
+     * Setup callback (AddCarActivity) for showing/dismissing loading message
+     */
+    private void setupCallbackActivity(){
+        if (callback == null && getActivity() instanceof AddCarActivity) {
+            callback = ((AddCarActivity) getActivity());
+        }
+        callback.showLoading("Loading");
     }
 
     private void setUpAdapter(List<Dealership> list) {

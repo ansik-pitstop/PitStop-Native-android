@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 case ACTION_DEVICE_ID_INVALID:
                     Log.d(TAG, "Device ID invalid");
                     if (isLoading) hideLoading();
-                    Toast.makeText(MainActivity.this, "Picked car has device!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "This device is already in use and still active.", Toast.LENGTH_SHORT).show();
                     break;
                 case ACTION_PAIRED_DEVICE_WITH_CAR:
                     Log.d(TAG, "Successfully paried device with car");
@@ -472,7 +472,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
-
     }
 
     @Override
