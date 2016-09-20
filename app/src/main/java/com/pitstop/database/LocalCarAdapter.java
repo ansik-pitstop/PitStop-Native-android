@@ -37,7 +37,7 @@ public class LocalCarAdapter {
     private LocalDatabaseHelper databaseHelper;
 
     public LocalCarAdapter(Context context) {
-        databaseHelper = new LocalDatabaseHelper(context);
+        databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
     /**
@@ -200,5 +200,13 @@ public class LocalCarAdapter {
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, car.isCurrentCar() ? 1 : 0);
 
         return values;
+    }
+
+    public void deleteAllRows(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.CAR.TABLE_NAME, null, null);
+
+        db.close();
     }
 }

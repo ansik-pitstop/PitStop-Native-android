@@ -18,6 +18,11 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
+import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalPidAdapter;
+import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
@@ -42,7 +47,16 @@ public class GlobalApplication extends Application {
 
     private static MixpanelAPI mixpanelAPI;
 
-    private UserAdapter userAdapter;
+    /**
+     * Database open helper
+     */
+    private UserAdapter mUserAdapter;
+    private LocalScannerAdapter mLocalScannerAdapter;
+    private LocalCarAdapter mLocalCarAdapter;
+    private LocalCarIssueAdapter mLocalCarIssueAdapter;
+    private LocalPidAdapter mLocalPidAdapter;
+    private LocalShopAdapter mLocalShopAdapter;
+
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -55,7 +69,7 @@ public class GlobalApplication extends Application {
 
         MultiDex.install(this);
 
-        userAdapter = new UserAdapter(this);
+        initiateDatabase();
 
         // Smooch
         Settings settings = new Settings(getString(R.string.smooch_token));
@@ -93,7 +107,7 @@ public class GlobalApplication extends Application {
     }
 
     public void setUpMixPanel(){
-        User user = userAdapter.getUser();
+        User user = mUserAdapter.getUser();
         if(user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
@@ -189,7 +203,7 @@ public class GlobalApplication extends Application {
     }
 
     public User getCurrentUser() {
-        return userAdapter.getUser();
+        return mUserAdapter.getUser();
     }
 
     public boolean isLoggedIn() {
@@ -204,7 +218,7 @@ public class GlobalApplication extends Application {
         editor.putInt(pfUserId, user.getId());
         editor.apply();
 
-        userAdapter.storeUserData(user);
+        mUserAdapter.storeUserData(user);
     }
 
     public void setTokens(String accessToken, String refreshToken) {
@@ -237,7 +251,6 @@ public class GlobalApplication extends Application {
         editor.putString(pfAccessToken, null);
         editor.putString(pfRefreshToken, null);
         editor.putBoolean(pfLoggedIn, false);
-
         editor.apply();
 
         //Reset values about tutorial and fsb
@@ -255,12 +268,36 @@ public class GlobalApplication extends Application {
         // Logout from Smooch for the next login
         Smooch.logout();
 
-        userAdapter.deleteAllUsers();
+        cleanUpDatabase();
     }
 
     public void modifyMixpanelSettings(String field, Object value){
-//        getMixpanelAPI().getPeople().set(settings);
         getMixpanelAPI().getPeople().set(field, value);
+    }
+
+    /**
+     * Initiate database open helper when the app start
+     */
+    private void initiateDatabase(){
+        mUserAdapter = new UserAdapter(this);
+        mLocalScannerAdapter = new LocalScannerAdapter(this);
+        mLocalCarAdapter = new LocalCarAdapter(this);
+        mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
+        mLocalPidAdapter = new LocalPidAdapter(this);
+        mLocalShopAdapter = new LocalShopAdapter(this);
+    }
+
+
+    /**
+     *
+     */
+    private void cleanUpDatabase(){
+        mUserAdapter.deleteAllUsers();
+        mLocalScannerAdapter.deleteAllRows();
+        mLocalPidAdapter.deleteAllRows();
+        mLocalCarAdapter.deleteAllRows();
+        mLocalCarIssueAdapter.deleteAllRows();
+        mLocalShopAdapter.deleteAllRows();
     }
 
 }

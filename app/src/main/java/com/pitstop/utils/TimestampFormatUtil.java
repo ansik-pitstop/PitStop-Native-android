@@ -6,6 +6,10 @@ import java.util.Locale;
 
 /**
  * Created by yifan on 16/8/31.
+ *
+ * <p>The server is using ISO8601 timestamp.</p>
+ * <p>To avoid any potential issue, before we send any timestamp to the server (api calls), format it using
+ * the format method</p>
  */
 public class TimestampFormatUtil {
 

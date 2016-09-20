@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class Car implements Parcelable {
 
+    /**
+     * Car id
+     */
     private int id;
 
     private String make;

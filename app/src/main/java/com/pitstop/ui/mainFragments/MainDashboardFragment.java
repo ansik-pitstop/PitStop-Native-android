@@ -2,6 +2,7 @@ package com.pitstop.ui.mainFragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.CarScanActivity;
@@ -70,6 +72,8 @@ import java.util.concurrent.TimeUnit;
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
         MainActivity.MainDashboardCallback {
 
+    public static String TAG = MainDashboardFragment.class.getSimpleName();
+
     public final static String pfName = "com.pitstop.login.name";
     private final static String pfTutorial = "com.pitstop.tutorial";
     public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
@@ -77,6 +81,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public final static String pfShopName = "com.pitstop.shop.name";
     public final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
+    public final static int MSG_SHOW_SELECT_CAR_DIALOG = 1077;
+    public final static int MSG_UPDATE_CONNECTED_CAR = 1076;
 
     private NetworkHelper networkHelper;
 
@@ -103,6 +109,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private LocalCarAdapter carLocalStore;
     private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
+    private LocalScannerAdapter scannerLocalStore;
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -110,8 +117,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private SharedPreferences sharedPreferences;
 
     private boolean dialogShowing = false;
-
-    public static String TAG = MainDashboardFragment.class.getSimpleName();
 
     private View rootview;
 
@@ -156,11 +161,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
      * Monitor app connection to device, so that ui can be updated
      * appropriately.
      */
-
     public Runnable carConnectedRunnable = new Runnable() {
         @Override
         public void run() {
-            handler.sendEmptyMessage(0);
+            Log.d(TAG, "Scan for cars in MainDashboardFragment");
+            handler.sendEmptyMessage(MSG_UPDATE_CONNECTED_CAR);
         }
     };
 
@@ -171,115 +176,32 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 return;
             }
             final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-            if (msg.what == 0) {
-                if (autoConnectService != null
-                        && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-                        && dashboardCar != null
-                        && dashboardCar.getScannerId() != null
-                        && dashboardCar.getScannerId()
-                        .equals(autoConnectService.getCurrentDeviceId())) {
 
-                    updateConnectedCarIndicator(true);
+            switch (msg.what) {
+                case MSG_UPDATE_CONNECTED_CAR:
+                    Log.d(TAG, "Msg0, BluetoothAutoConnectState: " + autoConnectService.getState());
+                    if (autoConnectService != null
+                            && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
+                            && dashboardCar != null
+                            && dashboardCar.getScannerId() != null
+                            && dashboardCar.getScannerId()
+                            .equals(autoConnectService.getCurrentDeviceId())) {
 
-                } else if (autoConnectService != null
-                        && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-                        && askForCar
-                        && !dialogShowing
-                        && dashboardCar != null
-                        && (dashboardCar.getScannerId() == null || dashboardCar.getScannerId().isEmpty())
-                        && autoConnectService.getCurrentDeviceId() != null
-                        && carLocalStore.getCarByScanner(autoConnectService.getCurrentDeviceId()) == null) {
+                        updateConnectedCarIndicator(true);
+                    } else {
+                        updateConnectedCarIndicator(false);
+                    }
+                    // See if we are connected every 2 seconds
+                    handler.postDelayed(carConnectedRunnable, 2000);
+                    break;
 
-                    final ArrayList<Car> selectedCar = new ArrayList<>(1); // must be final because this is accessed in the inner class
-                    final CarListAdapter carAdapter = new CarListAdapter(MainActivity.carList);
+                case MSG_SHOW_SELECT_CAR_DIALOG:
+                    Log.d(TAG, "Dashboard fragment handler select car message received");
+                    showSelectCarDialog();
+                    break;
 
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-                    dialog.setCancelable(false);
-                    dialog.setTitle("New Module Detected. Please select the car this device is connected to.");
-                    dialog.setSingleChoiceItems(carAdapter, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            selectedCar.clear();
-                            selectedCar.add((Car) carAdapter.getItem(which));
-                        }
-                    });
-                    dialog.setNeutralButton("Add New Car", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(getActivity(), AddCarActivity.class);
-                            getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
-
-                            try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_NEW_CAR, MixpanelHelper.DASHBOARD_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            askForCar = false;
-                            dialog.dismiss();
-                            try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-
-                            if (selectedCar.isEmpty()) {
-                                return;
-                            }
-
-                            networkHelper.createNewScanner(selectedCar.get(0).getId(), autoConnectService.getCurrentDeviceId(),
-                                    new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-                                            if (requestError == null) {
-                                                Toast.makeText(getActivity(), "Device added successfully", Toast.LENGTH_SHORT).show();
-                                                sharedPreferences.edit().putInt(pfCurrentCar, selectedCar.get(0).getId()).commit();
-                                                ((MainActivity) getActivity()).refreshFromServer();
-                                            } else {
-                                                Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-
-                            try{
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DASHBOARD_ALERT_ADD_VIN, MixpanelHelper.DASHBOARD_VIEW);
-                            } catch (JSONException e){
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    });
-
-                    dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    });
-
-                    dialog.show();
-                    dialogShowing = true;
-
-                } else {
-                    updateConnectedCarIndicator(false);
-                }
-                handler.postDelayed(carConnectedRunnable, 2000);
             }
+
         }
     };
 
@@ -313,6 +235,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         carLocalStore = MainActivity.carLocalStore;
         carIssueLocalStore = MainActivity.carIssueLocalStore;
         shopLocalStore = MainActivity.shopLocalStore;
+        scannerLocalStore = MainActivity.scannerLocalStore;
         MainActivity.callback = this;
     }
 
@@ -458,9 +381,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 final CarIssue issue = carIssuesAdapter.getItem(i);
 
                                 //Swipe to start deleting(completing) the selected issue
-                                try{
+                                try {
                                     mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-                                } catch (JSONException e){
+                                } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
 
@@ -539,7 +462,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                     public void onCancel(DialogInterface dialog) {
                                         try {
                                             mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                        + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+                                                    + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -651,6 +574,105 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
+    /**
+     * Show the dialog which ask user which car is he/she sitting in
+     * because we have discovered a unrecognized OBD device and some user cars don't have scanner
+     */
+    private void showSelectCarDialog() {
+        Log.d(TAG, "Prepare to show the select car dialog");
+        final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
+        if (autoConnectService != null
+                // We don't want to show user this dialog multiple times (only once)
+                && askForCar
+                // If the dialog is showing, we don't want it to show twice
+                && !dialogShowing
+                && dashboardCar != null
+                /*&& !scannerLocalStore.deviceNameExists(autoConnectService.getConnectedDeviceName())*/) {
+
+            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
+            final ArrayList<Car> selectedCar = new ArrayList<>(1);
+            final LocalScannerAdapter scannerAdapter = MainActivity.scannerLocalStore;
+
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            dialog.setCancelable(false)
+                    .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
+                    .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            selectedCar.clear();
+                            selectedCar.add((Car) carListAdapter.getItem(which));
+                        }
+                    })
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                            // Check backend for scanner currently connected to
+                            if (selectedCar.isEmpty()) {
+                                Toast.makeText(getContext(), "Please pick a car!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            ((MainActivity) getActivity()).showLoading("Hold on, we are thinking..");
+
+                            // At this point, check if the picked car has scanner;
+                            if(scannerAdapter.carHasDevice(selectedCar.get(0).getId())){
+                                // If yes, notify the user that this car has scanner;
+                                Log.d(TAG, "Picked car already has device linked to it");
+                                Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
+                                return;
+                            } else {
+                                Log.d(TAG, "Picked car lack device");
+                                // If no, then to determine whether if we should link the device and the car,
+                                // we need to connect, get the device id, then validate the device id;
+                                sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
+                            }
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            askForCar = false;
+                            sendCancelPendingDeviceIntent();
+                            dialog.dismiss();
+                        }
+                    })
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            dialogShowing = false;
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            dialogShowing = false;
+                        }
+                    });
+            dialog.show();
+            dialogShowing = true;
+        }
+
+    }
+
+    /**
+     * Inform BACS to connect to the device
+     */
+    private void sendConnectPendingDeviceIntent(int selectedCarId) {
+        Intent connectIntent = new Intent();
+        connectIntent.setAction(BluetoothAutoConnectService.ACTION_CONNECT_PENDING_CAR);
+        connectIntent.putExtra(BluetoothAutoConnectService.EXTRA_SELECTED_CAR_ID, selectedCarId);
+        getActivity().sendBroadcast(connectIntent);
+    }
+
+    /**
+     * Inform BACS to cancel pending device
+     */
+    private void sendCancelPendingDeviceIntent(){
+        Intent cancelIntent = new Intent();
+        cancelIntent.setAction(BluetoothAutoConnectService.ACTION_CANCEL_PENDING_DEVICE);
+        getActivity().sendBroadcast(cancelIntent);
+    }
+
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.DISCONNECTED) {
@@ -740,6 +762,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
         dashboardCar = carList.get(0);
     }
+
 
     /**
      * Issues list view

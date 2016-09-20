@@ -410,6 +410,16 @@ public class NetworkHelper {
         postNoAuth("scan/pids", callback, body);
     }
 
+    /**
+     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
+     * @param userId
+     * @param carId
+     * @param shopId
+     * @param comments
+     * @param date
+     * @param tentative
+     * @param callback
+     */
     public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
                                RequestCallback callback) {
         LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
@@ -440,7 +450,7 @@ public class NetworkHelper {
      * @param carId
      * @param shopId
      * @param state                for now valid values are ["tentative","requested"]
-     * @param appointmentTimestamp e.g. 2016-08-31T20:43:25+00:00
+     * @param appointmentTimestamp ISO8601 format, e.g. 2016-08-31T20:43:25+00:00
      * @param callback
      */
     public void requestService(int userId, int carId, int shopId, String state, String appointmentTimestamp,
@@ -453,13 +463,17 @@ public class NetworkHelper {
             body.put("userId", userId);
             body.put("carId", carId);
             body.put("shopId", shopId);
-//            body.put("comments", comments);
-            if (state == ServiceRequestUtil.STATE_TENTATIVE){
-                body.put("comments", "");
-                options.put("salesPerson", comments);
-            } else {
-                body.put("comments", comments);
-            }
+
+//            if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)){
+//                body.put("comments", "");
+//                options.put("salesPerson", comments);
+//            } else {
+//                body.put("comments", comments);
+//            }
+
+            // If the state is tentative, we don't give user another field to put comments, so we just put "";
+            // comments will be the salesPerson's name in this case
+            body.put("comments", ServiceRequestUtil.STATE_TENTATIVE.equals(state) ? "": comments);
             options.put("state", state);
             options.put("appointmentDate", appointmentTimestamp);
             body.put("options", options);
@@ -468,6 +482,21 @@ public class NetworkHelper {
         }
 
         post("utility/serviceRequest", callback, body);
+
+        // If state is tentative, we put salesPerson to another endpoint
+        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)){
+            JSONObject updateSalesman = new JSONObject();
+            try{
+                updateSalesman.put("carId", carId);
+                updateSalesman.put("salesPerson", comments);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+            // It's cumbersome to add callback to this endpoint because it returns nothing meaningful
+            // (unless it returns error)
+            put("car", null, updateSalesman);
+        }
+
     }
 
 
@@ -518,21 +547,6 @@ public class NetworkHelper {
         }
     }
 
-//    public void setMainCar(int userId, int carId, RequestCallback callback) {
-//        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
-//
-//        JSONObject body = new JSONObject();
-//
-//        try {
-//            body.put("settings", new JSONObject().put("mainCar", carId));
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        put("user/" + userId + "/settings", callback, body);
-//    }
-
-    //In master dev
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
@@ -624,6 +638,11 @@ public class NetworkHelper {
         }
         //PUT /user/{userId}/settings
         put("user/" + userId + "/settings", callback, settings);
+    }
+
+    public void validateScannerId(String scannerId, RequestCallback callback){
+        LOGI(TAG, "validate scanner id: " + scannerId);
+        get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
 }
