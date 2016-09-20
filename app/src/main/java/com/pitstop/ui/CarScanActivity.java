@@ -633,7 +633,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO potentially mixpanel
                         dialog.cancel();
                     }
                 })
@@ -843,7 +842,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             int seconds = (int) (timeDiff / 1000);
 
             //TODO change back to 30 seconds
-            if (seconds > 0.0001 && !result5Retrieved) {
+            if (seconds > 30 && !result5Retrieved) {
                 result5Retrieved = true;
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);
