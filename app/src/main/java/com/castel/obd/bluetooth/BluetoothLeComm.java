@@ -246,7 +246,8 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     @Override
     public void manuallyDisconnectCurrentDevice() {
-        // TODO: 16/9/19 See how to disconnect on ble 
+        // TODO: 16/9/19 See how to disconnect on ble
+        Log.d(TAG, "YIFAN LOGIC - Manually disconnect current device called!");
         mGatt.close();
     }
 

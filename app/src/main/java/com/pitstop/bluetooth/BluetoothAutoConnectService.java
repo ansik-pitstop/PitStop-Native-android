@@ -60,6 +60,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -581,6 +582,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             Log.d(TAG, "Network error occurred");
                             Log.d(TAG, requestError.toString());
                             notifyUserMainActivity(MainActivity.ACTION_NETWORK_ERROR);
+                            // TODO: 16/9/21 Where we suspect the problem coule be located
                             Log.d(TAG, "Manually Disconnect");
                             bluetoothCommunicator.manuallyDisconnectCurrentDevice();
                         } else {

@@ -111,6 +111,7 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_GET_RTC = "Getting RTC";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
+    public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
 
     /**
      * Main Activity

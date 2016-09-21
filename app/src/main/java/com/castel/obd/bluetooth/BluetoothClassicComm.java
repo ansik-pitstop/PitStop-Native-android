@@ -267,6 +267,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     @Override
     public void manuallyDisconnectCurrentDevice() {
+        Log.d(TAG, "YIFAN LOGIC - Manually disconnect current device called!");
         btConnectionState = DISCONNECTED;
         mBluetoothChat.closeConnect();
         mBluetoothChat = new BluetoothChat(mHandler);

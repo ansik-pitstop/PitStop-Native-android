@@ -433,6 +433,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void carSuccessfullyAdded(Car car) {
+        if (!addingCar) return;
+
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
@@ -453,6 +455,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void resetScreen() {
+        if (!addingCar) return;
+
         if (mPager.getCurrentItem() == 1) {
             if (findViewById(R.id.VIN) != null) {
                 ((EditText) findViewById(R.id.VIN)).setText("");
@@ -465,6 +469,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void openRetryDialog() {
+        if (!addingCar) return;
+
         hideLoading(null);
 
         if (isFinishing()) { // You don't want to add a dialog to a finished activity
@@ -511,6 +517,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void postMileageInput() {
+        if (!addingCar) return;
+
         mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
         mPagerAdapter.notifyDataSetChanged();
