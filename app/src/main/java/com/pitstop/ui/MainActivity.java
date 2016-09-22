@@ -94,64 +94,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String TAG = MainActivity.class.getSimpleName();
 
     /**
-     * Used in communication between MainActivity and BluetoothAutoConnectService
+     * Used in communication between MainActivity and BluetoothAutoConnectService<br>
+     * Action for intents
      */
     public static final String ACTION_OBD_DEVICE_DISCOVERED = "Obd - discovered";
     public static final String ACTION_DEVICE_ID_INVALID = "Obd - device id invalid";
     public static final String ACTION_PAIRED_DEVICE_WITH_CAR = "Obd - paired device with car";
     public static final String ACTION_NETWORK_ERROR = "Network error happened";
 
-    public static List<Car> carList = new ArrayList<>();
-    private List<CarIssue> carIssueList = new ArrayList<>();
-
-    private ProgressDialog progressDialog;
-
-    public static LocalCarAdapter carLocalStore;
-    public static LocalCarIssueAdapter carIssueLocalStore;
-    public static LocalShopAdapter shopLocalStore;
-    public static LocalScannerAdapter scannerLocalStore;
-
-    public static final int RC_ADD_CAR = 50;
-    public static final int RC_SCAN_CAR = 51;
-    public static final int RC_SETTINGS = 52;
-    public static final int RC_DISPLAY_ISSUE = 53;
-    public static final String FROM_NOTIF = "from_notfftfttfttf";
-
-    public static final int RC_ENABLE_BT = 102;
-    public static final int RESULT_OK = 60;
-
-    public static final String CAR_EXTRA = "car";
-    public static final String CAR_ISSUE_EXTRA = "car_issue";
-    public static final String CAR_LIST_EXTRA = "car_list";
-    public static final String HAS_CAR_IN_DASHBOARD = "has_car";
-    public static final String REFRESH_FROM_SERVER = "_server";
-    public static final String FROM_ACTIVITY = "from_activity";
-    private final static String pfTutorial = "com.pitstop.tutorial";
-
-    public static final int LOC_PERM_REQ = 112;
-    public static final int RC_LOCATION_PERM = 101;
-    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION};
-
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private CharSequence mDrawerTitle = "Your Vehicles";
-    private CharSequence mTitle = "Pitstop";
-    private MixpanelHelper mixpanelHelper;
-    private Toolbar toolbar;
-    private MainAppViewPager viewPager;
-    private TabLayout tabLayout;
-    private Car dashboardCar;
     private GlobalApplication application;
-
-    private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
-
-    private NetworkHelper networkHelper;
-    public static MainDashboardCallback callback;
-    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
-
-    private boolean isLoading = false;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
     private Intent serviceIntent;
@@ -186,6 +137,59 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             autoConnectService = null;
         }
     };
+
+    // Model
+    public static List<Car> carList = new ArrayList<>();
+    private List<CarIssue> carIssueList = new ArrayList<>();
+    private Car dashboardCar;
+
+    // Database accesses
+    public static LocalCarAdapter carLocalStore;
+    public static LocalCarIssueAdapter carIssueLocalStore;
+    public static LocalShopAdapter shopLocalStore;
+    public static LocalScannerAdapter scannerLocalStore;
+
+    public static final int RC_ADD_CAR = 50;
+    public static final int RC_SCAN_CAR = 51;
+    public static final int RC_SETTINGS = 52;
+    public static final int RC_DISPLAY_ISSUE = 53;
+    public static final String FROM_NOTIF = "from_notfftfttfttf";
+
+    public static final int RC_ENABLE_BT = 102;
+    public static final int RESULT_OK = 60;
+
+    public static final String CAR_EXTRA = "car";
+    public static final String CAR_ISSUE_EXTRA = "car_issue";
+    public static final String CAR_LIST_EXTRA = "car_list";
+    public static final String HAS_CAR_IN_DASHBOARD = "has_car";
+    public static final String REFRESH_FROM_SERVER = "_server";
+    public static final String FROM_ACTIVITY = "from_activity";
+
+    public static final int LOC_PERM_REQ = 112;
+    public static final int RC_LOCATION_PERM = 101;
+    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION};
+
+    // Views
+    private Toolbar toolbar;
+    private CharSequence mTitle = "Pitstop";
+    private CharSequence mDrawerTitle = "Your Vehicles";
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private MainAppViewPager viewPager;
+    private TabLayout tabLayout;
+    private ProgressDialog progressDialog;
+    private boolean isLoading = false;
+    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
+
+    // Utils / Helper
+    private MixpanelHelper mixpanelHelper;
+    private NetworkHelper networkHelper;
+
+    private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
+
+    public static MainDashboardCallback callback;
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -1087,6 +1091,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
+
     public void navigateToDealer(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
@@ -1336,6 +1341,33 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         });
     }
 
+    /**
+     * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
+     */
+    private void showPairDeviceWithCarDialog() {
+        Log.d(TAG, "Dashboard fragment handler select car message sent");
+        mDashboardFragment.selectCarForUnrecognizedModule();
+    }
+
+    /**
+     * Register all actions, invoked at onStart()
+     */
+    private void registerBroadcastReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_OBD_DEVICE_DISCOVERED);
+        intentFilter.addAction(ACTION_DEVICE_ID_INVALID);
+        intentFilter.addAction(ACTION_PAIRED_DEVICE_WITH_CAR);
+        intentFilter.addAction(ACTION_NETWORK_ERROR);
+        this.registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    /**
+     * unregister broadcast receiver, invoked at onStop()
+     */
+    private void unregisterBroadcastReceiver() {
+        this.unregisterReceiver(mBroadcastReceiver);
+    }
+
     public interface MainDashboardCallback {
         void activityResultCallback(int requestCode, int resultCode, Intent data);
 
@@ -1346,28 +1378,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setDashboardCar(List<Car> carList);
 
         void setCarDetailsUI();
-    }
 
-    /**
-     * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
-     */
-    private void showPairDeviceWithCarDialog() {
-        Log.d(TAG, "Dashboard fragment handler select car message sent");
-        mDashboardFragment.handler.sendEmptyMessage(MainDashboardFragment.MSG_SHOW_SELECT_CAR_DIALOG);
+        void selectCarForUnrecognizedModule();
     }
-
-    private void registerBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_OBD_DEVICE_DISCOVERED);
-        intentFilter.addAction(ACTION_DEVICE_ID_INVALID);
-        intentFilter.addAction(ACTION_PAIRED_DEVICE_WITH_CAR);
-        intentFilter.addAction(ACTION_NETWORK_ERROR);
-        this.registerReceiver(mBroadcastReceiver, intentFilter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        this.unregisterReceiver(mBroadcastReceiver);
-    }
-
 
 }

@@ -28,7 +28,7 @@ import com.pitstop.ui.addCarFragments.AddCar1Fragment;
 import com.pitstop.ui.addCarFragments.AddCar2NoDongleFragment;
 import com.pitstop.ui.addCarFragments.AddCar2YesDongleFragment;
 import com.pitstop.ui.addCarFragments.AddCarChooseDealershipFragment;
-import com.pitstop.ui.addCarFragments.AddCarMilageDialog;
+import com.pitstop.ui.addCarFragments.AddCarMileageDialog;
 import com.pitstop.ui.addCarFragments.AddCarUtils;
 import com.pitstop.models.Car;
 import com.pitstop.R;
@@ -233,7 +233,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
                 if (!AddCarUtils.gotMileage) {
-                    AddCarMilageDialog dialog = new AddCarMilageDialog();
+                    AddCarMileageDialog dialog = new AddCarMileageDialog();
                     dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
                 } else {
                     postMileageInput();
@@ -249,7 +249,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
             if (!AddCarUtils.gotMileage) {
-                AddCarMilageDialog dialog = new AddCarMilageDialog();
+                AddCarMileageDialog dialog = new AddCarMileageDialog();
                 dialog.setCallback(addCarUtils).show(getSupportFragmentManager(), "Input Milage");
             } else {
                 postMileageInput();

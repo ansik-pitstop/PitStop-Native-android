@@ -7,23 +7,20 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.pitstop.R;
 
 /**
  * Created by david on 7/21/2016.
  */
-public class AddCarMilageDialog extends DialogFragment {
+public class AddCarMileageDialog extends DialogFragment {
 
     AddCarUtils utils;
 
-    public AddCarMilageDialog setCallback(AddCarUtils utils) {
+    public AddCarMileageDialog setCallback(AddCarUtils utils) {
         this.utils = utils;
         return this;
     }
@@ -75,7 +72,7 @@ public class AddCarMilageDialog extends DialogFragment {
                             public void onClick(View v) {
                                 InputMethodManager imm = (InputMethodManager) utils.callback.getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(mileageEditText.getWindowToken(), 0);
-                                AddCarMilageDialog.this.getDialog().cancel();
+                                AddCarMileageDialog.this.getDialog().cancel();
                                 utils.cancelUpdateMileage();
                             }
                         });

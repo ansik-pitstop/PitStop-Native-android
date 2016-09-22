@@ -1008,22 +1008,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     break;
 
                 case HANDLER_MSG_GET_DTC:
-                    // TODO: 16/9/21 Do things when timeout, also track in mixpanel
-                    Log.i(TAG, "Getting DTCs timeout");
-                    Log.i(TAG, "Adding car");
-                    if (NetworkHelper.isConnected(mAddCarUtils.context)) {
-                        Log.i(TAG, "Internet connection found");
-                        mAddCarUtils.runVinTask();
-                    } else {
-                        Log.i(TAG, "No internet");
-                        mAddCarUtils.callback.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAddCarUtils.callback.hideLoading(null);
-                                mAddCarUtils.startPendingAddCarActivity();
-                            }
-                        });
-                    }
+                    mAddCarUtils.mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS_TIMEOUT,
+                            MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+                    // If getting DTCs timeout, for the sake of keeping good UX, we skip it
+                    PreferenceManager.getDefaultSharedPreferences(mAddCarUtils.context).edit().putInt(MainDashboardFragment.pfCurrentCar,
+                            mAddCarUtils.createdCar.getId()).commit();
+                    mAddCarUtils.networkHelper.setMainCar(mAddCarUtils.context.getCurrentUserId(), mAddCarUtils.createdCar.getId(), null);
+                    mAddCarUtils.callback.carSuccessfullyAdded(mAddCarUtils.createdCar);
                     break;
             }
         }

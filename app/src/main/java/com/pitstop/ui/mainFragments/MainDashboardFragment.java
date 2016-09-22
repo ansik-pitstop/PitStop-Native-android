@@ -2,7 +2,6 @@ package com.pitstop.ui.mainFragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -75,21 +74,18 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
     public final static String pfName = "com.pitstop.login.name";
-    private final static String pfTutorial = "com.pitstop.tutorial";
     public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
     public final static String pfCurrentCar = "ccom.pitstop.currentcar";
     public final static String pfShopName = "com.pitstop.shop.name";
     public final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
-    public final static int MSG_SHOW_SELECT_CAR_DIALOG = 1077;
     public final static int MSG_UPDATE_CONNECTED_CAR = 1076;
 
-    private NetworkHelper networkHelper;
-
+    // Views
+    private View rootview;
     private RecyclerView carIssueListView;
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
-
     private ImageView connectedCarIndicator;
     private ImageView serviceCountBackground;
     private LinearLayout dealershipLayout;
@@ -98,27 +94,27 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private RelativeLayout addressLayout, phoneNumberLayout;
     private Toolbar toolbar;
     private TextView serviceCountText;
-
     private TextView carName, dealershipName;
     private RelativeLayout carScan;
     private Button requestServiceButton;
+    private boolean dialogShowing = false;
 
+    // Models
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
+    // Database accesses
     private LocalCarAdapter carLocalStore;
     private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
     private LocalScannerAdapter scannerLocalStore;
 
     private GlobalApplication application;
-    private MixpanelHelper mixpanelHelper;
-
     private SharedPreferences sharedPreferences;
 
-    private boolean dialogShowing = false;
-
-    private View rootview;
+    // Utils / Helper
+    private NetworkHelper networkHelper;
+    private MixpanelHelper mixpanelHelper;
 
     private class CarListAdapter extends BaseAdapter {
         private List<Car> ownedCars;
@@ -194,12 +190,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     // See if we are connected every 2 seconds
                     handler.postDelayed(carConnectedRunnable, 2000);
                     break;
-
-                case MSG_SHOW_SELECT_CAR_DIALOG:
-                    Log.d(TAG, "Dashboard fragment handler select car message received");
-                    showSelectCarDialog();
-                    break;
-
             }
 
         }
@@ -488,36 +478,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         super.onViewCreated(view, savedInstanceState);
     }
 
-    public void onServerRefreshed() {
-        if (getActivity() != null) {
-            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
-        }
-    }
-
-    public void onLocalRefreshed() {
-        if (getActivity() != null) {
-            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
-        }
-    }
-
-    /**
-     * Update ui with current car info
-     * And retrieve available car issues
-     */
-    public void setCarDetailsUI() {
-        if (dashboardCar == null) {
-            return;
-        }
-        setDealership();
-        populateCarIssuesAdapter();
-
-        if (carName != null) {
-            carName.setText(dashboardCar.getYear() + " "
-                    + dashboardCar.getMake() + " "
-                    + dashboardCar.getModel());
-            setIssuesCount();
-        }
-    }
 
     private void setIssuesCount() { // sets the number of active issues to display
         int total = dashboardCar.getActiveIssues().size();
@@ -673,37 +633,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         getActivity().sendBroadcast(cancelIntent);
     }
 
-    @Override
-    public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED) {
-            Log.i(TAG, "Bluetooth disconnected");
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
-    }
-
     private void populateCarIssuesAdapter() {
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) " + dashboardCar.getId());
@@ -746,23 +675,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
 
     }
-
-    public void setDashboardCar(List<Car> carList) {
-        if (getActivity() == null) {
-            return;
-        }
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
-
-        for (Car car : carList) {
-            if (car.getId() == currentCarId) {
-                dashboardCar = car;
-                return;
-            }
-        }
-        dashboardCar = carList.get(0);
-    }
-
 
     /**
      * Issues list view
@@ -883,6 +795,43 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     }
 
+
+    // From ObdManager.IBluetoothDataListener
+
+    @Override
+    public void getBluetoothState(int state) {
+        if (state == IBluetoothCommunicator.DISCONNECTED) {
+            Log.i(TAG, "Bluetooth disconnected");
+        }
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+    }
+
+    @Override
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+    }
+
+    @Override
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        if (loginPackageInfo.flag.
+                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            Log.i(TAG, "Device logout");
+        }
+    }
+
+
+    // From MainActivity.MainDashboardCallback
+
     @Override
     public void activityResultCallback(int requestCode, int resultCode, Intent data) {
         boolean shouldRefreshFromServer = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER, false);
@@ -897,6 +846,62 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             }
         }
 
+    }
+
+    @Override
+    public void onServerRefreshed() {
+        if (getActivity() != null) {
+            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
+        }
+    }
+
+    @Override
+    public void onLocalRefreshed() {
+        if (getActivity() != null) {
+            carIssueList = ((MainActivity) getActivity()).getCarIssueList();
+        }
+    }
+
+    @Override
+    public void setDashboardCar(List<Car> carList) {
+        if (getActivity() == null) {
+            return;
+        }
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
+
+        for (Car car : carList) {
+            if (car.getId() == currentCarId) {
+                dashboardCar = car;
+                return;
+            }
+        }
+        dashboardCar = carList.get(0);
+    }
+
+    /**
+     * Update ui with current car info
+     * And retrieve available car issues
+     */
+    @Override
+    public void setCarDetailsUI() {
+        if (dashboardCar == null) {
+            return;
+        }
+        setDealership();
+        populateCarIssuesAdapter();
+
+        if (carName != null) {
+            carName.setText(dashboardCar.getYear() + " "
+                    + dashboardCar.getMake() + " "
+                    + dashboardCar.getModel());
+            setIssuesCount();
+        }
+    }
+
+    @Override
+    public void selectCarForUnrecognizedModule() {
+        showSelectCarDialog();
     }
 
 }
