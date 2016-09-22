@@ -72,7 +72,15 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
-        Settings settings = new Settings(getString(R.string.smooch_token));
+        Settings settings;
+
+        if (BuildConfig.DEBUG){
+            settings = new Settings(getString(R.string.smooch_token_debug));
+        }else {
+            settings = new Settings(getString(R.string.smooch_token));
+        }
+
+
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
         Smooch.init(this, settings);
 

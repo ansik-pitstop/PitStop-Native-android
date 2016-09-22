@@ -1,7 +1,5 @@
 package com.pitstop.utils;
 
-import android.app.Activity;
-
 import com.pitstop.BuildConfig;
 import com.pitstop.models.User;
 import com.pitstop.application.GlobalApplication;
@@ -24,6 +22,9 @@ public class MixpanelHelper {
     public static final String EVENT_SCROLLED_IN_VIEW = "Scrolled in View";
     public static final String EVENT_SCAN_COMPLETED = "Scan Complete";
     public static final String EVENT_ADD_CAR_PROCESS = "Add Car Process";
+    public static final String EVENT_ALERT_APPEARED = "Alert Appeared";
+    public static final String EVENT_PAIR_UNRECOGNIZED_MODULE = "Pair Unrecognized Module";
+
 
     /**
      * General Button
@@ -157,6 +158,15 @@ public class MixpanelHelper {
      */
     public static final String SETTINGS_VIEW = "Settings";
 
+    /**
+     * Detect unrecognized module
+     */
+    public static final String UNRECOGNIZED_MODULE_FOUND = "Found Unrecognized Module";
+    public static final String UNRECOGNIZED_MODULE_NETWORK_ERROR = "Network Error";
+    public static final String UNRECOGNIZED_MODULE_INVALID_ID = "Invalid ID";
+    public static final String UNRECOGNIZED_MODULE_PAIRING_SUCCESS = "Paring Success";
+    public static final String UNRECOGNIZED_MODULE_VIEW = "Unrecognized Module Detected";
+    public static final String UNRECOGNIZED_MODULE_STATUS = "Status";
 
 
     private GlobalApplication application;
@@ -166,14 +176,14 @@ public class MixpanelHelper {
     }
 
     public void trackAppStatus(String value) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
         json.put("Status", value);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("App Status", json);
@@ -181,7 +191,7 @@ public class MixpanelHelper {
     }
 
     public void trackViewAppeared(String value) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
@@ -189,7 +199,7 @@ public class MixpanelHelper {
         json.put("View", value);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("View Appeared", json);
@@ -197,7 +207,7 @@ public class MixpanelHelper {
     }
 
     public void trackConnectionStatus(String value) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
@@ -205,7 +215,7 @@ public class MixpanelHelper {
         json.put("Status", value);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("Peripheral Connection Status", json);
@@ -213,7 +223,7 @@ public class MixpanelHelper {
     }
 
     public void trackButtonTapped(String value, String view) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}");
@@ -222,7 +232,7 @@ public class MixpanelHelper {
         json.put("View", view);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("Button Tapped", json);
@@ -230,7 +240,7 @@ public class MixpanelHelper {
     }
 
     public void trackScrolledInView(String view) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
@@ -238,7 +248,7 @@ public class MixpanelHelper {
         json.put("View", view);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("Scrolled in View", json);
@@ -246,7 +256,7 @@ public class MixpanelHelper {
     }
 
     public void trackCarAdded(String view, String mileage, String method) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
@@ -258,7 +268,7 @@ public class MixpanelHelper {
         json.put("Method of Adding Car", method);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
 //        application.getMixpanelAPI().track("Button Tapped", json);
@@ -266,7 +276,7 @@ public class MixpanelHelper {
     }
 
     public void trackMigrationProgress(String status, int userId) throws JSONException {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        JSONObject json = new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}");
@@ -275,25 +285,24 @@ public class MixpanelHelper {
         json.put("UserId", userId);
 //        json.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
         application.getMixpanelAPI().track("Migration Status", json);
     }
 
     /**
-     *
      * @param event
      * @param properties
      * @throws JSONException
      */
-    public void trackCustom(String event, JSONObject properties) throws JSONException{
-        if(BuildConfig.DEBUG) {
+    public void trackCustom(String event, JSONObject properties) throws JSONException {
+        if (BuildConfig.DEBUG) {
             return;
         }
 //        properties.put("Device", "Android");
         User user = application.getCurrentUser();
-        if(application.getCurrentUser() != null) {
+        if (application.getCurrentUser() != null) {
             properties.put("Username", user.getEmail());
         }
         application.getMixpanelAPI().track(event, properties);
@@ -302,15 +311,51 @@ public class MixpanelHelper {
     /**
      * <p>Track add car steps</p>
      * Error handling predefined (print stack trace). If you want to handle the error yourself, see {@link #trackCustom(String, JSONObject)}
+     *
      * @param step
      * @param result
      */
-    public void trackAddCarProcess(String step, String result){
+    public void trackAddCarProcess(String step, String result) {
         try {
             JSONObject properties = new JSONObject();
-            properties.put(MixpanelHelper.ADD_CAR_STEP, step)
-                    .put(MixpanelHelper.ADD_CAR_STEP_RESULT, result);
-            trackCustom(MixpanelHelper.EVENT_ADD_CAR_PROCESS, properties);
+            properties.put(ADD_CAR_STEP, step)
+                    .put(ADD_CAR_STEP_RESULT, result);
+            trackCustom(EVENT_ADD_CAR_PROCESS, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Track steps of pairing car with unrecognized module.<br>
+     * Error handling predefined (print stack trace). If you want to handle the error yourself, see {@link #trackCustom(String, JSONObject)}
+     *
+     * @param status status of paring
+     */
+    public void trackDetectUnrecognizedModule(String status) {
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(UNRECOGNIZED_MODULE_STATUS, status);
+            trackCustom(EVENT_PAIR_UNRECOGNIZED_MODULE, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*add event called ?Alert Appeared? which would show up everytime an alert or toast message pops up.
+    parameters are ?Alert Name? which is the name/message of the alert/toast and ?View? which is the view the alert/toast appeared in*/
+
+    /**
+     * Track event called ?Alert Appeared? which would show up every time an alert or toast message pops up. <br>
+     * @param alertName
+     * @param view
+     */
+    public void trackAlertAppeared(String alertName, String view) {
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put("Alert Name", alertName)
+                    .put("View", view);
+            trackCustom(EVENT_ALERT_APPEARED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -625,7 +625,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private void sendObdDeviceDiscoveredIntent(){
         Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_OBD_DEVICE_DISCOVERED);
+        intent.setAction(MainActivity.ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED);
         // This intent will be observed by the MainActivity.
         mContext.sendBroadcast(intent);
     }

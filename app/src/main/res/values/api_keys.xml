@@ -6,6 +6,7 @@
     <string name="parse_appID_dev">ZYOmoKuYsa2LtOKPnBW7dGLNpYbYhZGHb6EBfl3S</string>
     <string name="parse_clientID_dev">xrxqVtdLZP9QBa7eXx7ZVizrlFRHqmU5UGzcNfVB</string>
     <string name="smooch_token">0xs5j98mds1x8mn77ptw4knc5</string>
+    <string name="smooch_token_debug">5ne26uy9j2g92krka9h7jhwxx</string>
     <string name="dev_mixpanel_api_token">330c942ffad6819253501447810ad761</string>
     <string name="prod_mixpanel_api_token">02b8b23d15c94812afac29c9513f0008</string>
     <string name="facebook_app_id">364948730344806</string>

@@ -957,7 +957,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
     }
 
-    // TODO: 16/9/21 Test original Handler first, before using this one
+    // Figure out why
     private static class AddCarUtilsHandler extends Handler {
 
         private final WeakReference<AddCarUtils> mReference;

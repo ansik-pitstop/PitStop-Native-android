@@ -11,11 +11,13 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -34,6 +36,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -97,10 +100,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Used in communication between MainActivity and BluetoothAutoConnectService<br>
      * Action for intents
      */
-    public static final String ACTION_OBD_DEVICE_DISCOVERED = "Obd - discovered";
-    public static final String ACTION_DEVICE_ID_INVALID = "Obd - device id invalid";
-    public static final String ACTION_PAIRED_DEVICE_WITH_CAR = "Obd - paired device with car";
-    public static final String ACTION_NETWORK_ERROR = "Network error happened";
+    public static final String ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED = "Obd - discovered";
+    public static final String ACTION_PAIRING_MODULE_ID_INVALID = "Obd - device id invalid";
+    public static final String ACTION_PAIRING_MODULE_SUCCESS = "Obd - paired device with car";
+    public static final String ACTION_PAIRING_MODULE_NETWORK_ERROR = "Network error happened";
 
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
@@ -196,25 +199,33 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             switch (action) {
-                case ACTION_OBD_DEVICE_DISCOVERED:
+                case ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED:
                     Log.d(TAG, "OBD device discovered intent received!");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
                     viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
                     showPairDeviceWithCarDialog();
                     break;
-                case ACTION_NETWORK_ERROR:
+                case ACTION_PAIRING_MODULE_NETWORK_ERROR:
                     Log.d(TAG, "Network error occurred");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
                     if (isLoading) hideLoading();
-                    Toast.makeText(MainActivity.this, "Sorry, some network error occurred.", Toast.LENGTH_SHORT).show();
+                    showSimpleMessage("Sorry, some network error occurred.", false);
                     break;
-                case ACTION_DEVICE_ID_INVALID:
+                case ACTION_PAIRING_MODULE_ID_INVALID:
                     Log.d(TAG, "Device ID invalid");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
                     if (isLoading) hideLoading();
-                    Toast.makeText(MainActivity.this, "This device is already in use and still active.", Toast.LENGTH_SHORT).show();
+                    showSimpleMessage("This device belongs to another vehicle.", false);
                     break;
-                case ACTION_PAIRED_DEVICE_WITH_CAR:
+                case ACTION_PAIRING_MODULE_SUCCESS:
                     Log.d(TAG, "Successfully paried device with car");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
                     if (isLoading) hideLoading();
-                    Toast.makeText(MainActivity.this, "OK, we have linked the device with your car!", Toast.LENGTH_SHORT).show();
+                    showSimpleMessage("OK, we have linked the device with your car!", true);
                     refreshFromServer();
                     break;
             }
@@ -872,7 +883,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                         // Populate the scanner table
                                         for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
-                                            if (!scannerLocalStore.isCarExist(car.getId())){
+                                            if (!scannerLocalStore.isCarExist(car.getId())) {
                                                 scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
                                                 Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
                                             }
@@ -993,6 +1004,34 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (!progressDialog.isShowing()) {
             progressDialog.show();
         }
+    }
+
+    /**
+     * Create and show an snackbar that is used to show users some information.<br>
+     * The purpose of this method is to display message that requires user's confirm to be dismissed.
+     *
+     * @param content snack bar message
+     */
+    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
+                .setAction("OK", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // DO nothing
+                    }
+                })
+                .setActionTextColor(Color.WHITE);
+        View snackBarView = snackbar.getView();
+        if (isSuccess) {
+            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
+        } else {
+            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
+        }
+        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
+
+        snackbar.show();
+
     }
 
     /**
@@ -1342,9 +1381,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Invoked when broadcast receiver receives ACTION_OBD_DEVICE_DISCOVERED intnet
+     * Invoked when broadcast receiver receives ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED intnet
      */
     private void showPairDeviceWithCarDialog() {
+        try {
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Log.d(TAG, "Dashboard fragment handler select car message sent");
         mDashboardFragment.selectCarForUnrecognizedModule();
     }
@@ -1354,10 +1398,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void registerBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_OBD_DEVICE_DISCOVERED);
-        intentFilter.addAction(ACTION_DEVICE_ID_INVALID);
-        intentFilter.addAction(ACTION_PAIRED_DEVICE_WITH_CAR);
-        intentFilter.addAction(ACTION_NETWORK_ERROR);
+        intentFilter.addAction(ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_ID_INVALID);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_SUCCESS);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_NETWORK_ERROR);
         this.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 

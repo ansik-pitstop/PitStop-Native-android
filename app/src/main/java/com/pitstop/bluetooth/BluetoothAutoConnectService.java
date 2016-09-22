@@ -34,7 +34,6 @@ import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
-import com.google.gson.Gson;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalScannerAdapter;
@@ -60,7 +59,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -581,7 +579,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         if (requestError != null) {
                             Log.d(TAG, "Network error occurred");
                             Log.d(TAG, requestError.toString());
-                            notifyUserMainActivity(MainActivity.ACTION_NETWORK_ERROR);
+                            notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_NETWORK_ERROR);
                             // TODO: 16/9/21 Where we suspect the problem coule be located
                             Log.d(TAG, "Manually Disconnect");
                             bluetoothCommunicator.manuallyDisconnectCurrentDevice();
@@ -591,7 +589,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 if (result.has("id")) { //invalid
                                     Log.d(TAG, "DeviceID is not valid");
                                     // Notify the user about why we cannot connect to this device
-                                    notifyUserMainActivity(MainActivity.ACTION_DEVICE_ID_INVALID);
+                                    notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_ID_INVALID);
                                     // We've connected to device we aren't supposed to (in order to get the device ID and validate it)
                                     // So after we found out that device is not valid (currently active and in use), we should disconnect
                                     Log.d(TAG, "Manually Disconnect");
@@ -612,7 +610,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                         // After we created a new scanner on he backend, save scanner locally
                                                         saveScanner();
                                                         // Successfully created scanner (linking car with scanner)
-                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRED_DEVICE_WITH_CAR);
+                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_SUCCESS);
                                                     }
                                                 }
                                             });
