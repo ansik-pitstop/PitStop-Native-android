@@ -185,6 +185,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             getVinFromCar();
                         }
                     };
+                    testTimer.start();
                 } else { // vin not retrievable
                     sendMessageToUi(MessageListener.STATUS_FAILED, "Could not verify device sync");
                     listenForPids();
@@ -204,6 +205,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
+        Log.v(TAG, "dtcData: " + dataPackageInfo.dtcData);
+
         if(state == State.READ_PIDS && dataPackageInfo.result == 5
                 && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
             Log.i(TAG, "PID Success");
@@ -255,6 +258,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 listenForDtcs();
             }
         };
+        testTimer.start();
     }
 
     // test dtcs for 20 seconds
@@ -263,7 +267,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(testTimer != null) {
             testTimer.cancel();
         }
-        testTimer = new TestTimer(8000) {
+        testTimer = new TestTimer(15000) {
             @Override
             public void onFinish() {
                 if(dtcSuccess) {
@@ -275,6 +279,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 getVinFromCar();
             }
         };
+        testTimer.start();
     }
 
     private void sendMessageToUi(int status, String message) {
@@ -297,6 +302,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""));
         if (bluetoothCommunicator == null) {
             bluetoothCommunicator = new BluetoothClassicComm(this);
+            bluetoothCommunicator.setBluetoothDataListener(this);
         }
         bluetoothCommunicator.startScan();
     }
