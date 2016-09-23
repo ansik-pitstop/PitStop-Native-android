@@ -254,9 +254,12 @@ public class ServiceRequestUtil {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         try {
-                            mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                            + "','Device':'Android','Number of Services Requested':'" + dashboardCar.getActiveIssues().size() + "'}"));
+                            JSONObject properties = new JSONObject();
+                            properties.put("Button", "Confirm Service Request");
+                            properties.put("View", TAG);
+                            properties.put(isFirstBooking? "Salesperson": "Comments", comments);
+                            properties.put("Number of Services Requested", dashboardCar.getActiveIssues().size());
+                            mixpanelHelper.trackCustom("Button Tapped", properties);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
