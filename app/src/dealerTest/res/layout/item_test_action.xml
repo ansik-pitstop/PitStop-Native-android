@@ -30,8 +30,24 @@
             android:layout_marginTop="16dp"
             android:text="Test description." />
 
-        <Button
+        <!--Button
             android:id="@+id/testButton"
+            style="@style/TestAppButtonStyle"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start" /-->
+
+        <ProgressBar
+            android:id="@+id/testPendingIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/color_button_primary_dark"/>
+
+        <Button
+            android:visibility="gone"
+            android:id="@+id/testStatus"
             style="@style/TestAppButtonStyle"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"

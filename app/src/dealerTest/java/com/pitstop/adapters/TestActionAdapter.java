@@ -71,7 +71,7 @@ public class TestActionAdapter extends PagerAdapter {
 
         TextView title = (TextView) view.findViewById(R.id.cardTitle);
         TextView description = (TextView) view.findViewById(R.id.cardDescription);
-        Button testButton = (Button) view.findViewById(R.id.testButton);
+        View testButton = view.findViewById(R.id.testPendingIndicator);
 
         final TestAction action = testActions.get(position);
 
@@ -117,28 +117,14 @@ public class TestActionAdapter extends PagerAdapter {
         super.notifyDataSetChanged();
     }
 
-    public void updateItem(final TestAction action, int position) {
-        testActions.set(position, action);
+    public void updateItem(boolean success, int position) {
         CardView cardView = getCardViewAt(position);
         if(cardView != null) {
-            TextView title = (TextView) cardView.findViewById(R.id.cardTitle);
-            TextView description = (TextView) cardView.findViewById(R.id.cardDescription);
-            Button testButton = (Button) cardView.findViewById(R.id.testButton);
-
-            if(title != null) {
-                title.setText(action.title);
-            }
-            if(description != null) {
-                description.setText(action.description);
-            }
-            if(testButton != null) {
-                testButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        doTest(action.type);
-                    }
-                });
-            }
+            Button statusIndicator = (Button) cardView.findViewById(R.id.testStatus);
+            statusIndicator.setVisibility(View.VISIBLE);
+            statusIndicator.setText(success ? "Success" : "Error");
+            statusIndicator.setBackground(context.getResources()
+                    .getDrawable(success ? R.drawable.shape_button_highlight : R.drawable.shape_button_red));
         }
     }
 }

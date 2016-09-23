@@ -206,7 +206,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
         Log.v(TAG, "dtcData: " + dataPackageInfo.dtcData);
-
+        callbacks.connectSuccess();
         if(state == State.READ_PIDS && dataPackageInfo.result == 5
                 && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
             Log.i(TAG, "PID Success");
@@ -236,6 +236,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG,"Device flag: "+loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
+            callbacks.connectSuccess();
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
@@ -309,6 +310,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void disconnectFromDevice() {
         Log.i(TAG, "Disconnecting from device");
+        if(testTimer != null) {
+            testTimer.cancel();
+        }
         if(bluetoothCommunicator != null) {
             bluetoothCommunicator.close();
             bluetoothCommunicator = null;

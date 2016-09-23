@@ -171,16 +171,32 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         logTextView.setText(logText);
         if(status == MessageListener.STATUS_SUCCESS) {
             if(state == State.VERIFY_RTC || state == State.GET_RTC) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
                 viewPager.setCurrentItem(2);
             } else if(state == State.READ_PIDS) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
                 viewPager.setCurrentItem(3);
             } else if(state == State.READ_DTCS) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
                 viewPager.setCurrentItem(4);
             } else if(state == State.GET_VIN) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
             }
         } else if(status == STATUS_FAILED) {
-
+            if(state == State.VERIFY_RTC || state == State.GET_RTC) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
+                viewPager.setCurrentItem(2);
+            } else if(state == State.READ_PIDS) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
+                viewPager.setCurrentItem(3);
+            } else if(state == State.READ_DTCS) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
+                viewPager.setCurrentItem(4);
+            } else if(state == State.GET_VIN) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
+                viewPager.setCurrentItem(5);
+            }
         }
     }
 
