@@ -11,4 +11,6 @@ public interface MessageListener {
     int STATUS_FAILED = 2;
 
     void processMessage(int status, State state, String message);
+
+    void connectSuccess();
 }

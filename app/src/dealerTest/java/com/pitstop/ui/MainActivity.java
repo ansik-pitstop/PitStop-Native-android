@@ -1,6 +1,8 @@
 package com.pitstop.ui;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @BindView(R.id.logView)
     View logView;
 
+    private boolean connected = false;
+
     private ArrayList<TestAction> testActions = new ArrayList<>();
 
     private BluetoothAutoConnectService bluetoothService;
@@ -72,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION};
+
+    private ProgressDialog progressDialog;
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -119,6 +125,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         viewPager.setPageTransformer(false, shadowTransformer);
         viewPager.setAdapter(adapter);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Connecting to device...");
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
         serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
     }
@@ -158,12 +169,31 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         logText.append(message);
         logText.append("\n");
         logTextView.setText(logText);
+        if(status == MessageListener.STATUS_SUCCESS) {
+            if(state == State.VERIFY_RTC || state == State.GET_RTC) {
+                viewPager.setCurrentItem(2);
+            } else if(state == State.READ_PIDS) {
+                viewPager.setCurrentItem(3);
+            } else if(state == State.READ_DTCS) {
+                viewPager.setCurrentItem(4);
+            } else if(state == State.GET_VIN) {
+                viewPager.setCurrentItem(5);
+            }
+        } else if(status == STATUS_FAILED) {
+
+        }
     }
 
-    public void connectToDevice(View view) {
+    @Override
+    public void connectSuccess() {
+        if(connected) {
+            return;
+        }
+        progressDialog.hide();
+        connected = true;
         connectCard.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
             @Override
-            public void run() { // TODO: move to connect success callback
+            public void run() {
                 disconnectBackground.animate().alpha(0f).setDuration(500);
                 connectCard.setVisibility(View.GONE);
                 viewPager.animate().alpha(1f).setDuration(500);
@@ -175,7 +205,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         }
         viewPager.animate().alpha(0f).setDuration(0);
         viewPager.setVisibility(View.VISIBLE);
+    }
+
+    public void connectToDevice(View view) {
         bluetoothService.startBluetoothSearch();
+        progressDialog.show();
     }
 
     private BroadcastReceiver testActionReceiver = new BroadcastReceiver() {
@@ -214,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                             }
                         }).start();
                         bluetoothService.disconnectFromDevice();
+                        connected = false;
                         break;
                     case CHECK_TIME:
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
