@@ -463,17 +463,7 @@ public class NetworkHelper {
             body.put("userId", userId);
             body.put("carId", carId);
             body.put("shopId", shopId);
-
-//            if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)){
-//                body.put("comments", "");
-//                options.put("salesPerson", comments);
-//            } else {
-//                body.put("comments", comments);
-//            }
-
-            // If the state is tentative, we don't give user another field to put comments, so we just put "";
-            // comments will be the salesPerson's name in this case
-            body.put("comments", ServiceRequestUtil.STATE_TENTATIVE.equals(state) ? "": comments);
+            body.put("comments", comments);
             options.put("state", state);
             options.put("appointmentDate", appointmentTimestamp);
             body.put("options", options);
@@ -488,13 +478,22 @@ public class NetworkHelper {
             JSONObject updateSalesman = new JSONObject();
             try{
                 updateSalesman.put("carId", carId);
-                updateSalesman.put("salesPerson", comments);
+                updateSalesman.put("salesperson", comments);
             } catch (JSONException e){
                 e.printStackTrace();
             }
-            // It's cumbersome to add callback to this endpoint because it returns nothing meaningful
-            // (unless it returns error)
-            put("car", null, updateSalesman);
+            put("car", new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError != null) {
+                        Log.e(TAG, "Status code: " + requestError.getStatusCode()
+                                + "Error: " + requestError.getError()
+                                + "Message " + requestError.getMessage());
+                    } else {
+                        Log.e(TAG, "All good");
+                    }
+                }
+            }, updateSalesman);
         }
 
     }

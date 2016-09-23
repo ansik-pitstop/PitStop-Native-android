@@ -1031,7 +1031,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
 
         snackbar.show();
-
     }
 
     /**

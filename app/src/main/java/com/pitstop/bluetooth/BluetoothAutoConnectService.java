@@ -580,7 +580,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             Log.d(TAG, "Network error occurred");
                             Log.d(TAG, requestError.toString());
                             notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_NETWORK_ERROR);
-                            // TODO: 16/9/21 Where we suspect the problem coule be located
                             Log.d(TAG, "Manually Disconnect");
                             bluetoothCommunicator.manuallyDisconnectCurrentDevice();
                         } else {

@@ -16,6 +16,8 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -331,9 +333,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private void updateConnectedCarIndicator(boolean isConnected) {
         if (isConnected) {
-            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.severity_low_indicator));
+            connectedCarIndicator.setImageDrawable(
+                    ContextCompat.getDrawable(getActivity(), R.drawable.severity_low_indicator));
         } else {
-            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.circle_indicator_stroke));
+            connectedCarIndicator.setImageDrawable(
+                    ContextCompat.getDrawable(getActivity(), R.drawable.circle_indicator_stroke));
         }
     }
 
@@ -578,6 +582,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 // If yes, notify the user that this car has scanner;
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
+                                ((MainActivity) getActivity()).hideLoading();
                                 return;
                             } else {
                                 Log.d(TAG, "Picked car lack device");
