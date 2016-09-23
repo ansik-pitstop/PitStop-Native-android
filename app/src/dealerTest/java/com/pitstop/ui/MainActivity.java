@@ -1,7 +1,6 @@
 package com.pitstop.ui;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -11,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -169,31 +170,31 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         logText.append(message);
         logText.append("\n");
         logTextView.setText(logText);
-        if(status == MessageListener.STATUS_SUCCESS) {
-            if(state == State.VERIFY_RTC || state == State.GET_RTC) {
+        if (status == MessageListener.STATUS_SUCCESS) {
+            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
                 viewPager.setCurrentItem(2);
-            } else if(state == State.READ_PIDS) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
                 viewPager.setCurrentItem(3);
-            } else if(state == State.READ_DTCS) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
                 viewPager.setCurrentItem(4);
-            } else if(state == State.GET_VIN) {
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
             }
-        } else if(status == STATUS_FAILED) {
-            if(state == State.VERIFY_RTC || state == State.GET_RTC) {
+        } else if (status == STATUS_FAILED) {
+            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
                 viewPager.setCurrentItem(2);
-            } else if(state == State.READ_PIDS) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
                 viewPager.setCurrentItem(3);
-            } else if(state == State.READ_DTCS) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
                 viewPager.setCurrentItem(4);
-            } else if(state == State.GET_VIN) {
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
                 viewPager.setCurrentItem(5);
             }
@@ -202,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void connectSuccess() {
-        if(connected) {
+        if (connected) {
             return;
         }
         progressDialog.hide();
