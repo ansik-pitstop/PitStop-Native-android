@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#f6f6f6">
@@ -161,7 +162,7 @@
 
 
             <RelativeLayout
-                android:id="@+id/chat_layout"
+                android:id="@+id/dashboard_chat_dealership"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
@@ -201,7 +202,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/car_scan_btn"
+                android:id="@+id/dashboard_car_scan_btn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="6dp"
@@ -209,6 +210,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/color_button_grey"
                 android:elevation="3dp"
+                android:onClick="scanClicked"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp">
 
@@ -392,16 +394,31 @@
                 android:textSize="16sp"/>
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/car_issues_list"
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/request_service_placeholder"
             android:layout_below="@+id/linearLayout8"
-            android:layout_marginTop="4dp"
-            android:scrollbars="vertical">
+            android:layout_marginTop="4dp">
 
-        </android.support.v7.widget.RecyclerView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/car_issues_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/add_preset_issues"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:backgroundTint="@color/primary"
+                android:src="@drawable/ic_add_preset_issues7"
+                android:onClick="addPresetIssues"
+                app:layout_anchor="@id/car_issues_list"
+                app:layout_anchorGravity="bottom|right|end"/>
+
+        </android.support.design.widget.CoordinatorLayout>
 
         <Button
             android:id="@+id/request_service_placeholder"
@@ -448,7 +465,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/request_service_btn"
+        android:id="@+id/dashboard_request_service_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -176,6 +176,12 @@
                 android:value=".ui.MainActivity" />
         </activity>
 
+        <activity android:name=".ui.AddCustomIssueActivity"
+                  android:label="Add Custom Issue"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/AppTheme">
+        </activity>
+
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>

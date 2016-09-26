@@ -199,18 +199,19 @@ public class NetworkHelper {
 
     /**
      * Allow the user to change his/her phone number in the preference
+     *
      * @param userId
      * @param phoneNumber
      * @param callback
      */
-    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback){
+    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback) {
         LOGI(TAG, "updatePhoneNumber: userId: " + userId + " phoneNUmber: " + phoneNumber);
         JSONObject body = new JSONObject();
 
-        try{
+        try {
             body.put("userId", userId);
             body.put("phone", phoneNumber);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -292,6 +293,28 @@ public class NetworkHelper {
 
         post("issue", callback, body);
     }
+
+    public void addNewCustomService(int carId, String item, String action, String type, RequestCallback callback) {
+        LOGI(TAG, String.format("addNewCustomService: carId: %s, item: %s," +
+                " item: %s, action: %s", carId, item, action, type));
+        JSONObject body = new JSONObject();
+        JSONObject id = new JSONObject();
+        try {
+            id.put("item", item);
+            id.put("action", action);
+            body.put("id", id);
+            body.put("type", type);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        post("car/"+ carId + "/service", callback, body);
+    }
+
+    public void getCustomServices(int carId, RequestCallback callback){
+        LOGI(TAG, String.format("getCustomServices: carId: %s", carId));
+        get("car/" + carId + "/service", callback);
+    }
+
 
     public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
         LOGI(TAG, String.format("serviceDone: carId: %s, issueId: %s," +
@@ -411,7 +434,6 @@ public class NetworkHelper {
     }
 
     /**
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      * @param userId
      * @param carId
      * @param shopId
@@ -419,6 +441,7 @@ public class NetworkHelper {
      * @param date
      * @param tentative
      * @param callback
+     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      */
     public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
                                RequestCallback callback) {
@@ -474,12 +497,12 @@ public class NetworkHelper {
         post("utility/serviceRequest", callback, body);
 
         // If state is tentative, we put salesPerson to another endpoint
-        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)){
+        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)) {
             JSONObject updateSalesman = new JSONObject();
-            try{
+            try {
                 updateSalesman.put("carId", carId);
                 updateSalesman.put("salesperson", comments);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             put("car", new RequestCallback() {
@@ -550,10 +573,10 @@ public class NetworkHelper {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
         getUser(userId, new RequestCallback() {
-        // need to add option instead of replace
+            // need to add option instead of replace
             @Override
             public void done(String response, RequestError requestError) {
-                if(requestError == null) {
+                if (requestError == null) {
                     try {
                         JSONObject options = new JSONObject(response).getJSONObject("settings");
                         options.put("settings", new JSONObject().put("mainCar", carId));
@@ -589,6 +612,7 @@ public class NetworkHelper {
 
     /**
      * Get the aggregated settings
+     *
      * @param userId
      * @param callback
      */
@@ -625,7 +649,7 @@ public class NetworkHelper {
         put("user/" + userId + "/settings", callback, settings);
     }
 
-    public void setTutorialUndone(int userId, JSONObject initialUserSettings, RequestCallback callback){
+    public void setTutorialUndone(int userId, JSONObject initialUserSettings, RequestCallback callback) {
         LOGI(TAG, "setTutorialUndone: " + userId);
         JSONObject settings = new JSONObject();
 
@@ -639,7 +663,7 @@ public class NetworkHelper {
         put("user/" + userId + "/settings", callback, settings);
     }
 
-    public void validateScannerId(String scannerId, RequestCallback callback){
+    public void validateScannerId(String scannerId, RequestCallback callback) {
         LOGI(TAG, "validate scanner id: " + scannerId);
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }

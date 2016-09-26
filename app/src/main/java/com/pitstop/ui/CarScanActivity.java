@@ -261,7 +261,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         progressDialog.setCanceledOnTouchOutside(false);
         carMileage = (TextView) findViewById(R.id.car_mileage);
 
-        carScanButton = (Button) findViewById(R.id.car_scan_btn);
+        carScanButton = (Button) findViewById(R.id.dashboard_car_scan_btn);
 
         recallsText = (TextView) findViewById(R.id.recalls_text);
         servicesText = (TextView) findViewById(R.id.services_text);
