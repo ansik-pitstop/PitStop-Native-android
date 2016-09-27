@@ -198,9 +198,9 @@ public class HttpRequest {
                                     }
                                 } else {
                                     // show failure
-                                    if (requestError.getStatusCode() == 400 && requestError.getError().contains("Invalid input")){
+                                    if (requestError.getStatusCode() == 400 && requestError.getError().contains("Invalid input")) {
                                         logOut();
-                                    }else {
+                                    } else {
                                         showNetworkFailure(requestError.getMessage());
                                     }
                                 }
@@ -244,29 +244,6 @@ public class HttpRequest {
 
             listener.done(null, RequestError.getUnknownError());
         }
-//        private void retryGettingRefreshToken(){
-//            NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
-//                @Override
-//                public void done(String response, RequestError requestError) {
-//                    if (requestError == null) {
-//                        // try to parse the refresh token, if success then good, otherwise retry
-//                        try {
-//                            String newAccessToken = new JSONObject(response).getString("accessToken");
-//                            application.setTokens(newAccessToken, application.getRefreshToken());
-//                            headers.put("Authorization", "Bearer " + newAccessToken);
-//                            executeAsync();
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                            //retry
-//                            retryAttempts++;
-//                            retryGettingRefreshToken();
-//                        }
-//                    } else{
-//                        showNetworkFailure();
-//                    }
-//                }
-//            });
-//        }
     }
 
     public static class Builder {
