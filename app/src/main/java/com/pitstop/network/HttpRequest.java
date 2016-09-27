@@ -179,6 +179,9 @@ public class HttpRequest {
                     LOGD(TAG, response.getResponseMessage());
                     LOGD(TAG, (String) response.getErrorBody());
 
+                    RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
+                    error.setStatusCode(response.getStatusCode());
+
                     if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
                         // Error handling
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
@@ -198,7 +201,7 @@ public class HttpRequest {
                                     }
                                 } else {
                                     // show failure
-                                    if (requestError.getStatusCode() == 400 && requestError.getError().contains("Invalid input")) {
+                                    if (requestError.getStatusCode() == 400) {
                                         logOut();
                                     } else {
                                         showNetworkFailure(requestError.getMessage());
@@ -207,8 +210,9 @@ public class HttpRequest {
                             }
                         });
                     } else {
-                        listener.done(null, RequestError
-                                .jsonToRequestErrorObject((String) response.getErrorBody()));
+                        listener.done(null, error);
+//                        listener.done(null, RequestError
+//                                .jsonToRequestErrorObject((String) response.getErrorBody()));
                         //.setStatusCode(response.getStatusCode()));
                     }
                 }
