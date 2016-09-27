@@ -1,8 +1,13 @@
 package com.pitstop.network;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
+import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
@@ -12,6 +17,8 @@ import com.goebl.david.Webb;
 import com.pitstop.BuildConfig;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import static com.pitstop.utils.LogUtils.LOGD;
@@ -45,7 +52,7 @@ public class HttpRequest {
                         RequestCallback listener,
                         JSONObject body,
                         Context context
-                        ) {
+    ) {
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -58,11 +65,11 @@ public class HttpRequest {
     }
 
     public void executeAsync() {
-        if(Utils.isEmpty(uri)) {
+        if (Utils.isEmpty(uri)) {
             return;
         }
 
-        if(listener == null) {
+        if (listener == null) {
             listener = new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
@@ -76,7 +83,7 @@ public class HttpRequest {
         asyncRequest.execute(uri, requestType, body, headers);
     }
 
-    private class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String> > {
+    private class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String>> {
         private RequestCallback listener;
 
         public void setListener(RequestCallback listener) {
@@ -84,24 +91,24 @@ public class HttpRequest {
         }
 
         @Override
-        protected void onPreExecute () {
+        protected void onPreExecute() {
             super.onPreExecute();
         }
 
         @Override
-        protected Response<String> doInBackground (Object[] params) {
+        protected Response<String> doInBackground(Object[] params) {
             Response<String> response = null;
             HashMap<String, String> headers = new HashMap<>();
             try {
-                switch ((RequestType)params[1]) {
+                switch ((RequestType) params[1]) {
                     case GET: {
                         Request request = webClient.get(params[0].toString())
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -115,10 +122,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -132,10 +139,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -149,10 +156,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -168,39 +175,53 @@ public class HttpRequest {
 
         @Override
         protected void onPostExecute(Response<String> response) {
-            if(response != null) {
-                if(response.isSuccess()) {
+            if (response != null) {
+                if (response.isSuccess()) {
                     LOGD(TAG, response.getBody());
                     LOGD(TAG, response.getResponseMessage());
-                    listener.done(response.getBody(),null);
+                    listener.done(response.getBody(), null);
                 } else {
-                    LOGD(TAG,"Error: "+response.getStatusLine());
+                    LOGD(TAG, "Error: " + response.getStatusLine());
                     LOGD(TAG, response.getResponseMessage());
                     LOGD(TAG, (String) response.getErrorBody());
 
-                    if(response.getStatusCode() == 401) { // unauthorized (must use refresh)
+                    if (response.getStatusCode() == 401) { // unauthorized (must use refresh)
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if (requestError == null && retryAttempts++ == 0) { // retry request
+                                if (retryAttempts++ < 1 && requestError == null) {
                                     try {
+                                        Log.d(TAG, "Attempt to parse new refresh token");
                                         String newAccessToken = new JSONObject(response).getString("accessToken");
                                         application.setTokens(newAccessToken, application.getRefreshToken());
                                         headers.put("Authorization", "Bearer " + newAccessToken);
                                         executeAsync();
-                                    } catch(JSONException e) {
+                                    } catch (JSONException e) {
                                         e.printStackTrace();
-                                        logOut();
+                                        showNetworkFailure();
                                     }
-                                } else { // need to log out
-                                    logOut();
+                                } else {
+                                    showNetworkFailure();
                                 }
+//                                if (requestError == null && retryAttempts++ == 0) { // retry request
+//                                    try {
+//                                        String newAccessToken = new JSONObject(response).getString("accessToken");
+//                                        application.setTokens(newAccessToken, application.getRefreshToken());
+//                                        headers.put("Authorization", "Bearer " + newAccessToken);
+//                                        executeAsync();
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                        logOut();
+//                                    }
+//                                } else { // need to log out
+//                                    logOut();
+//                                }
                             }
                         });
                     } else {
-                        listener.done(null,RequestError
-                                .jsonToRequestErrorObject((String)response.getErrorBody()));
-                                //.setStatusCode(response.getStatusCode()));
+                        listener.done(null, RequestError
+                                .jsonToRequestErrorObject((String) response.getErrorBody()));
+                        //.setStatusCode(response.getStatusCode()));
                     }
                 }
             } else {
@@ -215,6 +236,41 @@ public class HttpRequest {
             Intent intent = new Intent(application, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             application.startActivity(intent);
+        }
+
+        private void showNetworkFailure() {
+            LOGD(TAG, "Refresh failed");
+            // Track in mixpanel
+            try {
+                JSONObject properties = new JSONObject();
+                properties.put("Alert Name", "Poor Server Connection");
+                properties.put("View", "");
+                application.getMixpanelAPI().track(MixpanelHelper.EVENT_ALERT_APPEARED, properties);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            // Show alert
+            Toast.makeText(application, "Something weird is going on with our servers. We apologize for the inconvenience." +
+                    "Please retry(re-login) or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
+//            AlertDialog dialog = new AlertDialog.Builder(application.getApplicationContext())
+//                    .setTitle("Poor server connection")
+//                    .setMessage("Something weird is going on with our servers. We apologize for the inconvenience." +
+//                            "Please retry or email us at info@getpitstop.io")
+//                    .setPositiveButton("OK", null) // Do nothing
+//                    .setNeutralButton("Email", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            Intent intent = new Intent(Intent.ACTION_SEND);
+//                            intent.setType("text/plain");
+//                            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"info@getpitstop.io"});
+//                            intent.putExtra(Intent.EXTRA_SUBJECT, "Network failure issue");
+//                            intent.putExtra(Intent.EXTRA_TEXT, "(Please describe what is the issue and when does it happen)");
+//                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                            if (intent.resolveActivity(application.getPackageManager()) != null) {
+//                                application.startActivity(intent);
+//                            }
+//                        }
+//                    }).create();
         }
     }
 
@@ -267,7 +323,7 @@ public class HttpRequest {
         }
 
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType,uri,headers,callback,body,context);
+            return new HttpRequest(requestType, uri, headers, callback, body, context);
         }
     }
 }
