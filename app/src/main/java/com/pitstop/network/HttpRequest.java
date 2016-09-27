@@ -3,7 +3,6 @@ package com.pitstop.network;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
@@ -181,10 +180,12 @@ public class HttpRequest {
                     LOGD(TAG, (String) response.getErrorBody());
 
                     if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
+                        // Error handling
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if (requestError == null && retryAttempts++ == 0) { // retry request
+                                if (requestError == null) {
+                                    // try to parse the refresh token, if success then good, otherwise retry
                                     try {
                                         String newAccessToken = new JSONObject(response).getString("accessToken");
                                         application.setTokens(newAccessToken, application.getRefreshToken());
@@ -192,12 +193,16 @@ public class HttpRequest {
                                         executeAsync();
                                     } catch (JSONException e) {
                                         e.printStackTrace();
-//                                        logOut();
-                                        showNetworkFailure();
+                                        // show failure
+                                        showNetworkFailure(e.getMessage());
                                     }
                                 } else {
-//                                    logOut();
-                                    showNetworkFailure();
+                                    // show failure
+                                    if (requestError.getStatusCode() == 400 && requestError.getError().contains("Invalid input")){
+                                        logOut();
+                                    }else {
+                                        showNetworkFailure(requestError.getMessage());
+                                    }
                                 }
                             }
                         });
@@ -221,12 +226,13 @@ public class HttpRequest {
             application.startActivity(intent);
         }
 
-        private void showNetworkFailure() {
+        private void showNetworkFailure(String message) {
             LOGD(TAG, "Refresh failed");
             // Track in mixpanel
             try {
                 JSONObject properties = new JSONObject();
                 properties.put("Alert Name", "Poor Server Connection");
+                properties.put("Message", message);
                 properties.put("View", "");
                 application.getMixpanelAPI().track(MixpanelHelper.EVENT_ALERT_APPEARED, properties);
             } catch (JSONException e) {
@@ -235,7 +241,32 @@ public class HttpRequest {
             // Show alert
             Toast.makeText(application, "Sorry, something weird is going on with our servers." +
                     "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
+
+            listener.done(null, RequestError.getUnknownError());
         }
+//        private void retryGettingRefreshToken(){
+//            NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
+//                @Override
+//                public void done(String response, RequestError requestError) {
+//                    if (requestError == null) {
+//                        // try to parse the refresh token, if success then good, otherwise retry
+//                        try {
+//                            String newAccessToken = new JSONObject(response).getString("accessToken");
+//                            application.setTokens(newAccessToken, application.getRefreshToken());
+//                            headers.put("Authorization", "Bearer " + newAccessToken);
+//                            executeAsync();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                            //retry
+//                            retryAttempts++;
+//                            retryGettingRefreshToken();
+//                        }
+//                    } else{
+//                        showNetworkFailure();
+//                    }
+//                }
+//            });
+//        }
     }
 
     public static class Builder {
