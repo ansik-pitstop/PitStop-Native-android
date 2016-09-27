@@ -89,4 +89,10 @@
     <!--for views-->
     <string name="service_request_button">Request Service</string>
 
+    <!--preset issue descriptions-->
+    <string name="flat_tire_description">The tires on your vehicle are what keep it rolling. They take a beating from sharp turns, rocks, potholes, changes in temperature and the wear from friction on the road. It\'s time for you to inspect tire pressure and wear. Tires in poor condition can cause other mechanical parts to wear out faster.</string>
+    <string name="engine_oil_filter_description">Change engine oil and replace engine filter to remove contaminants and prolong the life of your motor</string>
+    <string name="wipers_fluids_description">Visibility is a critical part of safety while driving. Making sure your fluids are topped up and windshield wipers are intact is an important way to make sure your car is safe to drive.</string>
+    <string name="tow_truck_description">Send an emergency request to the dealership to help you get your vehicle into the shop. Breakdowns are frustrating we are here to help. Be aware of the hours of operation of the dealership, after hours you may need to call a tow truck yourself</string>
+
 </resources>

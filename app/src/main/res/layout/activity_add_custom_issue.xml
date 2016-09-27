@@ -106,7 +106,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:clickable="true"
+        android:clickable="false"
         android:onClick="pickItem">
 
         <RelativeLayout
@@ -138,5 +138,86 @@
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="137dp"
+        android:layout_below="@+id/custom_issue_item_button"
+        android:id="@+id/custom_issue_indicator_card"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ebebeb"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:background="@color/cardview_light_background"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="39dp"
+                    android:background="@color/highlight"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="4dp"
+                    android:text="Severity"
+                    android:textColor="@color/cardview_light_background"
+                    android:textSize="20dp"/>
+
+                <RelativeLayout
+                    android:id="@+id/custom_severity_indicator_layout"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="9dp">
+
+                    <TextView
+                        android:id="@+id/custom_issue_severity_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="High"
+                        android:textColor="@color/cardview_light_background"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_marginTop="1dp"
+                android:background="#ffffff">
+
+                <TextView
+                    android:id="@+id/custom_issue_title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLines="3"
+                    android:padding="10dp"
+                    android:text="ISSUE"
+                    android:textColor="@color/highlight"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:layout_below="@id/custom_issue_indicator_card"
+        android:id="@+id/custom_issue_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="12dp"
+        android:textSize="15sp" />
 
 </RelativeLayout>

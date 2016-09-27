@@ -12,6 +12,7 @@ import com.goebl.david.Webb;
 import com.pitstop.BuildConfig;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import static com.pitstop.utils.LogUtils.LOGD;
@@ -178,29 +179,37 @@ public class HttpRequest {
                     LOGD(TAG, response.getResponseMessage());
                     LOGD(TAG, (String) response.getErrorBody());
 
-                    if(response.getStatusCode() == 401) { // unauthorized (must use refresh)
+                    if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
+                        // Error handling
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if (requestError == null && retryAttempts++ == 0) { // retry request
+                                if (requestError == null) {
+                                    // try to parse the refresh token, if success then good, otherwise retry
                                     try {
                                         String newAccessToken = new JSONObject(response).getString("accessToken");
                                         application.setTokens(newAccessToken, application.getRefreshToken());
                                         headers.put("Authorization", "Bearer " + newAccessToken);
                                         executeAsync();
-                                    } catch(JSONException e) {
+                                    } catch (JSONException e) {
                                         e.printStackTrace();
-                                        logOut();
+                                        // show failure
+                                        showNetworkFailure(e.getMessage());
                                     }
-                                } else { // need to log out
-                                    logOut();
+                                } else {
+                                    // show failure
+                                    if (requestError.getStatusCode() == 400) {
+                                        logOut();
+                                    } else {
+                                        showNetworkFailure(requestError.getMessage());
+                                    }
                                 }
                             }
                         });
                     } else {
-                        listener.done(null,RequestError
-                                .jsonToRequestErrorObject((String)response.getErrorBody()));
-                                //.setStatusCode(response.getStatusCode()));
+                        listener.done(null, RequestError
+                                .jsonToRequestErrorObject((String) response.getErrorBody()));
+                        //.setStatusCode(response.getStatusCode()));
                     }
                 }
             } else {
@@ -215,6 +224,25 @@ public class HttpRequest {
             Intent intent = new Intent(application, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             application.startActivity(intent);
+        }
+
+        private void showNetworkFailure(String message) {
+            LOGD(TAG, "Refresh failed");
+            // Track in mixpanel
+            try {
+                JSONObject properties = new JSONObject();
+                properties.put("Alert Name", "Poor Server Connection");
+                properties.put("Message", message);
+                properties.put("View", "");
+                application.getMixpanelAPI().track(MixpanelHelper.EVENT_ALERT_APPEARED, properties);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            // Show alert
+            Toast.makeText(application, "Sorry, something weird is going on with our servers." +
+                    "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
+
+            listener.done(null, RequestError.getUnknownError());
         }
     }
 

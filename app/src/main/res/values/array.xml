@@ -132,4 +132,23 @@
         <item>Acceleration</item>
         <item>Deceleration</item>
     </string-array>
+
+    <!--preset issues-->
+    <string-array name="preset_issue_actions">
+        <item>Emergency</item>
+        <item>Replace</item>
+    </string-array>
+
+    <string-array name="emergency_item">
+        <item>Flat Tire</item>
+        <item>Tow Truck</item>
+    </string-array>
+
+    <string-array name="replace_item">
+        <item>Engine Oil &amp; Filter</item>
+        <item>Wipers/Fluids</item>
+    </string-array>
+
+
+
 </resources>

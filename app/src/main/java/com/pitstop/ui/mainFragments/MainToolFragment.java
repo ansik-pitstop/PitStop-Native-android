@@ -13,7 +13,6 @@ import com.pitstop.R;
  * Created by david on 6/9/2016.
  */
 public class MainToolFragment extends Fragment {
-
     View rootview;
     @Nullable
     @Override
@@ -21,8 +20,5 @@ public class MainToolFragment extends Fragment {
         rootview = inflater.inflate(R.layout.fragment_main_tools,null);
         return rootview;
     }
-
-
-
 }
 
