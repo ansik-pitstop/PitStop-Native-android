@@ -184,20 +184,6 @@ public class HttpRequest {
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-//                                if (retryAttempts++ < 1 && requestError == null) {
-//                                    try {
-//                                        Log.d(TAG, "Attempt to parse new refresh token");
-//                                        String newAccessToken = new JSONObject(response).getString("accessToken");
-//                                        application.setTokens(newAccessToken, application.getRefreshToken());
-//                                        headers.put("Authorization", "Bearer " + newAccessToken);
-//                                        executeAsync();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                        showNetworkFailure();
-//                                    }
-//                                } else {
-//                                    showNetworkFailure();
-//                                }
                                 if (requestError == null && retryAttempts++ == 0) { // retry request
                                     try {
                                         String newAccessToken = new JSONObject(response).getString("accessToken");
@@ -247,29 +233,8 @@ public class HttpRequest {
                 e.printStackTrace();
             }
             // Show alert
-//            Toast.makeText(application, "Something weird is going on with our servers. We apologize for the inconvenience." +
-//                    "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
             Toast.makeText(application, "Sorry, something weird is going on with our servers." +
                     "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
-//            AlertDialog dialog = new AlertDialog.Builder(application.getApplicationContext())
-//                    .setTitle("Poor server connection")
-//                    .setMessage("Something weird is going on with our servers. We apologize for the inconvenience." +
-//                            "Please retry or email us at info@getpitstop.io")
-//                    .setPositiveButton("OK", null) // Do nothing
-//                    .setNeutralButton("Email", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            Intent intent = new Intent(Intent.ACTION_SEND);
-//                            intent.setType("text/plain");
-//                            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"info@getpitstop.io"});
-//                            intent.putExtra(Intent.EXTRA_SUBJECT, "Network failure issue");
-//                            intent.putExtra(Intent.EXTRA_TEXT, "(Please describe what is the issue and when does it happen)");
-//                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            if (intent.resolveActivity(application.getPackageManager()) != null) {
-//                                application.startActivity(intent);
-//                            }
-//                        }
-//                    }).create();
         }
     }
 
