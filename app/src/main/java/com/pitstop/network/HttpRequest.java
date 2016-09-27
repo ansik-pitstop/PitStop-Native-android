@@ -1,13 +1,9 @@
 package com.pitstop.network;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
@@ -17,7 +13,6 @@ import com.goebl.david.Webb;
 import com.pitstop.BuildConfig;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -185,37 +180,39 @@ public class HttpRequest {
                     LOGD(TAG, response.getResponseMessage());
                     LOGD(TAG, (String) response.getErrorBody());
 
-                    if (response.getStatusCode() == 401) { // unauthorized (must use refresh)
+                    if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
                         NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if (retryAttempts++ < 1 && requestError == null) {
-                                    try {
-                                        Log.d(TAG, "Attempt to parse new refresh token");
-                                        String newAccessToken = new JSONObject(response).getString("accessToken");
-                                        application.setTokens(newAccessToken, application.getRefreshToken());
-                                        headers.put("Authorization", "Bearer " + newAccessToken);
-                                        executeAsync();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        showNetworkFailure();
-                                    }
-                                } else {
-                                    showNetworkFailure();
-                                }
-//                                if (requestError == null && retryAttempts++ == 0) { // retry request
+//                                if (retryAttempts++ < 1 && requestError == null) {
 //                                    try {
+//                                        Log.d(TAG, "Attempt to parse new refresh token");
 //                                        String newAccessToken = new JSONObject(response).getString("accessToken");
 //                                        application.setTokens(newAccessToken, application.getRefreshToken());
 //                                        headers.put("Authorization", "Bearer " + newAccessToken);
 //                                        executeAsync();
 //                                    } catch (JSONException e) {
 //                                        e.printStackTrace();
-//                                        logOut();
+//                                        showNetworkFailure();
 //                                    }
-//                                } else { // need to log out
-//                                    logOut();
+//                                } else {
+//                                    showNetworkFailure();
 //                                }
+                                if (requestError == null && retryAttempts++ == 0) { // retry request
+                                    try {
+                                        String newAccessToken = new JSONObject(response).getString("accessToken");
+                                        application.setTokens(newAccessToken, application.getRefreshToken());
+                                        headers.put("Authorization", "Bearer " + newAccessToken);
+                                        executeAsync();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+//                                        logOut();
+                                        showNetworkFailure();
+                                    }
+                                } else {
+//                                    logOut();
+                                    showNetworkFailure();
+                                }
                             }
                         });
                     } else {
@@ -250,8 +247,10 @@ public class HttpRequest {
                 e.printStackTrace();
             }
             // Show alert
-            Toast.makeText(application, "Something weird is going on with our servers. We apologize for the inconvenience." +
-                    "Please retry(re-login) or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
+//            Toast.makeText(application, "Something weird is going on with our servers. We apologize for the inconvenience." +
+//                    "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
+            Toast.makeText(application, "Sorry, something weird is going on with our servers." +
+                    "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
 //            AlertDialog dialog = new AlertDialog.Builder(application.getApplicationContext())
 //                    .setTitle("Poor server connection")
 //                    .setMessage("Something weird is going on with our servers. We apologize for the inconvenience." +
