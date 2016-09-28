@@ -294,7 +294,7 @@ public class NetworkHelper {
         post("issue", callback, body);
     }
 
-    public void addNewCustomService(int carId, String item, String action, String type, RequestCallback callback) {
+    public void addNewCustomService(int carId, String scannerId, String serviceId, String item, String action, String type, RequestCallback callback) {
         LOGI(TAG, String.format("addNewCustomService: carId: %s, item: %s," +
                 " item: %s, action: %s", carId, item, action, type));
         JSONObject body = new JSONObject();
@@ -314,7 +314,6 @@ public class NetworkHelper {
         LOGI(TAG, String.format("getCustomServices: carId: %s", carId));
         get("car/" + carId + "/service", callback);
     }
-
 
     public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
         LOGI(TAG, String.format("serviceDone: carId: %s, issueId: %s," +

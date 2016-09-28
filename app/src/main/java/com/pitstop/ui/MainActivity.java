@@ -525,6 +525,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+            } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK){
+                if (shouldRefreshFromServer){
+                    refreshFromServer();
+                }
             }
             callback.activityResultCallback(requestCode, resultCode, data);
         } else {
@@ -1188,18 +1192,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param button
      */
     public void addPresetIssues(View button) {
-        // TODO: 16/9/23 Do things
-//        Toast.makeText(this, "Add preset issues tapped", Toast.LENGTH_SHORT).show();
-
-        Intent addCustomIssue = new Intent(this, AddCustomIssueActivity.class);
-
         if (dashboardCar == null) return;
-
-        addCustomIssue.putExtra(AddCustomIssueActivity.EXTRA_CAR_NAME,
-                dashboardCar.getYear() + " " + dashboardCar.getMake() + " " + dashboardCar.getModel());
-        addCustomIssue.putExtra(AddCustomIssueActivity.EXTRA_DEALERSHIP_NAME, dashboardCar.getDealership().getName());
+        Intent addCustomIssue = new Intent(this, AddCustomIssueActivity.class);
+        addCustomIssue.putExtra(AddCustomIssueActivity.EXTRA_CAR, dashboardCar);
         startActivityForResult(addCustomIssue, RC_ADD_CUSTOM_ISSUE);
-
     }
 
     /**

@@ -26,7 +26,7 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 87
+        versionCode 89
         versionName "2.1.14"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -92,7 +92,6 @@ dependencies {
     compile 'com.android.support.test.espresso:espresso-core:2.2.2'
     compile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
     compile 'com.android.support.test:runner:0.5'
-
 }
 
 apply plugin: 'com.google.gms.google-services'

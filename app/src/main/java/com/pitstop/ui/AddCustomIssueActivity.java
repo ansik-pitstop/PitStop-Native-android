@@ -12,18 +12,20 @@ import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.pitstop.R;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
+import com.pitstop.utils.NetworkHelper;
 
-import java.util.HashMap;
-
-import static com.pitstop.R.drawable.severity_critical_indicator;
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;
 import static com.pitstop.R.drawable.severity_medium_indicator;
+import static com.pitstop.R.drawable.severity_critical_indicator;
 
 /**
  * Created by yifan on 16/9/23.
@@ -39,43 +41,59 @@ public class AddCustomIssueActivity extends AppCompatActivity {
     private static final String ITEM_ENGINE_OIL_FILTER = "Engine Oil & Filter";
     private static final String ITEM_WIPERS_FLUIDS = "Wipers/Fluids";
 
-    public static final String EXTRA_CAR_NAME = "car name";
-    public static final String EXTRA_DEALERSHIP_NAME = "Dealership name";
+    public static final String EXTRA_CAR = "car";
+
+    private Car mCar;
 
     private String mPickedAction;
     private String mPickedItem;
     private String mDescription = "";
-    private int mSeverity = 0;
+    private int mPriority;
 
     private View rootView;
     private TextView mAction;
     private TextView mItem;
     private CardView mActionButton;
     private CardView mItemButton;
+    private LinearLayout mDescriptionContainer;
+
+    private LocalCarIssueAdapter mCarIssueAdapter;
+    private NetworkHelper mNetworkHelper;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         rootView = getLayoutInflater().inflate(R.layout.activity_add_custom_issue, null);
         setContentView(rootView);
+
+        // Get extra data
+        mCar = getIntent().getParcelableExtra(EXTRA_CAR);
+
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mCarIssueAdapter = new LocalCarIssueAdapter(this);
+        mNetworkHelper = new NetworkHelper(this);
 
         setupUI();
     }
 
     private void setupUI() {
-        ((TextView) findViewById(R.id.car_name)).setText(getIntent().getStringExtra(EXTRA_CAR_NAME));
-        ((TextView) findViewById(R.id.dealership_name)).setText(getIntent().getStringExtra(EXTRA_DEALERSHIP_NAME));
+        ((TextView) findViewById(R.id.car_name)).setText(mCar.getYear() + " " + mCar.getMake() + " " + mCar.getModel());
+        ((TextView) findViewById(R.id.dealership_name)).setText(mCar.getDealership().getName());
         mAction = (TextView) findViewById(R.id.custom_action);
         mItem = (TextView) findViewById(R.id.custom_item);
         mActionButton = (CardView) findViewById(R.id.custom_issue_action_button);
         mItemButton = (CardView) findViewById(R.id.custom_issue_item_button);
+        mDescriptionContainer = (LinearLayout) findViewById(R.id.custom_issue_description_container);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+
     }
 
     @Override
@@ -85,7 +103,6 @@ public class AddCustomIssueActivity extends AppCompatActivity {
             showSaveDialog();
             return;
         }
-
         super.onBackPressed();
         overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
         finish();
@@ -107,8 +124,12 @@ public class AddCustomIssueActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.custom_issue_save:
-                // TODO: 16/9/27 Save and post issue
-                Snackbar.make(rootView, "Save Issue Tapped", Snackbar.LENGTH_LONG).show();
+                // TODO: 16/9/28 Post to backend
+                if (mPickedAction != null && mPickedItem != null){
+                    postCarIssueToBackend();
+                } else {
+                    Snackbar.make(rootView, "Please select the issue you want!", Snackbar.LENGTH_SHORT).show();
+                }
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -129,9 +150,6 @@ public class AddCustomIssueActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // TODO: 16/9/27 clear previous picked item
-                                // TODO: 16/9/27 reset visibility of items
-
                                 mPickedAction = getResources().getStringArray(R.array.preset_issue_actions)[which];
                                 mAction.setText(mPickedAction);
                                 Snackbar.make(rootView, "Action Button Tapped", Snackbar.LENGTH_LONG).show();
@@ -167,16 +185,16 @@ public class AddCustomIssueActivity extends AppCompatActivity {
                         // then this part has to be modified to keep the code easily maintainable
                         if (mPickedItem.equals(ITEM_FLAT_TIRE)) {
                             mDescription = getString(R.string.flat_tire_description);
-                            mSeverity = 5;
+                            mPriority = 5;
                         } else if (mPickedItem.equals(ITEM_TOW_TRUCK)) {
                             mDescription = getString(R.string.tow_truck_description);
-                            mSeverity = 5;
+                            mPriority = 5;
                         } else if (mPickedItem.equals(ITEM_ENGINE_OIL_FILTER)){
                             mDescription = getString(R.string.engine_oil_filter_description);
-                            mSeverity = 3;
+                            mPriority = 3;
                         } else if (mPickedItem.equals(ITEM_WIPERS_FLUIDS)){
                             mDescription = getString(R.string.wipers_fluids_description);
-                            mSeverity = 2;
+                            mPriority = 2;
                         }
 
                         Snackbar.make(rootView, "Item Button Tapped", Snackbar.LENGTH_LONG).show();
@@ -197,6 +215,7 @@ public class AddCustomIssueActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         // TODO: 16/9/27 Save items
+                        postCarIssueToBackend();
 
                         AddCustomIssueActivity.super.onBackPressed();
                         overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
@@ -208,16 +227,18 @@ public class AddCustomIssueActivity extends AppCompatActivity {
     }
 
     private void setupDescriptionView() {
-        RelativeLayout severityIndicatorLayout = (RelativeLayout) findViewById(R.id.custom_severity_indicator_layout);
-        TextView severityTextView = (TextView) findViewById(R.id.custom_issue_severity_text);
+
+        mDescriptionContainer.setVisibility(View.VISIBLE);
+
+
+        RelativeLayout severityIndicatorLayout = (RelativeLayout) rootView.findViewById(R.id.custom_severity_indicator_layout);
+        TextView severityTextView = (TextView) rootView.findViewById(R.id.custom_issue_severity_text);
 
         String title = mPickedAction + " " + mPickedItem;
         ((TextView) findViewById(R.id.custom_issue_title_text)).setText(title);
         ((TextView) findViewById(R.id.custom_issue_description)).setText(mDescription);
 
-        // TODO: 16/9/27 Set indicator color
-
-        switch (mSeverity) {
+        switch (mPriority) {
             case 1:
                 severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_low_indicator));
                 severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[0]);
@@ -235,6 +256,26 @@ public class AddCustomIssueActivity extends AppCompatActivity {
                 severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[3]);
                 break;
         }
+
+    }
+
+    private void storeCarIssueLocal(){
+        CarIssue issue = new CarIssue();
+        issue.setCarId(mCar.getId());
+        issue.setAction(mPickedAction);
+        issue.setItem(mPickedItem);
+        issue.setDescription(mDescription);
+        issue.setPriority(mPriority);
+        issue.setIssueType(CarIssue.SERVICE);
+        issue.setStatus(CarIssue.ISSUE_NEW);
+        // TODO: 16/9/28 Issue id and done at?
+
+    }
+
+    private void postCarIssueToBackend(){
+        Snackbar.make(rootView, "Now save issue to backend", Snackbar.LENGTH_LONG).show();
+        // TODO: 16/9/28 Post issue
+
 
     }
 

@@ -412,9 +412,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/activity_horizontal_margin"
-                android:backgroundTint="@color/primary"
-                android:src="@drawable/ic_add_preset_issues"
                 android:onClick="addPresetIssues"
+                android:src="@drawable/ic_add_preset_issues"
+                app:backgroundTint="@color/primary"
                 app:layout_anchor="@id/car_issues_list"
                 app:layout_anchorGravity="bottom|right|end"/>
 
