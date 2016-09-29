@@ -1,6 +1,5 @@
 package com.pitstop.ui;
 
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -22,7 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -34,8 +32,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -300,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
+
+        Log.d("JWT access token", application.getAccessToken());
     }
 
     @Override
@@ -1193,8 +1191,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void addPresetIssues(View button) {
         if (dashboardCar == null) return;
-        Intent addCustomIssue = new Intent(this, AddCustomIssueActivity.class);
-        addCustomIssue.putExtra(AddCustomIssueActivity.EXTRA_CAR, dashboardCar);
+        Intent addCustomIssue = new Intent(this, AddPresetIssueActivity.class);
+        addCustomIssue.putExtra(AddPresetIssueActivity.EXTRA_CAR, dashboardCar);
         startActivityForResult(addCustomIssue, RC_ADD_CUSTOM_ISSUE);
     }
 

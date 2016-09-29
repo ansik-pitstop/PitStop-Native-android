@@ -8,7 +8,6 @@
         android:id="@+id/car_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
@@ -55,9 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/car_info"
+        android:layout_marginTop="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
         android:clickable="true"
         android:onClick="pickAction">
 
@@ -83,7 +82,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_gravity="right"
                 android:layout_margin="4dp"
-                android:text="Choose the service you want"
+                android:text="Tap to pick the service"
                 android:textColor="@color/text_hint"
                 android:textSize="16sp"/>
 
@@ -99,7 +98,7 @@
         android:layout_below="@id/custom_issue_action_button"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:clickable="false"
         android:onClick="pickItem">
 
@@ -125,7 +124,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_gravity="right"
                 android:layout_margin="4dp"
-                android:text="Pick the relevant item"
+                android:text="Tap to pick relevant item"
                 android:textColor="@color/text_hint"
                 android:textSize="16sp"/>
 
@@ -133,14 +132,13 @@
 
     </android.support.v7.widget.CardView>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/custom_issue_description_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/custom_issue_item_button"
         android:layout_marginTop="16dp"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <android.support.v7.widget.CardView
             android:id="@+id/custom_issue_indicator_card"
@@ -212,19 +210,35 @@
         </android.support.v7.widget.CardView>
 
         <ScrollView
+            android:layout_below="@id/custom_issue_indicator_card"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/custom_issue_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 android:textSize="15sp"/>
 
         </ScrollView>
 
-    </LinearLayout>
+        <Button
+            android:onClick="postIssueAndRequestService"
+            android:id="@+id/btnRequestService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/color_button_primary"
+            android:drawableRight="@drawable/request_service_button"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Request Service Right Now"
+            android:textColor="#fff"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

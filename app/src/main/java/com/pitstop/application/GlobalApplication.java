@@ -21,6 +21,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
+import com.pitstop.database.LocalPresetIssueAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.User;
@@ -56,7 +57,7 @@ public class GlobalApplication extends Application {
     private LocalCarIssueAdapter mLocalCarIssueAdapter;
     private LocalPidAdapter mLocalPidAdapter;
     private LocalShopAdapter mLocalShopAdapter;
-
+    private LocalPresetIssueAdapter mLocalPresetIssueAdapter;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -293,6 +294,7 @@ public class GlobalApplication extends Application {
         mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
         mLocalPidAdapter = new LocalPidAdapter(this);
         mLocalShopAdapter = new LocalShopAdapter(this);
+        mLocalPresetIssueAdapter = new LocalPresetIssueAdapter(this);
     }
 
 
@@ -306,6 +308,7 @@ public class GlobalApplication extends Application {
         mLocalCarAdapter.deleteAllRows();
         mLocalCarIssueAdapter.deleteAllRows();
         mLocalShopAdapter.deleteAllRows();
+        mLocalPresetIssueAdapter.deleteAllRows();
     }
 
 }

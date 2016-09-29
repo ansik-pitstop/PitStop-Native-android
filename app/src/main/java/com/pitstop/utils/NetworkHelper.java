@@ -294,22 +294,36 @@ public class NetworkHelper {
         post("issue", callback, body);
     }
 
-    public void addNewCustomService(int carId, String scannerId, String serviceId, String item, String action, String type, RequestCallback callback) {
-        LOGI(TAG, String.format("addNewCustomService: carId: %s, item: %s," +
-                " item: %s, action: %s", carId, item, action, type));
+
+    /**
+     * Endpoint = POST /car/{carId}/issues
+     * @param carId
+     * @param issueId
+     * @param issueType
+     * @param callback
+     */
+    public void createNewCustomIssues(int carId, int issueId, String issueType, RequestCallback callback){
+        LOGI(TAG, String.format("createNewCustomIssues: carId: %s, issueId: %s, " +
+                "issueType: %s", carId, issueId, issueType));
+
         JSONObject body = new JSONObject();
-        JSONObject id = new JSONObject();
-        try {
-            id.put("item", item);
-            id.put("action", action);
-            body.put("id", id);
-            body.put("type", type);
-        } catch (JSONException e){
+        JSONArray issues = new JSONArray();
+        try{
+            issues.put(new JSONObject().put("type", issueType)
+                                .put("id", issueId));
+            body.put("issues", issues);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        post("car/"+ carId + "/service", callback, body);
+
+        post("/car/"+ carId + "/issues", callback, body);
     }
 
+    /**
+     * Get an array of categories, each category contains an array of services
+     * @param carId
+     * @param callback
+     */
     public void getCustomServices(int carId, RequestCallback callback){
         LOGI(TAG, String.format("getCustomServices: carId: %s", carId));
         get("car/" + carId + "/service", callback);
