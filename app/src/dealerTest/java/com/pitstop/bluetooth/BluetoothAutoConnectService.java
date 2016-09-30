@@ -139,8 +139,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(state == State.VERIFY_RTC) {
             sendMessageToUi(MessageListener.STATUS_UPDATE, "Device set time, syncing device...");
             getVinFromCar();
-        } else if(state == State.RESET) {
-            //bluetoothCommunicator.obdSetCtrl();
+        } else if(state == State.GET_VIN) {
+            Log.i(TAG, "Resetting device");
+            bluetoothCommunicator.obdSetCtrl(3);
+            disconnectFromDevice();
         }
     }
 
