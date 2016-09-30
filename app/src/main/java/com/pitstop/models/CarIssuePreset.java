@@ -15,6 +15,9 @@ import java.util.List;
  */
 public class CarIssuePreset {
 
+    public static final String TYPE_USER_INPUT = "userInput";
+    public static final String TYPE_PRESET = "preset";
+
     @Expose
     private String type;
     @Expose
@@ -25,6 +28,8 @@ public class CarIssuePreset {
     private String action;
     @Expose
     private String description;
+
+    private int priority;
 
     public CarIssuePreset() {
     }
@@ -69,6 +74,14 @@ public class CarIssuePreset {
         this.description = description;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     private static CarIssuePreset createCustomCarIssue(JSONObject issue) {
         return JsonUtil.json2object(issue.toString(), CarIssuePreset.class);
     }
@@ -93,6 +106,7 @@ public class CarIssuePreset {
         item = builder.item;
         action = builder.action;
         description = builder.description;
+        priority = builder.priority;
     }
 
     public static class Builder {
@@ -101,10 +115,23 @@ public class CarIssuePreset {
         private String item = "No item";
         private String action = "No action";
         private String description = "No description";
+        private int priority;
+
+        public Builder() {}
 
         public Builder(String type, int id) {
             this.type = type;
             this.id = id;
+        }
+
+        public Builder setId(int id){
+            this.id = id;
+            return this;
+        }
+
+        public Builder setType(String type){
+            this.type = type;
+            return this;
         }
 
         public Builder setItem(String item) {
@@ -119,6 +146,11 @@ public class CarIssuePreset {
 
         public Builder setDescription(String description) {
             this.description = description;
+            return this;
+        }
+
+        public Builder setPriority(int priority){
+            this.priority = priority;
             return this;
         }
 

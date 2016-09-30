@@ -10,6 +10,7 @@ import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -299,33 +300,98 @@ public class NetworkHelper {
      * Endpoint = POST /car/{carId}/issues
      * @param carId
      * @param issueId
-     * @param issueType
      * @param callback
      */
-    public void createNewCustomIssues(int carId, int issueId, String issueType, RequestCallback callback){
-        LOGI(TAG, String.format("createNewCustomIssues: carId: %s, issueId: %s, " +
-                "issueType: %s", carId, issueId, issueType));
+    public void postPresetIssue(int carId, int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("postPresetIssue: carId: %s, issueId: %s, " +
+                "issueType: %s", carId, issueId, CarIssuePreset.TYPE_PRESET));
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+
+        try {
+            data.put(new JSONObject()
+                    .put("type", CarIssuePreset.TYPE_PRESET)
+                    .put("id", issueId));
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        post("car/" + carId + "/issues", callback, body);
+    }
+
+    /**
+     * Endpoint = POST /car/{carId}/issues
+     * @param carId       car id that issue needs to be added to
+     * @param item        the issue item
+     * @param action      the issue action
+     * @param description the issue description
+     * @param priority    the issue priority
+     * @param callback
+     */
+    public void postUserInputIssue(int carId, String item, String action,
+                                   String description, int priority, RequestCallback callback) {
+        LOGI(TAG, String.format("postPresetIssue: carId: %s, item: %s, " +
+                "issueType: %s", carId, item, CarIssuePreset.TYPE_USER_INPUT));
 
         JSONObject body = new JSONObject();
-        JSONArray issues = new JSONArray();
-        try{
-            issues.put(new JSONObject().put("type", issueType)
-                                .put("id", issueId));
-            body.put("issues", issues);
+        JSONArray data = new JSONArray();
+
+        try {
+            data.put(new JSONObject()
+                    .put("type", CarIssuePreset.TYPE_USER_INPUT)
+                    .put("item", item)
+                    .put("action", action)
+                    .put("description", description)
+                    .put("priority", priority));
+            body.put("data", data);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        post("/car/"+ carId + "/issues", callback, body);
+        post("car/" + carId + "/issues", callback, body);
+    }
+
+    /**
+     * Used to post multiple preset issues at a time.
+     * @param carId
+     * @param pickedIssues
+     * @param callback
+     */
+    public void postMultiplePresetIssue(int carId, List<CarIssuePreset> pickedIssues, RequestCallback callback) {
+        LOGI(TAG, "Post multiple preset issues: carId: " + carId + ", pickedIssues: " + pickedIssues.size());
+
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+        try {
+            for (CarIssuePreset issue : pickedIssues) {
+                if (issue.getType().equals(CarIssuePreset.TYPE_PRESET)) {
+                    data.put(new JSONObject()
+                            .put("type", issue.getType())
+                            .put("id", issue.getId()));
+                } else {
+                    data.put(new JSONObject()
+                            .put("type", issue.getType())
+                            .put("item", issue.getItem())
+                            .put("action", issue.getAction())
+                            .put("description", issue.getDescription())
+                            .put("priority", issue.getPriority()));
+                }
+            }
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        post("car/" + carId + "/issues", callback, body);
     }
 
     /**
      * Get an array of categories, each category contains an array of services
+     *
      * @param carId
      * @param callback
      */
-    public void getCustomServices(int carId, RequestCallback callback){
-        LOGI(TAG, String.format("getCustomServices: carId: %s", carId));
+    public void getPresetIssuesByCarId(int carId, RequestCallback callback) {
+        LOGI(TAG, String.format("getPresetIssuesByCarId: carId: %s", carId));
         get("car/" + carId + "/service", callback);
     }
 

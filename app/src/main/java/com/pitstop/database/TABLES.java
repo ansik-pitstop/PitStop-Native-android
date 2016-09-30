@@ -100,6 +100,7 @@ public final class TABLES {
         String KEY_ITEM = "item";
         String KEY_ACTION = "action";
         String KEY_DESCRIPTION = "description";
+        String KEY_PRIORITY = "priority";
     }
 
 }

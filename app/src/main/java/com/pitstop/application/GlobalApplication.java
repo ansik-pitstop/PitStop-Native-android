@@ -57,7 +57,6 @@ public class GlobalApplication extends Application {
     private LocalCarIssueAdapter mLocalCarIssueAdapter;
     private LocalPidAdapter mLocalPidAdapter;
     private LocalShopAdapter mLocalShopAdapter;
-    private LocalPresetIssueAdapter mLocalPresetIssueAdapter;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -294,7 +293,6 @@ public class GlobalApplication extends Application {
         mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
         mLocalPidAdapter = new LocalPidAdapter(this);
         mLocalShopAdapter = new LocalShopAdapter(this);
-        mLocalPresetIssueAdapter = new LocalPresetIssueAdapter(this);
     }
 
 
@@ -308,7 +306,6 @@ public class GlobalApplication extends Application {
         mLocalCarAdapter.deleteAllRows();
         mLocalCarIssueAdapter.deleteAllRows();
         mLocalShopAdapter.deleteAllRows();
-        mLocalPresetIssueAdapter.deleteAllRows();
     }
 
 }

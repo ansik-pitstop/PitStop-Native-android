@@ -3,23 +3,26 @@ package com.pitstop.ui;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
 import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -37,101 +40,67 @@ import static com.pitstop.R.drawable.severity_medium_indicator;
 
 /**
  * Created by yifan on 16/9/23.
+ * @deprecated For the time being this activity does not need to be used.
+ * In the future when we have more preset issues, then we can leverage a new activity instead of a dialog.
  */
 public class AddPresetIssueActivity extends AppCompatActivity {
 
     private static final String TAG = AddPresetIssueActivity.class.getSimpleName();
 
-    private static final String SERVICE_EMERGENCY = "Emergency";
-    private static final String SERVICE_REPLACE = "Replace";
-    private static final String ITEM_FLAT_TIRE = "Flat Tire";
-    private static final String ITEM_TOW_TRUCK = "Tow Truck";
-    private static final String ITEM_ENGINE_OIL_FILTER = "Engine Oil & Filter";
-    private static final String ITEM_WIPERS_FLUIDS = "Wipers/Fluids";
-
     public static final String EXTRA_CAR = "car";
-
-    private List<CarIssuePreset> mAvailableIssueList;
-
-    private List<String> mTypes = new ArrayList<>();
-    private List<Integer> mIds = new ArrayList<>();
-    private List<String> mItems = new ArrayList<>();
-    private List<String> mActions = new ArrayList<>();
-    private List<String> mDescriptions = new ArrayList<>();
 
     private Car mCar;
 
-    private String mPickedAction;
-    private String mPickedItem;
-    private String mDescription = "";
-    private int mPriority;
+//    private String mPickedAction;
+//    private String mPickedItem;
+//    private String mDescription = "";
+//    private int mPriority;
 
     private View rootView;
-    private TextView mAction;
-    private TextView mItem;
-    private CardView mActionButton;
-    private CardView mItemButton;
-    private RelativeLayout mDescriptionContainer;
 
-    private LocalCarIssueAdapter mCarIssueAdapter;
-    private NetworkHelper mNetworkHelper;
+    private RecyclerView mRecyclerView;
+    private IssueAdapter mIssueAdapter;
+    private List<CarIssuePreset> mAvailableIssueList;
 
     private ProgressDialog mProgressDialog;
+
+    private NetworkHelper mNetworkHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         rootView = getLayoutInflater().inflate(R.layout.activity_add_preset_issue, null);
         setContentView(rootView);
-
-        // Get extra data
-        mCar = getIntent().getParcelableExtra(EXTRA_CAR);
-
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mCar = getIntent().getParcelableExtra(EXTRA_CAR);
+
         setupProgressDialog();
         setupUI();
 
-        mCarIssueAdapter = new LocalCarIssueAdapter(this);
-        mNetworkHelper = new NetworkHelper(this);
-
-        retrieveAvailableServices();
+        // Get extra data
+        mNetworkHelper = new NetworkHelper(getApplicationContext());
 
     }
 
     private void setupUI() {
         ((TextView) findViewById(R.id.car_name)).setText(mCar.getYear() + " " + mCar.getMake() + " " + mCar.getModel());
         ((TextView) findViewById(R.id.dealership_name)).setText(mCar.getDealership().getName());
-        mAction = (TextView) findViewById(R.id.custom_action);
-        mItem = (TextView) findViewById(R.id.custom_item);
-        mActionButton = (CardView) findViewById(R.id.custom_issue_action_button);
-        mItemButton = (CardView) findViewById(R.id.custom_issue_item_button);
-        mDescriptionContainer = (RelativeLayout) findViewById(R.id.custom_issue_description_container);
-        mDescriptionContainer.setVisibility(View.GONE);
+        mRecyclerView = (RecyclerView) findViewById(R.id.custom_issue_list);
+        populateListContents();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-
     }
 
     @Override
     public void onBackPressed() {
-        if (mPickedAction != null && mPickedItem != null) {
-            showSaveDialog();
-            return;
-        }
         super.onBackPressed();
         overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
         finish();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
     }
 
     @Override
@@ -144,12 +113,6 @@ public class AddPresetIssueActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.custom_issue_save:
-                // TODO: 16/9/28 Post to backend
-                if (mPickedAction != null && mPickedItem != null) {
-                    postCarIssueToBackend();
-                } else {
-                    Snackbar.make(rootView, "Please select the issue you want!", Snackbar.LENGTH_SHORT).show();
-                }
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -158,74 +121,53 @@ public class AddPresetIssueActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Onclick method for picking issue action
-     *
-     * @param view
-     */
-    public void pickAction(View view) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(AddPresetIssueActivity.this)
-                .setTitle("Please pick the service category")
-                .setItems(getResources().getStringArray(R.array.preset_issue_actions),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mPickedAction = getResources().getStringArray(R.array.preset_issue_actions)[which];
-                                mAction.setText(mPickedAction);
-                                pickItem(null);
-                            }
-                        })
-                .setCancelable(false);
-        dialog.show();
+    private void populateListContents() {
+        mAvailableIssueList = new ArrayList<>();
+        mAvailableIssueList.add(new CarIssuePreset.Builder()
+                .setAction(getString(R.string.preset_issue_service_emergency))
+                .setItem(getString(R.string.preset_issue_item_tow_truck))
+                .setType(CarIssuePreset.TYPE_USER_INPUT)
+                .setDescription(getString(R.string.tow_truck_description))
+                .setPriority(5).build());
+        mAvailableIssueList.add(new CarIssuePreset.Builder()
+                .setAction(getString(R.string.preset_issue_service_emergency))
+                .setItem(getString(R.string.preset_issue_item_flat_tire))
+                .setType(CarIssuePreset.TYPE_USER_INPUT)
+                .setDescription(getString(R.string.flat_tire_description))
+                .setPriority(5).build());
+        mAvailableIssueList.add(new CarIssuePreset.Builder()
+                .setAction(getString(R.string.preset_issue_service_replace))
+                .setItem(getString(R.string.preset_issue_item_engine_oil_filter))
+                .setType(CarIssuePreset.TYPE_USER_INPUT)
+                .setDescription(getString(R.string.engine_oil_filter_description))
+                .setPriority(3).build());
+        mAvailableIssueList.add(new CarIssuePreset.Builder()
+                .setAction(getString(R.string.preset_issue_service_replace))
+                .setItem(getString(R.string.preset_issue_item_wipers_fluids))
+                .setType(CarIssuePreset.TYPE_USER_INPUT)
+                .setDescription(getString(R.string.wipers_fluids_description))
+                .setPriority(2).build());
+        mAvailableIssueList.add(new CarIssuePreset.Builder()
+                .setAction(getString(R.string.preset_issue_service_request))
+                .setItem(getString(R.string.preset_issue_item_shuttle_service))
+                .setType(CarIssuePreset.TYPE_USER_INPUT)
+                .setDescription(getString(R.string.shuttle_service_description))
+                .setPriority(3).build());
+
+        mRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mIssueAdapter = new IssueAdapter(mAvailableIssueList);
+        mRecyclerView.setAdapter(mIssueAdapter);
     }
 
     /**
-     * Onclick method for picking issue item
-     *
-     * @param view
+     * Not needed for the time being
      */
-    public void pickItem(View view) {
-        if (mPickedAction == null) {
-            Snackbar.make(rootView, "Please pick your service category first", Snackbar.LENGTH_SHORT).show();
-            pickAction(null);
-            return;
-        }
-        final String[] items = mPickedAction.equals(SERVICE_EMERGENCY) ? getResources().getStringArray(R.array.emergency_item)
-                : getResources().getStringArray(R.array.replace_item);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(AddPresetIssueActivity.this)
-                .setTitle("Please pick the service item")
-                .setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mPickedItem = items[which];
-                        mItem.setText(mPickedItem);
-
-                        // Hard coded value for the time being, if we decide to make more preset issues
-                        // then this part has to be modified to keep the code easily maintainable
-                        if (mPickedItem.equals(ITEM_FLAT_TIRE)) {
-                            mDescription = getString(R.string.flat_tire_description);
-                            mPriority = 5;
-                        } else if (mPickedItem.equals(ITEM_TOW_TRUCK)) {
-                            mDescription = getString(R.string.tow_truck_description);
-                            mPriority = 5;
-                        } else if (mPickedItem.equals(ITEM_ENGINE_OIL_FILTER)) {
-                            mDescription = getString(R.string.engine_oil_filter_description);
-                            mPriority = 3;
-                        } else if (mPickedItem.equals(ITEM_WIPERS_FLUIDS)) {
-                            mDescription = getString(R.string.wipers_fluids_description);
-                            mPriority = 2;
-                        }
-
-                        setupDescriptionView();
-                    }
-                })
-                .setCancelable(false);
-        dialog.show();
-    }
-
     private void retrieveAvailableServices() {
         showLoading("Getting available services");
-        mNetworkHelper.getCustomServices(mCar.getId(), new RequestCallback() {
+        mNetworkHelper.getPresetIssuesByCarId(mCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 hideLoading();
@@ -233,19 +175,9 @@ public class AddPresetIssueActivity extends AppCompatActivity {
                     showErrorAndFinish();
                 } else {
                     try {
-
                         mAvailableIssueList = CarIssuePreset.createCustomCarIssues(response);
-
-                        for (CarIssuePreset presetIssue : mAvailableIssueList) {
-                            mTypes.add(presetIssue.getType());
-                            mIds.add(presetIssue.getId());
-                            mItems.add(presetIssue.getItem());
-                            mActions.add(presetIssue.getAction());
-                            mDescriptions.add(presetIssue.getDescription());
-                        }
-
+//                        mLocalPresetIssueStore.storePresetIssues(mAvailableIssueList, mCar.getId());
                         Snackbar.make(rootView, "Retrieved all available issues!", Snackbar.LENGTH_SHORT).show();
-
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -256,33 +188,78 @@ public class AddPresetIssueActivity extends AppCompatActivity {
         });
     }
 
-    private void showSaveDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(AddPresetIssueActivity.this)
-                .setTitle("Save custom issue")
-                .setMessage("You have not saved your custom issue yet! Are you sure you want to quit?")
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        postCarIssueToBackend();
-                    }
-                })
-                .setNegativeButton("CANCEL", null);
-        dialog.show();
-    }
 
     /**
      * After the user has selected the desired issue, we show them detail information about the issue
      */
     private void setupDescriptionView() {
+//        RelativeLayout severityIndicatorLayout = (RelativeLayout) rootView.findViewById(R.id.custom_severity_indicator_layout);
+//        TextView severityTextView = (TextView) rootView.findViewById(R.id.custom_issue_severity_text);
+//
+//        String title = mPickedAction + " " + mPickedItem;
+//        ((TextView) findViewById(R.id.custom_issue_title_text)).setText(title);
+//        ((TextView) findViewById(R.id.custom_issue_description)).setText(mDescription);
+//
+//        switch (mPriority) {
+//            case 1:
+//                severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_low_indicator));
+//                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[0]);
+//                break;
+//            case 2:
+//                severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_medium_indicator));
+//                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[1]);
+//                break;
+//            case 3:
+//                severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_high_indicator));
+//                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[2]);
+//                break;
+//            default:
+//                severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_critical_indicator_2));
+//                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[3]);
+//                break;
+//        }
+//
+//        mDescriptionContainer.setVisibility(View.VISIBLE);
+    }
 
-        RelativeLayout severityIndicatorLayout = (RelativeLayout) rootView.findViewById(R.id.custom_severity_indicator_layout);
-        TextView severityTextView = (TextView) rootView.findViewById(R.id.custom_issue_severity_text);
+    /**
+     * do POST to car issue, call finish() on success, do nothing on error
+     */
+    private void postCarIssueToBackend(CarIssuePreset issue) {
+        showLoading("Saving issue");
+        if (issue.getType().equals(CarIssuePreset.TYPE_USER_INPUT)) {
+            mNetworkHelper.postUserInputIssue(mCar.getId(), issue.getItem(), issue.getAction(),
+                    issue.getDescription(), issue.getPriority(), new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            hideLoading();
+                            if (requestError == null) {
+                                Log.d(TAG, "Success!");
+                                finishOnSuccess();
+                            } else {
+                                Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
+                                        "error: " + requestError.getError());
+                                showErrorAndFinish();
+                            }
+                        }
+                    });
+        }
+    }
 
-        String title = mPickedAction + " " + mPickedItem;
-        ((TextView) findViewById(R.id.custom_issue_title_text)).setText(title);
-        ((TextView) findViewById(R.id.custom_issue_description)).setText(mDescription);
+    /**
+     * Show a detail dialog about the issue
+     * @param pickedCarIssue
+     */
+    private void showDetailDialog(final CarIssuePreset pickedCarIssue) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail, null);
+        View titleView = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
+        RelativeLayout severityIndicatorLayout = (RelativeLayout) dialogView.findViewById(R.id.dialog_preset_issue_severity_indicator_layout);
+        TextView severityTextView = (TextView) dialogView.findViewById(R.id.dialog_preset_issue_severity_text);
+        String title = pickedCarIssue.getAction() + " " + pickedCarIssue.getItem();
+        ((TextView) dialogView.findViewById(R.id.dialog_preset_issue_title_text)).setText(title);
+        ((TextView) dialogView.findViewById(R.id.dialog_preset_issue_description)).setText(pickedCarIssue.getDescription());
 
-        switch (mPriority) {
+        switch (pickedCarIssue.getPriority()) {
             case 1:
                 severityIndicatorLayout.setBackground(ContextCompat.getDrawable(this, severity_low_indicator));
                 severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[0]);
@@ -300,34 +277,16 @@ public class AddPresetIssueActivity extends AppCompatActivity {
                 severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[3]);
                 break;
         }
-
-        mDescriptionContainer.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * do POST to car issue, call finish() on success, do nothing on error
-     */
-    private void postCarIssueToBackend() {
-        if (mPickedAction == null || mPickedItem == null) {
-            Snackbar.make(rootView, "You didn't pick the service yet!", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        showLoading("Saving issue");
-
-        // TODO: 16/9/28 Save issues
-
-
-    }
-
-    /**
-     * Onclick method for "Request service right now" button<br>
-     * Post new issue and then let the go back to MainActivity and request service
-     *
-     * @param view Button
-     */
-    public void postIssueAndRequestService(View view) {
-
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setView(dialogView)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        postCarIssueToBackend(pickedCarIssue);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .setCustomTitle(titleView).show();
     }
 
     private void setupProgressDialog() {
@@ -358,7 +317,7 @@ public class AddPresetIssueActivity extends AppCompatActivity {
     private void showErrorAndFinish() {
         new AlertDialog.Builder(this)
                 .setTitle("Error")
-                .setMessage("We have problem retrieving data. We apologize for the inconvenience, please try again later.")
+                .setMessage("We have problem communicating with our server. We apologize for the inconvenience, please try again later.")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -383,4 +342,82 @@ public class AddPresetIssueActivity extends AppCompatActivity {
         finish();
     }
 
+    private void showErrorMessage() {
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage("We have problem sending your request. We apologize for the inconvenience, please try again later.")
+                .setPositiveButton("OK", null)
+                .setCancelable(false)
+                .show();
+    }
+
+    public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHolder> {
+
+        private List<CarIssuePreset> mPresetIssues;
+
+        public IssueAdapter(List<CarIssuePreset> presetIssues) {
+            mPresetIssues = presetIssues;
+        }
+
+        @Override
+        public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.activity_add_preset_issue_item, parent, false);
+            return new IssueViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(IssueViewHolder holder, final int position) {
+            final CarIssuePreset presetIssue = mPresetIssues.get(position);
+
+            holder.description.setText(presetIssue.getDescription());
+            holder.description.setEllipsize(TextUtils.TruncateAt.END);
+            holder.title.setText(String.format("%s %s", presetIssue.getAction(), presetIssue.getItem()));
+
+            holder.container.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showDetailDialog(mPresetIssues.get(position));
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return mPresetIssues.size();
+        }
+
+        public class IssueViewHolder extends RecyclerView.ViewHolder {
+            public TextView title;
+            public TextView description;
+            public ImageView imageView;
+            public View container;
+
+            public IssueViewHolder(View itemView) {
+                super(itemView);
+                title = (TextView) itemView.findViewById(R.id.title);
+                description = (TextView) itemView.findViewById(R.id.description);
+                imageView = (ImageView) itemView.findViewById(R.id.image_icon);
+                container = itemView.findViewById(R.id.list_car_item);
+            }
+        }
+    }
+
+    /**
+     * Onclick method for picking issue action
+     *
+     * @param view
+     */
+    public void pickAction(View view) {
+    }
+
+    /**
+     * Onclick method for picking issue item
+     *
+     * @param view
+     */
+    public void pickItem(View view) {
+    }
+
 }
+

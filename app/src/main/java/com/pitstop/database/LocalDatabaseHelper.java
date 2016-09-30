@@ -15,8 +15,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-//    private static final int DATABASE_VERSION = 18;
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 18;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private Context mContext;
@@ -43,7 +42,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
         db.execSQL(UserAdapter.CREATE_TABLE_USER);
         db.execSQL(LocalScannerAdapter.CREATE_TABLE_CAR_ISSUES);
-        db.execSQL(LocalPresetIssueAdapter.CREATE_TABLE_PRESET_ISSUES);
     }
 
     @Override
@@ -56,7 +54,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SCANNER.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.PRESET_ISSUES.TABLE_NAME);
         onCreate(db);
     }
 }

@@ -1,11 +1,13 @@
 package com.pitstop.ui;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -27,14 +29,22 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +64,7 @@ import com.pitstop.R;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.CarIssuePreset;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
@@ -175,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     // Views
+    private View rootView;
     private Toolbar toolbar;
     private CharSequence mTitle = "Pitstop";
     private CharSequence mDrawerTitle = "Your Vehicles";
@@ -245,7 +257,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
-        setContentView(R.layout.activity_main_drawer_frame);
+        rootView = getLayoutInflater().inflate(R.layout.activity_main_drawer_frame, null);
+//        setContentView(R.layout.activity_main_drawer_frame);
+        setContentView(rootView);
 
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
@@ -276,10 +290,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-//        carLocalStore = new LocalCarAdapter(this);
-//        carIssueLocalStore = new LocalCarIssueAdapter(this);
-//        shopLocalStore = new LocalShopAdapter(this);
-//        scannerLocalStore = new LocalScannerAdapter(this);
         carLocalStore = new LocalCarAdapter(application);
         carIssueLocalStore = new LocalCarIssueAdapter(application);
         shopLocalStore = new LocalShopAdapter(application);
@@ -794,6 +804,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
                                         callback.setCarDetailsUI();
+
+
+
                                     }
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
@@ -1191,9 +1204,70 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void addPresetIssues(View button) {
         if (dashboardCar == null) return;
-        Intent addCustomIssue = new Intent(this, AddPresetIssueActivity.class);
-        addCustomIssue.putExtra(AddPresetIssueActivity.EXTRA_CAR, dashboardCar);
-        startActivityForResult(addCustomIssue, RC_ADD_CUSTOM_ISSUE);
+//        Intent addCustomIssue = new Intent(this, AddPresetIssueActivity.class);
+//        addCustomIssue.putExtra(AddPresetIssueActivity.EXTRA_CAR, dashboardCar);
+//        startActivityForResult(addCustomIssue, RC_ADD_CUSTOM_ISSUE);
+
+        View dialogList = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_list, null);
+        View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
+        RecyclerView list = (RecyclerView) dialogList.findViewById(R.id.dialog_add_preset_issue_recycler_view);
+
+        final IssueAdapter adapter = new IssueAdapter();
+        list.setAdapter(adapter);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        list.setLayoutManager(linearLayoutManager);
+        list.setHasFixedSize(true);
+
+        final AlertDialog d = new AlertDialog.Builder(this)
+                .setCustomTitle(dialogTitle)
+                .setView(dialogList)
+                .setPositiveButton("CONFIRM", null)
+                .setNegativeButton("CANCEL", null)
+                .create();
+
+        d.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        List<CarIssuePreset> pickedIssues = adapter.getPickedIssues();
+                        if (pickedIssues.size() == 0){
+                            Toast.makeText(MainActivity.this, "Please pick issues you want to add!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        StringBuilder checkedItems = new StringBuilder();
+                        for (CarIssuePreset pickedIssue: pickedIssues){
+                            checkedItems.append(pickedIssue.getItem() + " ");
+                        }
+                        Toast.makeText(MainActivity.this, checkedItems.toString(), Toast.LENGTH_SHORT).show();
+
+                        showLoading("Saving issue");
+                        networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                hideLoading();
+                                if (requestError == null) {
+                                    Log.d(TAG, "Success!");
+                                    showSimpleMessage("We have saved issues you requested!", true);
+                                } else {
+                                    Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
+                                            "error: " + requestError.getError());
+                                    showSimpleMessage("Network error, please try again.", false);
+                                }
+                            }
+                        });
+                        d.dismiss();
+                    }
+                });
+            }
+        });
+
+        d.show();
     }
 
     /**
@@ -1459,6 +1533,129 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setCarDetailsUI();
 
         void selectCarForUnrecognizedModule();
+    }
+
+    public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHolder> {
+
+        private List<CarIssuePreset> mPresetIssues;
+
+        private List<CarIssuePreset> mPickedIssues;
+
+        private void populateContent(){
+            mPresetIssues = new ArrayList<>();
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setAction(getString(R.string.preset_issue_service_emergency))
+                    .setItem(getString(R.string.preset_issue_item_tow_truck))
+                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setDescription(getString(R.string.tow_truck_description))
+                    .setPriority(5).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setAction(getString(R.string.preset_issue_service_emergency))
+                    .setItem(getString(R.string.preset_issue_item_flat_tire))
+                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setDescription(getString(R.string.flat_tire_description))
+                    .setPriority(5).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setAction(getString(R.string.preset_issue_service_replace))
+                    .setItem(getString(R.string.preset_issue_item_engine_oil_filter))
+                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setDescription(getString(R.string.engine_oil_filter_description))
+                    .setPriority(3).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setAction(getString(R.string.preset_issue_service_replace))
+                    .setItem(getString(R.string.preset_issue_item_wipers_fluids))
+                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setDescription(getString(R.string.wipers_fluids_description))
+                    .setPriority(2).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setAction(getString(R.string.preset_issue_service_request))
+                    .setItem(getString(R.string.preset_issue_item_shuttle_service))
+                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setDescription(getString(R.string.shuttle_service_description))
+                    .setPriority(3).build());
+        }
+
+        public IssueAdapter() {
+            populateContent();
+            mPickedIssues = new ArrayList<>();
+        }
+
+        @Override
+        public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.activity_add_preset_issue_item, parent, false);
+            return new IssueViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final IssueViewHolder holder, final int position) {
+            final CarIssuePreset presetIssue = mPresetIssues.get(position);
+
+            holder.description.setText(presetIssue.getDescription());
+            holder.description.setEllipsize(TextUtils.TruncateAt.END);
+            holder.title.setText(String.format("%s %s", presetIssue.getAction(), presetIssue.getItem()));
+
+            holder.container.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    holder.checkBox.setChecked(!holder.checkBox.isChecked());
+                }
+            });
+
+            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Toast.makeText(MainActivity.this, isChecked ? "Checked " + holder.title.getText() :
+                            "Unchecked " + holder.title.getText(), Toast.LENGTH_SHORT).show();
+                    if (isChecked){
+                        mPickedIssues.add(mPresetIssues.get(position));
+                    } else if(mPickedIssues.contains(mPresetIssues.get(position))){
+                        mPickedIssues.remove(mPresetIssues.get(position));
+                    }
+                }
+            });
+
+            switch (presetIssue.getPriority()){
+                case 1:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_low));
+                    break;
+                case 2:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
+                    break;
+                case 3:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_high));
+                    break;
+                default:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_severe));
+                    break;
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mPresetIssues.size();
+        }
+
+        public List<CarIssuePreset> getPickedIssues() {
+            return mPickedIssues;
+        }
+
+        public class IssueViewHolder extends RecyclerView.ViewHolder {
+            public TextView title;
+            public TextView description;
+            public ImageView imageView;
+            public CheckBox checkBox;
+            public View container;
+
+            public IssueViewHolder(View itemView) {
+                super(itemView);
+                checkBox = (CheckBox) itemView.findViewById(R.id.dialog_preset_issue_list_checkbox);
+                title = (TextView) itemView.findViewById(R.id.title);
+                description = (TextView) itemView.findViewById(R.id.description);
+                imageView = (ImageView) itemView.findViewById(R.id.image_icon);
+                container = itemView.findViewById(R.id.list_car_item);
+            }
+        }
     }
 
 }

@@ -62,7 +62,6 @@ public class LocalScannerAdapter {
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
         if (c.moveToFirst()){
             while (!c.isAfterLast()){
-                Log.d("LocalScannerAdapter", "Car ID:" + c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)));
                 if (c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)) == carId){
                     exist = true;
                 }

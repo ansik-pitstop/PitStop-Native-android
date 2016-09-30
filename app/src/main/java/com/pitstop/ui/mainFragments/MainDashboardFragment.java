@@ -615,8 +615,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             carIssueList.addAll(dashboardCar.getActiveIssues());
             carIssuesAdapter.notifyDataSetChanged();
         }
-
-
     }
 
 

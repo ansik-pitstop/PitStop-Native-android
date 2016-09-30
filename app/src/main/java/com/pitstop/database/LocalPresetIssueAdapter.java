@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by yifan on 16/9/29.
+ * @deprecated For the time being there's no need to use database to store available preset issues.
  */
 public class LocalPresetIssueAdapter {
 
@@ -23,6 +24,7 @@ public class LocalPresetIssueAdapter {
             + TABLES.PRESET_ISSUES.KEY_ITEM + " TEXT, "
             + TABLES.PRESET_ISSUES.KEY_ACTION+ " TEXT, "
             + TABLES.PRESET_ISSUES.KEY_DESCRIPTION + " TEXT, "
+            + TABLES.PRESET_ISSUES.KEY_PRIORITY + " INTEGER, "
             + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER" + ")";
 
     private LocalDatabaseHelper databaseHelper;
@@ -52,6 +54,7 @@ public class LocalPresetIssueAdapter {
         values.put(TABLES.PRESET_ISSUES.KEY_ITEM, presetIssue.getItem());
         values.put(TABLES.PRESET_ISSUES.KEY_ACTION, presetIssue.getAction());
         values.put(TABLES.PRESET_ISSUES.KEY_DESCRIPTION, presetIssue.getDescription());
+        values.put(TABLES.PRESET_ISSUES.KEY_PRIORITY, presetIssue.getPriority());
 
         return values;
     }
@@ -79,7 +82,8 @@ public class LocalPresetIssueAdapter {
                 c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)))
                 .setItem(c.getString(c.getColumnIndex(TABLES.PRESET_ISSUES.KEY_ITEM)))
                 .setAction(c.getString(c.getColumnIndex(TABLES.PRESET_ISSUES.KEY_ACTION)))
-                .setDescription(c.getString(c.getColumnIndex(TABLES.PRESET_ISSUES.KEY_DESCRIPTION))).build();
+                .setDescription(c.getString(c.getColumnIndex(TABLES.PRESET_ISSUES.KEY_DESCRIPTION)))
+                .setPriority(c.getInt(c.getColumnIndex(TABLES.PRESET_ISSUES.KEY_PRIORITY))).build();
     }
 
     public void deleteAllRows(){
