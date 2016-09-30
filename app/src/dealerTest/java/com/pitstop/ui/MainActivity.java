@@ -1,11 +1,13 @@
 package com.pitstop.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -13,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -130,11 +133,16 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Connecting to device...");
-        progressDialog.setCancelable(false);
+        progressDialog.setCancelable(true);
         progressDialog.setCanceledOnTouchOutside(false);
 
         serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
+
+        if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
+        }
     }
 
     @Override
@@ -147,6 +155,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     protected void onDestroy() {
         super.onDestroy();
         bluetoothService.disconnectFromDevice();
+        if(connectTimer != null) {
+            connectTimer.cancel();
+        }
         unbindService(serviceConnection);
         try {
             unregisterReceiver(testActionReceiver);
@@ -210,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         if (connected) {
             return;
         }
+        connectTimer.cancel();
         progressDialog.hide();
         connected = true;
         connectCard.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
@@ -228,9 +240,56 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         viewPager.setVisibility(View.VISIBLE);
     }
 
-    public void connectToDevice(View view) { // todo: scan multiple times and timeout
-        bluetoothService.startBluetoothSearch();
+    private CountDownTimer connectTimer;
+    private int connectAttempts = 0;
+
+    public void connectToDevice(View view) {
+        connectAttempts = 0;
+        connectTimer = new CountDownTimer(14000, 14000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+            }
+            @Override
+            public void onFinish() {
+                if (++connectAttempts == 3) {
+                    progressDialog.hide();
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                    alertDialog.setTitle("Could not connect to device");
+                    alertDialog.setMessage("Could not connect to device. " +
+                            "\n\nMake sure your vehicle engine is on and " +
+                            "OBD device is properly plugged in.\n\nYou may also try turning off the Bluetooth on your phone and then turning it back on.\n\nTry again ?");
+                    alertDialog.setCancelable(false);
+
+                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            connectToDevice(null);
+                        }
+                    });
+
+                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    searchForCar();
+                }
+            }
+        };
+        searchForCar();
+        connectTimer.start();
         progressDialog.show();
+    }
+
+    private void searchForCar() {
+        bluetoothService.startBluetoothSearch();
+        if(connectTimer != null) {
+            connectTimer.start();
+        }
     }
 
     private BroadcastReceiver testActionReceiver = new BroadcastReceiver() {
