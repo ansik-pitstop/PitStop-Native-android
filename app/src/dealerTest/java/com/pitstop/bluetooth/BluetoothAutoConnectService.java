@@ -139,6 +139,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(state == State.VERIFY_RTC) {
             sendMessageToUi(MessageListener.STATUS_UPDATE, "Device set time, syncing device...");
             getVinFromCar();
+        } else if(state == State.RESET) {
+            //bluetoothCommunicator.obdSetCtrl();
         }
     }
 
@@ -221,6 +223,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
             sendMessageToUi(MessageListener.STATUS_UPDATE, "Data retrieved: " + pids.toString());
+            sendMessageToUi(MessageListener.STATUS_SUCCESS, "Successfully received sensor data");
+            testTimer.cancel();
+            listenForDtcs();
         } else if(state == State.READ_DTCS && dataPackageInfo.dtcData != null) {
             Log.i(TAG, "DTC Success");
             dtcSuccess = true;

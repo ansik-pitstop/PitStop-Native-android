@@ -38,21 +38,14 @@
             android:layout_height="wrap_content"
             android:text="Start" /-->
 
-        <ProgressBar
-            android:id="@+id/testPendingIndicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/color_button_primary_dark"/>
-
         <Button
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/testStatus"
             style="@style/TestAppButtonStyle"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start" />
+            android:text="Pending" />
 
     </RelativeLayout>
 

@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         viewPager.setPageTransformer(false, shadowTransformer);
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(6);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Connecting to device...");
@@ -183,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
+                viewPager.setOnTouchListener(null);
             }
         } else if (status == STATUS_FAILED) {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
@@ -197,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
                 viewPager.setCurrentItem(5);
+                viewPager.setOnTouchListener(null);
             }
         }
     }
@@ -224,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         viewPager.setVisibility(View.VISIBLE);
     }
 
-    public void connectToDevice(View view) {
+    public void connectToDevice(View view) { // todo: scan multiple times and timeout
         bluetoothService.startBluetoothSearch();
         progressDialog.show();
     }
@@ -268,6 +272,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         connected = false;
                         break;
                     case CHECK_TIME:
+                        viewPager.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return true;
+                            }
+                        });
                         Toast.makeText(context, "Check Time", Toast.LENGTH_SHORT).show();
                         bluetoothService.getObdDeviceTime();
                         logoLayout.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
@@ -294,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         break;
                     case RESET:
                         Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
+                        bluetoothService.resetObdDeviceTime();
                         break;
                 }
             }

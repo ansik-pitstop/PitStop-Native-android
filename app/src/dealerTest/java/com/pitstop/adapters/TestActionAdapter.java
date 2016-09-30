@@ -71,7 +71,7 @@ public class TestActionAdapter extends PagerAdapter {
 
         TextView title = (TextView) view.findViewById(R.id.cardTitle);
         TextView description = (TextView) view.findViewById(R.id.cardDescription);
-        View testButton = view.findViewById(R.id.testPendingIndicator);
+        Button testButton = (Button) view.findViewById(R.id.testStatus);
 
         final TestAction action = testActions.get(position);
 
@@ -88,6 +88,15 @@ public class TestActionAdapter extends PagerAdapter {
                     doTest(action.type);
                 }
             });
+            if(title != null) {
+                if (position == 0) { // hardcoded button text
+                    testButton.setText("Disconnect");
+                } else if (position == testActions.size() - 1) {
+                    testButton.setText("Reset");
+                } else if (position == 1) {
+                    testButton.setText("Start");
+                }
+            }
         }
 
         cardView.setMaxCardElevation(mBaseElevation * MAX_ELEVATION_FACTOR);
