@@ -295,6 +295,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
+
+        printScannerTable();
     }
 
     @Override
@@ -1424,6 +1426,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setCarDetailsUI();
 
         void selectCarForUnrecognizedModule();
+    }
+
+    private void printScannerTable(){
+        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
+        for (ObdScanner scanner : scanners) {
+            Log.d(TAG, "Scanners in the table: " + scanners.size());
+            Log.d(TAG, "Device Name: (" + (scanner.getDeviceName() != null? scanner.getDeviceName() : "EMPTY") + ")");
+            Log.d(TAG, "Scanner ID: (" + (scanner.getScannerId() != null? scanner.getScannerId() : "EMPTY") + ")");
+            Log.d(TAG, "Car ID: (" + scanner.getCarId() + ")");
+        }
     }
 
 }

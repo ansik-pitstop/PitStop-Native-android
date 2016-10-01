@@ -62,7 +62,6 @@ public class LocalScannerAdapter {
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
         if (c.moveToFirst()){
             while (!c.isAfterLast()){
-                Log.d("LocalScannerAdapter", "Car ID:" + c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)));
                 if (c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)) == carId){
                     exist = true;
                 }
@@ -208,6 +207,32 @@ public class LocalScannerAdapter {
         }
         return result;
     }
+
+    /**
+     * Check if any car has scanner, the scanner has scanner Id, but does not have scanner name
+     * @return
+     */
+    public boolean anyScannerLackName(){
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        int numberOfScanners = 0;
+        int numberOfDeviceNames = 0;
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                ObdScanner scanner = cursorToScanner(c);
+                if (scanner.getScannerId() != null && !"".equals(scanner.getScannerId())){
+                    numberOfScanners++;
+                    if (scanner.getDeviceName() != null && !"".equals(scanner.getDeviceName())){
+                        numberOfDeviceNames++;
+                    }
+                }
+                c.moveToNext();
+            }
+        }
+        db.close();
+        return numberOfDeviceNames != numberOfScanners;
+    }
+
 
     public void deleteAllRows() {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

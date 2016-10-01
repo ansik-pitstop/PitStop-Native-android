@@ -578,6 +578,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 // If yes, notify the user that this car has scanner;
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
+
                                 return;
                             } else {
                                 Log.d(TAG, "Picked car lack device");

@@ -364,7 +364,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                 String deviceName = device.getName();
 
-                Log.d(TAG, "Device found: " + deviceName);
+                Log.d(TAG, "Device found: DEVICE NAME: " + deviceName);
                 Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
                 Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
 
@@ -373,7 +373,11 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     List<ObdScanner> scanners = scannerAdapter.getAllScanners();
                     boolean deviceFoundLocally = false; // if any scanner has "null" name or name matches
                     for (ObdScanner scanner : scanners) {
-                        // check if any sc
+                        Log.d(TAG, "Scanner in the table: ");
+                        Log.d(TAG, "Device Name: (" + (scanner.getDeviceName() != null? scanner.getDeviceName() : "EMPTY") + ")");
+                        Log.d(TAG, "Scanner ID: (" + (scanner.getScannerId() != null? scanner.getScannerId() : "EMPTY") + ")");
+                        Log.d(TAG, "Car ID: (" + scanner.getCarId() + ")");
+
                         if (scanner.getDeviceName() != null && scanner.getDeviceName().equals(deviceName)) {
                             deviceFoundLocally = true;
                             break;
@@ -386,7 +390,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.d(TAG, "Scanner Adapter device name exists?" + scannerAdapter.deviceNameExists(deviceName));
 
                     // If the user is adding car/this device exists locally, we should add it such that we can add car/receives data from device
-                    if (AddCarActivity.addingCarWithDevice || /*scannerAdapter.getAllScanners().isEmpty() ||*/ deviceFoundLocally) { // TODO: 16/9/20 Test this
+                    // If there's a scanner has no name, we connect it anyway
+                    if (AddCarActivity.addingCarWithDevice || scannerAdapter.anyScannerLackName() || deviceFoundLocally) {
                         Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
                         connectedDeviceName = deviceName;
                         mBluetoothChat.connectBluetooth(device);
