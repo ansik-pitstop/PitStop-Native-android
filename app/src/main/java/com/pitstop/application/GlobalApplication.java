@@ -80,8 +80,7 @@ public class GlobalApplication extends Application {
             settings = new Settings(getString(R.string.smooch_token_debug));
         }
 
-
-        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(false);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, settings);
 
         // Parse
