@@ -74,10 +74,10 @@ public class GlobalApplication extends Application {
         // Smooch
         Settings settings;
 
-        if (BuildConfig.DEBUG){
-            settings = new Settings(getString(R.string.smooch_token_debug));
-        }else {
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE)){
             settings = new Settings(getString(R.string.smooch_token));
+        } else {
+            settings = new Settings(getString(R.string.smooch_token_debug));
         }
 
 
