@@ -536,7 +536,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
             askForDTC = false;
 
-            // TODO: 16/9/21 IF timeout, maybe we should below codes because we will have it executed before timeout
+            // IF timeout, maybe we should below codes because we will have it executed before timeout
             if (mGetDTCTimeoutRunnable != null && mGetDTCTimeoutRunnable.getDTCTimeOut) {
                 return;
             }
@@ -792,7 +792,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
                                     // Check if DTCs are retrieved after 15 seconds
                                     mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
-                                    mHandler.postDelayed(mGetDTCTimeoutRunnable, 6000);
+                                    mHandler.post(mGetDTCTimeoutRunnable);
 
                                     autoConnectService.getDTCs();
                                     autoConnectService.getPendingDTCs();
@@ -802,7 +802,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
                                     callback.carSuccessfullyAdded(createdCar);
                                 }
-
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -821,6 +820,14 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                         }
                     }
                 });
+    }
+
+    /**
+     * This method will cancel all runnables and messages.<br>
+     * Invoked when the AddCarActivity finished.
+     */
+    public void cancelAllRunnables(){
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     private Runnable vinDetectionRunnable = new Runnable() {
@@ -884,11 +891,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         private boolean getDTCTimeOut = false;
 
         public GetDTCTimeoutRunnable(long startTime) {
+            Log.d("DTC TIMEOUT RUNNABLE", "Created");
             this.startTime = startTime;
         }
 
         @Override
         public void run() {
+            Log.d("DTC TIMEOUT RUNNABLE", "Running");
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
 
@@ -896,13 +905,17 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
             // If it finished, then we're good, remove the runnable from the handler
             if (!askForDTC) {
+                Log.d("DTC TIMEOUT RUNNABLE", "Got DTCs");
                 mHandler.removeCallbacks(this);
                 getDTCTimeOut = false;
-            } else if (seconds > 15) { // If it didn't finish and the time exceeded 15 seconds, let the handler knows
+            } else if (seconds > 0) { // If it didn't finish and the time exceeded 15 seconds, let the handler knows
+                Log.d("DTC TIMEOUT RUNNABLE", "TIMEOUT");
                 getDTCTimeOut = true;
+//                askForDTC = false; // TODO: 16/10/2 Test
                 mHandler.sendEmptyMessage(HANDLER_MSG_GET_DTC_TIMEOUT);
                 mHandler.removeCallbacks(this);
             } else {  // If it didn't finish and it didn't timeout, we wait for another 5 seconds
+                Log.d("DTC TIMEOUT RUNNABLE", "Continue");
                 mHandler.postDelayed(this, 5000);
             }
         }

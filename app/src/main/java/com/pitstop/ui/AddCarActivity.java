@@ -342,6 +342,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void finish() {
+//        addCarUtils.cancelAllRunnables();
         super.finish();
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
@@ -531,5 +532,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
+
+
 
 }

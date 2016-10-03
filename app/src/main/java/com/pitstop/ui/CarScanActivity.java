@@ -185,8 +185,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     protected void onPause() {
-        handler.removeCallbacks(checkEngineIssuesRunnable);
-        handler.removeCallbacks(connectCarRunnable);
+        // TODO: 16/10/2 Test this
+//        handler.removeCallbacks(checkEngineIssuesRunnable);
+//        handler.removeCallbacks(connectCarRunnable);
+        handler.removeCallbacksAndMessages(null);
         super.onPause();
     }
 
