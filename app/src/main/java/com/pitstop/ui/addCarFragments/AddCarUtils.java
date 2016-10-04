@@ -43,10 +43,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
@@ -416,7 +414,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
 
         Log.i(TAG, "Get parameter data, bluetooth state: " + autoConnectService.getState());
-
         Log.i(TAG, "getParameterData()");
 
         if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)) {
@@ -461,6 +458,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
             linkingAttempts = 0;
             Log.i(TAG, "VIN response received");
+            Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
 
             // TODO: 16/10/4 This if branch is entered even if the current activity is MainActivity (not AddCarActivity any more)
             callback.showLoading("Getting car VIN");
@@ -766,7 +764,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                         if (requestError == null) {
                             Log.i(TAG, "Create car response: " + response);
                             try {
-//                                Car newCar = Car.createCar(response);
                                 createdCar = Car.createCar(response);
 
                                 if (pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
@@ -774,9 +771,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                 }
 
                                 if (pendingCar.getScannerId() != null) {
-                                    autoConnectService.saveScanner();
+                                    autoConnectService.saveScannerOnResultPostCar(createdCar);
                                 } else {
-                                    autoConnectService.saveEmptyScanner(pendingCar.getId());
+                                    autoConnectService.saveEmptyScanner(createdCar.getId());
                                 }
 
                                 Log.i(TAG, "After successfully posting car to server, scanner saved Locally");
@@ -917,7 +914,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                 mHandler.removeCallbacks(this);
             } else {  // If it didn't finish and it didn't timeout, we wait for another 5 seconds
                 Log.d("DTC TIMEOUT RUNNABLE", "Continue");
-                mHandler.postDelayed(this, 5000);
+//                mHandler.postDelayed(this, 5000);
+                mHandler.postDelayed(this, 2000);
             }
         }
     }

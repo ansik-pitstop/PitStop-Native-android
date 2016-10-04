@@ -275,10 +275,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-//        carLocalStore = new LocalCarAdapter(this);
-//        carIssueLocalStore = new LocalCarIssueAdapter(this);
-//        shopLocalStore = new LocalShopAdapter(this);
-//        scannerLocalStore = new LocalScannerAdapter(this);
         carLocalStore = new LocalCarAdapter(application);
         carIssueLocalStore = new LocalCarIssueAdapter(application);
         shopLocalStore = new LocalShopAdapter(application);
@@ -326,6 +322,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             e.printStackTrace();
         }
 
+        logScannerTable();
     }
 
     @Override
@@ -1424,6 +1421,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setCarDetailsUI();
 
         void selectCarForUnrecognizedModule();
+    }
+
+    private void logScannerTable(){
+        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
+        Log.i(TAG + " Scanner", "Scanner Table");
+        for (ObdScanner scanner : scanners){
+            Log.i("Scanner table", "Car ID: " + scanner.getCarId());
+            Log.i("Scanner table", "Device Name: " + scanner.getDeviceName());
+            Log.i("Scanner table", "Device ID: " + scanner.getScannerId());
+        }
     }
 
 }
