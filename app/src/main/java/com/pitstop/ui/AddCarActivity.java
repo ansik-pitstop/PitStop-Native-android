@@ -336,13 +336,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         if (serviceIsBound) {
             addCarUtils.unbindService();
         }
+
         addCarUtils.cancelMashape();
         super.onDestroy();
     }
 
     @Override
     public void finish() {
-//        addCarUtils.cancelAllRunnables();
         super.finish();
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
@@ -503,12 +503,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         });
         alertDialog.show();
 
-//        // Mixpanel - Try to connect bluetooth again
-//        try {
-//            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, MixpanelHelper.ADD_CAR_VIEW);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        // Mixpanel - Try to connect bluetooth again
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, MixpanelHelper.ADD_CAR_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
