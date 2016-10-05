@@ -212,6 +212,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void finish() {
+        handler.removeCallbacksAndMessages(null);
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
@@ -843,10 +844,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             if (result5Retrieved){
                 handler.removeCallbacks(getResult5Runnable);
-                return;
-            }
-
-            if (seconds > 30 && !result5Retrieved) {
+            } else if (seconds > 30) {
                 result5Retrieved = true;
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);

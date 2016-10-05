@@ -275,10 +275,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-//        carLocalStore = new LocalCarAdapter(this);
-//        carIssueLocalStore = new LocalCarIssueAdapter(this);
-//        shopLocalStore = new LocalShopAdapter(this);
-//        scannerLocalStore = new LocalScannerAdapter(this);
         carLocalStore = new LocalCarAdapter(application);
         carIssueLocalStore = new LocalCarIssueAdapter(application);
         shopLocalStore = new LocalShopAdapter(application);
@@ -301,7 +297,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onResume() {
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.w(TAG, "onResume");
+        Log.d(TAG, "onResume");
+
+        if (autoConnectService != null) {
+            autoConnectService.setCallbacks(this);
+        }
 
         resetMenus(false);
 

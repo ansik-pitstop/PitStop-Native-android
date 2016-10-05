@@ -99,7 +99,7 @@ public class ServiceRequestUtil {
         final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         final int monthToShow = !isFirstBooking ? currentMonth : (currentMonth + 3) % 12;
-        final int yearToShow = (!isFirstBooking && monthToShow < currentMonth) ? currentYear + 1 : currentYear;
+        final int yearToShow = (isFirstBooking && monthToShow < currentMonth) ? currentYear + 1 : currentYear;
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
