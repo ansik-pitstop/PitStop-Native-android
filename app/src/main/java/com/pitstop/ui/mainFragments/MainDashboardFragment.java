@@ -218,8 +218,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        carIssuesAdapter = new CustomAdapter(carIssueList);
         carIssueList = ((MainActivity) getActivity()).getCarIssueList();
+        carIssuesAdapter = new CustomAdapter(carIssueList);
 
         // Local db adapters
         carLocalStore = MainActivity.carLocalStore;
@@ -349,11 +349,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                             @Override
                             public boolean canSwipe(int position) {
-                                if (carIssuesAdapter.getItemViewType(position)
-                                        == CustomAdapter.VIEW_TYPE_EMPTY) {
-                                    return false;
-                                }
-                                return true;
+                                return carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_EMPTY;
                             }
 
                             @Override
@@ -376,6 +372,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
+
 
                                 DatePickerDialog datePicker = new DatePickerDialog(getContext(),
                                         new DatePickerDialog.OnDateSetListener() {
@@ -450,12 +447,20 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
+                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
                                         try {
                                             mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
                                                     + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+                                });
+
+                                datePicker.setButton(DialogInterface.BUTTON_POSITIVE, "CONFIRM", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
                                     }
                                 });
 
