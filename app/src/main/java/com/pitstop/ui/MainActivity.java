@@ -314,7 +314,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onResume() {
         super.onResume();
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.w(TAG, "onResume");
+        Log.d(TAG, "onResume");
+
+        if (autoConnectService != null) {
+            autoConnectService.setCallbacks(this);
+        }
 
         resetMenus(false);
 

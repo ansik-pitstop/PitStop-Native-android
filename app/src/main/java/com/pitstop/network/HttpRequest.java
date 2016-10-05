@@ -46,7 +46,7 @@ public class HttpRequest {
                         RequestCallback listener,
                         JSONObject body,
                         Context context
-                        ) {
+    ) {
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -59,11 +59,11 @@ public class HttpRequest {
     }
 
     public void executeAsync() {
-        if(Utils.isEmpty(uri)) {
+        if (Utils.isEmpty(uri)) {
             return;
         }
 
-        if(listener == null) {
+        if (listener == null) {
             listener = new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
@@ -77,7 +77,7 @@ public class HttpRequest {
         asyncRequest.execute(uri, requestType, body, headers);
     }
 
-    private class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String> > {
+    private class HttpClientAsyncTask extends AsyncTask<Object, Object, Response<String>> {
         private RequestCallback listener;
 
         public void setListener(RequestCallback listener) {
@@ -85,24 +85,24 @@ public class HttpRequest {
         }
 
         @Override
-        protected void onPreExecute () {
+        protected void onPreExecute() {
             super.onPreExecute();
         }
 
         @Override
-        protected Response<String> doInBackground (Object[] params) {
+        protected Response<String> doInBackground(Object[] params) {
             Response<String> response = null;
             HashMap<String, String> headers = new HashMap<>();
             try {
-                switch ((RequestType)params[1]) {
+                switch ((RequestType) params[1]) {
                     case GET: {
                         Request request = webClient.get(params[0].toString())
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -116,10 +116,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -133,10 +133,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -150,10 +150,10 @@ public class HttpRequest {
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
                                 .body(params[2]);
 
-                        if(params[3] instanceof HashMap) {
+                        if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];
-                            for(String key : headers.keySet()) {
-                                request.header(key ,headers.get(key));
+                            for (String key : headers.keySet()) {
+                                request.header(key, headers.get(key));
                             }
                         }
 
@@ -169,15 +169,18 @@ public class HttpRequest {
 
         @Override
         protected void onPostExecute(Response<String> response) {
-            if(response != null) {
-                if(response.isSuccess()) {
+            if (response != null) {
+                if (response.isSuccess()) {
                     LOGD(TAG, response.getBody());
                     LOGD(TAG, response.getResponseMessage());
-                    listener.done(response.getBody(),null);
+                    listener.done(response.getBody(), null);
                 } else {
-                    LOGD(TAG,"Error: "+response.getStatusLine());
+                    LOGD(TAG, "Error: " + response.getStatusLine());
                     LOGD(TAG, response.getResponseMessage());
                     LOGD(TAG, (String) response.getErrorBody());
+
+                    RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
+                    error.setStatusCode(response.getStatusCode());
 
                     if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
                         // Error handling
@@ -207,8 +210,9 @@ public class HttpRequest {
                             }
                         });
                     } else {
-                        listener.done(null, RequestError
-                                .jsonToRequestErrorObject((String) response.getErrorBody()));
+                        listener.done(null, error);
+//                        listener.done(null, RequestError
+//                                .jsonToRequestErrorObject((String) response.getErrorBody()));
                         //.setStatusCode(response.getStatusCode()));
                     }
                 }
@@ -295,7 +299,7 @@ public class HttpRequest {
         }
 
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType,uri,headers,callback,body,context);
+            return new HttpRequest(requestType, uri, headers, callback, body, context);
         }
     }
 }

@@ -148,7 +148,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 return;
             }
 
-
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
             addCarUtils.addCarToServer(null);
 
@@ -336,6 +335,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         if (serviceIsBound) {
             addCarUtils.unbindService();
         }
+
         addCarUtils.cancelMashape();
         super.onDestroy();
     }
@@ -508,12 +508,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         });
         alertDialog.show();
 
-//        // Mixpanel - Try to connect bluetooth again
-//        try {
-//            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, MixpanelHelper.ADD_CAR_VIEW);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        // Mixpanel - Try to connect bluetooth again
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY, MixpanelHelper.ADD_CAR_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -537,5 +537,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
+
+
 
 }

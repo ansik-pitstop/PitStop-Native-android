@@ -55,14 +55,14 @@ public class LocalScannerAdapter {
         return scanners;
     }
 
-    public boolean isCarExist(int carId){
+    public boolean isCarExist(int carId) {
         boolean exist = false;
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
-        if (c.moveToFirst()){
-            while (!c.isAfterLast()){
-                if (c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)) == carId){
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                if (c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID)) == carId) {
                     exist = true;
                 }
                 c.moveToNext();
@@ -79,6 +79,19 @@ public class LocalScannerAdapter {
 
         int rows = db.update(TABLES.SCANNER.TABLE_NAME, values, TABLES.SCANNER.KEY_SCANNER_ID + "=?",
                 new String[]{String.valueOf(scanner.getScannerId())});
+
+        db.close();
+
+        return rows;
+    }
+
+    public int updateScannerByCarId(ObdScanner scanner) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = scannerObjectToContentValues(scanner);
+
+        int rows = db.update(TABLES.SCANNER.TABLE_NAME, values, TABLES.SCANNER.KEY_CAR_ID + "=?",
+                new String[]{String.valueOf(scanner.getCarId())});
 
         db.close();
 
@@ -109,11 +122,37 @@ public class LocalScannerAdapter {
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, TABLES.SCANNER.KEY_SCANNER_ID + "=?",
                 new String[]{scannerId}, null, null, null);
 
-        if (c.moveToFirst()) {
-            scanner = cursorToScanner(c);
+        try {
+            if (c.moveToFirst()) {
+                scanner = cursorToScanner(c);
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
         }
+        if (db.isOpen()) db.close();
 
-        db.close();
+        return scanner;
+    }
+
+    public ObdScanner getScannerByCarId(int carId) {
+        ObdScanner scanner = new ObdScanner();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, TABLES.SCANNER.KEY_CAR_ID + "=?",
+                new String[]{String.valueOf(carId)}, null, null, null);
+
+        try {
+            if (c.moveToFirst()) {
+                scanner = cursorToScanner(c);
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
+        }
+        if (db.isOpen()) db.close();
+
         return scanner;
     }
 
@@ -144,68 +183,148 @@ public class LocalScannerAdapter {
         int numberOfScanners = 0;
         int numberOfCars = 0;
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
-                ObdScanner scanner = cursorToScanner(c);
-                if (scanner.getScannerId() != null && !"".equals(scanner.getScannerId())){
-                    numberOfScanners++;
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    ObdScanner scanner = cursorToScanner(c);
+                    if (scanner.getScannerId() != null && !"".equals(scanner.getScannerId())) {
+                        numberOfScanners++;
+                    }
+                    numberOfCars++;
+                    c.moveToNext();
                 }
-                numberOfCars ++;
-                c.moveToNext();
             }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
         }
-        db.close();
+        if (db.isOpen()) db.close();
         return numberOfCars != numberOfScanners;
     }
 
-    public boolean deviceNameExists(String deviceName){
+    public boolean deviceNameExists(String deviceName) {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
-        if (c.moveToFirst()){
-            while (!c.isAfterLast()){
-                String storedName = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_DEVICE_NAME));
-                if (storedName != null && storedName.equals(deviceName)){
-                    db.close();
-                    return true;
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    String storedName = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_DEVICE_NAME));
+                    if (storedName != null && storedName.equals(deviceName)) {
+                        return true;
+                    }
+                    c.moveToNext();
                 }
-                c.moveToNext();
             }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
         }
-        db.close();
+        if (db.isOpen()) db.close();
         return false;
     }
 
-    public int getTableSize(){
+    public boolean scannerIdExists(String scannerId) {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    String storedID = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
+                    if (storedID != null && storedID.equals(scannerId)) {
+                        return true;
+                    }
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
+        }
+        if (db.isOpen()) db.close();
+        return false;
+    }
+
+    public int getTableSize() {
         int size = 0;
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
-                size ++;
-                c.moveToNext();
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    size++;
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+            if (db.isOpen()) {
+                db.close();
             }
         }
-        db.close();
+        if (db.isOpen()) db.close();
         return size;
     }
 
-    public boolean carHasDevice(int pickedCarId){
+    public boolean carHasDevice(int pickedCarId) {
         boolean result = false;
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, new String[]{TABLES.SCANNER.KEY_CAR_ID, TABLES.SCANNER.KEY_SCANNER_ID},
                 TABLES.SCANNER.KEY_CAR_ID + " = " + pickedCarId,
                 null, null, null, null);
-        if (c.moveToFirst()){
-            while (!c.isAfterLast()){
-                String scannerId = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
-                int carId = c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID));
-                if (scannerId != null && scannerId.length() > 0 && pickedCarId == carId){
-                    result = true;
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    String scannerId = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
+                    int carId = c.getInt(c.getColumnIndex(TABLES.SCANNER.KEY_CAR_ID));
+                    if (scannerId != null && scannerId.length() > 0 && pickedCarId == carId) {
+                        result = true;
+                    }
+                    c.moveToNext();
                 }
-                c.moveToNext();
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+            if (db.isOpen()) {
+                db.close();
             }
         }
+        if (db.isOpen()) db.close();
         return result;
+    }
+
+    /**
+     * Check if any car has scanner, the scanner has scanner Id, but does not have scanner name
+     *
+     * @return
+     */
+    public boolean anyScannerLackName() {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        int numberOfScanners = 0;
+        int numberOfDeviceNames = 0;
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    ObdScanner scanner = cursorToScanner(c);
+                    if (scanner.getScannerId() != null && !"".equals(scanner.getScannerId())) {
+                        numberOfScanners++;
+                        if (scanner.getDeviceName() != null && !"".equals(scanner.getDeviceName())) {
+                            numberOfDeviceNames++;
+                        }
+                    }
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
+        }
+        if (db.isOpen()) db.close();
+        return numberOfDeviceNames != numberOfScanners;
     }
 
     public void deleteAllRows() {

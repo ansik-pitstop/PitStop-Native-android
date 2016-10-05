@@ -513,6 +513,7 @@ public class NetworkHelper {
     }
 
     /**
+     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      * @param userId
      * @param carId
      * @param shopId
@@ -520,7 +521,6 @@ public class NetworkHelper {
      * @param date
      * @param tentative
      * @param callback
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      */
     public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
                                RequestCallback callback) {
@@ -581,7 +581,7 @@ public class NetworkHelper {
             try {
                 updateSalesman.put("carId", carId);
                 updateSalesman.put("salesperson", comments);
-            } catch (JSONException e) {
+            } catch (JSONException e){
                 e.printStackTrace();
             }
             put("car", new RequestCallback() {
