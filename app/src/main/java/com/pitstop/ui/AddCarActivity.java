@@ -148,7 +148,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 return;
             }
 
-
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
             addCarUtils.addCarToServer(null);
 
