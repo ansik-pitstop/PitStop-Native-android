@@ -271,6 +271,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
 
+            updateScannerNameOnAutoConnect();
+
         } else {
             /**
              * Set device connection state for connected car indicator,
@@ -393,7 +395,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             callbacks.getParameterData(parameterPackageInfo);
         }
     }
-
 
     /**
      * result=4 --> trip data uploaded by terminal

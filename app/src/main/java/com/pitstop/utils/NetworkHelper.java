@@ -295,9 +295,9 @@ public class NetworkHelper {
         post("issue", callback, body);
     }
 
-
     /**
      * Endpoint = POST /car/{carId}/issues
+     *
      * @param carId
      * @param issueId
      * @param callback
@@ -316,11 +316,12 @@ public class NetworkHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        post("car/" + carId + "/issues", callback, body);
+        post("car/" + carId + "/service", callback, body);
     }
 
     /**
      * Endpoint = POST /car/{carId}/issues
+     *
      * @param carId       car id that issue needs to be added to
      * @param item        the issue item
      * @param action      the issue action
@@ -348,11 +349,12 @@ public class NetworkHelper {
             e.printStackTrace();
         }
 
-        post("car/" + carId + "/issues", callback, body);
+        post("car/" + carId + "/service", callback, body);
     }
 
     /**
      * Used to post multiple preset issues at a time.
+     *
      * @param carId
      * @param pickedIssues
      * @param callback
@@ -381,7 +383,7 @@ public class NetworkHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        post("car/" + carId + "/issues", callback, body);
+        post("car/" + carId + "/service", callback, body);
     }
 
     /**
@@ -513,7 +515,6 @@ public class NetworkHelper {
     }
 
     /**
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      * @param userId
      * @param carId
      * @param shopId
@@ -521,6 +522,7 @@ public class NetworkHelper {
      * @param date
      * @param tentative
      * @param callback
+     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      */
     public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
                                RequestCallback callback) {
@@ -581,7 +583,7 @@ public class NetworkHelper {
             try {
                 updateSalesman.put("carId", carId);
                 updateSalesman.put("salesperson", comments);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             put("car", new RequestCallback() {

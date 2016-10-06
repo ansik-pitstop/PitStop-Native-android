@@ -96,7 +96,7 @@
     <string name="tow_truck_description">Send an emergency request to the dealership to help you get your vehicle into the shop. Breakdowns are frustrating we are here to help. Be aware of the hours of operation of the dealership, after hours you may need to call a tow truck yourself.</string>
     <string name="shuttle_service_description">Request for the dealership to coordinate a loaner vehicle or a shuttle to pick you up from your location.</string>
     <string name="title_activity_add_custom_issue">Add Custom Issue</string>
-    <string name="add_preset_issue_dialog_title">Add this issue to your car?</string>
+    <string name="add_preset_issue_dialog_title">Add issues to your car</string>
     <string name="preset_issue_service_emergency">Emergency</string>
     <string name="preset_issue_service_replace">Replace</string>
     <string name="preset_issue_service_request">Request</string>
@@ -105,9 +105,7 @@
     <string name="preset_issue_item_engine_oil_filter">Engine Oil &amp; Filter</string>
     <string name="preset_issue_item_wipers_fluids">Wipers/Fluids</string>
     <string name="preset_issue_item_shuttle_service">Shuttle Service</string>
-
-
-
+    <string name="dialog_clear_issue_title">When was this service completed?</string>
 
 
 </resources>

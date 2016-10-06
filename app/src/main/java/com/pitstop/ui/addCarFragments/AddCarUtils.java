@@ -460,7 +460,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             Log.i(TAG, "VIN response received");
             Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
 
-            // TODO: 16/10/4 This if branch is entered even if the current activity is MainActivity (not AddCarActivity any more)
             callback.showLoading("Getting car VIN");
 
             isGettingVinAndCarIsConnected = false;
@@ -905,17 +904,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                 Log.d("DTC TIMEOUT RUNNABLE", "Got DTCs");
                 mHandler.removeCallbacks(this);
                 getDTCTimeOut = false;
-            } else if (seconds > 0) { // TODO: 16/10/4 For testing purpose
-                // If it didn't finish and the time exceeded 15 seconds, let the handler knows
+            } else if (seconds > 15) { // If it didn't finish and the time exceeded 15 seconds, let the handler knows
                 Log.d("DTC TIMEOUT RUNNABLE", "TIMEOUT");
                 getDTCTimeOut = true;
-                askForDTC = false; // TODO: 16/10/2 Test
+                askForDTC = false;
                 mHandler.sendEmptyMessage(HANDLER_MSG_GET_DTC_TIMEOUT);
                 mHandler.removeCallbacks(this);
             } else {  // If it didn't finish and it didn't timeout, we wait for another 5 seconds
                 Log.d("DTC TIMEOUT RUNNABLE", "Continue");
-//                mHandler.postDelayed(this, 5000);
-                mHandler.postDelayed(this, 2000);
+                mHandler.postDelayed(this, 5000);
             }
         }
     }

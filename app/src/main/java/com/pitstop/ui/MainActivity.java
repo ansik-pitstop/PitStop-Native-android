@@ -53,6 +53,7 @@ import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
+import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.ObdDataUtil;
@@ -258,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
         rootView = getLayoutInflater().inflate(R.layout.activity_main_drawer_frame, null);
-//        setContentView(R.layout.activity_main_drawer_frame);
         setContentView(rootView);
 
         ParseACL acl = new ParseACL();
@@ -342,7 +342,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -521,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
                 Log.d("OnActivityResult", "CarList: " + carList.size());
                 Log.d("OnActivityResult", LoginActivity.sState);
-                if (carList.size() == 0 && LoginActivity.sState == LoginActivity.SIGNUP) {
+                if (carList.size() == 0 && LoginActivity.sState.equals(LoginActivity.SIGNUP)) {
                     LoginActivity.switchStateForTutorial();
                     prepareAndStartTutorialSequence();
                 }
@@ -1258,10 +1257,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                 if (requestError == null) {
                                     Log.d(TAG, "Success!");
                                     showSimpleMessage("We have saved issues you requested!", true);
+                                    refreshFromServer(); // Test this
+
+                                    // Track in mixpanel?
+
                                 } else {
                                     Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
                                             "error: " + requestError.getError());
-                                    showSimpleMessage("Network error, please try again.", false);
+                                    showSimpleMessage("Network error, please try again later.", false);
                                 }
                             }
                         });
@@ -1548,33 +1551,38 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         private void populateContent(){
             mPresetIssues = new ArrayList<>();
             mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(4)
                     .setAction(getString(R.string.preset_issue_service_emergency))
                     .setItem(getString(R.string.preset_issue_item_tow_truck))
-                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setType(CarIssuePreset.TYPE_PRESET)
                     .setDescription(getString(R.string.tow_truck_description))
                     .setPriority(5).build());
             mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(1)
                     .setAction(getString(R.string.preset_issue_service_emergency))
                     .setItem(getString(R.string.preset_issue_item_flat_tire))
-                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setType(CarIssuePreset.TYPE_PRESET)
                     .setDescription(getString(R.string.flat_tire_description))
                     .setPriority(5).build());
             mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(2)
                     .setAction(getString(R.string.preset_issue_service_replace))
                     .setItem(getString(R.string.preset_issue_item_engine_oil_filter))
-                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setType(CarIssuePreset.TYPE_PRESET)
                     .setDescription(getString(R.string.engine_oil_filter_description))
                     .setPriority(3).build());
             mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(3)
                     .setAction(getString(R.string.preset_issue_service_replace))
                     .setItem(getString(R.string.preset_issue_item_wipers_fluids))
-                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setType(CarIssuePreset.TYPE_PRESET)
                     .setDescription(getString(R.string.wipers_fluids_description))
                     .setPriority(2).build());
             mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(5)
                     .setAction(getString(R.string.preset_issue_service_request))
                     .setItem(getString(R.string.preset_issue_item_shuttle_service))
-                    .setType(CarIssuePreset.TYPE_USER_INPUT)
+                    .setType(CarIssuePreset.TYPE_PRESET)
                     .setDescription(getString(R.string.shuttle_service_description))
                     .setPriority(3).build());
         }
@@ -1609,8 +1617,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Toast.makeText(MainActivity.this, isChecked ? "Checked " + holder.title.getText() :
-                            "Unchecked " + holder.title.getText(), Toast.LENGTH_SHORT).show();
                     if (isChecked){
                         mPickedIssues.add(mPresetIssues.get(position));
                     } else if(mPickedIssues.contains(mPresetIssues.get(position))){
@@ -1619,18 +1625,24 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             });
 
-            switch (presetIssue.getPriority()){
+            switch (presetIssue.getId()){
                 case 1:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_low));
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_flat_tire_severe));
                     break;
                 case 2:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_replace_orange_48px));
                     break;
                 case 3:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_high));
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_replace_yellow_48px));
+                    break;
+                case 4:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_tow_truck_severe));
+                    break;
+                case 5:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
                     break;
                 default:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_severe));
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
                     break;
             }
         }
@@ -1659,6 +1671,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 imageView = (ImageView) itemView.findViewById(R.id.image_icon);
                 container = itemView.findViewById(R.id.list_car_item);
             }
+        }
+    }
+
+    private void logScannerTable(){
+        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
+        for (ObdScanner scanner: scanners){
+            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
+            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
+            Log.d(TAG, "Car ID: " + scanner.getCarId());
         }
     }
 

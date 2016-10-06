@@ -13,7 +13,9 @@ android {
     def staging = "\"http://staging.api.getpitstop.io:10010/\""
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
+    def testing_preset_issues = "\"http://54.165.51.73:10011/\""
     def isStaging = true
+    def isTesting = true
 
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -26,7 +28,7 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 93
+        versionCode 92
         versionName "2.1.16"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -35,6 +37,7 @@ android {
         debug { // for development, dev backend, no mixpanel
             buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
             buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
+//            buildConfigField "String", "SERVER_URL", isTesting? testing_preset_issues : staging // change it back when finished testing
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""

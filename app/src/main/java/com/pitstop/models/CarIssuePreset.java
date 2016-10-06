@@ -18,8 +18,8 @@ public class CarIssuePreset {
     public static final String TYPE_USER_INPUT = "userInput";
     public static final String TYPE_PRESET = "preset";
 
-    @Expose
     private String type;
+
     @Expose
     private int id;
     @Expose
@@ -28,7 +28,7 @@ public class CarIssuePreset {
     private String action;
     @Expose
     private String description;
-
+    @Expose
     private int priority;
 
     public CarIssuePreset() {
@@ -89,12 +89,20 @@ public class CarIssuePreset {
     public static List<CarIssuePreset> createCustomCarIssues(String response) throws JSONException {
         JSONObject body = new JSONObject(response);
         JSONArray results = body.getJSONArray("results");
-
         ArrayList<CarIssuePreset> customCarIssues = new ArrayList<>();
+        JSONArray issues;
 
-        for (int i = 0; i < results.length(); i++) {
-            JSONObject issue = results.getJSONObject(i);
-            customCarIssues.add(createCustomCarIssue(issue));
+        for (int index = 0; index < results.length(); index++){
+            JSONObject object = results.getJSONObject(index);
+            if (TYPE_PRESET.equals(object.getString("type"))){
+                issues = object.getJSONArray("issues");
+                for (int i = 0; i < issues.length(); i++){
+                    JSONObject presetIssueJson = issues.getJSONObject(i);
+                    CarIssuePreset presetIssue = createCustomCarIssue(presetIssueJson);
+                    presetIssue.setType(TYPE_PRESET);
+                    customCarIssues.add(presetIssue);
+                }
+            }
         }
 
         return customCarIssues;

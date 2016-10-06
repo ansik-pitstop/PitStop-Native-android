@@ -82,6 +82,8 @@ public class AddPresetIssueActivity extends AppCompatActivity {
         // Get extra data
         mNetworkHelper = new NetworkHelper(getApplicationContext());
 
+        // Check local database content for preset issues;
+        // If empty, ask backend for them, if not, load them
     }
 
     private void setupUI() {

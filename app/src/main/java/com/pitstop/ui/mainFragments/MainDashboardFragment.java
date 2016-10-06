@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -43,7 +44,6 @@ import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListen
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.CarScanActivity;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -65,7 +65,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
@@ -161,6 +160,21 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     };
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
+        setUpUIReferences();
+        if (dashboardCar != null) {
+            carName.setText(dashboardCar.getYear() + " "
+                    + dashboardCar.getMake() + " "
+                    + dashboardCar.getModel());
+            setIssuesCount();
+            setCarDetailsUI();
+        }
+        return rootview;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -242,39 +256,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         carScan = (RelativeLayout) rootview.findViewById(R.id.dashboard_car_scan_btn);
         addressLayout = (RelativeLayout) rootview.findViewById(R.id.address_layout);
-//        addressLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                try {
-//                    mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(), MixpanelHelper.DASHBOARD_VIEW);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                String uri = String.format(Locale.ENGLISH,
-//                        "http://maps.google.com/maps?daddr=%s",
-//                        dashboardCar.getDealership().getAddress());
-//                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-//                startActivity(intent);
-//            }
-//        });
 
         phoneNumberLayout = (RelativeLayout) rootview.findViewById(R.id.phone_layout);
-//        phoneNumberLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                try {
-//                    mixpanelHelper.trackButtonTapped("Call " + dashboardCar.getDealership().getName(), MixpanelHelper.DASHBOARD_VIEW);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-//                        dashboardCar.getDealership().getPhone()));
-//                startActivity(intent);
-//            }
-//        });
 
         connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
 
@@ -369,13 +352,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentDay
                                 );
 
-                                TextView titleView = new TextView(getActivity());
-                                titleView.setText("When was this service completed?");
-                                titleView.setBackgroundColor(getResources().getColor(R.color.primary_dark));
-                                titleView.setTextColor(getResources().getColor(R.color.white_text));
-                                titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                                titleView.setTextSize(18);
-                                titleView.setPadding(10, 10, 10, 10);
+                                View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_clear_issue_title, null);
 
                                 datePicker.setCustomTitle(titleView);
 
@@ -389,7 +366,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-
                                         networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
                                                 daysAgo[0], dashboardCar.getTotalMileage(), new RequestCallback() {
                                                     @Override
@@ -408,6 +384,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
                                         try {
                                             mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
                                                     + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
@@ -449,7 +426,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-
 
     private void setIssuesCount() { // sets the number of active issues to display
         int total = dashboardCar.getActiveIssues().size();
@@ -518,8 +494,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 && askForCar
                 // If the dialog is showing, we don't want it to show twice
                 && !dialogShowing
-                && dashboardCar != null
-                /*&& !scannerLocalStore.deviceNameExists(autoConnectService.getConnectedDeviceName())*/) {
+                && dashboardCar != null) {
 
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -551,9 +526,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
                                 ((MainActivity) getActivity()).hideLoading();
-                                return;
                             } else {
                                 Log.d(TAG, "Picked car lack device");
+                                ((MainActivity) getActivity()).showLoading("Connecting to device..");
                                 // If no, then to determine whether if we should link the device and the car,
                                 // we need to connect, get the device id, then validate the device id;
                                 sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
@@ -758,32 +733,32 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         showSelectCarDialog();
     }
 
-    /**
-     * Monitor app connection to device, so that ui can be updated
-     * appropriately.
-     */
-    private final Runnable carConnectedRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (getActivity() == null) {
-                handler.removeCallbacks(this);
-                return;
-            }
-            final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-            if (autoConnectService != null
-                    && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-                    && dashboardCar != null
-                    && dashboardCar.getScannerId() != null
-                    && dashboardCar.getScannerId()
-                    .equals(autoConnectService.getCurrentDeviceId())) {
-                updateConnectedCarIndicator(true);
-            } else {
-                updateConnectedCarIndicator(false);
-            }
-            // See if we are connected every 2 seconds
-            handler.postDelayed(carConnectedRunnable, 2000);
-        }
-    };
+//    /**
+//     * Monitor app connection to device, so that ui can be updated
+//     * appropriately.
+//     */
+//    private final Runnable carConnectedRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            if (getActivity() == null) {
+//                handler.removeCallbacks(this);
+//                return;
+//            }
+//            final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
+//            if (autoConnectService != null
+//                    && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
+//                    && dashboardCar != null
+//                    && dashboardCar.getScannerId() != null
+//                    && dashboardCar.getScannerId()
+//                    .equals(autoConnectService.getCurrentDeviceId())) {
+//                updateConnectedCarIndicator(true);
+//            } else {
+//                updateConnectedCarIndicator(false);
+//            }
+//            // See if we are connected every 2 seconds
+//            handler.postDelayed(carConnectedRunnable, 2000);
+//        }
+//    };
 
     /**
      * Issues list view
