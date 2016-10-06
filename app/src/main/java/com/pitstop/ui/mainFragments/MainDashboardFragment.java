@@ -16,6 +16,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -331,9 +332,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private void updateConnectedCarIndicator(boolean isConnected) {
         if (isConnected) {
-            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.severity_low_indicator));
+            connectedCarIndicator.setImageDrawable(
+                    ContextCompat.getDrawable(getActivity(), R.drawable.severity_low_indicator));
         } else {
-            connectedCarIndicator.setImageDrawable(getResources().getDrawable(R.drawable.circle_indicator_stroke));
+            connectedCarIndicator.setImageDrawable(
+                    ContextCompat.getDrawable(getActivity(), R.drawable.circle_indicator_stroke));
         }
     }
 
@@ -368,11 +371,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                 //Swipe to start deleting(completing) the selected issue
                                 try {
-                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(),
+                                            MixpanelHelper.DASHBOARD_VIEW);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
 
                                 DatePickerDialog datePicker = new DatePickerDialog(getContext(),
                                         new DatePickerDialog.OnDateSetListener() {
@@ -483,7 +486,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         super.onViewCreated(view, savedInstanceState);
     }
 
-
     private void setIssuesCount() { // sets the number of active issues to display
         int total = dashboardCar.getActiveIssues().size();
 
@@ -536,7 +538,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 dealershipPhone.setText(shop.getPhone());
             }
         }
-
     }
 
     /**
@@ -551,8 +552,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 && askForCar
                 // If the dialog is showing, we don't want it to show twice
                 && !dialogShowing
-                && dashboardCar != null
-                /*&& !scannerLocalStore.deviceNameExists(autoConnectService.getConnectedDeviceName())*/) {
+                && dashboardCar != null) {
 
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -583,10 +583,10 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 // If yes, notify the user that this car has scanner;
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
-
-                                return;
+                                ((MainActivity) getActivity()).hideLoading();
                             } else {
                                 Log.d(TAG, "Picked car lack device");
+                                ((MainActivity) getActivity()).showLoading("Connecting to device..");
                                 // If no, then to determine whether if we should link the device and the car,
                                 // we need to connect, get the device id, then validate the device id;
                                 sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
@@ -673,6 +673,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         } else {
             Log.i(TAG, "Trying local store for carIssues");
+            Log.i(TAG, "Number of active issues: " + dashboardCar.getActiveIssues().size());
             dashboardCar.setIssues(carIssues);
             carIssueList.clear();
             carIssueList.addAll(dashboardCar.getActiveIssues());
@@ -696,7 +697,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_issue, parent, false);
             ViewHolder viewHolder = new ViewHolder(v);
@@ -851,7 +851,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
             }
         }
-
     }
 
     @Override

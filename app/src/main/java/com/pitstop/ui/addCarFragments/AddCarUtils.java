@@ -460,7 +460,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             Log.i(TAG, "VIN response received");
             Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
 
-            // TODO: 16/10/4 This if branch is entered even if the current activity is MainActivity (not AddCarActivity any more)
             callback.showLoading("Getting car VIN");
 
             isGettingVinAndCarIsConnected = false;
