@@ -108,7 +108,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/car_view_layout"
-        android:layout_above="@+id/car_scan_btn">
+        android:layout_above="@+id/dashboard_car_scan_btn">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -375,7 +375,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/car_scan_btn"
+        android:id="@+id/dashboard_car_scan_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Scan Car"

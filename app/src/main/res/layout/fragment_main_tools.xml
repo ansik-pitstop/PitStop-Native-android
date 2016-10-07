@@ -75,11 +75,13 @@
             </LinearLayout>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_scan_vehicle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:onClick="scanClicked">
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -92,8 +94,8 @@
                     android:paddingLeft="16dp"
                     android:touchscreenBlocksFocus="false"
                     android:background="@drawable/cardview_background_white"
-                    android:elevation="1dp"
-                    android:onClick="scanClicked">
+                    android:elevation="1dp">
+                    <!--android:onClick="scanClicked">-->
 
                     <ImageView
                         android:layout_width="24dp"
@@ -139,11 +141,13 @@
                 android:visibility="gone" />
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_request_service_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:onClick="requestMultiService">
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -156,8 +160,7 @@
                     android:paddingLeft="16dp"
                     android:touchscreenBlocksFocus="false"
                     android:background="@drawable/cardview_background_white"
-                    android:elevation="1dp"
-                    android:onClick="requestMultiService">
+                    android:elevation="1dp">
 
                     <ImageView
                         android:layout_width="24dp"
@@ -191,18 +194,19 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_service_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:onClick="clickServiceHistory">
 
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:onClick="clickServiceHistory"
                     android:paddingTop="8dp"
                     android:paddingRight="8dp"
                     android:paddingBottom="8dp"
@@ -260,6 +264,7 @@
                 android:paddingBottom="12dp" />
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_chat_dealership"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
@@ -298,6 +303,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_navigate_to_dealer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
@@ -334,6 +340,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/tools_call_dealer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"

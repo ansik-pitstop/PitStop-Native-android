@@ -10,6 +10,7 @@ import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -199,18 +200,19 @@ public class NetworkHelper {
 
     /**
      * Allow the user to change his/her phone number in the preference
+     *
      * @param userId
      * @param phoneNumber
      * @param callback
      */
-    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback){
+    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback) {
         LOGI(TAG, "updatePhoneNumber: userId: " + userId + " phoneNUmber: " + phoneNumber);
         JSONObject body = new JSONObject();
 
-        try{
+        try {
             body.put("userId", userId);
             body.put("phone", phoneNumber);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -291,6 +293,108 @@ public class NetworkHelper {
         }
 
         post("issue", callback, body);
+    }
+
+    /**
+     * Endpoint = POST /car/{carId}/issues
+     *
+     * @param carId
+     * @param issueId
+     * @param callback
+     */
+    public void postPresetIssue(int carId, int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("postPresetIssue: carId: %s, issueId: %s, " +
+                "issueType: %s", carId, issueId, CarIssuePreset.TYPE_PRESET));
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+
+        try {
+            data.put(new JSONObject()
+                    .put("type", CarIssuePreset.TYPE_PRESET)
+                    .put("id", issueId));
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        post("car/" + carId + "/service", callback, body);
+    }
+
+    /**
+     * Endpoint = POST /car/{carId}/issues
+     *
+     * @param carId       car id that issue needs to be added to
+     * @param item        the issue item
+     * @param action      the issue action
+     * @param description the issue description
+     * @param priority    the issue priority
+     * @param callback
+     */
+    public void postUserInputIssue(int carId, String item, String action,
+                                   String description, int priority, RequestCallback callback) {
+        LOGI(TAG, String.format("postPresetIssue: carId: %s, item: %s, " +
+                "issueType: %s", carId, item, CarIssuePreset.TYPE_USER_INPUT));
+
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+
+        try {
+            data.put(new JSONObject()
+                    .put("type", CarIssuePreset.TYPE_USER_INPUT)
+                    .put("item", item)
+                    .put("action", action)
+                    .put("description", description)
+                    .put("priority", priority));
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("car/" + carId + "/service", callback, body);
+    }
+
+    /**
+     * Used to post multiple preset issues at a time.
+     *
+     * @param carId
+     * @param pickedIssues
+     * @param callback
+     */
+    public void postMultiplePresetIssue(int carId, List<CarIssuePreset> pickedIssues, RequestCallback callback) {
+        LOGI(TAG, "Post multiple preset issues: carId: " + carId + ", pickedIssues: " + pickedIssues.size());
+
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+        try {
+            for (CarIssuePreset issue : pickedIssues) {
+                if (issue.getType().equals(CarIssuePreset.TYPE_PRESET)) {
+                    data.put(new JSONObject()
+                            .put("type", issue.getType())
+                            .put("id", issue.getId()));
+                } else {
+                    data.put(new JSONObject()
+                            .put("type", issue.getType())
+                            .put("item", issue.getItem())
+                            .put("action", issue.getAction())
+                            .put("description", issue.getDescription())
+                            .put("priority", issue.getPriority()));
+                }
+            }
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        post("car/" + carId + "/service", callback, body);
+    }
+
+    /**
+     * Get an array of categories, each category contains an array of services
+     *
+     * @param carId
+     * @param callback
+     */
+    public void getPresetIssuesByCarId(int carId, RequestCallback callback) {
+        LOGI(TAG, String.format("getPresetIssuesByCarId: carId: %s", carId));
+        get("car/" + carId + "/service", callback);
     }
 
     public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
@@ -411,7 +515,6 @@ public class NetworkHelper {
     }
 
     /**
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      * @param userId
      * @param carId
      * @param shopId
@@ -419,6 +522,7 @@ public class NetworkHelper {
      * @param date
      * @param tentative
      * @param callback
+     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
      */
     public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
                                RequestCallback callback) {
@@ -474,12 +578,12 @@ public class NetworkHelper {
         post("utility/serviceRequest", callback, body);
 
         // If state is tentative, we put salesPerson to another endpoint
-        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)){
+        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)) {
             JSONObject updateSalesman = new JSONObject();
-            try{
+            try {
                 updateSalesman.put("carId", carId);
                 updateSalesman.put("salesperson", comments);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             put("car", new RequestCallback() {
@@ -550,10 +654,10 @@ public class NetworkHelper {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
         getUser(userId, new RequestCallback() {
-        // need to add option instead of replace
+            // need to add option instead of replace
             @Override
             public void done(String response, RequestError requestError) {
-                if(requestError == null) {
+                if (requestError == null) {
                     try {
                         JSONObject options = new JSONObject(response).getJSONObject("settings");
                         options.put("settings", new JSONObject().put("mainCar", carId));
@@ -589,6 +693,7 @@ public class NetworkHelper {
 
     /**
      * Get the aggregated settings
+     *
      * @param userId
      * @param callback
      */
@@ -625,7 +730,7 @@ public class NetworkHelper {
         put("user/" + userId + "/settings", callback, settings);
     }
 
-    public void setTutorialUndone(int userId, JSONObject initialUserSettings, RequestCallback callback){
+    public void setTutorialUndone(int userId, JSONObject initialUserSettings, RequestCallback callback) {
         LOGI(TAG, "setTutorialUndone: " + userId);
         JSONObject settings = new JSONObject();
 
@@ -639,7 +744,7 @@ public class NetworkHelper {
         put("user/" + userId + "/settings", callback, settings);
     }
 
-    public void validateScannerId(String scannerId, RequestCallback callback){
+    public void validateScannerId(String scannerId, RequestCallback callback) {
         LOGI(TAG, "validate scanner id: " + scannerId);
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }

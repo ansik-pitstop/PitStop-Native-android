@@ -396,7 +396,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-
     /**
      * result=4 --> trip data uploaded by terminal
      * result=5 --> PID data uploaded by terminal

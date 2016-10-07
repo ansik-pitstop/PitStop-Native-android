@@ -1,28 +1,21 @@
 package com.pitstop.ui;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -40,8 +33,6 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.List;
-
-import io.smooch.core.Smooch;
 
 import static com.pitstop.R.drawable.severity_high_indicator;
 import static com.pitstop.R.drawable.severity_low_indicator;

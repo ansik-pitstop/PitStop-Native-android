@@ -91,4 +91,16 @@ public final class TABLES {
         String KEY_SCANNER_ID = "scannerId";
         String KEY_DATANUM = "datanum";
     }
+
+    public interface PRESET_ISSUES {
+        String TABLE_NAME = "presetIssues";
+
+        String KEY_CAR_ID = "carId";
+        String KEY_TYPE = "type";
+        String KEY_ITEM = "item";
+        String KEY_ACTION = "action";
+        String KEY_DESCRIPTION = "description";
+        String KEY_PRIORITY = "priority";
+    }
+
 }

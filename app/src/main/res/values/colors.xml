@@ -39,4 +39,12 @@
     <color name="message_failure">#F44336</color>
     <color name="message_success">#388E3C</color>
 
+    <color name="text_secondary">#42A5F5</color>
+    <color name="text_hint">#757575</color>
+
+    <color name="indicator_critical">#ED5565</color>
+    <color name="indicator_high">#FF6F00</color>
+    <color name="indicator_medium">#FFCE54</color>
+    <color name="indicator_low">#59DCEC</color>
+
 </resources>

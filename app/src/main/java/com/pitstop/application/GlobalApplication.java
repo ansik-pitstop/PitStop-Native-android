@@ -21,6 +21,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
+import com.pitstop.database.LocalPresetIssueAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.User;
@@ -56,7 +57,6 @@ public class GlobalApplication extends Application {
     private LocalCarIssueAdapter mLocalCarIssueAdapter;
     private LocalPidAdapter mLocalPidAdapter;
     private LocalShopAdapter mLocalShopAdapter;
-
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
