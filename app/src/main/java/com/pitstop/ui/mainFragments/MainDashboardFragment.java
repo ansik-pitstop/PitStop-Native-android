@@ -369,10 +369,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                 final CarIssue issue = carIssuesAdapter.getItem(i);
 
+                                final String[] timeCompleted = new String[1];
+
+                                final int[] daysAgo = new int[1];
+
                                 //Swipe to start deleting(completing) the selected issue
                                 try {
-                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(),
-                                            MixpanelHelper.DASHBOARD_VIEW);
+                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -390,44 +393,19 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                                                     calendar.set(year, monthOfYear, dayOfMonth);
 
-                                                    String timeCompleted;
+                                                    daysAgo[0] = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
 
-                                                    int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
-
-                                                    if (daysAgo < 13) { // approximate categorization of the time service was completed
-                                                        timeCompleted = "Recently";
-                                                    } else if (daysAgo < 28) {
-                                                        timeCompleted = "2 Weeks Ago";
-                                                    } else if (daysAgo < 56) {
-                                                        timeCompleted = "1 Month Ago";
-                                                    } else if (daysAgo < 170) {
-                                                        timeCompleted = "2 to 3 Months Ago";
+                                                    if (daysAgo[0] < 13) { // approximate categorization of the time service was completed
+                                                        timeCompleted[0] = "Recently";
+                                                    } else if (daysAgo[0] < 28) {
+                                                        timeCompleted[0] = "2 Weeks Ago";
+                                                    } else if (daysAgo[0] < 56) {
+                                                        timeCompleted[0] = "1 Month Ago";
+                                                    } else if (daysAgo[0] < 170) {
+                                                        timeCompleted[0] = "2 to 3 Months Ago";
                                                     } else {
-                                                        timeCompleted = "6 to 12 Months Ago";
+                                                        timeCompleted[0] = "6 to 12 Months Ago";
                                                     }
-
-                                                    CarIssue carIssue = carIssuesAdapter.getItem(i);
-
-                                                    try {
-                                                        mixpanelHelper.trackButtonTapped("Completed Service: " +
-                                                                (carIssue.getAction() == null ? "" : (carIssue.getAction() + " ")) +
-                                                                carIssue.getItem() + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-
-                                                    networkHelper.serviceDone(dashboardCar.getId(), carIssue.getId(),
-                                                            daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                                @Override
-                                                                public void done(String response, RequestError requestError) {
-                                                                    if (requestError == null) {
-                                                                        Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                        carIssueList.remove(i);
-                                                                        carIssuesAdapter.notifyDataSetChanged();
-                                                                        ((MainActivity) getActivity()).refreshFromServer();
-                                                                    }
-                                                                }
-                                                            });
                                                 }
                                             }
                                         },
@@ -436,15 +414,47 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentDay
                                 );
 
-                                TextView titleView = new TextView(getActivity());
-                                titleView.setText("When was this service completed?");
-                                titleView.setBackgroundColor(getResources().getColor(R.color.primary_dark));
-                                titleView.setTextColor(getResources().getColor(R.color.white_text));
-                                titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                                titleView.setTextSize(18);
-                                titleView.setPadding(10, 10, 10, 10);
+                                View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_clear_issue_title, null);
 
                                 datePicker.setCustomTitle(titleView);
+
+                                datePicker.setButton(DialogInterface.BUTTON_POSITIVE, "Confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            mixpanelHelper.trackButtonTapped("Completed Service: " +
+                                                    (issue.getAction() == null ? "" : (issue.getAction() + " ")) +
+                                                    issue.getItem() + " " + timeCompleted[0], MixpanelHelper.DASHBOARD_VIEW);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
+                                                daysAgo[0], dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        if (requestError == null) {
+                                                            Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
+                                                            carIssueList.remove(i);
+                                                            carIssuesAdapter.notifyDataSetChanged();
+                                                            ((MainActivity) getActivity()).refreshFromServer();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
+
+                                datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
+                                        try {
+                                            mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
+                                                    + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
 
                                 //Cancel the service completion
                                 datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -457,13 +467,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                    }
-                                });
-
-                                datePicker.setButton(DialogInterface.BUTTON_POSITIVE, "CONFIRM", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
                                     }
                                 });
 

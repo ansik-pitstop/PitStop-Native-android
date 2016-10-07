@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     // Views
+    private View rootView;
     private Toolbar toolbar;
     private CharSequence mTitle = "Pitstop";
     private CharSequence mDrawerTitle = "Your Vehicles";
@@ -244,7 +245,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
-        setContentView(R.layout.activity_main_drawer_frame);
+        rootView = getLayoutInflater().inflate(R.layout.activity_main_drawer_frame, null);
+        setContentView(rootView);
 
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
@@ -502,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
                 Log.d("OnActivityResult", "CarList: " + carList.size());
                 Log.d("OnActivityResult", LoginActivity.sState);
-                if (carList.size() == 0 && LoginActivity.sState == LoginActivity.SIGNUP) {
+                if (carList.size() == 0 && LoginActivity.sState.equals(LoginActivity.SIGNUP)) {
                     LoginActivity.switchStateForTutorial();
                     prepareAndStartTutorialSequence();
                 }
@@ -1130,7 +1132,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
-
+    /**
+     * Onclick method for Navigating button in tools
+     *
+     * @param view
+     */
     public void navigateToDealer(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
@@ -1147,6 +1153,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
+    /**
+     * Onclick method for Calling Dealer button in tools
+     *
+     * @param view
+     */
     public void callDealer(View view) {
         try {
             mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),

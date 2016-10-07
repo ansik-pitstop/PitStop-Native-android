@@ -185,8 +185,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     protected void onPause() {
-        handler.removeCallbacks(checkEngineIssuesRunnable);
-        handler.removeCallbacks(connectCarRunnable);
+        handler.removeCallbacksAndMessages(null);
         super.onPause();
     }
 
@@ -660,7 +659,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     public void getBluetoothState(int state) {
         Log.i(TAG, "getBluetoothState: " + state);
         if (state == IBluetoothCommunicator.CONNECTED) {
-//            handler.sendEmptyMessage(1);
             handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
             handler.removeCallbacks(checkEngineIssuesRunnable);
         }
@@ -758,7 +756,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 return;
             }
             switch (msg.what) {
-//                case 0: {
                 case CHECKED_CAR_ENGINE_ISSUE: {
                     Log.i(TAG, "Finished car scan, no dtcs");
                     if (dtcCodes.isEmpty()) {
@@ -788,14 +785,12 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     break;
                 }
 
-//                case 1: {
                 case BLUETOOTH_DEVICE_CAR_CONNECTED: {
                     progressDialog.dismiss();
                     startCarScan();
                     break;
                 }
 
-//                case 2: {
                 case BLUETOOTH_DEVICE_CAR_TIMEOUT: {
                     searchAttempts = 0;
                     progressDialog.dismiss();
@@ -822,7 +817,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             if (seconds > 20 && askingForDtcs) {
                 askingForDtcs = false;
-//                handler.sendEmptyMessage(0);
                 handler.sendEmptyMessage(CHECKED_CAR_ENGINE_ISSUE);
                 handler.removeCallbacks(checkEngineIssuesRunnable);
             } else {
@@ -849,7 +843,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);
             } else {
-                handler.post(getResult5Runnable);
+                handler.postDelayed(getResult5Runnable, 5000);
             }
         }
     };
@@ -880,12 +874,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long timeDiff = currentTime - carSearchStartTime;
             int seconds = (int) (timeDiff / 1000);
             if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.isCommunicatingWithDevice()) {
-//                handler.sendEmptyMessage(1);
                 handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
                 handler.removeCallbacks(connectCarRunnable);
             } else if (seconds > 15) {
                 if (searchAttempts++ > 2) {
-//                    handler.sendEmptyMessage(2);
                     handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_TIMEOUT);
                     handler.removeCallbacks(connectCarRunnable);
                 } else {
