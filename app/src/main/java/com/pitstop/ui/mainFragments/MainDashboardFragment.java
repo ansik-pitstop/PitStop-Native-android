@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -623,7 +622,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) " + dashboardCar.getId());
         List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
-        Log.i(TAG, "Number of local car issues: " + carIssues.size());
         if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
             Log.i(TAG, "No car issues in local store");
@@ -661,7 +659,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             carIssuesAdapter.notifyDataSetChanged();
         }
     }
-
 
     // From ObdManager.IBluetoothDataListener
 
@@ -913,41 +910,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 container = v.findViewById(R.id.list_car_item);
                 date = v.findViewById(R.id.date);
             }
-        }
-    }
-
-    private class CarListAdapter extends BaseAdapter {
-        private List<Car> ownedCars;
-
-        public CarListAdapter(List<Car> cars) {
-            ownedCars = cars;
-        }
-
-        @Override
-        public int getCount() {
-            return ownedCars.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return ownedCars.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View rowView = convertView != null ? convertView :
-                    inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
-            Car ownedCar = (Car) getItem(position);
-
-            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
-            carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
-            return rowView;
         }
     }
 }
