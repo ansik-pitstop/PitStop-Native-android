@@ -574,6 +574,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Log.d(TAG, "Current Device ID: " + getCurrentDeviceId());
                 Log.d(TAG, "Pending car ID: " + pendingCarId);
 
+                notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER);
+
                 // validate scanner id
                 networkHelper.validateScannerId(getCurrentDeviceId(), new RequestCallback() {
                     @Override
@@ -597,6 +599,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     bluetoothCommunicator.manuallyDisconnectCurrentDevice();
                                 } else { //valid scanner id, create new Scanner on backend, store scanner locally
                                     // save scanner on backend
+                                    notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE);
                                     networkHelper.createNewScanner(pendingCarId, getCurrentDeviceId(),
                                             new RequestCallback() {
                                                 @Override
@@ -607,6 +610,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                         Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
                                                                 + "Message: " + requestError.getMessage() + "\n"
                                                                 + "Error: " + requestError.getError());
+                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_NETWORK_ERROR);
                                                     } else {
                                                         // After we created a new scanner on he backend, save scanner locally
                                                         updateScannerTable();
@@ -619,6 +623,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
+                                notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_UNKNOWN_ERROR);
                             }
                         }
                     }
@@ -1542,6 +1547,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * Let the BluetoothCommunicator connects to the pending device
      */
     private void connectPendingDevice() {
+        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER);
         bluetoothCommunicator.connectPendingDevice();
         isConnectingPendingDevice = true;
     }

@@ -112,10 +112,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * Used in communication between MainActivity and BluetoothAutoConnectService<br>
      * Action for intents
      */
-    public static final String ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED = "Obd - discovered";
+    // --------------------------- results --------------------------
     public static final String ACTION_PAIRING_MODULE_ID_INVALID = "Obd - device id invalid";
     public static final String ACTION_PAIRING_MODULE_SUCCESS = "Obd - paired device with car";
     public static final String ACTION_PAIRING_MODULE_NETWORK_ERROR = "Network error happened";
+    public static final String ACTION_PAIRING_MODULE_UNKNOWN_ERROR = "Unknown error during pairing";
+    // --------------------------- steps ----------------------------
+    public static final String ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED = "Obd - discovered";
+    public static final String ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER = "Validating scanner";
+    public static final String ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER = "Connecting";
+    public static final String ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE = "Saving to api";
 
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
@@ -213,13 +219,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             switch (action) {
-                case ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED:
-                    Log.d(TAG, "OBD device discovered intent received!");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
-                    showPairDeviceWithCarDialog();
-                    break;
+                // pairing unrecognized scanner with car lack scanner
+                // <-------------------------start---------------------------------->
+                // Results
                 case ACTION_PAIRING_MODULE_NETWORK_ERROR:
                     Log.d(TAG, "Network error occurred");
                     mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
@@ -242,6 +244,34 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     showSimpleMessage("OK, we have linked the device with your car!", true);
                     refreshFromServer();
                     break;
+                case ACTION_PAIRING_MODULE_UNKNOWN_ERROR:
+                    Log.d(TAG, "Unknown error happened during pairing process");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+                    if (isLoading) hideLoading();
+                    showSimpleMessage("Unknown network error occurred, please retry later", false);
+                    break;
+                // Step
+                case ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED:
+                    Log.d(TAG, "OBD device discovered intent received!");
+                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND,
+                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+                    viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
+                    showPairDeviceWithCarDialog();
+                    break;
+                case ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER:
+                    Log.d(TAG, "Connecting to obd scanner");
+                    showLoading("Connecting to module...");
+                    break;
+                case ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER:
+                    Log.d(TAG, "Validating scanner");
+                    showLoading("Validating module...");
+                    break;
+                case ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE:
+                    Log.d(TAG, "Saving scanner to the backend");
+                    showLoading("Module is valid and ready to use, storing information...");
+                    break;
+                // <---------------------------end---------------------------------->
             }
         }
     };
@@ -1470,7 +1500,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                             float amount = (float) firstAppointmentDiscount.getDouble("amount");
                             String unit = firstAppointmentDiscount.getString("unit");
 
-
                             preferences.edit()
                                     .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), enableDiscountTutorial)
                                     .putFloat(getString(R.string.pfFirstBookingDiscountAmount), amount)
@@ -1497,7 +1526,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Invoked when broadcast receiver receives ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED intnet
+     * Invoked when broadcast receiver receives ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED intnet
      */
     private void showPairDeviceWithCarDialog() {
         try {
@@ -1514,10 +1543,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void registerBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED);
         intentFilter.addAction(ACTION_PAIRING_MODULE_ID_INVALID);
         intentFilter.addAction(ACTION_PAIRING_MODULE_SUCCESS);
         intentFilter.addAction(ACTION_PAIRING_MODULE_NETWORK_ERROR);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_UNKNOWN_ERROR);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER);
+        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE);
+
         this.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
