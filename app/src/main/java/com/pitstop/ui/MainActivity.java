@@ -1206,9 +1206,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     public void addPresetIssues(View button) {
         if (dashboardCar == null) return;
-//        Intent addCustomIssue = new Intent(this, AddPresetIssueActivity.class);
-//        addCustomIssue.putExtra(AddPresetIssueActivity.EXTRA_CAR, dashboardCar);
-//        startActivityForResult(addCustomIssue, RC_ADD_CUSTOM_ISSUE);
 
         View dialogList = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_list, null);
         View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
