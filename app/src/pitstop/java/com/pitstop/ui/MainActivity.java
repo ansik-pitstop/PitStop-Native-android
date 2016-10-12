@@ -93,6 +93,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -336,8 +337,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
-
-        Log.d("JWT access token", application.getAccessToken());
     }
 
     @Override
@@ -495,7 +494,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (carList.size() == 0 && refresh) {
             refreshFromServer();
         }
+
         int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
+
         if (carList.size() > 0) {
             for (Car car : carList) {
                 if (car.getId() == id) {
@@ -545,15 +546,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                if (shouldRefreshFromServer) {
-                    refreshFromServer();
-                }
+                Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                 Log.d("OnActivityResult", "CarList: " + carList.size());
                 Log.d("OnActivityResult", LoginActivity.sState);
                 if (carList.size() == 0 && LoginActivity.sState.equals(LoginActivity.SIGNUP)) {
-                    LoginActivity.switchStateForTutorial();
-                    prepareAndStartTutorialSequence();
+                    Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
+                            .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+                    carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
+                    PreferenceManager.getDefaultSharedPreferences(application).edit()
+                            .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitingTutorial)
+                            .apply(); // See if we should use commit
                 }
+                if (shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
+
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -725,9 +732,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void done(String response, RequestError requestError) {
                 if (response != null && response.equals("{}")) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                    preferences.edit()
-                            .putBoolean(getString(R.string.pfTutorialShown), false)
+                    PreferenceManager.getDefaultSharedPreferences(application)
+                            .edit().putBoolean(getString(R.string.pfTutorialShown), false)
                             .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
                             .apply();
                     application.logOutUser();
@@ -837,9 +843,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
                                         callback.setCarDetailsUI();
-
-
-
                                     }
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
@@ -993,7 +996,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
         dashboardCar.setCurrentCar(true);
         networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
         // Highlight the selected item, update the title, and close the drawer
         for (int i = 0; i < carList.size(); i++) {
             mDrawerList.setItemChecked(i, false);
@@ -1475,7 +1479,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * <li>String unit</li>
      * </ul>
      */
-    private void prepareAndStartTutorialSequence() {
+    public void prepareAndStartTutorialSequence() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
         Log.d("FSBretrieveUserSetting", LoginActivity.sState);
         Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());

@@ -263,7 +263,7 @@ public class GlobalApplication extends Application {
         //Reset values about tutorial and fsb
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferences.edit()
-                .putBoolean(getString(R.string.pfTutorialShown), false)
+                .putBoolean(getString(R.string.pfTutorialShown), true)
                 .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
                 .apply();
 

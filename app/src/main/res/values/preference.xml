@@ -19,4 +19,7 @@
     <!--A string value of the fsb discount unit-->
     <string name="pfFirstBookingDiscountUnit">com.pitstop.tutorial.discount.unit</string>
 
+    <!--cars that needs to see tutorial-->
+    <string name="pfAwaitTutorial">com.pitstop.tutorial.awaits</string>
+
 </resources>

@@ -43,6 +43,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.CarScanActivity;
 import com.pitstop.models.Car;
@@ -65,8 +66,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
@@ -248,11 +251,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         MainActivity.callback = this;
     }
 
-    private void setupListeners(){
+    private void setupListeners() {
         carIssueListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE){
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     addPresetIssuesButton.show();
                 }
                 super.onScrollStateChanged(recyclerView, newState);
@@ -261,14 +264,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 ||dy<0 && addPresetIssuesButton.isShown()){
+                if (dy > 0 || dy < 0 && addPresetIssuesButton.isShown()) {
                     addPresetIssuesButton.hide();
                 }
             }
         });
     }
 
-    private void clearListeners(){
+    private void clearListeners() {
         carIssueListView.clearOnScrollListeners();
     }
 
@@ -327,7 +330,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                             @Override
                             public boolean canSwipe(int position) {
-                                return carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_EMPTY;
+                                return carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_EMPTY
+                                        && carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_TENTATIVE;
                             }
 
                             @Override
@@ -558,7 +562,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             ((MainActivity) getActivity()).showLoading("Hold on, we are thinking..");
 
                             // At this point, check if the picked car has scanner;
-                            if(scannerAdapter.carHasDevice(selectedCar.get(0).getId())){
+                            if (scannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
                                 // If yes, notify the user that this car has scanner;
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
@@ -612,7 +616,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     /**
      * Inform BACS to cancel pending device
      */
-    private void sendCancelPendingDeviceIntent(){
+    private void sendCancelPendingDeviceIntent() {
         Intent cancelIntent = new Intent();
         cancelIntent.setAction(BluetoothAutoConnectService.ACTION_CANCEL_PENDING_DEVICE);
         getActivity().sendBroadcast(cancelIntent);
@@ -649,7 +653,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     }
                 }
             });
-
         } else {
             Log.i(TAG, "Trying local store for carIssues");
             Log.i(TAG, "Number of active issues: " + dashboardCar.getActiveIssues().size());
@@ -658,6 +661,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             carIssueList.addAll(dashboardCar.getActiveIssues());
             carIssuesAdapter.notifyDataSetChanged();
         }
+        carIssuesAdapter.updateTutorial();
     }
 
     // From ObdManager.IBluetoothDataListener
@@ -768,33 +772,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         showSelectCarDialog();
     }
 
-//    /**
-//     * Monitor app connection to device, so that ui can be updated
-//     * appropriately.
-//     */
-//    private final Runnable carConnectedRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (getActivity() == null) {
-//                handler.removeCallbacks(this);
-//                return;
-//            }
-//            final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-//            if (autoConnectService != null
-//                    && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-//                    && dashboardCar != null
-//                    && dashboardCar.getScannerId() != null
-//                    && dashboardCar.getScannerId()
-//                    .equals(autoConnectService.getCurrentDeviceId())) {
-//                updateConnectedCarIndicator(true);
-//            } else {
-//                updateConnectedCarIndicator(false);
-//            }
-//            // See if we are connected every 2 seconds
-//            handler.postDelayed(carConnectedRunnable, 2000);
-//        }
-//    };
-
     /**
      * Issues list view
      */
@@ -802,9 +779,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         private List<CarIssue> carIssueList;
         static final int VIEW_TYPE_EMPTY = 100;
+        static final int VIEW_TYPE_TENTATIVE = 101;
 
         public CustomAdapter(List<CarIssue> carIssues) {
             carIssueList = carIssues;
+            Log.d(TAG, "Car issue list size: " + carIssueList.size());
         }
 
         @Override
@@ -831,8 +810,22 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.description.setMaxLines(2);
                 holder.description.setText("You have no pending Engine Code, Recalls or Services");
                 holder.title.setText("Congrats!");
-                holder.imageView.setImageDrawable(getResources()
-                        .getDrawable(R.drawable.ic_check_circle_green_400_36dp));
+                holder.imageView.setImageDrawable(
+                        ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_circle_green_400_36dp));
+            } else if (viewType == VIEW_TYPE_TENTATIVE) {
+                holder.description.setMaxLines(2);
+                holder.description.setText("Tap to start");
+                holder.title.setText("Book your first tentative service");
+                holder.imageView.setImageDrawable(
+                        ContextCompat.getDrawable(getActivity(), R.drawable.ic_announcement_blue_600_24dp));
+                holder.container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        removeTutorial();
+                        LoginActivity.switchStateForTutorial();
+                        ((MainActivity) getActivity()).prepareAndStartTutorialSequence();
+                    }
+                });
             } else {
                 final CarIssue carIssue = carIssueList.get(position);
 
@@ -879,6 +872,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         public int getItemViewType(int position) {
             if (carIssueList.isEmpty()) {
                 return VIEW_TYPE_EMPTY;
+            } else if (carIssueList.get(position).getIssueType().equals(CarIssue.TENTATIVE)) {
+                return VIEW_TYPE_TENTATIVE;
             }
             return super.getItemViewType(position);
         }
@@ -889,6 +884,69 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 return 1;
             }
             return carIssueList.size();
+        }
+
+        private boolean removeTutorial() {
+            Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
+                    .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+            carsAwaitTutorial.remove(String.valueOf(dashboardCar.getId()));
+            PreferenceManager.getDefaultSharedPreferences(application).edit()
+                    .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitTutorial)
+                    .commit();
+
+            for (int index = 0; index < carIssueList.size(); index++) {
+                CarIssue issue = carIssueList.get(index);
+                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
+                    carIssueList.remove(index);
+                    carIssueLocalStore.deleteCarIssue(issue);
+                    notifyDataSetChanged();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean addTutorial() {
+            Log.d(TAG, "Create fsb row");
+            if (hasTutorial()) return false;
+            CarIssue tutorial = new CarIssue.Builder()
+                    .setId(-1)
+                    .setIssueType(CarIssue.TENTATIVE)
+                    .build();
+            carIssueList.add(tutorial);
+            carIssueLocalStore.storeCarIssue(tutorial);
+            notifyDataSetChanged();
+            return true;
+        }
+
+        private boolean hasTutorial() {
+            for (CarIssue issue : carIssueList) {
+                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void updateTutorial() {
+            try {
+                Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
+                        .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+                Log.d(TAG, "Update tutorial: dashboard car: " + dashboardCar.getId());
+                for (String item: carsAwaitTutorial){
+                    Log.d(TAG, "Cars await tutorial set: " + item);
+                }
+                if (carsAwaitTutorial.size() == 0 ){
+                    Log.d(TAG, "Cars await tutorial set is empty");
+                }
+                boolean needToShowTutorial = carsAwaitTutorial.contains(String.valueOf(dashboardCar.getId()));
+                Log.d(TAG, "Need to show tutorial: " + needToShowTutorial);
+                if (needToShowTutorial){
+                    addTutorial();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // Provide a reference to the views for each data item

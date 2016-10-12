@@ -20,6 +20,7 @@ public class CarIssue implements Parcelable {
     public static final String PENDING_DTC = "pending_dtc";
     public static final String RECALL = "recall_recallmasters";
     public static final String SERVICE = "service";
+    public static final String TENTATIVE = "tentative";
     public static final String EDMUNDS = "service_edmunds";
     public static final String FIXED = "fixed";
     public static final String INTERVAL = "interval";
@@ -197,4 +198,81 @@ public class CarIssue implements Parcelable {
             return new CarIssue[size];
         }
     };
+
+    public CarIssue(Builder builder){
+        id = builder.id;
+        carId = builder.carId;
+        status = builder.status;
+        doneAt = builder.doneAt;
+        priority = builder.priority;
+        issueType = builder.issueType;
+        item = builder.item;
+        description = builder.description;
+        action = builder.action;
+    }
+
+    public static class Builder{
+        private int id;
+        private int carId;
+        private String status = "";
+        private String doneAt = "";
+        private int priority;
+        private String issueType = "";
+        private String item = "";
+        private String description = "";
+        private String action = "";
+
+        public Builder() {}
+
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setCarId(int carId) {
+            this.carId = carId;
+            return this;
+        }
+
+        public Builder setStatus(String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder setDoneAt(String doneAt) {
+            this.doneAt = doneAt;
+            return this;
+        }
+
+        public Builder setPriority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public Builder setIssueType(String issueType) {
+            this.issueType = issueType;
+            return this;
+        }
+
+        public Builder setItem(String item) {
+            this.item = item;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setAction(String action) {
+            this.action = action;
+            return this;
+        }
+
+        public CarIssue build(){
+            return new CarIssue(this);
+        }
+    }
+
+
 }
