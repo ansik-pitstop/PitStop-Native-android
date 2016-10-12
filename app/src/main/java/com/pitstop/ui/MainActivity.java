@@ -46,6 +46,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -306,8 +307,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
-
-        Log.d("JWT access token", application.getAccessToken());
     }
 
     @Override
@@ -1277,6 +1276,49 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         d.show();
     }
 
+    private void showDetailDialog(CarIssuePreset data){
+        if (data == null) return;
+
+        View dialogDetail = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail, null);
+
+        String title = data.getAction() + " " + data.getItem();
+        String description = data.getDescription();
+        int severity =  data.getPriority();
+
+        ((TextView)dialogDetail.findViewById(R.id.dialog_preset_issue_title_text)).setText(title);
+        ((TextView)dialogDetail.findViewById(R.id.dialog_preset_issue_description)).setText(description);
+
+        RelativeLayout rLayout = (RelativeLayout) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_indicator_layout);
+        TextView severityTextView = (TextView) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_text);
+
+        switch (severity) {
+            case 1:
+                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_low_indicator));
+                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[0]);
+                break;
+            case 2:
+                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_medium_indicator));
+                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[1]);
+                break;
+            case 3:
+                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_high_indicator));
+                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[2]);
+                break;
+            default:
+                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_critical_indicator));
+                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[3]);
+                break;
+        }
+
+        final AlertDialog d = new AlertDialog.Builder(this)
+                .setTitle("Detail")
+                .setView(dialogDetail)
+                .setPositiveButton("OK", null)
+                .create();
+
+        d.show();
+    }
+
     /**
      * Given the tutorial should be shown to the user, show tutorial sequence
      */
@@ -1610,7 +1652,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    holder.checkBox.setChecked(!holder.checkBox.isChecked());
+                    showDetailDialog(mPresetIssues.get(position));
                 }
             });
 

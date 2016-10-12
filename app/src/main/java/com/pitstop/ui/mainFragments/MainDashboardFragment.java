@@ -768,33 +768,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         showSelectCarDialog();
     }
 
-//    /**
-//     * Monitor app connection to device, so that ui can be updated
-//     * appropriately.
-//     */
-//    private final Runnable carConnectedRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (getActivity() == null) {
-//                handler.removeCallbacks(this);
-//                return;
-//            }
-//            final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-//            if (autoConnectService != null
-//                    && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-//                    && dashboardCar != null
-//                    && dashboardCar.getScannerId() != null
-//                    && dashboardCar.getScannerId()
-//                    .equals(autoConnectService.getCurrentDeviceId())) {
-//                updateConnectedCarIndicator(true);
-//            } else {
-//                updateConnectedCarIndicator(false);
-//            }
-//            // See if we are connected every 2 seconds
-//            handler.postDelayed(carConnectedRunnable, 2000);
-//        }
-//    };
-
     /**
      * Issues list view
      */
