@@ -168,6 +168,12 @@ public class MixpanelHelper {
     public static final String UNRECOGNIZED_MODULE_VIEW = "Unrecognized Module Detected";
     public static final String UNRECOGNIZED_MODULE_STATUS = "Status";
 
+    /**
+     * Add preset issues
+     */
+    public static final String ADD_PRESET_ISSUE_BUTTON = "Add Preset Issue";
+    public static final String ADD_PRESET_ISSUE_CONFIRM = "Confirm Add Preset Issues";
+    public static final String ADD_PRESET_ISSUE_CANCEL = "Cancel Add Preset Issues";
 
     private GlobalApplication application;
 

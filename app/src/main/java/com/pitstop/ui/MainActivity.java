@@ -1207,6 +1207,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void addPresetIssues(View button) {
         if (dashboardCar == null) return;
 
+        try{
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_BUTTON, MixpanelHelper.DASHBOARD_VIEW);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
         View dialogList = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_list, null);
         View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
         RecyclerView list = (RecyclerView) dialogList.findViewById(R.id.dialog_add_preset_issue_recycler_view);
@@ -1233,6 +1239,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 positiveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        try{
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CONFIRM, MixpanelHelper.DASHBOARD_VIEW);
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
                         List<CarIssuePreset> pickedIssues = adapter.getPickedIssues();
                         if (pickedIssues.size() == 0){
                             Toast.makeText(MainActivity.this, "Please pick issues you want to add!", Toast.LENGTH_SHORT).show();
@@ -1243,7 +1255,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         for (CarIssuePreset pickedIssue: pickedIssues){
                             checkedItems.append(pickedIssue.getItem() + " ");
                         }
-                        Toast.makeText(MainActivity.this, checkedItems.toString(), Toast.LENGTH_SHORT).show();
 
                         showLoading("Saving issue");
                         networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
@@ -1255,8 +1266,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                     showSimpleMessage("We have saved issues you requested!", true);
                                     refreshFromServer(); // Test this
 
-                                    // Track in mixpanel?
-
                                 } else {
                                     Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
                                             "error: " + requestError.getError());
@@ -1267,6 +1276,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         d.dismiss();
                     }
                 });
+            }
+        });
+
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                try{
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -1649,7 +1669,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showDetailDialog(mPresetIssues.get(position));
+                    showDetailDialog(presetIssue);
+
+                    try{
+                        mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
+                                MixpanelHelper.DASHBOARD_VIEW);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
                 }
             });
 
@@ -1657,10 +1684,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked){
-                        mPickedIssues.add(mPresetIssues.get(position));
-                    } else if(mPickedIssues.contains(mPresetIssues.get(position))){
-                        mPickedIssues.remove(mPresetIssues.get(position));
+                        mPickedIssues.add(presetIssue);
+                    } else if(mPickedIssues.contains(presetIssue)){
+                        mPickedIssues.remove(presetIssue);
                     }
+
+                    try{
+                        String check = isChecked ? "Checked: " : "Unchecked: ";
+                        mixpanelHelper.trackButtonTapped(check + presetIssue.getAction() + " " + presetIssue.getItem(),
+                                MixpanelHelper.DASHBOARD_VIEW);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
                 }
             });
 
