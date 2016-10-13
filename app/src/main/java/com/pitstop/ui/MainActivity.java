@@ -1293,6 +1293,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         d.show();
     }
 
+    /**
+     *
+     * @param data
+     */
     private void showDetailDialog(CarIssuePreset data){
         if (data == null) return;
 
@@ -1669,8 +1673,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showDetailDialog(presetIssue);
-
+                    try{
+                        showDetailDialog(presetIssue);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                     try{
                         mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
                                 MixpanelHelper.DASHBOARD_VIEW);
