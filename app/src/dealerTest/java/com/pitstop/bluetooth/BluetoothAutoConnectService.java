@@ -16,7 +16,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.castel.obd.bluetooth.BluetoothClassicComm;
+import com.castel.obd.bluetooth.BluetoothTestAppComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -80,7 +80,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         if(BluetoothAdapter.getDefaultAdapter() != null) {
-            bluetoothCommunicator = new BluetoothClassicComm(this);
+            bluetoothCommunicator = new BluetoothTestAppComm(this);
             bluetoothCommunicator.setBluetoothDataListener(this);
             if (BluetoothAdapter.getDefaultAdapter()!=null
                     && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -309,7 +309,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void startBluetoothSearch(int... source) {
         Log.d(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""));
         if (bluetoothCommunicator == null) {
-            bluetoothCommunicator = new BluetoothClassicComm(this);
+            bluetoothCommunicator = new BluetoothTestAppComm(this);
             bluetoothCommunicator.setBluetoothDataListener(this);
         }
         bluetoothCommunicator.startScan();
@@ -506,9 +506,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new BluetoothTestAppComm(BluetoothAutoConnectService.this);
                     } else {
-                        bluetoothCommunicator = new BluetoothClassicComm(BluetoothAutoConnectService.this);
+                        bluetoothCommunicator = new BluetoothTestAppComm(BluetoothAutoConnectService.this);
                     }
 
                     bluetoothCommunicator.setBluetoothDataListener(BluetoothAutoConnectService.this);

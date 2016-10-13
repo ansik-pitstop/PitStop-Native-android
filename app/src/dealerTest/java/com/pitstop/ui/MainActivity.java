@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     public static final String TEST_ACTION_ACTION = "com.ansik.pitstop.TEST_ACTION_ACTION";
     public static final String TEST_ACTION_TYPE = "com.ansik.pitstop.action_type";
+    public static final String ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED = "LOL";
 
     @BindView(R.id.viewPager)
     ViewPager viewPager;
