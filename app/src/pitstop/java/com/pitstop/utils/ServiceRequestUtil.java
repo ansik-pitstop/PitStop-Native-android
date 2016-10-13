@@ -358,14 +358,15 @@ public class ServiceRequestUtil {
                                     networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
                                 }
                             }
-                            ((MainActivity)context).refreshFromServer();
+                            if (isFirstBooking){
+                                ((MainActivity)context).refreshFromServer();
+                            }
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
                             Toast.makeText(context, "There was an error, please try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-
     }
 
     /**

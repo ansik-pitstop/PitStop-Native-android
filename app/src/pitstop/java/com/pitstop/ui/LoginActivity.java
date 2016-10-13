@@ -67,10 +67,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public static String LOGIN_REFRESH = "login_refresh";
 
-    public static final String LOGIN = "com.pitstop.ui.LoginActivity.LOGIN";
-    public static final String SIGNUP = "com.pitstop.ui.LoginActivity.SIGNUP";
-    public static String sState = LOGIN;
-
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     GlobalApplication application;
@@ -415,11 +411,9 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("Mixpanel", "Regitser with facebook");
                 application.modifyMixpanelSettings("Registered With", "Facebook");
                 mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
-                sState = SIGNUP;
             } else {
                 Log.d("Mixpanel", "Login with facebook");
                 mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, MixpanelHelper.LOGIN_VIEW);
-                sState = LOGIN;
             }
         }catch (JSONException e){
             e.printStackTrace();
@@ -554,7 +548,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
             }
-            sState = SIGNUP;
         } else {
             // Login
             try {
@@ -581,8 +574,6 @@ public class LoginActivity extends AppCompatActivity {
             final String passwordInput = password.getText().toString();
 
             login(usernameInput, passwordInput);
-
-            sState = LOGIN;
         }
     }
 
@@ -909,10 +900,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-    }
-
-    public static void switchStateForTutorial() {
-        sState = LOGIN;
     }
 
     public void setUIOnTapDismissKeyboard(View view) {

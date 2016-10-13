@@ -43,9 +43,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
-import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.CarScanActivity;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -643,13 +641,17 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             setIssuesCount();
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Toast.makeText(getActivity(),
-                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                            if (getActivity() != null){
+                                Toast.makeText(getActivity(),
+                                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     } else {
                         Log.e(TAG, "Load issues error: " + requestError.getMessage());
-                        Toast.makeText(getActivity(),
-                                "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                        if (getActivity() != null){
+                            Toast.makeText(getActivity(),
+                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             });
@@ -822,7 +824,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     @Override
                     public void onClick(View v) {
                         removeTutorial();
-                        LoginActivity.switchStateForTutorial();
                         ((MainActivity) getActivity()).prepareAndStartTutorialSequence();
                     }
                 });
@@ -911,9 +912,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             if (hasTutorial()) return false;
             CarIssue tutorial = new CarIssue.Builder()
                     .setId(-1)
+                    .setPriority(99)
                     .setIssueType(CarIssue.TENTATIVE)
                     .build();
-            carIssueList.add(tutorial);
+            carIssueList.add(0, tutorial);
+//            carIssueList.add(tutorial);
             carIssueLocalStore.storeCarIssue(tutorial);
             notifyDataSetChanged();
             return true;

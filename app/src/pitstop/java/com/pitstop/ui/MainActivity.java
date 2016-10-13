@@ -393,8 +393,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private void setupViewPager(final ViewPager viewPager) {
         MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
-//        adapter.addFragment(new MainDashboardFragment(), "DASHBOARD");
-//        adapter.addFragment(new MainToolFragment(), "TOOLS");
         mDashboardFragment = new MainDashboardFragment();
         mToolFragment = new MainToolFragment();
         adapter.addFragment(mDashboardFragment, "DASHBOARD");
@@ -548,8 +546,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                 Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                 Log.d("OnActivityResult", "CarList: " + carList.size());
-                Log.d("OnActivityResult", LoginActivity.sState);
-                if (carList.size() == 0 && LoginActivity.sState.equals(LoginActivity.SIGNUP)) {
+                if (carList.size() == 0) {
                     Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
                             .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
                     carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
@@ -732,10 +729,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void done(String response, RequestError requestError) {
                 if (response != null && response.equals("{}")) {
-                    PreferenceManager.getDefaultSharedPreferences(application)
-                            .edit().putBoolean(getString(R.string.pfTutorialShown), false)
-                            .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
-                            .apply();
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
@@ -1281,7 +1274,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         for (CarIssuePreset pickedIssue: pickedIssues){
                             checkedItems.append(pickedIssue.getItem() + " ");
                         }
-                        Toast.makeText(MainActivity.this, checkedItems.toString(), Toast.LENGTH_SHORT).show();
 
                         showLoading("Saving issue");
                         networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
@@ -1292,8 +1284,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                     Log.d(TAG, "Success!");
                                     showSimpleMessage("We have saved issues you requested!", true);
                                     refreshFromServer(); // Test this
-
-                                    // Track in mixpanel?
 
                                 } else {
                                     Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
@@ -1314,14 +1304,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /**
      * Given the tutorial should be shown to the user, show tutorial sequence
      */
-    private void presentShowcaseSequence() {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
-
-        final String prefDiscountAvailable = getResources().getString(R.string.pfFirstBookingDiscountAvailability);
-        final String prefDiscountAmount = getResources().getString(R.string.pfFirstBookingDiscountAmount);
-        final String prefDiscountUnit = getResources().getString(R.string.pfFirstBookingDiscountUnit);
-        final boolean firstBookingDiscountAvailable = preferences.getBoolean(prefDiscountAvailable, false);
-
+    private void presentShowcaseSequence(boolean discountAvailable, String discountUnit, float discountAmount) {
         Log.i(TAG, "running present show case");
 
         final MaterialShowcaseSequence discountSequence = new MaterialShowcaseSequence(this);
@@ -1335,11 +1318,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         StringBuilder firstServicePromotion = new StringBuilder();
         firstServicePromotion.append(getResources().getString(R.string.first_service_booking_1));
 
-        if (firstBookingDiscountAvailable) {
-
-            final float discountAmount = preferences.getFloat(prefDiscountAmount, 0f);
-            final String discountUnit = preferences.getString(prefDiscountUnit, null);
-
+        if (discountAvailable) {
             if (discountAmount != 0 && discountUnit != null) {
                 firstServicePromotion.append(" You can also receive a discount of ");
                 if (discountUnit.contains("%")) {
@@ -1348,9 +1327,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     firstServicePromotion.append(discountUnit + (int) discountAmount + " towards your first service.");
                 }
             }
-
-            //change the preference of the first service booking
-            preferences.edit().putBoolean(prefDiscountAvailable, false);
         }
 
         final MaterialShowcaseView firstBookingDiscountShowcase = new MaterialShowcaseView.Builder(this)
@@ -1362,7 +1338,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 .withRectangleShape(true)
                 .setMaskColour(ContextCompat.getColor(this, R.color.darkBlueTrans))
                 .build();
-
 
         final MaterialShowcaseView tentativeDateShowcase = new MaterialShowcaseView.Builder(this)
                 .withoutShape()
@@ -1388,9 +1363,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
-                    //update the local sharedPreference
-                    preferences.edit().putBoolean(getString(R.string.pfTutorialShown), true).commit();
-
                     try {
                         Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
                         requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
@@ -1401,7 +1373,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         e.printStackTrace();
                     }
 
-                    //Log tutorial GET_STARTED tapped
                     try {
                         mixpanelHelper.trackButtonTapped(MixpanelHelper.TUTORIAL_GET_STARTED_TAPPED, MixpanelHelper.DASHBOARD_VIEW);
                     } catch (JSONException e) {
@@ -1440,7 +1411,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
                 User.getCurrentUser().addProperties(customProperties);
 
-//                if (user != null && !BuildConfig.DEBUG) {
                 if (user != null) {
                     Log.d("MainActivity Smooch", "Sending message");
                     Smooch.getConversation().sendMessage(
@@ -1480,13 +1450,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * </ul>
      */
     public void prepareAndStartTutorialSequence() {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
-        Log.d("FSBretrieveUserSetting", LoginActivity.sState);
         Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
         Log.d("FSB", "Start getting user settings");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+
+                String unit = "";
+                float amount = 0f;
+                boolean enableDiscountTutorial = false;
 
                 if (response != null) Log.d("FSB", response);
                 if (requestError != null) Log.d("FSB", requestError.toString());
@@ -1497,19 +1469,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.has("shop")) {
-                            Log.d("FSB", "Response has shop");
                             JSONObject shop = jsonObject.getJSONObject("shop");
                             JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
-                            boolean enableDiscountTutorial = shop.getBoolean("enableDiscountTutorial");
-                            float amount = (float) firstAppointmentDiscount.getDouble("amount");
-                            String unit = firstAppointmentDiscount.getString("unit");
 
-                            preferences.edit()
-                                    .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), enableDiscountTutorial)
-                                    .putFloat(getString(R.string.pfFirstBookingDiscountAmount), amount)
-                                    .putString(getString(R.string.pfFirstBookingDiscountUnit), unit)
-                                    .commit();
-
+                            enableDiscountTutorial = shop.getBoolean("enableDiscountTutorial");
+                            amount = (float) firstAppointmentDiscount.getDouble("amount");
+                            unit = firstAppointmentDiscount.getString("unit");
                         }
                     } catch (JSONException je) {
                         je.printStackTrace();
@@ -1521,7 +1486,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 //Show the tutorial
                 try {
-                    presentShowcaseSequence();
+                    presentShowcaseSequence(enableDiscountTutorial, unit, amount);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

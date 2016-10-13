@@ -260,14 +260,6 @@ public class GlobalApplication extends Application {
         editor.putBoolean(pfLoggedIn, false);
         editor.apply();
 
-        //Reset values about tutorial and fsb
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit()
-                .putBoolean(getString(R.string.pfTutorialShown), true)
-                .putBoolean(getString(R.string.pfFirstBookingDiscountAvailability), false)
-                .apply();
-
-
         ParseUser.logOut();
 
         AccessToken.setCurrentAccessToken(null);
