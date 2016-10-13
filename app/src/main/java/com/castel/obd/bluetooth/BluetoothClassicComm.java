@@ -1,5 +1,6 @@
 package com.castel.obd.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.models.ObdScanner;
@@ -31,6 +33,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 12/04/2016.
  */
+@SuppressLint("all")
 public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
 
     private static String TAG = "BtClassicComm";
@@ -49,7 +52,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
      * For detecting unrecognized IDD device
      */
     private BluetoothDevice mPendingDevice;
+
     private LocalScannerAdapter scannerAdapter;
+
     private boolean devicePending = false;
 
     private boolean isMacAddress = false;
@@ -69,7 +74,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        scannerAdapter = new LocalScannerAdapter(application);
+        if(BuildConfig.FLAVOR.equals("pitstop")) {
+            scannerAdapter = new LocalScannerAdapter(application);
+        }
 
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
@@ -365,6 +372,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 String deviceName = device.getName();
 
                 Log.d(TAG, "Device found: DEVICE NAME: " + deviceName);
+
                 Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
                 Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
 
@@ -374,8 +382,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     boolean deviceFoundLocally = false; // if any scanner has "null" name or name matches
                     for (ObdScanner scanner : scanners) {
                         Log.d(TAG, "Scanner in the table: ");
-                        Log.d(TAG, "Device Name: (" + (scanner.getDeviceName() != null? scanner.getDeviceName() : "EMPTY") + ")");
-                        Log.d(TAG, "Scanner ID: (" + (scanner.getScannerId() != null? scanner.getScannerId() : "EMPTY") + ")");
+                        Log.d(TAG, "Device Name: (" + (scanner.getDeviceName() != null ? scanner.getDeviceName() : "EMPTY") + ")");
+                        Log.d(TAG, "Scanner ID: (" + (scanner.getScannerId() != null ? scanner.getScannerId() : "EMPTY") + ")");
                         Log.d(TAG, "Car ID: (" + scanner.getCarId() + ")");
 
                         if (scanner.getDeviceName() != null && scanner.getDeviceName().equals(deviceName)) {
@@ -400,7 +408,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
                     } else if (!devicePending
                             && scannerAdapter.anyCarLackScanner()
-                            && !scannerAdapter.deviceNameExists(deviceName)){
+                            && !scannerAdapter.deviceNameExists(deviceName)) {
                         // If some cars in the local database does not have a scanner pair with it,
                         // we should potentially connect to this device!
                         Log.d(TAG, "Found pending device");
@@ -413,7 +421,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     } else {
                         Log.i(TAG, "Found unrecognized OBD device, ignoring");
                     }
-                } else{
+                } else {
                     Log.d(TAG, "Device name does not contain OBD, ignore");
                 }
 
