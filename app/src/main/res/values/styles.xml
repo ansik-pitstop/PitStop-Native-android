@@ -19,12 +19,24 @@
 
     </style>
 
+    <style name="TestAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark_dark</item>
+    </style>
+
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/primary</item>
     </style>
 
     <style name="AddCarButtonStyle" parent="Widget.AppCompat.Button.Colored">
         <item name="android:background">@drawable/color_button_primary</item>
+    </style>
+
+    <style name="TestAppButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/color_button_primary_dark</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

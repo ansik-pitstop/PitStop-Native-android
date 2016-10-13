@@ -9,6 +9,7 @@
     <color name="evcheck">#66bc46</color>
     <color name="evcheck_dark">#1f974a</color>
     <color name="not_connected">#e53a52</color>
+    <color name="red">#d32f2f</color>
 
     <color name="service_button_tutorial">#29d767</color>
 
@@ -35,6 +36,8 @@
     <color name="love">#ff00ee</color>
 
     <color name="darkBlueTrans">#ea031223</color>
+
+    <color name="black">#000</color>
 
     <color name="message_failure">#F44336</color>
     <color name="message_success">#388E3C</color>

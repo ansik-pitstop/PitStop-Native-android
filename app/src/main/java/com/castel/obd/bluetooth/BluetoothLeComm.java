@@ -317,7 +317,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
                         .setContentTitle("Connecting to car");
 
         Intent resultIntent = new Intent(mContext, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
 
         stackBuilder.addParentStack(MainActivity.class);
@@ -625,7 +624,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
      */
     private void sendObdDeviceDiscoveredIntent(){
         Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED);
+        intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
         // This intent will be observed by the MainActivity.
         mContext.sendBroadcast(intent);
     }

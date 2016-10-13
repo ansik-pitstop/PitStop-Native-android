@@ -250,7 +250,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
      */
     private void sendObdDeviceDiscoveredIntent(){
         Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED);
+        intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
         // This intent will be observed by the MainActivity.
         Log.d(TAG, "OBD device discovered intent sent!");
         mContext.sendBroadcast(intent);
