@@ -1,4 +1,4 @@
-package com.castel.obd.bluetooth;
+package com.pitstop.bluetooth;
 
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
@@ -12,11 +12,13 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.BluetoothChat;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -53,9 +55,6 @@ public class BluetoothTestAppComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        //int initSuccess = mObdManager.initializeObd();
-        //Log.d(TAG, "init result: " + initSuccess);
-
         mHandler.postDelayed(runnable, 500);
     }
 
@@ -77,9 +76,7 @@ public class BluetoothTestAppComm implements IBluetoothCommunicator, ObdManager.
     }
 
     @Override
-    public void stopScan() {
-
-    }
+    public void stopScan() {}
 
     @Override
     public int getState() {
@@ -367,16 +364,13 @@ public class BluetoothTestAppComm implements IBluetoothCommunicator, ObdManager.
     }
 
     @Override
-    public void connectPendingDevice() {
-    }
+    public void connectPendingDevice() {}
 
     @Override
-    public void manuallyDisconnectCurrentDevice() {
-    }
+    public void manuallyDisconnectCurrentDevice() {}
 
     @Override
-    public void cancelPendingDevice() {
-    }
+    public void cancelPendingDevice() {}
 
     @Override
     public String getConnectedDeviceName() {

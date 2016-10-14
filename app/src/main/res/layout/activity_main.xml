@@ -78,7 +78,8 @@
         android:paddingRight="60dp"
         android:paddingStart="60dp" />
 
-    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/connectCard"
         android:layout_alignParentBottom="true"
@@ -100,7 +101,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:textAlignment="textEnd"
-                android:text="Connect to Device" />
+                android:text="Setup"/>
+            <!--android:text="Connect to Device" />-->
 
             <TextView
                 android:id="@+id/cardDescription"
@@ -109,16 +111,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running." />
+                android:text="Before we start testing, please first give us some necessary information about you and the vehicle, that helps us analyze the data we collect, as well as sending you rewards for helping us." />
+
 
             <Button
-                android:id="@+id/testButton"
+                android:id="@+id/setupButton"
                 android:background="@drawable/color_button_highlight"
                 android:textColor="@color/white"
                 android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Start"
+                android:onClick="startSetup"/>
+
+            <Button
+                android:id="@+id/connectButton"
+                android:visibility="gone"
+                android:background="@drawable/color_button_highlight"
+                android:textColor="@color/white"
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Connect"
                 android:onClick="connectToDevice"/>
 
         </RelativeLayout>

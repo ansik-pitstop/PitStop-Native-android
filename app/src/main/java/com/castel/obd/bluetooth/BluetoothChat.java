@@ -115,7 +115,7 @@ public class BluetoothChat {
 	}
 
 	// handle read and write from device
-	class ConnectedThread extends Thread {
+	public class ConnectedThread extends Thread {
 		private BluetoothSocket mmSocket;
 		private InputStream mmInStream;
 		private OutputStream mmOutStream;
