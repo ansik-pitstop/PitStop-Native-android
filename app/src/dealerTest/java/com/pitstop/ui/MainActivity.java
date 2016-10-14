@@ -17,16 +17,24 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +44,11 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothAutoConnectService.State;
 import com.pitstop.models.TestAction;
 import com.pitstop.utils.MessageListener;
+import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.ShadowTransformer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,6 +80,17 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @BindView(R.id.logView)
     View logView;
 
+    // Before connect
+    @BindView(R.id.cardTitle)
+    TextView cardTitle;
+    @BindView(R.id.cardDescription)
+    TextView cardDescription;
+    @BindView(R.id.connectButton)
+    Button connectButton;
+    @BindView(R.id.setupButton)
+    Button setupButton;
+
+
     private boolean connected = false;
 
     private ArrayList<TestAction> testActions = new ArrayList<>();
@@ -84,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private ProgressDialog progressDialog;
+
+
+    private NetworkHelper mNetworkHelper;
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -144,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
+
+        mNetworkHelper = new NetworkHelper(this);
     }
 
     @Override
@@ -167,14 +193,33 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (connectButton.getVisibility() == View.VISIBLE){
+            connectButton.setVisibility(View.GONE);
+            setupButton.setVisibility(View.VISIBLE);
+            cardTitle.setText(getString(R.string.start_dialog_setup_title));
+            cardDescription.setText(getString(R.string.start_dialog_setup_description));
+        }else {
+            super.onBackPressed();
+        }
+    }
+
     private void initializeTestActions() {
         testActions.add(new TestAction("Disconnect", "Disconnect from the device.", TestAction.Type.DISCONNECT));
         testActions.add(new TestAction("Device Time", "The device time must be properly set before receiving data. " +
                 "This may take up to a minute.", TestAction.Type.CHECK_TIME));
+        testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
         testActions.add(new TestAction("Sensor Data", "Verify real-time sensor data is working. Received data will be displayed.", TestAction.Type.PID));
         testActions.add(new TestAction("Engine Codes", "Check the vehicle for any engine codes.", TestAction.Type.DTC));
-        testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
         testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
+//        testActions.add(new TestAction("Disconnect", "Disconnect from the device.", TestAction.Type.DISCONNECT));
+//        testActions.add(new TestAction("Device Time", "The device time must be properly set before receiving data. " +
+//                "This may take up to a minute.", TestAction.Type.CHECK_TIME));
+//        testActions.add(new TestAction("Sensor Data", "Verify real-time sensor data is working. Received data will be displayed.", TestAction.Type.PID));
+//        testActions.add(new TestAction("Engine Codes", "Check the vehicle for any engine codes.", TestAction.Type.DTC));
+//        testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
+//        testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
     }
 
     // callback for OBD function result
@@ -188,13 +233,13 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
                 viewPager.setCurrentItem(2);
-            } else if (state == State.READ_PIDS) {
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
                 viewPager.setCurrentItem(3);
-            } else if (state == State.READ_DTCS) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
                 viewPager.setCurrentItem(4);
-            } else if (state == State.GET_VIN) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
                 viewPager.setOnTouchListener(null);
@@ -203,18 +248,49 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
                 viewPager.setCurrentItem(2);
-            } else if (state == State.READ_PIDS) {
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
                 viewPager.setCurrentItem(3);
-            } else if (state == State.READ_DTCS) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
                 viewPager.setCurrentItem(4);
-            } else if (state == State.GET_VIN) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
                 viewPager.setCurrentItem(5);
                 viewPager.setOnTouchListener(null);
             }
         }
+//        if (status == MessageListener.STATUS_SUCCESS) {
+//            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
+//                viewPager.setCurrentItem(2);
+//            } else if (state == State.READ_PIDS) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
+//                viewPager.setCurrentItem(3);
+//            } else if (state == State.READ_DTCS) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
+//                viewPager.setCurrentItem(4);
+//            } else if (state == State.GET_VIN) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
+//                viewPager.setCurrentItem(5);
+//                viewPager.setOnTouchListener(null);
+//            }
+//        } else if (status == STATUS_FAILED) {
+//            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
+//                viewPager.setCurrentItem(2);
+//            } else if (state == State.READ_PIDS) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
+//                viewPager.setCurrentItem(3);
+//            } else if (state == State.READ_DTCS) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
+//                viewPager.setCurrentItem(4);
+//            } else if (state == State.GET_VIN) {
+//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
+//                viewPager.setCurrentItem(5);
+//                viewPager.setOnTouchListener(null);
+//            }
+//        }
     }
 
     @Override
@@ -244,6 +320,67 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private CountDownTimer connectTimer;
     private int connectAttempts = 0;
 
+
+    /**
+     * Onclick method for setup button
+     * @param view
+     */
+    public void startSetup(View view) {
+
+        final View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_setup_title, null);
+        final View dialogBody = getLayoutInflater().inflate(R.layout.dialog_setup_layout, null);
+        final TextInputEditText user = (TextInputEditText) dialogBody.findViewById(R.id.input_user);
+        final RecyclerView recyclerView = (RecyclerView) dialogBody.findViewById(R.id.list_failures);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setHasFixedSize(true);
+
+        final FailureListAdapter adapter = new FailureListAdapter();
+        recyclerView.setAdapter(adapter);
+
+        final AlertDialog setupDialog = new AlertDialog.Builder(this)
+                .setCustomTitle(dialogTitle)
+                .setView(dialogBody)
+                .setPositiveButton("Confirm", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        if (NetworkHelper.getUser() != null && !NetworkHelper.getUser().isEmpty()){
+            user.setText(NetworkHelper.getUser());
+        }
+
+        setupDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                setupDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(user.getText().toString()).matches() || user.getText().toString().isEmpty()){
+                            Toast.makeText(MainActivity.this, "Please enter your email!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            NetworkHelper.setUser(user.getText().toString());
+                            NetworkHelper.setFailures(adapter.getSelectedFailures());
+                            dialog.dismiss();
+
+                            cardTitle.setText(getString(R.string.start_dialog_connect_title));
+                            cardDescription.setText(R.string.start_dialog_connect_description);
+                            setupButton.setVisibility(View.GONE);
+                            connectButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        });
+
+        setupDialog.show();
+    }
+
+    /**
+     * Onclick method for connect button
+     * @param view
+     */
     public void connectToDevice(View view) {
         connectAttempts = 0;
         connectTimer = new CountDownTimer(14000, 14000) {
@@ -370,4 +507,73 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             }
         }
     };
+
+    public class FailureListAdapter extends RecyclerView.Adapter<FailureListAdapter.FailureViewHolder>{
+
+        List<String> mFailures;
+        List<String> mSelectedFailures;
+
+        public FailureListAdapter() {
+            mFailures = new ArrayList<>();
+            mSelectedFailures = new ArrayList<>();
+            mFailures.add("Dirty Air Filter");
+            mFailures.add("Bad Battery");
+            mFailures.add("Faulty Spark Plug");
+            mFailures.add("Faulty Airflow Sensor");
+        }
+
+        @Override
+        public FailureViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dialog_setup_failure_item, parent, false);
+            return new FailureViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final FailureViewHolder holder, int position) {
+            final String failure = mFailures.get(position);
+            holder.failureTitle.setText(failure);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.failureCheckBox.setChecked(!holder.failureCheckBox.isChecked());
+                }
+            });
+            holder.failureCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked){
+                        mSelectedFailures.add(failure);
+                    } else if(mSelectedFailures.contains(failure)){
+                        mSelectedFailures.remove(failure);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            if (mFailures == null) return 0;
+            return mFailures.size();
+        }
+
+        public List<String> getSelectedFailures() {
+            return mSelectedFailures;
+        }
+
+        public class FailureViewHolder extends RecyclerView.ViewHolder{
+
+            View rootView;
+            CheckBox failureCheckBox;
+            TextView failureTitle;
+
+            public FailureViewHolder(View itemView) {
+                super(itemView);
+                rootView = itemView;
+                failureTitle = (TextView) itemView.findViewById(R.id.failure_title);
+                failureCheckBox = (CheckBox) itemView.findViewById(R.id.failure_checkbox);
+            }
+        }
+    }
+
 }

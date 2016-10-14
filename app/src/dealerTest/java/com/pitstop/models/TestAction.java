@@ -6,7 +6,7 @@ package com.pitstop.models;
 public class TestAction {
 
     public enum Type {
-        DISCONNECT, CONNECT, CHECK_TIME, PID, DTC, VIN, RESET
+        SETUP, DISCONNECT, CONNECT, CHECK_TIME, PID, DTC, VIN, RESET
     }
 
     public String title;

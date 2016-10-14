@@ -111,4 +111,10 @@
     <string name="dialog_clear_issue_title">When was this service completed?</string>
 
 
+    <string name="start_dialog_setup_title">Setup</string>
+    <string name="start_dialog_setup_description">Before we start testing, please first give us some necessary information about you and the vehicle, that helps us analyze the data we collect, as well as sending you rewards for helping us.</string>
+    <string name="start_dialog_connect_title">Connect to Device</string>
+    <string name="start_dialog_connect_description">Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running.</string>
+
+
 </resources>
