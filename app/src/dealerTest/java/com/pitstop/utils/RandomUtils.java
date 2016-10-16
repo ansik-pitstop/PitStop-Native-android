@@ -1,5 +1,7 @@
 package com.pitstop.utils;
 
+import java.util.Random;
+
 /**
  * Created by yifan on 16/10/14.
  */
@@ -17,6 +19,12 @@ public class RandomUtils {
             builder.append(ALPHA_NUMERIC_STRING.charAt(character));
         }
         return builder.toString();
+    }
+
+    public static Random randomGenerator = new Random();
+
+    public static int getRandomTripId(){
+        return randomGenerator.nextInt(1000000000);
     }
 
 }

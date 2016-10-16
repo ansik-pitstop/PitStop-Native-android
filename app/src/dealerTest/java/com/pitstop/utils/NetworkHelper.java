@@ -35,6 +35,7 @@ public class NetworkHelper {
     private static String sUser;
     private static String sVIN;
     private static List<String> sFailures;
+    private static int sTripId;
 
     public static void setUser(String user) {
         sUser = user;
@@ -46,6 +47,10 @@ public class NetworkHelper {
 
     public static void setFailures(List<String> failures) {
         sFailures = failures;
+    }
+
+    public static void setTripId(int tripId) {
+        sTripId = tripId;
     }
 
     public static String getUser() {
@@ -93,131 +98,81 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-//    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
-//                          List<PIDInfo> freezeData, RequestCallback callback) {
-//        LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
-//                " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
-//
-//        JSONObject body = new JSONObject();
-//        JSONArray data = new JSONArray();
-//
-//        try {
-//            for (PIDInfo info : freezeData) {
-//                data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
-//            }
-//
-//            body.put("carId", carId);
-//            body.put("issueType", CarIssue.DTC);
-//            body.put("data",
-//                    new JSONObject().put("mileage", mileage)
-//                            .put("rtcTime", Long.parseLong(rtcTime))
-//                            .put("dtcCode", dtcCode)
-//                            .put("isPending", isPending));
-//            //.put("freezeData", data));
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        post("issue", callback, body);
-//    }
-
-
-
-    public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
-        LOGI(TAG, String.format("saveFreezeData: scannerId: %s, serviceType: %s,", scannerId, serviceType));
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("scannerId", scannerId);
-            body.put("serviceType", serviceType);
-            body.put("data", new JSONObject());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        postNoAuth("scan/freezeData", callback, body);
-    }
-
-    public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, RequestCallback callback) {
-        LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("scannerId", scannerId);
-            body.put("rtcTimeStart", Long.parseLong(rtcTime));
-            body.put("tripIdRaw", tripIdRaw);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        postNoAuth("scan/trip", callback, body);
-    }
-
-    public void saveTripMileage(int tripId, String mileage, String rtcTime, RequestCallback callback) {
-        LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
-                " mileage: %s, rtcTime: %s", tripId, mileage, rtcTime));
-
-        JSONObject tripBody = new JSONObject();
-
-        try {
-            tripBody.put("mileage", Double.parseDouble(mileage) / 1000);
-            tripBody.put("tripId", tripId);
-            tripBody.put("rtcTimeEnd", Long.parseLong(rtcTime));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        putNoAuth("scan/trip", callback, tripBody);
-    }
-
-    public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
-        LOGI(TAG, "savePids to " + scannerId);
-        LOGV(TAG, "pidArr: " + pidArr.toString());
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("tripId", tripId);
-            body.put("scannerId", scannerId);
-            body.put("pidArray", pidArr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        postNoAuth("scan/pids", callback, body);
-    }
-
     /**
-     *
-     * @param tripId
-     * @param failure
      * @param pidArr
      * @param callback
      */
-    public void postTestPids(int tripId, ArrayList<String> failure,
-                             JSONArray pidArr, RequestCallback callback){
+    public void postTestPids(JSONArray pidArr, RequestCallback callback) {
 
-        if (sVIN == null || sVIN.isEmpty() || sUser == null || sUser.isEmpty()){
-            callback.done("User or Vin is not set", new RequestError());
+        if (sVIN == null || sVIN.isEmpty() || sUser == null || sUser.isEmpty() || sTripId == 0) {
+            callback.done("User or Vin or Trip ID is not set", new RequestError());
+            return;
         }
 
         JSONObject body = new JSONObject();
         JSONObject data = new JSONObject();
 
-        try{
+        JSONArray failures = new JSONArray();
+        JSONObject fail = new JSONObject();
+
+        try {
+            for (String failure : sFailures) {
+                failures.put(failure);
+            }
+            fail.put("fail", failures);
+
             data.put("user", sUser)
-                    .put("tripId", tripId)
+                    .put("tripId", sTripId)
                     .put("vin", sVIN)
-                    .put("failure", failure == null ? sFailures : failure)
+                    .put("failure", fail)
                     .put("pidArray", pidArr);
             body.put("data", data);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
         postNoAuth("scan/test_pids", callback, body);
+    }
+
+
+    /**
+     * @param pidArr
+     * @param dtcString
+     * @param callback
+     */
+    public void postTestDtcs(JSONArray pidArr, String dtcString, RequestCallback callback){
+        if (sVIN == null || sVIN.isEmpty() || sUser == null || sUser.isEmpty()) {
+            callback.done("User or Vin is not set", new RequestError());
+            return;
+        }
+
+        JSONObject body = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        JSONObject dtc = new JSONObject();
+        JSONObject fail = new JSONObject();
+
+        try {
+            dtc.put("dtc", dtcString);
+            fail.put("fail", dtc);
+
+            data.put("user", sUser)
+                    .put("tripId", sTripId)
+                    .put("vin", sVIN)
+                    .put("failure", fail)
+                    .put("pidArray", pidArr);
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        postNoAuth("scan/test_pids", callback, body);
+    }
+
+    public static void reset(){
+        sTripId = 0;
+        sFailures = null;
+        sVIN = null;
     }
 
 

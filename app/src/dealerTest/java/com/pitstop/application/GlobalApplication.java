@@ -19,4 +19,6 @@ public class GlobalApplication extends Application {
 
         MultiDex.install(this);
     }
+
+
 }

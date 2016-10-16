@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     public static final String TEST_ACTION_ACTION = "com.ansik.pitstop.TEST_ACTION_ACTION";
     public static final String TEST_ACTION_TYPE = "com.ansik.pitstop.action_type";
-    public static final String ACTION_UNRECOGNIZED_OBD_MODULE_DISCOVERED = "LOL";
 
     @BindView(R.id.viewPager)
     ViewPager viewPager;
@@ -105,9 +104,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private ProgressDialog progressDialog;
-
-
-    private NetworkHelper mNetworkHelper;
+    private boolean isLoading = false;
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -154,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         viewPager.setPageTransformer(false, shadowTransformer);
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(6);
+        viewPager.setOffscreenPageLimit(7);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Connecting to device...");
@@ -168,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
-
-        mNetworkHelper = new NetworkHelper(this);
     }
 
     @Override
@@ -212,14 +207,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
         testActions.add(new TestAction("Sensor Data", "Verify real-time sensor data is working. Received data will be displayed.", TestAction.Type.PID));
         testActions.add(new TestAction("Engine Codes", "Check the vehicle for any engine codes.", TestAction.Type.DTC));
+        testActions.add(new TestAction("Collect Data", "Great! Now we should collect some information from the car, please wait for a few minutes.", TestAction.Type.COLLECT_DATA));
         testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
-//        testActions.add(new TestAction("Disconnect", "Disconnect from the device.", TestAction.Type.DISCONNECT));
-//        testActions.add(new TestAction("Device Time", "The device time must be properly set before receiving data. " +
-//                "This may take up to a minute.", TestAction.Type.CHECK_TIME));
-//        testActions.add(new TestAction("Sensor Data", "Verify real-time sensor data is working. Received data will be displayed.", TestAction.Type.PID));
-//        testActions.add(new TestAction("Engine Codes", "Check the vehicle for any engine codes.", TestAction.Type.DTC));
-//        testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
-//        testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
     }
 
     // callback for OBD function result
@@ -242,8 +231,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
+            } else if (state == State.COLLECT_DATA){
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 5);
+                viewPager.setCurrentItem(6);
                 viewPager.setOnTouchListener(null);
             }
+
         } else if (status == STATUS_FAILED) {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
@@ -257,40 +250,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
                 viewPager.setCurrentItem(5);
+            } else if (state == State.COLLECT_DATA){
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 5);
+                viewPager.setCurrentItem(6);
                 viewPager.setOnTouchListener(null);
             }
+        } else if (status == STATUS_UPDATE){
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
-//        if (status == MessageListener.STATUS_SUCCESS) {
-//            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
-//                viewPager.setCurrentItem(2);
-//            } else if (state == State.READ_PIDS) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
-//                viewPager.setCurrentItem(3);
-//            } else if (state == State.READ_DTCS) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
-//                viewPager.setCurrentItem(4);
-//            } else if (state == State.GET_VIN) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
-//                viewPager.setCurrentItem(5);
-//                viewPager.setOnTouchListener(null);
-//            }
-//        } else if (status == STATUS_FAILED) {
-//            if (state == State.VERIFY_RTC || state == State.GET_RTC) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
-//                viewPager.setCurrentItem(2);
-//            } else if (state == State.READ_PIDS) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
-//                viewPager.setCurrentItem(3);
-//            } else if (state == State.READ_DTCS) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
-//                viewPager.setCurrentItem(4);
-//            } else if (state == State.GET_VIN) {
-//                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
-//                viewPager.setCurrentItem(5);
-//                viewPager.setOnTouchListener(null);
-//            }
-//        }
     }
 
     @Override
@@ -467,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         }).start();
                         bluetoothService.disconnectFromDevice();
                         connected = false;
+                        NetworkHelper.reset();
                         break;
                     case CHECK_TIME:
                         viewPager.setOnTouchListener(new View.OnTouchListener() {
@@ -490,14 +458,17 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                             }
                         }).start();
                         break;
+                    case VIN:
+                        Toast.makeText(context, "VIN", Toast.LENGTH_SHORT).show();
+                        break;
                     case PID:
                         Toast.makeText(context, "Sensor Data", Toast.LENGTH_SHORT).show();
                         break;
                     case DTC:
                         Toast.makeText(context, "Engine Codes", Toast.LENGTH_SHORT).show();
                         break;
-                    case VIN:
-                        Toast.makeText(context, "VIN", Toast.LENGTH_SHORT).show();
+                    case COLLECT_DATA:
+                        Toast.makeText(context, "Collect Data", Toast.LENGTH_SHORT).show();
                         break;
                     case RESET:
                         Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
@@ -507,6 +478,28 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             }
         }
     };
+
+    public void hideLoading() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        } else {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        isLoading = false;
+    }
+
+    public void showLoading(String text) {
+
+        isLoading = true;
+        if (progressDialog == null) {
+            return;
+        }
+        progressDialog.setMessage(text);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
 
     public class FailureListAdapter extends RecyclerView.Adapter<FailureListAdapter.FailureViewHolder>{
 
