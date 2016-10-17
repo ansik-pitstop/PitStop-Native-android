@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.network.HttpRequest;
@@ -28,7 +29,7 @@ public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static final String clientId = BuildConfig.CLIENT_ID;
+    private static final String clientId = BuildConfig.TEST_CLIENT_ID;
 
     private Context context;
 
@@ -110,7 +111,6 @@ public class NetworkHelper {
         }
 
         JSONObject body = new JSONObject();
-        JSONObject data = new JSONObject();
 
         JSONArray failures = new JSONArray();
         JSONObject fail = new JSONObject();
@@ -121,15 +121,16 @@ public class NetworkHelper {
             }
             fail.put("fail", failures);
 
-            data.put("user", sUser)
+            body.put("user", sUser)
                     .put("tripId", sTripId)
                     .put("vin", sVIN)
                     .put("failure", fail)
                     .put("pidArray", pidArr);
-            body.put("data", data);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG, body.toString());
 
         postNoAuth("scan/test_pids", callback, body);
     }
@@ -147,7 +148,6 @@ public class NetworkHelper {
         }
 
         JSONObject body = new JSONObject();
-        JSONObject data = new JSONObject();
 
         JSONObject dtc = new JSONObject();
         JSONObject fail = new JSONObject();
@@ -156,15 +156,17 @@ public class NetworkHelper {
             dtc.put("dtc", dtcString);
             fail.put("fail", dtc);
 
-            data.put("user", sUser)
+            body.put("user", sUser)
                     .put("tripId", sTripId)
                     .put("vin", sVIN)
                     .put("failure", fail)
                     .put("pidArray", pidArr);
-            body.put("data", data);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG, "Sending DTC");
+        Log.d(TAG, body.toString());
 
         postNoAuth("scan/test_pids", callback, body);
     }

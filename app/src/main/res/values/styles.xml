@@ -7,6 +7,7 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+
     </style>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -16,7 +17,6 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
 
-
     </style>
 
     <style name="TestAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -25,6 +25,8 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark_dark</item>
+
+        <item name="android:textColorHint">@color/white_text</item>
     </style>
 
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">

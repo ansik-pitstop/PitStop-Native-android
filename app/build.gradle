@@ -27,7 +27,7 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 97
+        versionCode 98
         versionName "2.1.17"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -67,6 +67,8 @@ android {
         }
         dealerTest {
             applicationIdSuffix ".test_app"
+            buildConfigField "String", "TEST_CLIENT_ID", "\"IhUvDTvmbBgMFARwqVuPYrMIK8XVkGHoRAH2YsQUcikMDn3F\""
+            buildConfigField "String", "TEST_SERVER_URL", "\"http://52.204.33.174:8081/\""
         }
     }
 }

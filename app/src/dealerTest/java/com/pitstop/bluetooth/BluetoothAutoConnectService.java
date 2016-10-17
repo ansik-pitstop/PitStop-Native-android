@@ -29,6 +29,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.TestDatabaseHelper;
 import com.pitstop.database.TestPidAdapter;
 import com.pitstop.models.Dtc;
+import com.pitstop.models.DtcPayload;
 import com.pitstop.models.Pid;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -97,7 +98,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
 
-    private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
+    private ArrayList<DtcPayload> dtcsToSend = new ArrayList<>();
 
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
     private String supportedPids = "";
@@ -131,7 +132,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         registerReceiver(connectionReceiver, intentFilter);
 
         mNetworkHelper = new NetworkHelper(getApplicationContext());
-
+        mTestPidAdapter = new TestPidAdapter(getApplicationContext());
     }
 
     @Override
@@ -162,10 +163,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED){
-            // TODO: 16/10/15 Take care of this
-            sendMessageToUi(MessageListener.STATUS_UPDATE, "Bluetooth has disconnected");
-
+        if (state == IBluetoothCommunicator.DISCONNECTED &&
+                (this.state == State.COLLECT_DATA)) {
+            sendMessageToUi(MessageListener.STATUS_UPDATE, "Bluetooth has disconnected, uploading data");
+            dtcsToSend.clear();
+            flushData();
+        } else if (state == IBluetoothCommunicator.CONNECTED &&
+                this.state == State.CONNECTING) {
+            callbacks.connectSuccess();
         }
     }
 
@@ -202,13 +207,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 sendMessageToUi(MessageListener.STATUS_UPDATE, "Device time received:" + readableDate);
 
                 if (diff > moreThanOneYear) {
-                    state = State.VERIFY_RTC;
-                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time");
                     vinAttempts = 0;
+                    state = State.VERIFY_RTC;
                     syncObdDevice();
+                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time...");
                 } else {
                     Log.i(TAG, "RTC success");
                     rtcSuccess = true;
+                    state = State.GET_VIN;
                     sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time does not need to be set");
                     getVinFromCar();
                 }
@@ -219,6 +225,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     Log.i(TAG, "RTC success");
                     sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device successfully synced");
                     rtcSuccess = true;
+                    state = State.GET_VIN;
                     getVinFromCar();
                 } else if (vinAttempts++ < 6) { // may still be syncing, try again
                     sendMessageToUi(MessageListener.STATUS_UPDATE, "Syncing device...");
@@ -233,6 +240,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     };
                     testTimer.start();
                 } else { // vin not retrievable
+                    Log.d(TAG, "VERIFY_RTC FAILED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                     sendMessageToUi(MessageListener.STATUS_FAILED, "Could not verify device sync");
                     listenForPids();
                 }
@@ -262,7 +270,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.v(TAG, "dtcData: " + dataPackageInfo.dtcData);
 
-        callbacks.connectSuccess();
+        if (state == State.CONNECTING) {
+            callbacks.connectSuccess();
+        }
 
         if (state == State.READ_PIDS && dataPackageInfo.result == 5
                 && dataPackageInfo.obdData != null
@@ -290,9 +300,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             dtcSuccess = true;
 
             if (!dataPackageInfo.dtcData.isEmpty()) {
-                sendMessageToUi(MessageListener.STATUS_UPDATE, "Engine codes received: " + dataPackageInfo.dtcData);
+                sendMessageToUi(MessageListener.STATUS_SUCCESS, "Engine codes received: " + dataPackageInfo.dtcData);
             } else {
-                sendMessageToUi(MessageListener.STATUS_UPDATE, "Engine codes received is empty");
+                sendMessageToUi(MessageListener.STATUS_SUCCESS, "Engine codes received is empty");
             }
 
             testTimer.cancel();
@@ -319,21 +329,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if (counter == 50) {
                 getPIDs();
             }
-            if (counter % 500 == 0) {
+            if (counter % 70 == 0) {
                 getDTCs();
             }
-            if (counter % 600 == 0) {
+            if (counter % 100 == 0) {
                 getPendingDTCs();
             }
-            if (counter == 1000) {
+            if (counter == 150) {
+                counter = 1;
+                flushData();
                 dataSuccess = true;
                 testTimer.cancel();
                 sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
             }
-
         }
-
-
     }
 
     @Override
@@ -344,7 +353,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.i(TAG, "Device flag: " + loginPackageInfo.flag);
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
-            callbacks.connectSuccess();
+            if (state == State.CONNECTING) {
+                callbacks.connectSuccess();
+            }
         } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
@@ -373,6 +384,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     // test dtcs for 20 seconds
     private void listenForDtcs() {
         state = State.READ_DTCS;
+        getDTCs();
         if (testTimer != null) {
             testTimer.cancel();
         }
@@ -384,8 +396,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 } else {
                     sendMessageToUi(MessageListener.STATUS_FAILED, "Could not get engine codes");
                 }
-//                state = State.GET_VIN;
-//                getVinFromCar();
                 startCollectingData(); // When finished, start collecting data
             }
         };
@@ -395,17 +405,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     /**
      * Starts collecting pid data
      */
-    private void startCollectingData(){
+    private void startCollectingData() {
         state = State.COLLECT_DATA;
         getPIDs();
-        if (testTimer != null){
+        if (testTimer != null) {
             testTimer.cancel();
         }
         testTimer = new TestTimer(120000) {
             @Override
             public void onFinish() {
-                if (!dataSuccess){
+                if (!dataSuccess) {
+                    counter = 1;
                     dataSuccess = true;
+                    flushData();
+                    testTimer.cancel();
                     sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
                 }
             }
@@ -467,6 +480,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         isSendingPids = true;
         Log.i(TAG, "sending PID data");
+        sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading PIDs");
         List<Pid> pidDataEntries = mTestPidAdapter.getAllPidDataEntries();
 
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
@@ -475,6 +489,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         try {
             for (int chunkNumber = 0; chunkNumber < chunks; chunkNumber++) {
                 JSONArray pidArray = new JSONArray();
+                JSONObject item = new JSONObject();
                 for (int i = 0; i < PID_CHUNK_SIZE; i++) {
                     if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
                         continue;
@@ -516,6 +531,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void saveDtcs(final DataPackageInfo dataPackageInfo, final boolean isPendingDtc) {
         Log.i(TAG, "save DTCs - auto-connect service");
+        sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading DTCs");
         String dtcs = "";
         final ArrayList<String> dtcArr = new ArrayList<>();
         if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
@@ -529,11 +545,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         JSONArray pidArr = new JSONArray();
         try {
+            JSONObject item = new JSONObject();
+            item.put("rtcTime", dataPackageInfo.rtcTime);
+            JSONArray pids = new JSONArray();
             for (PIDInfo info : mPidSnapshots) {
                 JSONObject pid = new JSONObject();
                 pid.put("id", info.pidType).put("data", info.pidType);
-                pidArr.put(pid);
+                pids.put(pid);
             }
+            item.put("pids", pids);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -541,7 +561,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "DTCs found: " + dtcs);
 
         if (NetworkHelper.isConnected(this)) {
-            for (final String dtc : dtcArr) { // TODO: 16/10/15 Test this
+            for (final String dtc : dtcArr) {
                 mNetworkHelper.postTestDtcs(pidArr, dtc, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
@@ -552,11 +572,71 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         } else {
             // Save it offline
             for (final String dtc : dtcArr) {
-                dtcsToSend.add(new Dtc(0, 0, dataPackageInfo.rtcTime,
-                        dtc, isPendingDtc, dataPackageInfo.freezeData));
+                dtcsToSend.add(new DtcPayload(pidArr, dtc));
             }
         }
+
     }
+
+    /**
+     * This method dumps all pid data currently stored in the database to the endpoint
+     */
+    private void flushData() {
+        if (isSendingPids) {
+            Log.i(TAG, "Already sending pids");
+            return;
+        }
+        isSendingPids = true;
+        Log.i(TAG, "sending PID data");
+        List<Pid> pidDataEntries = mTestPidAdapter.getAllPidDataEntries();
+
+        if (pidDataEntries.size() == 0) return;
+
+        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
+        JSONArray[] pidArrays = new JSONArray[chunks];
+
+        try {
+            for (int chunkNumber = 0; chunkNumber < chunks; chunkNumber++) {
+                JSONArray pidArray = new JSONArray();
+                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
+                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
+                        continue;
+                    }
+                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
+                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
+                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
+                    pidArray.put(jsonObject);
+                }
+                pidArrays[chunkNumber] = pidArray;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (JSONArray pids : pidArrays) {
+            if (pids.length() == 0) {
+                continue;
+            }
+            mNetworkHelper.postTestPids(pids, new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    isSendingPids = false;
+                    mTestPidAdapter.deleteAllPidDataEntries();
+                    if (requestError == null) {
+                        Log.i(TAG, "PIDS saved");
+                        sendMessageToUi(MessageListener.STATUS_SUCCESS, "Successfully uploaded data");
+                    } else {
+                        Log.e(TAG, "save pid error: " + requestError.getMessage());
+                        sendMessageToUi(MessageListener.STATUS_FAILED, "Error uploading data");
+                    }
+                }
+            });
+        }
+
+    }
+
 
     private void sendMessageToUi(int status, String message) {
         if (callbacks != null) {
@@ -590,7 +670,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         if (bluetoothCommunicator != null) {
             bluetoothCommunicator.close();
-            bluetoothCommunicator = null;
+            bluetoothCommunicator = new BluetoothTestAppComm(this);
+            bluetoothCommunicator.setBluetoothDataListener(this);
         }
     }
 
@@ -622,7 +703,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * on the vin query.
      */
     public void getVinFromCar() {
-        state = State.GET_VIN;
+
         Log.i(TAG, "Calling getCarVIN from Bluetooth auto-connect");
         bluetoothCommunicator.obdGetParameter(ObdManager.VIN_TAG);
     }
@@ -738,25 +819,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
                 if (NetworkHelper.isConnected(BluetoothAutoConnectService.this)) {
                     Log.i(TAG, "Sending stored PIDS and DTCS");
-                    for (final Dtc dtc : dtcsToSend) {
-                        JSONArray pidArr = new JSONArray();
-                        try {
-                            for (PIDInfo info : dtc.getFreezeData()) {
-                                JSONObject pid = new JSONObject();
-                                pid.put("id", info.pidType).put("data", info.pidType);
-                                pidArr.put(pid);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        mNetworkHelper.postTestDtcs(pidArr, dtc.getDtcCode(), new RequestCallback() {
+                    for (final DtcPayload dtcPayload : dtcsToSend) {
+                        mNetworkHelper.postTestDtcs(dtcPayload.getPidArr(), dtcPayload.getDtc(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                Log.d(TAG, "DTC posted: " + dtc);
+                                Log.d(TAG, "DTC posted: " + dtcPayload.getDtc());
                             }
                         });
-
                     }
                 }
             }
@@ -786,5 +855,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         PID_PRIORITY.add("212E");
     }
 
+    public void updateState(State state){
+        this.state = state;
+    }
 
+    public void reset(){
+        vinAttempts = 0;
+        rtcSuccess = false;
+        vinSuccess = false;
+        pidSuccess = false;
+        dtcSuccess = false;
+        dataSuccess = false;
+        mPidSnapshots = new ArrayList<>();
+        dtcsToSend = new ArrayList<>();
+        state = State.NONE;
+    }
 }

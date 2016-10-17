@@ -23,7 +23,7 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    private static final String BASE_ENDPOINT = BuildConfig.SERVER_URL;
+    private static final String BASE_ENDPOINT = BuildConfig.TEST_SERVER_URL;
     private static Webb webClient;
     private RequestCallback listener;
     private RequestType requestType;

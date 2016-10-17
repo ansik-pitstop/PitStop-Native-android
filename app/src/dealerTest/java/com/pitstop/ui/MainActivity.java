@@ -154,14 +154,13 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         viewPager.setOffscreenPageLimit(7);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Connecting to device...");
         progressDialog.setCancelable(true);
         progressDialog.setCanceledOnTouchOutside(false);
 
         serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
 
-        if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
@@ -177,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     protected void onDestroy() {
         super.onDestroy();
         bluetoothService.disconnectFromDevice();
-        if(connectTimer != null) {
+        if (connectTimer != null) {
             connectTimer.cancel();
         }
         unbindService(serviceConnection);
@@ -190,12 +189,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void onBackPressed() {
-        if (connectButton.getVisibility() == View.VISIBLE){
+        if (connectButton.getVisibility() == View.VISIBLE) {
             connectButton.setVisibility(View.GONE);
             setupButton.setVisibility(View.VISIBLE);
             cardTitle.setText(getString(R.string.start_dialog_setup_title));
             cardDescription.setText(getString(R.string.start_dialog_setup_description));
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -231,10 +230,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
                 viewPager.setCurrentItem(5);
-            } else if (state == State.COLLECT_DATA){
+                showLoading("Hold on, we are collecting data...");
+            } else if (state == State.COLLECT_DATA) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 5);
                 viewPager.setCurrentItem(6);
                 viewPager.setOnTouchListener(null);
+                hideLoading();
             }
 
         } else if (status == STATUS_FAILED) {
@@ -250,12 +251,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
                 viewPager.setCurrentItem(5);
-            } else if (state == State.COLLECT_DATA){
+                showLoading("Hold on, we are collecting data...");
+            } else if (state == State.COLLECT_DATA) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 5);
                 viewPager.setCurrentItem(6);
                 viewPager.setOnTouchListener(null);
+                hideLoading();
             }
-        } else if (status == STATUS_UPDATE){
+        } else if (status == STATUS_UPDATE) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -266,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             return;
         }
         connectTimer.cancel();
-        progressDialog.hide();
+        hideLoading();
         connected = true;
         connectCard.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
             @Override
@@ -281,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             window.setStatusBarColor(getResources().getColor(R.color.highlight));
         }
         viewPager.animate().alpha(0f).setDuration(0);
+        viewPager.setCurrentItem(1);
         viewPager.setVisibility(View.VISIBLE);
     }
 
@@ -290,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     /**
      * Onclick method for setup button
+     *
      * @param view
      */
     public void startSetup(View view) {
@@ -314,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 .setNegativeButton("Cancel", null)
                 .create();
 
-        if (NetworkHelper.getUser() != null && !NetworkHelper.getUser().isEmpty()){
+        if (NetworkHelper.getUser() != null && !NetworkHelper.getUser().isEmpty()) {
             user.setText(NetworkHelper.getUser());
         }
 
@@ -324,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 setupDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(user.getText().toString()).matches() || user.getText().toString().isEmpty()){
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(user.getText().toString()).matches() || user.getText().toString().isEmpty()) {
                             Toast.makeText(MainActivity.this, "Please enter your email!", Toast.LENGTH_SHORT).show();
                         } else {
                             NetworkHelper.setUser(user.getText().toString());
@@ -346,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     /**
      * Onclick method for connect button
+     *
      * @param view
      */
     public void connectToDevice(View view) {
@@ -354,10 +360,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             @Override
             public void onTick(long millisUntilFinished) {
             }
+
             @Override
             public void onFinish() {
                 if (++connectAttempts == 3) {
-                    progressDialog.hide();
+                    hideLoading();
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                     alertDialog.setTitle("Could not connect to device");
                     alertDialog.setMessage("Could not connect to device. " +
@@ -370,6 +377,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             connectToDevice(null);
+                            showLoading("Connecting to device...");
                         }
                     });
 
@@ -387,12 +395,13 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         };
         searchForCar();
         connectTimer.start();
-        progressDialog.show();
+        showLoading("Connecting to device...");
     }
 
     private void searchForCar() {
         bluetoothService.startBluetoothSearch();
-        if(connectTimer != null) {
+        bluetoothService.updateState(State.CONNECTING);
+        if (connectTimer != null) {
             connectTimer.start();
         }
     }
@@ -418,6 +427,10 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                                             @Override
                                             public void run() {
                                                 connectCard.setVisibility(View.VISIBLE);
+                                                connectButton.setVisibility(View.GONE);
+                                                setupButton.setVisibility(View.VISIBLE);
+                                                cardTitle.setText(getString(R.string.start_dialog_setup_title));
+                                                cardDescription.setText(getString(R.string.start_dialog_setup_description));
                                                 connectCard.animate().alpha(1f).setDuration(500);
                                                 disconnectBackground.animate().alpha(1f).setDuration(500);
                                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -433,6 +446,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                             }
                         }).start();
                         bluetoothService.disconnectFromDevice();
+                        bluetoothService.reset();
                         connected = false;
                         NetworkHelper.reset();
                         break;
@@ -473,6 +487,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     case RESET:
                         Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
                         bluetoothService.resetObdDeviceTime();
+                        viewPager.setCurrentItem(0);
                         break;
                 }
             }
@@ -490,9 +505,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     public void showLoading(String text) {
-
         isLoading = true;
         if (progressDialog == null) {
+            Log.d(TAG, "Progress dialog is null");
             return;
         }
         progressDialog.setMessage(text);
@@ -501,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
-    public class FailureListAdapter extends RecyclerView.Adapter<FailureListAdapter.FailureViewHolder>{
+    public class FailureListAdapter extends RecyclerView.Adapter<FailureListAdapter.FailureViewHolder> {
 
         List<String> mFailures;
         List<String> mSelectedFailures;
@@ -535,9 +550,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             holder.failureCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked){
+                    if (isChecked) {
                         mSelectedFailures.add(failure);
-                    } else if(mSelectedFailures.contains(failure)){
+                    } else if (mSelectedFailures.contains(failure)) {
                         mSelectedFailures.remove(failure);
                     }
                 }
@@ -554,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             return mSelectedFailures;
         }
 
-        public class FailureViewHolder extends RecyclerView.ViewHolder{
+        public class FailureViewHolder extends RecyclerView.ViewHolder {
 
             View rootView;
             CheckBox failureCheckBox;

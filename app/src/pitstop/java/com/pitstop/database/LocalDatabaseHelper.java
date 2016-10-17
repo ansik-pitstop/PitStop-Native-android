@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class LocalDatabaseHelper extends SQLiteOpenHelper {
     // Logcat tag
-    private static final String LOG = "LocalDatabaseHelper";
+    private static final String LOG = "TestDatabaseHelper";
 
     private static LocalDatabaseHelper instance;
 
