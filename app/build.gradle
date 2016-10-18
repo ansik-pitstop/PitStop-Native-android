@@ -66,6 +66,8 @@ android {
         pitstop {
         }
         dealerTest {
+            versionCode 1
+            versionName "1.0.0"
             applicationIdSuffix ".test_app"
             buildConfigField "String", "TEST_CLIENT_ID", "\"IhUvDTvmbBgMFARwqVuPYrMIK8XVkGHoRAH2YsQUcikMDn3F\""
             buildConfigField "String", "TEST_SERVER_URL", "\"http://52.204.33.174:8081/\""

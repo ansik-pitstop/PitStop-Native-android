@@ -385,7 +385,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
             if (counter % 70 == 0) {
-                getPendingDTCs();
+//                getPendingDTCs();
+                getDTCs();
             }
 
             if (counter == 150) {
