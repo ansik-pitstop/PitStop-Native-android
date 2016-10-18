@@ -115,12 +115,4 @@ public class TestPidAdapter {
         }
     }
 
-    public void deleteAllRows(){
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
-        db.delete(TABLES.PID.TABLE_NAME, null, null);
-
-        db.close();
-    }
-
 }

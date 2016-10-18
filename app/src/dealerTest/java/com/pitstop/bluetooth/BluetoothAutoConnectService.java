@@ -55,8 +55,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
 
-    public static String VIN;
-
     private final IBinder mBinder = new BluetoothBinder();
     private IBluetoothCommunicator bluetoothCommunicator;
     private MessageListener callbacks;
@@ -96,8 +94,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private int lastDeviceTripId = -1; // from device
     private final String pfDeviceTripId = "lastDeviceTripId";
-    private int lastTripId = -1; // from backend
-    private final String pfTripId = "lastTripId";
 
     private ArrayList<DtcPayload> dtcsToSend = new ArrayList<>();
 
@@ -221,43 +217,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
         } else if (state == State.VERIFY_RTC) {
-//            if (parameterPackageInfo.value.size() > 0 && parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.RTC_TAG)){
-//                final long moreThanOneYear = 32000000;
-//                final long deviceTime = Long.valueOf(parameterPackageInfo.value.get(0).value);
-//                final long currentTime = System.currentTimeMillis() / 1000;
-//                final long diff = currentTime - deviceTime;
-//
-//                String readableDate = new SimpleDateFormat("MM d, yyyy").format(new Date(deviceTime * 1000));
-//
-//                sendMessageToUi(MessageListener.STATUS_UPDATE, "Device time received:" + readableDate);
-//
-//                if (diff < moreThanOneYear){
-//                    Log.i(TAG, "RTC success");
-//                    rtcSuccess = true;
-//                    state = State.GET_VIN;
-//                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time got reset");
-//                    getVinFromCar();
-//                } else if (rtcAttempts < 10){ // may still be syncing, try again
-//                    rtcAttempts++;
-//                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Waiting for device...");
-//                    if (testTimer != null) {
-//                        testTimer.cancel();
-//                    }
-//                    testTimer = new TestTimer(3000) {
-//                        @Override
-//                        public void onFinish() {
-//                            if (!rtcSuccess){
-//                                getRTC();
-//                            }
-//                        }
-//                    };
-//                    testTimer.start();
-//                } else {  // vin not retrievable
-//                    Log.d(TAG, "VERIFY_RTC FAILED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                    sendMessageToUi(MessageListener.STATUS_FAILED, "Could not verify device sync");
-//                    listenForPids();
-//                }
-//            }
             if (parameterPackageInfo.value.size() > 0 && parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
                 if (parameterPackageInfo.value.get(0).value.length() == 17) { // successfully synced device
                     Log.i(TAG, "RTC success");

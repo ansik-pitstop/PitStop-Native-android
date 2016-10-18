@@ -87,23 +87,4 @@ public class Pid {
                 + ", mileage: " + mileage + ", calculatedMileage: " + calculatedMileage + ", pids: " + pids;
     }
 
-    public static final class Builder{
-        private int id;
-        private String dataNumber;
-        private String rtcTime;
-        private String timeStamp;
-        private int tripId;
-        private String pids;
-        private double mileage;
-        private double calculatedMileage;
-
-        public Builder() {}
-
-        public Builder setId(int id){
-            this.id = id;
-            return this;
-        }
-
-    }
-
 }
