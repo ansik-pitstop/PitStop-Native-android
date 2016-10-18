@@ -206,12 +206,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (diff > moreThanOneYear) {
                     vinAttempts = 0;
                     state = State.VERIFY_RTC;
+                    Log.d(TAG, "State is VERIFY_RTC");
                     syncObdDevice();
                     sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time...");
                 } else {
                     Log.i(TAG, "RTC success");
                     rtcSuccess = true;
                     state = State.GET_VIN;
+                    Log.d(TAG, "State is GET_VIN");
                     sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time does not need to be set");
                     getVinFromCar();
                 }
@@ -223,6 +225,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device successfully synced");
                     rtcSuccess = true;
                     state = State.GET_VIN;
+                    Log.d(TAG, "State is GET_VIN");
                     getVinFromCar();
                 } else if (vinAttempts++ < 6) { // may still be syncing, try again
                     sendMessageToUi(MessageListener.STATUS_UPDATE, "Syncing device...");
@@ -432,8 +435,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     dataSuccess = true;
                     flushData();
                     testTimer.cancel();
-                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
                 }
+                sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
             }
         };
         testTimer.start();
@@ -772,6 +775,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         bluetoothCommunicator.obdSetCtrl(4);
     }
+
+
 
     public void clearObdDataPackage(){
         Log.i(TAG, "Clearing obd data package");
