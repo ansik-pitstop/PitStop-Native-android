@@ -2,6 +2,7 @@ package com.pitstop.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -90,11 +91,9 @@ public class TestActionAdapter extends PagerAdapter {
             });
             if(title != null) {
                 if (position == 0) { // hardcoded button text
-                    testButton.setText("Disconnect");
-                } else if (position == testActions.size() - 1) {
-                    testButton.setText("Reset");
-                } else if (position == 1) {
                     testButton.setText("Start");
+                } else if (position == testActions.size() - 1) {
+                    testButton.setText("End Test");
                 }
             }
         }
@@ -134,6 +133,23 @@ public class TestActionAdapter extends PagerAdapter {
             statusIndicator.setText(success ? "Success" : "Error");
             statusIndicator.setBackground(context.getResources()
                     .getDrawable(success ? R.drawable.shape_button_highlight : R.drawable.shape_button_red));
+        }
+    }
+
+    public void resetItems(){
+        for (int index = 0; index < mViews.size(); index++){
+            CardView card = mViews.get(index);
+            if (card != null){
+                Button statusIndicator = (Button) card.findViewById(R.id.testStatus);
+                statusIndicator.setBackground(ContextCompat.getDrawable(context, R.drawable.color_button_primary));
+                if (index == 0){
+                    statusIndicator.setText("Start");
+                } else if(index == mViews.size() - 1){
+                    statusIndicator.setText("End Test");
+                } else{
+                    statusIndicator.setText("Pending");
+                }
+            }
         }
     }
 }

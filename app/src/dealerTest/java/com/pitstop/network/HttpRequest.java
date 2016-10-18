@@ -117,7 +117,11 @@ public class HttpRequest {
                             }
                         }
 
-                        response = request.connectTimeout(12000).readTimeout(12000).asString();
+                        response = request
+                                .connectTimeout(12000)
+                                .readTimeout(12000)
+                                .retry(10, true)
+                                .asString();
                         break;
                     }
 

@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -25,7 +24,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -89,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @BindView(R.id.setupButton)
     Button setupButton;
 
-
     private boolean connected = false;
 
     private ArrayList<TestAction> testActions = new ArrayList<>();
@@ -151,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         viewPager.setPageTransformer(false, shadowTransformer);
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(7);
+        viewPager.setOffscreenPageLimit(6);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(true);
@@ -200,14 +197,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void initializeTestActions() {
-        testActions.add(new TestAction("Disconnect", "Disconnect from the device.", TestAction.Type.DISCONNECT));
-        testActions.add(new TestAction("Device Time", "The device time must be properly set before receiving data. " +
-                "This may take up to a minute.", TestAction.Type.CHECK_TIME));
-        testActions.add(new TestAction("Get VIN", "Verify the VIN is retrievable.", TestAction.Type.VIN));
-        testActions.add(new TestAction("Sensor Data", "Verify real-time sensor data is working. Received data will be displayed.", TestAction.Type.PID));
-        testActions.add(new TestAction("Engine Codes", "Check the vehicle for any engine codes.", TestAction.Type.DTC));
-        testActions.add(new TestAction("Collect Data", "Great! Now we should collect some information from the car, please wait for a few minutes.", TestAction.Type.COLLECT_DATA));
-        testActions.add(new TestAction("Reset", "Reset the device.", TestAction.Type.RESET));
+        testActions.add(new TestAction("Device Time", getString(R.string.test_card_device_time), TestAction.Type.CHECK_TIME));
+        testActions.add(new TestAction("Get VIN", getString(R.string.test_card_get_vin), TestAction.Type.VIN));
+        testActions.add(new TestAction("Sensor Data", getString(R.string.test_card_sensor_data), TestAction.Type.PID));
+        testActions.add(new TestAction("Engine Codes", getString(R.string.test_card_engine_codes), TestAction.Type.DTC));
+        testActions.add(new TestAction("Collect Data", getString(R.string.test_card_collect_data), TestAction.Type.COLLECT_DATA));
+        testActions.add(new TestAction("End Test", getString(R.string.test_card_end_test), TestAction.Type.RESET));
     }
 
     // callback for OBD function result
@@ -219,42 +214,42 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         logTextView.setText(logText);
         if (status == MessageListener.STATUS_SUCCESS) {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 0);
+                viewPager.setCurrentItem(1);
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 1);
                 viewPager.setCurrentItem(2);
-            } else if (state == State.GET_VIN) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 2);
                 viewPager.setCurrentItem(3);
-            } else if (state == State.READ_PIDS) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 3);
                 viewPager.setCurrentItem(4);
-            } else if (state == State.READ_DTCS) {
-                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
-                viewPager.setCurrentItem(5);
                 showLoading("Hold on, we are collecting data...");
             } else if (state == State.COLLECT_DATA) {
-                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 5);
-                viewPager.setCurrentItem(6);
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(true, 4);
+                viewPager.setCurrentItem(5);
                 viewPager.setOnTouchListener(null);
                 hideLoading();
             }
 
         } else if (status == STATUS_FAILED) {
             if (state == State.VERIFY_RTC || state == State.GET_RTC) {
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 0);
+                viewPager.setCurrentItem(1);
+            } else if (state == State.GET_VIN) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 1);
                 viewPager.setCurrentItem(2);
-            } else if (state == State.GET_VIN) {
+            } else if (state == State.READ_PIDS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 2);
                 viewPager.setCurrentItem(3);
-            } else if (state == State.READ_PIDS) {
+            } else if (state == State.READ_DTCS) {
                 ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 3);
                 viewPager.setCurrentItem(4);
-            } else if (state == State.READ_DTCS) {
-                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
-                viewPager.setCurrentItem(5);
                 showLoading("Hold on, we are collecting data...");
             } else if (state == State.COLLECT_DATA) {
-                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 5);
-                viewPager.setCurrentItem(6);
+                ((TestActionAdapter) viewPager.getAdapter()).updateItem(false, 4);
+                viewPager.setCurrentItem(5);
                 viewPager.setOnTouchListener(null);
                 hideLoading();
             }
@@ -284,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             window.setStatusBarColor(getResources().getColor(R.color.highlight));
         }
         viewPager.animate().alpha(0f).setDuration(0);
-        viewPager.setCurrentItem(1);
         viewPager.setVisibility(View.VISIBLE);
     }
 
@@ -363,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
             @Override
             public void onFinish() {
-                if (++connectAttempts == 3) {
+                if (++connectAttempts == 3 && !connected) {
                     hideLoading();
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                     alertDialog.setTitle("Could not connect to device");
@@ -415,41 +409,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     case CONNECT:
                         Toast.makeText(context, "Connect", Toast.LENGTH_SHORT).show();
                         break;
-                    case DISCONNECT:
-                        Toast.makeText(context, "Disconnect", Toast.LENGTH_SHORT).show();
-                        logView.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewPager.animate().alpha(0f).setDuration(500).translationY(0).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        logoLayout.animate().alpha(1f).setDuration(500).withEndAction(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                connectCard.setVisibility(View.VISIBLE);
-                                                connectButton.setVisibility(View.GONE);
-                                                setupButton.setVisibility(View.VISIBLE);
-                                                cardTitle.setText(getString(R.string.start_dialog_setup_title));
-                                                cardDescription.setText(getString(R.string.start_dialog_setup_description));
-                                                connectCard.animate().alpha(1f).setDuration(500);
-                                                disconnectBackground.animate().alpha(1f).setDuration(500);
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                    Window window = MainActivity.this.getWindow();
-                                                    window.setStatusBarColor(getResources().getColor(R.color.primary_dark_dark));
-                                                }
-                                            }
-                                        }).start();
-                                        logView.setVisibility(View.GONE);
-                                        viewPager.setVisibility(View.GONE);
-                                    }
-                                });
-                            }
-                        }).start();
-                        bluetoothService.disconnectFromDevice();
-                        bluetoothService.reset();
-                        connected = false;
-                        NetworkHelper.reset();
-                        break;
                     case CHECK_TIME:
                         viewPager.setOnTouchListener(new View.OnTouchListener() {
                             @Override
@@ -485,9 +444,44 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         Toast.makeText(context, "Collect Data", Toast.LENGTH_SHORT).show();
                         break;
                     case RESET:
-                        Toast.makeText(context, "Reset", Toast.LENGTH_SHORT).show();
-                        bluetoothService.resetObdDeviceTime();
-                        viewPager.setCurrentItem(0);
+                        Toast.makeText(context, "End Test, reset device and disconnect", Toast.LENGTH_SHORT).show();
+//                        bluetoothService.resetObdDeviceTime();
+                        bluetoothService.clearObdDataPackage();
+                        logView.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                viewPager.animate().alpha(0f).setDuration(500).translationY(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logoLayout.animate().alpha(1f).setDuration(500).withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                connectCard.setVisibility(View.VISIBLE);
+                                                connectButton.setVisibility(View.GONE);
+                                                setupButton.setVisibility(View.VISIBLE);
+                                                cardTitle.setText(getString(R.string.start_dialog_setup_title));
+                                                cardDescription.setText(getString(R.string.start_dialog_setup_description));
+                                                connectCard.animate().alpha(1f).setDuration(500);
+                                                disconnectBackground.animate().alpha(1f).setDuration(500);
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                    Window window = MainActivity.this.getWindow();
+                                                    window.setStatusBarColor(getResources().getColor(R.color.primary_dark_dark));
+                                                }
+                                            }
+                                        }).start();
+                                        logView.setVisibility(View.GONE);
+                                        viewPager.setVisibility(View.GONE);
+                                        viewPager.setCurrentItem(0);
+                                    }
+                                });
+                            }
+                        }).start();
+                        bluetoothService.disconnectFromDevice();
+                        bluetoothService.reset();
+                        connected = false;
+                        NetworkHelper.reset();
+                        adapter.resetItems();
+                        logText = new StringBuilder();
                         break;
                 }
             }
@@ -527,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             mFailures.add("Dirty Air Filter");
             mFailures.add("Bad Battery");
             mFailures.add("Faulty Spark Plug");
-            mFailures.add("Faulty Airflow Sensor");
+            mFailures.add("Engine Light On");
         }
 
         @Override

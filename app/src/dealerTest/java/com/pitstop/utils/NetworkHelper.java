@@ -88,17 +88,6 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
-        new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
-                .body(body)
-                .requestCallBack(callback)
-                .requestType(RequestType.PUT)
-                .context(context)
-                .createRequest()
-                .executeAsync();
-    }
-
     /**
      * @param pidArr
      * @param callback

@@ -30,6 +30,9 @@ import java.util.List;
  * Created by Ben Wu on 2016-10-11.
  */
 public class BluetoothTestAppComm implements IBluetoothCommunicator, ObdManager.IPassiveCommandListener {
+
+    private static final String TAG = BluetoothTestAppComm.class.getSimpleName();
+
     private int btConnectionState = DISCONNECTED;
 
     private Context mContext;
@@ -44,7 +47,6 @@ public class BluetoothTestAppComm implements IBluetoothCommunicator, ObdManager.
     private List<String> dataLists = new ArrayList<String>();
 
     private ObdManager.IBluetoothDataListener dataListener;
-    private static String TAG = "BtClassicComm";
 
     public BluetoothTestAppComm(Context context) {
         Log.i(TAG, "classicComm Constructor");

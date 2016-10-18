@@ -112,7 +112,7 @@
 
 
     <string name="start_dialog_setup_title">Setup</string>
-    <string name="start_dialog_setup_description">Before we start testing, please first give us some necessary information about you and the vehicle, that helps us analyze the data we collect, as well as sending you rewards for helping us.</string>
+    <string name="start_dialog_setup_description"> This test app is design for technicians to collect vehicle data which is allows Pitstop to predict engine failures. Enter your email so we can send you a $100 gift card on every 30 vehicles that you test.</string>
     <string name="start_dialog_connect_title">Connect to Device</string>
     <string name="start_dialog_connect_description">Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running.</string>
 
