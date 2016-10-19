@@ -27,6 +27,7 @@ android {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 23
+        // Change versioning in productFlavors instead of here
         versionCode 98
         versionName "2.1.17"
         multiDexEnabled = true
@@ -37,9 +38,6 @@ android {
             buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
             buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
-            buildConfigField "String", "BETA_TYPE", "\"beta\""
-            buildConfigField "String", "DEBUG_TYPE", "\"debug\""
-            buildConfigField "String", "RELEASE_TYPE", "\"release\""
             versionNameSuffix ".debug"
         }
         beta.initWith(buildTypes.debug)
@@ -47,7 +45,6 @@ android {
             debuggable false
             versionNameSuffix ".beta"
         }
-        release.initWith(buildTypes.debug)
         release { // for release to production, prod backend, mixpanel
             debuggable false
             minifyEnabled false
@@ -66,6 +63,11 @@ android {
 
     productFlavors {
         pitstop {
+            versionCode 98
+            versionName "2.1.17"
+            buildConfigField "String", "BETA_TYPE", "\"beta\""
+            buildConfigField "String", "DEBUG_TYPE", "\"debug\""
+            buildConfigField "String", "RELEASE_TYPE", "\"release\""
         }
         dealerTest {
             versionCode 2
