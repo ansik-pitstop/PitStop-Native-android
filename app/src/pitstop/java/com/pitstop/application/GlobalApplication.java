@@ -286,9 +286,8 @@ public class GlobalApplication extends Application {
         mLocalShopAdapter = new LocalShopAdapter(this);
     }
 
-
     /**
-     *
+     * Delete all rows in database
      */
     private void cleanUpDatabase(){
         mUserAdapter.deleteAllUsers();
