@@ -296,7 +296,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Endpoint = POST /car/{carId}/issues
+     * Endpoint = POST /car/{carId}/service
      *
      * @param carId
      * @param issueId
@@ -320,7 +320,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Endpoint = POST /car/{carId}/issues
+     * Endpoint = POST /car/{carId}/service
      *
      * @param carId       car id that issue needs to be added to
      * @param item        the issue item
@@ -512,39 +512,6 @@ public class NetworkHelper {
         }
 
         postNoAuth("scan/pids", callback, body);
-    }
-
-    /**
-     * @param userId
-     * @param carId
-     * @param shopId
-     * @param comments
-     * @param date
-     * @param tentative
-     * @param callback
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
-     */
-    public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
-                               RequestCallback callback) {
-        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
-
-        JSONObject body = new JSONObject();
-        JSONObject options = new JSONObject();
-        try {
-            body.put("userId", userId);
-            body.put("carId", carId);
-            body.put("shopId", shopId);
-            body.put("comments", comments);
-            options.put("date", date);
-            if (tentative) {
-                options.put("state", "tentative");
-            }
-            body.put("options", options);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("utility/serviceRequest", callback, body);
     }
 
     /**

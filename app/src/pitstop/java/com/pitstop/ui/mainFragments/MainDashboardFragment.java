@@ -916,7 +916,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     .setIssueType(CarIssue.TENTATIVE)
                     .build();
             carIssueList.add(0, tutorial);
-//            carIssueList.add(tutorial);
             carIssueLocalStore.storeCarIssue(tutorial);
             notifyDataSetChanged();
             return true;

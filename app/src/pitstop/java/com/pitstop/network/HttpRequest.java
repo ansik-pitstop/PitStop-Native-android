@@ -211,9 +211,6 @@ public class HttpRequest {
                         });
                     } else {
                         listener.done(null, error);
-//                        listener.done(null, RequestError
-//                                .jsonToRequestErrorObject((String) response.getErrorBody()));
-                        //.setStatusCode(response.getStatusCode()));
                     }
                 }
             } else {
