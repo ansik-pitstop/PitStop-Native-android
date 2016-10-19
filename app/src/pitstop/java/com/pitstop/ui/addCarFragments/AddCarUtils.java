@@ -305,38 +305,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             callback.hideLoading("No Internet");
             startPendingAddCarActivity();
         }
-
-
-//        if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
-//
-//            Log.i(TAG, "Now connected to device");
-//
-//            callback.showLoading("Loading car engine codes");
-//            askForDTC = true;
-//            Log.i(TAG, "Make car --- Getting DTCs");
-//
-//            // Check if DTCs are retrieved after 15 seconds
-//            mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
-//            mHandler.postDelayed(mGetDTCTimeoutRunnable, 1500);
-//
-//            autoConnectService.getDTCs();
-//            autoConnectService.getPendingDTCs();
-//        } else {
-//            Log.i(TAG, "Device not connected");
-//            Log.i(TAG, "Checking internet connection");
-//
-//            if (NetworkHelper.isConnected(context)) {
-//                Log.i(TAG, "Internet connection found");
-//
-//                Log.i(TAG, "Adding car --- make car func");
-//
-//                runVinTask();
-//            } else {
-//                Log.i(TAG, "No Internet");
-//                callback.hideLoading("No Internet");
-//                startPendingAddCarActivity();
-//            }
-//        }
     }
 
     /**
@@ -542,22 +510,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     createdCar.getId()).commit();
             networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
             callback.carSuccessfullyAdded(createdCar);
-
-//            Log.i(TAG, "getIOData --- Adding car");
-//            if (NetworkHelper.isConnected(context)) {
-//                Log.i(TAG, "Internet connection found");
-//                runVinTask();
-//            } else {
-//                Log.i(TAG, "No internet");
-//                callback.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        callback.hideLoading(null);
-//                        startPendingAddCarActivity();
-//                    }
-//                });
-//            }
-
         }
     }
 

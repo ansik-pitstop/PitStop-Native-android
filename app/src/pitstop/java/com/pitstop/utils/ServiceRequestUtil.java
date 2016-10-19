@@ -155,8 +155,6 @@ public class ServiceRequestUtil {
      * before this, time is by default set to current time
      */
     private void askForTime(final boolean modify) {
-//        final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
-//                0, true);
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
                 0, false);
 
@@ -314,34 +312,6 @@ public class ServiceRequestUtil {
         }
     }
 
-    /**
-     * @deprecated replaced by {@link #sendRequestWithState(String, String, String)}
-     * Based on the given date time value and user comment,
-     * sends network request to request service
-     * @param additionalComment
-     * @param date
-     */
-    private void sendRequest(String additionalComment, String date) {
-        networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
-                additionalComment, date, isFirstBooking, new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            Toast.makeText(context, "Service request sent", Toast.LENGTH_SHORT).show();
-                            Smooch.track("User Requested Service");
-                            for (CarIssue issue : dashboardCar.getActiveIssues()) {
-                                if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
-                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
-                                }
-                            }
-                        } else {
-                            Log.e(TAG, "service request: " + requestError.getMessage());
-                            Toast.makeText(context, "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
     private void sendRequestWithState(String state, String timestamp, String comments) {
 
         Log.d("Service Request", "Timestamp: " + timestamp);
@@ -368,53 +338,6 @@ public class ServiceRequestUtil {
                     }
                 });
 
-    }
-
-    /**
-     * Left unused after refactoring
-     */
-    private void askForComments() {
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("Enter additional comments");
-
-        final String[] additionalComment = {""};
-        final EditText userInput = new EditText(context);
-        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        alertDialog.setView(userInput);
-
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
-                                    + "','Device':'Android','Number of Services Requested':'" + dashboardCar.getActiveIssues().size() + "'}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                additionalComment[0] = userInput.getText().toString();
-                comments = userInput.getText().toString();
-//                sendRequest(additionalComment[0], dateString);
-            }
-        });
-
-        if (!isFirstBooking) {
-            alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    dialog.dismiss();
-                }
-            });
-        } else {
-            alertDialog.setCancelable(false);
-        }
-
-        alertDialog.show();
     }
 
     private class LimitedTimePicker extends TimePickerDialog {

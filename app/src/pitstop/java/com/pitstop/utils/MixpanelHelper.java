@@ -187,7 +187,6 @@ public class MixpanelHelper {
         }
         JSONObject json = new JSONObject();
         json.put("Status", value);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -203,7 +202,6 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", value);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -219,7 +217,6 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Status", value);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -236,7 +233,6 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         json.put("Button", value);
         json.put("View", view);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -252,7 +248,6 @@ public class MixpanelHelper {
 //        JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", view);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -272,7 +267,6 @@ public class MixpanelHelper {
         json.put("View", view);
         json.put("Mileage", mileage);
         json.put("Method of Adding Car", method);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -289,7 +283,6 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         json.put("Status", status);
         json.put("UserId", userId);
-//        json.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
@@ -306,7 +299,6 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        properties.put("Device", "Android");
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             properties.put("Username", user.getEmail());
