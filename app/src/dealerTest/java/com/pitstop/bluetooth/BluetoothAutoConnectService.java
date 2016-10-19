@@ -204,17 +204,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 sendMessageToUi(MessageListener.STATUS_UPDATE, "Device time received:" + readableDate);
 
                 if (diff > moreThanOneYear) {
+                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time...");
                     vinAttempts = 0;
                     state = State.VERIFY_RTC;
                     Log.d(TAG, "State is VERIFY_RTC");
                     syncObdDevice();
-                    sendMessageToUi(MessageListener.STATUS_UPDATE, "Need to set device time...");
                 } else {
                     Log.i(TAG, "RTC success");
+                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time does not need to be set");
                     rtcSuccess = true;
                     state = State.GET_VIN;
                     Log.d(TAG, "State is GET_VIN");
-                    sendMessageToUi(MessageListener.STATUS_SUCCESS, "Device time does not need to be set");
                     getVinFromCar();
                 }
             }
@@ -231,6 +231,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     sendMessageToUi(MessageListener.STATUS_UPDATE, "Syncing device...");
                     if (testTimer != null) {
                         testTimer.cancel();
+                        Log.d(TAG, "Test timer cancel");
                     }
                     testTimer = new TestTimer(10000) {
                         @Override
@@ -257,6 +258,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     sendMessageToUi(MessageListener.STATUS_UPDATE, "Waiting for Vin...");
                     if (testTimer != null) {
                         testTimer.cancel();
+                        Log.d(TAG, "Test timer cancel");
                     }
                     testTimer = new TestTimer(10000) {
                         @Override
@@ -280,8 +282,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
 
-        Log.v(TAG, "dtcData: " + dataPackageInfo.dtcData);
-
         if (state == State.CONNECTING) {
             callbacks.connectSuccess();
         }
@@ -304,6 +304,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             sendMessageToUi(MessageListener.STATUS_SUCCESS, "Successfully received sensor data");
 
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
             listenForDtcs();
 
         } else if (state == State.READ_DTCS && dataPackageInfo.dtcData != null) {
@@ -318,6 +319,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
             startCollectingData();
 
         } else if (state == State.COLLECT_DATA) {
@@ -353,10 +355,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if (counter == 150) {
                 counter = 1;
-                flushData();
+                sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
                 dataSuccess = true;
                 testTimer.cancel();
-                sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
+                Log.d(TAG, "Test timer cancel");
+                flushData();
             }
         }
     }
@@ -382,6 +385,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         state = State.READ_PIDS;
         if (testTimer != null) {
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
         }
         testTimer = new TestTimer(12000) {
             @Override
@@ -403,6 +407,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         getDTCs();
         if (testTimer != null) {
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
         }
         testTimer = new TestTimer(15000) {
             @Override
@@ -426,6 +431,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         getPIDs();
         if (testTimer != null) {
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
         }
         testTimer = new TestTimer(120000) {
             @Override
@@ -434,12 +440,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     counter = 1;
                     dataSuccess = true;
                     flushData();
-                    testTimer.cancel();
                 }
                 sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
             }
         };
         testTimer.start();
+        Log.d(TAG, "Test timer start");
     }
 
     /**
@@ -547,7 +553,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void saveDtcs(final DataPackageInfo dataPackageInfo, final boolean isPendingDtc) {
         Log.i(TAG, "save DTCs - auto-connect service");
-        sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading DTCs");
         String dtcs = "";
         final ArrayList<String> dtcArr = new ArrayList<>();
         if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
@@ -564,10 +569,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             JSONObject item = new JSONObject();
             item.put("rtcTime", dataPackageInfo.rtcTime);
             JSONArray pids = new JSONArray();
-            for (PIDInfo info : mPidSnapshots) {
-                JSONObject pid = new JSONObject();
-                pid.put("id", info.pidType).put("data", info.pidType);
-                pids.put(pid);
+            if (mPidSnapshots != null) {
+                for (PIDInfo info : mPidSnapshots) {
+                    JSONObject pid = new JSONObject();
+                    pid.put("id", info.pidType).put("data", info.pidType);
+                    pids.put(pid);
+                }
             }
             item.put("pids", pids);
         } catch (JSONException e) {
@@ -575,6 +582,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         Log.i(TAG, "DTCs found: " + dtcs);
+
+        if (!dtcs.isEmpty()){
+            sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading DTCs");
+        }
 
         if (NetworkHelper.isConnected(this)) {
             for (final String dtc : dtcArr) {
@@ -683,6 +694,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "Disconnecting from device");
         if (testTimer != null) {
             testTimer.cancel();
+            Log.d(TAG, "Test timer cancel");
         }
         if (bluetoothCommunicator != null) {
             bluetoothCommunicator.close();
@@ -821,11 +833,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Log.i(TAG, "Bluetooth adapter state changed: " + state);
                 bluetoothCommunicator.bluetoothStateChanged(state);
                 if (state == BluetoothAdapter.STATE_OFF) {
+
                     bluetoothCommunicator.close();
                     NotificationManager mNotificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.cancel(notifID);
+
                 } else if (state == BluetoothAdapter.STATE_ON && BluetoothAdapter.getDefaultAdapter() != null) {
+
                     if (bluetoothCommunicator != null) {
                         bluetoothCommunicator.close();
                     }
@@ -841,6 +856,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                         startBluetoothSearch(6); // start search when turning bluetooth on
                     }
+
                 }
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
                 if (NetworkHelper.isConnected(BluetoothAutoConnectService.this)) {
@@ -886,6 +902,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void reset(){
+        counter = 1;
         vinAttempts = 0;
         rtcAttempts = 0;
         rtcSuccess = false;

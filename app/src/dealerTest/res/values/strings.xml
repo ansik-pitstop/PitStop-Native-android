@@ -9,5 +9,6 @@
     <string name="test_card_collect_data">Great! Now we should collect some information from the car, please wait for a few minutes.</string>
     <string name="test_card_end_test">Press End Test <b>before unplugging the device</b> so that this test will count towards your reward of $100.</string>
 
+    <string name="user_unknown">Unknown User</string>
 
 </resources>

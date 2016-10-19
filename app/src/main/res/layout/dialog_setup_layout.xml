@@ -15,8 +15,8 @@
             android:id="@+id/input_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
+            android:hint="Email or Name"
+            android:inputType="textEmailAddress|textPersonName"
             android:textColor="@color/white_text"
             android:textColorHint="@color/white_text"/>
 

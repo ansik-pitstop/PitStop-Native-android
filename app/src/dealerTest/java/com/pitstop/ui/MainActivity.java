@@ -44,6 +44,7 @@ import com.pitstop.models.TestAction;
 import com.pitstop.utils.MessageListener;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.ShadowTransformer;
+import com.pitstop.utils.TestTimer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
+
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -313,7 +315,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 .setNegativeButton("Cancel", null)
                 .create();
 
-        if (NetworkHelper.getUser() != null && !NetworkHelper.getUser().isEmpty()) {
+        if (NetworkHelper.getUser() != null
+                && !NetworkHelper.getUser().isEmpty()
+                && !NetworkHelper.getUser().equals(getString(R.string.user_unknown))) {
             user.setText(NetworkHelper.getUser());
         }
 
@@ -323,18 +327,18 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 setupDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(user.getText().toString()).matches() || user.getText().toString().isEmpty()) {
-                            Toast.makeText(MainActivity.this, "Please enter your email!", Toast.LENGTH_SHORT).show();
+                        if (user.getText().toString().isEmpty()) {
+                            NetworkHelper.setUser(getString(R.string.user_unknown));
                         } else {
                             NetworkHelper.setUser(user.getText().toString());
-                            NetworkHelper.setFailures(adapter.getSelectedFailures());
-                            dialog.dismiss();
-
-                            cardTitle.setText(getString(R.string.start_dialog_connect_title));
-                            cardDescription.setText(R.string.start_dialog_connect_description);
-                            setupButton.setVisibility(View.GONE);
-                            connectButton.setVisibility(View.VISIBLE);
                         }
+                        NetworkHelper.setFailures(adapter.getSelectedFailures());
+                        dialog.dismiss();
+
+                        cardTitle.setText(getString(R.string.start_dialog_connect_title));
+                        cardDescription.setText(R.string.start_dialog_connect_description);
+                        setupButton.setVisibility(View.GONE);
+                        connectButton.setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -445,7 +449,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         break;
                     case RESET:
                         Toast.makeText(context, "End Test, reset device and disconnect", Toast.LENGTH_SHORT).show();
-//                        bluetoothService.resetObdDeviceTime();
                         bluetoothService.clearObdDataPackage();
                         logView.animate().alpha(0f).setDuration(500).withEndAction(new Runnable() {
                             @Override
