@@ -40,10 +40,12 @@ android {
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""
+            versionNameSuffix ".debug"
         }
         beta.initWith(buildTypes.debug)
         beta { // for release to beta in Play Store, dev backend, mixpanel
             debuggable false
+            versionNameSuffix ".beta"
         }
         release.initWith(buildTypes.debug)
         release { // for release to production, prod backend, mixpanel
