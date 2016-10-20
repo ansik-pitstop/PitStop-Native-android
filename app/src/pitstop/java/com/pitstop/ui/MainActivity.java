@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
     private MainAppSideMenuAdapter mainAppSideMenuAdapter;
+    private ProgressDialog cancelableProgressDialog;
 
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
@@ -228,21 +229,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     Log.d(TAG, "Network error occurred");
                     mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
                             MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
+                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
                     showSimpleMessage("Sorry, some network error occurred.", false);
                     break;
                 case ACTION_PAIRING_MODULE_ID_INVALID:
                     Log.d(TAG, "Device ID invalid");
                     mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID,
                             MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
+                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
                     showSimpleMessage("This device belongs to another vehicle.", false);
                     break;
                 case ACTION_PAIRING_MODULE_SUCCESS:
                     Log.d(TAG, "Successfully paried device with car");
                     mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS,
                             MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
+                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
                     showSimpleMessage("OK, we have linked the device with your car!", true);
                     refreshFromServer();
                     break;
@@ -250,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     Log.d(TAG, "Unknown error happened during pairing process");
                     mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
                             MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
+                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
                     showSimpleMessage("Unknown network error occurred, please retry later", false);
                     break;
                 // Step
@@ -263,15 +264,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     break;
                 case ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER:
                     Log.d(TAG, "Connecting to obd scanner");
-                    showLoading("Connecting to module...");
+                    showCancelableLoading("Connecting to module...");
                     break;
                 case ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER:
                     Log.d(TAG, "Validating scanner");
-                    showLoading("Validating module...");
+                    showCancelableLoading("Validating module...");
                     break;
                 case ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE:
                     Log.d(TAG, "Saving scanner to the backend");
-                    showLoading("Module is valid and ready to use, storing information...");
+                    showCancelableLoading("Module is valid and ready to use, storing information...");
                     break;
                 // <---------------------------end---------------------------------->
             }
@@ -320,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
+
+        cancelableProgressDialog = new ProgressDialog(this);
+        cancelableProgressDialog.setCancelable(true);
+        cancelableProgressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(application);
@@ -959,6 +964,26 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
+    public void showCancelableLoading(String message){
+        if (cancelableProgressDialog == null){
+            return;
+        }
+        cancelableProgressDialog.setMessage(message);
+        if (!cancelableProgressDialog.isShowing()){
+            cancelableProgressDialog.show();
+        }
+    }
+
+    public void hideCancelableLoading(){
+        if (cancelableProgressDialog != null){
+            cancelableProgressDialog.dismiss();
+        } else {
+            cancelableProgressDialog = new ProgressDialog(this);
+            cancelableProgressDialog.setCancelable(true);
+            cancelableProgressDialog.setCanceledOnTouchOutside(false);
+        }
+    }
+
     /**
      * Create and show an snackbar that is used to show users some information.<br>
      * The purpose of this method is to display message that requires user's confirm to be dismissed.
@@ -1330,13 +1355,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     *
      * @param data
      */
     private void showDetailDialog(CarIssuePreset data){
         if (data == null) return;
 
         View dialogDetail = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail, null);
+        View detailTitle = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail_title, null);
 
         String title = data.getAction() + " " + data.getItem();
         String description = data.getDescription();
@@ -1368,7 +1393,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         final AlertDialog d = new AlertDialog.Builder(this)
-                .setTitle("Detail")
+                .setCustomTitle(detailTitle)
                 .setView(dialogDetail)
                 .setPositiveButton("OK", null)
                 .create();

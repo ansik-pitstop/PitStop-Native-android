@@ -439,6 +439,16 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     }
 
                     dataListener.getBluetoothState(btConnectionState);
+
+                    try{
+                        if (device.createBond()){
+                            Log.d(TAG, "Bond creation will be done");
+                        } else {
+                            Log.d(TAG, "Error doing bond creation");
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 
