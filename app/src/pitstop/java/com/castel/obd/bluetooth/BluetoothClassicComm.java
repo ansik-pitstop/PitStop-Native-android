@@ -74,7 +74,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        if(BuildConfig.FLAVOR.equals("pitstop")) {
+        if (BuildConfig.FLAVOR.equals("pitstop")) {
             scannerAdapter = new LocalScannerAdapter(application);
         }
 
@@ -255,7 +255,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     /**
      * Inform the UI to show the selectCar dialog
      */
-    private void sendObdDeviceDiscoveredIntent(){
+    private void sendObdDeviceDiscoveredIntent() {
         Intent intent = new Intent();
         intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
         // This intent will be observed by the MainActivity.
@@ -264,8 +264,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     }
 
     @Override
-    public void connectPendingDevice(){
-        if (mPendingDevice != null){
+    public void connectPendingDevice() {
+        if (mPendingDevice != null) {
             connectedDeviceName = mPendingDevice.getName();
             mBluetoothChat.connectBluetooth(mPendingDevice);
         }
@@ -440,14 +440,16 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                     dataListener.getBluetoothState(btConnectionState);
 
-                    try{
-                        if (device.createBond()){
-                            Log.d(TAG, "Bond creation will be done");
-                        } else {
-                            Log.d(TAG, "Error doing bond creation");
+                    if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                        try {
+                            if (device.createBond()) {
+                                Log.d(TAG, "Bond creation will be done");
+                            } else {
+                                Log.d(TAG, "Error doing bond creation");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e){
-                        e.printStackTrace();
                     }
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
@@ -486,7 +488,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
 
-                if (devicePending){
+                if (devicePending) {
                     startScan();
                     return;
                 }

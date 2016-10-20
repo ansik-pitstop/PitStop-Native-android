@@ -636,6 +636,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 .setNegativeButton("", null);
 
         dialog.show();
+
+        mixpanelHelper.trackAlertAppeared("Device still uploading previous data.", MixpanelHelper.SCAN_CAR_VIEW);
     }
 
     private void updateCarHealthMeter() {
@@ -684,30 +686,33 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
 
-        if (dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+//        if (dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
+        if (dataPackageInfo.result == 5) {
             result5Retrieved = true;
-            final double newTotalMileage = ((int) ((baseMileage
-                    + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+            if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+                final double newTotalMileage = ((int) ((baseMileage
+                        + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
 
-            Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+                Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
 
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
+                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                    dashboardCar.setDisplayedMileage(newTotalMileage);
+                    localCarAdapter.updateCar(dashboardCar);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                            //carMileage.setText(String.valueOf(newTotalMileage));
+                        }
+                    });
+                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                        //carMileage.setText(String.valueOf(newTotalMileage));
+                        carMileage.setText(String.valueOf(newTotalMileage));
                     }
                 });
             }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    carMileage.setText(String.valueOf(newTotalMileage));
-                }
-            });
         }
 
         if (!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
@@ -833,7 +838,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             int seconds = (int) (timeDiff / 1000);
 
-            if (result5Retrieved){
+            if (result5Retrieved) {
                 handler.removeCallbacks(getResult5Runnable);
             } else if (seconds > 30) {
                 result5Retrieved = true;

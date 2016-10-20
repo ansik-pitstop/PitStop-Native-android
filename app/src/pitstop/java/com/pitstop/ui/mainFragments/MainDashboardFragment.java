@@ -557,7 +557,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 Toast.makeText(getContext(), "Please pick a car!", Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            ((MainActivity) getActivity()).showLoading("Hold on, we are thinking..");
+                            ((MainActivity) getActivity()).showCancelableLoading("Hold on, we are thinking..");
 
                             // At this point, check if the picked car has scanner;
                             if (scannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
@@ -567,7 +567,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                 ((MainActivity) getActivity()).hideLoading();
                             } else {
                                 Log.d(TAG, "Picked car lack device");
-                                ((MainActivity) getActivity()).showLoading("Connecting to device..");
+                                ((MainActivity) getActivity()).showCancelableLoading("Connecting to device..");
                                 // If no, then to determine whether if we should link the device and the car,
                                 // we need to connect, get the device id, then validate the device id;
                                 sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
