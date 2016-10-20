@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/item_list_item_layout"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:weightSum="1">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="137dp"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ebebeb"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:background="@color/cardview_light_background"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="39dp"
+                    android:background="@color/highlight"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="4dp"
+                    android:text="Severity"
+                    android:textColor="@color/cardview_light_background"
+                    android:textSize="20dp"/>
+
+                <RelativeLayout
+                    android:id="@+id/severity_indicator_layout"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="9dp">
+
+                    <TextView
+                        android:id="@+id/severity_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="High"
+                        android:textColor="@color/cardview_light_background"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_marginTop="1dp"
+                android:background="#ffffff">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLines="3"
+                    android:padding="10dp"
+                    android:text="ISSUE"
+                    android:textColor="@color/highlight"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="15sp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/btnClearDtc"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/color_button_primary"
+                android:text="Clear All Engine Codes"
+                android:textColor="#fff"
+                android:visibility="gone"
+                />
+
+            <Button
+                android:id="@+id/btnRequestService"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnClearDtc"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/color_button_primary"
+                android:drawableRight="@drawable/request_service_button"
+                android:onClick="requestService"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:text="Request Service"
+                android:textColor="#fff"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

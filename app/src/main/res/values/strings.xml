@@ -16,6 +16,8 @@
     <string name="pref_username_key">pref_username_key</string>
     <string name="pref_phone_number_key">pref_phone_number_key</string>
     <string name="pref_privacy_policy">pref_privacy_policy</string>
+    <string name="pref_term_of_use">pref_term_of_use</string> <!--Term of use-->
+
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
@@ -53,9 +55,9 @@
 
     <!-- Strings for welcome screen -->
     <string name="welcome">Welcome to Pitstop</string>
-    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whathappen">What\'s About to Happen?</string>
-    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. PitStop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
+    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whatneeded">What is needed from you</string>
     <string name="bluetooth_header">Bluetooth for Module</string>
     <string name="internet_header">Internet Connection</string>
@@ -66,5 +68,53 @@
 
     <!-- UartService -->
     <string name="report_data">Terminal upload data:</string>
+
+    <!-- Service request dialog-->
+    <string name="service_request_dialog_pick_date_hint">Tap to pick a date</string>
+    <string name="service_request_dialog_pick_time_hint">Tap to pick a time</string>
+    <string name="service_request_dialog_additional_comments_hint_1">Additional comments</string>
+    <string name="service_request_dialog_additional_comments_hint_2">The name of your salesman</string>
+    <string name="service_request_dialog_time_picker_title">Please pick a time for your service</string>
+    <string name="service_request_dialog_date_picker_title">Please pick a date for your service</string>
+    <string name="service_request_dialog_summary_title">Request Summary</string>
+
+    <!--First time service booking-->
+    <!--<string name="first_service_booking_1">Welcome to Pitstop!\n\nLet\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
+    <!--discount-->
+    <!--<string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
+    <string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today. </string>
+    <string name="first_service_booking_2">Pitstop has calculated an estimated time we believe you will be due for your 1st service appointment.\n\nWhen your appointment is getting close, we will send you a reminder letting you know you whether or not you are due for service.\n\nThe power of being connected.</string>
+    <string name="first_service_booking_tutorial_button_text">Book 1st service appointment</string>
+
+    <!--for views-->
+    <string name="service_request_button">Request Service</string>
+
+    <!--preset issue descriptions-->
+    <string name="flat_tire_description">The tires on your vehicle are what keep it rolling. They take a beating from sharp turns, rocks, potholes, changes in temperature and the wear from friction on the road. It\'s time for you to inspect tire pressure and wear. Tires in poor condition can cause other mechanical parts to wear out faster.</string>
+    <string name="engine_oil_filter_description">Change engine oil and replace engine filter to remove contaminants and prolong the life of your motor.</string>
+    <string name="wipers_fluids_description">Visibility is a critical part of safety while driving. Making sure your fluids are topped up and windshield wipers are intact is an important way to make sure your car is safe to drive.</string>
+    <string name="tow_truck_description">Send an emergency request to the dealership to help you get your vehicle into the shop. Breakdowns are frustrating we are here to help. Be aware of the hours of operation of the dealership, after hours you may need to call a tow truck yourself.</string>
+    <string name="shuttle_service_description">Request for the dealership to coordinate a loaner vehicle or a shuttle to pick you up from your location.</string>
+    <string name="title_activity_add_custom_issue">Add Custom Issue</string>
+    <string name="add_preset_issue_dialog_title">Add issues to your car</string>
+    <string name="preset_issue_service_emergency">Emergency</string>
+    <string name="preset_issue_service_replace">Replace</string>
+    <string name="preset_issue_service_request">Request</string>
+    <string name="preset_issue_item_flat_tire">Flat Tire</string>
+    <string name="preset_issue_item_tow_truck">Tow Truck</string>
+    <string name="preset_issue_item_engine_oil_filter">Engine Oil &amp; Filter</string>
+    <string name="preset_issue_item_wipers_fluids">Wipers/Fluids</string>
+    <string name="preset_issue_item_shuttle_service">Shuttle Service</string>
+
+
+    <!--clear issue dialog-->
+    <string name="dialog_clear_issue_title">When was this service completed?</string>
+
+
+    <string name="start_dialog_setup_title">Setup</string>
+    <string name="start_dialog_setup_description"> This test app is design for technicians to collect vehicle data which is allows Pitstop to predict engine failures. Enter your email so we can send you a $100 gift card on every 30 vehicles that you test.</string>
+    <string name="start_dialog_connect_title">Connect to Device</string>
+    <string name="start_dialog_connect_description">Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running.</string>
+
 
 </resources>

@@ -1,0 +1,165 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.ReceiveDebugActivity">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical">
+    <TextView
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/bluetooth_status"
+        android:layout_alignBottom="@+id/debug_log"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="195dp"
+        android:layout_marginEnd="195dp" />
+
+    <EditText
+        android:id="@+id/tag"
+        android:hint="Tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/values"
+        android:hint="Values"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GET DTCS"
+            android:id="@+id/btn_get_3"
+            android:onClick="getDTC"
+            android:background="@drawable/color_button_primary"
+            android:elevation="4dp"
+            android:textColor="#fff" />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="getParam"
+            android:id="@+id/button3"
+            android:onClick="getParam"
+            android:background="@drawable/color_button_primary"
+            android:elevation="4dp"
+            android:textColor="#fff" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="init"
+            android:id="@+id/button4"
+            android:onClick="initialize"
+            android:background="@drawable/color_button_primary"
+            android:elevation="4dp"
+            android:textColor="#fff" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="setinterval"
+            android:onClick="setFixedUpload"
+            android:background="@drawable/color_button_primary"
+            android:elevation="4dp"
+            android:textColor="#fff" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="get RTC"
+            android:textColor="#fff"
+            android:onClick="getRtc"
+            android:background="@drawable/color_button_primary"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set RTC"
+            android:textColor="#fff"
+            android:onClick="setRtc"
+            android:background="@drawable/color_button_primary"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="getPids"
+            android:textColor="#fff"
+            android:onClick="getPids"
+            android:background="@drawable/color_button_primary"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pids"
+            android:textColor="#fff"
+            android:onClick="getSupportedPids"
+            android:background="@drawable/color_button_primary"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView2" >
+
+        <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/debug_log" />
+    </ScrollView>
+</LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bf5776ce"
+        android:id="@+id/loading"
+        android:visibility="gone" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Loading"
+                android:id="@+id/textView33"
+                android:layout_gravity="center_horizontal" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar2"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"
+                android:layout_margin="16dp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</RelativeLayout>
