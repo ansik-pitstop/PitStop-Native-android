@@ -30,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -256,7 +257,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 hideLoading();
             }
         } else if (status == STATUS_UPDATE) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            if (state == State.COLLECT_DATA) {
+                showLoading(message);
+            } else {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -298,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         final View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_setup_title, null);
         final View dialogBody = getLayoutInflater().inflate(R.layout.dialog_setup_layout, null);
         final TextInputEditText user = (TextInputEditText) dialogBody.findViewById(R.id.input_user);
+        final TextInputEditText fail = (TextInputEditText) dialogBody.findViewById(R.id.input_fail);
         final RecyclerView recyclerView = (RecyclerView) dialogBody.findViewById(R.id.list_failures);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -305,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
-        final FailureListAdapter adapter = new FailureListAdapter();
+        final FailureListAdapter adapter = new FailureListAdapter(fail);
         recyclerView.setAdapter(adapter);
 
         final AlertDialog setupDialog = new AlertDialog.Builder(this)
@@ -332,7 +338,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                         } else {
                             NetworkHelper.setUser(user.getText().toString());
                         }
-                        NetworkHelper.setFailures(adapter.getSelectedFailures());
+                        List<String> fails = adapter.getSelectedFailures();
+                        if (!fail.getText().toString().isEmpty()) {
+                            fails.add(fail.getText().toString());
+                        }
+                        NetworkHelper.setFailures(fails);
                         dialog.dismiss();
 
                         cardTitle.setText(getString(R.string.start_dialog_connect_title));
@@ -515,16 +525,21 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     public class FailureListAdapter extends RecyclerView.Adapter<FailureListAdapter.FailureViewHolder> {
 
-        List<String> mFailures;
-        List<String> mSelectedFailures;
+        private static final int POSITION_OTHER_FAIL = 4;
 
-        public FailureListAdapter() {
+        final List<String> mFailures;
+        List<String> mSelectedFailures;
+        final TextInputEditText mOtherFails;
+
+        public FailureListAdapter(TextInputEditText otherFails) {
+            mOtherFails = otherFails;
             mFailures = new ArrayList<>();
             mSelectedFailures = new ArrayList<>();
             mFailures.add("Dirty Air Filter");
             mFailures.add("Bad Battery");
             mFailures.add("Faulty Spark Plug");
             mFailures.add("Engine Light On");
+            mFailures.add("Anything else?");
         }
 
         @Override
@@ -538,22 +553,45 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         public void onBindViewHolder(final FailureViewHolder holder, int position) {
             final String failure = mFailures.get(position);
             holder.failureTitle.setText(failure);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    holder.failureCheckBox.setChecked(!holder.failureCheckBox.isChecked());
-                }
-            });
-            holder.failureCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        mSelectedFailures.add(failure);
-                    } else if (mSelectedFailures.contains(failure)) {
-                        mSelectedFailures.remove(failure);
+
+            if (position == POSITION_OTHER_FAIL) {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.failureCheckBox.setChecked(!holder.failureCheckBox.isChecked());
                     }
-                }
-            });
+                });
+                holder.failureCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked){
+                            mOtherFails.setVisibility(View.VISIBLE);
+                            mOtherFails.requestFocus();
+                        } else {
+                            mOtherFails.setVisibility(View.GONE);
+                        }
+                        mFailures.remove(mFailures.size() - 1);
+                        notifyDataSetChanged();
+                    }
+                });
+            } else {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.failureCheckBox.setChecked(!holder.failureCheckBox.isChecked());
+                    }
+                });
+                holder.failureCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            mSelectedFailures.add(failure);
+                        } else if (mSelectedFailures.contains(failure)) {
+                            mSelectedFailures.remove(failure);
+                        }
+                    }
+                });
+            }
         }
 
         @Override
