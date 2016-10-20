@@ -63,6 +63,10 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -882,7 +886,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void getIOData(final DataPackageInfo dataPackageInfo) {
-        if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+        /*if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
 
             final HashSet<String> activeIssueNames = new HashSet<>();
 
@@ -910,6 +914,59 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
 
                     if (newDtcFound) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshFromServer();
+                            }
+                        }, 1111);
+                    }
+                }
+            });
+        }*/
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {}
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(final DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null) {
+            final HashSet<String> activeIssueNames = new HashSet<>();
+
+            if(dashboardCar == null) {
+                return;
+            }
+
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
+                activeIssueNames.add(issues.getItem());
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean newDtcFound = false;
+
+                    if(dtcPackage.dtcs.length > 0){
+                        for(String dtc : dtcPackage.dtcs) {
+                            if(!activeIssueNames.contains(dtc)) {
+                                newDtcFound = true;
+                            }
+                        }
+                    }
+
+                    if(newDtcFound) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {

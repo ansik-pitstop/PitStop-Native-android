@@ -62,7 +62,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
     //Semaphore lock to coordinate command executions, to ensure only one is
     //currently started and waiting on a response.
-    Semaphore mCommandLock = new Semaphore(1, true);
+    Semaphore mCommandLock = new Semaphore(1,true);
 
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
@@ -119,28 +119,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         mGatt = null;
     }
 
-    /**
-     * Connect to pending device after
-     */
-    @Override
-    public void connectPendingDevice() {
-        connectToDevice(mPendingDevice);
-        devicePending = false;
-    }
-
-    @Override
-    public void manuallyDisconnectCurrentDevice() {
-        // TODO: 16/9/19 See how to disconnect on ble
-        Log.d(TAG, "YIFAN LOGIC - Manually disconnect current device called!");
-        mGatt.close();
-    }
-
-    @Override
-    public void cancelPendingDevice() {
-        devicePending = false;
-        mPendingDevice = null;
-        btConnectionState = DISCONNECTED;
-    }
 
     @Override
     @SuppressLint("NewApi")
@@ -173,7 +151,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     private void queueCommand(WriteCommand command) {
         synchronized (mCommandQueue) {
-            Log.i(TAG, "Queue command");
+            Log.i(TAG,"Queue command");
             mCommandQueue.add(command);
             //Schedule a new runnable to process that command (one command at a time executed only)
             ExecuteCommandRunnable runnable = new ExecuteCommandRunnable(command, mGatt);
@@ -184,7 +162,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     //Remove the current command from the queue, and release the lock
     //signalling the next queued command (if any) that it can start
-    protected void dequeueCommand() {
+    protected void dequeueCommand(){
         Log.i(TAG, "dequeue command");
         mCommandQueue.pop();
         mCommandLock.release();
@@ -202,6 +180,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                         .setContentTitle("Connecting to car");
 
         Intent resultIntent = new Intent(mContext, MainActivity.class);
+        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
 
         stackBuilder.addParentStack(MainActivity.class);
@@ -217,9 +196,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
     }
-
     public void bluetoothStateChanged(int state) {
-        if (state == BluetoothAdapter.STATE_OFF) {
+        if(state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
         }
     }
@@ -231,13 +209,15 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
             switch (newState) {
 
-                case BluetoothProfile.STATE_CONNECTING: {
+                case BluetoothProfile.STATE_CONNECTING:
+                {
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
                     break;
                 }
 
-                case BluetoothProfile.STATE_CONNECTED: {
+                case BluetoothProfile.STATE_CONNECTED:
+                {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     try {
                         mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
@@ -252,12 +232,14 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     break;
                 }
 
-                case BluetoothProfile.STATE_DISCONNECTING: {
+                case BluetoothProfile.STATE_DISCONNECTING:
+                {
                     Log.i(TAG, "gattCallback STATE_DISCONNECTING");
                     break;
                 }
 
-                case BluetoothProfile.STATE_DISCONNECTED: {
+                case BluetoothProfile.STATE_DISCONNECTED:
+                {
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     try {
@@ -338,7 +320,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     };
 
     //Runnable to execute a command from the queue
-    class ExecuteCommandRunnable implements Runnable {
+    class ExecuteCommandRunnable implements Runnable{
 
         private WriteCommand mCommand;
         private BluetoothGatt mGatt;
@@ -358,15 +340,4 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             mCommand.execute(mGatt);
         }
     }
-
-    /**
-     * Inform the UI to show the selectCar dialog
-     */
-    private void sendObdDeviceDiscoveredIntent(){
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
-        // This intent will be observed by the MainActivity.
-        mContext.sendBroadcast(intent);
-    }
-
 }

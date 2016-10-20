@@ -662,11 +662,12 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {  }
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+    }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if(loginPackageInfo.flag.
+        if (loginPackageInfo.flag.
                 equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             Log.i(TAG, "Device logout");
         }
@@ -720,40 +721,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
         carIssuesAdapter.updateTutorial();
     }
-
-    // From ObdManager.IBluetoothDataListener
-
-    @Override
-    public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED) {
-            Log.i(TAG, "Bluetooth disconnected");
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
-    }
-
 
     // From MainActivity.MainDashboardCallback
 

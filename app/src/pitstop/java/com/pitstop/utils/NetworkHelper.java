@@ -267,8 +267,7 @@ public class NetworkHelper {
         postNoAuth("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
-                          List<PIDInfo> freezeData, RequestCallback callback) {
+    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
         LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
                 " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
 

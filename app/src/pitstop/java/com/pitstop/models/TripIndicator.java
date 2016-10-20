@@ -10,10 +10,10 @@ import com.pitstop.network.RequestCallback;
 
 public abstract class TripIndicator {
 
-    long tripId;
+    int tripId;
     String rtcTime;
 
-    TripIndicator(long tripId, String rtcTime) {
+    TripIndicator(int tripId, String rtcTime) {
         this.tripId = tripId;
         this.rtcTime = rtcTime;
     }

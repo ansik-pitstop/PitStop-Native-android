@@ -13,7 +13,7 @@ public class TripStart extends TripIndicator {
 
     private String scannerId;
 
-    public TripStart(long tripId, String rtcTime, String scannerId) {
+    public TripStart(int tripId, String rtcTime, String scannerId) {
         super(tripId, rtcTime);
         this.scannerId = scannerId;
     }

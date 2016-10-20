@@ -120,7 +120,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private boolean askingForDtcs = false;
     private boolean result5Retrieved = false;
-    private Set<String> dtcCodes = new HashSet<>();
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -790,70 +789,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
             });
         }
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(MainActivity.TAG, "Result "+dataPackageInfo.result);
-        Log.i(MainActivity.TAG, "DTC "+dataPackageInfo.dtcData);
-
-        if(dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
-            final double newTotalMileage = ((int) ((baseMileage
-                    + Double.parseDouble(dataPackageInfo.tripMileage)/1000) * 100)) / 100.0; // round to 2 decimal places
-
-            Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
-
-            if(dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                        //carMileage.setText(String.valueOf(newTotalMileage));
-                    }
-                });
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    carMileage.setText(String.valueOf(newTotalMileage));
-                }
-            });
-        }
-
-        //if(!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
-//
-        //    String[] dtcs = dataPackageInfo.dtcData.split(",");
-        //    for(String dtc : dtcs) {
-        //        dtcCodes.add(dtc);
-        //    }
-//
-        //    runOnUiThread(new Runnable() {
-        //        @Override
-        //        public void run() {
-        //            numberOfIssues = services + recalls + dtcCodes.size();
-        //            updateCarHealthMeter();
-//
-        //            if(numberOfIssues != 0) {
-        //                updatedMileageOrDtcsFound = true;
-        //            }
-//
-        //            loadingEngineIssues.setVisibility(View.GONE);
-        //            engineIssuesStateLayout.setVisibility(View.GONE);
-        //            engineIssuesCountLayout.setVisibility(View.VISIBLE);
-        //            engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
-        //            engineIssuesText.setText("Engine issues");
-//
-        //            Log.i(TAG, "Finished car scan, dtcs found");
-        //            handler.removeCallbacks(runnable);
-//
-        //            Drawable background = engineIssuesCountLayout.getBackground();
-        //            GradientDrawable gradientDrawable = (GradientDrawable) background;
-        //            gradientDrawable.setColor(Color.rgb(203, 77, 69));
-        //        }
-        //    });
-        //}
     }
 
     private long startTime = 0;
