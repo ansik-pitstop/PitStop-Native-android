@@ -122,6 +122,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
+
+
+
         } else {
             // Otherwise, select the previous step.
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
@@ -309,6 +312,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
 
         addingCar = true;
+
+        // The result is by default cancelled
+        setResult(RESULT_CANCELED);
 
         super.onResume();
     }

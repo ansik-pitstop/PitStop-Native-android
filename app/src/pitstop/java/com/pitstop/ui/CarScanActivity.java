@@ -777,7 +777,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         JSONObject properties = new JSONObject();
                         properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
                         properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
-                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETED, properties);
+                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

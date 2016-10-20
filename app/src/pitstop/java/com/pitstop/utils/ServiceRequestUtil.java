@@ -43,6 +43,8 @@ public class ServiceRequestUtil {
 
     private static final String TAG = ServiceRequestUtil.class.getSimpleName();
 
+    private static final String VIEW = "Request Service";
+
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
 
@@ -138,7 +140,7 @@ public class ServiceRequestUtil {
             @Override
             public void onCancel(DialogInterface dialog) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                    mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -188,7 +190,7 @@ public class ServiceRequestUtil {
             @Override
             public void onCancel(DialogInterface dialog) {
                 try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                    mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -256,7 +258,8 @@ public class ServiceRequestUtil {
                         try {
                             JSONObject properties = new JSONObject();
                             properties.put("Button", "Confirm Service Request");
-                            properties.put("View", TAG);
+                            properties.put("View", VIEW);
+                            properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
                             properties.put(isFirstBooking? "Salesperson": "Comments", comments);
                             properties.put("Number of Services Requested", dashboardCar.getActiveIssues().size());
                             mixpanelHelper.trackCustom("Button Tapped", properties);
@@ -283,7 +286,7 @@ public class ServiceRequestUtil {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
-                        mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                        mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -387,7 +390,7 @@ public class ServiceRequestUtil {
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + TAG
+                            new JSONObject("{'Button':'Confirm Service Request','View':'" + VIEW
                                     + "','Device':'Android','Number of Services Requested':'" + dashboardCar.getActiveIssues().size() + "'}"));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -403,7 +406,7 @@ public class ServiceRequestUtil {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
-                        mixpanelHelper.trackButtonTapped("Cancel Request Service", TAG);
+                        mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

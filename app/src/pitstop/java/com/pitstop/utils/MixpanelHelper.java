@@ -20,7 +20,7 @@ public class MixpanelHelper {
     public static final String EVENT_APP_STATUS = "App Status";
     public static final String EVENT_PERIPHERAL_CONNECTION_STATUS = "Peripheral Connection Status";
     public static final String EVENT_SCROLLED_IN_VIEW = "Scrolled in View";
-    public static final String EVENT_SCAN_COMPLETED = "Scan Complete";
+    public static final String EVENT_SCAN_COMPLETE = "Scan Complete";
     public static final String EVENT_ADD_CAR_PROCESS = "Add Car Process";
     public static final String EVENT_ALERT_APPEARED = "Alert Appeared";
     public static final String EVENT_PAIR_UNRECOGNIZED_MODULE = "Pair Unrecognized Module";
@@ -40,8 +40,10 @@ public class MixpanelHelper {
     public static final String APP_ENTERED_FOREGROUND = "Entered Foreground";
     public static final String APP_TERMINATE = "Will Terminate";
 
-    public static final String DISCONNECTED = "Disconnected from Bluetooth";
-    public static final String CONNECTED = "Connected to Bluetooth";
+//    public static final String DISCONNECTED = "Disconnected from Bluetooth";
+    public static final String DISCONNECTED = "Disconnected";
+//    public static final String CONNECTED = "Connected to Bluetooth";
+    public static final String CONNECTED = "Connected";
 
     public static final String ADDED_MANUALLY = "Car Added Manually";
     public static final String ADDED_WITH_DEVICE = "Car Added Through Device";
@@ -107,9 +109,11 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP = "Step";
     public static final String ADD_CAR_STEP_RESULT = "Result";
     public static final String ADD_CAR_STEP_RESULT_SUCCESS = "Success";
+    public static final String ADD_CAR_STEP_RESULT_PENDING = "Pending";
     public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
     public static final String ADD_CAR_STEP_GET_RTC = "Getting RTC";
+    public static final String ADD_CAR_STEP_SET_RTC = "Setting RTC";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
     public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";

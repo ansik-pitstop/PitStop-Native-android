@@ -545,20 +545,27 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                Car addedCar = data.getParcelableExtra(CAR_EXTRA);
-                Log.d("OnActivityResult", "CarList: " + carList.size());
-                if (carList.size() == 0) {
-                    Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                            .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-                    carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
-                    PreferenceManager.getDefaultSharedPreferences(application).edit()
-                            .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitingTutorial)
-                            .apply(); // See if we should use commit
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                    Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                    Log.d("OnActivityResult", "CarList: " + carList.size());
+                    if (carList.size() == 0) {
+                        Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
+                                .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+                        carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
+                        PreferenceManager.getDefaultSharedPreferences(application).edit()
+                                .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitingTutorial)
+                                .apply(); // See if we should use commit
+                    }
+                    if (shouldRefreshFromServer) {
+                        refreshFromServer();
+                    }
+                } else {
+                    try{
+                        mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
                 }
-                if (shouldRefreshFromServer) {
-                    refreshFromServer();
-                }
-
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
