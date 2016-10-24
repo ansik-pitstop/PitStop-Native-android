@@ -1,15 +1,10 @@
 package com.pitstop.utils;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +18,6 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
@@ -253,17 +247,6 @@ public class ServiceRequestUtil {
                 .setPositiveButton("SEND", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            JSONObject properties = new JSONObject();
-                            properties.put("Button", "Confirm Service Request");
-                            properties.put("View", VIEW);
-                            properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
-                            properties.put(isFirstBooking? "Salesperson": "Comments", comments);
-                            properties.put("Number of Services Requested", dashboardCar.getActiveIssues().size());
-                            mixpanelHelper.trackCustom("Button Tapped", properties);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                         comments = commentEditText.getText().toString();
 
                         //format the timestamp before sending the network request because the server use ISO8601 format
@@ -315,15 +298,25 @@ public class ServiceRequestUtil {
         }
     }
 
-    private void sendRequestWithState(String state, String timestamp, String comments) {
-
+    private void sendRequestWithState(final String state, final String timestamp, final String comments) {
         Log.d("Service Request", "Timestamp: " + timestamp);
-
         networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(),
                 dashboardCar.getShopId(), state, timestamp, comments, new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Confirm Service Request");
+                                properties.put("View", VIEW);
+                                properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
+                                properties.put(isFirstBooking? "Salesperson": "Comments", comments);
+                                properties.put("Number of Services Requested", dashboardCar.getActiveIssues().size());
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                             Toast.makeText(context, "Service request sent", Toast.LENGTH_SHORT).show();
                             Smooch.track("User Requested Service");
                             for (CarIssue issue : dashboardCar.getActiveIssues()) {

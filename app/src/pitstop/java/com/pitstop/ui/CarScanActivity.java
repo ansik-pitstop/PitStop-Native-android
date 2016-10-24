@@ -148,6 +148,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
+    private boolean timeEventTrackingStarted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -452,6 +454,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, "Starting car scan");
 
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+        timeEventTrackingStarted = true;
 
         autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
@@ -739,6 +742,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");
+                    if (timeEventTrackingStarted){
+                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+                        timeEventTrackingStarted = false;
+                    }
                     handler.removeCallbacks(checkEngineIssuesRunnable);
 
                     Drawable background = engineIssuesCountLayout.getBackground();
@@ -782,7 +789,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         e.printStackTrace();
                     }
 
-                    mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+                    if (timeEventTrackingStarted){
+                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+                        timeEventTrackingStarted = false;
+                    }
 
                     break;
                 }
