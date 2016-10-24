@@ -1453,10 +1453,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return jsonObject;
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 05bc644... Clean up
     public int getLastTripId() {
         return lastTripId;
     }

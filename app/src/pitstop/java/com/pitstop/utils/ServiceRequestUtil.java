@@ -298,7 +298,12 @@ public class ServiceRequestUtil {
         }
     }
 
+<<<<<<< HEAD
     private void sendRequestWithState(final String state, final String timestamp, final String comments) {
+=======
+    private void sendRequestWithState(String state, String timestamp, String comments) {
+
+>>>>>>> 05bc644... Clean up
         Log.d("Service Request", "Timestamp: " + timestamp);
         networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(),
                 dashboardCar.getShopId(), state, timestamp, comments, new RequestCallback() {
@@ -336,56 +341,6 @@ public class ServiceRequestUtil {
 
     }
 
-<<<<<<< HEAD
-    /**
-     * Left unused after refactoring
-     */
-    private void askForComments() {
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("Enter additional comments");
-
-        final String[] additionalComment = {""};
-        final EditText userInput = new EditText(context);
-        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        alertDialog.setView(userInput);
-
-        alertDialog.setPositiveButton("SEND", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackCustom("Button Tapped",
-                            new JSONObject("{'Button':'Confirm Service Request','View':'" + VIEW
-                                    + "','Device':'Android','Number of Services Requested':'" + dashboardCar.getActiveIssues().size() + "'}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                additionalComment[0] = userInput.getText().toString();
-                comments = userInput.getText().toString();
-//                sendRequest(additionalComment[0], dateString);
-            }
-        });
-
-        if (!isFirstBooking) {
-            alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    dialog.dismiss();
-                }
-            });
-        } else {
-            alertDialog.setCancelable(false);
-        }
-
-        alertDialog.show();
-    }
-
-=======
->>>>>>> 05bc644... Clean up
     private class LimitedTimePicker extends TimePickerDialog {
 
         public static final int MAX_HOUR = 17;

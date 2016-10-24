@@ -440,6 +440,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
                     dataListener.getBluetoothState(btConnectionState);
 
+<<<<<<< HEAD
                     if (device.getBondState() == BluetoothDevice.BOND_NONE) {
                         try {
                             if (device.createBond()) {
@@ -450,6 +451,16 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+=======
+                    try{
+                        if (device.createBond()){
+                            Log.d(TAG, "Bond creation will be done");
+                        } else {
+                            Log.d(TAG, "Error doing bond creation");
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+>>>>>>> 04670fe... Fixes the Bluetooth pairing problem
                     }
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
