@@ -248,12 +248,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 super.onActivityResult(requestCode, resultCode, data);
         }
 
-//        if(requestCode == MainActivity.RC_ENABLE_BT
-//                && resultCode == MainActivity.RC_ENABLE_BT) {
-//            carScanButton.performClick();
-//        } else {
-//            super.onActivityResult(requestCode, resultCode, data);
-//        }
     }
 
     private void setupUiReferences() {
@@ -456,6 +450,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private void startCarScan() {
         Log.i(TAG, "Starting car scan");
+
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+
         autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
         recallsCountLayout.setVisibility(View.GONE);
@@ -749,6 +746,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private long startTime = 0;
     private long carSearchStartTime = 0;
+
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -770,9 +768,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     carScanButton.setEnabled(true);
 
                     // Finished car scan
-                    //Mixpanel.sharedInstance().track
-                    // ("Scan Complete", properties: ["View": "Scan",
-                    // "Mileage Updated To" : \(mileage), "Device": "iOS"])
                     try {
                         JSONObject properties = new JSONObject();
                         properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
@@ -781,6 +776,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
 
                     break;
                 }
@@ -847,25 +844,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             }
         }
     };
-
-
-//    private Runnable runnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            long currentTime = System.currentTimeMillis();
-//            long timeDiff = currentTime - startTime;
-//            int seconds = (int) (timeDiff / 1000);
-//
-//            if (seconds > 20 && askingForDtcs) {
-//                askingForDtcs = false;
-//                handler.sendEmptyMessage(0);
-//                handler.removeCallbacks(runnable);
-//            } else {
-//                handler.post(runnable);
-//            }
-//
-//        }
-//    };
 
     private Runnable connectCarRunnable = new Runnable() {
         @Override

@@ -53,6 +53,7 @@ import com.pitstop.R;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -109,6 +110,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private int status5counter = 0;
 
     private NetworkHelper networkHelper;
+    private MixpanelHelper mixpanelHelper;
 
     private String[] pids = new String[0];
     private int pidI = 0;
@@ -145,6 +147,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
     /**
+     * State variable for tracking bluetooth connection time in mixpanel
+     */
+    private boolean bluetoothConnectedTimeEventStarted = false;
+
+    /**
      * for periodic bluetooth scans
      */
     private Handler handler = new Handler();
@@ -159,6 +166,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         application = (GlobalApplication) getApplicationContext();
 
         networkHelper = new NetworkHelper(getApplicationContext());
+        mixpanelHelper = new MixpanelHelper(application);
 
         if (BluetoothAdapter.getDefaultAdapter() != null) {
 
@@ -271,6 +279,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             updateScannerNameOnAutoConnect();
 
+            // Mixpanel time event
+            bluetoothConnectedTimeEventStarted = true;
+            mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+
         } else {
             /**
              * Set device connection state for connected car indicator,
@@ -291,6 +303,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(notifID);
+
+            // Mixpanel time event
+            if (bluetoothConnectedTimeEventStarted){
+                bluetoothConnectedTimeEventStarted = false;
+                mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+            }
 
         }
 

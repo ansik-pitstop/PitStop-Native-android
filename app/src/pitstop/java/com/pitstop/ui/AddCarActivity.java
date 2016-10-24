@@ -61,16 +61,18 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * <p>This variable is used to keep track of if user is adding car with device.</p>
-     * <p>This variable's value is <em>written</em> when:<br>
+     * <p>This variable's value is <b>written</b> when:<br>
      * 1.When the user tap NO when being asked if he has device, the value will be false.<br>
      * 2.When the user tap YES when being asked if he has device, the value will be true.</p>
      *
-     * This variable's value is <em>read</em> in:<br>
+     * This variable's value is <b>read</b> in:<br>
      * 1.AddCarActivity and AddCarUtils, to write logs in Mixpanel<br>
      * 2.BluetoothAutoConnectService, BluetoothClassicComm and BluetoothLeComm, to determine whether if we should connect to
      * the detected IDD prefix device<br>
      */
     public static boolean addingCarWithDevice = false;
+
+    private boolean carSuccessfullyAdded = false;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -103,6 +105,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         addCarUtils = new AddCarUtils((GlobalApplication) getApplicationContext(), this);
 
+        // Mixpanel time event
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_ADD_CAR);
     }
 
     private void setupUIReferences() {
@@ -343,6 +347,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
 
         addCarUtils.cancelMashape();
+
+        if (carSuccessfullyAdded){
+            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_ADD_CAR);
+        }
+
         super.onDestroy();
     }
 
@@ -446,6 +455,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public void carSuccessfullyAdded(Car car) {
         if (!addingCar) return;
+
+        carSuccessfullyAdded = true; // At this point car is successfully added
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);

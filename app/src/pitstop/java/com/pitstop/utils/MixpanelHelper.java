@@ -25,7 +25,6 @@ public class MixpanelHelper {
     public static final String EVENT_ALERT_APPEARED = "Alert Appeared";
     public static final String EVENT_PAIR_UNRECOGNIZED_MODULE = "Pair Unrecognized Module";
 
-
     /**
      * General Button
      */
@@ -178,6 +177,24 @@ public class MixpanelHelper {
     public static final String ADD_PRESET_ISSUE_BUTTON = "Add Preset Issue";
     public static final String ADD_PRESET_ISSUE_CONFIRM = "Confirm Add Preset Issues";
     public static final String ADD_PRESET_ISSUE_CANCEL = "Cancel Add Preset Issues";
+
+    /*How long bluetooth is connected (on average)
+        How long add car takes (on average)
+        How long scan takes (on average)
+        How long app is open (on average)*/
+    /*Bluetooth Connected Time
+      Add Car Time
+      Scan Car Time
+      App Open Time
+     */
+
+    /**
+     * Time event
+     */
+    public static final String TIME_EVENT_BLUETOOTH_CONNECTED = "Bluetooth Connected Time";
+    public static final String TIME_EVENT_ADD_CAR = "Add Car Time";
+    public static final String TIME_EVENT_SCAN_CAR = "Scan Car Time";
+    public static final String TIME_EVENT_APP_OPEN = "App Open Time";
 
     private GlobalApplication application;
 
@@ -370,5 +387,14 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
     }
+
+    public void trackTimeEventStart(String timeEvent){
+        application.getMixpanelAPI().timeEvent(timeEvent);
+    }
+
+    public void trackTimeEventEnd(String timeEvent){
+        application.getMixpanelAPI().track(timeEvent);
+    }
+
 
 }
