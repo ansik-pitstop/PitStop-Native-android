@@ -178,16 +178,6 @@ public class MixpanelHelper {
     public static final String ADD_PRESET_ISSUE_CONFIRM = "Confirm Add Preset Issues";
     public static final String ADD_PRESET_ISSUE_CANCEL = "Cancel Add Preset Issues";
 
-    /*How long bluetooth is connected (on average)
-        How long add car takes (on average)
-        How long scan takes (on average)
-        How long app is open (on average)*/
-    /*Bluetooth Connected Time
-      Add Car Time
-      Scan Car Time
-      App Open Time
-     */
-
     /**
      * Time event
      */

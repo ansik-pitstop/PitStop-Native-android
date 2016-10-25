@@ -148,7 +148,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-    private boolean timeEventTrackingStarted = false;
+    private boolean scanStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -454,7 +454,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, "Starting car scan");
 
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-        timeEventTrackingStarted = true;
+        scanStarted = true;
 
         autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
@@ -644,7 +644,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     private void updateCarHealthMeter() {
-
         if (numberOfIssues >= 3) {
             arcView.addEvent(new DecoEvent.Builder(30)
                     .setIndex(seriesIndex).build());
@@ -689,7 +688,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
 
-//        if (dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
         if (dataPackageInfo.result == 5) {
             result5Retrieved = true;
             if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
@@ -718,6 +716,27 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             }
         }
 
+        // Update displayed mileage if not scanning
+        if (dataPackageInfo.result == 4 && !scanStarted) {
+            Log.d(TAG, "Receiving historical data");
+            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
+                Log.d(TAG, "Trip end flag received, Update mileage");
+                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+                baseMileage = dashboardCar.getTotalMileage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                        carMileage.setText(String.valueOf(baseMileage));
+                    }
+                });
+
+            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
+                Log.d(TAG, "Trip start flag received");
+            }
+        }
+
+
         if (!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
 
             String[] dtcs = dataPackageInfo.dtcData.split(",");
@@ -742,9 +761,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");
-                    if (timeEventTrackingStarted){
+                    if (scanStarted) {
                         mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        timeEventTrackingStarted = false;
+                        scanStarted = false;
                     }
                     handler.removeCallbacks(checkEngineIssuesRunnable);
 
@@ -789,9 +808,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         e.printStackTrace();
                     }
 
-                    if (timeEventTrackingStarted){
+                    if (scanStarted) {
                         mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        timeEventTrackingStarted = false;
+                        scanStarted = false;
                     }
 
                     break;
@@ -820,7 +839,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-    private Runnable checkEngineIssuesRunnable = new Runnable() {
+    private final Runnable checkEngineIssuesRunnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -840,7 +859,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     /**
      * This runnable is used to observe timeout on getting historical data
      */
-    private Runnable getResult5Runnable = new Runnable() {
+    private final Runnable getResult5Runnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -860,7 +879,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-    private Runnable connectCarRunnable = new Runnable() {
+    private final Runnable connectCarRunnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -918,4 +937,5 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
         super.onBackPressed();
     }
+
 }
