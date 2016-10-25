@@ -719,20 +719,34 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         // Update displayed mileage if not scanning
         if (dataPackageInfo.result == 4 && !scanStarted) {
             Log.d(TAG, "Receiving historical data");
-            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) {
+            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
                 Log.d(TAG, "Trip end flag received, Update mileage");
                 dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
                 baseMileage = dashboardCar.getTotalMileage();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+                                R.anim.mileage_update));
                         carMileage.setText(String.valueOf(baseMileage));
                     }
                 });
 
-            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) {
+            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
                 Log.d(TAG, "Trip start flag received");
+            } else{ // just display whatever you get, but not update the actual mileage
+                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()){
+                    final double newDisplayedMileage = ((int) ((baseMileage
+                            + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+                                    R.anim.mileage_update));
+                            carMileage.setText(String.valueOf(newDisplayedMileage));
+                        }
+                    });
+                }
             }
         }
 
