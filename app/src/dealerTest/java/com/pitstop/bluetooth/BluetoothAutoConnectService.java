@@ -910,6 +910,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dataSuccess = false;
         mPidSnapshots = new ArrayList<>();
         dtcsToSend = new ArrayList<>();
+        collectDataTimer.cancel();
         state = State.NONE;
     }
 }
