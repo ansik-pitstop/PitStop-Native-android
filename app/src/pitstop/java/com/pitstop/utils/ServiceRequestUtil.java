@@ -298,12 +298,7 @@ public class ServiceRequestUtil {
         }
     }
 
-<<<<<<< HEAD
     private void sendRequestWithState(final String state, final String timestamp, final String comments) {
-=======
-    private void sendRequestWithState(String state, String timestamp, String comments) {
-
->>>>>>> 05bc644... Clean up
         Log.d("Service Request", "Timestamp: " + timestamp);
         networkHelper.requestService(((GlobalApplication) context.getApplicationContext()).getCurrentUserId(), dashboardCar.getId(),
                 dashboardCar.getShopId(), state, timestamp, comments, new RequestCallback() {
