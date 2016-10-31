@@ -7,6 +7,7 @@
 
     <TextView
         android:text="Please enter your email or name and select the failures this vehicle has:"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
         android:textColor="@color/white_text"
         android:textSize="16sp"
         android:layout_margin="16dp"

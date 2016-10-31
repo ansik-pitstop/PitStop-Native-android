@@ -391,7 +391,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentDay
                                 );
 
-                                View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_clear_issue_title, null);
+                                final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
+                                ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
 
                                 datePicker.setCustomTitle(titleView);
 
@@ -792,8 +793,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_issue, parent, false);
-            ViewHolder viewHolder = new ViewHolder(v);
-            return viewHolder;
+            return new ViewHolder(v);
         }
 
         public CarIssue getItem(int position) {

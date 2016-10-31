@@ -5,11 +5,21 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -18,6 +28,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
@@ -26,12 +37,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import io.smooch.core.Smooch;
 
 /**
- * Created by Ben Wu on 2016-08-24.
+ * Created by Ben Wu on 2016-08-24. <br>
+ * This class provides two basic endpoint: <br>
+ * {@link #startBookingService(boolean chained)}, which is used to request service<br>
+ * {@link #startAddingPresetIssues(boolean chained)}, which is used to add preset issues <br>
+ *
  */
 public class ServiceRequestUtil {
 
@@ -71,14 +88,15 @@ public class ServiceRequestUtil {
         networkHelper = new NetworkHelper(context.getApplicationContext());
         mLayoutInflater = LayoutInflater.from(context);
 
-        mApplication = (GlobalApplication)context.getApplicationContext();
+        mApplication = (GlobalApplication) context.getApplicationContext();
     }
 
     /**
-     * Prompt user for service information
+     * Prompt the user to book service appointment
+     * @param chained True if this method is invoked in Add Custom Issues process, otherwise false
      */
-    public void start() {
-        askForDate(false);
+    public void startBookingService(final boolean chained) {
+        askForDate(false, chained);
     }
 
     /**
@@ -87,7 +105,7 @@ public class ServiceRequestUtil {
      *
      * @param modify prompt the user for service time if false, otherwise skip asking for time
      */
-    private void askForDate(final boolean modify) {
+    private void askForDate(final boolean modify, final boolean chained) {
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         final int currentYear = calendar.get(Calendar.YEAR);
@@ -116,7 +134,7 @@ public class ServiceRequestUtil {
                             if (modify) {
                                 updateDateSelectionView();
                             } else {
-                                askForTime(modify);
+                                askForTime(modify, chained);
                             }
                         }
                     }
@@ -129,7 +147,10 @@ public class ServiceRequestUtil {
             datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
         }
 
-        datePicker.setCustomTitle(mLayoutInflater.inflate(R.layout.service_request_dialog_date_picker_title, null));
+        final View customTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null, false);
+        ((TextView) customTitle.findViewById(R.id.custom_title_text)).setText(context.getString(R.string.service_request_dialog_date_picker_title));
+        datePicker.setCustomTitle(customTitle);
+
         datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -150,7 +171,7 @@ public class ServiceRequestUtil {
      * Update the calendar variable with selected time,
      * before this, time is by default set to current time
      */
-    private void askForTime(final boolean modify) {
+    private void askForTime(final boolean modify, final boolean chained) {
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
                 0, false);
 
@@ -170,7 +191,7 @@ public class ServiceRequestUtil {
                             if (modify) {
                                 updateTimeSelectionView();
                             } else {
-                                summaryRequest();
+                                summaryRequest(chained);
                             }
                         }
                     }
@@ -194,7 +215,9 @@ public class ServiceRequestUtil {
             timePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
         }
 
-        timePicker.setCustomTitle(mLayoutInflater.inflate(R.layout.service_request_dialog_time_picker_title, null));
+        final View customTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null, false);
+        ((TextView) customTitle.findViewById(R.id.custom_title_text)).setText(context.getString(R.string.service_request_dialog_time_picker_title));
+        timePicker.setCustomTitle(customTitle);
 
         timePicker.show();
     }
@@ -204,19 +227,14 @@ public class ServiceRequestUtil {
      * Also summary the request (date, time, comments) making it intuitive
      * After user confirms, this request will be sent
      */
-    private void summaryRequest() {
+    private void summaryRequest(final boolean chained) {
 
         final AlertDialog.Builder summaryDialogBuilder = new AlertDialog.Builder(context);
         final View view = (mLayoutInflater).inflate(R.layout.dialog_request_service_master, null);
+        final TextInputEditText commentEditText = (TextInputEditText) view.findViewById(R.id.dialog_service_request_additional_comments);
+        commentEditText.setHint(isFirstBooking ? R.string.service_request_dialog_additional_comments_hint_salesperson
+                : R.string.service_request_dialog_additional_comments_hint_comments);
 
-        if (isFirstBooking) {
-            //Prompt the user for salesman's name
-            ((EditText) view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_2);
-        } else {
-            ((EditText) view.findViewById(R.id.dialog_service_request_additional_comments)).setHint(R.string.service_request_dialog_additional_comments_hint_1);
-        }
-
-        final EditText commentEditText = (EditText) view.findViewById(R.id.dialog_service_request_additional_comments);
         dateText = (TextView) view.findViewById(R.id.dialog_service_request_date_selection);
         timeText = (TextView) view.findViewById(R.id.dialog_service_request_time_selection);
 
@@ -228,7 +246,7 @@ public class ServiceRequestUtil {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        askForDate(true);
+                        askForDate(true, false);
                     }
                 });
 
@@ -237,13 +255,17 @@ public class ServiceRequestUtil {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        askForTime(true);
+                        askForTime(true, false);
                     }
                 });
 
+        // Setup custom title
+        final View customTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null, false);
+        ((TextView) customTitle.findViewById(R.id.custom_title_text)).setText(context.getString(R.string.service_request_dialog_summary_title));
+
         //Create the summary dialog
         summaryDialogBuilder.setView(view)
-                .setCustomTitle(mLayoutInflater.inflate(R.layout.service_request_dialog_summary_title, null))
+                .setCustomTitle(customTitle)
                 .setPositiveButton("SEND", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -277,7 +299,29 @@ public class ServiceRequestUtil {
             });
         }
 
-        summaryDialogBuilder.create().show();
+        if (!chained) {
+            final View promptTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
+            ((TextView) promptTitle.findViewById(R.id.custom_title_text)).setText(R.string.add_preset_issue_dialog_title);
+            new AlertDialog.Builder(context)
+                    .setCustomTitle(promptTitle)
+                    .setMessage(context.getString(R.string.add_preset_issue_dialog_prompt_message))
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startAddingPresetIssues(true);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            summaryDialogBuilder.create().show();
+                        }
+                    })
+                    .show();
+        } else {
+            summaryDialogBuilder.create().show();
+        }
+
     }
 
     /**
@@ -310,7 +354,7 @@ public class ServiceRequestUtil {
                                 properties.put("Button", "Confirm Service Request");
                                 properties.put("View", VIEW);
                                 properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
-                                properties.put(isFirstBooking? "Salesperson": "Comments", comments);
+                                properties.put(isFirstBooking ? "Salesperson" : "Comments", comments);
                                 properties.put("Number of Services Requested", dashboardCar.getActiveIssues().size());
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
                             } catch (JSONException e) {
@@ -324,8 +368,8 @@ public class ServiceRequestUtil {
                                     networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
                                 }
                             }
-                            if (isFirstBooking){
-                                ((MainActivity)context).refreshFromServer();
+                            if (isFirstBooking) {
+                                ((MainActivity) context).refreshFromServer();
                             }
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());
@@ -379,4 +423,326 @@ public class ServiceRequestUtil {
         }
     }
 
+    /**
+     * Prompt user to request preset issues
+     * @param chained True if this method is invoked in Booking Service Appointment process,
+     *                otherwise false;
+     */
+    public void startAddingPresetIssues(final boolean chained) {
+        showAvailablePresetIssues(chained);
+    }
+
+    /**
+     * Show all available preset issues
+     */
+    private void showAvailablePresetIssues(final boolean chained) {
+        if (dashboardCar == null) return;
+
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_BUTTON, MixpanelHelper.DASHBOARD_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        View dialogList = mLayoutInflater.inflate(R.layout.dialog_add_preset_issue_list, null);
+        final View dialogTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
+        ((TextView) dialogTitle.findViewById(R.id.custom_title_text))
+                .setText(context.getString(R.string.add_preset_issue_dialog_title));
+        RecyclerView list = (RecyclerView) dialogList.findViewById(R.id.dialog_add_preset_issue_recycler_view);
+
+        final IssueAdapter adapter = new IssueAdapter();
+        list.setAdapter(adapter);
+
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        list.setLayoutManager(linearLayoutManager);
+        list.setHasFixedSize(true);
+
+        final AlertDialog requestIssueDialog = new AlertDialog.Builder(context)
+                .setCustomTitle(dialogTitle)
+                .setView(dialogList)
+                .setPositiveButton("CONFIRM", null)
+                .setNegativeButton("CANCEL", null)
+                .create();
+
+        final View serviceDialogTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
+        ((TextView) serviceDialogTitle.findViewById(R.id.custom_title_text))
+                .setText(context.getString(R.string.service_request_dialog_prompt_title));
+
+        requestIssueDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button positiveButton = requestIssueDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CONFIRM, MixpanelHelper.DASHBOARD_VIEW);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        List<CarIssuePreset> pickedIssues = adapter.getPickedIssues();
+                        if (pickedIssues.size() == 0) {
+                            Toast.makeText(context, "Please pick issues you want to add!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        StringBuilder checkedItems = new StringBuilder();
+                        for (CarIssuePreset pickedIssue : pickedIssues) {
+                            checkedItems.append(pickedIssue.getItem() + " ");
+                        }
+
+                        ((MainActivity) context).showLoading("Saving issue");
+                        networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                ((MainActivity) context).hideLoading();
+                                if (requestError == null) {
+                                    Log.d(TAG, "Success!");
+                                    ((MainActivity) context).showSimpleMessage("We have saved issues you requested!", true);
+                                    ((MainActivity) context).refreshFromServer(); // Test this
+                                    // Show dialog asking if the user want to book service appointment
+                                    if (!chained) {
+                                        new AlertDialog.Builder(context)
+                                                .setCustomTitle(serviceDialogTitle)
+                                                .setMessage(context.getString(R.string.service_request_dialog_prompt_message))
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        startBookingService(true);
+                                                    }
+                                                })
+                                                .setNegativeButton("No", null)
+                                                .show();
+                                    } else {
+                                        summaryRequest(true);
+                                    }
+                                } else {
+                                    Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
+                                            "error: " + requestError.getError());
+                                    ((MainActivity) context).showSimpleMessage("Network error, please try again later.", false);
+                                }
+                            }
+                        });
+                        requestIssueDialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        requestIssueDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                try {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        requestIssueDialog.show();
+    }
+
+    /**
+     * @param data
+     */
+    private void showDetailDialog(CarIssuePreset data) {
+        if (data == null) return;
+
+        View dialogDetail = mLayoutInflater.inflate(R.layout.dialog_add_preset_issue_detail, null);
+        final View detailTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
+        ((TextView) detailTitle.findViewById(R.id.custom_title_text))
+                .setText(context.getString(R.string.add_preset_issue_dialog_detail_title));
+
+        String title = data.getAction() + " " + data.getItem();
+        String description = data.getDescription();
+        int severity = data.getPriority();
+
+        ((TextView) dialogDetail.findViewById(R.id.dialog_preset_issue_title_text)).setText(title);
+        ((TextView) dialogDetail.findViewById(R.id.dialog_preset_issue_description)).setText(description);
+
+        RelativeLayout rLayout = (RelativeLayout) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_indicator_layout);
+        TextView severityTextView = (TextView) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_text);
+
+        switch (severity) {
+            case 1:
+                rLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_low_indicator));
+                severityTextView.setText(context.getResources().getStringArray(R.array.severity_indicators)[0]);
+                break;
+            case 2:
+                rLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_medium_indicator));
+                severityTextView.setText(context.getResources().getStringArray(R.array.severity_indicators)[1]);
+                break;
+            case 3:
+                rLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_high_indicator));
+                severityTextView.setText(context.getResources().getStringArray(R.array.severity_indicators)[2]);
+                break;
+            default:
+                rLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_critical_indicator));
+                severityTextView.setText(context.getResources().getStringArray(R.array.severity_indicators)[3]);
+                break;
+        }
+
+        final AlertDialog d = new AlertDialog.Builder(context)
+                .setCustomTitle(detailTitle)
+                .setView(dialogDetail)
+                .setPositiveButton("OK", null)
+                .create();
+
+        d.show();
+    }
+
+
+    public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHolder> {
+
+        private List<CarIssuePreset> mPresetIssues;
+
+        private List<CarIssuePreset> mPickedIssues;
+
+        private void populateContent() {
+            mPresetIssues = new ArrayList<>();
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(4)
+                    .setAction(context.getString(R.string.preset_issue_service_emergency))
+                    .setItem(context.getString(R.string.preset_issue_item_tow_truck))
+                    .setType(CarIssuePreset.TYPE_PRESET)
+                    .setDescription(context.getString(R.string.tow_truck_description))
+                    .setPriority(5).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(1)
+                    .setAction(context.getString(R.string.preset_issue_service_emergency))
+                    .setItem(context.getString(R.string.preset_issue_item_flat_tire))
+                    .setType(CarIssuePreset.TYPE_PRESET)
+                    .setDescription(context.getString(R.string.flat_tire_description))
+                    .setPriority(5).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(2)
+                    .setAction(context.getString(R.string.preset_issue_service_replace))
+                    .setItem(context.getString(R.string.preset_issue_item_engine_oil_filter))
+                    .setType(CarIssuePreset.TYPE_PRESET)
+                    .setDescription(context.getString(R.string.engine_oil_filter_description))
+                    .setPriority(3).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(3)
+                    .setAction(context.getString(R.string.preset_issue_service_replace))
+                    .setItem(context.getString(R.string.preset_issue_item_wipers_fluids))
+                    .setType(CarIssuePreset.TYPE_PRESET)
+                    .setDescription(context.getString(R.string.wipers_fluids_description))
+                    .setPriority(2).build());
+            mPresetIssues.add(new CarIssuePreset.Builder()
+                    .setId(5)
+                    .setAction(context.getString(R.string.preset_issue_service_request))
+                    .setItem(context.getString(R.string.preset_issue_item_shuttle_service))
+                    .setType(CarIssuePreset.TYPE_PRESET)
+                    .setDescription(context.getString(R.string.shuttle_service_description))
+                    .setPriority(3).build());
+        }
+
+        public IssueAdapter() {
+            populateContent();
+            mPickedIssues = new ArrayList<>();
+        }
+
+        @Override
+        public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.activity_add_preset_issue_item, parent, false);
+            return new IssueViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final IssueViewHolder holder, final int position) {
+            final CarIssuePreset presetIssue = mPresetIssues.get(position);
+
+            holder.description.setText(presetIssue.getDescription());
+            holder.description.setEllipsize(TextUtils.TruncateAt.END);
+            holder.title.setText(String.format("%s %s", presetIssue.getAction(), presetIssue.getItem()));
+
+            holder.container.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        showDetailDialog(presetIssue);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
+                                MixpanelHelper.DASHBOARD_VIEW);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        mPickedIssues.add(presetIssue);
+                    } else if (mPickedIssues.contains(presetIssue)) {
+                        mPickedIssues.remove(presetIssue);
+                    }
+
+                    try {
+                        String check = isChecked ? "Checked: " : "Unchecked: ";
+                        mixpanelHelper.trackButtonTapped(check + presetIssue.getAction() + " " + presetIssue.getItem(),
+                                MixpanelHelper.DASHBOARD_VIEW);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+            switch (presetIssue.getId()) {
+                case 1:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flat_tire_severe));
+                    break;
+                case 2:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_replace_orange_48px));
+                    break;
+                case 3:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_replace_yellow_48px));
+                    break;
+                case 4:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_tow_truck_severe));
+                    break;
+                case 5:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.preset_service_medium));
+                    break;
+                default:
+                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.preset_service_medium));
+                    break;
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mPresetIssues.size();
+        }
+
+        public List<CarIssuePreset> getPickedIssues() {
+            return mPickedIssues;
+        }
+
+        public class IssueViewHolder extends RecyclerView.ViewHolder {
+            public TextView title;
+            public TextView description;
+            public ImageView imageView;
+            public CheckBox checkBox;
+            public View container;
+
+            public IssueViewHolder(View itemView) {
+                super(itemView);
+                checkBox = (CheckBox) itemView.findViewById(R.id.dialog_preset_issue_list_checkbox);
+                title = (TextView) itemView.findViewById(R.id.title);
+                description = (TextView) itemView.findViewById(R.id.description);
+                imageView = (ImageView) itemView.findViewById(R.id.image_icon);
+                container = itemView.findViewById(R.id.list_car_item);
+            }
+        }
+    }
 }

@@ -254,7 +254,8 @@ public class AddPresetIssueActivity extends AppCompatActivity {
      */
     private void showDetailDialog(final CarIssuePreset pickedCarIssue) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail, null);
-        View titleView = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
+        final View titleView = getLayoutInflater().inflate(R.layout.dialog_custom_title_primary_dark, null);
+        ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(getString(R.string.add_preset_issue_dialog_title));
         RelativeLayout severityIndicatorLayout = (RelativeLayout) dialogView.findViewById(R.id.dialog_preset_issue_severity_indicator_layout);
         TextView severityTextView = (TextView) dialogView.findViewById(R.id.dialog_preset_issue_severity_text);
         String title = pickedCarIssue.getAction() + " " + pickedCarIssue.getItem();

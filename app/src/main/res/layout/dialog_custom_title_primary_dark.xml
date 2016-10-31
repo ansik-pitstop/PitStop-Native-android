@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/custom_background_layout"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
     <TextView
-        android:text="@string/service_request_dialog_date_picker_title"
+        android:id="@+id/custom_title_text"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
         android:textColor="@color/white_text"
         android:textAlignment="center"
         android:textSize="@dimen/text_size_ordinary"
