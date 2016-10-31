@@ -1,12 +1,12 @@
 package com.pitstop.utils;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -32,6 +32,7 @@ import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.mainFragments.AnimatedDialogBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -229,7 +230,7 @@ public class ServiceRequestUtil {
      */
     private void summaryRequest(final boolean chained) {
 
-        final AlertDialog.Builder summaryDialogBuilder = new AlertDialog.Builder(context);
+        final AnimatedDialogBuilder summaryDialogBuilder = new AnimatedDialogBuilder(context);
         final View view = (mLayoutInflater).inflate(R.layout.dialog_request_service_master, null);
         final TextInputEditText commentEditText = (TextInputEditText) view.findViewById(R.id.dialog_service_request_additional_comments);
         commentEditText.setHint(isFirstBooking ? R.string.service_request_dialog_additional_comments_hint_salesperson
@@ -302,7 +303,7 @@ public class ServiceRequestUtil {
         if (!chained) {
             final View promptTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
             ((TextView) promptTitle.findViewById(R.id.custom_title_text)).setText(R.string.add_preset_issue_dialog_title);
-            new AlertDialog.Builder(context)
+            new AnimatedDialogBuilder(context)
                     .setCustomTitle(promptTitle)
                     .setMessage(context.getString(R.string.add_preset_issue_dialog_prompt_message))
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -391,6 +392,7 @@ public class ServiceRequestUtil {
         public LimitedTimePicker(Context context, OnTimeSetListener listener,
                                  int hourOfDay, int minute, boolean is24HourView) {
             super(context, listener, hourOfDay, minute, is24HourView);
+            this.getWindow().getAttributes().windowAnimations = R.style.DialogAnimations_slide;
         }
 
         @Override
@@ -412,6 +414,7 @@ public class ServiceRequestUtil {
             selectedYear = year;
             selectedMonth = month;
             selectedDay = day;
+            this.getWindow().getAttributes().windowAnimations = R.style.DialogAnimations_slide;
         }
 
         @Override
@@ -421,6 +424,7 @@ public class ServiceRequestUtil {
             selectedMonth = month;
             selectedYear = year;
         }
+
     }
 
     /**
@@ -458,7 +462,8 @@ public class ServiceRequestUtil {
         list.setLayoutManager(linearLayoutManager);
         list.setHasFixedSize(true);
 
-        final AlertDialog requestIssueDialog = new AlertDialog.Builder(context)
+        final AlertDialog requestIssueDialog = new AnimatedDialogBuilder(context)
+                .setAnimation(chained ? AnimatedDialogBuilder.ANIMATION_SLIDE_RIGHT_TO_LEFT : AnimatedDialogBuilder.ANIMATION_GROW)
                 .setCustomTitle(dialogTitle)
                 .setView(dialogList)
                 .setPositiveButton("CONFIRM", null)
@@ -504,7 +509,7 @@ public class ServiceRequestUtil {
                                     ((MainActivity) context).refreshFromServer(); // Test this
                                     // Show dialog asking if the user want to book service appointment
                                     if (!chained) {
-                                        new AlertDialog.Builder(context)
+                                        new AnimatedDialogBuilder(context)
                                                 .setCustomTitle(serviceDialogTitle)
                                                 .setMessage(context.getString(R.string.service_request_dialog_prompt_message))
                                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -525,6 +530,16 @@ public class ServiceRequestUtil {
                                 }
                             }
                         });
+                        requestIssueDialog.dismiss();
+                    }
+                });
+                Button negativeButton = requestIssueDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+                negativeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (chained){
+                            summaryRequest(true);
+                        }
                         requestIssueDialog.dismiss();
                     }
                 });
@@ -585,7 +600,8 @@ public class ServiceRequestUtil {
                 break;
         }
 
-        final AlertDialog d = new AlertDialog.Builder(context)
+        final AlertDialog d = new AnimatedDialogBuilder(context)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setCustomTitle(detailTitle)
                 .setView(dialogDetail)
                 .setPositiveButton("OK", null)

@@ -57,4 +57,17 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="DialogAnimations"/>
+
+    <style name="DialogAnimations.slide">
+        <item name="@android:windowEnterAnimation">@anim/dialog_slide_in_right</item>
+        <item name="@android:windowExitAnimation">@anim/dialog_slide_out_left</item>
+    </style>
+
+    <style name="DialogAnimations.grow">
+        <item name="@android:windowEnterAnimation">@anim/dialog_grow_in</item>
+        <item name="@android:windowExitAnimation">@anim/dialog_grow_out</item>
+    </style>
+
 </resources>

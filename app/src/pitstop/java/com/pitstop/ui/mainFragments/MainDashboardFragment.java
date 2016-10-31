@@ -390,6 +390,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentMonth,
                                         currentDay
                                 );
+                                datePicker.getWindow().getAttributes().windowAnimations = AnimatedDialogBuilder.ANIMATION_GROW;
 
                                 final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
                                 ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
@@ -540,7 +541,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
             final LocalScannerAdapter scannerAdapter = MainActivity.scannerLocalStore;
 
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            AnimatedDialogBuilder dialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
             dialog.setCancelable(false)
                     .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
                     .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
