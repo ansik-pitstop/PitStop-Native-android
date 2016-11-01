@@ -36,14 +36,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 /**
- * Created by Paul Soladoye on 12/04/2016.
+ * Created by Ben!
  */
 
-
-/**
- * Manage LE connection and data communication with a GATT server hosted on a
- * given Bluetooth LE device.
- */
 public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListener {
 
     private Context mContext;
@@ -144,7 +139,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private void writeToObd(String payload) {
         if(communicator == null) {
-            Log.w(TAG, "Try to write with null communicator");
             return;
         }
 
