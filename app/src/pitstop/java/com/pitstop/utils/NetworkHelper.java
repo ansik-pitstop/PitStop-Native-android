@@ -135,6 +135,20 @@ public class NetworkHelper {
         post("car", callback, body);
     }
 
+    public void deleteUserCar(int carId, RequestCallback callback){
+        LOGI(TAG, "Delete car: " + carId);
+
+        JSONObject body = new JSONObject();
+        try{
+            body.put("userId", 0);
+            body.put("carId", carId);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        put("car", callback, body);
+    }
+
     public void getCarsByUserId(int userId, RequestCallback callback) {
         LOGI(TAG, "getCarsByUserId: " + userId);
         get("car/?userId=" + userId, callback);
@@ -715,5 +729,6 @@ public class NetworkHelper {
         LOGI(TAG, "validate scanner id: " + scannerId);
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
+
 
 }

@@ -209,4 +209,12 @@ public class LocalCarAdapter {
 
         db.close();
     }
+
+    public void deleteCar(Car car){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+                new String[]{String.valueOf(car.getId())});
+        db.close();
+    }
+
 }
