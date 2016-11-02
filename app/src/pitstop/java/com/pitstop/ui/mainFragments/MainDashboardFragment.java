@@ -242,10 +242,11 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         carIssuesAdapter = new CustomAdapter(carIssueList);
 
         // Local db adapters
-        carLocalStore = MainActivity.carLocalStore;
-        carIssueLocalStore = MainActivity.carIssueLocalStore;
-        shopLocalStore = MainActivity.shopLocalStore;
-        scannerLocalStore = MainActivity.scannerLocalStore;
+        carLocalStore = new LocalCarAdapter(getActivity());
+        carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
+        shopLocalStore = new LocalShopAdapter(getActivity());
+        scannerLocalStore = new LocalScannerAdapter(getActivity());
+
         MainActivity.callback = this;
     }
 
@@ -539,7 +540,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
-            final LocalScannerAdapter scannerAdapter = MainActivity.scannerLocalStore;
 
             AnimatedDialogBuilder dialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
@@ -563,7 +563,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             ((MainActivity) getActivity()).showCancelableLoading("Hold on, we are thinking..");
 
                             // At this point, check if the picked car has scanner;
-                            if (scannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
+                            if (scannerLocalStore.carHasDevice(selectedCar.get(0).getId())) {
                                 // If yes, notify the user that this car has scanner;
                                 Log.d(TAG, "Picked car already has device linked to it");
                                 Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();

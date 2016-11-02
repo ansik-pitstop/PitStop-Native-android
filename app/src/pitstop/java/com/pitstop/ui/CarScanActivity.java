@@ -1,5 +1,6 @@
 package com.pitstop.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -52,6 +54,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.mainFragments.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -129,12 +132,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             autoConnectService.setCallbacks(CarScanActivity.this); // register
 
             if (BluetoothAdapter.getDefaultAdapter() != null) {
-
-                if (ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
-                } else {
-                    //autoConnectService.startBluetoothSearch();
+                String [] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+                for (String permission: locationPermissions){
+                    if (ContextCompat.checkSelfPermission(CarScanActivity.this, permission) != PackageManager.PERMISSION_GRANTED){
+                        requestPermission(CarScanActivity.this, locationPermissions,
+                                MainActivity.RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
+                        break;
+                    }
                 }
             }
         }
@@ -939,6 +943,25 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         })
                         .show();
             }
+        }
+    }
+
+    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                   final boolean needDescription, @Nullable final String message){
+        if (needDescription){
+            new AnimatedDialogBuilder(activity)
+                    .setCancelable(false)
+                    .setTitle("Request Permissions")
+                    .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
+                    .setNegativeButton("", null)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(activity, permissions, requestCode);
         }
     }
 

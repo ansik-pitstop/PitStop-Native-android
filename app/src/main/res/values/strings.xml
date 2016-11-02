@@ -118,5 +118,12 @@
     <string name="start_dialog_connect_description">Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running.</string>
     <string name="add_preset_issue_dialog_detail_title">Detail</string>
 
+    <string-array name="permissions_location">
+        <item>android.permission.ACCESS_FINE_LOCATION</item>
+        <item>android.permission.ACCESS_COARSE_LOCATION</item>
+    </string-array>
+
+    <string name="request_permission_message_default">Please grant our permission requests to allow Pitstop app to function.</string>
+    <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device, we need the permission to access your location. We will not actually use or share your location with others.</string>
 
 </resources>

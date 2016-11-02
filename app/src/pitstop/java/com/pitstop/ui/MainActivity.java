@@ -1,11 +1,13 @@
 package com.pitstop.ui;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -65,6 +68,7 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.mainFragments.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
@@ -129,13 +133,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
-
-                if (ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
-                } else {
-                    autoConnectService.startBluetoothSearch();
+                final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+                for (String permission : locationPermissions) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermission(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
+                    }
+                    return;
                 }
+                autoConnectService.startBluetoothSearch();
             }
         }
 
@@ -154,10 +159,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private Car dashboardCar;
 
     // Database accesses
-    public static LocalCarAdapter carLocalStore;
-    public static LocalCarIssueAdapter carIssueLocalStore;
-    public static LocalShopAdapter shopLocalStore;
-    public static LocalScannerAdapter scannerLocalStore;
+    private LocalCarAdapter carLocalStore;
+    private LocalCarIssueAdapter carIssueLocalStore;
+    private LocalShopAdapter shopLocalStore;
+    private LocalScannerAdapter scannerLocalStore;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
@@ -537,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
                     if (carList.size() == 0) {
@@ -552,9 +557,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         refreshFromServer();
                     }
                 } else {
-                    try{
+                    try {
                         mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
@@ -570,8 +575,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-            } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK){
-                if (shouldRefreshFromServer){
+            } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK) {
+                if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
             }
@@ -951,18 +956,18 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
-    public void showCancelableLoading(String message){
-        if (cancelableProgressDialog == null){
+    public void showCancelableLoading(String message) {
+        if (cancelableProgressDialog == null) {
             return;
         }
         cancelableProgressDialog.setMessage(message);
-        if (!cancelableProgressDialog.isShowing()){
+        if (!cancelableProgressDialog.isShowing()) {
             cancelableProgressDialog.show();
         }
     }
 
-    public void hideCancelableLoading(){
-        if (cancelableProgressDialog != null){
+    public void hideCancelableLoading() {
+        if (cancelableProgressDialog != null) {
             cancelableProgressDialog.dismiss();
         } else {
             cancelableProgressDialog = new ProgressDialog(this);
@@ -1046,6 +1051,33 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         })
                         .show();
             }
+        }
+    }
+
+    /**
+     * Request permission with custom message dialog
+     * @param activity
+     * @param permissions
+     * @param requestCode
+     * @param needDescription
+     * @param message
+     */
+    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                   final boolean needDescription, @Nullable final String message) {
+        if (needDescription) {
+            new AnimatedDialogBuilder(activity)
+                    .setCancelable(false)
+                    .setTitle("Request Permissions")
+                    .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
+                    .setNegativeButton("", null)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(activity, permissions, requestCode);
         }
     }
 
@@ -1253,10 +1285,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param button
      */
     public void addPresetIssues(View button) {
-        try{
+        try {
             mixpanelHelper.trackButtonTapped("Add Custom Issues",
                     viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1508,9 +1540,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void selectCarForUnrecognizedModule();
     }
 
-    private void logScannerTable(){
+    private void logScannerTable() {
         List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
-        for (ObdScanner scanner: scanners){
+        for (ObdScanner scanner : scanners) {
             Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
             Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
             Log.d(TAG, "Car ID: " + scanner.getCarId());
