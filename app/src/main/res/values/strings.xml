@@ -107,7 +107,7 @@
     <string name="preset_issue_item_engine_oil_filter">Engine Oil &amp; Filter</string>
     <string name="preset_issue_item_wipers_fluids">Wipers/Fluids</string>
     <string name="preset_issue_item_shuttle_service">Shuttle Service</string>
-    <string name="add_preset_issue_dialog_prompt_message">Do you want to add custom service in addition to what are already in your dashboard?</string>
+    <string name="add_preset_issue_dialog_prompt_message">Do you want to add more services in addition to the services already in your dashboard?</string>
 
     <!--clear issue dialog-->
     <string name="dialog_clear_issue_title">When was this service completed?</string>

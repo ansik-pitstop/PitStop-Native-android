@@ -331,11 +331,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onPause() {
         ((GlobalApplication) getApplicationContext()).getMixpanelAPI().flush();
 
-<<<<<<< HEAD
         unregisterBluetoothReceiver();
-=======
-        unregisterReceiver(bluetoothReceiver);
->>>>>>> 17c1afa... [Main app] Modify Add Car process according to changes made in Delete Car.
 
         addingCar = false;
 
@@ -458,13 +454,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         registerReceiver(bluetoothReceiver, filter);
     }
 
-<<<<<<< HEAD
     private void unregisterBluetoothReceiver(){
         unregisterReceiver(bluetoothReceiver);
     }
 
-=======
->>>>>>> 17c1afa... [Main app] Modify Add Car process according to changes made in Delete Car.
     /**
      * From AddCarUtils.AddCarUtilsCallback
      */
