@@ -32,7 +32,6 @@ import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.mainFragments.AnimatedDialogBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -392,7 +391,11 @@ public class ServiceRequestUtil {
         public LimitedTimePicker(Context context, OnTimeSetListener listener,
                                  int hourOfDay, int minute, boolean is24HourView) {
             super(context, listener, hourOfDay, minute, is24HourView);
-            this.getWindow().getAttributes().windowAnimations = R.style.DialogAnimations_slide;
+            try{
+                this.getWindow().setWindowAnimations(R.style.DialogAnimations_slide);
+            } catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -414,7 +417,11 @@ public class ServiceRequestUtil {
             selectedYear = year;
             selectedMonth = month;
             selectedDay = day;
-            this.getWindow().getAttributes().windowAnimations = R.style.DialogAnimations_slide;
+            try{
+                this.getWindow().setWindowAnimations(R.style.DialogAnimations_slide);
+            } catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -493,11 +500,6 @@ public class ServiceRequestUtil {
                             return;
                         }
 
-                        StringBuilder checkedItems = new StringBuilder();
-                        for (CarIssuePreset pickedIssue : pickedIssues) {
-                            checkedItems.append(pickedIssue.getItem() + " ");
-                        }
-
                         ((MainActivity) context).showLoading("Saving issue");
                         networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
                             @Override
@@ -561,7 +563,7 @@ public class ServiceRequestUtil {
     }
 
     /**
-     * @param data
+     * @param data Chosen preset issue
      */
     private void showDetailDialog(CarIssuePreset data) {
         if (data == null) return;

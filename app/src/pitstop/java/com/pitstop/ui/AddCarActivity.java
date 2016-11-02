@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -64,7 +65,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
      * <p>This variable's value is <b>written</b> when:<br>
      * 1.When the user tap NO when being asked if he has device, the value will be false.<br>
      * 2.When the user tap YES when being asked if he has device, the value will be true.</p>
-     *
+     * <p>
      * This variable's value is <b>read</b> in:<br>
      * 1.AddCarActivity and AddCarUtils, to write logs in Mixpanel<br>
      * 2.BluetoothAutoConnectService, BluetoothClassicComm and BluetoothLeComm, to determine whether if we should connect to
@@ -127,8 +128,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
 
-
-
         } else {
             // Otherwise, select the previous step.
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
@@ -144,7 +143,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the user tapped the "SELECT DEALERSHIP" in step 3
-     * @param view
+     *
+     * @param view Select dealership button in Step 3
      */
     public void selectDealershipClicked(View view) {
         Fragment fragment = mPagerAdapter.getItem(2);
@@ -156,7 +156,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             }
 
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
-            addCarUtils.addCarToServer(null);
+            addCarUtils.saveCarToServer();
 
             try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();
@@ -172,6 +172,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the user tapped the "Yes" in step 1
+     *
      * @param view The "Yes" button
      */
     public void yesDongleClicked(View view) {
@@ -192,6 +193,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the user tapped the "No" in step 1
+     *
      * @param view The "No" button
      */
     public void noDongleClicked(View view) {
@@ -212,23 +214,23 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     /**
      * Invoked when the "SEARCH FOR VEHICLE" or "Add Vehicle" button is tapped in the second step of the add car process
      *
-     *
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
     public void searchForCar(View view) {
 
-        try{ // Log in Mixpanel
+        try { // Log in Mixpanel
             JSONObject properties = new JSONObject();
             properties.put("Button", addingCarWithDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
             properties.put("View", MixpanelHelper.ADD_CAR_VIEW);
             properties.put("Method of Adding Car", addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // If in the AddCar2NoDongleFragment
-        if (mPagerAdapter.getItem(1) != null && mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
+        if (mPagerAdapter.getItem(1) == null) return;
+
+        if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) { // If in the AddCar2NoDongleFragment
             EditText vinEditText = (EditText) findViewById(R.id.VIN);
             addCarUtils.setVin(vinEditText.getText().toString());
             if (addCarUtils.isValidVin()) {
@@ -247,8 +249,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             } else {
                 hideLoading("Invalid VIN");
             }
-            // Otherwise, if the user is in the AddCar2YesDongleFragment
-        } else if (mPagerAdapter.getItem(1) != null) {
+        } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
@@ -278,6 +279,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the "Scan VIN Barcode" button is tapped
+     *
      * @param view the "Scan VIN Barcode" button
      */
     public void startScanner(View view) {
@@ -315,6 +317,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
 
+        registerBluetoothReceiver();
+
         addingCar = true;
 
         // The result is by default cancelled
@@ -327,11 +331,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onPause() {
         ((GlobalApplication) getApplicationContext()).getMixpanelAPI().flush();
 
-        try {
-            unregisterReceiver(bluetoothReceiver);
-        } catch (Exception e) {
+<<<<<<< HEAD
+        unregisterBluetoothReceiver();
+=======
+        unregisterReceiver(bluetoothReceiver);
+>>>>>>> 17c1afa... [Main app] Modify Add Car process according to changes made in Delete Car.
 
-        }
         addingCar = false;
 
         //hideLoading();
@@ -342,13 +347,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onDestroy() {
         hideLoading(null);
 
+        addingCarWithDevice = false;
+
         if (serviceIsBound) {
             addCarUtils.unbindService();
         }
 
         addCarUtils.cancelMashape();
 
-        if (carSuccessfullyAdded){
+        if (carSuccessfullyAdded) {
             mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_ADD_CAR);
         }
 
@@ -382,8 +389,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                         ((EditText) vinField).setText(VIN);
                     }
                     Log.i(TAG, "Barcode read: " + VIN);
-                    if (AddCarUtils.isValidVin(VIN)) {
-                    } else {
+                    if (!AddCarUtils.isValidVin(VIN)){
                         Toast.makeText(AddCarActivity.this, "Invalid VIN", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -446,8 +452,19 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     }
 
+    private void registerBluetoothReceiver(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(bluetoothReceiver, filter);
+    }
 
+<<<<<<< HEAD
+    private void unregisterBluetoothReceiver(){
+        unregisterReceiver(bluetoothReceiver);
+    }
 
+=======
+>>>>>>> 17c1afa... [Main app] Modify Add Car process according to changes made in Delete Car.
     /**
      * From AddCarUtils.AddCarUtilsCallback
      */
@@ -540,6 +557,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void postMileageInput() {
+        // After the user entered the mileage, search for car and get Vin
+        addCarUtils.searchAndGetVin();
+    }
+
+    @Override
+    public void askForDealership() {
         if (!addingCar) return;
 
         mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
@@ -554,7 +577,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
-
 
 
 }

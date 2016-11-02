@@ -1,6 +1,5 @@
 package com.pitstop.ui.mainFragments;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -56,6 +55,7 @@ import com.pitstop.ui.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -66,7 +66,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -300,10 +299,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
 
-//        Request Service Button
         requestServiceButton = (Button) rootview.findViewById(R.id.dashboard_request_service_btn);
 
-//        Add Preset Issues Button
         addPresetIssuesButton = (FloatingActionButton) rootview.findViewById(R.id.add_preset_issues);
     }
 
@@ -835,20 +832,20 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.description.setText(carIssue.getDescription());
                 holder.description.setEllipsize(TextUtils.TruncateAt.END);
                 if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                    holder.imageView.setImageDrawable(getResources()
-                            .getDrawable(R.drawable.ic_error_red_600_24dp));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.ic_error_red_600_24dp));
 
                 } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.imageView.setImageDrawable(getResources().
-                            getDrawable(R.drawable.car_engine_red));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.car_engine_red));
 
                 } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                    holder.imageView.setImageDrawable(getResources().
-                            getDrawable(R.drawable.car_engine_yellow));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.car_engine_yellow));
                 } else {
                     holder.description.setText(carIssue.getDescription());
-                    holder.imageView.setImageDrawable(getResources()
-                            .getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.ic_warning_amber_300_24dp));
                 }
 
                 holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));

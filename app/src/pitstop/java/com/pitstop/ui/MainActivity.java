@@ -68,7 +68,7 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.ui.mainFragments.AnimatedDialogBuilder;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
@@ -133,12 +133,23 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
+<<<<<<< HEAD
+<<<<<<< HEAD
                 final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
                 for (String permission : locationPermissions) {
                     if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
                         requestPermission(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
                     }
                     return;
+=======
+=======
+>>>>>>> 17c1afa... [Main app] Modify Add Car process according to changes made in Delete Car.
+                if (ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
+                } else {
+                    autoConnectService.startBluetoothSearch();
+>>>>>>> 9c2a9bb... [Main app] Modify Add Car process according to changes made in Delete Car.
                 }
                 autoConnectService.startBluetoothSearch();
             }

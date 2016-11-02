@@ -1,4 +1,4 @@
-package com.pitstop.ui.mainFragments;
+package com.pitstop.utils;
 
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
@@ -9,9 +9,8 @@ import android.widget.TextView;
 import com.pitstop.R;
 
 /**
- * Created by yifan on 16/10/31.
+ * Dialog with blue custom title (default) and animations.
  */
-
 public class AnimatedDialogBuilder extends AlertDialog.Builder{
 
     public static final int ANIMATION_SLIDE_RIGHT_TO_LEFT = R.style.DialogAnimations_slide;
@@ -43,14 +42,22 @@ public class AnimatedDialogBuilder extends AlertDialog.Builder{
             setCustomTitle(customTitle);
         }
         AlertDialog dialog = super.create();
-        dialog.getWindow().getAttributes().windowAnimations = animation;
+        try{
+            dialog.getWindow().setWindowAnimations(animation);
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
         return dialog;
     }
 
     @Override
     public AlertDialog show() {
         AlertDialog dialog = super.show();
-        dialog.getWindow().getAttributes().windowAnimations = animation;
+        try{
+            dialog.getWindow().setWindowAnimations(animation);
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
         return dialog;
     }
 }

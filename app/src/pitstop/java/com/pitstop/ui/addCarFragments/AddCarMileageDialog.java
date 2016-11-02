@@ -14,7 +14,7 @@ import android.widget.EditText;
 import com.pitstop.R;
 
 /**
- * Created by david on 7/21/2016.
+ * Mileage input dialog in AddCarActivity
  */
 public class AddCarMileageDialog extends DialogFragment {
 
@@ -44,7 +44,6 @@ public class AddCarMileageDialog extends DialogFragment {
         d.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-
                 mileageEditText.requestFocus();
                 InputMethodManager imm = (InputMethodManager) utils.callback.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
