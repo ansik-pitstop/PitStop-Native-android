@@ -485,8 +485,8 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     json.put("firstName", firstName.getText().toString());
                     json.put("lastName", lastName.getText().toString());
-                    json.put("email", email.getText().toString().replace(" ", ""));
-                    json.put("username", email.getText().toString().replace(" ", ""));
+                    json.put("email", email.getText().toString().replace(" ", "").toLowerCase());
+                    json.put("username", email.getText().toString().replace(" ", "").toLowerCase());
                     json.put("phone", phoneNumber.getText().toString());
                     json.put("password", password.getText().toString());
                     json.put("isSocial", false);
@@ -511,7 +511,7 @@ public class LoginActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            login(email.getText().toString(), password.getText().toString());
+                            login(email.getText().toString().toLowerCase(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
                             Toast.makeText(LoginActivity.this, "This email is already in use", Toast.LENGTH_SHORT).show();

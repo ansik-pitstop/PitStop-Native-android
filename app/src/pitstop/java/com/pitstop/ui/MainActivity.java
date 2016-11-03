@@ -586,6 +586,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         }
 
                         Smooch.track("User Logged In");
+
+                        prepareAndStartTutorialSequence();
                     }
                     if (shouldRefreshFromServer) {
                         refreshFromServer();

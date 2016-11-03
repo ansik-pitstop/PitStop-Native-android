@@ -139,13 +139,30 @@ public class ServiceRequestUtil {
                         }
                     }
                 });
+
+                if (isFirstBooking){
+                    datePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AnimatedDialogBuilder(context)
+                                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                                    .setTitle(context.getString(R.string.first_service_booking_cancel_title))
+                                    .setMessage(context.getString(R.string.first_service_booking_cancel_message))
+                                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            datePicker.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+                }
             }
         });
 
-        if (isFirstBooking) {
-            datePicker.setCancelable(false);
-            datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
-        }
 
         final View customTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null, false);
         ((TextView) customTitle.findViewById(R.id.custom_title_text)).setText(context.getString(R.string.service_request_dialog_date_picker_title));
@@ -196,6 +213,26 @@ public class ServiceRequestUtil {
                         }
                     }
                 });
+                if (isFirstBooking){
+                    timePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AnimatedDialogBuilder(context)
+                                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                                    .setTitle(context.getString(R.string.first_service_booking_cancel_title))
+                                    .setMessage(context.getString(R.string.first_service_booking_cancel_message))
+                                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            timePicker.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+                }
             }
         });
 
@@ -209,11 +246,6 @@ public class ServiceRequestUtil {
                 }
             }
         });
-
-        if (isFirstBooking) {
-            timePicker.setCancelable(false);
-            timePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "", (DialogInterface.OnClickListener) null);
-        }
 
         final View customTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null, false);
         ((TextView) customTitle.findViewById(R.id.custom_title_text)).setText(context.getString(R.string.service_request_dialog_time_picker_title));
@@ -279,25 +311,48 @@ public class ServiceRequestUtil {
                             sendRequestWithState(STATE_REQUESTED, timestamp, comments);
                         }
                     }
-                });
+                }).setNegativeButton("CANCEL", null);
 
-        if (isFirstBooking) {
-            summaryDialogBuilder.setCancelable(false)
-                    .setNegativeButton("", null);
-        } else {
-            summaryDialogBuilder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(context, "Service Request Cancelled", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
+        final AlertDialog summaryDialog = summaryDialogBuilder.create();
+
+        summaryDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                if (isFirstBooking) {
+                    summaryDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AnimatedDialogBuilder(context)
+                                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                                    .setTitle(context.getString(R.string.first_service_booking_cancel_title))
+                                    .setMessage(context.getString(R.string.first_service_booking_cancel_message))
+                                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                            summaryDialog.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+                } else {
+                    summaryDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                mixpanelHelper.trackButtonTapped("Cancel Request Service", VIEW);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Toast.makeText(context, "Service Request Cancelled", Toast.LENGTH_SHORT).show();
+                            summaryDialog.dismiss();
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
 
         if (!chained) {
             final View promptTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
@@ -314,12 +369,12 @@ public class ServiceRequestUtil {
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            summaryDialogBuilder.create().show();
+                            summaryDialog.show();
                         }
                     })
                     .show();
         } else {
-            summaryDialogBuilder.create().show();
+            summaryDialog.show();
         }
 
     }
