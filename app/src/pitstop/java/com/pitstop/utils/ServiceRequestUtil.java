@@ -190,7 +190,7 @@ public class ServiceRequestUtil {
      */
     private void askForTime(final boolean modify, final boolean chained) {
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
-                0, false);
+                LimitedTimePicker.MIN_MINUTE, false);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -198,9 +198,8 @@ public class ServiceRequestUtil {
                 timePicker.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (timePicker.selectedHour < LimitedTimePicker.MIN_HOUR || timePicker.selectedHour > LimitedTimePicker.MAX_HOUR
-                                || (timePicker.selectedHour == LimitedTimePicker.MAX_HOUR && timePicker.selectedMinute != 0)) {
-                            Toast.makeText(context, "Please choose a time between 9:00 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
+                        if (!timePicker.isValidTime(timePicker.selectedHour, timePicker.selectedMinute)) {
+                            Toast.makeText(context, "Please choose a time between 7:30 AM and 5:00 PM", Toast.LENGTH_SHORT).show();
                         } else {
                             calendar.set(Calendar.HOUR_OF_DAY, timePicker.selectedHour);
                             calendar.set(Calendar.MINUTE, timePicker.selectedMinute);
@@ -438,14 +437,19 @@ public class ServiceRequestUtil {
 
     private class LimitedTimePicker extends TimePickerDialog {
 
-        public static final int MAX_HOUR = 17;
-        public static final int MIN_HOUR = 9;
+        static final int MAX_HOUR = 17;
+        static final int MAX_MINUTE = 0;
+        static final int MAX_TIME = MAX_HOUR * 60 + MAX_MINUTE;
 
-        int selectedHour = 9;
-        int selectedMinute = 0;
+        static final int MIN_HOUR = 7;
+        static final int MIN_MINUTE = 30;
+        static final int MIN_TIME = MIN_HOUR * 60 + MIN_MINUTE;
 
-        public LimitedTimePicker(Context context, OnTimeSetListener listener,
-                                 int hourOfDay, int minute, boolean is24HourView) {
+        int selectedHour = 7;
+        int selectedMinute = 30;
+
+        LimitedTimePicker(Context context, OnTimeSetListener listener,
+                          int hourOfDay, int minute, boolean is24HourView) {
             super(context, listener, hourOfDay, minute, is24HourView);
             try{
                 this.getWindow().setWindowAnimations(R.style.DialogAnimations_slide);
@@ -461,6 +465,19 @@ public class ServiceRequestUtil {
             selectedHour = hourOfDay;
             selectedMinute = minute;
         }
+
+        /**
+         * @param hour selected hour
+         * @param minute selected minute
+         * @return true if valid
+         */
+        boolean isValidTime(int hour, int minute){
+            int time = hour * 60 + minute;
+            Log.d(TAG, "Selected time: " + time);
+            Log.d(TAG, "Max: " + MAX_TIME);
+            Log.d(TAG, "Min: " + MIN_TIME);
+            return time >= MIN_TIME && time <= MAX_TIME;
+        }
     }
 
     private class LimitedDatePicker extends DatePickerDialog {
@@ -468,7 +485,7 @@ public class ServiceRequestUtil {
         int selectedMonth = 0;
         int selectedDay = 0;
 
-        public LimitedDatePicker(int day, int month, int year) {
+        LimitedDatePicker(int day, int month, int year) {
             super(context, null, year, month, year);
             selectedYear = year;
             selectedMonth = month;

@@ -88,7 +88,7 @@
     <string name="first_service_booking_2">Pitstop has calculated an estimated time we believe you will be due for your 1st service appointment.\n\nWhen your appointment is getting close, we will send you a reminder letting you know you whether or not you are due for service.\n\nThe power of being connected.</string>
     <string name="first_service_booking_tutorial_button_text">Book 1st service appointment</string>
     <string name="first_service_booking_cancel_title">Quit Booking</string>
-    <string name="first_service_booking_cancel_message">Are you sure you want to quit tentative service booking? We strongly recommend you finish the service booking to keep your vehicle well taken care of.</string>
+    <string name="first_service_booking_cancel_message">Are you sure you don\'t want to book your 1st service appointment? By booking your tentative appointment you are securing your preferred date and time and creating a on \"vehicle maintenance\" reminder for yourself.</string>
 
     <!--for views-->
     <string name="service_request_button">Request Service</string>
