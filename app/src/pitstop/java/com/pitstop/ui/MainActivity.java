@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 mainAppSideMenuAdapter.notifyDataSetChanged();
             }
             // Set the adapter for the list view
-//         Set the list's click listener
+            // Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         }
     }
@@ -549,10 +549,43 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     if (carList.size() == 0) {
                         Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
                                 .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-                        carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
+                        Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
+                        newSet.addAll(carsAwaitingTutorial);
+                        newSet.add(String.valueOf(addedCar.getId()));
                         PreferenceManager.getDefaultSharedPreferences(application).edit()
-                                .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitingTutorial)
+                                .putStringSet(getString(R.string.pfAwaitTutorial), newSet)
                                 .apply(); // See if we should use commit
+
+                        com.pitstop.models.User user = application.getCurrentUser();
+
+                        final HashMap<String, Object> customProperties = new HashMap<>();
+                        customProperties.put("VIN", addedCar.getVin());
+                        Log.d(TAG, addedCar.getVin());
+                        customProperties.put("Car Make", addedCar.getMake());
+                        Log.d(TAG, addedCar.getMake());
+                        customProperties.put("Car Model", addedCar.getModel());
+                        Log.d(TAG, addedCar.getModel());
+                        customProperties.put("Car Year", addedCar.getYear());
+                        Log.d(TAG, String.valueOf(addedCar.getYear()));
+                        customProperties.put("Email", addedCar.getDealership().getEmail());
+                        Log.d(TAG, addedCar.getDealership().getEmail());
+
+                        if (user != null) {
+                            customProperties.put("Phone", user.getPhone());
+                            User.getCurrentUser().setFirstName(user.getFirstName());
+                            User.getCurrentUser().setEmail(user.getEmail());
+                        }
+                        User.getCurrentUser().addProperties(customProperties);
+
+                        if (user != null) {
+                            Log.d("MainActivity Smooch", "Sending message");
+                            Smooch.getConversation().sendMessage(
+                                    new io.smooch.core.Message(user.getFirstName() +
+                                            (user.getLastName() == null || user.getLastName().equals("null")
+                                                    ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                        }
+
+                        Smooch.track("User Logged In");
                     }
                     if (shouldRefreshFromServer) {
                         refreshFromServer();
@@ -627,6 +660,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         return carIssueList;
     }
 
+    /**
+     * Onclick method for service history button
+     * @param view
+     */
     public void clickServiceHistory(View view) {
         try {
             mixpanelHelper.trackButtonTapped("History", MixpanelHelper.TOOLS_VIEW);
@@ -1385,38 +1422,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                 if (!materialShowcaseView.equals(firstBookingDiscountShowcase)) return;
 
-                try {
-                    mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                com.pitstop.models.User user = application.getCurrentUser();
-
-                final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", dashboardCar.getVin());
-                customProperties.put("Car Make", dashboardCar.getMake());
-                customProperties.put("Car Model", dashboardCar.getModel());
-                customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Email", dashboardCar.getDealership().getEmail());
-
-                if (user != null) {
-                    customProperties.put("Phone", user.getPhone());
-                    User.getCurrentUser().setFirstName(user.getFirstName());
-                    User.getCurrentUser().setEmail(user.getEmail());
-                }
-                User.getCurrentUser().addProperties(customProperties);
-
-                if (user != null) {
-                    Log.d("MainActivity Smooch", "Sending message");
-                    Smooch.getConversation().sendMessage(
-                            new io.smooch.core.Message(user.getFirstName() +
-                                    (user.getLastName() == null || user.getLastName().equals("null")
-                                            ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                }
-
-                Smooch.track("User Logged In");
-
                 //Change the color and text back to the original request service button
                 try {
                     Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
@@ -1491,6 +1496,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
+     * Called by ServiceRequestUtil to clear the tutorial item from dashboard
+     */
+    public void removeTutorial(){
+        Log.d(TAG, "Remove tutorial");
+
+        try {
+            mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        callback.removeTutorial();
+    }
+
+    /**
      * Invoked when broadcast receiver receives ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED intnet
      */
     private void showPairDeviceWithCarDialog() {
@@ -1539,6 +1559,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setCarDetailsUI();
 
         void selectCarForUnrecognizedModule();
+
+        void removeTutorial();
     }
 
     private void logScannerTable() {

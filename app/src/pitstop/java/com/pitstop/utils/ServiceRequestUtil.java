@@ -370,6 +370,7 @@ public class ServiceRequestUtil {
                             }
                             if (isFirstBooking) {
                                 ((MainActivity) context).refreshFromServer();
+                                ((MainActivity) context).removeTutorial();
                             }
                         } else {
                             Log.e(TAG, "service request: " + requestError.getMessage());

@@ -274,7 +274,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
     private void setUpUIReferences() {
-
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         carIssueListView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
         carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -774,6 +773,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         showSelectCarDialog();
     }
 
+    @Override
+    public void removeTutorial() {
+        Log.d(TAG, "Remove tutorial");
+        if (carIssuesAdapter != null){
+            carIssuesAdapter.removeTutorial();
+        }
+    }
+
     /**
      * Issues list view
      */
@@ -822,7 +829,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        removeTutorial();
+                        // removeTutorial();
                         ((MainActivity) getActivity()).prepareAndStartTutorialSequence();
                     }
                 });
@@ -886,13 +893,18 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             return carIssueList.size();
         }
 
-        private boolean removeTutorial() {
-            Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                    .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-            carsAwaitTutorial.remove(String.valueOf(dashboardCar.getId()));
-            PreferenceManager.getDefaultSharedPreferences(application).edit()
-                    .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitTutorial)
-                    .commit();
+        public boolean removeTutorial() {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            Set<String> carsAwaitTutorial = preferences.getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+            Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
+            for (String item: carsAwaitTutorial){
+                if (!item.equals(String.valueOf(dashboardCar.getId()))){
+                    copy.add(item);
+                }
+            }
+            Log.d(TAG, String.valueOf(dashboardCar.getId()));
+            Log.d(TAG, String.valueOf(copy.size()));
+            preferences.edit().putStringSet(getString(R.string.pfAwaitTutorial), copy).apply();
 
             for (int index = 0; index < carIssueList.size(); index++) {
                 CarIssue issue = carIssueList.get(index);
