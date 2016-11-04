@@ -352,7 +352,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         } else {
             Log.i(TAG, "No Internet");
             callback.hideLoading("No Internet");
-            startPendingAddCarActivity();
+            if (!AddCarActivity.isPairingUnrecognizedDevice) {
+                startPendingAddCarActivity();
+            }
         }
     }
 
@@ -487,11 +489,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
 
-            if (AddCarActivity.launchFromPairNotification){
-
-                return;
-            }
-
             linkingAttempts = 0;
             Log.i(TAG, "VIN response received");
             Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
@@ -514,16 +511,23 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
             if (isValidVin(pendingCar.getVin())) {
 
-                // We got the valid Vin from the device
-                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
                 vinAttempts = 0;
                 Log.i(TAG, "VIN is valid");
                 autoConnectService.setFixedUpload();
                 callback.showLoading("Loaded car VIN");
                 makeCar();
 
+                if (!AddCarActivity.isPairingUnrecognizedDevice) {
+                    // We got the valid Vin from the device
+                    mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+                }
             } else if (!needToSetTime || vinAttempts > 8) {
+
+                if (AddCarActivity.isPairingUnrecognizedDevice){
+                    callback.showSelectCarDialog(autoConnectService.getConnectedDeviceName(),
+                            autoConnectService.getCurrentDeviceId());
+                    return;
+                }
 
                 Log.i(TAG, "Require manual vin input, needToSeTime?" + needToSetTime);
                 Log.i(TAG, "Require manual vin input, vinAttempts?" + vinAttempts);
@@ -697,18 +701,25 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                 if (requestError == null) {
                     if (response.equals("{}")) { // Vin does not exist in the backend
 
-                        callback.hideLoading("Please pick the dealership for your car.");
-                        callback.askForDealership();
+                        if (!AddCarActivity.isPairingUnrecognizedDevice) {
+                            // If user is adding a car instead of pairing a car with unrecognized device
+                            callback.hideLoading("Please pick the dealership for your car.");
+                            callback.askForDealership();
+                        } else {
+                            callback.hideLoading(null);
+                            callback.pairCarError("Oops, we connected to a new car, please turn off your Bluetooth and retry.");
+                        }
 
                         // Attempt to save car on backend, this step will also check if the scannerId exists on backend
                         // saveCarToServer(carInfo);
 
                     } else { // Vin exists in the backend
                         callback.hideLoading("Car Already Exists!");
-                        callback.resetScreen();
+                        if (!AddCarActivity.isPairingUnrecognizedDevice){
+                            callback.resetScreen();
+                        }
 
                         // Car exists
-                        //"Car": make + " " + model
                         Car existedCar = null;
                         try {
                             existedCar = Car.createCar(response);
@@ -718,9 +729,23 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
                         if (existedCar != null) {
                             int carUserId = existedCar.getUserId();
+                            String carScannerId = existedCar.getScannerId();
                             Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
 
                             if (carUserId != 0) { // User id is not 0, this car has not been deleted
+                                if (AddCarActivity.isPairingUnrecognizedDevice) {
+                                    if (carUserId == context.getCurrentUserId()
+                                            && carScannerId == null) {
+                                        callback.pairCarWithDevice(existedCar,
+                                                autoConnectService.getConnectedDeviceName(),
+                                                autoConnectService.getCurrentDeviceId());
+                                    } else {
+                                        callback.pairCarError("The device we found has been paired with another car," +
+                                                " please try again later.");
+                                    }
+                                    return;
+                                }
+
                                 String value;
                                 if (carUserId == context.getCurrentUserId()) {
                                     value = MixpanelHelper.ADD_CAR_CAR_EXIST_FOR_CURRENT_USER;
@@ -975,6 +1000,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         void postMileageInput();
 
         void askForDealership();
+
+        void showSelectCarDialog(String scannerName, String scannerId);
+
+        void pairCarWithDevice(Car existedCar, String scannerName, String scannerId);
+
+        void pairCarError(String errorMessage);
     }
 
 }

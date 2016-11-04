@@ -522,6 +522,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+            } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS){
+                if (shouldRefreshFromServer){
+                    refreshFromServer();
+                }
             }
             callback.activityResultCallback(requestCode, resultCode, data);
         } else {

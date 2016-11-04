@@ -118,41 +118,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
 
-    private class CarListAdapter extends BaseAdapter {
-        private List<Car> ownedCars;
-
-        public CarListAdapter(List<Car> cars) {
-            ownedCars = cars;
-        }
-
-        @Override
-        public int getCount() {
-            return ownedCars.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return ownedCars.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View rowView = convertView != null ? convertView :
-                    inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
-            Car ownedCar = (Car) getItem(position);
-
-            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
-            carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
-            return rowView;
-        }
-    }
-
     private boolean askForCar = true; // do not ask for car if user presses cancel
 
     /**

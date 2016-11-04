@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
@@ -208,6 +209,7 @@ public class SettingsActivity extends AppCompatActivity{
         private GlobalApplication application;
         private LocalCarAdapter localCarAdapter;
         private LocalShopAdapter shopAdapter;
+        private LocalScannerAdapter localScannerAdapter;
 
         private User currentUser;
 
@@ -238,6 +240,7 @@ public class SettingsActivity extends AppCompatActivity{
 
             localCarAdapter = new LocalCarAdapter(getActivity());
             shopAdapter = new LocalShopAdapter(getActivity());
+            localScannerAdapter = new LocalScannerAdapter(getActivity());
 
             Bundle bundle = getArguments();
             cars = bundle.getStringArrayList("cars");
@@ -661,6 +664,7 @@ public class SettingsActivity extends AppCompatActivity{
                                                                     .showSimpleMessage("Delete successfully!", true);
                                                             listener.localUpdatePerformed();
                                                             localCarAdapter.deleteCar(vehicle);
+                                                            localScannerAdapter.deleteCar(vehicle);
                                                             ((PreferenceCategory) getPreferenceManager()
                                                                     .findPreference(getString(R.string.pref_vehicles)))
                                                                     .removePreference(VehiclePreference.this);
