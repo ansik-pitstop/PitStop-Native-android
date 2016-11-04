@@ -327,6 +327,36 @@ public class LocalScannerAdapter {
         return numberOfDeviceNames != numberOfScanners;
     }
 
+
+    /**
+     * @param scannerId
+     * @param scannerName
+     * @return true if scanner is found and its name is updated, false if scanner is not found
+     */
+    public boolean updateScannerName(String scannerId, String scannerName){
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    String storedID = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
+                    if (storedID != null && storedID.equals(scannerId)) {
+                        ObdScanner scanner = cursorToScanner(c);
+                        scanner.setDeviceName(scannerName);
+                        updateScanner(scanner);
+                        return true;
+                    }
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
+        }
+        if (db.isOpen()) db.close();
+        return false;
+    }
+
     public void deleteAllRows() {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 

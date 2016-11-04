@@ -27,25 +27,4 @@ public interface IBluetoothCommunicator {
     void close();
     void bluetoothStateChanged(int state);
     String getConnectedDeviceName();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>Bluetooth communicators are supposed to connect previous saved (pending) device
-     * based on the positive response from the user</p>
-     */
-    void connectPendingDevice();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>After the connection, we shall validate the scanner Id with the backend.
-     * If the scanner is invalid, we should disconnect at once so we won't interfere with others' connection.</p>
-     */
-    void manuallyDisconnectCurrentDevice();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>Bluetooth communicators are supposed to delete previous saved (pending) device
-     * based on the negative response from the user</p>
-     */
-    void cancelPendingDevice();
 }

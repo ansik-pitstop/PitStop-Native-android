@@ -255,10 +255,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         callback.showLoading("Adding car");
         if (isValidVin(pendingCar.getVin())) { // valid VIN is already entered
-
             Log.i(TAG, "Vin is valid -- (searching for car)");
             makeCar();
-
         } else {
             if (ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
@@ -289,7 +287,43 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                 }
             }
         }
+    }
 
+
+    public void searchForUnrecognizedDevice() {
+
+        if (autoConnectService == null) {
+            autoConnectService = callback.getAutoConnectService();
+            autoConnectService.setCallbacks(this);
+        }
+
+        Log.i(TAG, "Search for unrecognized device: " + autoConnectService.getState());
+
+        callback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
+        if (ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(context, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
+            callback.hideLoading("Location permissions are required");
+        } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
+            callback.hideLoading("Your device does not support bluetooth");
+        } else {
+            if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) { // Already connected to module
+                callback.showLoading("We have found the device, verifying...");
+                Log.i(TAG, "Reading Vin");
+                // Linked with the peripheral, getting car vin
+                autoConnectService.getCarVIN();
+                vinRetrievalStartTime = System.currentTimeMillis();
+                isGettingVinAndCarIsConnected = true;
+                mHandler.postDelayed(vinDetectionRunnable, 3000);
+            } else { // Need to search for module
+                callback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
+                Log.i(TAG, "Searching for car but device not connected");
+                autoConnectService.startBluetoothSearch(2);  // search for car
+                isSearchingForCar = true;
+                gotValidRTC = false;
+                searchTime = System.currentTimeMillis();
+                mHandler.postDelayed(carSearchRunnable, 3000);
+            }
+        }
     }
 
 
@@ -452,6 +486,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
 
         if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
+
+            if (AddCarActivity.launchFromPairNotification){
+
+                return;
+            }
+
             linkingAttempts = 0;
             Log.i(TAG, "VIN response received");
             Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
@@ -680,7 +720,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                             int carUserId = existedCar.getUserId();
                             Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
 
-                            if (carUserId != 0){ // User id is not 0, this car has not been deleted
+                            if (carUserId != 0) { // User id is not 0, this car has not been deleted
                                 String value;
                                 if (carUserId == context.getCurrentUserId()) {
                                     value = MixpanelHelper.ADD_CAR_CAR_EXIST_FOR_CURRENT_USER;

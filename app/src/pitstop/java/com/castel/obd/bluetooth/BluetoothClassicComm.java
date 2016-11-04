@@ -16,13 +16,9 @@ import android.widget.Toast;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.Utils;
-import com.pitstop.BuildConfig;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.AddCarActivity;
-import com.pitstop.models.ObdScanner;
+import com.pitstop.bluetooth.BluetoothRecognizer;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -47,15 +43,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private BluetoothChat mBluetoothChat;
     private BluetoothAdapter mBluetoothAdapter;
-
-    /**
-     * For detecting unrecognized IDD device
-     */
-    private BluetoothDevice mPendingDevice;
-
-    private LocalScannerAdapter scannerAdapter;
-
-    private boolean devicePending = false;
+    private final BluetoothRecognizer mBluetoothRecognizer;
 
     private boolean isMacAddress = false;
 
@@ -74,14 +62,12 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         mBluetoothChat = new BluetoothChat(mHandler);
         registerBluetoothReceiver();
 
-        if (BuildConfig.FLAVOR.equals("pitstop")) {
-            scannerAdapter = new LocalScannerAdapter(application);
-        }
-
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
 
         mHandler.postDelayed(runnable, 500);
+
+        mBluetoothRecognizer = new BluetoothRecognizer(context);
     }
 
     @Override
@@ -252,42 +238,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
         }
     }
 
-    /**
-     * Inform the UI to show the selectCar dialog
-     */
-    private void sendObdDeviceDiscoveredIntent() {
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
-        // This intent will be observed by the MainActivity.
-        Log.d(TAG, "OBD device discovered intent sent!");
-        mContext.sendBroadcast(intent);
-    }
-
-    @Override
-    public void connectPendingDevice() {
-        if (mPendingDevice != null) {
-            connectedDeviceName = mPendingDevice.getName();
-            mBluetoothChat.connectBluetooth(mPendingDevice);
-        }
-        devicePending = false;
-    }
-
-    @Override
-    public void manuallyDisconnectCurrentDevice() {
-        Log.d(TAG, "YIFAN LOGIC - Manually disconnect current device called!");
-        btConnectionState = DISCONNECTED;
-        mBluetoothChat.closeConnect();
-        mBluetoothChat = new BluetoothChat(mHandler);
-        mPendingDevice = null;
-        devicePending = false;
-    }
-
-    @Override
-    public void cancelPendingDevice() {
-        devicePending = false;
-        mPendingDevice = null;
-        btConnectionState = DISCONNECTED;
-    }
 
     Runnable runnable = new Runnable() {
         @Override
@@ -365,66 +315,20 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             // Discovered the device
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Log.v(TAG, "A device found - BluetoothClassicComm");
-                BluetoothDevice device = intent
-                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                // TODO: 16/11/4 Recognize
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG, device.getName() + " " + device.getAddress());
-
                 String deviceName = device.getName();
-
-                Log.d(TAG, "Device found: DEVICE NAME: " + deviceName);
-
-                Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
-                Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
-
-                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME)) {
-
-                    List<ObdScanner> scanners = scannerAdapter.getAllScanners();
-                    boolean deviceFoundLocally = false; // if any scanner has "null" name or name matches
-                    for (ObdScanner scanner : scanners) {
-                        Log.d(TAG, "Scanner in the table: ");
-                        Log.d(TAG, "Device Name: (" + (scanner.getDeviceName() != null ? scanner.getDeviceName() : "EMPTY") + ")");
-                        Log.d(TAG, "Scanner ID: (" + (scanner.getScannerId() != null ? scanner.getScannerId() : "EMPTY") + ")");
-                        Log.d(TAG, "Car ID: (" + scanner.getCarId() + ")");
-
-                        if (scanner.getDeviceName() != null && scanner.getDeviceName().equals(deviceName)) {
-                            deviceFoundLocally = true;
-                            break;
-                        }
-                    }
-
-                    Log.d(TAG, "Device found - device found locally?" + deviceFoundLocally);
-                    Log.d(TAG, "Scanner table size " + scannerAdapter.getAllScanners().size());
-                    Log.d(TAG, "Scanner Adapter any car lack scanner?" + scannerAdapter.anyCarLackScanner());
-                    Log.d(TAG, "Scanner Adapter device name exists?" + scannerAdapter.deviceNameExists(deviceName));
-
-                    // If the user is adding car/this device exists locally, we should add it such that we can add car/receives data from device
-                    // If there's a scanner has no name, we connect it anyway
-                    if (AddCarActivity.addingCarWithDevice || scannerAdapter.anyScannerLackName() || deviceFoundLocally) {
-                        Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
+                switch (mBluetoothRecognizer.onDeviceFound(deviceName)){
+                    case CONNECT:
                         connectedDeviceName = deviceName;
                         mBluetoothChat.connectBluetooth(device);
                         Log.i(TAG, "Connecting to device - BluetoothClassicComm");
-
                         Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
-                    } else if (!devicePending
-                            && scannerAdapter.anyCarLackScanner()
-                            && !scannerAdapter.deviceNameExists(deviceName)) {
-                        // If some cars in the local database does not have a scanner pair with it,
-                        // we should potentially connect to this device!
-                        Log.d(TAG, "Found pending device");
-
-                        // Prepare the device
-                        mPendingDevice = device;
-                        devicePending = true;
-                        // Inform UI to show the dialog that let user pick the car
-                        sendObdDeviceDiscoveredIntent();
-                    } else {
-                        Log.i(TAG, "Found unrecognized OBD device, ignoring");
-                    }
-                } else {
-                    Log.d(TAG, "Device name does not contain OBD, ignore");
+                        break;
+                    default:
+                        // do nothing otherwise
                 }
-
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -487,12 +391,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                 Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
-
-                if (devicePending) {
-                    startScan();
-                    return;
-                }
-
                 if (btConnectionState != CONNECTED) {
                     btConnectionState = DISCONNECTED;
                     Log.i(TAG, "Not connected - setting get bluetooth state on dListeners");

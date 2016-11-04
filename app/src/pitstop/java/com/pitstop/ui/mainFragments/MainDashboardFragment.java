@@ -387,7 +387,12 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentMonth,
                                         currentDay
                                 );
-                                datePicker.getWindow().getAttributes().windowAnimations = AnimatedDialogBuilder.ANIMATION_GROW;
+
+                                try{
+                                    datePicker.getWindow().setWindowAnimations(AnimatedDialogBuilder.ANIMATION_GROW);
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
 
                                 final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
                                 ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
@@ -520,104 +525,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
-    /**
-     * Show the dialog which ask user which car is he/she sitting in
-     * because we have discovered a unrecognized OBD device and some user cars don't have scanner
-     */
-    private void showSelectCarDialog() {
-        Log.d(TAG, "Prepare to show the select car dialog");
-        final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-        if (autoConnectService != null
-                // We don't want to show user this dialog multiple times (only once)
-                && askForCar
-                // If the dialog is showing, we don't want it to show twice
-                && !dialogShowing
-                && dashboardCar != null) {
-
-            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
-            final ArrayList<Car> selectedCar = new ArrayList<>(1);
-
-            AnimatedDialogBuilder dialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
-            dialog.setCancelable(false)
-                    .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
-                    .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            selectedCar.clear();
-                            selectedCar.add((Car) carListAdapter.getItem(which));
-                        }
-                    })
-                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, int which) {
-                            // Check backend for scanner currently connected to
-                            if (selectedCar.isEmpty()) {
-                                Toast.makeText(getContext(), "Please pick a car!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            ((MainActivity) getActivity()).showCancelableLoading("Hold on, we are thinking..");
-
-                            // At this point, check if the picked car has scanner;
-                            if (scannerLocalStore.carHasDevice(selectedCar.get(0).getId())) {
-                                // If yes, notify the user that this car has scanner;
-                                Log.d(TAG, "Picked car already has device linked to it");
-                                Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
-                                ((MainActivity) getActivity()).hideLoading();
-                            } else {
-                                Log.d(TAG, "Picked car lack device");
-                                ((MainActivity) getActivity()).showCancelableLoading("Connecting to device..");
-                                // If no, then to determine whether if we should link the device and the car,
-                                // we need to connect, get the device id, then validate the device id;
-                                sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
-                            }
-
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            askForCar = false;
-                            sendCancelPendingDeviceIntent();
-                            dialog.dismiss();
-                        }
-                    })
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    });
-            dialog.show();
-            dialogShowing = true;
-        }
-
-    }
-
-    /**
-     * Inform BACS to connect to the device
-     */
-    private void sendConnectPendingDeviceIntent(int selectedCarId) {
-        Intent connectIntent = new Intent();
-        connectIntent.setAction(BluetoothAutoConnectService.ACTION_CONNECT_PENDING_CAR);
-        connectIntent.putExtra(BluetoothAutoConnectService.EXTRA_SELECTED_CAR_ID, selectedCarId);
-        getActivity().sendBroadcast(connectIntent);
-    }
-
-    /**
-     * Inform BACS to cancel pending device
-     */
-    private void sendCancelPendingDeviceIntent() {
-        Intent cancelIntent = new Intent();
-        cancelIntent.setAction(BluetoothAutoConnectService.ACTION_CANCEL_PENDING_DEVICE);
-        getActivity().sendBroadcast(cancelIntent);
-    }
 
     private void populateCarIssuesAdapter() {
         // Try local store
@@ -768,10 +675,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     }
 
-    @Override
-    public void selectCarForUnrecognizedModule() {
-        showSelectCarDialog();
-    }
 
     @Override
     public void removeTutorial() {

@@ -29,8 +29,7 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.AddCarActivity;
+import com.pitstop.bluetooth.BluetoothRecognizer;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -96,10 +95,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
 
     private int btConnectionState = DISCONNECTED;
 
-    private LocalScannerAdapter mScannerAdapter;
-
-    private BluetoothDevice mPendingDevice;
-    private boolean devicePending = false;
+    private final BluetoothRecognizer mBluetoothRecognizer;
 
     public BluetoothLeComm(Context context) {
 
@@ -125,7 +121,7 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         //int initSuccess = mObdManager.initializeObd();
         //Log.d(TAG, "init result: " + initSuccess);
 
-        mScannerAdapter = new LocalScannerAdapter(application);
+        mBluetoothRecognizer = new BluetoothRecognizer(context);
     }
 
     @Override
@@ -233,29 +229,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
         }
         mGatt.close();
         mGatt = null;
-    }
-
-    /**
-     * Connect to pending device after
-     */
-    @Override
-    public void connectPendingDevice() {
-        connectToDevice(mPendingDevice);
-        devicePending = false;
-    }
-
-    @Override
-    public void manuallyDisconnectCurrentDevice() {
-        // TODO: 16/9/19 See how to disconnect on ble
-        Log.d(TAG, "YIFAN LOGIC - Manually disconnect current device called!");
-        mGatt.close();
-    }
-
-    @Override
-    public void cancelPendingDevice() {
-        devicePending = false;
-        mPendingDevice = null;
-        btConnectionState = DISCONNECTED;
     }
 
     /**
@@ -444,13 +417,14 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             if (deviceName == null || !deviceName.contains(ObdManager.BT_DEVICE_NAME))
                 return;
 
-            if (AddCarActivity.addingCarWithDevice || mScannerAdapter.deviceNameExists(deviceName)) { // TODO: 16/9/20 Test this
-                connectToDevice(btDevice);
-            } else if (!devicePending && mScannerAdapter.anyCarLackScanner()){
-                mPendingDevice = btDevice;
-                devicePending = true;
-                sendObdDeviceDiscoveredIntent();
+            switch (mBluetoothRecognizer.onDeviceFound(deviceName)){
+                case CONNECT:
+                    connectToDevice(btDevice);
+                    break;
+                default:
+                    // do nothing otherwise
             }
+
 
 //            if (btDevice.getName() != null
 //                    && btDevice.getName().contains(ObdManager.BT_DEVICE_NAME)) {
@@ -617,16 +591,6 @@ public class BluetoothLeComm implements IBluetoothCommunicator, ObdManager.IPass
             //Tell the command to start itself.
             mCommand.execute(mGatt);
         }
-    }
-
-    /**
-     * Inform the UI to show the selectCar dialog
-     */
-    private void sendObdDeviceDiscoveredIntent(){
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
-        // This intent will be observed by the MainActivity.
-        mContext.sendBroadcast(intent);
     }
 
 }

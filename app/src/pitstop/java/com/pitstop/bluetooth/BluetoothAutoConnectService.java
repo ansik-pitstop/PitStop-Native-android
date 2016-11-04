@@ -79,17 +79,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private static String DEVICE_ID = "deviceId";
     private static String DEVICE_IDS = "deviceIds";
 
-    /**
-     * Used by activities to send insturctions to connect pending car when detected unrecognized module
-     */
-    public static final String ACTION_CONNECT_PENDING_CAR = "connect pending car";
-    public static final String ACTION_CANCEL_PENDING_DEVICE = "cancel pending car";
-    /**
-     * Used by activities to pass in selected car id in detect unrecognized module dialog
-     */
-    public static final String EXTRA_SELECTED_CAR_ID = "selected car id";
-    private int pendingCarId = -1;
-
     private final IBinder mBinder = new BluetoothBinder();
     private IBluetoothCommunicator bluetoothCommunicator;
     private ObdManager.IBluetoothDataListener callbacks;
@@ -100,7 +89,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean gettingPIDs = false;
     private boolean gettingPID = false;
     private boolean deviceConnState = false;
-    private boolean isConnectingPendingDevice = false;
+
+    private BluetoothRecognizer mBluetoothRecognizer;
 
     public static int notifID = 1360119;
     private String currentDeviceId = null;
@@ -117,7 +107,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-    private int PID_CHUNK_SIZE = 100;
+//    private int PID_CHUNK_SIZE = 100;
+    private static final int PID_CHUNK_SIZE = 100;
 
     private String lastDataNum = "";
 
@@ -212,6 +203,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         };
 
         handler.postDelayed(runnable, 15000);
+
+        mBluetoothRecognizer = new BluetoothRecognizer(this);
     }
 
     @Override
@@ -276,8 +269,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
-
-            updateScannerNameOnAutoConnect();
 
             // Mixpanel time event
             bluetoothConnectedTimeEventStarted = true;
@@ -577,74 +568,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
-            if (!AddCarActivity.addingCarWithDevice && !isConnectingPendingDevice) {
-                Log.d(TAG, "Update scanner name on auto connect");
-                updateScannerNameOnAutoConnect();
-            }
-
-            // If connected to the pending device
-            if (isConnectingPendingDevice) {
-                isConnectingPendingDevice = false;
-
-                // getCurrentDeviceId() used to return null
-                Log.d(TAG, "Current Device ID: " + getCurrentDeviceId());
-                Log.d(TAG, "Pending car ID: " + pendingCarId);
-
-                notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER);
-
-                // validate scanner id
-                networkHelper.validateScannerId(getCurrentDeviceId(), new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError != null) {
-                            Log.d(TAG, "Network error occurred");
-                            Log.d(TAG, requestError.toString());
-                            notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_NETWORK_ERROR);
-                            Log.d(TAG, "Manually Disconnect");
-                            bluetoothCommunicator.manuallyDisconnectCurrentDevice();
-                        } else {
-                            try {
-                                JSONObject result = new JSONObject(response);
-                                if (result.has("id")) { //invalid
-                                    Log.d(TAG, "DeviceID is not valid");
-                                    // Notify the user about why we cannot connect to this device
-                                    notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_ID_INVALID);
-                                    // We've connected to device we aren't supposed to (in order to get the device ID and validate it)
-                                    // So after we found out that device is not valid (currently active and in use), we should disconnect
-                                    Log.d(TAG, "Manually Disconnect");
-                                    bluetoothCommunicator.manuallyDisconnectCurrentDevice();
-                                } else { //valid scanner id, create new Scanner on backend, store scanner locally
-                                    // save scanner on backend
-                                    notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE);
-                                    networkHelper.createNewScanner(pendingCarId, getCurrentDeviceId(),
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    if (requestError != null) {
-                                                        // Error occurred during creating new scanner
-                                                        Log.d(TAG, "Create new scanner failed!");
-                                                        Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
-                                                                + "Message: " + requestError.getMessage() + "\n"
-                                                                + "Error: " + requestError.getError());
-                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_NETWORK_ERROR);
-                                                    } else {
-                                                        // After we created a new scanner on he backend, save scanner locally
-                                                        updateScannerTable();
-
-                                                        // Successfully created scanner (linking car with scanner)
-                                                        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_SUCCESS);
-                                                    }
-                                                }
-                                            });
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_UNKNOWN_ERROR);
-                            }
-                        }
-                    }
-                });
-            }
+            mBluetoothRecognizer.onDeviceLogin(getConnectedDeviceName(), currentDeviceId);
 
         } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
@@ -656,48 +580,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     }
 
-    /**
-     * Save scanner information to the scanner table
-     */
-    public void updateScannerNameOnAutoConnect() {
-        Log.d(TAG, "Update scanner name");
-
-        String btName = bluetoothCommunicator.getConnectedDeviceName();
-
-        if (currentDeviceId == null) {
-            Log.d(TAG, "Current Device ID is null");
-            return;
-        } else if (!scannerAdapter.scannerIdExists(currentDeviceId)) {
-            Log.d(TAG, "Scanner ID does not exists locally");
-            return;
-        } else if (btName != null && scannerAdapter.deviceNameExists(btName)) {
-            Log.d(TAG, "Device name already exists");
-            return;
-        }
-
-        // At this point we can assume that scanner ID already exists,
-        // but the scanner has no name, so the btName needs to be saved
-
-        ObdScanner scanner = scannerAdapter.getScannerByScannerId(currentDeviceId);
-        Car car = carAdapter.getCarByScanner(currentDeviceId);
-
-        Log.d(TAG, "Saving device name: " + (btName != null ? btName : "BT DEVICE NAME IS NULL!"));
-        Log.d(TAG, "Saving device ID: " + currentDeviceId);
-        Log.d(TAG, "Saving car ID: " + (car != null ? car.getId() : "Car retrieved from database using currentDeviceId is null!"));
-        Log.i(TAG, "Connected device name: " + btName);
-
-        if (btName != null && car != null) {
-            Log.i(TAG, "Update scanner...");
-            Log.i(TAG, "Car ID: " + scanner.getCarId());
-            scanner.setDeviceName(btName);
-            scanner.setCarId(car != null ? car.getId() : 0);
-            scannerAdapter.updateScanner(scanner);
-        } else {
-            Log.i(TAG, "Connected to unrecognized device");
-        }
-    }
-
-
     public void saveScannerOnResultPostCar(Car createdCar) {
         Log.d(TAG, "Saving scanner on result post car");
 
@@ -708,7 +590,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         String btName = bluetoothCommunicator.getConnectedDeviceName();
 
-        Log.d(TAG, "Continue");
         Log.d(TAG, "Saving device name: " + (btName != null ? btName : "BT DEVICE NAME IS NULL!"));
         Log.d(TAG, "Saving device ID: " + currentDeviceId);
         Log.d(TAG, "Saving car ID: " + (createdCar != null ? createdCar.getId() : "Car retrieved from database using currentDeviceId is null!"));
@@ -716,44 +597,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (btName != null && (createdCar != null || AddCarActivity.addingCarWithDevice)) {
             Log.i(TAG, "Saving scanner locally");
             scannerAdapter.storeScanner(new ObdScanner((createdCar != null ? createdCar.getId() : 0), btName, currentDeviceId));
-        } else {
-            Log.i(TAG, "Connected to unrecognized device");
-        }
-    }
-
-
-    /**
-     * When saving a pending device, we update the scanner table after we have post the scanner to the backend.
-     */
-    public void updateScannerTable() {
-        Log.d(TAG, "update scanner (pending)");
-
-        if (currentDeviceId == null) {
-            Log.d(TAG, "Current Device ID is null");
-            return;
-        }
-
-        Car car = carAdapter.getCar(pendingCarId);
-        ObdScanner scanner = scannerAdapter.getScannerByCarId(pendingCarId);
-        String btName = bluetoothCommunicator.getConnectedDeviceName();
-
-        Log.d(TAG, "Continue");
-        Log.d(TAG, "Saving device name: " + (btName != null ? btName : "BT DEVICE NAME IS NULL!"));
-        Log.d(TAG, "Saving device ID: " + currentDeviceId);
-        Log.d(TAG, "Saving car ID: " + car.getId());
-        Log.i(TAG, "Connected device name: " + btName);
-
-        if (btName != null && car != null) { // scanner exists locally, update it
-            Log.i(TAG, "Saving scanner locally");
-            if (scanner.getScannerId() != null || scanner.getCarId() != 0) {
-                Log.i(TAG, "Car ID: " + scanner.getCarId());
-                Log.i(TAG, "Device ID: " + (scanner.getScannerId() != null ? scanner.getScannerId() : "NULL"));
-                Log.i(TAG, "Device Name: " + (scanner.getDeviceName() != null ? scanner.getDeviceName() : "NULL"));
-                scanner.setDeviceName(btName);
-                scanner.setScannerId(currentDeviceId);
-                scanner.setCarId(car != null ? car.getId() : 0);
-                scannerAdapter.updateScannerByCarId(scanner);
-            }
         } else {
             Log.i(TAG, "Connected to unrecognized device");
         }
@@ -805,7 +648,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public boolean hasDiscoveredServices() {
         return bluetoothCommunicator.hasDiscoveredServices();
     }
-
 
     /**
      * @return The device id of the currently connected obd device
@@ -1485,34 +1327,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     /**
-     * Let the BluetoothCommunicator connects to the pending device
-     */
-    private void connectPendingDevice() {
-        notifyUserMainActivity(MainActivity.ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER);
-        bluetoothCommunicator.connectPendingDevice();
-        isConnectingPendingDevice = true;
-
-    }
-
-    /**
-     * General method for notifying user in MainActivity (broadcast intent)
-     *
-     * @param action ACTION defined in MainActivity
-     */
-    private void notifyUserMainActivity(String action) {
-        Intent intent = new Intent();
-        intent.setAction(action);
-        sendBroadcast(intent);
-    }
-
-    /**
      * Register connectionReceiver with all actions we want to listen to
      */
     private void registerBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        intentFilter.addAction(ACTION_CONNECT_PENDING_CAR);
-        intentFilter.addAction(ACTION_CANCEL_PENDING_DEVICE);
         registerReceiver(connectionReceiver, intentFilter);
     }
 
@@ -1530,7 +1349,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
                 if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
@@ -1580,12 +1398,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 });
                     }
                 }
-            } else if (ACTION_CONNECT_PENDING_CAR.equals(action)) {
-                pendingCarId = intent.getIntExtra(EXTRA_SELECTED_CAR_ID, -1);
-                connectPendingDevice();
-            } else if (ACTION_CANCEL_PENDING_DEVICE.equals(action)) {
-                isConnectingPendingDevice = false;
-                bluetoothCommunicator.cancelPendingDevice();
             }
         }
     }

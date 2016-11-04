@@ -50,6 +50,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     private final String TAG = AddCarActivity.class.getSimpleName();
 
+    // extras
+    public static final String EXTRA_PAIR_PENDING = "com.pitstop.ui.AddCarActivity.extra_pair_pending";
+
+    // activity result
     public static int ADD_CAR_SUCCESS = 51;
 
     public static boolean addingCar = false;
@@ -74,6 +78,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     public static boolean addingCarWithDevice = false;
 
     private boolean carSuccessfullyAdded = false;
+
+    public static boolean launchFromPairNotification = false;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -108,6 +114,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         // Mixpanel time event
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_ADD_CAR);
+
+        launchFromPairNotification = getIntent().getBooleanExtra(EXTRA_PAIR_PENDING, false);
     }
 
     private void setupUIReferences() {
@@ -321,6 +329,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
         addingCar = true;
 
+        if (launchFromPairNotification){
+            yesDongleClicked(null);
+            addingCarWithDevice = true;
+            addCarUtils.searchForUnrecognizedDevice();
+        }
+
         // The result is by default cancelled
         setResult(RESULT_CANCELED);
 
@@ -344,6 +358,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         hideLoading(null);
 
         addingCarWithDevice = false;
+        launchFromPairNotification = false;
 
         if (serviceIsBound) {
             addCarUtils.unbindService();
@@ -437,7 +452,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         if (string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -523,7 +537,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                searchForCar(null);
+                if(!launchFromPairNotification){
+                    searchForCar(null);
+                } else {
+                    addCarUtils.searchForUnrecognizedDevice();
+                }
             }
         });
 
@@ -570,6 +588,5 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
-
 
 }

@@ -101,21 +101,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    /**
-     * Used in communication between MainActivity and BluetoothAutoConnectService<br>
-     * Action for intents
-     */
-    // --------------------------- results --------------------------
-    public static final String ACTION_PAIRING_MODULE_ID_INVALID = "Obd - device id invalid";
-    public static final String ACTION_PAIRING_MODULE_SUCCESS = "Obd - paired device with car";
-    public static final String ACTION_PAIRING_MODULE_NETWORK_ERROR = "Network error happened";
-    public static final String ACTION_PAIRING_MODULE_UNKNOWN_ERROR = "Unknown error during pairing";
-    // --------------------------- steps ----------------------------
-    public static final String ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED = "Obd - discovered";
-    public static final String ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER = "Validating scanner";
-    public static final String ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER = "Connecting";
-    public static final String ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE = "Saving to api";
-
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
@@ -210,68 +195,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static MainDashboardCallback callback;
 
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch (action) {
-                // pairing unrecognized scanner with car lack scanner
-                // <-------------------------start---------------------------------->
-                // Results
-                case ACTION_PAIRING_MODULE_NETWORK_ERROR:
-                    Log.d(TAG, "Network error occurred");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
-                    showSimpleMessage("Sorry, some network error occurred.", false);
-                    break;
-                case ACTION_PAIRING_MODULE_ID_INVALID:
-                    Log.d(TAG, "Device ID invalid");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
-                    showSimpleMessage("This device belongs to another vehicle.", false);
-                    break;
-                case ACTION_PAIRING_MODULE_SUCCESS:
-                    Log.d(TAG, "Successfully paried device with car");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
-                    showSimpleMessage("OK, we have linked the device with your car!", true);
-                    refreshFromServer();
-                    break;
-                case ACTION_PAIRING_MODULE_UNKNOWN_ERROR:
-                    Log.d(TAG, "Unknown error happened during pairing process");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (cancelableProgressDialog.isShowing()) hideCancelableLoading();
-                    showSimpleMessage("Unknown network error occurred, please retry later", false);
-                    break;
-                // Step
-                case ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED:
-                    Log.d(TAG, "OBD device discovered intent received!");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
-                    showPairDeviceWithCarDialog();
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER:
-                    Log.d(TAG, "Connecting to obd scanner");
-                    showCancelableLoading("Connecting to module...");
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER:
-                    Log.d(TAG, "Validating scanner");
-                    showCancelableLoading("Validating module...");
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE:
-                    Log.d(TAG, "Saving scanner to the backend");
-                    showCancelableLoading("Module is valid and ready to use, storing information...");
-                    break;
-                // <---------------------------end---------------------------------->
-            }
-        }
-    };
-
     private MainDashboardFragment mDashboardFragment;
     private MainToolFragment mToolFragment;
 
@@ -314,10 +237,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-
-        cancelableProgressDialog = new ProgressDialog(this);
-        cancelableProgressDialog.setCancelable(true);
-        cancelableProgressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(application);
@@ -376,18 +295,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onPause() {
         super.onPause();
         createdOrAttached = false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        registerBroadcastReceiver();
-    }
-
-    @Override
-    protected void onStop() {
-        unregisterBroadcastReceiver();
-        super.onStop();
     }
 
     private void setupViewPager(final ViewPager viewPager) {
@@ -996,26 +903,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
     }
 
-    public void showCancelableLoading(String message) {
-        if (cancelableProgressDialog == null) {
-            return;
-        }
-        cancelableProgressDialog.setMessage(message);
-        if (!cancelableProgressDialog.isShowing()) {
-            cancelableProgressDialog.show();
-        }
-    }
-
-    public void hideCancelableLoading() {
-        if (cancelableProgressDialog != null) {
-            cancelableProgressDialog.dismiss();
-        } else {
-            cancelableProgressDialog = new ProgressDialog(this);
-            cancelableProgressDialog.setCancelable(true);
-            cancelableProgressDialog.setCanceledOnTouchOutside(false);
-        }
-    }
-
     /**
      * Create and show an snackbar that is used to show users some information.<br>
      * The purpose of this method is to display message that requires user's confirm to be dismissed.
@@ -1512,43 +1399,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         callback.removeTutorial();
     }
 
-    /**
-     * Invoked when broadcast receiver receives ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED intnet
-     */
-    private void showPairDeviceWithCarDialog() {
-        try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "Dashboard fragment handler select car message sent");
-        mDashboardFragment.selectCarForUnrecognizedModule();
-    }
-
-    /**
-     * Register all actions, invoked at onStart()
-     */
-    private void registerBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_PAIRING_MODULE_ID_INVALID);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_SUCCESS);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_NETWORK_ERROR);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_UNKNOWN_ERROR);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE);
-
-        this.registerReceiver(mBroadcastReceiver, intentFilter);
-    }
-
-    /**
-     * unregister broadcast receiver, invoked at onStop()
-     */
-    private void unregisterBroadcastReceiver() {
-        this.unregisterReceiver(mBroadcastReceiver);
-    }
-
     public interface MainDashboardCallback {
         void activityResultCallback(int requestCode, int resultCode, Intent data);
 
@@ -1559,8 +1409,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setDashboardCar(List<Car> carList);
 
         void setCarDetailsUI();
-
-        void selectCarForUnrecognizedModule();
 
         void removeTutorial();
     }
