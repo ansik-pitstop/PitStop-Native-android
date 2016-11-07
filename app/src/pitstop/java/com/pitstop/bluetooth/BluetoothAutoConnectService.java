@@ -107,7 +107,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-//    private int PID_CHUNK_SIZE = 100;
     private static final int PID_CHUNK_SIZE = 100;
 
     private String lastDataNum = "";
@@ -269,6 +268,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
+
+            mBluetoothRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
             // Mixpanel time event
             bluetoothConnectedTimeEventStarted = true;
@@ -568,7 +569,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = loginPackageInfo.deviceId;
             bluetoothCommunicator.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
-            mBluetoothRecognizer.onDeviceLogin(getConnectedDeviceName(), currentDeviceId);
+            mBluetoothRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
         } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;

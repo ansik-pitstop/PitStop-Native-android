@@ -185,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
     private MainAppSideMenuAdapter mainAppSideMenuAdapter;
-    private ProgressDialog cancelableProgressDialog;
 
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
@@ -289,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
-            if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
+            if (requestCode == RC_ADD_CAR) {
                 if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
@@ -997,6 +997,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                    final boolean needDescription, @Nullable final String message) {
         if (needDescription) {
             new AnimatedDialogBuilder(activity)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setCancelable(false)
                     .setTitle("Request Permissions")
                     .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
@@ -1210,22 +1211,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
-    /**
-     * Onclick method for Add Preset Issues button
-     *
-     * @param button
-     */
-    public void addPresetIssues(View button) {
-        try {
-            mixpanelHelper.trackButtonTapped("Add Custom Issues",
-                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        new ServiceRequestUtil(this, dashboardCar, false).startAddingPresetIssues(false);
-    }
+//    /**
+//     * Onclick method for Add Preset Issues button
+//     *
+//     * @param button
+//     */
+//    public void addPresetIssues(View button) {
+//        try {
+//            mixpanelHelper.trackButtonTapped("Add Custom Issues",
+//                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+//                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        new ServiceRequestUtil(this, dashboardCar, false).startAddingPresetIssues(false);
+//    }
 
     /**
      * Given the tutorial should be shown to the user, show tutorial sequence
@@ -1419,6 +1420,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private void logScannerTable() {
         List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
+        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
         for (ObdScanner scanner : scanners) {
             Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
             Log.d(TAG, "Scanner ID: " + scanner.getScannerId());

@@ -195,9 +195,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
     /**
-     * <p>Invoked when the user enters and confirms the mileage in the dialog which pops out in the step 2</p>
-     * <p>(When "Add Car" button is pressed in the dialog)</p>
-     *
+     * Invoked when the user enters and confirms the mileage in the dialog which pops out in the step 2<br>
+     * (When "Add Car" button is pressed in the dialog)<br>
      * @param mileage Entered mileage
      */
     public void updateMileage(String mileage) {
@@ -222,8 +221,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
     /**
-     * <p>Invoked when the user cancels his mileage input in the dialog which pops out in the step 2</p>
-     * (When "Cancel" button is pressed in the dialog)
+     * Invoked when the user cancels his mileage input in the dialog which pops out in the step 2<br>
+     * (When "Cancel" button is pressed in the dialog)<br>
      */
     public void cancelUpdateMileage() {
         // The user cancels adding this vehicle (cancel mileage input)
@@ -290,8 +289,10 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
 
+    /**
+     * Search for OBD device, if found then starts try to get VIN
+     */
     public void searchForUnrecognizedDevice() {
-
         if (autoConnectService == null) {
             autoConnectService = callback.getAutoConnectService();
             autoConnectService.setCallbacks(this);
@@ -307,16 +308,16 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             callback.hideLoading("Your device does not support bluetooth");
         } else {
             if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) { // Already connected to module
+                Log.i(TAG, "OBD device is connected, reading VIN");
                 callback.showLoading("We have found the device, verifying...");
-                Log.i(TAG, "Reading Vin");
                 // Linked with the peripheral, getting car vin
                 autoConnectService.getCarVIN();
                 vinRetrievalStartTime = System.currentTimeMillis();
                 isGettingVinAndCarIsConnected = true;
                 mHandler.postDelayed(vinDetectionRunnable, 3000);
             } else { // Need to search for module
-                callback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
                 Log.i(TAG, "Searching for car but device not connected");
+                callback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
                 autoConnectService.startBluetoothSearch(2);  // search for car
                 isSearchingForCar = true;
                 gotValidRTC = false;
@@ -360,7 +361,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     /**
      * Prepare the intent and start PendingAddCarActivity;<br>
-     * <ul>Extras that will be sent includes
+     * Extras that will be sent includes
+     * <ul>
      * <li>pendingCar.getBaseMileage()</li>
      * <li>dtcs</li>
      * <li>pendingCar.getScannerId()</li>
@@ -529,22 +531,16 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     return;
                 }
 
-                Log.i(TAG, "Require manual vin input, needToSeTime?" + needToSetTime);
-                Log.i(TAG, "Require manual vin input, vinAttempts?" + vinAttempts);
-
                 // same as in manual input plus vin hint
                 Log.i(TAG, "Vin value returned not valid");
-                Log.i(TAG, "VIN: " + pendingCar.getVin());
                 vinAttempts = 0;
                 callback.resetScreen();
                 callback.hideLoading("Vin value returned not valid, please use Manual Input!");
 
                 // Get vin failed (not support) for 8 times or the RTC on the device does not need to be set
                 mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
-
             } else {
-                Log.i(TAG, "Vin value returned not valid - attempt: " + vinAttempts);
-                Log.i(TAG, "VIN: " + pendingCar.getVin());
+                Log.i(TAG, "VIN value returned not valid - attempt: " + vinAttempts);
                 vinAttempts++;
                 isGettingVinAndCarIsConnected = true;
                 mHandler.postDelayed(vinDetectionRunnable, 2000);

@@ -49,7 +49,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
     private String connectedDeviceName;
 
-    private List<String> dataLists = new ArrayList<String>();
+    private List<String> dataLists = new ArrayList<>();
 
     private ObdManager.IBluetoothDataListener dataListener;
 
@@ -170,7 +170,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
     }
 
     private void writeToObd(String payload) {
-
         byte[] bytes = mObdManager.getBytesToSend(payload);
         if (bytes == null) {
             return;
@@ -315,7 +314,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
             // Discovered the device
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Log.v(TAG, "A device found - BluetoothClassicComm");
-                // TODO: 16/11/4 Recognize
+                // Recognize
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG, device.getName() + " " + device.getAddress());
                 String deviceName = device.getName();
@@ -327,7 +326,7 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                         Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
                         break;
                     default:
-                        // do nothing otherwise
+                        // Ignore otherwise
                 }
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
@@ -365,6 +364,9 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.i(TAG, "Connected to a PAIRED device - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
                     dataListener.getBluetoothState(btConnectionState);
+
+
+
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {

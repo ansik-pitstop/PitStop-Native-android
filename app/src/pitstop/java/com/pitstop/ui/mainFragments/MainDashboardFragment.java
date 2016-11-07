@@ -99,7 +99,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private RelativeLayout carScan;
     private Button requestServiceButton;
     private boolean dialogShowing = false;
-    private FloatingActionButton addPresetIssuesButton;
+//    private FloatingActionButton addPresetIssuesButton; // We don't want this button anymore
 
     // Models
     private Car dashboardCar;
@@ -182,14 +182,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         super.onResume();
         //Log.w(TAG, "onResume");
         handler.postDelayed(carConnectedRunnable, 1000);
-        setupListeners();
+//        setupListeners();
     }
 
     @Override
     public void onPause() {
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
-        clearListeners();
+//        clearListeners();
         super.onPause();
     }
 
@@ -214,29 +214,29 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         MainActivity.callback = this;
     }
 
-    private void setupListeners() {
-        carIssueListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    addPresetIssuesButton.show();
-                }
-                super.onScrollStateChanged(recyclerView, newState);
-            }
+//    private void setupListeners() {
+//        carIssueListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    addPresetIssuesButton.show();
+//                }
+//                super.onScrollStateChanged(recyclerView, newState);
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if (dy > 0 || dy < 0 && addPresetIssuesButton.isShown()) {
+//                    addPresetIssuesButton.hide();
+//                }
+//            }
+//        });
+//    }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 || dy < 0 && addPresetIssuesButton.isShown()) {
-                    addPresetIssuesButton.hide();
-                }
-            }
-        });
-    }
-
-    private void clearListeners() {
-        carIssueListView.clearOnScrollListeners();
-    }
+//    private void clearListeners() {
+//        carIssueListView.clearOnScrollListeners();
+//    }
 
     private void setUpUIReferences() {
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -265,7 +265,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         requestServiceButton = (Button) rootview.findViewById(R.id.dashboard_request_service_btn);
 
-        addPresetIssuesButton = (FloatingActionButton) rootview.findViewById(R.id.add_preset_issues);
+//        addPresetIssuesButton = (FloatingActionButton) rootview.findViewById(R.id.add_preset_issues);
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {

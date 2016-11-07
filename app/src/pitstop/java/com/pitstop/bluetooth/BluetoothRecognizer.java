@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -17,9 +18,8 @@ import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
 
 /**
- * Created by yifan on 16/11/4.
+ * Class that identifies IDD bluetooth device
  */
-
 public class BluetoothRecognizer {
 
     private static final String TAG = BluetoothRecognizer.class.getSimpleName();
@@ -55,17 +55,16 @@ public class BluetoothRecognizer {
         } else if (mLocalScannerStore.anyCarLackScanner()) {
             notifyOnUnrecognizedDeviceFound(scannerName);
             return RecognizeResult.IGNORE;
-        } else {
-            // this part should never be reached.... but whatever
+        } else { // this part should never be reached.... but whatever
             return RecognizeResult.YOLO;
         }
     }
 
-    public void onDeviceLogin(String scannerName, String scannerId){
+    public void onDeviceConnected(String scannerName, String scannerId){
+        if (scannerName == null || scannerId == null) return; // just to be fault-tolerant
         if (mLocalScannerStore.scannerIdExists(scannerId)) {
             mLocalScannerStore.updateScannerName(scannerId, scannerName);
-        } else {
-            // TODO: 16/11/4 if scannerId does not exists
+        } else { // Scanner Id does not exist locally
             if (AddCarActivity.addingCarWithDevice) {
                 // 1. Adding car
 
@@ -74,32 +73,6 @@ public class BluetoothRecognizer {
 
             }
         }
-    }
-
-    public void onDeviceConnected(String scannerName, String scannerId) {
-        if (mLocalScannerStore.scannerIdExists(scannerId)) {
-            mLocalScannerStore.updateScannerName(scannerId, scannerName);
-        } else {
-            // TODO: 16/11/4 Scanner id does not exist locally
-            if (AddCarActivity.addingCarWithDevice) {
-                // 1. Adding car
-
-            } else {
-                // 2. Auto connect because of B
-
-            }
-        }
-    }
-
-    /**
-     * When device is paired
-     * @param scannerName
-     * @param scannerId
-     * @param carId
-     */
-    public void onDevicePaired(String scannerName, String scannerId, String carId){
-        // TODO: 16/11/4 create a new row in local scanner table
-
     }
 
     private void notifyOnUnrecognizedDeviceFound(String scannerName) {

@@ -171,6 +171,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
         if (isPairingUnrecognizedDevice) {
             addingCarWithDevice = true;
             mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "Pair Scanner", 0);
+            ((TextView) findViewById(R.id.step_text)).setText("Pair Scanner");
         } else {
             mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
         }
@@ -650,9 +651,14 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
         }
     }
 
+    /**
+     * During pair car with device process, when the scanner does not return the VIN
+     *
+     * @param scannerName
+     * @param scannerId
+     */
     @Override
     public void showSelectCarDialog(final String scannerName, final String scannerId) {
-        // When device does not return VIN
         if (autoConnectService != null && !selectCarDialogShowing) {
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -660,7 +666,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
             AnimatedDialogBuilder dialog = new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
             dialog.setCancelable(false)
-                    .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
+                    .setTitle("Unrecognized module detected, please select the car this device is connected to:")
                     .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -671,21 +677,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
-                            // Check backend for scanner currently connected to
                             if (selectedCar.isEmpty()) {
                                 Toast.makeText(AddCarActivity.this, "Please pick a car!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            // At this point, check if the picked car has scanner;
-                            if (localScannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
-                                // If yes, notify the user that this car has scanner;
-                                Log.d(TAG, "Picked car already has device linked to it");
+                            } else if (localScannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
                                 Toast.makeText(AddCarActivity.this, "This car has scanner!", Toast.LENGTH_SHORT).show();
                             } else {
-                                Log.d(TAG, "Picked car lack device");
                                 validateAndPostScanner(selectedCar.get(0), scannerId, scannerName);
                             }
-
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -705,6 +703,13 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
         }
     }
 
+    /**
+     * Show a dialog prompting user to pair the corresponding car
+     *
+     * @param existedCar The car retrieved from the backend whose user_id matches current user id
+     * @param scannerName Current scanner name
+     * @param scannerId Current scanner id
+     */
     @Override
     public void pairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
         new AnimatedDialogBuilder(this)
@@ -727,7 +732,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                 }).show();
     }
 
-    private void validateAndPostScanner(final Car car, final String scannerId, final String scannerName){
+    /**
+     * 1. Check with the backend and see if scanner is valid <br>
+     * 2. If so, create an association with the car selected and the scanner <br>
+     * 3. On success, store scanner information locally, and finish.
+     * @param car selected car or the car retrieved from the backend by its VIN
+     * @param scannerId The current scannerId
+     * @param scannerName The current scannerName
+     */
+    private void validateAndPostScanner(final Car car, final String scannerId, final String scannerName) {
         showLoading("Checking device ID..");
         networkHelper.validateScannerId(scannerId, new RequestCallback() {
             @Override
@@ -742,30 +755,29 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                             pairCarError("This device has been paired with another car.");
                         } else {
                             showLoading("Valid scanner, saving...");
-                            networkHelper.createNewScanner(car.getId(), scannerId,
-                                    new RequestCallback() {
-                                        @Override
-                                        public void done(String response, RequestError requestError) {
-                                            if (requestError != null) {
-                                                // Error occurred during creating new scanner
-                                                Log.d(TAG, "Create new scanner failed!");
-                                                Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
-                                                        + "Message: " + requestError.getMessage() + "\n"
-                                                        + "Error: " + requestError.getError());
-                                                pairCarError("Network errors, please try again later");
-                                            } else {
-                                                ObdScanner scanner = new ObdScanner(car.getId(),
-                                                        scannerName,
-                                                        scannerId);
-                                                localScannerAdapter.updateScannerByCarId(scanner);
-                                                Intent data = new Intent();
-                                                data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
-                                                setResult(PAIR_CAR_SUCCESS, data);
-                                                hideLoading("Finish");
-                                                finish();
-                                            }
-                                        }
-                                    });
+                            networkHelper.createNewScanner(car.getId(), scannerId, new RequestCallback() {
+                                @Override
+                                public void done(String response, RequestError requestError) {
+                                    if (requestError != null) {
+                                        // Error occurred during creating new scanner
+                                        Log.d(TAG, "Create new scanner failed!");
+                                        Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
+                                                + "Message: " + requestError.getMessage() + "\n"
+                                                + "Error: " + requestError.getError());
+                                        pairCarError("Network errors, please try again later");
+                                    } else {
+                                        // Save locally
+                                        ObdScanner scanner = new ObdScanner(
+                                                car.getId(), scannerName, scannerId);
+                                        localScannerAdapter.updateScannerByCarId(scanner);
+                                        Intent data = new Intent();
+                                        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
+                                        setResult(PAIR_CAR_SUCCESS, data);
+                                        hideLoading("Finish");
+                                        finish();
+                                    }
+                                }
+                            });
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
