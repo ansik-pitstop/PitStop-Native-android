@@ -63,15 +63,15 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 98
-            versionName "2.1.17"
+            versionCode 105
+            versionName "2.1.22"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""
         }
         dealerTest {
-            versionCode 2
-            versionName "1.0.1"
+            versionCode 3
+            versionName "1.0.2"
             applicationIdSuffix ".test_app"
             buildConfigField "String", "TEST_CLIENT_ID", "\"IhUvDTvmbBgMFARwqVuPYrMIK8XVkGHoRAH2YsQUcikMDn3F\""
             buildConfigField "String", "TEST_SERVER_URL", "\"http://52.204.33.174:8081/\""

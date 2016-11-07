@@ -1,6 +1,5 @@
 package com.pitstop.ui.mainFragments;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,6 +59,7 @@ import com.pitstop.ui.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -70,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -104,7 +103,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     private RelativeLayout carScan;
     private Button requestServiceButton;
     private boolean dialogShowing = false;
-    private FloatingActionButton addPresetIssuesButton;
+//    private FloatingActionButton addPresetIssuesButton; // We don't want this button anymore
 
     // Models
     private Car dashboardCar;
@@ -122,41 +121,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     // Utils / Helper
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
-
-    private class CarListAdapter extends BaseAdapter {
-        private List<Car> ownedCars;
-
-        public CarListAdapter(List<Car> cars) {
-            ownedCars = cars;
-        }
-
-        @Override
-        public int getCount() {
-            return ownedCars.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return ownedCars.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View rowView = convertView != null ? convertView :
-                    inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
-            Car ownedCar = (Car) getItem(position);
-
-            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
-            carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
-            return rowView;
-        }
-    }
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
 
@@ -222,14 +186,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         super.onResume();
         //Log.w(TAG, "onResume");
         handler.postDelayed(carConnectedRunnable, 1000);
-        setupListeners();
+//        setupListeners();
     }
 
     @Override
     public void onPause() {
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
-        clearListeners();
+//        clearListeners();
         super.onPause();
     }
 
@@ -246,39 +210,39 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         carIssuesAdapter = new CustomAdapter(carIssueList);
 
         // Local db adapters
-        carLocalStore = MainActivity.carLocalStore;
-        carIssueLocalStore = MainActivity.carIssueLocalStore;
-        shopLocalStore = MainActivity.shopLocalStore;
-        scannerLocalStore = MainActivity.scannerLocalStore;
+        carLocalStore = new LocalCarAdapter(getActivity());
+        carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
+        shopLocalStore = new LocalShopAdapter(getActivity());
+        scannerLocalStore = new LocalScannerAdapter(getActivity());
+
         MainActivity.callback = this;
     }
 
-    private void setupListeners() {
-        carIssueListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    addPresetIssuesButton.show();
-                }
-                super.onScrollStateChanged(recyclerView, newState);
-            }
+//    private void setupListeners() {
+//        carIssueListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    addPresetIssuesButton.show();
+//                }
+//                super.onScrollStateChanged(recyclerView, newState);
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if (dy > 0 || dy < 0 && addPresetIssuesButton.isShown()) {
+//                    addPresetIssuesButton.hide();
+//                }
+//            }
+//        });
+//    }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 || dy < 0 && addPresetIssuesButton.isShown()) {
-                    addPresetIssuesButton.hide();
-                }
-            }
-        });
-    }
-
-    private void clearListeners() {
-        carIssueListView.clearOnScrollListeners();
-    }
+//    private void clearListeners() {
+//        carIssueListView.clearOnScrollListeners();
+//    }
 
     private void setUpUIReferences() {
-
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         carIssueListView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
         carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -303,11 +267,9 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
         connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
 
-//        Request Service Button
         requestServiceButton = (Button) rootview.findViewById(R.id.dashboard_request_service_btn);
 
-//        Add Preset Issues Button
-        addPresetIssuesButton = (FloatingActionButton) rootview.findViewById(R.id.add_preset_issues);
+//        addPresetIssuesButton = (FloatingActionButton) rootview.findViewById(R.id.add_preset_issues);
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
@@ -395,7 +357,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentDay
                                 );
 
-                                View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_clear_issue_title, null);
+                                try{
+                                    datePicker.getWindow().setWindowAnimations(AnimatedDialogBuilder.ANIMATION_GROW);
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
+                                final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
+                                ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
 
                                 datePicker.setCustomTitle(titleView);
 
@@ -525,104 +494,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
-    /**
-     * Show the dialog which ask user which car is he/she sitting in
-     * because we have discovered a unrecognized OBD device and some user cars don't have scanner
-     */
-    private void showSelectCarDialog() {
-        Log.d(TAG, "Prepare to show the select car dialog");
-        final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-        if (autoConnectService != null
-                // We don't want to show user this dialog multiple times (only once)
-                && askForCar
-                // If the dialog is showing, we don't want it to show twice
-                && !dialogShowing
-                && dashboardCar != null) {
-
-            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
-            final ArrayList<Car> selectedCar = new ArrayList<>(1);
-            final LocalScannerAdapter scannerAdapter = MainActivity.scannerLocalStore;
-
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setCancelable(false)
-                    .setTitle("Unrecognized module detected. Please select the car this device is connected to.")
-                    .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            selectedCar.clear();
-                            selectedCar.add((Car) carListAdapter.getItem(which));
-                        }
-                    })
-                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, int which) {
-                            // Check backend for scanner currently connected to
-                            if (selectedCar.isEmpty()) {
-                                Toast.makeText(getContext(), "Please pick a car!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            ((MainActivity) getActivity()).showLoading("Hold on, we are thinking..");
-
-                            // At this point, check if the picked car has scanner;
-                            if (scannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
-                                // If yes, notify the user that this car has scanner;
-                                Log.d(TAG, "Picked car already has device linked to it");
-                                Toast.makeText(getActivity(), "This car has scanner!", Toast.LENGTH_SHORT).show();
-                                ((MainActivity) getActivity()).hideLoading();
-                            } else {
-                                Log.d(TAG, "Picked car lack device");
-                                ((MainActivity) getActivity()).showLoading("Connecting to device..");
-                                // If no, then to determine whether if we should link the device and the car,
-                                // we need to connect, get the device id, then validate the device id;
-                                sendConnectPendingDeviceIntent(selectedCar.get(0).getId());
-                            }
-
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            askForCar = false;
-                            sendCancelPendingDeviceIntent();
-                            dialog.dismiss();
-                        }
-                    })
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            dialogShowing = false;
-                        }
-                    });
-            dialog.show();
-            dialogShowing = true;
-        }
-
-    }
-
-    /**
-     * Inform BACS to connect to the device
-     */
-    private void sendConnectPendingDeviceIntent(int selectedCarId) {
-        Intent connectIntent = new Intent();
-        connectIntent.setAction(BluetoothAutoConnectService.ACTION_CONNECT_PENDING_CAR);
-        connectIntent.putExtra(BluetoothAutoConnectService.EXTRA_SELECTED_CAR_ID, selectedCarId);
-        getActivity().sendBroadcast(connectIntent);
-    }
-
-    /**
-     * Inform BACS to cancel pending device
-     */
-    private void sendCancelPendingDeviceIntent() {
-        Intent cancelIntent = new Intent();
-        cancelIntent.setAction(BluetoothAutoConnectService.ACTION_CANCEL_PENDING_DEVICE);
-        getActivity().sendBroadcast(cancelIntent);
-    }
 
 
     @Override
@@ -791,9 +662,13 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
     }
 
+
     @Override
-    public void selectCarForUnrecognizedModule() {
-        showSelectCarDialog();
+    public void removeTutorial() {
+        Log.d(TAG, "Remove tutorial");
+        if (carIssuesAdapter != null){
+            carIssuesAdapter.removeTutorial();
+        }
     }
 
     /**
@@ -814,8 +689,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_issue, parent, false);
-            ViewHolder viewHolder = new ViewHolder(v);
-            return viewHolder;
+            return new ViewHolder(v);
         }
 
         public CarIssue getItem(int position) {
@@ -845,7 +719,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        removeTutorial();
+                        // removeTutorial();
                         ((MainActivity) getActivity()).prepareAndStartTutorialSequence();
                     }
                 });
@@ -855,20 +729,20 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 holder.description.setText(carIssue.getDescription());
                 holder.description.setEllipsize(TextUtils.TruncateAt.END);
                 if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                    holder.imageView.setImageDrawable(getResources()
-                            .getDrawable(R.drawable.ic_error_red_600_24dp));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.ic_error_red_600_24dp));
 
                 } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.imageView.setImageDrawable(getResources().
-                            getDrawable(R.drawable.car_engine_red));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.car_engine_red));
 
                 } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                    holder.imageView.setImageDrawable(getResources().
-                            getDrawable(R.drawable.car_engine_yellow));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.car_engine_yellow));
                 } else {
                     holder.description.setText(carIssue.getDescription());
-                    holder.imageView.setImageDrawable(getResources()
-                            .getDrawable(R.drawable.ic_warning_amber_300_24dp));
+                    holder.imageView.setImageDrawable(ContextCompat
+                            .getDrawable(getContext(), R.drawable.ic_warning_amber_300_24dp));
                 }
 
                 holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
@@ -909,13 +783,18 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             return carIssueList.size();
         }
 
-        private boolean removeTutorial() {
-            Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                    .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-            carsAwaitTutorial.remove(String.valueOf(dashboardCar.getId()));
-            PreferenceManager.getDefaultSharedPreferences(application).edit()
-                    .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitTutorial)
-                    .commit();
+        public boolean removeTutorial() {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            Set<String> carsAwaitTutorial = preferences.getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
+            Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
+            for (String item: carsAwaitTutorial){
+                if (!item.equals(String.valueOf(dashboardCar.getId()))){
+                    copy.add(item);
+                }
+            }
+            Log.d(TAG, String.valueOf(dashboardCar.getId()));
+            Log.d(TAG, String.valueOf(copy.size()));
+            preferences.edit().putStringSet(getString(R.string.pfAwaitTutorial), copy).apply();
 
             for (int index = 0; index < carIssueList.size(); index++) {
                 CarIssue issue = carIssueList.get(index);
@@ -938,7 +817,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                     .setIssueType(CarIssue.TENTATIVE)
                     .build();
             carIssueList.add(0, tutorial);
-//            carIssueList.add(tutorial);
             carIssueLocalStore.storeCarIssue(tutorial);
             notifyDataSetChanged();
             return true;

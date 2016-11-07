@@ -1,5 +1,6 @@
 package com.pitstop.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -56,6 +58,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -133,12 +136,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             autoConnectService.setCallbacks(CarScanActivity.this); // register
 
             if (BluetoothAdapter.getDefaultAdapter() != null) {
-
-                if (ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(CarScanActivity.this, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
-                } else {
-                    //autoConnectService.startBluetoothSearch();
+                String [] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+                for (String permission: locationPermissions){
+                    if (ContextCompat.checkSelfPermission(CarScanActivity.this, permission) != PackageManager.PERMISSION_GRANTED){
+                        requestPermission(CarScanActivity.this, locationPermissions,
+                                MainActivity.RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
+                        break;
+                    }
                 }
             }
         }
@@ -151,6 +155,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             Log.i("Disconnecting", "onServiceConnection");
         }
     };
+
+    private boolean scanStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,12 +258,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 super.onActivityResult(requestCode, resultCode, data);
         }
 
-//        if(requestCode == MainActivity.RC_ENABLE_BT
-//                && resultCode == MainActivity.RC_ENABLE_BT) {
-//            carScanButton.performClick();
-//        } else {
-//            super.onActivityResult(requestCode, resultCode, data);
-//        }
     }
 
     private void setupUiReferences() {
@@ -460,6 +460,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private void startCarScan() {
         Log.i(TAG, "Starting car scan");
+
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+        scanStarted = true;
+
         autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
         recallsCountLayout.setVisibility(View.GONE);
@@ -643,10 +647,11 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 .setNegativeButton("", null);
 
         dialog.show();
+
+        mixpanelHelper.trackAlertAppeared("Device still uploading previous data.", MixpanelHelper.SCAN_CAR_VIEW);
     }
 
     private void updateCarHealthMeter() {
-
         if (numberOfIssues >= 3) {
             arcView.addEvent(new DecoEvent.Builder(30)
                     .setIndex(seriesIndex).build());
@@ -690,31 +695,68 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
         Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
 
-        if (dataPackageInfo.result == 5 && dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+        if (dataPackageInfo.result == 5) {
             result5Retrieved = true;
-            final double newTotalMileage = ((int) ((baseMileage
-                    + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+            if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+                final double newTotalMileage = ((int) ((baseMileage
+                        + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
 
-            Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+                Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
 
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
+                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                    dashboardCar.setDisplayedMileage(newTotalMileage);
+                    localCarAdapter.updateCar(dashboardCar);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                            //carMileage.setText(String.valueOf(newTotalMileage));
+                        }
+                    });
+                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                        carMileage.setText(String.valueOf(newTotalMileage));
                     }
                 });
             }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    carMileage.setText(String.valueOf(newTotalMileage));
-                }
-            });
         }
-    }
+
+        // Update displayed mileage if not scanning
+        if (dataPackageInfo.result == 4 && !scanStarted) {
+            Log.d(TAG, "Receiving historical data");
+            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
+                Log.d(TAG, "Trip end flag received, Update mileage");
+                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+                baseMileage = dashboardCar.getTotalMileage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+                                R.anim.mileage_update));
+                        carMileage.setText(String.valueOf(baseMileage));
+                    }
+                });
+
+            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
+                Log.d(TAG, "Trip start flag received");
+            } else{ // just display whatever you get, but not update the actual mileage
+                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()){
+                    final double newDisplayedMileage = ((int) ((baseMileage
+                            + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+                                    R.anim.mileage_update));
+                            carMileage.setText(String.valueOf(newDisplayedMileage));
+                        }
+                    });
+                }
+            }
+        }
+
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
@@ -781,6 +823,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");
+                    if (scanStarted) {
+                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+                        scanStarted = false;
+                    }
                     handler.removeCallbacks(checkEngineIssuesRunnable);
 
                     Drawable background = engineIssuesCountLayout.getBackground();
@@ -793,6 +839,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private long startTime = 0;
     private long carSearchStartTime = 0;
+
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -814,16 +861,18 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     carScanButton.setEnabled(true);
 
                     // Finished car scan
-                    //Mixpanel.sharedInstance().track
-                    // ("Scan Complete", properties: ["View": "Scan",
-                    // "Mileage Updated To" : \(mileage), "Device": "iOS"])
                     try {
                         JSONObject properties = new JSONObject();
                         properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
                         properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
-                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETED, properties);
+                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                    }
+
+                    if (scanStarted) {
+                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+                        scanStarted = false;
                     }
 
                     break;
@@ -852,7 +901,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-    private Runnable checkEngineIssuesRunnable = new Runnable() {
+    private final Runnable checkEngineIssuesRunnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -872,7 +921,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     /**
      * This runnable is used to observe timeout on getting historical data
      */
-    private Runnable getResult5Runnable = new Runnable() {
+    private final Runnable getResult5Runnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -880,7 +929,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             int seconds = (int) (timeDiff / 1000);
 
-            if (result5Retrieved){
+            if (result5Retrieved) {
                 handler.removeCallbacks(getResult5Runnable);
             } else if (seconds > 30) {
                 result5Retrieved = true;
@@ -892,26 +941,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
-
-//    private Runnable runnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            long currentTime = System.currentTimeMillis();
-//            long timeDiff = currentTime - startTime;
-//            int seconds = (int) (timeDiff / 1000);
-//
-//            if (seconds > 20 && askingForDtcs) {
-//                askingForDtcs = false;
-//                handler.sendEmptyMessage(0);
-//                handler.removeCallbacks(runnable);
-//            } else {
-//                handler.post(runnable);
-//            }
-//
-//        }
-//    };
-
-    private Runnable connectCarRunnable = new Runnable() {
+    private final Runnable connectCarRunnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
@@ -960,6 +990,25 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     }
 
+    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                   final boolean needDescription, @Nullable final String message){
+        if (needDescription){
+            new AnimatedDialogBuilder(activity)
+                    .setCancelable(false)
+                    .setTitle("Request Permissions")
+                    .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
+                    .setNegativeButton("", null)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+        }
+    }
+
     @Override
     public void onBackPressed() {
         try {
@@ -969,4 +1018,5 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
         super.onBackPressed();
     }
+
 }

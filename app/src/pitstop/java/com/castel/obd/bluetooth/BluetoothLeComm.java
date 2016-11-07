@@ -23,8 +23,7 @@ import android.util.Log;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.Utils;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.AddCarActivity;
+import com.pitstop.bluetooth.BluetoothRecognizer;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -82,6 +81,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private UUID readChar;
 
     private int btConnectionState = DISCONNECTED;
+
+    private final BluetoothRecognizer mBluetoothRecognizer;
 
     public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager, UUID serviceUuid, UUID writeChar, UUID readChar) {
 
@@ -340,4 +341,5 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             mCommand.execute(mGatt);
         }
     }
+
 }

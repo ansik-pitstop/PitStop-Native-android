@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Paul Soladoye on 11/04/2016.
@@ -71,6 +73,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private TestTimer testTimer = null;
+    private CountDownTimer collectDataTimer = null;
 
     int vinAttempts = 0;
     int rtcAttempts = 0;
@@ -187,6 +190,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             bluetoothCommunicator.obdSetCtrl(3);
             bluetoothCommunicator.obdSetCtrl(2); // clear pids
             disconnectFromDevice();
+            state = State.FINISH;
         }
     }
 
@@ -340,24 +344,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             counter++;
 
-            if (counter == 50) {
+            if (counter % 50 == 0) {
                 getPIDs();
             }
 
-            if (counter % 30 == 0) {
+            if (counter % 100 == 0) {
                 getDTCs();
             }
 
-            if (counter % 70 == 0) {
-//                getPendingDTCs();
-                getDTCs();
-            }
-
-            if (counter == 150) {
+            if (counter >= 500) {
                 counter = 1;
                 sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
                 dataSuccess = true;
-                testTimer.cancel();
+                collectDataTimer.cancel();
                 Log.d(TAG, "Test timer cancel");
                 flushData();
             }
@@ -428,14 +427,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     private void startCollectingData() {
         state = State.COLLECT_DATA;
-        getPIDs();
         if (testTimer != null) {
             testTimer.cancel();
             Log.d(TAG, "Test timer cancel");
         }
-        testTimer = new TestTimer(120000) {
+
+        collectDataTimer = new CountDownTimer(300000, 30000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                sendMessageToUi(MessageListener.STATUS_UPDATE,
+                        String.format(Locale.CANADA, "Collecting data, %d minutes %d seconds left",
+                                millisUntilFinished/60000, (millisUntilFinished % 60000) / 1000));
+            }
             @Override
             public void onFinish() {
+                Log.d(TAG, "Collect data finish");
                 if (!dataSuccess) {
                     counter = 1;
                     dataSuccess = true;
@@ -444,7 +450,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 sendMessageToUi(MessageListener.STATUS_SUCCESS, "Finished collecting data");
             }
         };
-        testTimer.start();
+        collectDataTimer.start();
+
         Log.d(TAG, "Test timer start");
     }
 
@@ -502,7 +509,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         isSendingPids = true;
         Log.i(TAG, "sending PID data");
-        sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading PIDs");
         List<Pid> pidDataEntries = mTestPidAdapter.getAllPidDataEntries();
 
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
@@ -583,10 +589,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.i(TAG, "DTCs found: " + dtcs);
 
-        if (!dtcs.isEmpty()){
-            sendMessageToUi(MessageListener.STATUS_UPDATE, "Uploading DTCs");
-        }
-
         if (NetworkHelper.isConnected(this)) {
             for (final String dtc : dtcArr) {
                 mNetworkHelper.postTestDtcs(pidArr, dtc, new RequestCallback() {
@@ -661,9 +663,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             });
         }
-
     }
-
 
     private void sendMessageToUi(int status, String message) {
         if (callbacks != null) {
@@ -788,8 +788,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdSetCtrl(4);
     }
 
-
-
     public void clearObdDataPackage(){
         Log.i(TAG, "Clearing obd data package");
 
@@ -912,6 +910,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dataSuccess = false;
         mPidSnapshots = new ArrayList<>();
         dtcsToSend = new ArrayList<>();
+        collectDataTimer.cancel();
         state = State.NONE;
     }
 }

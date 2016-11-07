@@ -7,13 +7,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +28,11 @@ import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.models.Car;
+import com.pitstop.models.ObdScanner;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
@@ -40,11 +49,16 @@ import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.addCarFragments.AddCarViewPager;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.BSAbstractedFragmentActivity;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by David on 7/20/2016.
@@ -53,28 +67,38 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     private final String TAG = AddCarActivity.class.getSimpleName();
 
+    // extras
+    public static final String EXTRA_PAIR_PENDING = "com.pitstop.ui.AddCarActivity.extra_pair_pending";
+
+    // activity result
     public static int ADD_CAR_SUCCESS = 51;
+    public static int PAIR_CAR_SUCCESS = 52;
 
     public static boolean addingCar = false;
 
     AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
+    private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private AddCarUtils addCarUtils;
 
     /**
      * <p>This variable is used to keep track of if user is adding car with device.</p>
-     * <p>This variable's value is <em>written</em> when:<br>
+     * <p>This variable's value is <b>written</b> when:<br>
      * 1.When the user tap NO when being asked if he has device, the value will be false.<br>
      * 2.When the user tap YES when being asked if he has device, the value will be true.</p>
-     *
-     * This variable's value is <em>read</em> in:<br>
+     * <p>
+     * This variable's value is <b>read</b> in:<br>
      * 1.AddCarActivity and AddCarUtils, to write logs in Mixpanel<br>
      * 2.BluetoothAutoConnectService, BluetoothClassicComm and BluetoothLeComm, to determine whether if we should connect to
      * the detected IDD prefix device<br>
      */
     public static boolean addingCarWithDevice = false;
+
+    private boolean carSuccessfullyAdded = false;
+
+    public static boolean isPairingUnrecognizedDevice = false;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -88,6 +112,45 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     };
 
+    private LocalScannerAdapter localScannerAdapter;
+
+    private class CarListAdapter extends BaseAdapter {
+        private List<Car> ownedCars;
+
+        public CarListAdapter(List<Car> cars) {
+            ownedCars = cars;
+        }
+
+        @Override
+        public int getCount() {
+            return ownedCars.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return ownedCars.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View rowView = convertView != null ? convertView :
+                    inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+            Car ownedCar = (Car) getItem(position);
+
+            TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
+            carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
+            return rowView;
+        }
+    }
+
+    private boolean selectCarDialogShowing = false;
+
     public MixpanelHelper getMixpanelHelper() {
         return mixpanelHelper;
     }
@@ -97,16 +160,30 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car_fragmented);
 
+        isPairingUnrecognizedDevice = getIntent().getBooleanExtra(EXTRA_PAIR_PENDING, false);
+
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
+        networkHelper = new NetworkHelper(getApplicationContext());
+        addCarUtils = new AddCarUtils((GlobalApplication) getApplicationContext(), this);
+
+        localScannerAdapter = new LocalScannerAdapter(this);
+
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
         mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(), this);
-        mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
+
+        if (isPairingUnrecognizedDevice) {
+            addingCarWithDevice = true;
+            mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "Pair Scanner", 0);
+            ((TextView) findViewById(R.id.step_text)).setText("Pair Scanner");
+        } else {
+            mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
+        }
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
 
-        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        addCarUtils = new AddCarUtils((GlobalApplication) getApplicationContext(), this);
-
+        // Mixpanel time event
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_ADD_CAR);
     }
 
     private void setupUIReferences() {
@@ -126,6 +203,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
+
         } else {
             // Otherwise, select the previous step.
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
@@ -141,7 +219,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the user tapped the "SELECT DEALERSHIP" in step 3
-     * @param view
+     *
+     * @param view Select dealership button in Step 3
      */
     public void selectDealershipClicked(View view) {
         Fragment fragment = mPagerAdapter.getItem(2);
@@ -153,7 +232,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             }
 
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
-            addCarUtils.addCarToServer(null);
+            addCarUtils.saveCarToServer();
 
             try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();
@@ -169,6 +248,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the user tapped the "Yes" in step 1
+     *
      * @param view The "Yes" button
      */
     public void yesDongleClicked(View view) {
@@ -184,11 +264,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
-
     }
 
     /**
      * Invoked when the user tapped the "No" in step 1
+     *
      * @param view The "No" button
      */
     public void noDongleClicked(View view) {
@@ -209,23 +289,28 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     /**
      * Invoked when the "SEARCH FOR VEHICLE" or "Add Vehicle" button is tapped in the second step of the add car process
      *
-     *
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
     public void searchForCar(View view) {
 
-        try{ // Log in Mixpanel
+        if (isPairingUnrecognizedDevice) {
+            addCarUtils.searchForUnrecognizedDevice();
+            return;
+        }
+
+        try { // Log in Mixpanel
             JSONObject properties = new JSONObject();
             properties.put("Button", addingCarWithDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
             properties.put("View", MixpanelHelper.ADD_CAR_VIEW);
             properties.put("Method of Adding Car", addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // If in the AddCar2NoDongleFragment
-        if (mPagerAdapter.getItem(1) != null && mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
+        if (mPagerAdapter.getItem(1) == null) return;
+
+        if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) { // If in the AddCar2NoDongleFragment
             EditText vinEditText = (EditText) findViewById(R.id.VIN);
             addCarUtils.setVin(vinEditText.getText().toString());
             if (addCarUtils.isValidVin()) {
@@ -244,8 +329,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             } else {
                 hideLoading("Invalid VIN");
             }
-            // Otherwise, if the user is in the AddCar2YesDongleFragment
-        } else if (mPagerAdapter.getItem(1) != null) {
+        } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
 
             // Hide keyboard
@@ -275,6 +359,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     /**
      * Invoked when the "Scan VIN Barcode" button is tapped
+     *
      * @param view the "Scan VIN Barcode" button
      */
     public void startScanner(View view) {
@@ -312,7 +397,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
 
+        registerBluetoothReceiver();
+
         addingCar = true;
+
+        // The result is by default cancelled
+        setResult(RESULT_CANCELED);
 
         super.onResume();
     }
@@ -321,11 +411,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onPause() {
         ((GlobalApplication) getApplicationContext()).getMixpanelAPI().flush();
 
-        try {
-            unregisterReceiver(bluetoothReceiver);
-        } catch (Exception e) {
+        unregisterBluetoothReceiver();
 
-        }
         addingCar = false;
 
         //hideLoading();
@@ -336,11 +423,19 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     protected void onDestroy() {
         hideLoading(null);
 
+        addingCarWithDevice = false;
+        isPairingUnrecognizedDevice = false;
+
         if (serviceIsBound) {
             addCarUtils.unbindService();
         }
 
         addCarUtils.cancelMashape();
+
+        if (carSuccessfullyAdded) {
+            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_ADD_CAR);
+        }
+
         super.onDestroy();
     }
 
@@ -371,8 +466,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                         ((EditText) vinField).setText(VIN);
                     }
                     Log.i(TAG, "Barcode read: " + VIN);
-                    if (AddCarUtils.isValidVin(VIN)) {
-                    } else {
+                    if (!AddCarUtils.isValidVin(VIN)) {
                         Toast.makeText(AddCarActivity.this, "Invalid VIN", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -443,7 +537,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         if(string!=null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -454,9 +547,25 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         }
     }
 
+    private void registerBluetoothReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(bluetoothReceiver, filter);
+    }
+
+    private void unregisterBluetoothReceiver() {
+        unregisterReceiver(bluetoothReceiver);
+    }
+
+    /**
+     * From AddCarUtils.AddCarUtilsCallback
+     */
+
     @Override
     public void carSuccessfullyAdded(Car car) {
         if (!addingCar) return;
+
+        carSuccessfullyAdded = true; // At this point car is successfully added
 
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
@@ -512,7 +621,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                searchForCar(null);
+                if (!isPairingUnrecognizedDevice) {
+                    searchForCar(null);
+                } else {
+                    addCarUtils.searchForUnrecognizedDevice();
+                }
             }
         });
 
@@ -539,6 +652,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void postMileageInput() {
+        // After the user entered the mileage, search for car and get Vin
+        addCarUtils.searchAndGetVin();
+    }
+
+    @Override
+    public void askForDealership() {
         if (!addingCar) return;
 
         mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
@@ -553,4 +672,162 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             e.printStackTrace();
         }
     }
+
+    /**
+     * During pair car with device process, when the scanner does not return the VIN
+     *
+     * @param scannerName
+     * @param scannerId
+     */
+    @Override
+    public void showSelectCarDialog(final String scannerName, final String scannerId) {
+        if (autoConnectService != null && !selectCarDialogShowing) {
+            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
+            final ArrayList<Car> selectedCar = new ArrayList<>(1);
+
+            AnimatedDialogBuilder dialog = new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
+            dialog.setCancelable(false)
+                    .setTitle("Unrecognized module detected, please select the car this device is connected to:")
+                    .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            selectedCar.clear();
+                            selectedCar.add((Car) carListAdapter.getItem(which));
+                        }
+                    })
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                            if (selectedCar.isEmpty()) {
+                                Toast.makeText(AddCarActivity.this, "Please pick a car!", Toast.LENGTH_SHORT).show();
+                            } else if (localScannerAdapter.carHasDevice(selectedCar.get(0).getId())) {
+                                Toast.makeText(AddCarActivity.this, "This car has scanner!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                validateAndPostScanner(selectedCar.get(0), scannerId, scannerName);
+                            }
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            selectCarDialogShowing = false;
+                        }
+                    });
+            dialog.show();
+            selectCarDialogShowing = true;
+        }
+    }
+
+    /**
+     * Show a dialog prompting user to pair the corresponding car
+     *
+     * @param existedCar The car retrieved from the backend whose user_id matches current user id
+     * @param scannerName Current scanner name
+     * @param scannerId Current scanner id
+     */
+    @Override
+    public void pairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
+        new AnimatedDialogBuilder(this)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setTitle("Unrecognized device found")
+                .setMessage("We have found a OBD bluetooth device " + scannerId + ", and it is connected to " +
+                        "your " + existedCar.getYear() + " " + existedCar.getMake() + " " + existedCar.getModel() +
+                        ". Do your want us to link the device with your car?")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        validateAndPostScanner(existedCar, scannerId, scannerName);
+                    }
+                }).show();
+    }
+
+    /**
+     * 1. Check with the backend and see if scanner is valid <br>
+     * 2. If so, create an association with the car selected and the scanner <br>
+     * 3. On success, store scanner information locally, and finish.
+     * @param car selected car or the car retrieved from the backend by its VIN
+     * @param scannerId The current scannerId
+     * @param scannerName The current scannerName
+     */
+    private void validateAndPostScanner(final Car car, final String scannerId, final String scannerName) {
+        showLoading("Checking device ID..");
+        networkHelper.validateScannerId(scannerId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError != null) {
+                    pairCarError("Network error, please try again later");
+                } else {
+                    try {
+                        JSONObject result = new JSONObject(response);
+                        if (result.has("id")) { //invalid
+                            Log.d(TAG, "DeviceID is not valid");
+                            pairCarError("This device has been paired with another car.");
+                        } else {
+                            showLoading("Valid scanner, saving...");
+                            networkHelper.createNewScanner(car.getId(), scannerId, new RequestCallback() {
+                                @Override
+                                public void done(String response, RequestError requestError) {
+                                    if (requestError != null) {
+                                        // Error occurred during creating new scanner
+                                        Log.d(TAG, "Create new scanner failed!");
+                                        Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
+                                                + "Message: " + requestError.getMessage() + "\n"
+                                                + "Error: " + requestError.getError());
+                                        pairCarError("Network errors, please try again later");
+                                    } else {
+                                        // Save locally
+                                        ObdScanner scanner = new ObdScanner(
+                                                car.getId(), scannerName, scannerId);
+                                        localScannerAdapter.updateScannerByCarId(scanner);
+                                        Intent data = new Intent();
+                                        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
+                                        setResult(PAIR_CAR_SUCCESS, data);
+                                        hideLoading("Finish");
+                                        finish();
+                                    }
+                                }
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        pairCarError("Unknown error, please try again later");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void pairCarError(String errorMessage) {
+        new AnimatedDialogBuilder(this)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setTitle("Error in pairing device")
+                .setMessage(errorMessage)
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        addCarUtils.searchForUnrecognizedDevice();
+                    }
+                }).show();
+    }
+
 }

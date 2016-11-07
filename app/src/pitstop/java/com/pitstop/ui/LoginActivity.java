@@ -1,6 +1,5 @@
 package com.pitstop.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -23,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -278,7 +276,6 @@ public class LoginActivity extends AppCompatActivity {
                 application.logOutUser();
             }
             // Otherwise, select the previous step.
-//            if(signup && mPager.getCurrentItem() == 2 && firstName.getVisibility() == View.VISIBLE) {
             if (signup && mPager.getCurrentItem() == SplashSlidePagerAdapter.PAGE_LOGIN && firstName.getVisibility() == View.VISIBLE) {
                 firstName.setVisibility(View.GONE);
                 lastName.setVisibility(View.GONE);
@@ -488,8 +485,8 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     json.put("firstName", firstName.getText().toString());
                     json.put("lastName", lastName.getText().toString());
-                    json.put("email", email.getText().toString().replace(" ", ""));
-                    json.put("username", email.getText().toString().replace(" ", ""));
+                    json.put("email", email.getText().toString().replace(" ", "").toLowerCase());
+                    json.put("username", email.getText().toString().replace(" ", "").toLowerCase());
                     json.put("phone", phoneNumber.getText().toString());
                     json.put("password", password.getText().toString());
                     json.put("isSocial", false);
@@ -514,7 +511,7 @@ public class LoginActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            login(email.getText().toString(), password.getText().toString());
+                            login(email.getText().toString().toLowerCase(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
                             Toast.makeText(LoginActivity.this, "This email is already in use", Toast.LENGTH_SHORT).show();
@@ -900,33 +897,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-    }
-
-    public void setUIOnTapDismissKeyboard(View view) {
-        // Set up touch listener for non-text box views to hide keyboard.
-        if (!(view instanceof EditText)) {
-            view.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideSoftKeyboard(LoginActivity.this);
-                    return false;
-                }
-            });
-        }
-        //If a layout container, iterate over children and seed recursion.
-        if (view instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                View innerView = ((ViewGroup) view).getChildAt(i);
-                setUIOnTapDismissKeyboard(innerView);
-            }
-        }
-    }
-
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) activity.getSystemService(
-                        Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(
-                activity.getCurrentFocus().getWindowToken(), 0);
     }
 
 }

@@ -135,6 +135,20 @@ public class NetworkHelper {
         post("car", callback, body);
     }
 
+    public void deleteUserCar(int carId, RequestCallback callback){
+        LOGI(TAG, "Delete car: " + carId);
+
+        JSONObject body = new JSONObject();
+        try{
+            body.put("userId", 0);
+            body.put("carId", carId);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        put("car", callback, body);
+    }
+
     public void getCarsByUserId(int userId, RequestCallback callback) {
         LOGI(TAG, "getCarsByUserId: " + userId);
         get("car/?userId=" + userId, callback);
@@ -295,7 +309,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Endpoint = POST /car/{carId}/issues
+     * Endpoint = POST /car/{carId}/service
      *
      * @param carId
      * @param issueId
@@ -319,7 +333,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Endpoint = POST /car/{carId}/issues
+     * Endpoint = POST /car/{carId}/service
      *
      * @param carId       car id that issue needs to be added to
      * @param item        the issue item
@@ -511,39 +525,6 @@ public class NetworkHelper {
         }
 
         postNoAuth("scan/pids", callback, body);
-    }
-
-    /**
-     * @param userId
-     * @param carId
-     * @param shopId
-     * @param comments
-     * @param date
-     * @param tentative
-     * @param callback
-     * @deprecated replaced by {@link #requestService(int, int, int, String, String, String, RequestCallback)}
-     */
-    public void requestService(int userId, int carId, int shopId, String comments, String date, boolean tentative,
-                               RequestCallback callback) {
-        LOGI(TAG, String.format("requestService: userId: %s, carId: %s, shopId: %s", userId, carId, shopId));
-
-        JSONObject body = new JSONObject();
-        JSONObject options = new JSONObject();
-        try {
-            body.put("userId", userId);
-            body.put("carId", carId);
-            body.put("shopId", shopId);
-            body.put("comments", comments);
-            options.put("date", date);
-            if (tentative) {
-                options.put("state", "tentative");
-            }
-            body.put("options", options);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("utility/serviceRequest", callback, body);
     }
 
     /**
@@ -746,5 +727,6 @@ public class NetworkHelper {
         LOGI(TAG, "validate scanner id: " + scannerId);
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
+
 
 }
