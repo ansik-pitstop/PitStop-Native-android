@@ -45,12 +45,14 @@ public class Device212B implements AbstractDevice {
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager.IPassiveCommandListener passiveCommandListener;
     private Context context;
+    private final String deviceName;
 
     public Device212B(Context context, ObdManager.IBluetoothDataListener dataListener,
-                      ObdManager.IPassiveCommandListener passiveCommandListener) {
+                      ObdManager.IPassiveCommandListener passiveCommandListener, String deviceName) {
         this.dataListener = dataListener;
         this.context = context;
         this.passiveCommandListener = passiveCommandListener;
+        this.deviceName = deviceName;
     }
 
     // functions
@@ -86,6 +88,11 @@ public class Device212B implements AbstractDevice {
     @Override
     public String requestData() {
         return null;
+    }
+
+    @Override
+    public String getDeviceName() {
+        return deviceName;
     }
 
     @Override

@@ -22,7 +22,6 @@ import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.LogUtil;
-import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;

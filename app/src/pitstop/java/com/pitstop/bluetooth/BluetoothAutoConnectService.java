@@ -79,7 +79,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener {
 
-    private static String TAG = "BtAutoConnectDebug";
+    private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
 
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
@@ -147,6 +147,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     private boolean bluetoothConnectedTimeEventStarted = false;
 
+    // Empty bluetoothCommunicator
+    // Useless?
     private IBluetoothCommunicator bluetoothCommunicator = new IBluetoothCommunicator() {
         @Override
         public void startScan() {
@@ -251,21 +253,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public String getConnectedDeviceName() {
             return null;
-        }
-
-        @Override
-        public void connectPendingDevice() {
-
-        }
-
-        @Override
-        public void manuallyDisconnectCurrentDevice() {
-
-        }
-
-        @Override
-        public void cancelPendingDevice() {
-
         }
     };
 
@@ -404,6 +391,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 bluetoothConnectedTimeEventStarted = true;
                 mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
             }
+
         } else {
             /**
              * Set device connection state for connected car indicator,
@@ -1705,7 +1693,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public String getConnectedDeviceName() {
-        return null;//bluetoothCommunicator.getConnectedDeviceName();
+//        return null;  //bluetoothCommunicator.getConnectedDeviceName();
+        return deviceManager.getConnectedDeviceName();
     }
 
     /**

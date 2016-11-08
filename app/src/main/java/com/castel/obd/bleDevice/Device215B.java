@@ -46,13 +46,14 @@ public class Device215B implements AbstractDevice {
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
 
-
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
+    private final String deviceName;
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener) {
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
         this.dataListener = dataListener;
         this.context = context;
+        this.deviceName = deviceName;
     }
 
     // functions
@@ -85,6 +86,11 @@ public class Device215B implements AbstractDevice {
     @Override
     public String requestData() {
         return replyIDRPackage();
+    }
+
+    @Override
+    public String getDeviceName() {
+        return deviceName;
     }
 
     @Override

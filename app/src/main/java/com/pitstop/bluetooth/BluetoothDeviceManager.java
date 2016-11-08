@@ -38,7 +38,6 @@ import java.util.UUID;
 /**
  * Created by Ben!
  */
-
 public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListener {
 
     private Context mContext;
@@ -80,6 +79,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothCommunicator communicator;
 
+    private final BluetoothRecognizer mBluetoothRecognizer;
+
     public enum CommType {
         CLASSIC, LE
     }
@@ -97,6 +98,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // for classic discovery
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         context.registerReceiver(receiver, intentFilter);
+
+        mBluetoothRecognizer = new BluetoothRecognizer(context);
     }
 
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
@@ -104,12 +107,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void startScan() {
-        if(!mBluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
+            mBluetoothAdapter.enable();
             return;
         }
 
-        if(mIsScanning) {
+        if (mIsScanning) {
             Log.i(TAG, "Already scanning");
             return;
         }
@@ -119,7 +123,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     @Override
     public void sendCommandPassive(String payload) {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -127,7 +131,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void close() {
-        if(communicator != null) {
+        if (communicator != null) {
             communicator.close();
         }
         try {
@@ -138,29 +142,29 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private void writeToObd(String payload) {
-        if(communicator == null) {
+        if (communicator == null) {
             return;
         }
 
-        if(payload == null || payload.isEmpty()) {
+        if (payload == null || payload.isEmpty()) {
             return;
         }
 
         try { // get instruction string from json payload
             String temp = new JSONObject(payload).getString("instruction");
             payload = temp;
-        } catch(JSONException e) {
+        } catch (JSONException e) {
         }
 
         ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
 
-        while(payload.length() > 20) {
+        while (payload.length() > 20) {
             sendData.add(payload.substring(0, 20));
             payload = payload.substring(20);
         }
         sendData.add(payload);
 
-        for(String data : sendData) {
+        for (String data : sendData) {
             byte[] bytes;
 
             bytes = deviceInterface.getBytes(data);
@@ -177,6 +181,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 
+        // on device connected?
     }
 
     private void showConnectingNotification() {
@@ -213,18 +218,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
      */
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
-        if(btConnectionState == BluetoothCommunicator.CONNECTING) {
+        if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             return;
         }
 
-        scanLeDevice(false);// will stop after first device detection
+        // Le can be used for 212 but it doesn't work properly on all versions of Android
+        // scanLeDevice(false);// will stop after first device detection
 
-        if(communicator != null) {
+        if (communicator != null) {
             communicator.close();
             communicator = null;
         }
 
-        switch(deviceInterface.commType()) {
+        switch (deviceInterface.commType()) {
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to LE device");
@@ -237,13 +243,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
-        if(communicator != null) {
-            communicator.connectToDevice(device);
-        }
+        communicator.connectToDevice(device);
     }
 
     public void bluetoothStateChanged(int state) {
-        if(state == BluetoothAdapter.STATE_OFF) {
+        if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
         }
     }
@@ -252,20 +256,24 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
+    public String getConnectedDeviceName(){
+        return deviceInterface.getDeviceName();
+    }
+
     private void connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
-        if(btConnectionState == BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
             return;
         }
 
-        if(btConnectionState == BluetoothCommunicator.CONNECTING) {
+        if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Log.i(TAG, "Bluetooth already connecting");
             return;
         }
 
-        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
             return;
         }
@@ -303,57 +311,27 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+            if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getName() != null) {
-                    Log.v(TAG, "Found device: "+device.getName());
-                    if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-                        deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this);
-                        connectToDevice(device);
-                    } else if(device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-                        deviceInterface = new Device215B(mContext, dataListener);
-                        connectToDevice(device);
+                String deviceName = device.getName();
+                if (deviceName != null) {
+                    switch (mBluetoothRecognizer.onDeviceFound(deviceName)) {
+                        case CONNECT:
+                            Log.v(TAG, "Found device: " + deviceName);
+                            if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
+                                deviceInterface = new Device212B(mContext, dataListener,
+                                        BluetoothDeviceManager.this, deviceName);
+                                connectToDevice(device);
+                            } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
+                                deviceInterface = new Device215B(mContext, dataListener,
+                                        deviceName);
+                                connectToDevice(device);
+                            }
+                            break;
+                        default:
+                            // Do nothing
+                            break;
                     }
-                }
-            }
-        }
-    };
-
-    /**
-     * @param enable
-     */
-    private void scanLeDevice(final boolean enable) {
-
-        if (enable) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    scanLeDevice(false);
-                }
-            }, SCAN_PERIOD);
-
-            Log.i(TAG, "Starting le scan");
-            mBluetoothAdapter.startLeScan(mScanCallback);
-            mIsScanning = true;
-        } else {
-            Log.i(TAG, "Stopping scan");
-            mBluetoothAdapter.stopLeScan(mScanCallback);
-            mIsScanning = false;
-        }
-
-    }
-
-    private BluetoothAdapter.LeScanCallback mScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if(device.getName() != null) {
-                Log.v(TAG, "Found device: "+device.getName());
-                if(device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-                    deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this);
-                    connectToDevice(device);
-                } else if(device.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-                    deviceInterface = new Device215B(mContext, dataListener);
-                    connectToDevice(device);
                 }
             }
         }
@@ -371,7 +349,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     // functions
 
     public void getVin() {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -379,7 +357,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getRtc() {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -387,7 +365,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void setRtc(long rtcTime) {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -395,7 +373,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getPids(String pids) {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -403,7 +381,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getSupportedPids() {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -412,7 +390,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids) {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -420,7 +398,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getDtcs() {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
@@ -429,7 +407,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void requestData() {
-        if(btConnectionState != BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 

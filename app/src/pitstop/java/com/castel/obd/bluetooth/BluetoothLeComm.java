@@ -82,8 +82,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     private int btConnectionState = DISCONNECTED;
 
-    private final BluetoothRecognizer mBluetoothRecognizer;
-
     public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager, UUID serviceUuid, UUID writeChar, UUID readChar) {
 
         mContext = context;
@@ -197,6 +195,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
     }
+
     public void bluetoothStateChanged(int state) {
         if(state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
@@ -211,15 +210,14 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             switch (newState) {
 
                 case BluetoothProfile.STATE_CONNECTING:
-                {
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
                     break;
-                }
+
 
                 case BluetoothProfile.STATE_CONNECTED:
-                {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
+                    btConnectionState = CONNECTED;
                     try {
                         mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
                     } catch (JSONException e) {
@@ -227,20 +225,16 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     }
                     needToScan = false;
                     deviceManager.connectionStateChange(btConnectionState);
-                    btConnectionState = CONNECTED;
                     gatt.discoverServices();
-
                     break;
-                }
+
 
                 case BluetoothProfile.STATE_DISCONNECTING:
-                {
                     Log.i(TAG, "gattCallback STATE_DISCONNECTING");
                     break;
-                }
+
 
                 case BluetoothProfile.STATE_DISCONNECTED:
-                {
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     try {
@@ -253,7 +247,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
                     break;
-                }
+
 
                 default:
                     Log.i(TAG, "gattCallback STATE_OTHER");

@@ -40,7 +40,6 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.Utils;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
@@ -741,8 +740,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
             } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
                 Log.d(TAG, "Trip start flag received");
-            } else{ // just display whatever you get, but not update the actual mileage
-                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()){
+            } else { // just display whatever you get, but not update the actual mileage
+                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
                     final double newDisplayedMileage = ((int) ((baseMileage
                             + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
                     runOnUiThread(new Runnable() {
@@ -756,6 +755,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
             }
         }
+    }
 
 
     @Override

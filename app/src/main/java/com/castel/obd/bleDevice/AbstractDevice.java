@@ -23,6 +23,8 @@ public interface AbstractDevice {
 
     String requestData(); // for 215 to ask for IDR
 
+    String getDeviceName();
+
     // parameters
     String getVin();
     String getRtc();
@@ -34,6 +36,7 @@ public interface AbstractDevice {
     // monitor
     String getDtcs(); // stored
     String getPendingDtcs(); // pending
+
 
 
 }

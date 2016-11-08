@@ -1,6 +1,5 @@
 package com.castel.obd.bluetooth;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,13 +14,7 @@ import android.widget.Toast;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
-import com.castel.obd.util.Utils;
-import com.pitstop.bluetooth.BluetoothRecognizer;
-import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.AddCarActivity;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.MixpanelHelper;
@@ -44,7 +37,6 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     private BluetoothChat mBluetoothChat;
     private BluetoothAdapter mBluetoothAdapter;
-    private final BluetoothRecognizer mBluetoothRecognizer;
 
     private boolean isMacAddress = false;
 
@@ -75,7 +67,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     @Override
     public void close() {
-        Log.i(TAG,"Closing connection - BluetoothClassicComm");
+        Log.i(TAG, "Closing connection - BluetoothClassicComm");
         btConnectionState = DISCONNECTED;
         try {
             mContext.unregisterReceiver(mReceiver);
@@ -88,7 +80,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     @Override
     public void writeData(byte[] bytes) {
-        if(bytes == null || bytes.length == 0) {
+        if (bytes == null || bytes.length == 0) {
             return;
         }
 
@@ -102,7 +94,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
         mBluetoothChat.connectBluetooth(device);
     }
 
-    Runnable runnable = new Runnable() {
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
             if (!mObdManager.isParse() && dataLists.size() > 0) {
@@ -113,24 +105,22 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
         }
     };
 
-    private Handler mHandler = new Handler() {
+    private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             Log.v(TAG, "BluetoothClassicComm message handler");
             super.handleMessage(msg);
             switch (msg.what) {
-                case CANCEL_DISCOVERY:
-                {
-                    Log.i(TAG,"CANCEL_DISCOVERY - BluetoothClassicComm");
+                case CANCEL_DISCOVERY: {
+                    Log.i(TAG, "CANCEL_DISCOVERY - BluetoothClassicComm");
                     if (mBluetoothAdapter.isDiscovering()) {
                         mBluetoothAdapter.cancelDiscovery();
                     }
                     break;
                 }
-                case BLUETOOTH_CONNECT_SUCCESS:
-                {
-                    Log.i(TAG,"Bluetooth connect success - BluetoothClassicComm");
+                case BLUETOOTH_CONNECT_SUCCESS: {
                     btConnectionState = CONNECTED;
+                    Log.i(TAG, "Bluetooth connect success - BluetoothClassicComm");
                     Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
                     OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
                     Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
@@ -138,8 +128,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
                     break;
                 }
-                case BLUETOOTH_CONNECT_FAIL:
-                {
+                case BLUETOOTH_CONNECT_FAIL: {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG, "Bluetooth connection failed - BluetoothClassicComm");
@@ -147,21 +136,19 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                         mBluetoothAdapter.cancelDiscovery();
                     }
                     OBDInfoSP.saveMacAddress(mContext, "");
-                    Log.i(TAG,"Retry connection");
+                    Log.i(TAG, "Retry connection");
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
                     deviceManager.connectionStateChange(btConnectionState);
                     break;
                 }
-                case BLUETOOTH_CONNECT_EXCEPTION:
-                {
+                case BLUETOOTH_CONNECT_EXCEPTION: {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
-                    Log.i(TAG,"Bluetooth connection exception - calling get bluetooth state on dListener");
+                    Log.i(TAG, "Bluetooth connection exception - calling get bluetooth state on dListener");
                     deviceManager.connectionStateChange(btConnectionState);
                     break;
                 }
-                case BLUETOOTH_READ_DATA:
-                {
+                case BLUETOOTH_READ_DATA: {
                     if (msg.obj != null && ((byte[]) msg.obj).length > 0) {
                         Log.v(TAG, "Bluetooth read data... - BluetoothClassicComm");
                         dataLists.add((byte[]) msg.obj);
@@ -181,22 +168,22 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
             LogUtil.i(action);
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.v(TAG,"A device found - BluetoothClassicComm");
+                Log.v(TAG, "A device found - BluetoothClassicComm");
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.v(TAG,device.getName() + " " + device.getAddress());
+                Log.v(TAG, device.getName() + " " + device.getAddress());
 
-                if (device.getName()!=null&&device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-                    Log.i(TAG,"OBD device found... Connect to IDD-212 - BluetoothClassicComm");
+                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    Log.i(TAG, "OBD device found... Connect to IDD-212 - BluetoothClassicComm");
                     mBluetoothChat.connectBluetooth(device);
-                    Log.i(TAG,"Connecting to device - BluetoothClassicComm");
+                    Log.i(TAG, "Connecting to device - BluetoothClassicComm");
                     Toast.makeText(mContext, "Connecting to Device", Toast.LENGTH_SHORT).show();
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 //Log.i(TAG,"Phone is connected to a remote device - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getName()!=null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     Log.i(TAG, "Connected to device: " + device.getName());
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
@@ -210,11 +197,11 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 
-                Log.i(TAG,"Pairing state changed - BluetoothClassicComm");
+                Log.i(TAG, "Pairing state changed - BluetoothClassicComm");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getBondState()==BluetoothDevice.BOND_BONDED &&
+                if (device.getBondState() == BluetoothDevice.BOND_BONDED &&
                         (device.getName().contains(ObdManager.BT_DEVICE_NAME_212))) {
-                    Log.i(TAG,"Connected to a PAIRED device - BluetoothClassicComm");
+                    Log.i(TAG, "Connected to a PAIRED device - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
                     deviceManager.connectionStateChange(btConnectionState);
                 }
@@ -224,7 +211,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                if(device.getName()!= null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     try {
@@ -240,12 +227,12 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
 
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                Log.i(TAG,"Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");
+                Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_STARTED - BluetoothClassicComm");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                Log.i(TAG,"Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
+                Log.i(TAG, "Bluetooth state:ACTION_DISCOVERY_FINISHED - BluetoothClassicComm");
                 if (btConnectionState != CONNECTED) {
                     btConnectionState = DISCONNECTED;
-                    Log.i(TAG,"Not connected - setting get bluetooth state on dListeners");
+                    Log.i(TAG, "Not connected - setting get bluetooth state on dListeners");
                     deviceManager.connectionStateChange(btConnectionState);
                 }
             }
@@ -265,9 +252,9 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     }
 
     public void bluetoothStateChanged(int state) {
-        if(state == BluetoothAdapter.STATE_OFF) {
+        if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
-        } else if(state == CONNECTED) {
+        } else if (state == CONNECTED) {
             btConnectionState = state;
         }
     }

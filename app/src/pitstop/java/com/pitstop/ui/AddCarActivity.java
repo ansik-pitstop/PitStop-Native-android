@@ -43,7 +43,6 @@ import com.pitstop.ui.addCarFragments.AddCar2YesDongleFragment;
 import com.pitstop.ui.addCarFragments.AddCarChooseDealershipFragment;
 import com.pitstop.ui.addCarFragments.AddCarMileageDialog;
 import com.pitstop.ui.addCarFragments.AddCarUtils;
-import com.pitstop.models.Car;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
