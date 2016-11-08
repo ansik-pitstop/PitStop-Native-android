@@ -147,115 +147,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     private boolean bluetoothConnectedTimeEventStarted = false;
 
-    // Empty bluetoothCommunicator
-    // Useless?
-    private IBluetoothCommunicator bluetoothCommunicator = new IBluetoothCommunicator() {
-        @Override
-        public void startScan() {
-
-        }
-
-        @Override
-        public void stopScan() {
-
-        }
-
-        @Override
-        public int getState() {
-            return 0;
-        }
-
-        @Override
-        public void obdSetCtrl(int type) {
-
-        }
-
-        @Override
-        public void obdSetMonitor(int type, String valueList) {
-
-        }
-
-        @Override
-        public void obdSetParameter(String tlvTagList, String valueList) {
-
-        }
-
-        @Override
-        public void obdGetParameter(String tlvTag) {
-
-        }
-
-        @Override
-        public void writeRawInstruction(String instruction) {
-
-        }
-
-        @Override
-        public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
-
-        }
-
-        @Override
-        public boolean hasDiscoveredServices() {
-            return false;
-        }
-
-        @Override
-        public void close() {
-
-        }
-
-        @Override
-        public void initDevice() {
-
-        }
-
-        @Override
-        public void bluetoothStateChanged(int state) {
-
-        }
-
-        @Override
-        public void getVin() {
-
-        }
-
-        @Override
-        public void getRtc() {
-
-        }
-
-        @Override
-        public void setRtc(long rtcTime) {
-
-        }
-
-        @Override
-        public void getPids(String pids) {
-
-        }
-
-        @Override
-        public void getSupportedPids() {
-
-        }
-
-        @Override
-        public void setPidsToSend(String pids) {
-
-        }
-
-        @Override
-        public void getDtcs() {
-
-        }
-
-        @Override
-        public String getConnectedDeviceName() {
-            return null;
-        }
-    };
-
     /**
      * for periodic bluetooth scans
      */
@@ -959,7 +850,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        String btName = bluetoothCommunicator.getConnectedDeviceName();
+//        String btName = bluetoothCommunicator.getConnectedDeviceName();
+        String btName = deviceManager.getConnectedDeviceName();
 
         Log.d(TAG, "Saving device name: " + (btName != null ? btName : "BT DEVICE NAME IS NULL!"));
         Log.d(TAG, "Saving device ID: " + currentDeviceId);
@@ -1014,10 +906,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public boolean isCommunicatingWithDevice() {
         return deviceConnState;
-    }
-
-    public boolean hasDiscoveredServices() {
-        return bluetoothCommunicator.hasDiscoveredServices();
     }
 
     /**

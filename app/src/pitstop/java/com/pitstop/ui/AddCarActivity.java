@@ -391,7 +391,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     protected void onResume() {
         try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
+            if (isPairingUnrecognizedDevice){
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+            } else {
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -768,12 +772,14 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             public void done(String response, RequestError requestError) {
                 if (requestError != null) {
                     pairCarError("Network error, please try again later");
+                    mixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
                 } else {
                     try {
                         JSONObject result = new JSONObject(response);
                         if (result.has("id")) { //invalid
                             Log.d(TAG, "DeviceID is not valid");
                             pairCarError("This device has been paired with another car.");
+                            mixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID);
                         } else {
                             showLoading("Valid scanner, saving...");
                             networkHelper.createNewScanner(car.getId(), scannerId, new RequestCallback() {
@@ -782,15 +788,14 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                                     if (requestError != null) {
                                         // Error occurred during creating new scanner
                                         Log.d(TAG, "Create new scanner failed!");
-                                        Log.d(TAG, "Status code: " + requestError.getStatusCode() + "\n"
-                                                + "Message: " + requestError.getMessage() + "\n"
-                                                + "Error: " + requestError.getError());
                                         pairCarError("Network errors, please try again later");
+                                        mixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
                                     } else {
                                         // Save locally
                                         ObdScanner scanner = new ObdScanner(
                                                 car.getId(), scannerName, scannerId);
                                         localScannerAdapter.updateScannerByCarId(scanner);
+                                        mixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
                                         Intent data = new Intent();
                                         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
                                         setResult(PAIR_CAR_SUCCESS, data);

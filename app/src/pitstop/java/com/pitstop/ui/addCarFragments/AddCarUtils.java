@@ -151,7 +151,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                             MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                     // If getting DTCs timeout, for the sake of keeping good UX, we skip it
                     PreferenceManager.getDefaultSharedPreferences(context).edit()
-                            .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).commit();
+                            .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).apply();
                     networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
                     callback.carSuccessfullyAdded(createdCar);
                     break;
@@ -625,29 +625,41 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         if (askForDTC) {
+            askForDTC=false;
             Log.i(TAG, "Received dtc data: " + dtcPackage.dtcNumber);
             dtcs = "";
             if(dtcPackage.dtcs != null){
                 for(String dtc : dtcPackage.dtcs) {
                     dtcs+= dtc;
                 }
+                // At this point we have retrieved DTCs
+                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
             }
 
-            Log.i(TAG, "Adding car");
-            if(NetworkHelper.isConnected(context)){
-                Log.i(TAG, "Internet connection found");
-                runVinTask();
-            } else {
-                Log.i(TAG, "No internet");
-                callback.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.hideLoading(null);
-                        startPendingAddCarActivity();
-                    }
-                });
+            // IF timeout, maybe we should below codes because we will have it executed before timeout
+            if (mGetDTCTimeoutRunnable != null && mGetDTCTimeoutRunnable.getDTCTimeOut) {
+                return;
             }
-            askForDTC=false;
+
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
+                    createdCar.getId()).apply();
+            networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
+            callback.carSuccessfullyAdded(createdCar);
+
+//            Log.i(TAG, "Adding car");
+//            if(NetworkHelper.isConnected(context)){
+//                Log.i(TAG, "Internet connection found");
+//                runVinTask();
+//            } else {
+//                Log.i(TAG, "No internet");
+//                callback.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        callback.hideLoading(null);
+//                        startPendingAddCarActivity();
+//                    }
+//                });
+//            }
         }
     }
 
@@ -910,7 +922,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         });
 
         networkHelper.createNewCar(context.getCurrentUserId(),
-                pendingCar.equals("") ? 0 : (int) pendingCar.getBaseMileage(),
+                (int) pendingCar.getBaseMileage(),
                 pendingCar.getVin(),
                 pendingCar.getScannerId() == null ? "" : pendingCar.getScannerId(),
                 pendingCar.getShopId(),
@@ -940,20 +952,19 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                 // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
                                 if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
                                     Log.i(TAG, "Now connected to device");
-
                                     callback.showLoading("Loading car engine codes");
-                                    askForDTC = true;
                                     Log.i(TAG, "Make car --- Getting DTCs");
 
                                     // Check if DTCs are retrieved after 15 seconds
                                     mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
                                     mHandler.post(mGetDTCTimeoutRunnable);
+                                    askForDTC = true;
 
                                     autoConnectService.getDTCs();
                                     autoConnectService.getPendingDTCs();
                                 } else { // If bluetooth connection state is not connected, then just ignore getting DTCs
                                     PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
-                                            createdCar.getId()).commit();
+                                            createdCar.getId()).apply();
                                     networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
                                     callback.carSuccessfullyAdded(createdCar);
                                 }

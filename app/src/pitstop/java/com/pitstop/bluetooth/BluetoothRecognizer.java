@@ -14,8 +14,10 @@ import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.AddCarActivity;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Class that identifies IDD bluetooth device
@@ -31,10 +33,12 @@ public class BluetoothRecognizer {
     }
 
     private final LocalScannerAdapter mLocalScannerStore;
+    private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
 
     public BluetoothRecognizer(Context context) {
         mLocalScannerStore = new LocalScannerAdapter(context);
+        mMixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         mContext = context;
     }
 
@@ -54,6 +58,7 @@ public class BluetoothRecognizer {
             return RecognizeResult.CONNECT;
         } else if (mLocalScannerStore.anyCarLackScanner()) {
             notifyOnUnrecognizedDeviceFound(scannerName);
+            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
             return RecognizeResult.IGNORE;
         } else { // this part should never be reached.... but whatever
             return RecognizeResult.YOLO;
