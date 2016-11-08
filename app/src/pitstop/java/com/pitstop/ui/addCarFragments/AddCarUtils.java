@@ -836,14 +836,13 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                 // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
                                 if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
                                     Log.i(TAG, "Now connected to device");
-
                                     callback.showLoading("Loading car engine codes");
-                                    askForDTC = true;
                                     Log.i(TAG, "Make car --- Getting DTCs");
 
                                     // Check if DTCs are retrieved after 15 seconds
                                     mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
                                     mHandler.post(mGetDTCTimeoutRunnable);
+                                    askForDTC = true;
 
                                     autoConnectService.getDTCs();
                                     autoConnectService.getPendingDTCs();

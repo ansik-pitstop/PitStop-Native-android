@@ -360,7 +360,7 @@ public class LocalScannerAdapter {
 
     public void deleteCar(Car car){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        db.delete(TABLES.CAR.TABLE_NAME, TABLES.SCANNER.KEY_CAR_ID + "=?",
+        db.delete(TABLES.SCANNER.TABLE_NAME, TABLES.SCANNER.KEY_CAR_ID + "=?",
                 new String[]{String.valueOf(car.getId())});
         db.close();
     }

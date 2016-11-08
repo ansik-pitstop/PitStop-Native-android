@@ -272,8 +272,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             mBluetoothRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
             // Mixpanel time event
-            bluetoothConnectedTimeEventStarted = true;
-            mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+            if (!bluetoothConnectedTimeEventStarted) {
+                bluetoothConnectedTimeEventStarted = true;
+                mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+            }
 
         } else {
             /**
