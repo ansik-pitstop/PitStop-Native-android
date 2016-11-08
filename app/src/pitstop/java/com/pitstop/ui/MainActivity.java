@@ -123,10 +123,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
                         requestPermission(MainActivity.this, locationPermissions, RC_LOCATION_PERM,
                                 true, getString(R.string.request_permission_location_message));
+                        return;
                     }
-                    return;
                 }
-                autoConnectService.startBluetoothSearch();
+                if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    autoConnectService.startBluetoothSearch(); // refresh clicked
+                }
             }
         }
 

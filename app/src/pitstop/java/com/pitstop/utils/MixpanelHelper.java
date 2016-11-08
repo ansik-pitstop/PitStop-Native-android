@@ -202,7 +202,6 @@ public class MixpanelHelper {
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("App Status", json);
         application.getMixpanelAPI().track(EVENT_APP_STATUS, json);
     }
 
@@ -210,14 +209,12 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'View':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", value);
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("View Appeared", json);
         application.getMixpanelAPI().track(EVENT_VIEW_APPEARED, json);
     }
 
@@ -225,14 +222,12 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'Status':'" + value + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Status", value);
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("Peripheral Connection Status", json);
         application.getMixpanelAPI().track(EVENT_PERIPHERAL_CONNECTION_STATUS, json);
     }
 
@@ -240,7 +235,6 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'Button':'" + value + "','View':'" + view + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Button", value);
         json.put("View", view);
@@ -248,7 +242,6 @@ public class MixpanelHelper {
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("Button Tapped", json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
@@ -256,14 +249,12 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'View':'" + view + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("View", view);
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("Scrolled in View", json);
         application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
     }
 
@@ -271,8 +262,6 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'Button':'Add Car','View':'" + view + "','Mileage':'" + mileage
-//                + "','Method of Adding Car':'" + method + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Button", "Add Car");
         json.put("View", view);
@@ -282,7 +271,6 @@ public class MixpanelHelper {
         if (application.getCurrentUser() != null) {
             json.put("Username", user.getEmail());
         }
-//        application.getMixpanelAPI().track("Button Tapped", json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
@@ -290,7 +278,6 @@ public class MixpanelHelper {
         if (BuildConfig.DEBUG) {
             return;
         }
-//        JSONObject json = new JSONObject("{'Status':'" + status + "','UserId':'" + userId + "','Device':'Android'}");
         JSONObject json = new JSONObject();
         json.put("Status", status);
         json.put("UserId", userId);
