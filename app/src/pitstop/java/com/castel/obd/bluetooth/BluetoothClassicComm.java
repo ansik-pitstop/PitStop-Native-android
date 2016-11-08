@@ -364,9 +364,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.i(TAG, "Connected to a PAIRED device - BluetoothClassicComm");
                     btConnectionState = CONNECTED;
                     dataListener.getBluetoothState(btConnectionState);
-
-
-
                 }
 
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {

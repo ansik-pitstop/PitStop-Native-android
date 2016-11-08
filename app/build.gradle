@@ -63,8 +63,8 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 105
-            versionName "2.1.22"
+            versionCode 107
+            versionName "2.1.23"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""

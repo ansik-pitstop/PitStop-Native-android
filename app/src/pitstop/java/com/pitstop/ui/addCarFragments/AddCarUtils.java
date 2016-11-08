@@ -148,7 +148,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                             MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                     // If getting DTCs timeout, for the sake of keeping good UX, we skip it
                     PreferenceManager.getDefaultSharedPreferences(context).edit()
-                            .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).commit();
+                            .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).apply();
                     networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
                     callback.carSuccessfullyAdded(createdCar);
                     break;
@@ -576,7 +576,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             }
 
             PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
-                    createdCar.getId()).commit();
+                    createdCar.getId()).apply();
             networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
             callback.carSuccessfullyAdded(createdCar);
         }
@@ -806,7 +806,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         });
 
         networkHelper.createNewCar(context.getCurrentUserId(),
-                pendingCar.equals("") ? 0 : (int) pendingCar.getBaseMileage(),
+                (int) pendingCar.getBaseMileage(),
                 pendingCar.getVin(),
                 pendingCar.getScannerId() == null ? "" : pendingCar.getScannerId(),
                 pendingCar.getShopId(),
@@ -848,7 +848,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     autoConnectService.getPendingDTCs();
                                 } else { // If bluetooth connection state is not connected, then just ignore getting DTCs
                                     PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
-                                            createdCar.getId()).commit();
+                                            createdCar.getId()).apply();
                                     networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
                                     callback.carSuccessfullyAdded(createdCar);
                                 }
