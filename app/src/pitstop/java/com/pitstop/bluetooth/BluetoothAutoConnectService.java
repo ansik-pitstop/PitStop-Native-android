@@ -786,6 +786,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
     }
 
+    public void getFreezeData(){
+        Log.i(TAG, "Getting freeze data");
+        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_FREEZE_DATA, "");
+    }
+
     public void clearDTCs() {
         Log.i(TAG, "Clearing DTCs");
         bluetoothCommunicator.obdSetCtrl(ObdManager.TYPE_DTC);

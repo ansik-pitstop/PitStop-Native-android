@@ -1420,4 +1420,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void removeTutorial();
     }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 0aceab1... [Main app] Optimized BT device bonding/connecting process
 }

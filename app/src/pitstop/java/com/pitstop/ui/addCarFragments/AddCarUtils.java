@@ -732,7 +732,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                 if (AddCarActivity.isPairingUnrecognizedDevice) {
                                     if (carUserId == context.getCurrentUserId()
                                             && carScannerId == null) {
-                                        callback.pairCarWithDevice(existedCar,
+                                        callback.confirmPairCarWithDevice(existedCar,
                                                 autoConnectService.getConnectedDeviceName(),
                                                 autoConnectService.getCurrentDeviceId());
                                     } else {
@@ -979,6 +979,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     }
 
     public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener, LoadingActivityInterface {
+
         void carSuccessfullyAdded(Car car);
 
         void resetScreen();
@@ -989,12 +990,32 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         void postMileageInput();
 
+        /**
+         * If user is adding a new car (with no previous dealership info), or <br>
+         * the user is using a scanner that has not been associate with a dealership in the backend
+         */
         void askForDealership();
 
+        /**
+         * If during pairing unrecognized scanner, VIN is "not support" or has not been returned
+         * @param scannerName
+         * @param scannerId
+         */
         void showSelectCarDialog(String scannerName, String scannerId);
 
-        void pairCarWithDevice(Car existedCar, String scannerName, String scannerId);
 
+        /**
+         * Show a confirm dialog to asking user to pair car with unrecognized device
+         * @param existedCar
+         * @param scannerName
+         * @param scannerId
+         */
+        void confirmPairCarWithDevice(Car existedCar, String scannerName, String scannerId);
+
+        /**
+         * For pair unrecognized device
+         * @param errorMessage
+         */
         void pairCarError(String errorMessage);
     }
 
