@@ -830,8 +830,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     autoConnectService.saveEmptyScanner(createdCar.getId());
                                 }
 
-                                Log.i(TAG, "After successfully posting car to server, scanner saved Locally");
-
                                 // After successfully posting car to server, attempt to get engine codes
                                 // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
                                 if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
@@ -937,6 +935,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     private final class GetDTCTimeoutRunnable implements Runnable {
 
+        private final static int TIME_OUT = 15;
+
         /**
          * Starting time in milliseconds, initiate when construct the runnable
          */
@@ -948,14 +948,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         private boolean getDTCTimeOut;
 
         public GetDTCTimeoutRunnable(long startTime) {
-            Log.d("DTC TIMEOUT RUNNABLE", "Created");
             this.startTime = startTime;
             getDTCTimeOut = false;
         }
 
         @Override
         public void run() {
-            Log.d("DTC TIMEOUT RUNNABLE", "Running");
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
 
@@ -963,17 +961,14 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
             // If it finished, then remove the runnable from the handler
             if (!askForDTC) {
-                Log.d("DTC TIMEOUT RUNNABLE", "Got DTCs");
                 mHandler.removeCallbacks(this);
                 getDTCTimeOut = false;
-            } else if (seconds > 15) { // If it didn't finish and the time exceeded 15 seconds, let the handler knows
-                Log.d("DTC TIMEOUT RUNNABLE", "TIMEOUT");
+            } else if (seconds > TIME_OUT) { // If timeout, let the handler knows
                 getDTCTimeOut = true;
                 askForDTC = false;
                 mHandler.sendEmptyMessage(HANDLER_MSG_GET_DTC_TIMEOUT);
                 mHandler.removeCallbacks(this);
-            } else {  // If it didn't finish and it didn't timeout, we wait for another 5 seconds
-                Log.d("DTC TIMEOUT RUNNABLE", "Continue");
+            } else {  // If not finished nor timeout, we wait for another 5 seconds
                 mHandler.postDelayed(this, 5000);
             }
         }

@@ -569,13 +569,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     public void resetScreen() {
         if (!addingCar) return;
 
-        if (mPager.getCurrentItem() == 1) {
-            if (findViewById(R.id.VIN) != null) {
-                ((EditText) findViewById(R.id.VIN)).setText("");
+        if (mPager.getCurrentItem() == 1){
+            if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment){
+                if (findViewById(R.id.VIN) != null) {
+                    ((EditText) findViewById(R.id.VIN)).setText("");
+                }
+            } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment){
+                mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
+                mPager.setCurrentItem(1);
             }
-        } else if (mPager.getCurrentItem() == 2) {
-            mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
-            mPager.setCurrentItem(1);
         }
     }
 

@@ -1420,14 +1420,4 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void removeTutorial();
     }
 
-    private void logScannerTable() {
-        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
-        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
-        for (ObdScanner scanner : scanners) {
-            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
-            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
-            Log.d(TAG, "Car ID: " + scanner.getCarId());
-        }
-    }
-
 }
