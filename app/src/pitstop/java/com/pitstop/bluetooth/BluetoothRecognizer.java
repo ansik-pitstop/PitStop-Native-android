@@ -54,11 +54,7 @@ public class BluetoothRecognizer {
         Log.d(TAG, "Device name exists: " + mLocalScannerStore.deviceNameExists(scannerName));
         Log.d(TAG, "Any car lack scanner: " + mLocalScannerStore.anyCarLackScanner());
 
-<<<<<<< HEAD
-//        logScannerTable();
-=======
         logScannerTable();
->>>>>>> 0aceab1... [Main app] Optimized BT device bonding/connecting process
 
         if (AddCarActivity.addingCarWithDevice
                 || mLocalScannerStore.anyScannerLackName()

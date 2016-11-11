@@ -63,16 +63,8 @@ android {
 
     productFlavors {
         pitstop {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            versionCode 109
-=======
-            versionCode 108
->>>>>>> 0aceab1... [Main app] Optimized BT device bonding/connecting process
-=======
             versionCode 110
->>>>>>> c9d348d... [Main app] Minor bug fixes
-            versionName "2.1.23"
+            versionName "2.1.24"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""
