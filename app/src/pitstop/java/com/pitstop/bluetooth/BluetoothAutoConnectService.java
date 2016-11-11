@@ -299,7 +299,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             notificationManager.cancel(notifID);
 
             // Mixpanel time event
-            if (bluetoothConnectedTimeEventStarted){
+            if (bluetoothConnectedTimeEventStarted) {
                 bluetoothConnectedTimeEventStarted = false;
                 mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
             }
@@ -451,6 +451,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dataPackageInfo.result == 4) {
             processResultFourData(dataPackageInfo);
             processPIDData(dataPackageInfo);
+
+            if (dataPackageInfo.tripFlag.equals(ObdManager.STORE_DTC_FLAG)){
+                saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId); // Store DTCs
+            } else if (dataPackageInfo.tripFlag.equals(ObdManager.PENDING_DTC_FLAG)){
+                saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId); // Pending DTCs
+            }
         }
 
         if (dataPackageInfo.result == 5) {
@@ -459,12 +465,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG, "getting io data - auto-connect service");
 
-        if (dataPackageInfo.result == 6) { //save dtcs
-            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
-        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("5")) {
-            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId);
-        } else if (dataPackageInfo.tripFlag != null && dataPackageInfo.tripFlag.equals("6")) {
-            saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId);
+        if (dataPackageInfo.result == 6) {
+            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId); // result 6 DTCs
+        }
+
+        // handle freeze frame data
+        if (dataPackageInfo.freezeData != null
+                && dataPackageInfo.freezeData.size() > 0
+                && (dataPackageInfo.result == 6
+                || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag)))){
+            saveFreezeFrame(dataPackageInfo);
         }
 
         counter++;
@@ -537,7 +547,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                 new RequestCallback() {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
-                                                        Log.i(TAG, "DTC added: " + dtc);
+                                                        if (requestError == null){
+                                                            Log.i(TAG, "DTC added: " + dtc);
+                                                        } else {
+                                                            Log.e(TAG, "Error in posting DTC");
+                                                        }
                                                     }
                                                 });
                                     }
@@ -559,6 +573,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (callbacks != null)
             callbacks.getIOData(dataPackageInfo);
+
+        if (dtcArr.size() > 0) { // If there is DTCs
+            getFreezeData();
+        }
+    }
+
+    /**
+     * Extract FF and post
+     * <ul>
+     *     <li>scannerId</li>
+     *     <li>freezeData</li>
+     *     <li>VIN</li>
+     *     <li>DTCs? not necessary tho</li>
+     * </ul>
+     * @param dataPackageInfo
+     */
+    private void saveFreezeFrame(DataPackageInfo dataPackageInfo){
+        networkHelper.postFreezeFrame(dataPackageInfo.deviceId,
+                dataPackageInfo.rtcTime,
+                dataPackageInfo.freezeData, null);
     }
 
     @Override
@@ -658,7 +692,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public String getCurrentDeviceId() {
         return currentDeviceId;
     }
-
 
     /**
      * Gets the Car's VIN. Check if obd device is synced. If synced,
@@ -786,6 +819,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_PENDING_DTC, "");
     }
 
+    public void getFreezeData() {
+        Log.i(TAG, "Getting freeze data");
+        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_FREEZE_DATA, "");
+    }
+
     public void clearDTCs() {
         Log.i(TAG, "Clearing DTCs");
         bluetoothCommunicator.obdSetCtrl(ObdManager.TYPE_DTC);
@@ -861,7 +899,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         } else if (data.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // not needed if trips based on device trip id
             Log.i(TAG, "Trip start flag received");
             Log.v(TAG, "Trip start package: " + data.toString());
-
             //if(lastData != null) {
             //    sendPidDataToServer(lastData);
             //}

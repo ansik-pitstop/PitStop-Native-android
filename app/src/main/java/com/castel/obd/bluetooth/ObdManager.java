@@ -31,7 +31,11 @@ public class ObdManager {
     public final static String VIN_TAG = "2201";
     public final static String PID_TAG = "2401";
 
+    // For result 4
     public final static String TRIP_START_FLAG = "0";
+    public final static String FREEZE_FRAME_FLAG = "3";
+    public final static String STORE_DTC_FLAG = "5";
+    public final static String PENDING_DTC_FLAG = "6";
     public final static String TRIP_END_FLAG = "9";
 
     public final static int DEVICE_LOGIN_FLAG = 1;
