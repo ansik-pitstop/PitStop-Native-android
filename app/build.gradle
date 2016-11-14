@@ -63,8 +63,8 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 111
-            versionName "2.1.24"
+            versionCode 112
+            versionName "2.1.25"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""
@@ -102,8 +102,8 @@ dependencies {
     pitstopCompile 'com.mixpanel.android:mixpanel-android:4.8.0'
     pitstopCompile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     pitstopCompile 'com.google.zxing:core:3.2.1'
+    pitstopCompile project(":libs:MaterialShowcaseView")
     pitstopCompile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
-    pitstopCompile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
     pitstopCompile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     dealerTestCompile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'

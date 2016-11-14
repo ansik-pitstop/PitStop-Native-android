@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -198,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private MainDashboardFragment mDashboardFragment;
     private MainToolFragment mToolFragment;
+
+    private MaterialShowcaseSequence tutorialSequence;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -542,6 +542,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
+        if (tutorialSequence != null && tutorialSequence.hasStarted()){
+            new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(getString(R.string.first_service_booking_cancel_title))
+                    .setMessage(getString(R.string.first_service_booking_cancel_message))
+                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            tutorialSequence.dismissAllItems();
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1240,7 +1256,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void presentShowcaseSequence(boolean discountAvailable, String discountUnit, float discountAmount) {
         Log.i(TAG, "running present show case");
 
-        final MaterialShowcaseSequence discountSequence = new MaterialShowcaseSequence(this);
+        tutorialSequence = new MaterialShowcaseSequence(this);
 
         try {
             mixpanelHelper.trackViewAppeared(MixpanelHelper.TUTORIAL_VIEW_APPEARED);
@@ -1291,10 +1307,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 })
                 .build();
 
-        discountSequence.addSequenceItem(firstBookingDiscountShowcase)
+        tutorialSequence.addSequenceItem(firstBookingDiscountShowcase)
                 .addSequenceItem(tentativeDateShowcase);
 
-        discountSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+        tutorialSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
@@ -1316,7 +1332,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+        tutorialSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
 
@@ -1337,7 +1353,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         viewPager.setCurrentItem(0);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 
-        discountSequence.start();
+        tutorialSequence.start();
     }
 
     /**
