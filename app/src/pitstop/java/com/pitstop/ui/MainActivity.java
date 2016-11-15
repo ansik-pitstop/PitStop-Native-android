@@ -997,6 +997,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                    final boolean needDescription, @Nullable final String message) {
+        if (isFinishing()) {
+            return;
+        }
+
         if (needDescription) {
             new AnimatedDialogBuilder(activity)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)

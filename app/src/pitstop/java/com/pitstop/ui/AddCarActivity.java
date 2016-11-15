@@ -44,7 +44,6 @@ import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.addCarFragments.AddCarViewPager;
-import com.pitstop.ui.mainFragments.MainAppViewPager;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.BSAbstractedFragmentActivity;
 import com.pitstop.utils.MixpanelHelper;
@@ -665,6 +664,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      */
     @Override
     public void showSelectCarDialog(final String scannerName, final String scannerId) {
+        if (isFinishing()) {
+            return;
+        }
+
         if (autoConnectService != null && !selectCarDialogShowing) {
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -718,6 +721,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      */
     @Override
     public void confirmPairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
+        if (isFinishing()) {
+            return;
+        }
+
         new AnimatedDialogBuilder(this)
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setTitle("Unrecognized device found")
@@ -797,6 +804,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
     @Override
     public void pairCarError(String errorMessage) {
+        if (isFinishing()) {
+            return;
+        }
+
         new AnimatedDialogBuilder(this)
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setTitle("Error in pairing device")
