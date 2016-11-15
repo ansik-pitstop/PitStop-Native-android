@@ -1251,9 +1251,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (discountAmount != 0 && discountUnit != null) {
                 firstServicePromotion.append(" You can also receive a discount of ");
                 if (discountUnit.contains("%")) {
-                    firstServicePromotion.append(discountAmount + discountUnit + " towards your first service");
+                    firstServicePromotion.append(discountAmount)
+                            .append(discountUnit).append(" towards your first service");
                 } else {
-                    firstServicePromotion.append(discountUnit + (int) discountAmount + " towards your first service.");
+                    firstServicePromotion.append(discountUnit)
+                            .append((int) discountAmount).append(" towards your first service.");
                 }
             }
         }
@@ -1296,8 +1298,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
                         requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
                         requestServiceButton.setText(getResources().getString(R.string.first_service_booking_tutorial_button_text));
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1349,10 +1349,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void prepareAndStartTutorialSequence() {
         Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
         Log.d("FSB", "Start getting user settings");
+        showLoading("Loading dealership information...");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-
+                hideLoading();
                 String unit = "";
                 float amount = 0f;
                 boolean enableDiscountTutorial = false;

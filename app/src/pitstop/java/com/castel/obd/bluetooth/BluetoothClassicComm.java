@@ -191,6 +191,8 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
 
         if (mBluetoothAdapter.isDiscovering() || btConnectionState == CONNECTING) {
             Log.i(TAG, "Already discovering - BluetoothClassicComm");
+            Log.d(TAG, "mBluetoothAdapter is discovering: " + mBluetoothAdapter.isDiscovering());
+            Log.d(TAG, "btState is connecting: " + (btConnectionState == CONNECTING));
             return;
         }
 
@@ -261,10 +263,6 @@ public class BluetoothClassicComm implements IBluetoothCommunicator, ObdManager.
                     Log.i(TAG, "CANCEL_DISCOVERY - BluetoothClassicComm");
                     if (mBluetoothAdapter.isDiscovering()) {
                         mBluetoothAdapter.cancelDiscovery();
-                    }
-                    if (btConnectionState != CONNECTED) {
-                        connectedDeviceName = null;
-                        btConnectionState = DISCONNECTED;
                     }
                     break;
                 }

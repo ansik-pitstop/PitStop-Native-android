@@ -117,6 +117,9 @@ public class ServiceRequestUtil {
 
         final LimitedDatePicker datePicker = new LimitedDatePicker(currentDay, currentMonth, currentYear);
 
+        datePicker.setCanceledOnTouchOutside(!isFirstBooking);
+        datePicker.setCancelable(!isFirstBooking);
+
         datePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
@@ -191,6 +194,9 @@ public class ServiceRequestUtil {
     private void askForTime(final boolean modify, final boolean chained) {
         final LimitedTimePicker timePicker = new LimitedTimePicker(context, null, LimitedTimePicker.MIN_HOUR,
                 LimitedTimePicker.MIN_MINUTE, false);
+
+        timePicker.setCanceledOnTouchOutside(!isFirstBooking);
+        timePicker.setCancelable(!isFirstBooking);
 
         timePicker.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -314,6 +320,9 @@ public class ServiceRequestUtil {
 
         final AlertDialog summaryDialog = summaryDialogBuilder.create();
 
+        summaryDialog.setCancelable(!isFirstBooking);
+        summaryDialog.setCanceledOnTouchOutside(!isFirstBooking);
+
         summaryDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
@@ -357,6 +366,7 @@ public class ServiceRequestUtil {
             final View promptTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
             ((TextView) promptTitle.findViewById(R.id.custom_title_text)).setText(R.string.add_preset_issue_dialog_title);
             new AnimatedDialogBuilder(context)
+                    .setCancelable(false)
                     .setCustomTitle(promptTitle)
                     .setMessage(context.getString(R.string.add_preset_issue_dialog_prompt_message))
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {

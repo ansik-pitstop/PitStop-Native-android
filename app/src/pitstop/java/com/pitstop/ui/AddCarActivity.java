@@ -475,7 +475,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
         } else if (requestCode == AddCarUtils.RC_PENDING_ADD_CAR) {
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
-            addCarUtils.runVinTask();
+            addCarUtils.vinCheck();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
