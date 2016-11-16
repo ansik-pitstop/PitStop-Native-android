@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -115,9 +116,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     private NetworkHelper networkHelper;
 
-    private boolean scanStarted = false;
+    private boolean isScanning = false;
     private boolean askingForDtcs = false;
     private boolean result5Retrieved = false;
+    private boolean scanStarted = false;
     private Set<String> dtcCodes = new HashSet<>();
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -460,6 +462,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
         scanStarted = true;
+        isScanning = true;
 
         autoConnectService.manuallyUpdateMileage = true;
         recallsStateLayout.setVisibility(View.GONE);
@@ -563,7 +566,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         dtcCodes.clear();
         askingForDtcs = true;
         result5Retrieved = false;
-        startTime = System.currentTimeMillis();
+        engineCodeStartTime = System.currentTimeMillis();
         handler.post(checkEngineIssuesRunnable);
         handler.post(getResult5Runnable);
         autoConnectService.getPendingDTCs();
@@ -659,7 +662,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, "getBluetoothState: " + state);
         if (state == IBluetoothCommunicator.CONNECTED) {
             handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
-//            handler.removeCallbacks(checkEngineIssuesRunnable);
         }
     }
 
@@ -715,7 +717,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
 
         // Update displayed mileage if not scanning
-        if (dataPackageInfo.result == 4 && !scanStarted) {
+        if (dataPackageInfo.result == 4
+                && (!scanStarted || result5Retrieved)) {
             Log.d(TAG, "Receiving historical data");
             if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
                 Log.d(TAG, "Trip end flag received, Update mileage");
@@ -784,9 +787,9 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         e.printStackTrace();
                     }
 
-                    if (scanStarted) {
+                    if (isScanning) {
                         mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        scanStarted = false;
+                        isScanning = false;
                     }
 
                     handler.removeCallbacks(checkEngineIssuesRunnable);
@@ -799,10 +802,10 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     }
 
-    private long startTime = 0;
+    private long engineCodeStartTime = 0;
     private long carSearchStartTime = 0;
 
-    Handler handler = new Handler() {
+    final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (isFinishing() || isDestroyed()) {
@@ -831,15 +834,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if (scanStarted) {
+                    if (isScanning) {
                         mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        scanStarted = false;
+                        isScanning = false;
                     }
                     break;
 
                 case BLUETOOTH_DEVICE_CAR_CONNECTED:
                     progressDialog.dismiss();
-                    if (scanStarted){
+                    if (isScanning){
                         startCarScan();
                     }
                     break;
@@ -858,14 +861,20 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         }
     };
 
+    /**
+     * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
+     * is no DTCs currently.
+     */
     private final Runnable checkEngineIssuesRunnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - startTime;
+            long timeDiff = currentTime - engineCodeStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if (seconds > 20 && askingForDtcs) {
+            if (!askingForDtcs){
+                handler.removeCallbacks(checkEngineIssuesRunnable);
+            } else if (seconds > 20) {
                 askingForDtcs = false;
                 handler.sendEmptyMessage(CHECKED_CAR_ENGINE_ISSUE);
                 handler.removeCallbacks(checkEngineIssuesRunnable);
@@ -876,20 +885,19 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     };
 
     /**
-     * This runnable is used to observe timeout on getting historical data
+     * This runnable is used to observe timeout on getting real time data (result 5)
      */
     private final Runnable getResult5Runnable = new Runnable() {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - startTime;
+            long timeDiff = currentTime - engineCodeStartTime;
 
             int seconds = (int) (timeDiff / 1000);
 
-            if (result5Retrieved) {
+            if (result5Retrieved || !isScanning) {
                 handler.removeCallbacks(getResult5Runnable);
             } else if (seconds > 30) {
-                result5Retrieved = true;
                 handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
                 handler.removeCallbacks(getResult5Runnable);
             } else {
@@ -904,7 +912,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - carSearchStartTime;
             int seconds = (int) (timeDiff / 1000);
-            if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.isCommunicatingWithDevice()) {
+            if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
+                    && autoConnectService.isCommunicatingWithDevice()) { //
                 handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
                 handler.removeCallbacks(connectCarRunnable);
             } else if (seconds > 15) {
@@ -929,8 +938,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == MainActivity.RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 autoConnectService.startBluetoothSearch();  // after permissions granted
