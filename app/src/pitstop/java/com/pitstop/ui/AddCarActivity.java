@@ -30,6 +30,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -227,8 +228,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                 return;
             }
 
-            addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
-            addCarUtils.saveCarToServer();
+            addCarUtils.updateCarShop(addCarChooseDealershipFragment.getShop());
 
             try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();

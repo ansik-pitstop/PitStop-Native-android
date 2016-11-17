@@ -185,6 +185,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     /**
      * Invoked when the user enters and confirms the mileage in the dialog which pops out in the step 2<br>
      * (When "Add Car" button is pressed in the dialog)<br>
+     *
      * @param mileage Entered mileage
      */
     public void updateMileage(String mileage) {
@@ -555,10 +556,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         return isValidVin(pendingCar.getVin());
     }
 
-    public void setDealership(Dealership dealership) {
-        pendingCar.setDealership(dealership);
-    }
-
     /**
      * Check if Vin exists in the backend.<br>
      * 1. If it does, we show user a toast saying that the car exists. <br>
@@ -585,15 +582,55 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                         if (AddCarActivity.isPairingUnrecognizedDevice) {
                             callback.hideLoading(null);
                             callback.pairCarError("Oops, we connected to a new car, please turn off your Bluetooth and retry.");
-                        } else {
-                            // If user is adding a car instead of pairing a car with unrecognized device
-                            callback.hideLoading("Please pick the dealership for your car.");
-                            callback.askForDealership();
+                        } else {//If user is adding a car instead of pairing a car with unrecognized device
+                            networkHelper.createNewCarWithoutShopId(context.getCurrentUserId(),
+                                    (int) pendingCar.getBaseMileage(),
+                                    pendingCar.getVin(),
+                                    pendingCar.getScannerId() == null ? "" : pendingCar.getScannerId(),
+                                    new RequestCallback() {
+                                        @Override
+                                        public void done(String response, RequestError requestError) {
+                                            callback.showLoading("Checking shop info..");
+                                            if (requestError == null) {
+                                                Log.i(TAG, "Create car response: " + response);
+                                                try {
+                                                    createdCar = Car.createCar(response);
+                                                    if (pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
+                                                        networkHelper.createNewScanner(createdCar.getId(), pendingCar.getScannerId(), null);
+                                                        autoConnectService.saveScannerOnResultPostCar(createdCar);
+                                                    } else { // if scannerId is null or empty
+                                                        autoConnectService.saveEmptyScanner(createdCar.getId());
+                                                    }
+
+                                                    if (createdCar.getShopId() == 0) {
+                                                        callback.hideLoading("Please pick the dealership for your car.");
+                                                        callback.askForDealership();
+                                                    } else {
+                                                        onCarSuccessfullyPosted();
+                                                    }
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                    callback.hideLoading("There was an error adding your car, please try again");
+                                                }
+                                            } else {
+                                                //Scanner id exists in backend
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                    Log.e(TAG, "Error in posting button tracking info to mixpanel");
+                                                }
+                                                callback.hideLoading(requestError.getMessage());
+                                                Log.e(TAG, "Create new car: " + requestError.getMessage());
+                                            }
+                                        }
+                                    });
                         }
+
                     } else { // Vin exists in the backend
                         callback.hideLoading("Car Already Exists!");
                         if (!AddCarActivity.isPairingUnrecognizedDevice) {
-                            pendingCar.setVin("");
                             callback.resetScreen();
                         }
 
@@ -710,26 +747,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                                     autoConnectService.saveEmptyScanner(createdCar.getId());
                                 }
 
-                                // After successfully posting car to server, attempt to get engine codes
-                                // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
-                                if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
-                                    Log.i(TAG, "Now connected to device");
-                                    callback.showLoading("Loading car engine codes");
-                                    Log.i(TAG, "Make car --- Getting DTCs");
-
-                                    // Check if DTCs are retrieved after 15 seconds
-                                    mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
-                                    mHandler.post(mGetDTCTimeoutRunnable);
-                                    askForDTC = true;
-
-                                    autoConnectService.getDTCs();
-                                    autoConnectService.getPendingDTCs();
-                                } else { // If bluetooth connection state is not connected, then just ignore getting DTCs
-                                    PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
-                                            createdCar.getId()).apply();
-                                    networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
-                                    callback.carSuccessfullyAdded(createdCar);
-                                }
+                                onCarSuccessfullyPosted();
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -749,6 +767,28 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     }
                 });
     }
+
+    /**
+     * After user picked a shop
+     */
+    public void updateCarShop(final Dealership dealership){
+        Log.i("shop selected:", String.valueOf(pendingCar.getShopId()));
+        callback.showLoading("Saving shop info..");
+        pendingCar.setDealership(dealership);
+        networkHelper.updateCarShop(createdCar.getId(), pendingCar.getShopId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    createdCar.setDealership(dealership);
+                    onCarSuccessfullyPosted();
+                } else {
+                    Log.d(TAG, requestError.getMessage());
+                    Log.d(TAG, requestError.getError());
+                }
+            }
+        });
+    }
+
 
     /**
      * This method will cancel all runnables and messages.<br>
@@ -859,6 +899,33 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
     }
 
+    /**
+     * Asks for DTCs if connected to bluetooth, otherwise finishes Add Car
+     */
+    private void onCarSuccessfullyPosted(){
+        // After successfully posting car to server, attempt to get engine codes
+        // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
+        if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+            Log.i(TAG, "Now connected to device");
+            callback.showLoading("Loading car engine codes");
+            Log.i(TAG, "Make car --- Getting DTCs");
+
+            // Check if DTCs are retrieved after 15 seconds
+            mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
+            mHandler.post(mGetDTCTimeoutRunnable);
+            askForDTC = true;
+
+            autoConnectService.getDTCs();
+            autoConnectService.getPendingDTCs();
+        } else { // If bluetooth connection state is not connected, then just ignore getting DTCs
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(MainDashboardFragment.pfCurrentCar,
+                    createdCar.getId()).apply();
+            networkHelper.setMainCar(context.getCurrentUserId(), createdCar.getId(), null);
+            callback.carSuccessfullyAdded(createdCar);
+        }
+    }
+
+
     public Car getPendingCar() {
         return pendingCar;
     }
@@ -883,6 +950,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         /**
          * If during pairing unrecognized scanner, VIN is "not support" or has not been returned
+         *
          * @param scannerName
          * @param scannerId
          */
@@ -891,6 +959,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         /**
          * Show a confirm dialog to asking user to pair car with unrecognized device
+         *
          * @param existedCar
          * @param scannerName
          * @param scannerId
@@ -899,6 +968,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
         /**
          * For pair unrecognized device
+         *
          * @param errorMessage
          */
         void pairCarError(String errorMessage);
