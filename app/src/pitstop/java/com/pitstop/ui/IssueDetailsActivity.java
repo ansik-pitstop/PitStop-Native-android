@@ -4,10 +4,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +66,8 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private boolean needToRefresh = false;
 
+    private View rootView;
+
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -81,19 +89,20 @@ public class IssueDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_issue_details);
-
-        networkHelper = new NetworkHelper(getApplicationContext());
-
-        application = (GlobalApplication) getApplicationContext();
-        mixpanelHelper = new MixpanelHelper(application);
 
         Intent intent = getIntent();
         dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
         carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
         fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
 
+        rootView = LayoutInflater.from(this).inflate(R.layout.activity_issue_details, null);
         setUpDisplayItems(carIssue);
+        setContentView(rootView);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        application = (GlobalApplication) getApplicationContext();
+        networkHelper = new NetworkHelper(getApplicationContext());
+        mixpanelHelper = new MixpanelHelper(application);
 
         View requestServiceButton = findViewById(R.id.btnRequestService);
         View clearDtcButton = findViewById(R.id.btnClearDtc);
@@ -151,6 +160,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             return true;
         }
         if (id ==  android.R.id.home){
+//            ActivityCompat.finishAfterTransition(this);
             finish();
             return true;
         }
@@ -173,6 +183,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
         } catch (JSONException e){
             e.printStackTrace();
         }
+//        ActivityCompat.finishAfterTransition(this);
         finish();
     }
 
@@ -191,54 +202,18 @@ public class IssueDetailsActivity extends AppCompatActivity {
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {
+        RelativeLayout rLayout = (RelativeLayout) rootView.findViewById(R.id.severity_indicator_layout);
+        CardView detailCard = (CardView) rootView.findViewById(R.id.issue_detail_card);
+        TextView severityTextView = (TextView) rootView.findViewById(R.id.severity_text);
+        TextView titleText = (TextView)rootView.findViewById(R.id.title);
+        TextView descriptionText = (TextView)rootView.findViewById(R.id.description);
 
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.item_display);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //list the information
-        View view = getLayoutInflater().inflate(R.layout.activity_issue_details_item,null);
-        RelativeLayout rLayout = (RelativeLayout) view.findViewById(R.id.severity_indicator_layout);
-        TextView severityTextView = (TextView) view.findViewById(R.id.severity_text);
-
-        // clear DTCs will clear all DTCs in module and backend
-        //if(carIssue.getIssueType().equals(CarIssue.PENDING_DTC) || carIssue.getIssueType().equals(CarIssue.DTC)) {
-        //    View clearDtcButton = view.findViewById(R.id.btnClearDtc);
-        //    clearDtcButton.setVisibility(View.VISIBLE);
-        //    clearDtcButton.setOnClickListener(new View.OnClickListener() {
-        //        @Override
-        //        public void onClick(View v) {
-        //            if(autoConnectService.getState() != IBluetoothCommunicator.CONNECTED) {
-        //                Toast.makeText(IssueDetailsActivity.this, "Device must be connected", Toast.LENGTH_SHORT).show();
-        //            } else {
-        //                new AlertDialog.Builder(IssueDetailsActivity.this)
-        //                        .setTitle("Are you sure you want to clear all engine codes?")
-        //                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-        //                            @Override
-        //                            public void onClick(DialogInterface dialogInterface, int i) {
-        //                                autoConnectService.clearDTCs();
-        //                                clearDtcs();
-        //                                dialogInterface.dismiss();
-        //                            }
-        //                        })
-        //                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-        //                            @Override
-        //                            public void onClick(DialogInterface dialog, int which) {
-        //                                dialog.cancel();
-        //                            }
-        //                        })
-        //                        .show();
-        //            }
-        //        }
-        //    });
-        //}
-
-        String title = carIssue.getAction() + " "
-                + carIssue.getItem();
+        String title = carIssue.getAction() + " " + carIssue.getItem();
         String description = carIssue.getDescription();
         int severity =  carIssue.getPriority();
 
-        ((TextView)view.findViewById(R.id.title)).setText(title);
-        ((TextView) view.findViewById(R.id.description)).setText(description);
+        titleText.setText(title);
+        descriptionText.setText(description);
 
         switch (severity) {
             case 1:
@@ -259,9 +234,12 @@ public class IssueDetailsActivity extends AppCompatActivity {
                 break;
         }
 
-        if (linearLayout != null) {
-            linearLayout.addView(view, 0);
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            detailCard.setTransitionName(getString(R.string.transition_name_issue_card) + carIssue.getId());
+//            titleText.setTransitionName(getString(R.string.transition_name_issue_title) + carIssue.getId());
+//            descriptionText.setTransitionName(getString(R.string.transition_name_issue_description) + carIssue.getId());
+//        }
+
     }
 
     private class ErrorIndicator { // because boolean needs to be used in inner class

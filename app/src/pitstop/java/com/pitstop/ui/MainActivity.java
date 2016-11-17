@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -198,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private MainDashboardFragment mDashboardFragment;
     private MainToolFragment mToolFragment;
+
+    private MaterialShowcaseSequence tutorialSequence;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -542,6 +542,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
+        if (tutorialSequence != null && tutorialSequence.hasStarted()){
+            new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(getString(R.string.first_service_booking_cancel_title))
+                    .setMessage(getString(R.string.first_service_booking_cancel_message))
+                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            tutorialSequence.dismissAllItems();
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -997,6 +1013,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      */
     private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                    final boolean needDescription, @Nullable final String message) {
+        if (isFinishing()) {
+            return;
+        }
+
         if (needDescription) {
             new AnimatedDialogBuilder(activity)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -1236,7 +1256,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void presentShowcaseSequence(boolean discountAvailable, String discountUnit, float discountAmount) {
         Log.i(TAG, "running present show case");
 
-        final MaterialShowcaseSequence discountSequence = new MaterialShowcaseSequence(this);
+        tutorialSequence = new MaterialShowcaseSequence(this);
 
         try {
             mixpanelHelper.trackViewAppeared(MixpanelHelper.TUTORIAL_VIEW_APPEARED);
@@ -1251,9 +1271,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (discountAmount != 0 && discountUnit != null) {
                 firstServicePromotion.append(" You can also receive a discount of ");
                 if (discountUnit.contains("%")) {
-                    firstServicePromotion.append(discountAmount + discountUnit + " towards your first service");
+                    firstServicePromotion.append(discountAmount)
+                            .append(discountUnit).append(" towards your first service");
                 } else {
-                    firstServicePromotion.append(discountUnit + (int) discountAmount + " towards your first service.");
+                    firstServicePromotion.append(discountUnit)
+                            .append((int) discountAmount).append(" towards your first service.");
                 }
             }
         }
@@ -1285,10 +1307,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 })
                 .build();
 
-        discountSequence.addSequenceItem(firstBookingDiscountShowcase)
+        tutorialSequence.addSequenceItem(firstBookingDiscountShowcase)
                 .addSequenceItem(tentativeDateShowcase);
 
-        discountSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+        tutorialSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
@@ -1296,8 +1318,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
                         requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
                         requestServiceButton.setText(getResources().getString(R.string.first_service_booking_tutorial_button_text));
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1312,7 +1332,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+        tutorialSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
 
@@ -1333,7 +1353,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         viewPager.setCurrentItem(0);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 
-        discountSequence.start();
+        tutorialSequence.start();
     }
 
     /**
@@ -1349,10 +1369,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void prepareAndStartTutorialSequence() {
         Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
         Log.d("FSB", "Start getting user settings");
+        showLoading("Loading dealership information...");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-
+                hideLoading();
                 String unit = "";
                 float amount = 0f;
                 boolean enableDiscountTutorial = false;
@@ -1418,16 +1439,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         void setCarDetailsUI();
 
         void removeTutorial();
-    }
-
-    private void logScannerTable() {
-        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
-        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
-        for (ObdScanner scanner : scanners) {
-            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
-            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
-            Log.d(TAG, "Car ID: " + scanner.getCarId());
-        }
     }
 
 }

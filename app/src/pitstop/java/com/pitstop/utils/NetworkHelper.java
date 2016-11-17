@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Ben Wu on 2016-05-20.
@@ -135,14 +136,14 @@ public class NetworkHelper {
         post("car", callback, body);
     }
 
-    public void deleteUserCar(int carId, RequestCallback callback){
+    public void deleteUserCar(int carId, RequestCallback callback) {
         LOGI(TAG, "Delete car: " + carId);
 
         JSONObject body = new JSONObject();
-        try{
+        try {
             body.put("userId", 0);
             body.put("carId", carId);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -493,7 +494,7 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("serviceType", serviceType);
-            body.put("data", new JSONObject());
+            body.put("data", new JSONObject()); //?
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -474,7 +474,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
         } else if (requestCode == AddCarUtils.RC_PENDING_ADD_CAR) {
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
-            addCarUtils.runVinTask();
+            addCarUtils.vinCheck();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -569,13 +569,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     public void resetScreen() {
         if (!addingCar) return;
 
-        if (mPager.getCurrentItem() == 1) {
-            if (findViewById(R.id.VIN) != null) {
-                ((EditText) findViewById(R.id.VIN)).setText("");
+        if (mPager.getCurrentItem() == 1){
+            if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment){
+                if (findViewById(R.id.VIN) != null) {
+                    ((EditText) findViewById(R.id.VIN)).setText("");
+                }
+            } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment){
+                mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
+                mPager.setCurrentItem(1);
             }
-        } else if (mPager.getCurrentItem() == 2) {
-            mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
-            mPager.setCurrentItem(1);
         }
     }
 
@@ -662,6 +664,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      */
     @Override
     public void showSelectCarDialog(final String scannerName, final String scannerId) {
+        if (isFinishing()) {
+            return;
+        }
+
         if (autoConnectService != null && !selectCarDialogShowing) {
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final ArrayList<Car> selectedCar = new ArrayList<>(1);
@@ -714,7 +720,11 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      * @param scannerId Current scanner id
      */
     @Override
-    public void pairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
+    public void confirmPairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
+        if (isFinishing()) {
+            return;
+        }
+
         new AnimatedDialogBuilder(this)
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setTitle("Unrecognized device found")
@@ -794,6 +804,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
     @Override
     public void pairCarError(String errorMessage) {
+        if (isFinishing()) {
+            return;
+        }
+
         new AnimatedDialogBuilder(this)
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setTitle("Error in pairing device")

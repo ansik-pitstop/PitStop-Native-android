@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -16,8 +15,11 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.models.ObdScanner;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
+
+import java.util.List;
 
 /**
  * Class that identifies IDD bluetooth device
@@ -52,6 +54,8 @@ public class BluetoothRecognizer {
         Log.d(TAG, "Device name exists: " + mLocalScannerStore.deviceNameExists(scannerName));
         Log.d(TAG, "Any car lack scanner: " + mLocalScannerStore.anyCarLackScanner());
 
+        logScannerTable();
+
         if (AddCarActivity.addingCarWithDevice
                 || mLocalScannerStore.anyScannerLackName()
                 || mLocalScannerStore.deviceNameExists(scannerName)) {
@@ -74,7 +78,7 @@ public class BluetoothRecognizer {
                 // 1. Adding car
 
             } else {
-                // 2. Auto connect because of B
+                // 2. Connected to a wrong device most likely
 
             }
         }
@@ -108,6 +112,16 @@ public class BluetoothRecognizer {
                         .setContentText("Tap to pair with " + scannerName);
 
         notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private void logScannerTable() {
+        List<ObdScanner> scanners = mLocalScannerStore.getAllScanners();
+        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
+        for (ObdScanner scanner : scanners) {
+            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
+            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
+            Log.d(TAG, "Car ID: " + scanner.getCarId());
+        }
     }
 
 }

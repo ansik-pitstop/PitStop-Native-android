@@ -14,8 +14,11 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -675,7 +678,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, final int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             //Log.i(TAG,"On bind view holder");
 
             int viewType = getItemViewType(position);
@@ -736,7 +739,16 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
                         Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
                         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssueList.get(position));
+                        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
+
+//                        Pair<View, String> pair0 = Pair.create(holder.container,
+//                                getString(R.string.transition_name_issue_card) + carIssue.getId());// card
+//                        Pair<View, String> pair1 = Pair.create(rootview.findViewById(R.id.dashboard_request_service_btn),
+//                                getString(R.string.transition_name_request_service_btn));// Service Request button
+//                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+//                                getActivity(), pair0, pair1);
+//                        ActivityCompat.startActivityForResult(getActivity(), intent,
+//                                MainActivity.RC_DISPLAY_ISSUE, options.toBundle());
                         startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                     }
                 });

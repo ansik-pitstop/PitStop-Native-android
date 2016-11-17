@@ -128,4 +128,11 @@
     <string name="request_permission_message_default">Please grant our permission requests to allow Pitstop app to function.</string>
     <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device, we need the permission to access your location. We will not actually use or share your location with others.</string>
 
+    <string name="transition_name_issue_card">transition_name_issue_card</string>
+    <string name="transition_name_issue_title">transition_name_issue_title</string>
+    <string name="transition_name_issue_description">transition_name_issue_description</string>
+    <string name="transition_name_request_service_btn">transition_name_request_service_btn</string>
+
+
+
 </resources>
