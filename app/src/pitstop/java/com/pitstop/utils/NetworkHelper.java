@@ -136,6 +136,23 @@ public class NetworkHelper {
         post("car", callback, body);
     }
 
+    public void createNewCarWithoutShopId(int userId, int mileage, String vin, String scannerId,
+                                          RequestCallback callback){
+        LOGI(TAG, "createNewCarWithoutShopId");
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("vin", vin);
+            body.put("baseMileage", mileage);
+            body.put("userId", userId);
+            body.put("scannerId", scannerId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("car", callback, body);
+    }
+
     public void deleteUserCar(int carId, RequestCallback callback) {
         LOGI(TAG, "Delete car: " + carId);
 

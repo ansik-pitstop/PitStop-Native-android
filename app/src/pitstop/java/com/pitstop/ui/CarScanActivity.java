@@ -420,6 +420,8 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                                 }
                                             }
                                         } else {
+                                            Log.d(TAG, "Mileage update error: " + requestError.getError());
+                                            Log.d(TAG, "Mileage update error message: " + requestError.getMessage());
                                             Toast.makeText(CarScanActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                         }
                                     }

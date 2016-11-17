@@ -228,7 +228,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
             }
 
             addCarUtils.setDealership(addCarChooseDealershipFragment.getShop());
-            addCarUtils.saveCarToServer();
+
+            // TODO: 16/11/17 Put dealership
+            addCarUtils.updateCarShop();
+//            addCarUtils.saveCarToServer();
 
             try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();
