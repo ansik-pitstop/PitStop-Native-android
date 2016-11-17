@@ -312,25 +312,28 @@ public class NetworkHelper {
 
     public void postFreezeFrame(String scannerId, String rtcTime, List<PIDInfo> freezeData,
                                 RequestCallback callback){
+        Log.d(TAG, String.format(Locale.CANADA, "Posting FF: scannerId: %s, freezeData length: %d",
+                scannerId, freezeData.size()));
         JSONObject body = new JSONObject();
-        JSONArray freezeFrame = new JSONArray();
+        JSONArray freezePidArray = new JSONArray();
+        JSONArray pids = new JSONArray();
 
         try{
-            for (PIDInfo info: freezeData){
-                freezeFrame.put(
-                        new JSONObject()
-                            .put("id", info.pidType)
-                            .put("data", info.value)
-                );
+            for (PIDInfo pidInfo: freezeData){
+                pids.put(new JSONObject().put("id", pidInfo.pidType).put("data", pidInfo.value));
             }
-            body.put("freezeData", freezeFrame)
-                .put("scannerId", scannerId)
-                .put("rtcTime", rtcTime);
+            freezePidArray.put(
+                    new JSONObject()
+                            .put("rtcTime", Long.parseLong(rtcTime))
+                            .put("pids", pids)
+            );
+            body.put("scannerId", scannerId);
+            body.put("freezePidArray", freezePidArray);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "Freeze Frame Data: " + body.toString());
+        post("scan/pids/freeze", callback, body);
     }
 
     /**

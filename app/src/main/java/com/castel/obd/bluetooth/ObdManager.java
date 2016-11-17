@@ -37,7 +37,6 @@ public class ObdManager {
     public final static String STORE_DTC_FLAG = "5";
     public final static String PENDING_DTC_FLAG = "6";
     public final static String TRIP_END_FLAG = "9";
-    public final static String FREEZE_FRAME_FLAG = "3";
 
     public final static int DEVICE_LOGIN_FLAG = 1;
     public final static int DEVICE_LOGOUT_FLAG = 0;

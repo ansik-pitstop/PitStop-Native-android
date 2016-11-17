@@ -723,16 +723,15 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
                 Log.d(TAG, "Trip end flag received, Update mileage");
                 dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-                baseMileage = dashboardCar.getTotalMileage();
+                final double newBaseMileage = dashboardCar.getTotalMileage();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
                                 R.anim.mileage_update));
-                        carMileage.setText(String.valueOf(baseMileage));
+                        carMileage.setText(String.valueOf(newBaseMileage));
                     }
                 });
-
             } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
                 Log.d(TAG, "Trip start flag received");
             } else { // just display whatever you get, but not update the actual mileage

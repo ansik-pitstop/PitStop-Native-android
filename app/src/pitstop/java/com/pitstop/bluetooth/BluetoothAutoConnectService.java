@@ -452,9 +452,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             processResultFourData(dataPackageInfo);
             processPIDData(dataPackageInfo);
 
-            if (dataPackageInfo.tripFlag.equals(ObdManager.STORE_DTC_FLAG)){
+            if (dataPackageInfo.tripFlag.equals(ObdManager.STORE_DTC_FLAG)) {
                 saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId); // Store DTCs
-            } else if (dataPackageInfo.tripFlag.equals(ObdManager.PENDING_DTC_FLAG)){
+            } else if (dataPackageInfo.tripFlag.equals(ObdManager.PENDING_DTC_FLAG)) {
                 saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId); // Pending DTCs
             }
         }
@@ -473,7 +473,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dataPackageInfo.freezeData != null
                 && dataPackageInfo.freezeData.size() > 0
                 && (dataPackageInfo.result == 6
-                || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag)))){
+                || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag)))) {
             saveFreezeFrame(dataPackageInfo);
         }
 
@@ -527,41 +527,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Car car = carAdapter.getCarByScanner(dataPackageInfo.deviceId);
 
         if (NetworkHelper.isConnected(this)) {
-            if (car != null) {
-                networkHelper.getCarsById(car.getId(), new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            try {
-                                Car car = Car.createCar(response);
-
-                                HashSet<String> dtcNames = new HashSet<>();
-                                for (CarIssue issue : car.getActiveIssues()) {
-                                    dtcNames.add(issue.getItem());
+            if (car == null) return;
+            for (final String dtc : dtcArr) {
+                networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                        dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
+                        new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if (requestError == null) {
+                                    Log.i("Add New DTC", "DTC added: " + dtc);
+                                } else {
+                                    Log.e("Add New DTC", "Error in posting DTC");
                                 }
-
-                                for (final String dtc : dtcArr) {
-                                    if (!dtcNames.contains(dtc)) {
-                                        networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                                dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
-                                                new RequestCallback() {
-                                                    @Override
-                                                    public void done(String response, RequestError requestError) {
-                                                        if (requestError == null){
-                                                            Log.i(TAG, "DTC added: " + dtc);
-                                                        } else {
-                                                            Log.e(TAG, "Error in posting DTC");
-                                                        }
-                                                    }
-                                                });
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    }
-                });
+                        });
             }
         } else if (car != null) {
             Log.i(TAG, "Saving dtcs offline");
@@ -582,17 +561,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     /**
      * Extract FF and post
      * <ul>
-     *     <li>scannerId</li>
-     *     <li>freezeData</li>
-     *     <li>VIN</li>
-     *     <li>DTCs? not necessary tho</li>
+     * <li>scannerId</li>
+     * <li>freezeData</li>
+     * <li>VIN</li>
+     * <li>DTCs? not necessary tho</li>
      * </ul>
+     *
      * @param dataPackageInfo
      */
-    private void saveFreezeFrame(DataPackageInfo dataPackageInfo){
+    private void saveFreezeFrame(DataPackageInfo dataPackageInfo) {
         networkHelper.postFreezeFrame(dataPackageInfo.deviceId,
                 dataPackageInfo.rtcTime,
-                dataPackageInfo.freezeData, null);
+                dataPackageInfo.freezeData, new RequestCallback() {
+                    @Override
+                    public void done(String response, RequestError requestError) {
+                        if (requestError != null) {
+                            Log.d("Save FF", requestError.getError());
+                            Log.d("Save FF", requestError.getMessage());
+                        }
+                    }
+                });
     }
 
     @Override
