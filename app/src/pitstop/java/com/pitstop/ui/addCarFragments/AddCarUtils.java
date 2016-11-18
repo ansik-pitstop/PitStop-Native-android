@@ -914,10 +914,9 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
     }
 
+    public Car getCreatedCar() { return createdCar; }
 
-    public Car getPendingCar() {
-        return pendingCar;
-    }
+    public Car getPendingCar() { return pendingCar; }
 
     public interface AddCarUtilsCallback extends ObdManager.IBluetoothDataListener, LoadingActivityInterface {
 

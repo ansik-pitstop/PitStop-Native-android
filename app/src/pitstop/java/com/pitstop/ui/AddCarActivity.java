@@ -1,6 +1,5 @@
 package com.pitstop.ui;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -12,6 +11,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +30,6 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -70,8 +69,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     // activity result
     public static int ADD_CAR_SUCCESS = 51;
     public static int PAIR_CAR_SUCCESS = 52;
-
-    public static boolean addingCar = false;
+    public static int ADD_CAR_NO_DEALER_SUCCESS = 53;
 
     AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
@@ -92,9 +90,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      * the detected IDD prefix device<br>
      */
     public static boolean addingCarWithDevice = false;
-
+    public static boolean addingCar = false;
     private boolean carSuccessfullyAdded = false;
-
     public static boolean isPairingUnrecognizedDevice = false;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
@@ -196,11 +193,38 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
     @Override
     public void onBackPressed() {
-        if (mPager.getCurrentItem() == 0) {
+        if (mPager.getCurrentItem() == AddCarViewPager.PAGE_FIRST) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
 
+        } else if (mPager.getCurrentItem() == AddCarViewPager.PAGE_DEALERSHIP){
+            new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setMessage("Are you sure you don't want to select a dealership? Selecting a dealership allows you book service appointment and " +
+                            "message for support.")
+                    .setNegativeButton("SELECT A DEALERSHIP", null)
+                    .setPositiveButton("CONTINUE WITHOUT DEALERSHIP", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent data = new Intent();
+                            data.putExtra(MainActivity.CAR_EXTRA, addCarUtils.getCreatedCar());
+                            data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
+                            setResult(ADD_CAR_NO_DEALER_SUCCESS, data);
+                            showLoading("Loading..");
+                            new CountDownTimer(2000, 2000) { // to let issues populate in server
+                                @Override
+                                public void onTick(long millisUntilFinished) {}
+
+                                @Override
+                                public void onFinish() {
+                                    hideLoading(null);
+                                    finish();
+                                }
+                            }.start();
+                        }
+                    })
+                    .show();
         } else {
             // Otherwise, select the previous step.
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
@@ -583,42 +607,31 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
     @Override
     public void openRetryDialog() {
-        if (!addingCar) return;
-
         hideLoading(null);
 
-        if(isFinishing()) { // You don't want to add a dialog to a finished activity
+        if(isFinishing() || !addingCar) { // You don't want to add a dialog to a finished activity
             return;
         }
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("Device not connected");
-
-        // Alert message
-        alertDialog.setMessage("Could not connect to device. " +
-                "\n\nMake sure your vehicle engine is on and " +
-                "OBD device is properly plugged in.\n\nYou may also try turning off the Bluetooth on your phone and then turning it back on.\n\nTry again ?");
-        alertDialog.setCancelable(false);
-
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (!isPairingUnrecognizedDevice) {
-                    searchForCar(null);
-                } else {
-                    addCarUtils.searchForUnrecognizedDevice();
-                }
-            }
-        });
-
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alertDialog.show();
+        new AnimatedDialogBuilder(this)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setTitle("Device not connected")
+                .setMessage("Could not connect to device. " +
+                        "\n\nMake sure your vehicle engine is on and " +
+                        "OBD device is properly plugged in.\n\nYou may also try turning off the Bluetooth on your phone and then turning it back on.\n\nTry again ?")
+                .setCancelable(false)
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (!isPairingUnrecognizedDevice) {
+                            searchForCar(null);
+                        } else {
+                            addCarUtils.searchForUnrecognizedDevice();
+                        }
+                    }
+                })
+                .setNegativeButton("NO", null)
+                .show();
 
         // Mixpanel - Try to connect bluetooth again
         try {

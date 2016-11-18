@@ -16,6 +16,10 @@ import com.pitstop.R;
  */
 public class AddCarViewPager extends ViewPager {
 
+    public static final int PAGE_FIRST = 0;
+    public static final int PAGE_VIN = 1;
+    public static final int PAGE_DEALERSHIP = 2;
+
     public AddCarViewPager(Context context) {
         super(context);
     }
