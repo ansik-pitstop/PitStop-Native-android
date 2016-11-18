@@ -17,10 +17,8 @@ import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.LogUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -29,7 +27,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.AddCarActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.PendingAddCarActivity;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.utils.AnimatedDialogBuilder;
@@ -42,8 +39,6 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 /**
  * Created by david on 7/21/2016.
  */
@@ -54,29 +49,33 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     private static final int HANDLER_MSG_SEARCH_CAR = 0;
     private static final int HANDLER_MSG_GET_VIN = 1;
     private static final int HANDLER_MSG_GET_DTC_TIMEOUT = 2;
+    public static final int RC_PENDING_ADD_CAR = 1043;
 
     AddCarActivity callback;
-    GlobalApplication context;
+    private GlobalApplication context;
 
-    Car pendingCar;
-
+    private Car pendingCar;
     private Car createdCar;
 
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
     private BluetoothAutoConnectService autoConnectService;
-    private boolean needToSetTime = false;
-    public static final int RC_PENDING_ADD_CAR = 1043;
-    private int vinAttempts = 0;
-    private int linkingAttempts = 0;
+    private ServiceConnection serviceConnection;
 
-    long vinRetrievalStartTime = 0;
+    private long vinRetrievalStartTime = 0;
     private long searchTime = 0;
+
     private int connectionAttempts = 0;
-    private boolean askForDTC = false;
+    private int linkingAttempts = 0;
+    private int vinAttempts = 0;
+
     private boolean gotValidRTC = false;
+    private boolean needToSetTime = false;
     private boolean isSearchingForCar = false;
-    private boolean isGettingVinAndCarIsConnected = false;
+    private boolean isAskingForVIN = false;
+    private boolean isAskingForDTC = false;
+
+    private String dtcs;
 
     public static boolean gotMileage = false;
 
@@ -94,15 +93,6 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             this.cancel();
         }
     };
-
-    private GetDTCTimeoutRunnable mGetDTCTimeoutRunnable;
-
-    /**
-     * Callbacks for service binding, passed to bindService()
-     */
-    private ServiceConnection serviceConnection;
-
-    private String dtcs;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -384,6 +374,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
     }
 
     /**
@@ -393,15 +384,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         Log.i(TAG, "Set parameter");
 
-        if ((responsePackageInfo.type + responsePackageInfo.value)
-                .equals(ObdManager.RTC_TAG)) {
+        if ((responsePackageInfo.type + responsePackageInfo.value).equals(ObdManager.RTC_TAG)) {
             // Once device time is reset, the obd device disconnects from mobile device
-            linkingAttempts = 0;
-            needToSetTime = false;
-            setRTCtimer.cancel();
             Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
             callback.showLoading("Device successfully linked");
-            mHandler.postDelayed(vinDetectionRunnable, 2000);
+            linkingAttempts = 0;
+            connectionAttempts = 0;
+            needToSetTime = false;
+            setRTCtimer.cancel();
+            searchAndGetVin();
         }
     }
 
@@ -438,10 +429,10 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             }
 
             if (diff > moreThanOneYear) {
+                needToSetTime = true;
                 // Set RTC time
                 Log.i(TAG, "Device RTC time is off by more than one year");
                 autoConnectService.syncObdDevice();
-                needToSetTime = true;
                 setRTCtimer.start();
                 try {
                     JSONObject properties = new JSONObject();
@@ -453,31 +444,37 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     e.printStackTrace();
                 }
             } else {
+                gotValidRTC = true;
                 Log.i(TAG, "Device RTC time is off by less than one year, start getting VIN");
                 autoConnectService.saveSyncedDevice(parameterPackageInfo.deviceId);
                 autoConnectService.getVinFromCar();
-                gotValidRTC = true;
             }
         }
 
         if (parameterPackageInfo.value.get(0).tlvTag.equals(ObdManager.VIN_TAG)) {
+
+            // If we are not asking for VIN, then assume there's no VIN coming in
+            if (!isAskingForVIN) return;
+
+            String retrievedVin = parameterPackageInfo.value.get(0).value;
+
             linkingAttempts = 0;
-            Log.d(TAG, "isGettingVinAndCarIsConnected :" + isGettingVinAndCarIsConnected);
+
+            Log.d(TAG, "isAskingForVIN :" + isAskingForVIN);
 
             callback.showLoading("Getting car VIN");
-
-            isGettingVinAndCarIsConnected = false;
             pendingCar.setScannerId(parameterPackageInfo.deviceId);
-            pendingCar.setVin(parameterPackageInfo.value.get(0).value);
+            pendingCar.setVin(retrievedVin);
 
             try {
                 new MixpanelHelper(context).trackCustom("Retrieved VIN from device",
-                        new JSONObject("{'VIN':'" + pendingCar.getVin() + "','View':'Add Car'}"));
+                        new JSONObject("{'VIN':'" + retrievedVin + "','View':'Add Car'}"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             if (isValidVin(pendingCar.getVin())) {
+                isAskingForVIN = false;
                 vinAttempts = 0;
                 Log.i(TAG, "VIN is valid");
                 autoConnectService.setFixedUpload();
@@ -488,25 +485,25 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
                     mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                 }
             } else if (!needToSetTime || vinAttempts > 8) {
+                isAskingForVIN = false;
                 if (AddCarActivity.isPairingUnrecognizedDevice) {
                     callback.showSelectCarDialog(autoConnectService.getConnectedDeviceName(),
                             autoConnectService.getCurrentDeviceId());
-                    return;
+                } else {
+                    // same as in manual input plus vin hint
+                    Log.i(TAG, "Vin value returned not valid");
+                    vinAttempts = 0;
+                    pendingCar.setVin("");
+                    callback.resetScreen();
+                    callback.hideLoading("Vin value returned not valid, please use Manual Input!");
+
+                    // Get vin failed (not support) for 8 times or the RTC on the device does not need to be set
+                    mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
                 }
-
-                // same as in manual input plus vin hint
-                Log.i(TAG, "Vin value returned not valid");
-                vinAttempts = 0;
-                pendingCar.setVin("");
-                callback.resetScreen();
-                callback.hideLoading("Vin value returned not valid, please use Manual Input!");
-
-                // Get vin failed (not support) for 8 times or the RTC on the device does not need to be set
-                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
             } else {
                 Log.i(TAG, "VIN value returned not valid - attempt: " + vinAttempts);
                 vinAttempts++;
-                isGettingVinAndCarIsConnected = true;
+                isAskingForVIN = true;
             }
         }
     }
@@ -516,8 +513,8 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         Log.i(TAG, "getIOData()");
         Log.i(TAG, "result: " + dataPackageInfo.result);
 
-        if (dataPackageInfo.result == 6 && askForDTC) {
-            askForDTC = false;
+        if (dataPackageInfo.result == 6 && isAskingForDTC) {
+            isAskingForDTC = false;
 
             Log.i(TAG, "Result: " + dataPackageInfo.result + " Asking for dtcs --getIOData()");
             dtcs = "";
@@ -801,12 +798,12 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     private final Runnable vinDetectionRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.i(TAG, "vinDetectionRunnable run, isGettingVinAndCarIsConnected: " + isGettingVinAndCarIsConnected);
+            Log.i(TAG, "vinDetectionRunnable run, isAskingForVIN: " + isAskingForVIN);
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - vinRetrievalStartTime;
             int seconds = (int) (timeDiff / 1000);
 
-            if (!isGettingVinAndCarIsConnected) {
+            if (!isAskingForVIN) {
                 mHandler.removeCallbacks(vinDetectionRunnable);
             } else if (seconds > 30) {
                 if (linkingAttempts < 2) {
@@ -833,7 +830,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
 
     private void getVinWithTimeout() {
         // Linked with the peripheral, getting car vin
-        isGettingVinAndCarIsConnected = true;
+        isAskingForVIN = true;
         autoConnectService.getCarVIN();
         vinRetrievalStartTime = System.currentTimeMillis();
         mHandler.postDelayed(vinDetectionRunnable, 5000);
@@ -858,19 +855,11 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         }
     };
 
+    private GetDTCTimeoutRunnable mGetDTCTimeoutRunnable;
     private final class GetDTCTimeoutRunnable implements Runnable {
-
         private final static int TIME_OUT = 15;
-
-        /**
-         * Starting time in milliseconds, initiate when construct the runnable
-         */
-        private final long startTime;
-
-        /**
-         * State variable
-         */
-        private boolean getDTCTimeOut;
+        private final long startTime; // Starting time in milliseconds, initiate when construct the runnable
+        private boolean getDTCTimeOut; // State variable
 
         public GetDTCTimeoutRunnable(long startTime) {
             this.startTime = startTime;
@@ -881,16 +870,15 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
         public void run() {
             long currentTime = System.currentTimeMillis();
             long timeDiff = currentTime - startTime;
-
             int seconds = (int) (timeDiff / 1000);
 
             // If it finished, then remove the runnable from the handler
-            if (!askForDTC) {
+            if (!isAskingForDTC) {
                 mHandler.removeCallbacks(this);
                 getDTCTimeOut = false;
             } else if (seconds > TIME_OUT) { // If timeout, let the handler knows
                 getDTCTimeOut = true;
-                askForDTC = false;
+                isAskingForDTC = false;
                 mHandler.sendEmptyMessage(HANDLER_MSG_GET_DTC_TIMEOUT);
                 mHandler.removeCallbacks(this);
             } else {  // If not finished nor timeout, we wait for another 5 seconds
@@ -905,6 +893,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
     private void onCarSuccessfullyPosted(){
         // After successfully posting car to server, attempt to get engine codes
         // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
+        cancelAllRunnables();
         if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Now connected to device");
             callback.showLoading("Loading car engine codes");
@@ -913,7 +902,7 @@ public class AddCarUtils implements ObdManager.IBluetoothDataListener {
             // Check if DTCs are retrieved after 15 seconds
             mGetDTCTimeoutRunnable = new GetDTCTimeoutRunnable(System.currentTimeMillis());
             mHandler.post(mGetDTCTimeoutRunnable);
-            askForDTC = true;
+            isAskingForDTC = true;
 
             autoConnectService.getDTCs();
             autoConnectService.getPendingDTCs();
