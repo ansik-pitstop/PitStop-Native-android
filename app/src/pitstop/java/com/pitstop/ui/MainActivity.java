@@ -27,6 +27,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -55,6 +56,7 @@ import com.pitstop.R;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
@@ -83,6 +85,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import io.smooch.core.Smooch;
@@ -191,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private NetworkHelper networkHelper;
 
     private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
+    private boolean isRefreshingFromServer = false;
 
     public static MainDashboardCallback callback;
 
@@ -271,22 +275,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         resetMenus(false);
 
         try {
-            if (dashboardCar == null || dashboardCar.getDealership() == null) {
-                switch (viewPager.getCurrentItem()) {
-                    case MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD:
-                        mixpanelHelper.trackViewAppeared(MixpanelHelper.DASHBOARD_VIEW);
-                        break;
-                    case MainAppViewPager.PAGE_NUM_MAIN_TOOL:
-                        mixpanelHelper.trackViewAppeared(MixpanelHelper.TOOLS_VIEW);
-                        break;
-                }
-            } else {
-                String view = viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW;
-                mixpanelHelper.trackCustom("View Appeared",
-                        new JSONObject("{'View':'" + view + "','Dealership':'" + dashboardCar.getDealership().getName()
-                                + "'}"));
-            }
+            mixpanelHelper.trackViewAppeared(viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -397,20 +387,25 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     // repopulate car list
     public void resetMenus(boolean refresh) {
+        Log.d(TAG, "Car List Size: " + carList.size());
+        Log.d(TAG, "Refresh: " + refresh);
         if (carList.size() == 0 && refresh) {
+            Log.d(TAG, "Refresh from server");
             refreshFromServer();
         }
 
         int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
-
+        Log.d(TAG, "Current car id: " + id);
         if (carList.size() > 0) {
             for (Car car : carList) {
                 if (car.getId() == id) {
+                    Log.d(TAG, "Set to id: " + id);
                     dashboardCar = car;
                     car.setCurrentCar(true);
                 }
             }
             if (dashboardCar == null) {
+                Log.d(TAG, "Set to first Car");
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
             }
@@ -452,10 +447,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR) {
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS
+                        || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
-                    if (carList.size() == 0) {
+                    if (carList.size() == 0) { // first car
                         Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
                                 .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
                         Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
@@ -476,14 +472,18 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         Log.d(TAG, addedCar.getModel());
                         customProperties.put("Car Year", addedCar.getYear());
                         Log.d(TAG, String.valueOf(addedCar.getYear()));
-                        customProperties.put("Email", addedCar.getDealership().getEmail());
-                        Log.d(TAG, addedCar.getDealership().getEmail());
+
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                            customProperties.put("Email", addedCar.getDealership().getEmail());
+                            Log.d(TAG, addedCar.getDealership().getEmail());
+                        }
 
                         if (user != null) {
                             customProperties.put("Phone", user.getPhone());
                             User.getCurrentUser().setFirstName(user.getFirstName());
                             User.getCurrentUser().setEmail(user.getEmail());
                         }
+
                         User.getCurrentUser().addProperties(customProperties);
 
                         if (user != null) {
@@ -496,7 +496,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                         Smooch.track("User Logged In");
 
-                        prepareAndStartTutorialSequence();
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                            prepareAndStartTutorialSequence();
+                        }
                     }
                     if (shouldRefreshFromServer) {
                         refreshFromServer();
@@ -524,8 +526,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-            } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS){
-                if (shouldRefreshFromServer){
+            } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS) {
+                if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
             }
@@ -542,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
-        if (tutorialSequence != null && tutorialSequence.hasStarted()){
+        if (tutorialSequence != null && tutorialSequence.hasStarted()) {
             new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle(getString(R.string.first_service_booking_cancel_title))
@@ -593,6 +595,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     /**
      * Onclick method for service history button
+     *
      * @param view
      */
     public void clickServiceHistory(View view) {
@@ -814,6 +817,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
                                     mainAppSideMenuAdapter.notifyDataSetChanged();
+                                    resetMenus(false);
                                     hideLoading();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -1007,6 +1011,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     /**
      * Request permission with custom message dialog
+     *
      * @param activity
      * @param permissions
      * @param requestCode
@@ -1152,6 +1157,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view if this view is null, we consider the service booking is tentative (first time)
      */
     public void requestMultiService(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Request Service",
                     viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
@@ -1170,6 +1177,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void startChat(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(),
                     viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
@@ -1201,6 +1210,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void navigateToDealer(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
                     MixpanelHelper.TOOLS_VIEW);
@@ -1222,6 +1233,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void callDealer(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
                     MixpanelHelper.TOOLS_VIEW);
@@ -1234,23 +1247,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         startActivity(intent);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
-
-//    /**
-//     * Onclick method for Add Preset Issues button
-//     *
-//     * @param button
-//     */
-//    public void addPresetIssues(View button) {
-//        try {
-//            mixpanelHelper.trackButtonTapped("Add Custom Issues",
-//                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-//                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        new ServiceRequestUtil(this, dashboardCar, false).startAddingPresetIssues(false);
-//    }
 
     /**
      * Given the tutorial should be shown to the user, show tutorial sequence
@@ -1369,6 +1365,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * </ul>
      */
     public void prepareAndStartTutorialSequence() {
+        if (!checkDealership()) return;
+
         Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
         Log.d("FSB", "Start getting user settings");
         showLoading("Loading dealership information...");
@@ -1417,7 +1415,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /**
      * Called by ServiceRequestUtil to clear the tutorial item from dashboard
      */
-    public void removeTutorial(){
+    public void removeTutorial() {
         Log.d(TAG, "Remove tutorial");
 
         try {
@@ -1427,6 +1425,137 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         callback.removeTutorial();
+    }
+
+    private boolean checkDealership() {
+        if (dashboardCar.getDealership() == null) {
+            Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
+                    .setAction("Select", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            selectDealershipForDashboardCar();
+                        }
+                    })
+                    .show();
+            return false;
+        }
+        return true;
+    }
+
+    private void selectDealershipForDashboardCar() {
+        final List<Dealership> dealerships = shopLocalStore.getAllDealerships();
+        final List<String> shops = new ArrayList<>();
+        final List<String> shopIds = new ArrayList<>();
+
+        // Try local store for dealerships
+        if (dealerships.isEmpty()) {
+            showLoading("Getting shop information..");
+            networkHelper.getShops(new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    hideLoading();
+                    if (requestError == null) {
+                        try {
+                            List<Dealership> dealers = Dealership.createDealershipList(response);
+                            shopLocalStore.deleteAllDealerships();
+                            shopLocalStore.storeDealerships(dealers);
+                            for (Dealership dealership : dealers) {
+                                shops.add(dealership.getName());
+                                shopIds.add(String.valueOf(dealership.getId()));
+                            }
+                            showSelectDealershipDialog(shops.toArray(new String[shops.size()]),
+                                    shopIds.toArray(new String[shopIds.size()]));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    } else {
+                        Log.e(TAG, "Get shops: " + requestError.getMessage());
+                        Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+            });
+        } else {
+            for (Dealership shop : dealerships) {
+                shops.add(shop.getName());
+                shopIds.add(String.valueOf(shop.getId()));
+            }
+            showSelectDealershipDialog(shops.toArray(new String[shops.size()]),
+                    shopIds.toArray(new String[shopIds.size()]));
+        }
+    }
+
+    private void showSelectDealershipDialog(final String[] shops, final String[] shopIds) {
+        final int[] pickedPosition = {-1};
+
+        final AlertDialog dialog = new AnimatedDialogBuilder(this)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setSingleChoiceItems(shops, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        pickedPosition[0] = which;
+                    }
+                })
+                .setNegativeButton("CANCEL", null)
+                .setPositiveButton("CONFIRM", null)
+                .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (pickedPosition[0] == -1) {
+                            Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
+
+                        try {
+                            mixpanelHelper.trackCustom("Button Tapped",
+                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                            MixpanelHelper.SETTINGS_VIEW, dashboardCar.getMake(), dashboardCar.getModel())));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        networkHelper.updateCarShop(dashboardCar.getId(), shopId, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                dialog.dismiss();
+                                if (requestError == null) {
+                                    Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + shopId);
+                                    // Update car in local database
+                                    dashboardCar.setShopId(shopId);
+                                    dashboardCar.setDealership(shopLocalStore.getDealership(shopId));
+                                    carLocalStore.updateCar(dashboardCar);
+
+                                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
+                                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
+                                    User.getCurrentUser().addProperties(properties);
+
+                                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+
+                                    refreshFromLocal();
+                                    resetMenus(false);
+                                } else {
+                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                    }
+                });
+            }
+        });
+
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
     }
 
     public interface MainDashboardCallback {

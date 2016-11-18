@@ -326,14 +326,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                                         currentDay
                                 );
 
-                                try{
+                                try {
                                     datePicker.getWindow().setWindowAnimations(AnimatedDialogBuilder.ANIMATION_GROW);
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
 
                                 final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
-                                ((TextView)titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
+                                ((TextView) titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
 
                                 datePicker.setCustomTitle(titleView);
 
@@ -425,7 +425,10 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     private void setDealership() {
         Dealership shop = dashboardCar.getDealership();
-        shop = (shop == null) ? shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId()) : shop;
+        if (shop == null) {
+//            shop = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
+            shop = shopLocalStore.getDealership(dashboardCar.getShopId());
+        }
         dashboardCar.setDealership(shop);
         if (shop == null) {
             networkHelper.getShops(new RequestCallback() {
@@ -437,7 +440,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             shopLocalStore.deleteAllDealerships();
                             shopLocalStore.storeDealerships(dl);
 
-                            Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
+//                            Dealership d = shopLocalStore.getDealership(carLocalStore.getCar(dashboardCar.getId()).getShopId());
+                            Dealership d = shopLocalStore.getDealership(dashboardCar.getId());
 
                             dashboardCar.setDealership(d);
                             if (dashboardCar.getDealership() != null) {
@@ -485,14 +489,14 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                             setIssuesCount();
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            if (getActivity() != null){
+                            if (getActivity() != null) {
                                 Toast.makeText(getActivity(),
                                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
                             }
                         }
                     } else {
                         Log.e(TAG, "Load issues error: " + requestError.getMessage());
-                        if (getActivity() != null){
+                        if (getActivity() != null) {
                             Toast.makeText(getActivity(),
                                     "Error retrieving car details", Toast.LENGTH_SHORT).show();
                         }
@@ -617,7 +621,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     @Override
     public void removeTutorial() {
         Log.d(TAG, "Remove tutorial");
-        if (carIssuesAdapter != null){
+        if (carIssuesAdapter != null) {
             carIssuesAdapter.removeTutorial();
         }
     }
@@ -739,8 +743,8 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
             Set<String> carsAwaitTutorial = preferences.getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
             Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
-            for (String item: carsAwaitTutorial){
-                if (!item.equals(String.valueOf(dashboardCar.getId()))){
+            for (String item : carsAwaitTutorial) {
+                if (!item.equals(String.valueOf(dashboardCar.getId()))) {
                     copy.add(item);
                 }
             }
@@ -788,15 +792,15 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
                 Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
                         .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
                 Log.d(TAG, "Update tutorial: dashboard car: " + dashboardCar.getId());
-                for (String item: carsAwaitTutorial){
+                for (String item : carsAwaitTutorial) {
                     Log.d(TAG, "Cars await tutorial set: " + item);
                 }
-                if (carsAwaitTutorial.size() == 0 ){
+                if (carsAwaitTutorial.size() == 0) {
                     Log.d(TAG, "Cars await tutorial set is empty");
                 }
                 boolean needToShowTutorial = carsAwaitTutorial.contains(String.valueOf(dashboardCar.getId()));
                 Log.d(TAG, "Need to show tutorial: " + needToShowTutorial);
-                if (needToShowTutorial){
+                if (needToShowTutorial) {
                     addTutorial();
                 }
             } catch (Exception e) {

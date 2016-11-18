@@ -52,7 +52,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsActivity extends AppCompatActivity{
+public class SettingsActivity extends AppCompatActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
@@ -217,8 +217,7 @@ public class SettingsActivity extends AppCompatActivity{
 
         private NetworkHelper networkHelper;
 
-        public SettingsFragment() {
-        }
+        public SettingsFragment() {}
 
         public void setOnInfoUpdatedListener(OnInfoUpdated listener) {
             this.listener = listener;
@@ -345,6 +344,9 @@ public class SettingsActivity extends AppCompatActivity{
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
                                                     if (requestError == null) {
+                                                        Car updatedCar = localCarAdapter.getCar(itemCar.getId());
+                                                        updatedCar.setShopId(shopId);
+                                                        localCarAdapter.updateCar(updatedCar);
                                                         Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
                                                         Toast.makeText(getActivity(), "Car dealership updated", Toast.LENGTH_SHORT).show();
                                                         listener.localUpdatePerformed();
