@@ -447,11 +447,18 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR) {
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS
-                        || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
                     if (carList.size() == 0) { // first car
+                        dashboardCar = addedCar;
+                        carList.add(dashboardCar);
+                        dashboardCar.setCurrentCar(true);
+                        callback.setDashboardCar(carList);
+                        networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
+                        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
+
                         Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
                                 .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
                         Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
@@ -846,16 +853,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-    }
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
 
     @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-    }
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {}
 
     @Override
     public void getIOData(final DataPackageInfo dataPackageInfo) {
