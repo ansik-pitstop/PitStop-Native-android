@@ -11,7 +11,6 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,8 +57,7 @@ import java.util.List;
 /**
  * Created by David on 7/20/2016.
  */
-public class AddCarActivity extends BSAbstractedFragmentActivity
-        implements AddCarUtils.AddCarUtilsCallback {
+public class AddCarActivity extends BSAbstractedFragmentActivity implements AddCarUtils.AddCarUtilsCallback {
 
     private final String TAG = AddCarActivity.class.getSimpleName();
 
@@ -198,7 +196,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
 
-        } else if (mPager.getCurrentItem() == AddCarViewPager.PAGE_DEALERSHIP){
+        } else if (mPager.getCurrentItem() == AddCarViewPager.PAGE_DEALERSHIP) {
             new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setMessage("Are you sure you don't want to select a dealership? Selecting a dealership allows you book service appointment and " +
@@ -211,17 +209,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                             data.putExtra(MainActivity.CAR_EXTRA, addCarUtils.getCreatedCar());
                             data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
                             setResult(ADD_CAR_NO_DEALER_SUCCESS, data);
-                            showLoading("Loading..");
-                            new CountDownTimer(2000, 2000) { // to let issues populate in server
-                                @Override
-                                public void onTick(long millisUntilFinished) {}
-
-                                @Override
-                                public void onFinish() {
-                                    hideLoading(null);
-                                    finish();
-                                }
-                            }.start();
+                            finish();
                         }
                     })
                     .show();
@@ -412,7 +400,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     @Override
     protected void onResume() {
         try {
-            if (isPairingUnrecognizedDevice){
+            if (isPairingUnrecognizedDevice) {
                 mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
             } else {
                 mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
@@ -536,10 +524,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
     @Override
     public void hideLoading(String string) {
-        if(progressDialog.isShowing()) {
+        if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        if(string!=null) {
+        if (string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
     }
@@ -547,7 +535,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     @Override
     public void showLoading(String string) {
         progressDialog.setMessage(string);
-        if(!progressDialog.isShowing()) {
+        if (!progressDialog.isShowing()) {
             progressDialog.show();
         }
     }
@@ -579,7 +567,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
 
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override
-            public void onTick(long millisUntilFinished) {}
+            public void onTick(long millisUntilFinished) {
+            }
 
             @Override
             public void onFinish() {
@@ -593,12 +582,12 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     public void resetScreen() {
         if (!addingCar) return;
 
-        if (mPager.getCurrentItem() == 1){
-            if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment){
+        if (mPager.getCurrentItem() == 1) {
+            if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
                 if (findViewById(R.id.VIN) != null) {
                     ((EditText) findViewById(R.id.VIN)).setText("");
                 }
-            } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment){
+            } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) {
                 mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
                 mPager.setCurrentItem(1);
             }
@@ -609,7 +598,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     public void openRetryDialog() {
         hideLoading(null);
 
-        if(isFinishing() || !addingCar) { // You don't want to add a dialog to a finished activity
+        if (isFinishing() || !addingCar) { // You don't want to add a dialog to a finished activity
             return;
         }
 
@@ -728,9 +717,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
     /**
      * Show a dialog prompting user to pair the corresponding car
      *
-     * @param existedCar The car retrieved from the backend whose user_id matches current user id
+     * @param existedCar  The car retrieved from the backend whose user_id matches current user id
      * @param scannerName Current scanner name
-     * @param scannerId Current scanner id
+     * @param scannerId   Current scanner id
      */
     @Override
     public void confirmPairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
@@ -762,11 +751,15 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
      * 1. Check with the backend and see if scanner is valid <br>
      * 2. If so, create an association with the car selected and the scanner <br>
      * 3. On success, store scanner information locally, and finish.
-     * @param car selected car or the car retrieved from the backend by its VIN
-     * @param scannerId The current scannerId
+     *
+     * @param car         selected car or the car retrieved from the backend by its VIN
+     * @param scannerId   The current scannerId
      * @param scannerName The current scannerName
      */
     private void validateAndPostScanner(final Car car, final String scannerId, final String scannerName) {
+
+        if (!checkNetworkConnection(null)) return;
+
         showLoading("Checking device ID..");
         networkHelper.validateScannerId(scannerId, new RequestCallback() {
             @Override
@@ -837,6 +830,20 @@ public class AddCarActivity extends BSAbstractedFragmentActivity
                         addCarUtils.searchForUnrecognizedDevice();
                     }
                 }).show();
+    }
+
+    @Override
+    public boolean checkNetworkConnection(String error) {
+        if (NetworkHelper.isConnected(this)) {
+            return true;
+        } else {
+            if (error != null) {
+                hideLoading(error);
+            } else {
+                hideLoading("No network connection! Please check your network connection and try again.");
+            }
+            return false;
+        }
     }
 
 }

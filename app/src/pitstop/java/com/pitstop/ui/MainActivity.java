@@ -52,6 +52,7 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
@@ -260,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
+
     }
 
     @Override
@@ -455,7 +457,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
                         callback.setDashboardCar(carList);
-                        networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
 
