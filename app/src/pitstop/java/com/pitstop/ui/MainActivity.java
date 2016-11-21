@@ -473,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         customProperties.put("Car Year", addedCar.getYear());
                         Log.d(TAG, String.valueOf(addedCar.getYear()));
 
-                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             customProperties.put("Email", addedCar.getDealership().getEmail());
                             Log.d(TAG, addedCar.getDealership().getEmail());
                         }
@@ -496,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                         Smooch.track("User Logged In");
 
-                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS){
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             prepareAndStartTutorialSequence();
                         }
                     }
@@ -1428,6 +1428,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     private boolean checkDealership() {
+        if (dashboardCar == null) {
+            return false;
+        }
+
         if (dashboardCar.getDealership() == null) {
             Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
                     .setAction("Select", new View.OnClickListener() {

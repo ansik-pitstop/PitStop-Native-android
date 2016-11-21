@@ -79,6 +79,8 @@ public class ServiceRequestUtil {
 
     private final GlobalApplication mApplication;
 
+    private final boolean startedFromMain;
+
     public ServiceRequestUtil(Context context, Car dashboardCar, boolean isFirstBooking) {
         this.context = context;
         this.dashboardCar = dashboardCar;
@@ -89,6 +91,8 @@ public class ServiceRequestUtil {
         mLayoutInflater = LayoutInflater.from(context);
 
         mApplication = (GlobalApplication) context.getApplicationContext();
+
+        startedFromMain = context instanceof MainActivity;
     }
 
     /**
@@ -362,7 +366,7 @@ public class ServiceRequestUtil {
             }
         });
 
-        if (!chained) {
+        if (!chained && startedFromMain && !isFirstBooking) {
             final View promptTitle = mLayoutInflater.inflate(R.layout.dialog_custom_title_primary_dark, null);
             ((TextView) promptTitle.findViewById(R.id.custom_title_text)).setText(R.string.add_preset_issue_dialog_title);
             new AnimatedDialogBuilder(context)
