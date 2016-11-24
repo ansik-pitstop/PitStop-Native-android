@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -76,11 +78,16 @@ public class LoginActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
-    private EditText firstName;
-    private EditText lastName;
-    private EditText password;
-    private EditText phoneNumber;
-    private EditText email;
+    private TextInputLayout firstNameLayout;
+    private TextInputEditText firstName;
+    private TextInputLayout lastNameLayout;
+    private TextInputEditText lastName;
+    private TextInputLayout passwordLayout;
+    private TextInputEditText password;
+    private TextInputLayout phoneLayout;
+    private TextInputEditText phoneNumber;
+    private TextInputLayout emailLayout;
+    private TextInputEditText email;
 
     private View splashLayout;
     private LinearLayout radioLayout;
@@ -186,9 +193,9 @@ public class LoginActivity extends AppCompatActivity {
 
                         radioLayout.setVisibility(View.GONE);
                         loginButton.setVisibility(View.VISIBLE);
-                        firstName.setVisibility(View.GONE);
-                        lastName.setVisibility(View.GONE);
-                        phoneNumber.setVisibility(View.GONE);
+                        firstNameLayout.setVisibility(View.GONE);
+                        lastNameLayout.setVisibility(View.GONE);
+                        phoneLayout.setVisibility(View.GONE);
 
                         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                             @Override
@@ -277,11 +284,11 @@ public class LoginActivity extends AppCompatActivity {
             }
             // Otherwise, select the previous step.
             if (signup && mPager.getCurrentItem() == SplashSlidePagerAdapter.PAGE_LOGIN && firstName.getVisibility() == View.VISIBLE) {
-                firstName.setVisibility(View.GONE);
-                lastName.setVisibility(View.GONE);
-                phoneNumber.setVisibility(View.GONE);
-                email.setVisibility(View.VISIBLE);
-                password.setVisibility(View.VISIBLE);
+                firstNameLayout.setVisibility(View.GONE);
+                lastNameLayout.setVisibility(View.GONE);
+                phoneLayout.setVisibility(View.GONE);
+                emailLayout.setVisibility(View.VISIBLE);
+                passwordLayout.setVisibility(View.VISIBLE);
                 findViewById(R.id.sign_log_switcher_button).setVisibility(View.VISIBLE);
 //                findViewById(R.id.login_or).setVisibility(View.GONE);
                 findViewById(R.id.fb_login_butt).setVisibility(View.VISIBLE);
@@ -352,11 +359,16 @@ public class LoginActivity extends AppCompatActivity {
      * Retrieve views using findViewById()
      */
     private void setUpUIReferences() {
-        firstName = (EditText) findViewById(R.id.firstName);
-        lastName = (EditText) findViewById(R.id.lastName);
-        password = (EditText) findViewById(R.id.password);
-        phoneNumber = (EditText) findViewById(R.id.phone);
-        email = (EditText) findViewById(R.id.email);
+        firstNameLayout = (TextInputLayout) findViewById(R.id.firstNameLayout);
+        firstName = (TextInputEditText) findViewById(R.id.firstName);
+        lastNameLayout = (TextInputLayout) findViewById(R.id.lastNameLayout);
+        lastName = (TextInputEditText) findViewById(R.id.lastName);
+        passwordLayout = (TextInputLayout) findViewById(R.id.passwordLayout);
+        password = (TextInputEditText) findViewById(R.id.password);
+        phoneLayout = (TextInputLayout) findViewById(R.id.phoneLayout);
+        phoneNumber = (TextInputEditText) findViewById(R.id.phone);
+        emailLayout = (TextInputLayout) findViewById(R.id.emailLayout);
+        email = (TextInputEditText) findViewById(R.id.email);
 
         splashLayout = findViewById(R.id.splash_layout);
         radioLayout = (LinearLayout) findViewById(R.id.radio_layout);
@@ -377,9 +389,9 @@ public class LoginActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            firstName.setVisibility(View.GONE);
-            lastName.setVisibility(View.GONE);
-            phoneNumber.setVisibility(View.GONE);
+            firstNameLayout.setVisibility(View.GONE);
+            lastNameLayout.setVisibility(View.GONE);
+            phoneLayout.setVisibility(View.GONE);
             ((Button) findViewById(R.id.fb_login_butt)).setText("Log in with facebook");
             ((Button) findViewById(R.id.login_btn)).setText("Log In");
             ((Button) findViewById(R.id.sign_log_switcher_button)).setText("SIGN UP");
@@ -436,7 +448,7 @@ public class LoginActivity extends AppCompatActivity {
 
             if ((!email.getText().toString().equals(""))
                     && (!password.getText().toString().equals(""))
-                    && firstName.getVisibility() != View.VISIBLE) {
+                    && firstNameLayout.getVisibility() != View.VISIBLE) {
 
                 // The user tapped on the SIGNUP button after he entered his email and password
                 try {
@@ -514,7 +526,7 @@ public class LoginActivity extends AppCompatActivity {
                             login(email.getText().toString().toLowerCase(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
-                            Toast.makeText(LoginActivity.this, "This email is already in use", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                             hideLoading();
                         }
                     }
@@ -586,11 +598,11 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
-        firstName.setVisibility(View.VISIBLE);
-        lastName.setVisibility(View.VISIBLE);
-        phoneNumber.setVisibility(View.VISIBLE);
-        email.setVisibility(View.GONE);
-        password.setVisibility(View.GONE);
+        firstNameLayout.setVisibility(View.VISIBLE);
+        lastNameLayout.setVisibility(View.VISIBLE);
+        phoneLayout.setVisibility(View.VISIBLE);
+        emailLayout.setVisibility(View.GONE);
+        passwordLayout.setVisibility(View.GONE);
         findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
         findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
         ((Button) findViewById(R.id.login_btn)).setText("FINALIZE PROFILE");
