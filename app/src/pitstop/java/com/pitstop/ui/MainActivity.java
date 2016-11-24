@@ -206,10 +206,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
-        super.onCreate(savedInstanceState);
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -270,9 +270,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onResume");
 
-        if (autoConnectService != null) {
-            autoConnectService.setCallbacks(this);
-        }
+        if (autoConnectService != null) autoConnectService.setCallbacks(this);
 
         resetMenus(false);
 
@@ -282,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -398,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
         Log.d(TAG, "Current car id: " + id);
+        dashboardCar = null;
         if (carList.size() > 0) {
             for (Car car : carList) {
                 if (car.getId() == id) {
@@ -496,10 +494,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                         if (user != null) {
                             Log.d("MainActivity Smooch", "Sending message");
-                            Smooch.getConversation().sendMessage(
-                                    new io.smooch.core.Message(user.getFirstName() +
-                                            (user.getLastName() == null || user.getLastName().equals("null")
-                                                    ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                            Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
+                                    (user.getLastName() == null || user.getLastName().equals("null") ?
+                                            "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
                         }
 
                         Smooch.track("User Logged In");
