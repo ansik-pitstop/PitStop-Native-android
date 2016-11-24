@@ -111,9 +111,11 @@
         <activity
             android:name=".ui.ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
+
         <activity
-            android:name=".ui.PendingAddCarActivity"
+            android:name=".ui.add_car.PendingAddCarActivity"
             android:label="Please Connect to Internet" />
+
         <activity
             android:name=".ui.IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
@@ -144,7 +146,7 @@
         </activity>
 
         <activity
-            android:name=".ui.AddCarActivity"
+            android:name=".ui.add_car.AddCarActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
@@ -154,6 +156,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.CarHistoryActivity"
             android:label="History"

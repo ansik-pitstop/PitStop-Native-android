@@ -39,9 +39,9 @@ public class MixpanelHelper {
     public static final String APP_ENTERED_FOREGROUND = "Entered Foreground";
     public static final String APP_TERMINATE = "Will Terminate";
 
-//    public static final String DISCONNECTED = "Disconnected from Bluetooth";
+    //    public static final String DISCONNECTED = "Disconnected from Bluetooth";
     public static final String DISCONNECTED = "Disconnected";
-//    public static final String CONNECTED = "Connected to Bluetooth";
+    //    public static final String CONNECTED = "Connected to Bluetooth";
     public static final String CONNECTED = "Connected";
 
     public static final String ADDED_MANUALLY = "Car Added Manually";
@@ -116,6 +116,18 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
     public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
+
+    /**
+     * Timeout alert
+     */
+    public static final String ADD_CAR_ALERT_CONNECT = "connectingToBluetooth Failed";
+    public static final String ADD_CAR_RETRY_CONNECT = "Try to connect bluetooth again";
+    public static final String ADD_CAR_ALERT_SET_RTC = "Set RTC Failed";
+    public static final String ADD_CAR_RETRY_SET_RTC = "Try Again (Syncing taking too long)";
+    public static final String ADD_CAR_ALERT_GET_RTC = "Get RTC Failed";
+    public static final String ADD_CAR_RETRY_GET_RTC = "Try Again (Syncing taking too long)";
+    public static final String ADD_CAR_ALERT_GET_VIN = "getVin Failed";
+    public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again (VIN Retrieval Failed)";
 
     /**
      * Main Activity
@@ -205,7 +217,7 @@ public class MixpanelHelper {
         application.getMixpanelAPI().track(EVENT_APP_STATUS, json);
     }
 
-    public void trackViewAppeared(String value) throws JSONException {
+    public void trackViewAppeared(String value) throws JSONException{
         if (BuildConfig.DEBUG) {
             return;
         }
@@ -343,6 +355,7 @@ public class MixpanelHelper {
 
     /**
      * Track event called ?Alert Appeared? which would show up every time an alert or toast message pops up. <br>
+     *
      * @param alertName
      * @param view
      */
@@ -357,11 +370,11 @@ public class MixpanelHelper {
         }
     }
 
-    public void trackTimeEventStart(String timeEvent){
+    public void trackTimeEventStart(String timeEvent) {
         application.getMixpanelAPI().timeEvent(timeEvent);
     }
 
-    public void trackTimeEventEnd(String timeEvent){
+    public void trackTimeEventEnd(String timeEvent) {
         application.getMixpanelAPI().track(timeEvent);
     }
 

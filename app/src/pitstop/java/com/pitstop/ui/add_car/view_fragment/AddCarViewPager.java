@@ -1,4 +1,4 @@
-package com.pitstop.ui.addCarFragments;
+package com.pitstop.ui.add_car.view_fragment;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;

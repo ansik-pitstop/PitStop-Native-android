@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.pitstop.ui.addCarFragments.AddCarChooseDealershipFragment;
+import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.utils.LoadingActivityInterface;
 
 import java.util.HashMap;

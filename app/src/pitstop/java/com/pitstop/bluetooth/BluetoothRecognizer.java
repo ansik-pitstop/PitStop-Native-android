@@ -16,7 +16,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.ObdScanner;
-import com.pitstop.ui.AddCarActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;

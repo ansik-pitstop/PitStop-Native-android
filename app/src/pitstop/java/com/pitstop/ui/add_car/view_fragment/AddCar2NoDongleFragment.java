@@ -1,4 +1,4 @@
-package com.pitstop.ui.addCarFragments;
+package com.pitstop.ui.add_car.view_fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.ui.add_car.AddCarPresenter;
 
 /**
  * Created by David on 7/20/2016.
@@ -55,7 +56,7 @@ public class AddCar2NoDongleFragment extends Fragment {
                 whitespaceRemoved = whitespaceRemoved.replace(" ", "").replace("\t", "")
                         .replace("\r", "").replace("\n", "");
                 if (String.valueOf(vin).equals(whitespaceRemoved)) {
-                    if (AddCarUtils.isValidVin(vin.toString())) {
+                    if (AddCarPresenter.isValidVin(vin.toString())) {
                         Log.i(TAG,"AfterTextChanged -- valid vin");
                         searchButton.setEnabled(true);
                         scanButton.setVisibility(View.GONE);

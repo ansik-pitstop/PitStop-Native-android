@@ -1,4 +1,4 @@
-package com.pitstop.ui;
+package com.pitstop.ui.add_car;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.castel.obd.util.Utils;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.NetworkHelper;
 
