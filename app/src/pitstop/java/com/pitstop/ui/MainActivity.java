@@ -458,15 +458,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
 
-                        Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                                .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-                        Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
-                        newSet.addAll(carsAwaitingTutorial);
-                        newSet.add(String.valueOf(addedCar.getId()));
-                        PreferenceManager.getDefaultSharedPreferences(application).edit()
-                                .putStringSet(getString(R.string.pfAwaitTutorial), newSet)
-                                .apply(); // See if we should use commit
-
                         com.pitstop.models.User user = application.getCurrentUser();
 
                         final HashMap<String, Object> customProperties = new HashMap<>();

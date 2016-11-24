@@ -17,6 +17,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
@@ -33,6 +34,9 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by yifan on 16/11/22.
@@ -216,6 +220,22 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                     Log.d(TAG, "Create car response: " + response);
                                     try {
                                         createdCar = Car.createCar(response);
+
+                                        Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+                                        Log.d(TAG, "Created car id: " + createdCar.getId());
+                                        if (MainActivity.carList.size() == 0){
+                                            Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
+                                                    .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
+                                            Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
+                                            Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
+                                            newSet.addAll(carsAwaitingTutorial);
+                                            newSet.add(String.valueOf(createdCar.getId()));
+                                            Log.d(TAG, "New set size: " + newSet.size());
+                                            PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
+                                                    .putStringSet(mApplication.getString(R.string.pfAwaitTutorial), newSet)
+                                                    .apply();
+                                        }
+
                                         if (pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
                                             mAutoConnectService.saveScannerOnResultPostCar(createdCar);
                                         } else { // if scannerId is null or empty
@@ -305,6 +325,21 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         if (requestError == null) {
                             try {
                                 createdCar = Car.createCar(response);
+
+                                Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+                                Log.d(TAG, "Created car id: " + createdCar.getId());
+                                if (MainActivity.carList.size() == 0){
+                                    Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
+                                            .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
+                                    Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
+                                    Set<String> newSet = new HashSet<>(); // The set returned by preference is immutable
+                                    newSet.addAll(carsAwaitingTutorial);
+                                    newSet.add(String.valueOf(createdCar.getId()));
+                                    Log.d(TAG, "New set size: " + newSet.size());
+                                    PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
+                                            .putStringSet(mApplication.getString(R.string.pfAwaitTutorial), newSet)
+                                            .apply();
+                                }
 
                                 if (pendingCar.getScannerId() != null && !pendingCar.getScannerId().isEmpty()) {
                                     mAutoConnectService.saveScannerOnResultPostCar(createdCar);
