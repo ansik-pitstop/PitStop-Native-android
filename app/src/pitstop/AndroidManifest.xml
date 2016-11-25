@@ -182,6 +182,13 @@
                 android:value=".ui.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.service_request.ServiceRequestActivity"
+            android:label="Request Service"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>

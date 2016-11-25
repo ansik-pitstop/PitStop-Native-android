@@ -69,6 +69,7 @@ import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
@@ -76,7 +77,6 @@ import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.mainFragments.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.ServiceRequestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,7 +87,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -159,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final int RC_SETTINGS = 52;
     public static final int RC_DISPLAY_ISSUE = 53;
     public static final int RC_ADD_CUSTOM_ISSUE = 54;
+    public static final int RC_REQUEST_SERVICE = 55;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
     public static final int RC_ENABLE_BT = 102;
@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
+    public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
     public static final int LOC_PERM_REQ = 112;
     public static final int RC_LOCATION_PERM = 101;
@@ -525,6 +526,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
+                }
+            } else if (requestCode == RC_REQUEST_SERVICE){
+                if (shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
+                boolean shouldRemoveTutorial = data.getBooleanExtra(REMOVE_TUTORIAL_EXTRA, false);
+                if (shouldRemoveTutorial) {
+                    removeTutorial();
                 }
             }
             callback.activityResultCallback(requestCode, resultCode, data);
@@ -1161,7 +1170,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         // view is null for request from tutorial
-        new ServiceRequestUtil(this, dashboardCar, view == null).startBookingService(false);
+//        new ServiceRequestUtil(this, dashboardCar, view == null).startBookingService(false);
+
+        final Intent intent = new Intent(this, ServiceRequestActivity.class);
+        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
+        startActivityForResult(intent, RC_REQUEST_SERVICE);
+        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
     /**
@@ -1406,9 +1421,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Called by ServiceRequestUtil to clear the tutorial item from dashboard
+     * clear the tutorial item from dashboard
      */
-    public void removeTutorial() {
+    private void removeTutorial() {
         Log.d(TAG, "Remove tutorial");
 
         try {

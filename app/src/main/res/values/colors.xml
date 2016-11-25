@@ -17,6 +17,7 @@
     <color name="Smooch_accent">@color/primary</color>
     <color name="Smooch_accentDark">@color/primary</color>
     <color name="line_break">#424242</color>
+    <color name="line_break_light">#BDBDBD</color>
 
     <color name="scanner_scanning">#e53a52</color>
     <color name="scanner_found">#64dd17</color>

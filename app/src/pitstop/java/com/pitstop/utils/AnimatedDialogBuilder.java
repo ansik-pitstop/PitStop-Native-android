@@ -29,9 +29,16 @@ public class AnimatedDialogBuilder extends AlertDialog.Builder{
     }
 
     @Override
-    public AlertDialog.Builder setTitle(CharSequence title) {
+    public AnimatedDialogBuilder setTitle(CharSequence title) {
+        super.setTitle(title);
         this.title = title.toString();
-        return super.setTitle(title);
+        return this;
+    }
+
+    @Override
+    public AnimatedDialogBuilder setView(View view) {
+        super.setView(view);
+        return this;
     }
 
     @Override

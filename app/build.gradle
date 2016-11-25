@@ -10,7 +10,7 @@ allprojects {
 android {
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    buildToolsVersion '24.0.3'
     def staging = "\"http://staging.api.getpitstop.io:10010/\""
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
@@ -87,8 +87,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:design:24.1.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.google.code.gson:gson:2.4'

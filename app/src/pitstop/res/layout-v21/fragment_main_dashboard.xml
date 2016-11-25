@@ -411,7 +411,7 @@
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"-->
             <!--android:layout_margin="@dimen/activity_horizontal_margin"-->
-            <!--android:onClick="addPresetIssues"-->
+            <!--android:onClick="addCustomIssues"-->
             <!--android:src="@drawable/ic_add_preset_issues"-->
             <!--app:backgroundTint="@color/primary"-->
             <!--app:layout_anchor="@id/car_issues_list"-->

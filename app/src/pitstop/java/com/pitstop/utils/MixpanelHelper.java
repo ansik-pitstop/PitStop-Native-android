@@ -184,6 +184,11 @@ public class MixpanelHelper {
     public static final String UNRECOGNIZED_MODULE_STATUS = "Status";
 
     /**
+     * Service request
+     */
+    public static final String SERVICE_REQUEST_VIEW = "Service Request";
+
+    /**
      * Add preset issues
      */
     public static final String ADD_PRESET_ISSUE_BUTTON = "Add Preset Issue";

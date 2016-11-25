@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="Service Appointment"
+                    android:textColor="@color/primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingTop="16dp">
+
+                    <ImageView
+                        android:id="@+id/date_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="16dp"
+                        android:src="@drawable/ic_schedule_24dp"/>
+
+                    <TextView
+                        android:id="@+id/activity_service_request_date_selection"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="72dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:onClick="selectDate"
+                        android:paddingBottom="16dp"
+                        android:paddingTop="16dp"
+                        android:text="Date"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:id="@+id/activity_service_request_time_selection"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="16dp"
+                        android:clickable="true"
+                        android:onClick="selectTime"
+                        android:paddingBottom="16dp"
+                        android:paddingTop="16dp"
+                        android:text="Time"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="72dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@color/line_break_light"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="checkShopDetail"
+                    android:orientation="horizontal"
+                    android:paddingTop="16dp">
+
+                    <ImageView
+                        android:id="@+id/location_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="16dp"
+                        android:src="@drawable/ic_location_24dp"/>
+
+                    <TextView
+                        android:id="@+id/activity_service_request_shop_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="72dp"
+                        android:text="Location"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="72dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@color/line_break_light"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="16dp">
+
+                    <ImageView
+                        android:id="@+id/comment_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="16dp"
+                        android:src="@drawable/ic_service_comment"/>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="72dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginTop="8dp"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true">
+
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/activity_service_request_comments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Additional comments"
+                            android:inputType="textMultiLine"
+                            android:textSize="16sp"/>
+
+                    </android.support.design.widget.TextInputLayout>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="Car Issues"
+                    android:textColor="@color/primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+                <android.support.design.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/activity_service_request_issue_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/activity_service_add_preset_issues"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:onClick="addCustomIssues"
+                        android:src="@drawable/ic_add_preset_issues"
+                        app:backgroundTint="@color/primary"
+                        app:layout_anchor="@id/activity_service_request_issue_list"
+                        app:layout_anchorGravity="bottom|right|end"/>
+
+                </android.support.design.widget.CoordinatorLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
+
+</RelativeLayout>

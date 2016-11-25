@@ -4,20 +4,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,9 +25,9 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.ServiceRequestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -184,6 +179,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 //        ActivityCompat.finishAfterTransition(this);
+
         finish();
     }
 
@@ -198,7 +194,24 @@ public class IssueDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        new ServiceRequestUtil(this, dashboardCar, false).startBookingService(false);
+//        new ServiceRequestUtil(this, dashboardCar, false).startBookingService(false);
+        final Intent intent = new Intent(this, ServiceRequestActivity.class);
+        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+        startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
+        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+
+            case MainActivity.RC_REQUEST_SERVICE:
+                needToRefresh = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER, false);
+                break;
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void setUpDisplayItems(CarIssue carIssue) {

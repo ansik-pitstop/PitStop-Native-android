@@ -124,6 +124,8 @@ public interface AddCarContract {
         BSAbstractedFragmentActivity getActivity();
     }
 
+
+
     interface Presenter extends BluetoothPresenter{
 
         /**

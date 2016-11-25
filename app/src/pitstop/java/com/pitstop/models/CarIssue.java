@@ -24,6 +24,8 @@ public class CarIssue implements Parcelable {
     public static final String EDMUNDS = "service_edmunds";
     public static final String FIXED = "fixed";
     public static final String INTERVAL = "interval";
+    public static final String TYPE_USER_INPUT = "userInput";
+    public static final String TYPE_PRESET = "preset";
 
     public static final String ISSUE_DONE = "done";
     public static final String ISSUE_NEW = "new";
