@@ -15,6 +15,7 @@ import com.pitstop.R;
 import com.pitstop.models.CarIssue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ServiceIssueAdapter extends RecyclerView.Adapter<ServiceIssueAdapter.ServiceIssueViewHolder> {
@@ -40,13 +41,13 @@ public class ServiceIssueAdapter extends RecyclerView.Adapter<ServiceIssueAdapte
     }
 
     private void clearCustomIssues(){
-        List<CarIssue> removeList = new ArrayList<>();
-        for (CarIssue carIssue: mCarIssues){
-            if (carIssue.getIssueType().equals(CarIssue.TYPE_PRESET)){
-                removeList.add(carIssue);
+        Iterator<CarIssue> i = mCarIssues.iterator();
+        while (i.hasNext()){
+            CarIssue issue = i.next();
+            if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)){
+                i.remove();
             }
         }
-        mCarIssues.removeAll(removeList);
     }
 
     @Override
@@ -56,14 +57,13 @@ public class ServiceIssueAdapter extends RecyclerView.Adapter<ServiceIssueAdapte
 
     @Override
     public void onBindViewHolder(ServiceIssueViewHolder holder, int position) {
-        final CarIssue issue = mCarIssues.get(position);
-
         int viewType = getItemViewType(position);
 
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.title.setText("No issues");
             holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_check_circle_green_400_36dp));
         } else {
+            final CarIssue issue = mCarIssues.get(position);
             if (issue.getIssueType().equals(CarIssue.RECALL)) {
                 holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_error_red_600_24dp));
             } else if (issue.getIssueType().equals(CarIssue.DTC)) {

@@ -30,6 +30,7 @@ import com.pitstop.utils.MixpanelHelper;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AddCustomIssueDialog extends DialogFragment {
@@ -66,7 +67,7 @@ public class AddCustomIssueDialog extends DialogFragment {
     }
 
     public void setPickedIssues(List<CarIssue> pickedIssues) {
-        this.pickedIssues = pickedIssues;
+        this.pickedIssues = pickedIssues != null ? pickedIssues : new ArrayList<CarIssue>();
     }
 
     @NonNull
@@ -83,10 +84,10 @@ public class AddCustomIssueDialog extends DialogFragment {
         list.setHasFixedSize(true);
 
         final AlertDialog requestIssueDialog = new AnimatedDialogBuilder(context)
-                .setTitle(context.getString(R.string.service_request_dialog_prompt_title))
+                .setTitle(context.getString(R.string.add_preset_issue_dialog_title))
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setView(dialogList)
-                .setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         try {
@@ -94,34 +95,34 @@ public class AddCustomIssueDialog extends DialogFragment {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        List<CarIssue> pickedIssues = adapter.getPickedIssues();
-                        Log.d(TAG, "Confirm pickedIssues: " + pickedIssues.size());
-                        if (callback != null) callback.onCustomIssueSelected(pickedIssues);
                     }
                 })
-                .setNegativeButton("CANCEL", null)
                 .create();
-
-        requestIssueDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                try {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         return requestIssueDialog;
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        Log.d(TAG, "On cancel");
+        try {
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        super.onCancel(dialog);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.d(TAG, "Confirm pickedIssues: " + pickedIssues.size());
+        if (callback != null) callback.onCustomIssueSelected(pickedIssues);
+        super.onDismiss(dialog);
+    }
 
     public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHolder> {
 
         private List<CarIssue> mPresetIssues;
-        private List<CarIssue> mPickedIssues;
 
         private void populateContent() {
             mPresetIssues = new ArrayList<>();
@@ -164,7 +165,6 @@ public class AddCustomIssueDialog extends DialogFragment {
 
         public IssueAdapter(List<CarIssue> pickedIssues) {
             populateContent();
-            mPickedIssues = (pickedIssues != null ? pickedIssues : new ArrayList<CarIssue>());
         }
 
         @Override
@@ -199,8 +199,8 @@ public class AddCustomIssueDialog extends DialogFragment {
                 }
             });
 
-            for (int index = 0; index < mPickedIssues.size(); index++){
-                if (presetIssue.getId() == mPickedIssues.get(index).getId()){
+            for (int index = 0; index < pickedIssues.size(); index++){
+                if (presetIssue.getId() == pickedIssues.get(index).getId()){
                     holder.checkBox.setChecked(true);
                 }
             }
@@ -209,16 +209,18 @@ public class AddCustomIssueDialog extends DialogFragment {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        mPickedIssues.add(presetIssue);
+                        pickedIssues.add(presetIssue);
                     } else {
-                        for (int index = 0; index < mPickedIssues.size(); index++){
-                            if (presetIssue.getId() == mPickedIssues.get(index).getId()){
-                                mPickedIssues.remove(index);
+                        Iterator<CarIssue> i = pickedIssues.iterator();
+                        while (i.hasNext()){
+                            CarIssue issue = i.next();
+                            if (issue.getId() == presetIssue.getId()){
+                                i.remove();
                             }
                         }
                     }
 
-                    Log.d(TAG, "Picked size: " + mPickedIssues.size());
+                    Log.d(TAG, "Picked size: " + pickedIssues.size());
 
                     try {
                         String check = isChecked ? "Checked: " : "Unchecked: ";
@@ -257,10 +259,6 @@ public class AddCustomIssueDialog extends DialogFragment {
         @Override
         public int getItemCount() {
             return mPresetIssues.size();
-        }
-
-        public List<CarIssue> getPickedIssues() {
-            return mPickedIssues;
         }
 
         public class IssueViewHolder extends RecyclerView.ViewHolder {

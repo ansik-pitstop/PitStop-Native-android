@@ -194,6 +194,8 @@ public interface AddCarContract {
         Car getPendingCar();
 
         Car getCreatedCar();
+
+        boolean hasGotMileage();
     }
 
 }

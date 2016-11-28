@@ -167,7 +167,6 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 hideLoading("Failed!");
                                 showSimpleMessage("Network error, please try again later.", false);
                             }
-
                             //format the timestamp before sending the network request because the server use ISO8601 format
                             timestamp = TimestampFormatUtil.format(mCalendar, TimestampFormatUtil.ISO8601);
                             comments = mComments.getText().toString();
@@ -176,13 +175,43 @@ public class ServiceRequestActivity extends AppCompatActivity
                             } else {
                                 sendRequestWithState(STATE_REQUESTED, timestamp, comments);
                             }
-
                         }
                     });
+                } else {
+                    timestamp = TimestampFormatUtil.format(mCalendar, TimestampFormatUtil.ISO8601);
+                    comments = mComments.getText().toString();
+                    if (isFirstBooking) {
+                        sendRequestWithState(STATE_TENTATIVE, timestamp, comments);
+                    } else {
+                        sendRequestWithState(STATE_REQUESTED, timestamp, comments);
+                    }
                 }
                 break;
             case android.R.id.home:
-                finish();
+                if (isFirstBooking) {
+                    new AnimatedDialogBuilder(ServiceRequestActivity.this)
+                            .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                            .setTitle(getString(R.string.first_service_booking_cancel_title))
+                            .setMessage(getString(R.string.first_service_booking_cancel_message))
+                            .setNegativeButton("Continue booking", null) // Do nothing on continue
+                            .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent();
+                                    intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
+                                    intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
+                                    setResult(RESULT_CANCELED, intent);
+                                    finish();
+                                }
+                            })
+                            .show();
+                } else {
+                    Intent intent = new Intent();
+                    intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
+                    intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
+                    setResult(RESULT_CANCELED, intent);
+                    finish();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -190,11 +219,30 @@ public class ServiceRequestActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
-        intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
-        setResult(RESULT_CANCELED, intent);
-        super.onBackPressed();
+        if (isFirstBooking) {
+            new AnimatedDialogBuilder(ServiceRequestActivity.this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(getString(R.string.first_service_booking_cancel_title))
+                    .setMessage(getString(R.string.first_service_booking_cancel_message))
+                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent();
+                            intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
+                            intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
+                            setResult(RESULT_CANCELED, intent);
+                            ServiceRequestActivity.super.onBackPressed();
+                        }
+                    })
+                    .show();
+        } else {
+            Intent intent = new Intent();
+            intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
+            intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
+            setResult(RESULT_CANCELED, intent);
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -233,26 +281,6 @@ public class ServiceRequestActivity extends AppCompatActivity
                         }
                     }
                 });
-                if (isFirstBooking) {
-                    dateDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            new AnimatedDialogBuilder(ServiceRequestActivity.this)
-                                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                                    .setTitle(getString(R.string.first_service_booking_cancel_title))
-                                    .setMessage(getString(R.string.first_service_booking_cancel_message))
-                                    .setNegativeButton("Continue booking", null) // Do nothing on continue
-                                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            dateDialog.cancel();
-                                        }
-                                    })
-                                    .show();
-                        }
-                    });
-                }
             }
         });
 
@@ -295,26 +323,6 @@ public class ServiceRequestActivity extends AppCompatActivity
                         }
                     }
                 });
-                if (isFirstBooking) {
-                    timePicker.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            new AnimatedDialogBuilder(ServiceRequestActivity.this)
-                                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                                    .setTitle(getString(R.string.first_service_booking_cancel_title))
-                                    .setMessage(getString(R.string.first_service_booking_cancel_message))
-                                    .setNegativeButton("Continue booking", null) // Do nothing on continue
-                                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            timePicker.cancel();
-                                        }
-                                    })
-                                    .show();
-                        }
-                    });
-                }
             }
         });
 
