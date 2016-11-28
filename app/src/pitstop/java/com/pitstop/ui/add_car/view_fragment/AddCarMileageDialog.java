@@ -13,7 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.pitstop.R;
-import com.pitstop.ui.add_car.AddCarPresenter;
+import com.pitstop.ui.add_car.AddCarContract;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
 /**
@@ -21,9 +21,9 @@ import com.pitstop.utils.AnimatedDialogBuilder;
  */
 public class AddCarMileageDialog extends DialogFragment {
 
-    AddCarPresenter callback;
+    AddCarContract.Presenter callback;
 
-    public AddCarMileageDialog setCallback(AddCarPresenter callback) {
+    public AddCarMileageDialog setCallback(AddCarContract.Presenter callback) {
         this.callback = callback;
         return this;
     }

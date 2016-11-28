@@ -9,7 +9,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.utils.BSAbstractedFragmentActivity;
-import com.pitstop.utils.LoadingActivityInterface;
+import com.pitstop.utils.ILoadingActivity;
 
 /**
  * Created by yifan on 16/11/21.
@@ -17,7 +17,7 @@ import com.pitstop.utils.LoadingActivityInterface;
 
 public interface AddCarContract {
 
-    interface View extends BaseView, LoadingActivityInterface {
+    interface View extends BaseView, ILoadingActivity {
 
         /**
          * After user entered the mileage
@@ -194,6 +194,8 @@ public interface AddCarContract {
         Car getPendingCar();
 
         Car getCreatedCar();
+
+        boolean hasGotMileage();
     }
 
 }

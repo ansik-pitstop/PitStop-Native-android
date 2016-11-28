@@ -528,6 +528,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (NetworkHelper.isConnected(this)) {
             if (car == null) return;
             for (final String dtc : dtcArr) {
+                Log.d("Add New DTC", "carId" + car.getId());
                 networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
                         dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
                         new RequestCallback() {
@@ -536,7 +537,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 if (requestError == null) {
                                     Log.i("Add New DTC", "DTC added: " + dtc);
                                 } else {
+                                    Log.e("Add New DTC", requestError.getError());
+                                    Log.e("Add New DTC", requestError.getMessage());
                                     Log.e("Add New DTC", "Error in posting DTC");
+                                    Log.e("Add New DTC", getCurrentDeviceId());
                                 }
                             }
                         });

@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
-import com.pitstop.utils.LoadingActivityInterface;
+import com.pitstop.utils.ILoadingActivity;
 
 import java.util.HashMap;
 
@@ -15,9 +15,9 @@ import java.util.HashMap;
 public class AddCarViewPagerAdapter extends FragmentStatePagerAdapter {
     private final HashMap<Integer,Fragment> mFragmentList = new HashMap<>();
     private final HashMap<Integer,String> mFragmentTitleList = new HashMap<>();
-    private LoadingActivityInterface callbackActivity;
+    private ILoadingActivity callbackActivity;
 
-    public AddCarViewPagerAdapter(FragmentManager fm, LoadingActivityInterface callbackActivity) {
+    public AddCarViewPagerAdapter(FragmentManager fm, ILoadingActivity callbackActivity) {
         super(fm);
         this.callbackActivity = callbackActivity;
     }

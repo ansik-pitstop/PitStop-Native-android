@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +45,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.utils.ILoadingActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -52,7 +55,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
@@ -66,6 +69,8 @@ public class SettingsActivity extends AppCompatActivity {
     private boolean localUpdatePerformed = false;
     private LocalCarAdapter localCarAdapter;
     private List<Car> carList = new ArrayList<>();
+
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +88,7 @@ public class SettingsActivity extends AppCompatActivity {
                 localUpdatePerformed = true;
             }
         });
+        settingsFragment.setLoadingCallback(this);
 
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("cars", cars);
@@ -95,8 +101,10 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putParcelable("carList", intentProxyObject);
 
         settingsFragment.setArguments(bundle);
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -192,6 +200,24 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void hideLoading(@Nullable String string) {
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        if (string != null) {
+            Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void showLoading(@NonNull String string) {
+        progressDialog.setMessage(string);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
     public static class SettingsFragment extends PreferenceFragment {
 
         public interface OnInfoUpdated {
@@ -199,6 +225,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private OnInfoUpdated listener;
+        private ILoadingActivity loadingCallback;
         private ArrayList<ListPreference> preferenceList;
         private ArrayList<String> cars;
         private ArrayList<Integer> ids;
@@ -221,6 +248,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         public void setOnInfoUpdatedListener(OnInfoUpdated listener) {
             this.listener = listener;
+        }
+
+        public void setLoadingCallback(ILoadingActivity callback) {
+            loadingCallback = callback;
         }
 
         @Override
@@ -266,7 +297,7 @@ public class SettingsActivity extends AppCompatActivity {
             // Try local store for dealerships
             if (dealerships.isEmpty()) {
                 Log.i(TAG, "Local store has no dealerships");
-
+                loadingCallback.showLoading("Retrieving store information..");
                 networkHelper.getShops(new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
@@ -283,13 +314,14 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
                                 setUpCarListPreference(shops, shopIds);
 
+                                loadingCallback.hideLoading(null);
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                                loadingCallback.hideLoading("An error occurred, please try again");
                             }
                         } else {
                             Log.e(TAG, "Get shops: " + requestError.getMessage());
-                            Toast.makeText(getActivity(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                            loadingCallback.hideLoading("An error occurred, please try again");
                         }
                     }
                 });
@@ -335,6 +367,7 @@ public class SettingsActivity extends AppCompatActivity {
                             listener.localUpdatePerformed();
                         }
 
+                        loadingCallback.showLoading("Updating");
                         networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
@@ -344,21 +377,21 @@ public class SettingsActivity extends AppCompatActivity {
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
                                                     if (requestError == null) {
+                                                        loadingCallback.hideLoading("Car dealership updated");
+                                                        Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
                                                         Car updatedCar = localCarAdapter.getCar(itemCar.getId());
                                                         updatedCar.setShopId(shopId);
                                                         localCarAdapter.updateCar(updatedCar);
-                                                        Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
-                                                        Toast.makeText(getActivity(), "Car dealership updated", Toast.LENGTH_SHORT).show();
                                                         listener.localUpdatePerformed();
                                                     } else {
+                                                        loadingCallback.hideLoading("An error occurred, please try again.");
                                                         Log.e(TAG, "Dealership update error: " + requestError.getError());
-                                                        Toast.makeText(getActivity(), "There was an error, please try again", Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
                                             });
                                 } else {
+                                    loadingCallback.hideLoading("An error occurred, please try again.");
                                     Log.e(TAG, "Get shops: " + requestError.getMessage());
-                                    Toast.makeText(getActivity(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -580,22 +613,21 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
-
+            loadingCallback.showLoading("Updating..");
             networkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         namePreference.setTitle(String.format("%s %s", firstName, lastName));
 
-                        Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("Name successfully updated");
 
                         currentUser.setFirstName(firstName);
                         currentUser.setLastName(lastName);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$name", firstName + (lastName == null ? "" : " " + lastName));
-
                     } else {
-                        Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -607,21 +639,19 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
+            loadingCallback.showLoading("Updating");
             networkHelper.updateUserPhone(application.getCurrentUserId(), phoneNumber, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         phonePreference.setTitle(phoneNumber);
-
-                        Toast.makeText(getActivity(), "Phone successfully updated", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("Phone successfully updated");
 
                         currentUser.setPhone(phoneNumber);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$phone", phoneNumber);
-
                     } else {
-                        Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -651,19 +681,19 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
                                 new AnimatedDialogBuilder(getContext())
-                                        .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                                         .setTitle("Delete car")
+                                        .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                                         .setMessage("Are you sure you want to delete the car from your account? " +
                                                 "Your can add it back later on.")
                                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
+                                                loadingCallback.showLoading("Deleting");
                                                 networkHelper.deleteUserCar(vehicle.getId(), new RequestCallback() {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
                                                         if (requestError == null) {
-                                                            ((SettingsActivity) getActivity())
-                                                                    .showSimpleMessage("Delete successfully!", true);
+                                                            loadingCallback.hideLoading("Delete succeeded!");
                                                             listener.localUpdatePerformed();
                                                             localCarAdapter.deleteCar(vehicle);
                                                             localScannerAdapter.deleteCar(vehicle);
@@ -672,8 +702,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                                     .removePreference(VehiclePreference.this);
                                                         } else {
                                                             Log.e(TAG, requestError.getMessage());
-                                                            ((SettingsActivity) getActivity())
-                                                                    .showSimpleMessage("Delete failed, please retry later.", false);
+                                                            loadingCallback.hideLoading("Delete failed!");
                                                         }
                                                     }
                                                 });

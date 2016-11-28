@@ -128,7 +128,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="16dp">
+                    android:paddingTop="8dp">
 
                     <ImageView
                         android:id="@+id/comment_icon"
@@ -146,14 +146,17 @@
                         android:layout_centerVertical="true"
                         android:focusableInTouchMode="true"
                         android:focusable="true"
+                        android:theme="@style/CommentsInputTheme"
                         android:layout_marginLeft="72dp"
                         android:layout_marginRight="16dp"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginTop="16dp">
 
                         <android.support.design.widget.TextInputEditText
                             android:id="@+id/activity_service_request_comments"
+                            android:theme="@style/CommentsInputTheme"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:maxLines="4"
                             android:hint="Additional comments"
                             android:inputType="textMultiLine"
                             android:textSize="16sp"/>
@@ -180,7 +183,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:text="Car Issues"
+                    android:text="Vehicle Issues"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
                     android:textStyle="bold"/>

@@ -75,7 +75,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     private ProgressDialog progressDialog;
 
     private MixpanelHelper mixpanelHelper;
-    private AddCarPresenter mAddCarPresenter;
+    private AddCarContract.Presenter mAddCarPresenter;
 
     public static boolean addingCar = false;
     public static boolean addingCarWithDevice = false;
@@ -95,7 +95,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void setPresenter(BasePresenter presenter) {
-        mAddCarPresenter = (AddCarPresenter) presenter;
+        mAddCarPresenter = (AddCarContract.Presenter) presenter;
     }
 
     private class CarListAdapter extends BaseAdapter {
@@ -312,7 +312,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
-                if (!AddCarPresenter.hasGotMileage) {
+                if (!mAddCarPresenter.hasGotMileage()) {
                     AddCarMileageDialog dialog = new AddCarMileageDialog();
                     dialog.setCallback(mAddCarPresenter).show(getSupportFragmentManager(), "Input Mileage");
                 } else {
@@ -328,7 +328,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-            if (!AddCarPresenter.hasGotMileage) {
+            if (!mAddCarPresenter.hasGotMileage()) {
                 AddCarMileageDialog dialog = new AddCarMileageDialog();
                 dialog.setCallback(mAddCarPresenter).show(getSupportFragmentManager(), "Input Mileage");
             } else {

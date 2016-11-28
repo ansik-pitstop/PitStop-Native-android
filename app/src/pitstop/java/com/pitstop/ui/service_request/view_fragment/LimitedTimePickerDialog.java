@@ -28,8 +28,7 @@ public class LimitedTimePickerDialog extends TimePickerDialog {
     public int selectedHour = 7;
     public int selectedMinute = 30;
 
-    public LimitedTimePickerDialog(Context context, OnTimeSetListener listener,
-                      int hourOfDay, int minute, boolean is24HourView) {
+    public LimitedTimePickerDialog(Context context, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
         super(context, listener, hourOfDay, minute, is24HourView);
     }
 

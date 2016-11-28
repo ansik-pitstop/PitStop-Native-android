@@ -73,7 +73,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
     }
 
-    public static boolean hasGotMileage = false;
+    public boolean hasGotMileage = false;
 
     @Override
     public void updatePendingCarMileage(int mileage) {
@@ -223,7 +223,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                         Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
                                         Log.d(TAG, "Created car id: " + createdCar.getId());
-                                        if (MainActivity.carList.size() == 0){
+                                        if (MainActivity.carList.size() == 0) {
                                             Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                                     .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
                                             Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
@@ -328,7 +328,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                 Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
                                 Log.d(TAG, "Created car id: " + createdCar.getId());
-                                if (MainActivity.carList.size() == 0){
+                                if (MainActivity.carList.size() == 0) {
                                     Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                             .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
                                     Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
@@ -568,6 +568,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     @Override
+    public boolean hasGotMileage() {
+        return hasGotMileage;
+    }
+
+    @Override
     public void bindBluetoothService() {
         mCallback.getActivity().bindService(
                 new Intent(mApplication, BluetoothAutoConnectService.class),
@@ -644,8 +649,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             long diff = currentTime - deviceTime;
 
             // Now we got RTC from the device
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_RTC, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
             try {
                 JSONObject properties = new JSONObject()
                         .put(MixpanelHelper.ADD_CAR_STEP, MixpanelHelper.ADD_CAR_STEP_GET_RTC)
@@ -765,8 +768,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private void searchCarWithTimeout() {
-        if (mAutoConnectService.getState() != IBluetoothCommunicator.CONNECTED)
-            hasGotValidRtc = false;
+        if (mAutoConnectService.getState() != IBluetoothCommunicator.CONNECTED) hasGotValidRtc = false;
         mAutoConnectService.startBluetoothSearch(2);  // search for car
         isSearchingForCar = true;
         mSearchCarTimer.cancel();
@@ -816,8 +818,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
 
         @Override
-        public void onTick(long millisUntilFinished) {
-        }
+        public void onTick(long millisUntilFinished) {}
 
         @Override
         public void onFinish() {
@@ -837,7 +838,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         abstract void onRetry();
 
         /**
-         * Failed after so many retries
+         * Failed after all retries
          */
         abstract void onTimeout();
     }
@@ -861,12 +862,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private boolean isSearchingForCar = false; // flag variable
-    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(15, 3) {
+    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
         @Override
         void onRetry() {
             if (!isSearchingForCar) this.cancel();
             isSearchingForCar = true;
-            Log.d(TAG, "SearchCarTimer retried, current number of retries: " + currentRetries);
             searchAndGetVin();
         }
 
@@ -900,7 +900,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean isAskingForRtc = false;
     private boolean isAskingForVin = false;
     private int getVinAttempts = 0;
-    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(20, 2) {
+    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(30, 2) {
         @Override
         void onRetry() {
             if (!isAskingForVin && !isAskingForRtc) {

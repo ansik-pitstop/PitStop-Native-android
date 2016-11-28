@@ -37,6 +37,10 @@
         <item name="android:textColorHint">@color/white_text</item>
     </style>
 
+    <style name="CommentsInputTheme">
+        <item name="colorAccent">@color/highlight</item>
+    </style>
+
 
     <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/primary</item>

@@ -2,6 +2,7 @@ package com.pitstop.ui.service_request.view_fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
@@ -10,12 +11,15 @@ import android.widget.TextView;
 import com.pitstop.R;
 
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by yifan on 16/11/24.
  */
 
 public class LimitedDatePickerDialog extends DatePickerDialog {
+
+    private static final String TAG = LimitedDatePickerDialog.class.getSimpleName();
 
     public int selectedYear = 0;
     public int selectedMonth = 0;
@@ -46,13 +50,13 @@ public class LimitedDatePickerDialog extends DatePickerDialog {
 
     public boolean isValidDate(){
         Calendar calendar = Calendar.getInstance();
-        int today = calendar.get(Calendar.DAY_OF_YEAR);
+        Date today = calendar.getTime();
 
         calendar.set(Calendar.YEAR, selectedYear);
         calendar.set(Calendar.MONTH, selectedMonth);
         calendar.set(Calendar.DAY_OF_MONTH, selectedDay);
-        int selectedDay = calendar.get(Calendar.DAY_OF_YEAR);
+        Date selectedDay = calendar.getTime();
 
-        return selectedDay >= today;
+        return selectedDay.after(today) || selectedDay.equals(today);
     }
 }
