@@ -862,7 +862,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private boolean isSearchingForCar = false; // flag variable
-    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(15, 3) {
+    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
         @Override
         void onRetry() {
             if (!isSearchingForCar) this.cancel();
@@ -900,7 +900,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean isAskingForRtc = false;
     private boolean isAskingForVin = false;
     private int getVinAttempts = 0;
-    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(20, 2) {
+    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(30, 2) {
         @Override
         void onRetry() {
             if (!isAskingForVin && !isAskingForRtc) {
