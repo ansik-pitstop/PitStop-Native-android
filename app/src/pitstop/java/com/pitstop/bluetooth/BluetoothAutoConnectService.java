@@ -106,7 +106,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-    private static final int PID_CHUNK_SIZE = 100;
+    private static final int PID_CHUNK_SIZE = 200;
 
     private String lastDataNum = "";
 
@@ -528,6 +528,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (NetworkHelper.isConnected(this)) {
             if (car == null) return;
             for (final String dtc : dtcArr) {
+                Log.d("Add New DTC", "carId" + car.getId());
                 networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
                         dataPackageInfo.rtcTime, dtc, isPendingDtc, dataPackageInfo.freezeData,
                         new RequestCallback() {
@@ -536,7 +537,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 if (requestError == null) {
                                     Log.i("Add New DTC", "DTC added: " + dtc);
                                 } else {
+                                    Log.e("Add New DTC", requestError.getError());
+                                    Log.e("Add New DTC", requestError.getMessage());
                                     Log.e("Add New DTC", "Error in posting DTC");
+                                    Log.e("Add New DTC", getCurrentDeviceId());
                                 }
                             }
                         });
@@ -970,7 +974,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     /**
      * Process data package sent from device for pids. Store pids locally, once
-     * we have 100 data points, send the data to the server.
+     * we have 200 data points, send the data to the server.
      *
      * @param data The OBD data package that possibly contains obdData i.e pids
      * @see #sendPidDataToServer(DataPackageInfo)
@@ -1122,7 +1126,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean isSendingPids = false;
 
     /**
-     * Send pid data to server on 100 data points received
+     * Send pid data to server on 200 data points received
      *
      * @param data
      * @see #processPIDData(DataPackageInfo)

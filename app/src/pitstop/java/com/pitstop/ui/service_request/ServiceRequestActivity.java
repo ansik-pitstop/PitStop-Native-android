@@ -39,15 +39,14 @@ import com.pitstop.ui.service_request.view_fragment.LimitedDatePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedTimePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.ServiceIssueAdapter;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.LoadingActivityInterface;
+import com.pitstop.utils.ILoadingActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.TimestampFormatUtil;
+import com.pitstop.utils.DateTimeFormatUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -61,16 +60,13 @@ import io.smooch.core.Smooch;
 
 public class ServiceRequestActivity extends AppCompatActivity
         implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener,
-        AddCustomIssueDialog.CustomIssueCallback, LoadingActivityInterface {
+        AddCustomIssueDialog.CustomIssueCallback, ILoadingActivity {
 
     private static final String TAG = ServiceRequestActivity.class.getSimpleName();
     public static final String EXTRA_CAR = "extra_car";
     public static final String EXTRA_FIRST_BOOKING = "is_first_booking";
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy");
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm aa");
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -168,7 +164,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 showSimpleMessage("Network error, please try again later.", false);
                             }
                             //format the timestamp before sending the network request because the server use ISO8601 format
-                            timestamp = TimestampFormatUtil.format(mCalendar, TimestampFormatUtil.ISO8601);
+                            timestamp = DateTimeFormatUtil.formatToISO8601(mCalendar);
                             comments = mComments.getText().toString();
                             if (isFirstBooking) {
                                 sendRequestWithState(STATE_TENTATIVE, timestamp, comments);
@@ -178,7 +174,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                         }
                     });
                 } else {
-                    timestamp = TimestampFormatUtil.format(mCalendar, TimestampFormatUtil.ISO8601);
+                    timestamp = DateTimeFormatUtil.formatToISO8601(mCalendar);
                     comments = mComments.getText().toString();
                     if (isFirstBooking) {
                         sendRequestWithState(STATE_TENTATIVE, timestamp, comments);
@@ -356,7 +352,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        if (mDate != null) mDate.setText(dateFormat.format(mCalendar.getTime()));
+        if (mDate != null) mDate.setText(DateTimeFormatUtil.formatToReadableDate(mCalendar));
     }
 
     @Override
@@ -364,7 +360,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         Log.d(TAG, "On time set");
         mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         mCalendar.set(Calendar.MINUTE, minute);
-        if (mTime != null) mTime.setText(timeFormat.format(mCalendar.getTime()));
+        if (mTime != null) mTime.setText(DateTimeFormatUtil.formatToReadableTime(mCalendar));
     }
 
     @Override

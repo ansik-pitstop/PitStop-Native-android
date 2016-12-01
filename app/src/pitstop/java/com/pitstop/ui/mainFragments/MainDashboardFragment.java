@@ -49,7 +49,7 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.IssueDetailsActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
