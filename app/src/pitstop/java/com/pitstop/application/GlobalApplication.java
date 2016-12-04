@@ -21,7 +21,6 @@ import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalPresetIssueAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.User;

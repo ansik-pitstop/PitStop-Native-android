@@ -17,16 +17,20 @@ import java.util.List;
 public class LocalCarIssueAdapter {
     // CAR_ISSUES table create statement
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
-            + TABLES.CAR_ISSUES.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-            + TABLES.CAR_ISSUES.KEY_CAR_ID + " INTEGER, "
-            + TABLES.CAR_ISSUES.KEY_STATUS+ " TEXT, "
-            + TABLES.CAR_ISSUES.KEY_TIMESTAMP + " TEXT, "
-            + TABLES.CAR_ISSUES.KEY_ISSUE_TYPE + " TEXT, "
-            + TABLES.CAR_ISSUES.KEY_PRIORITY + " INTEGER, "
-            + TABLES.CAR_ISSUES.KEY_ITEM + " TEXT, "
+            + TABLES.CAR_ISSUES.TABLE_NAME + "("
+            + TABLES.COMMON.KEY_ID              + " INTEGER PRIMARY KEY,"
+            + TABLES.CAR_ISSUES.KEY_CAR_ID      + " INTEGER, "
+            + TABLES.CAR_ISSUES.KEY_STATUS      + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_TIMESTAMP   + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_ISSUE_TYPE  + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_PRIORITY    + " INTEGER, "
+            + TABLES.CAR_ISSUES.KEY_ITEM        + " TEXT, "
             + TABLES.CAR_ISSUES.KEY_DESCRIPTION + " TEXT, "
-            + TABLES.CAR_ISSUES.KEY_ACTION+ " TEXT, "
-            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER" + ")";
+            + TABLES.CAR_ISSUES.KEY_ACTION      + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_SYMPTOMS    + " TEXT, "
+            + TABLES.CAR_ISSUES.KEY_CAUSES      + " TEXT, "
+            + TABLES.COMMON.KEY_OBJECT_ID       + " INTEGER"
+            + ")";
 
     private LocalDatabaseHelper databaseHelper;
 
@@ -130,6 +134,8 @@ public class LocalCarIssueAdapter {
         carIssue.setItem(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)));
         carIssue.setDescription(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)));
         carIssue.setAction(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION)));
+        carIssue.setSymptoms(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS)));
+        carIssue.setCauses(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES)));
 
         return carIssue;
     }
@@ -147,6 +153,8 @@ public class LocalCarIssueAdapter {
         values.put(TABLES.CAR_ISSUES.KEY_ITEM, carIssue.getItem());
         values.put(TABLES.CAR_ISSUES.KEY_DESCRIPTION, carIssue.getDescription());
         values.put(TABLES.CAR_ISSUES.KEY_ACTION, carIssue.getAction());
+        values.put(TABLES.CAR_ISSUES.KEY_SYMPTOMS, carIssue.getSymptoms());
+        values.put(TABLES.CAR_ISSUES.KEY_CAUSES, carIssue.getCauses());
 
         return values;
     }

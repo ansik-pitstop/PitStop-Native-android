@@ -117,15 +117,9 @@
             android:label="Please Connect to Internet" />
 
         <activity
-            android:name=".ui.IssueDetailsActivity"
+            android:name=".ui.issue_detail.IssueDetailsActivity"
             android:label="@string/title_activity_display_item"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.AddPresetIssueActivity"
-            android:label="@string/title_activity_add_custom_issue"
-            android:screenOrientation="portrait">
-        </activity>
 
         <service
             android:name=".bluetooth.BluetoothAutoConnectService"
