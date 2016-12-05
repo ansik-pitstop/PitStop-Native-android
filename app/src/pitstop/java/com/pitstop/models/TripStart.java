@@ -25,6 +25,6 @@ public class TripStart extends TripIndicator {
     @Override
     public void execute(Context context, RequestCallback callback) {
         new NetworkHelper(context).sendTripStart(scannerId, rtcTime,
-                tripId == -1 ? "" : String.valueOf(tripId), callback);
+                tripId == -1 ? "0" : String.valueOf(tripId), callback);
     }
 }

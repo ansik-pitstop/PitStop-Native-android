@@ -38,6 +38,10 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.MainActivity;
@@ -463,9 +467,61 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     }
 
 
+
+    @Override
+    public void getBluetoothState(int state) {
+        if(state==IBluetoothCommunicator.DISCONNECTED) {
+            Log.i(TAG,"Bluetooth disconnected");
+        }
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
+
+    @Override
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
+
+    @Override
+    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+
+    }
+
+    @Override
+    public void getIOData(DataPackageInfo dataPackageInfo) {
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+        if (loginPackageInfo.flag.
+                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            Log.i(TAG, "Device logout");
+        }
+    }
+
     private void populateCarIssuesAdapter() {
         // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) " + dashboardCar.getId());
+        Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
+        if(carIssueLocalStore == null) {
+            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
+        }
         List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
         if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
@@ -508,40 +564,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
         carIssuesAdapter.updateTutorial();
     }
-
-    // From ObdManager.IBluetoothDataListener
-
-    @Override
-    public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED) {
-            Log.i(TAG, "Bluetooth disconnected");
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
-    }
-
 
     // From MainActivity.MainDashboardCallback
 

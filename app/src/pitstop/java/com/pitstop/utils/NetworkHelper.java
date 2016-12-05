@@ -299,18 +299,17 @@ public class NetworkHelper {
         postNoAuth("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
-                          List<PIDInfo> freezeData, RequestCallback callback) {
+    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
         LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
                 " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
 
         JSONObject body = new JSONObject();
-        JSONArray data = new JSONArray();
+        //JSONArray data = new JSONArray(); // TODO: Freeze data
 
         try {
-            for (PIDInfo info : freezeData) {
-                data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
-            }
+            //for(PIDInfo info : freezeData) {
+            //    data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
+            //}
 
             body.put("carId", carId);
             body.put("issueType", CarIssue.DTC);
@@ -319,7 +318,7 @@ public class NetworkHelper {
                             .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending));
-            //.put("freezeData", data));
+                            //.put("freezeData", data));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -626,7 +625,6 @@ public class NetworkHelper {
         }
 
     }
-
 
     public void getUser(int userId, RequestCallback callback) {
         LOGI(TAG, "getUser: " + userId);

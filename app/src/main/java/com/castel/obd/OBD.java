@@ -5,6 +5,12 @@ public class OBD {
 		System.loadLibrary("212B");
 	}
 
+	static {
+		System.loadLibrary("CRC");
+	}
+
+	public static native int CRC(String msg);
+
 	public static native int init(String deviceId, String dataNum);
 
 	public static native String setCtrl(int inCtrlIndex);

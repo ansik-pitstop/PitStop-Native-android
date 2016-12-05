@@ -40,7 +40,6 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.Utils;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
@@ -48,6 +47,10 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -63,6 +66,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -679,7 +683,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     @Override
     public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-
     }
 
     /**
@@ -751,14 +754,51 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
             }
         }
+    }
 
 
-        if (!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+        if(tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage = ((int) ((baseMileage + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
-            String[] dtcs = dataPackageInfo.dtcData.split(",");
-            for (String dtc : dtcs) {
-                dtcCodes.add(dtc);
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+
+            if(dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                    }
+                });
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    private Set<String> dtcCodes = new HashSet<>();
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null && askingForDtcs) {
+            dtcCodes.addAll(Arrays.asList(dtcPackage.dtcs));
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -771,9 +811,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     }
 
                     loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesStateLayout.setVisibility(View.GONE);
-                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    if(dtcCodes.size() != 0) {
+                        engineIssuesStateLayout.setVisibility(View.GONE);
+                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    } else {
+                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCountLayout.setVisibility(View.GONE);
+                    }
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");

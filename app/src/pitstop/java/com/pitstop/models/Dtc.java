@@ -25,6 +25,14 @@ public class Dtc { // for saving dtcs locally when no internet connection
         this.freezeData = freezeData;
     }
 
+    public Dtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending) {
+        this.carId = carId;
+        this.mileage = mileage;
+        this.rtcTime = rtcTime;
+        this.dtcCode = dtcCode;
+        this.isPending = isPending;
+    }
+
     public int getCarId() {
         return carId;
     }

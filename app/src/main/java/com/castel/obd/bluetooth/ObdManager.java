@@ -12,6 +12,10 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -24,7 +28,8 @@ import java.util.List;
 public class ObdManager {
     private static final String TAG = ObdManager.class.getSimpleName();
 
-//    public final static String BT_DEVICE_NAME = "IDD-212";
+    public final static String BT_DEVICE_NAME_212 = "IDD-212";
+    public final static String BT_DEVICE_NAME_215 = "IDD-215";
     public final static String BT_DEVICE_NAME = "IDD";
     public final static String FIXED_UPLOAD_TAG = "1202,1201,1203,1204,1205,1206";
     public final static String RTC_TAG = "1A01";
@@ -90,7 +95,7 @@ public class ObdManager {
     /**
      * @param type
      */
-    public String obdSetCtrl(int type) {
+    public static String obdSetCtrl(int type) {
         return OBD.setCtrl(type);
     }
 
@@ -99,7 +104,7 @@ public class ObdManager {
      * @param type
      * @param valueList
      */
-    public String obdSetMonitor(int type, String valueList) {
+    public static String obdSetMonitor(int type, String valueList) {
         return OBD.setMonitor(type, valueList);
     }
 
@@ -108,7 +113,7 @@ public class ObdManager {
      * @param tlvTagList
      * @param valueList
      */
-    public String obdSetParameter(String tlvTagList, String valueList) {
+    public static String obdSetParameter(String tlvTagList, String valueList) {
         return OBD.setParameter(tlvTagList, valueList);
     }
 
@@ -116,15 +121,14 @@ public class ObdManager {
     /**
      * @param tlvTag
      */
-    public String obdGetParameter(String tlvTag) {
+    public static String obdGetParameter(String tlvTag) {
         return OBD.getParameter(tlvTag);
     }
-
 
     /**
      * @param payload
      */
-    public byte[] getBytesToSend(String payload) {
+    public static byte[] getBytesToSend(String payload) {
         if (Utils.isEmpty(payload)) {
             return null;
         }
@@ -145,7 +149,7 @@ public class ObdManager {
     /**
      * @param payload
      */
-    public byte[] getBytesToSendPassive(String payload) {
+    public static byte[] getBytesToSendPassive(String payload) {
         if (Utils.isEmpty(payload)) {
             return null;
         }
@@ -293,7 +297,7 @@ public class ObdManager {
     /**
      *  Callbacks for obd functions
      */
-    public interface IBluetoothDataListener {
+    public interface IBluetoothDataListener {  // TODO: Remove unnecessary functions
         void getBluetoothState(int state);
 
         void setCtrlResponse(ResponsePackageInfo responsePackageInfo);
@@ -305,6 +309,14 @@ public class ObdManager {
         void getIOData(DataPackageInfo dataPackageInfo);
 
         void deviceLogin(LoginPackageInfo loginPackageInfo);
+
+        void tripData(TripInfoPackage tripInfoPackage);
+
+        void parameterData(ParameterPackage parameterPackage);
+
+        void pidData(PidPackage pidPackage);
+
+        void dtcData(DtcPackage dtcPackage);
     }
 
 

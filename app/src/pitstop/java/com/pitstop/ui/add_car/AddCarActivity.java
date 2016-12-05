@@ -498,6 +498,25 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+
+    }
+
+    @Override
     public void getIOData(DataPackageInfo dataPackageInfo) {
 
     }
@@ -509,10 +528,10 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     @Override
     public void hideLoading(String string) {
-        if (progressDialog.isShowing()) {
+        if(progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        if (string != null) {
+        if(string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
     }
@@ -520,7 +539,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public void showLoading(String string) {
         progressDialog.setMessage(string);
-        if (!progressDialog.isShowing()) {
+        if(!progressDialog.isShowing()) {
             progressDialog.show();
         }
     }

@@ -48,12 +48,15 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.ObdDataUtil;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -863,7 +866,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void getIOData(final DataPackageInfo dataPackageInfo) {
-        if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+        /*if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
 
             final HashSet<String> activeIssueNames = new HashSet<>();
 
@@ -891,6 +894,59 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     }
 
                     if (newDtcFound) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshFromServer();
+                            }
+                        }, 1111);
+                    }
+                }
+            });
+        }*/
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {}
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(final DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null) {
+            final HashSet<String> activeIssueNames = new HashSet<>();
+
+            if(dashboardCar == null) {
+                return;
+            }
+
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
+                activeIssueNames.add(issues.getItem());
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean newDtcFound = false;
+
+                    if(dtcPackage.dtcs.length > 0){
+                        for(String dtc : dtcPackage.dtcs) {
+                            if(!activeIssueNames.contains(dtc)) {
+                                newDtcFound = true;
+                            }
+                        }
+                    }
+
+                    if(newDtcFound) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -1172,8 +1228,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         // view is null for request from tutorial
-//        new ServiceRequestUtil(this, dashboardCar, view == null).startBookingService(false);
-
         final Intent intent = new Intent(this, ServiceRequestActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);

@@ -22,9 +22,23 @@ public interface IBluetoothCommunicator {
     void obdSetMonitor(int type, String valueList);
     void obdSetParameter(String tlvTagList, String valueList);
     void obdGetParameter(String tlvTag);
+    void writeRawInstruction(String instruction);
     void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener);
     boolean hasDiscoveredServices();
     void close();
+    void initDevice();
     void bluetoothStateChanged(int state);
+
+    // parameters
+    void getVin();
+    void getRtc();
+    void setRtc(long rtcTime);
+    void getPids(String pids);
+    void getSupportedPids();
+    void setPidsToSend(String pids);
+
+    // monitor
+    void getDtcs(); // pending and stored
+
     String getConnectedDeviceName();
 }

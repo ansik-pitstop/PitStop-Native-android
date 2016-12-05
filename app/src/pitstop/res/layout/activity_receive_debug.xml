@@ -63,9 +63,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="GET PIDS"
+            android:text="init"
             android:id="@+id/button4"
-            android:onClick="getPIDS"
+            android:onClick="initialize"
             android:background="@drawable/color_button_primary"
             android:elevation="4dp"
             android:textColor="#fff" />
@@ -104,17 +104,17 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="reset RTC"
+            android:text="getPids"
             android:textColor="#fff"
-            android:onClick="resetRtc"
+            android:onClick="getPids"
             android:background="@drawable/color_button_primary"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="setparam"
+            android:text="Pids"
             android:textColor="#fff"
-            android:onClick="setParam"
+            android:onClick="getSupportedPids"
             android:background="@drawable/color_button_primary"/>
 
     </LinearLayout>
