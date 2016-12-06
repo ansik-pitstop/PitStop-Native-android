@@ -63,7 +63,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
         carIssue        = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
         fromHistory     = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
         allIssues       = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
-        issueAdapter     = new IssuePagerAdapter(this, allIssues);
+        issueAdapter    = new IssuePagerAdapter(this, allIssues);
 
         if (fromHistory) {
             findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);

@@ -46,7 +46,7 @@ import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarMileageDialog;
 import com.pitstop.ui.add_car.view_fragment.AddCarViewPager;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.BSAbstractedFragmentActivity;
+import com.pitstop.ui.BSAbstractedFragmentActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 

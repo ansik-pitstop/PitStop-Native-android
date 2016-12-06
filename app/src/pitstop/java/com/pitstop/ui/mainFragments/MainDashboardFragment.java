@@ -118,7 +118,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     public Runnable carConnectedRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "Scan for cars in MainDashboardFragment");
             handler.sendEmptyMessage(MSG_UPDATE_CONNECTED_CAR);
         }
     };
@@ -133,7 +132,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
             switch (msg.what) {
                 case MSG_UPDATE_CONNECTED_CAR:
-                    Log.d(TAG, "Msg0, BluetoothAutoConnectState: " + autoConnectService.getState());
+                    Log.d(TAG, "BluetoothAutoConnectState: " + autoConnectService.getState());
                     if (autoConnectService != null
                             && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                             && dashboardCar != null

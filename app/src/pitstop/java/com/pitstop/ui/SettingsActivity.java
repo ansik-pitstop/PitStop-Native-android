@@ -45,7 +45,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.utils.ILoadingActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 

@@ -48,7 +48,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothAdapter mBluetoothAdapter;
     private static final long SCAN_PERIOD = 12000;
-    private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
 
     private Handler mHandler = new Handler();
@@ -114,7 +113,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return;
         }
 
-        if (mIsScanning) {
+        if (mBluetoothAdapter.isDiscovering()) {
             Log.i(TAG, "Already scanning");
             return;
         }
@@ -182,7 +181,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 
-        // on device connected?h
+        // on device connected?
     }
 
     private void showConnectingNotification() {
@@ -240,7 +239,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
                 break;
             case CLASSIC:
+                btConnectionState = BluetoothCommunicator.CONNECTING;
+                Log.i(TAG, "Connecting to Classic device");
                 communicator = new BluetoothClassicComm(mContext, this);
+                showConnectingNotification();
                 break;
         }
 
@@ -318,6 +320,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
+                Log.d(TAG, deviceName + "   " + device.getAddress());
                 switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
                     case CONNECT:
                         Log.v(TAG, "Found device: " + deviceName);

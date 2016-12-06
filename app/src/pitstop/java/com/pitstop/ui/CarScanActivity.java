@@ -573,7 +573,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         engineCodeStartTime = System.currentTimeMillis();
         handler.post(checkEngineIssuesRunnable);
         handler.post(getResult5Runnable);
-        autoConnectService.getPendingDTCs();
+//        autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
 

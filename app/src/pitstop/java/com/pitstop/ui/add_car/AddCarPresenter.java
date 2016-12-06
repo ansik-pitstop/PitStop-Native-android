@@ -34,6 +34,7 @@ import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.TimeoutTimer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -815,49 +816,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mGetDtcTimer.cancel();
         mGetDtcTimer.start();
         mAutoConnectService.getDTCs();
-        mAutoConnectService.getPendingDTCs();
-    }
-
-    private abstract class TimeoutTimer extends CountDownTimer {
-        private final int RETRIES;
-        int currentRetries;
-
-        /**
-         * @param seconds The number of seconds in the future from the call
-         *                to {@link #start()} until the countdown is done and {@link #onFinish()}
-         *                is called.
-         * @param retries The number of retries before we trigger timeout message, pass 0 mean no reties
-         */
-        public TimeoutTimer(final int seconds, final int retries) {
-            super(seconds * 1000, seconds * 1000 / 2);
-            currentRetries = retries;
-            RETRIES = retries;
-        }
-
-        @Override
-        public void onTick(long millisUntilFinished) {}
-
-        @Override
-        public void onFinish() {
-            if (currentRetries-- > 0) {
-                onRetry();
-                this.start();
-            } else {
-                currentRetries = RETRIES; // refresh number of retries
-                onTimeout();
-                cancel();
-            }
-        }
-
-        /**
-         * E.g, re-request data
-         */
-        abstract void onRetry();
-
-        /**
-         * Failed after all retries
-         */
-        abstract void onTimeout();
+//        mAutoConnectService.getPendingDTCs();
     }
 
     @Override
@@ -881,14 +840,14 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean isSearchingForCar = false; // flag variable
     private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
         @Override
-        void onRetry() {
+        public void onRetry() {
             if (!isSearchingForCar) this.cancel();
             isSearchingForCar = true;
             searchAndGetVin();
         }
 
         @Override
-        void onTimeout() {
+        public void onTimeout() {
             if (!isSearchingForCar) return;
             isSearchingForCar = false;
             mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_CONNECT, MixpanelHelper.ADD_CAR_VIEW);
@@ -900,11 +859,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean needToSetTime = false; // flag variable
     private final TimeoutTimer mSetRtcTimer = new TimeoutTimer(40, 0) {
         @Override
-        void onRetry() {
+        public void onRetry() {
         }
 
         @Override
-        void onTimeout() {
+        public void onTimeout() {
             if (!needToSetTime) return;
             needToSetTime = false;
             mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_SET_RTC, MixpanelHelper.ADD_CAR_VIEW);
@@ -919,7 +878,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private int getVinAttempts = 0;
     private final TimeoutTimer mGetVinTimer = new TimeoutTimer(30, 2) {
         @Override
-        void onRetry() {
+        public void onRetry() {
             if (!isAskingForVin && !isAskingForRtc) {
                 this.cancel();
                 return;
@@ -933,7 +892,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
 
         @Override
-        void onTimeout() {
+        public void onTimeout() {
             if (!isAskingForVin && isAskingForRtc) return;
             pendingCar.setVin("");
             isAskingForRtc = false;
@@ -950,15 +909,14 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     };
 
-
     private boolean isAskingForDtc = false;
     private final TimeoutTimer mGetDtcTimer = new TimeoutTimer(15, 0) {
         @Override
-        void onRetry() {
+        public void onRetry() {
         }
 
         @Override
-        void onTimeout() {
+        public void onTimeout() {
             if (!isAskingForDtc) return;
             isAskingForDtc = false;
             mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS_TIMEOUT,

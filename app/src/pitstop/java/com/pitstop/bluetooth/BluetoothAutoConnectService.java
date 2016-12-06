@@ -528,11 +528,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if(!isGettingVin) {
                 getSupportedPids();
             }
-        } else if(counter%600 == 0){
+        }
+        if(counter % 500 == 0){
             getDTCs();
-        } else if(counter%700 == 0){
-            getPendingDTCs();
-        } else if(counter == 2000){
+        }
+        if(counter == 2000){
             counter = 1;
         }
 
@@ -607,7 +607,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG, "DTC data: " + dtcPackage.toString());
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
-            deviceManager.getFreezeFrame();
+            getFreezeData();
         }
 
         callbacks.dtcData(dtcPackage);
@@ -1046,6 +1046,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         gettingPID = true;
     }
 
+    /**
+     * Get both pending and stored DTCs
+     */
     public void getDTCs() {
         Log.i(TAG, "calling getting DTCs - auto-connect service");
         deviceManager.getDtcs();
@@ -1059,7 +1062,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getFreezeData() {
         Log.i(TAG, "Getting freeze data");
         deviceManager.getFreezeFrame();
-//        bluetoothCommunicator.obdSetMonitor(ObdManager.TYPE_FREEZE_DATA, "");
     }
 
     public void clearDTCs() {
@@ -1072,10 +1074,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.getPids(pids);
     }
 
-    //public void clearDTCs() {
-    //    Log.i(TAG, "Clearing DTCs");
-    //    deviceManager.obdSetCtrl(ObdManager.TYPE_DTC);
-    //}
+//    public void clearDTCs() {
+//        Log.i(TAG, "Clearing DTCs");
+//        deviceManager.obdSetCtrl(ObdManager.TYPE_DTC);
+//    }
 
     //public void getFreeze(String tag) {
     //    Log.i(TAG, "getParameter with tag: " + tag);
@@ -1140,7 +1142,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //if(lastData != null) {
             //    sendPidDataToServer(lastData);
             //}
-//
+
             //tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, data.deviceId));
             //executeTripRequests();
         }

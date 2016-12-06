@@ -170,21 +170,21 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
                 int bondState = device.getBondState();
-                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME)) {
+                btConnectionState = CONNECTED;
+                try {
+                    new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                deviceManager.connectionStateChange(btConnectionState);
+                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
                     switch (bondState) {
                         case BluetoothDevice.BOND_BONDED:
                             Log.i(TAG, "Connected to a PAIRED device: " + deviceName);
-                            btConnectionState = CONNECTED;
-                            try {
-                                new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            deviceManager.connectionStateChange(btConnectionState);
                             Toast.makeText(mContext, "Connected to a paired device", Toast.LENGTH_SHORT).show();
                             break;
                         case BluetoothDevice.BOND_NONE:
-                            Toast.makeText(mContext, "Connected to a device", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "Connected to a device, bonding...", Toast.LENGTH_SHORT).show();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                                 try {
                                     if (device.createBond()) { // true if bond creation will be done

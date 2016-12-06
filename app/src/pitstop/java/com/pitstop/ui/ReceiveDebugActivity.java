@@ -29,11 +29,12 @@ import java.util.Map;
 
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
+    private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
+
     TextView BTSTATUS;
     boolean pendingUpload, clicked;
-    private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
-    private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
+    private BluetoothAutoConnectService service;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -91,10 +92,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void uploadRecords() {
-        //TODO
         //service.uploadRecords();
     }
-
 
     @Override
     public void getBluetoothState(int state) {
@@ -186,8 +185,14 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
+    public void ffData(final FreezeFramePackage ffPackage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView)findViewById(R.id.debug_log)).setText(ffPackage.toString());
+            }
+        });
     }
 
 //    @Override
