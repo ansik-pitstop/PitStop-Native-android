@@ -17,6 +17,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -41,6 +42,7 @@ public class Device212B implements AbstractDevice {
 
     public final static int TYPE_DTC = 1;
     public final static int TYPE_PENDING_DTC = 2;
+    public final static int TYPE_FREEZE_DATA = 3;
 
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager.IPassiveCommandListener passiveCommandListener;
@@ -133,6 +135,11 @@ public class Device212B implements AbstractDevice {
     @Override
     public String getPendingDtcs() {
         return OBD.setMonitor(TYPE_PENDING_DTC, "");
+    }
+
+    @Override
+    public String getFreezeFrame() {
+        return OBD.setMonitor(TYPE_FREEZE_DATA, "");
     }
 
     // read data handler
@@ -234,7 +241,6 @@ public class Device212B implements AbstractDevice {
     /**
      * @param info
      */
-
     private void obdParameterPackageParse(String info) {
         // 212 specific package
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
@@ -406,9 +412,24 @@ public class Device212B implements AbstractDevice {
                 }
                 dataListener.tripData(tripInfoPackage);
             }
+
+            // handle freeze frame data
+            if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){
+                if (dataPackageInfo.result == 6 || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){
+                    FreezeFramePackage ffPackage = new FreezeFramePackage();
+                    ffPackage.deviceId = dataPackageInfo.deviceId;
+                    ffPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);
+                    ffPackage.freezeData = new HashMap<>();
+                    for (PIDInfo pidInfo: dataPackageInfo.freezeData){
+                        ffPackage.freezeData.put(pidInfo.pidType, pidInfo.value);
+                    }
+                    dataListener.ffData(ffPackage);
+                }
+            }
+
         }
 
 
-        dataListener.getIOData(dataPackageInfo);
+//        dataListener.getIOData(dataPackageInfo);
     }
 }

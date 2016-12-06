@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.pitstop.R;
-import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.application.GlobalApplication;
@@ -40,7 +39,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private LocalCarIssueAdapter carIssueAdapter;
 
     private boolean needToRefresh = false;
 
@@ -59,7 +57,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         application     = (GlobalApplication) getApplicationContext();
         mixpanelHelper  = new MixpanelHelper(application);
-        carIssueAdapter = new LocalCarIssueAdapter(application);
 
         Intent intent   = getIntent();
         dashboardCar    = intent.getParcelableExtra(MainActivity.CAR_EXTRA);

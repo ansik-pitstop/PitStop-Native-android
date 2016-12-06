@@ -32,16 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.MainActivity;
@@ -71,8 +62,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
-        MainActivity.MainDashboardCallback {
+public class MainDashboardFragment extends Fragment implements MainActivity.MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
@@ -466,56 +456,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
-
-
-    @Override
-    public void getBluetoothState(int state) {
-        if(state==IBluetoothCommunicator.DISCONNECTED) {
-            Log.i(TAG,"Bluetooth disconnected");
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {   }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-
-    }
-
-    @Override
-    public void pidData(PidPackage pidPackage) {
-
-    }
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
-    }
-
     private void populateCarIssuesAdapter() {
         // Try local store
         Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
@@ -646,7 +586,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     /**
      * Issues list view
      */
-    class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+    private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         private List<CarIssue> carIssueList;
         static final int VIEW_TYPE_EMPTY = 100;

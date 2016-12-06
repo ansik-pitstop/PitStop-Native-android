@@ -24,9 +24,9 @@ import java.util.List;
 /**
  * Class that identifies IDD bluetooth device
  */
-public class BluetoothRecognizer {
+public class BluetoothDeviceRecognizer {
 
-    private static final String TAG = BluetoothRecognizer.class.getSimpleName();
+    private static final String TAG = BluetoothDeviceRecognizer.class.getSimpleName();
 
     private static final int NOTIFICATION_ID = 9101; // arbitrary id
 
@@ -38,7 +38,7 @@ public class BluetoothRecognizer {
     private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
 
-    public BluetoothRecognizer(Context context) {
+    public BluetoothDeviceRecognizer(Context context) {
         mLocalScannerStore = new LocalScannerAdapter(context);
         mMixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         mContext = context;

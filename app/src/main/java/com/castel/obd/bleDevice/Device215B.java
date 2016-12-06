@@ -138,6 +138,12 @@ public class Device215B implements AbstractDevice {
         return "";
     }
 
+    @Override
+    public String getFreezeFrame() {
+        // TODO: 16/12/6 figure out what command to use
+        return null; // return ffPackage("0", "0");
+    }
+
     // read data handler
 
     @Override
@@ -295,6 +301,19 @@ public class Device215B implements AbstractDevice {
         return msg;
     }
 
+//    public static String ffPackage(String controlEventID, String terminalSN){
+//        String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
+//                + Constants.INSTRUCTION_FF + "," + controlEventID + ","
+//                + Constants.INSTRUCTION_STAR;
+//
+//        // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
+//        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+//
+//        String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
+//
+//        return msg;
+//    }
+
     private StringBuilder sbRead = new StringBuilder();
 
     // parser for 215B data
@@ -407,6 +426,10 @@ public class Device215B implements AbstractDevice {
 
                         dataListener.dtcData(dtcPackage);
                     }
+                }
+
+                if (idrInfo.freezeFrame != null && !idrInfo.freezeFrame.isEmpty()){
+                    Log.i("FreezeFrame", idrInfo.freezeFrame);
                 }
 
                 Log.d(TAG, idrInfo.toString());

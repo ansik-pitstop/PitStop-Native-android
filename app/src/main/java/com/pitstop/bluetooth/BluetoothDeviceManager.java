@@ -24,6 +24,7 @@ import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.ObdManager;
+import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.MainActivity;
@@ -79,7 +80,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothCommunicator communicator;
 
-    private final BluetoothRecognizer mBluetoothRecognizer;
+    private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
 
     public enum CommType {
         CLASSIC, LE
@@ -99,7 +100,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         context.registerReceiver(receiver, intentFilter);
 
-        mBluetoothRecognizer = new BluetoothRecognizer(context);
+        mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(context);
     }
 
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
@@ -181,7 +182,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 
-        // on device connected?
+        // on device connected?h
     }
 
     private void showConnectingNotification() {
@@ -256,7 +257,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
-    public String getConnectedDeviceName(){
+    public String getConnectedDeviceName() {
         return deviceInterface.getDeviceName();
     }
 
@@ -278,6 +279,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return;
         }
 
+        Log.i(TAG, "BluetoothAdapter starts discovery");
         mBluetoothAdapter.startDiscovery();
 
         //scanLeDevice(true);
@@ -311,27 +313,22 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
-                if (deviceName != null) {
-                    switch (mBluetoothRecognizer.onDeviceFound(deviceName)) {
-                        case CONNECT:
-                            Log.v(TAG, "Found device: " + deviceName);
-                            if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
-                                deviceInterface = new Device212B(mContext, dataListener,
-                                        BluetoothDeviceManager.this, deviceName);
-                                connectToDevice(device);
-                            } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
-                                deviceInterface = new Device215B(mContext, dataListener,
-                                        deviceName);
-                                connectToDevice(device);
-                            }
-                            break;
-                        default:
-                            // Do nothing
-                            break;
-                    }
+                switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
+                    case CONNECT:
+                        Log.v(TAG, "Found device: " + deviceName);
+                        if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
+                            deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, deviceName);
+                            connectToDevice(device);
+                        } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
+                            deviceInterface = new Device215B(mContext, dataListener, deviceName);
+                            connectToDevice(device);
+                        }
+                        break;
                 }
             }
         }
@@ -347,6 +344,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     // functions
+
+    public void setParam(String param, String value) { // 215B specific
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+            return;
+        }
+
+        if (!(deviceInterface instanceof Device215B)) return;
+
+        Log.d(TAG, DataPackageUtil.siMulti(param, value));
+        writeToObd(DataPackageUtil.siMulti(param, value));
+    }
 
     public void getVin() {
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -404,6 +412,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         writeToObd(deviceInterface.getDtcs());
         writeToObd(deviceInterface.getPendingDtcs());
+    }
+
+    public void getFreezeFrame() {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+            return;
+        }
+
+        writeToObd(deviceInterface.getFreezeFrame());
     }
 
     public void requestData() {

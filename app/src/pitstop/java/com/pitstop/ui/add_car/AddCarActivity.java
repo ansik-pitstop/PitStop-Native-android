@@ -23,12 +23,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.MainActivity;
@@ -96,6 +99,51 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     @Override
     public void setPresenter(BasePresenter presenter) {
         mAddCarPresenter = (AddCarContract.Presenter) presenter;
+    }
+
+    @Override
+    public void getBluetoothState(int state) {
+
+    }
+
+    @Override
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
+
+    @Override
+    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
+
+    }
+
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
+
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+
+    }
+
+    @Override
+    public void ffData(FreezeFramePackage ffPackage) {
+
     }
 
     private class CarListAdapter extends BaseAdapter {
@@ -478,55 +526,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
-    public void getBluetoothState(int state) {
-
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-    }
-
-    @Override
-    public void pidData(PidPackage pidPackage) {
-
-    }
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
-    }
-
-    @Override
     public void hideLoading(String string) {
         if(progressDialog.isShowing()) {
             progressDialog.dismiss();
@@ -537,11 +536,16 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
-    public void showLoading(String string) {
-        progressDialog.setMessage(string);
-        if(!progressDialog.isShowing()) {
-            progressDialog.show();
-        }
+    public void showLoading(final String string) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.setMessage(string);
+                if(!progressDialog.isShowing()) {
+                    progressDialog.show();
+                }
+            }
+        });
     }
 
     private void registerBluetoothReceiver() {

@@ -13,6 +13,7 @@ import com.castel.obd.info.SendPackageInfo;
 import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -264,7 +265,7 @@ public class ObdManager {
     private void obdParameterPackageParse(String info) {
         ParameterPackageInfo parameterPackageInfo = JsonUtil.json2object(info,
                 ParameterPackageInfo.class);
-        dataListener.getParameterData(parameterPackageInfo);
+//        dataListener.getParameterData(parameterPackageInfo);
         Log.i(TAG,"result: "+ parameterPackageInfo.result);
         Log.i(TAG, "Data: " + parameterPackageInfo.value.get(0).tlvTag);
         Log.i(TAG, "Data: " + parameterPackageInfo.value.get(0).value);
@@ -290,7 +291,7 @@ public class ObdManager {
 
         }
 
-        dataListener.getIOData(dataPackageInfo);
+//        dataListener.getIOData(dataPackageInfo);
     }
 
 
@@ -304,9 +305,9 @@ public class ObdManager {
 
         void setParameterResponse(ResponsePackageInfo responsePackageInfo);
 
-        void getParameterData(ParameterPackageInfo parameterPackageInfo);
+//        void getParameterData(ParameterPackageInfo parameterPackageInfo);
 
-        void getIOData(DataPackageInfo dataPackageInfo);
+//        void getIOData(DataPackageInfo dataPackageInfo); // 212B specific
 
         void deviceLogin(LoginPackageInfo loginPackageInfo);
 
@@ -317,6 +318,8 @@ public class ObdManager {
         void pidData(PidPackage pidPackage);
 
         void dtcData(DtcPackage dtcPackage);
+
+        void ffData(FreezeFramePackage ffPackage);
     }
 
 

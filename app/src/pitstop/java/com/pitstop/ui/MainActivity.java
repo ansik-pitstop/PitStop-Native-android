@@ -44,9 +44,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -54,6 +52,7 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.R;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -861,50 +860,50 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
 
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {}
+//    @Override
+//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {}
 
-    @Override
-    public void getIOData(final DataPackageInfo dataPackageInfo) {
-        /*if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
-
-            final HashSet<String> activeIssueNames = new HashSet<>();
-
-            if (dashboardCar == null) {
-                return;
-            }
-
-            for (CarIssue issues : dashboardCar.getActiveIssues()) {
-                activeIssueNames.add(issues.getItem());
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    boolean newDtcFound = false;
-
-                    if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
-                        String[] DTCs = dataPackageInfo.dtcData.split(",");
-                        for (String dtc : DTCs) {
-                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-                            if (!activeIssueNames.contains(parsedDtc)) {
-                                newDtcFound = true;
-                            }
-                        }
-                    }
-
-                    if (newDtcFound) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshFromServer();
-                            }
-                        }, 1111);
-                    }
-                }
-            });
-        }*/
-    }
+//    @Override
+//    public void getIOData(final DataPackageInfo dataPackageInfo) {
+//        /*if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+//
+//            final HashSet<String> activeIssueNames = new HashSet<>();
+//
+//            if (dashboardCar == null) {
+//                return;
+//            }
+//
+//            for (CarIssue issues : dashboardCar.getActiveIssues()) {
+//                activeIssueNames.add(issues.getItem());
+//            }
+//
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    boolean newDtcFound = false;
+//
+//                    if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
+//                        String[] DTCs = dataPackageInfo.dtcData.split(",");
+//                        for (String dtc : DTCs) {
+//                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
+//                            if (!activeIssueNames.contains(parsedDtc)) {
+//                                newDtcFound = true;
+//                            }
+//                        }
+//                    }
+//
+//                    if (newDtcFound) {
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                refreshFromServer();
+//                            }
+//                        }, 1111);
+//                    }
+//                }
+//            });
+//        }*/
+//    }
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
@@ -957,6 +956,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             });
         }
+    }
+
+    @Override
+    public void ffData(FreezeFramePackage ffPackage) {
+
     }
 
     @Override

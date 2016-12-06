@@ -36,7 +36,7 @@ public interface AbstractDevice {
     // monitor
     String getDtcs(); // stored
     String getPendingDtcs(); // pending
-
+    String getFreezeFrame(); // FF
 
 
 }

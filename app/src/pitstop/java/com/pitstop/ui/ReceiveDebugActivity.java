@@ -15,14 +15,12 @@ import android.widget.TextView;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.PIDInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -132,10 +130,10 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         Log.i(TAG, "setParameterResponse: " + responsePackageInfo.toString());
     }
 
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
-    }
+//    @Override
+//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+//        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
+//    }
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
@@ -177,53 +175,64 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void dtcData(DtcPackage dtcPackage) {
-        
-    }
-
-    @Override
-    public void getIOData(final DataPackageInfo dataPackageInfo) {
-        Log.i(TAG, "getIOData");
-
-        /*if(!pendingUpload) {
-            findViewById(R.id.loading).setVisibility(View.GONE);
-        }*/
-
-        //display out
-        String out = "";
-        out += "result : " + dataPackageInfo.result + "\n";
-        out += "deviceId : " + dataPackageInfo.deviceId + "\n";
-        out += "tripId : " + dataPackageInfo.tripId + "\n";
-        out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
-        out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
-        out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
-        out += "protocolType : " + dataPackageInfo.protocolType + "\n";
-        out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
-        out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
-        out += "vState : " + dataPackageInfo.vState + "\n";
-        out += "OBD Data \n";
-        for (PIDInfo i : dataPackageInfo.obdData) {
-            out += "     " + i.pidType + " : " + i.value + "\n";
-        }
-        out += "Freeze Data \n";
-        for (PIDInfo i : dataPackageInfo.freezeData) {
-            out += "     " + i.pidType + " : " + i.value + "\n";
-        }
-        out += "surportPid : " + dataPackageInfo.surportPid + "\n";
-        out += "dtcData : " + dataPackageInfo.dtcData + "\n";
-
-        final String output = out;
-
+    public void dtcData(final DtcPackage dtcPackage) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 findViewById(R.id.loading).setVisibility(View.GONE);
-                ((TextView) findViewById(R.id.debug_log)).setText(output);
+                ((TextView)findViewById(R.id.debug_log)).setText(dtcPackage.toString());
             }
         });
-
-        //Log.e(TAG, dataPackageInfo.toString());
     }
+
+    @Override
+    public void ffData(FreezeFramePackage ffPackage) {
+
+    }
+
+//    @Override
+//    public void getIOData(final DataPackageInfo dataPackageInfo) {
+//        Log.i(TAG, "getIOData");
+//
+//        /*if(!pendingUpload) {
+//            findViewById(R.id.loading).setVisibility(View.GONE);
+//        }*/
+//
+//        //display out
+//        String out = "";
+//        out += "result : " + dataPackageInfo.result + "\n";
+//        out += "deviceId : " + dataPackageInfo.deviceId + "\n";
+//        out += "tripId : " + dataPackageInfo.tripId + "\n";
+//        out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
+//        out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
+//        out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
+//        out += "protocolType : " + dataPackageInfo.protocolType + "\n";
+//        out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
+//        out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
+//        out += "vState : " + dataPackageInfo.vState + "\n";
+//        out += "OBD Data \n";
+//        for (PIDInfo i : dataPackageInfo.obdData) {
+//            out += "     " + i.pidType + " : " + i.value + "\n";
+//        }
+//        out += "Freeze Data \n";
+//        for (PIDInfo i : dataPackageInfo.freezeData) {
+//            out += "     " + i.pidType + " : " + i.value + "\n";
+//        }
+//        out += "surportPid : " + dataPackageInfo.surportPid + "\n";
+//        out += "dtcData : " + dataPackageInfo.dtcData + "\n";
+//
+//        final String output = out;
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                findViewById(R.id.loading).setVisibility(View.GONE);
+//                ((TextView) findViewById(R.id.debug_log)).setText(output);
+//            }
+//        });
+//
+//        //Log.e(TAG, dataPackageInfo.toString());
+//    }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
@@ -291,5 +300,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void initialize(View view) {
         //service.initialize();
+    }
+
+    public void writeToObd(View view) {
+        String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
+        String value = ((EditText) findViewById(R.id.values)).getText().toString();
+
+        service.changeSetting(tag, value);
     }
 }

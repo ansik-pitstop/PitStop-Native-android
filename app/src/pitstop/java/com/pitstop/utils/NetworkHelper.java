@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by Ben Wu on 2016-05-20.
@@ -326,25 +328,22 @@ public class NetworkHelper {
         post("issue", callback, body);
     }
 
-    public void postFreezeFrame(String scannerId, String rtcTime, List<PIDInfo> freezeData,
-                                RequestCallback callback){
-        Log.d(TAG, String.format(Locale.CANADA, "Posting FF: scannerId: %s, freezeData length: %d",
-                scannerId, freezeData.size()));
+    public void postFreezeFrame(FreezeFramePackage ffPackage, RequestCallback callback){
+        Log.d(TAG, "Posting FF:" + ffPackage);
         JSONObject body = new JSONObject();
         JSONArray freezePidArray = new JSONArray();
         JSONArray pids = new JSONArray();
-
-        try{
-            for (PIDInfo pidInfo: freezeData){
-                pids.put(new JSONObject().put("id", pidInfo.pidType).put("data", pidInfo.value));
+        Map<String, String> ff = ffPackage.freezeData;
+        try {
+            for (Map.Entry<String, String> entry : ff.entrySet()){
+                pids.put(new JSONObject()
+                        .put("id", entry.getKey())
+                        .put("data", entry.getValue()));
             }
-            freezePidArray.put(
-                    new JSONObject()
-                            .put("rtcTime", Long.parseLong(rtcTime))
-                            .put("pids", pids)
-            );
-            body.put("scannerId", scannerId);
-            body.put("freezePidArray", freezePidArray);
+            freezePidArray.put(new JSONObject()
+                    .put("rtcTime", ffPackage.rtcTime)
+                    .put("pids", pids));
+            body.put("scannerId", ffPackage.deviceId).put("freezePidArray", freezePidArray);
         } catch (JSONException e) {
             e.printStackTrace();
         }
