@@ -1,5 +1,9 @@
 package com.pitstop.ui.scan_car;
 
+import android.support.annotation.Nullable;
+
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.models.CarIssue;
 import com.pitstop.ui.BSAbstractedFragmentActivity;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
@@ -17,6 +21,8 @@ public interface ScanCarContract {
 
         void onDeviceConnected();
 
+        void onDeviceDisconnected();
+
         void onConnectingTimeout();
 
         /**
@@ -25,16 +31,18 @@ public interface ScanCarContract {
         void onMileageUpdated();
 
         /**
-         * callback for getIssues();
+         * callback for getServicesAndRecalls();
          */
-        void onRecallRetrieved();
+        void onRecallRetrieved(Set<CarIssue> recalls);
 
         /**
-         * callback for getIssues();
+         * callback for getServicesAndRecalls();
          */
-        void onServicesRetrieved();
+        void onServicesRetrieved(Set<CarIssue> services);
 
         void onGetRealtimeDataTimeout();
+
+        void onMileageUpdate(double newMileage);
 
         /**
          * callback for getEngineCodes();
@@ -42,6 +50,18 @@ public interface ScanCarContract {
          */
         void onEngineCodesRetrieved(Set<String> dtcCodes);
 
+        /**
+         * Check if connected, if not show a toast
+         * @param errorToShow Error message show to the user if network is unavailable
+         * @return false if not connected, true if connected
+         */
+        boolean checkNetworkConnection(@Nullable String errorToShow);
+
+        void onNetworkError(String errorMessage);
+
+        boolean isScanning();
+
+        BluetoothAutoConnectService getAutoConnectService();
 
         BSAbstractedFragmentActivity getActivity();
     }
@@ -54,9 +74,11 @@ public interface ScanCarContract {
 
         void getEngineCodes();
 
-        void getIssues();
+        void getServicesAndRecalls();
 
-        void finish();
+        void finishScan();
+
+        void onActivityFinish();
     }
 
 }

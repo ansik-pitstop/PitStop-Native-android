@@ -11,6 +11,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.castel.obd.bluetooth.ObdManager;
+import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.BSAbstractedFragmentActivity;
 
@@ -19,14 +21,16 @@ import com.pitstop.ui.BSAbstractedFragmentActivity;
  */
 public class BluetoothServiceConnection implements ServiceConnection {
     private static final String TAG = BluetoothServiceConnection.class.getSimpleName();
-    Context context;
-    BSAbstractedFragmentActivity callbackActivity;
+    private Context context;
+    private BSAbstractedFragmentActivity callbackActivity;
+    private BluetoothPresenter presenter;
 
     private static final int RC_LOCATION_PERM = 101;
 
-    public BluetoothServiceConnection(Context context,BSAbstractedFragmentActivity activity){
+    public BluetoothServiceConnection(Context context, BSAbstractedFragmentActivity activity, BluetoothPresenter presenter){
         this.context = context;
-        callbackActivity = activity;
+        this.callbackActivity = activity;
+        this.presenter = presenter;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class BluetoothServiceConnection implements ServiceConnection {
         // cast the IBinder and get MyService instance
         callbackActivity.serviceIsBound = true;
         callbackActivity.autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-        callbackActivity.autoConnectService.setCallbacks(callbackActivity); // register
+        presenter.onServiceBound(callbackActivity.autoConnectService);
         Log.i(TAG, "connecting: onServiceConnection");
 
         if (BluetoothAdapter.getDefaultAdapter()!=null) {

@@ -101,51 +101,6 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         mAddCarPresenter = (AddCarContract.Presenter) presenter;
     }
 
-    @Override
-    public void getBluetoothState(int state) {
-
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-
-    }
-
-    @Override
-    public void pidData(PidPackage pidPackage) {
-
-    }
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-
-    }
-
-    @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
-    }
-
     private class CarListAdapter extends BaseAdapter {
         private List<Car> ownedCars;
 

@@ -18,10 +18,18 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +39,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     private static final String TAG = ScanCarPresenter.class.getSimpleName();
 
-    private ScanCarContract.View viewCallback;
+    private ScanCarContract.View mCallback;
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
     private LocalCarAdapter localCarAdapter;
@@ -42,44 +50,103 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private ServiceConnection mServiceConnection;
 
     public ScanCarPresenter(ScanCarContract.View viewCallback, GlobalApplication application, Car dashboardCar) {
-        this.viewCallback   = viewCallback;
-        this.dashboardCar   = dashboardCar;
-        this.application    = application;
-        mixpanelHelper      = new MixpanelHelper(application);
-        networkHelper       = new NetworkHelper(application);
-        localCarAdapter     = new LocalCarAdapter(application);
-        mServiceConnection = new BluetoothServiceConnection(application, viewCallback.getActivity());
+        this.mCallback = viewCallback;
+        this.dashboardCar = dashboardCar;
+        this.application = application;
+        mixpanelHelper = new MixpanelHelper(application);
+        networkHelper = new NetworkHelper(application);
+        localCarAdapter = new LocalCarAdapter(application);
+        mServiceConnection = new BluetoothServiceConnection(application, mCallback.getActivity(), this);
         bindBluetoothService();
     }
 
     @Override
     public void connectToDevice() {
-
+        if (isConnectedToDevice()) {
+            mCallback.onDeviceConnected();
+        } else {
+            mCallback.showLoading("Connecting to car");
+            connectToCarWithTimeout();
+        }
     }
 
     @Override
     public void updateMileage(String input) {
-
+        mAutoConnectService.manuallyUpdateMileage = true;
     }
+
+    private Set<CarIssue> services;
+    private Set<CarIssue> recalls;
 
     @Override
     public void getEngineCodes() {
-
+        retrievedDtcs = new HashSet<>();
+        isAskingForDtcs = true;
+        mAutoConnectService.getDTCs();
+        checkEngineIssuesTimer.cancel();
+        checkEngineIssuesTimer.start();
     }
 
     @Override
-    public void getIssues() {
+    public void getServicesAndRecalls() {
+        networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError != null) {
+                    Log.e(TAG, String.valueOf(requestError.getStatusCode()));
+                    Log.e(TAG, requestError.getError());
+                    Log.e(TAG, requestError.getMessage());
+                    mCallback.onNetworkError(requestError.getMessage());
+                    mCallback.onRecallRetrieved(null);
+                    mCallback.onServicesRetrieved(null);
+                    return;
+                }
 
+                try {
+                    Object issuesArr = new JSONObject(response).get("issues");
+                    ArrayList<CarIssue> issues = new ArrayList<>();
+                    if (issuesArr instanceof JSONArray) {
+                        issues = CarIssue.createCarIssues((JSONArray) issuesArr, dashboardCar.getId());
+                    }
+
+                    services = new HashSet<>();
+                    recalls = new HashSet<>();
+
+                    for (CarIssue issue : issues) {
+                        if (issue.getStatus().equals(CarIssue.ISSUE_DONE)) continue;
+                        if (issue.getIssueType().equals(CarIssue.RECALL)) {
+                            recalls.add(issue);
+                        } else if (issue.getIssueType().equals(CarIssue.SERVICE)) {
+                            services.add(issue);
+                        }
+                    }
+
+                    checkProgress();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    mCallback.onNetworkError("Unknown network error happened, please retry later.");
+                    mCallback.onServicesRetrieved(null);
+                    mCallback.onRecallRetrieved(null);
+                }
+            }
+        });
     }
 
     @Override
-    public void finish() {
+    public void finishScan() {
+        if (!mCallback.isScanning()) return;
+        cancelAllTimers();
+    }
 
+    @Override
+    public void onActivityFinish() {
+        unbindBluetoothService();
     }
 
     @Override
     public void bindBluetoothService() {
-        viewCallback.getActivity().bindService(
+        mCallback.getActivity().bindService(
                 new Intent(application, BluetoothAutoConnectService.class),
                 mServiceConnection,
                 Context.BIND_AUTO_CREATE
@@ -87,13 +154,35 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
+    public void onServiceBound(BluetoothAutoConnectService service) {
+        mAutoConnectService = service;
+        mAutoConnectService.setCallbacks(this);
+    }
+
+    @Override
     public void unbindBluetoothService() {
-        viewCallback.getActivity().unbindService(mServiceConnection);
+        mCallback.getActivity().unbindService(mServiceConnection);
+    }
+
+    @Override
+    public void checkBluetoothService() {
+        if (mAutoConnectService == null) {
+            mAutoConnectService = mCallback.getAutoConnectService();
+            mAutoConnectService.setCallbacks(this);
+        }
     }
 
     @Override
     public void getBluetoothState(int state) {
-
+        Log.i(TAG, "Bluetooth state update");
+        switch (state) {
+            case BluetoothCommunicator.CONNECTED:
+                mCallback.onDeviceConnected();
+                break;
+            case BluetoothCommunicator.DISCONNECTED:
+                mCallback.onDeviceDisconnected();
+                break;
+        }
     }
 
     @Override
@@ -113,7 +202,21 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
+
+            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+            }
+            mCallback.onMileageUpdate(newTotalMileage);
+        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
+            dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+            final double newBaseMileage = dashboardCar.getTotalMileage();
+            mCallback.onMileageUpdate(newBaseMileage);
+        }
     }
 
     @Override
@@ -126,13 +229,14 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     }
 
-    private Set<String> dtcCodes = new HashSet<>();
+    private Set<String> retrievedDtcs;
 
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
-        if(dtcPackage.dtcs != null && isAskingForDtcs) {
-            dtcCodes.addAll(Arrays.asList(dtcPackage.dtcs));
+        if (dtcPackage.dtcs != null && isAskingForDtcs) {
+            retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
+            mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
     }
 
@@ -143,13 +247,34 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void start() {
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+    }
 
+    private void checkProgress() {
+
+    }
+
+    private void cancelAllTimers() {
+        connectCarTimer.cancel();
+        checkEngineIssuesTimer.cancel();
+        checkRealTimeTimer.cancel();
+    }
+
+    private boolean isConnectedToDevice() {
+        return mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
+                && mAutoConnectService.isCommunicatingWithDevice();
+    }
+
+    private void connectToCarWithTimeout() {
+        mAutoConnectService.startBluetoothSearch();
+        connectCarTimer.cancel();
+        connectCarTimer.start();
     }
 
     private final TimeoutTimer connectCarTimer = new TimeoutTimer(15, 3) {
         @Override
         public void onRetry() {
-            if (isConnected()) {
+            if (isConnectedToDevice()) {
                 this.cancel();
                 return;
             }
@@ -158,14 +283,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (isConnected()) return;
-            viewCallback.onConnectingTimeout();
+            if (isConnectedToDevice()) return;
+            mCallback.onConnectingTimeout();
             // TODO: 16/12/7 Remember what to do if it connects before timeout
-        }
-
-        private boolean isConnected(){
-            return mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
-                    && mAutoConnectService.isCommunicatingWithDevice();
         }
     };
 
@@ -180,12 +300,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         public void onTimeout() {
             if (!isAskingForDtcs) return;
             isAskingForDtcs = false;
-            viewCallback.onEngineCodesRetrieved(dtcCodes);
+            mCallback.onEngineCodesRetrieved(retrievedDtcs);
+            checkProgress();
         }
     };
 
     private boolean realTimeDataRetrieved = false;
-    private final TimeoutTimer checkRealtimeTimer = new TimeoutTimer(30, 0) {
+    private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
         @Override
         public void onRetry() {
             // do nothing
@@ -193,7 +314,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-
+            if (realTimeDataRetrieved) return;
+            mCallback.onGetRealtimeDataTimeout();
         }
     };
 

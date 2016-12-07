@@ -22,7 +22,6 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -56,6 +55,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.BSAbstractedFragmentActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -71,7 +71,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class ScanCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+public class ScanCarActivity extends BSAbstractedFragmentActivity implements ObdManager.IBluetoothDataListener {
 
     private static String TAG = ScanCarActivity.class.getSimpleName();
 
@@ -121,7 +121,6 @@ public class ScanCarActivity extends AppCompatActivity implements ObdManager.IBl
     private boolean isScanning = false;
     private boolean askingForDtcs = false;
     private boolean result5Retrieved = false;
-    private boolean scanStarted = false;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -464,7 +463,6 @@ public class ScanCarActivity extends AppCompatActivity implements ObdManager.IBl
         Log.i(TAG, "Starting car scan");
 
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-        scanStarted = true;
         isScanning = true;
 
         autoConnectService.manuallyUpdateMileage = true;

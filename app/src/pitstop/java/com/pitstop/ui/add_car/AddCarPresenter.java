@@ -6,12 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -72,7 +71,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mMixpanelHelper = new MixpanelHelper(application);
         mLocalScannerAdapter = new LocalScannerAdapter(application);
         mAutoConnectService = callback.getAutoConnectService();
-        mServiceConnection = new BluetoothServiceConnection(application, callback.getActivity());
+        mServiceConnection = new BluetoothServiceConnection(application, callback.getActivity(), this);
         bindBluetoothService();
         this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
     }
@@ -131,7 +130,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
             mCallback.hideLoading("Your device does not support bluetooth");
         } else {
-            if (mAutoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+            if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED) {
                 // Already connected to module
                 Log.i(TAG, "Getting car vin with device connected");
                 mCallback.showLoading("Linking with Device, give it a few seconds");
@@ -157,7 +156,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
             mCallback.hideLoading("Your device does not support bluetooth");
         } else {
-            if (mAutoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+            if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED) {
                 // Already connected to module
                 Log.i(TAG, "OBD device is connected, reading VIN");
                 mCallback.showLoading("We have found the device, verifying...");
@@ -544,7 +543,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         // After successfully posting car to server, attempt to get engine codes
         // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
         cancelAllTimeouts();
-        if (mAutoConnectService.getState() == IBluetoothCommunicator.CONNECTED) {
+        if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Now connected to device");
             mCallback.showLoading("Loading car engine codes");
             getDtcWithTimeout();
@@ -586,16 +585,30 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     @Override
+    public void onServiceBound(BluetoothAutoConnectService service) {
+        mAutoConnectService = service;
+        mAutoConnectService.setCallbacks(this);
+    }
+
+    @Override
     public void unbindBluetoothService() {
         mCallback.getActivity().unbindService(mServiceConnection);
         pendingCar = null;
     }
 
     @Override
+    public void checkBluetoothService() {
+        if (mAutoConnectService == null) {
+            mAutoConnectService = mCallback.getAutoConnectService();
+            mAutoConnectService.setCallbacks(this);
+        }
+    }
+
+    @Override
     public void getBluetoothState(int state) {
         Log.i(TAG, "Bluetooth state update");
         switch (state) {
-            case IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS:
+            case BluetoothCommunicator.CONNECTED:
                 // Successfully connected to OBD device
                 mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
@@ -610,7 +623,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 }
                 break;
 
-            case IBluetoothCommunicator.CONNECTING:
+            case BluetoothCommunicator.CONNECTING:
                 if (isSearchingForCar) mCallback.showLoading("Connecting to device");
                 break;
         }
@@ -783,15 +796,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     }
 
-    private void checkBluetoothService() {
-        if (mAutoConnectService == null) {
-            mAutoConnectService = mCallback.getAutoConnectService();
-            mAutoConnectService.setCallbacks(this);
-        }
-    }
-
     private void searchCarWithTimeout() {
-        if (mAutoConnectService.getState() != IBluetoothCommunicator.CONNECTED) hasGotValidRtc = false;
+        if (mAutoConnectService.getState() != BluetoothCommunicator.CONNECTED) hasGotValidRtc = false;
         mAutoConnectService.startBluetoothSearch(2);  // search for car
         isSearchingForCar = true;
         mSearchCarTimer.cancel();
@@ -891,7 +897,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 this.cancel();
                 return;
             }
-            if (mAutoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+            if (mAutoConnectService.getState() == BluetoothCommunicator.DISCONNECTED) {
                 mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
             } else {
                 getVinAttempts++;
