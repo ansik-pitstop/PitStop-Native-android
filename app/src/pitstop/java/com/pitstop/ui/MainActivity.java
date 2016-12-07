@@ -562,6 +562,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Cancel Service Request");
+                                properties.put("State", "Tentative");
+                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             tutorialSequence.dismissAllItems();
                         }
                     })

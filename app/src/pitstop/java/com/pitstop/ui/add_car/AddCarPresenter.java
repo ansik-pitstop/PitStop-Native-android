@@ -638,7 +638,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
+        if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
+            pendingCar.setScannerId(loginPackageInfo.deviceId);
+        } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
+            pendingCar.setScannerId(null);
+        }
     }
 
     @Override
@@ -655,9 +659,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         switch (type) {
             case RTC_TIME:
                 if (!isAskingForRtc) return;
+                pendingCar.setScannerId(parameterPackage.deviceId);
+
                 // If RTC is off by more than a year, a lot of stuff get fucked up
                 // So if that is the case, we reset the RTC using current time
-
                 Log.i(TAG, "Returned RTC: " + parameterPackage.value);
                 long moreThanOneYear = 32000000;
                 long deviceTime = Long.valueOf(parameterPackage.value);
@@ -699,6 +704,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 break;
             case VIN:
                 if (!isAskingForVin) return;
+                pendingCar.setScannerId(parameterPackage.deviceId);
                 String retrievedVin = parameterPackage.value;
                 Log.d(TAG, "Retrieved VIN: " + retrievedVin);
 
@@ -723,7 +729,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                     mAutoConnectService.setFixedUpload();
                     pendingCar.setVin(retrievedVin);
-                    pendingCar.setScannerId(parameterPackage.deviceId);
 
                     if (isPairingUnrecognizedDevice) { // is adding a scanner to a car
                         startPairingUnrecognizedDevice();
@@ -731,7 +736,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         startAddingNewCar();
                         mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                     }
-                } else if (!needToSetTime || getVinAttempts > 8) {
+                } else if (!needToSetTime && getVinAttempts > 8) { /* || -> && */
                     isAskingForVin = false;
                     if (isPairingUnrecognizedDevice) {
                         mCallback.showSelectCarDialog(mAutoConnectService.getConnectedDeviceName(),
@@ -841,7 +846,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
         @Override
         public void onRetry() {
-            if (!isSearchingForCar) this.cancel();
+            if (!isSearchingForCar) {
+                this.cancel();
+                return;
+            }
             isSearchingForCar = true;
             searchAndGetVin();
         }
