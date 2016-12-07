@@ -562,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm Service Request");
+                                properties.put("Button", "Cancel Service Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
