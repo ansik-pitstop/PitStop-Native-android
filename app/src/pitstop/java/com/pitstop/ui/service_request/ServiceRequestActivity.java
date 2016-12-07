@@ -224,6 +224,15 @@ public class ServiceRequestActivity extends AppCompatActivity
                     .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Cancel Service Request");
+                                properties.put("State", "Tentative");
+                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             Intent intent = new Intent();
                             intent.putExtra(MainActivity.REFRESH_FROM_SERVER, shouldRefresh);
                             intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
