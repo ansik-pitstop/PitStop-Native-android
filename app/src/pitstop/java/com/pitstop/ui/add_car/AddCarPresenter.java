@@ -841,7 +841,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
         @Override
         public void onRetry() {
-            if (!isSearchingForCar) this.cancel();
+            if (!isSearchingForCar) {
+                this.cancel();
+                return; // ?
+            }
             isSearchingForCar = true;
             searchAndGetVin();
         }

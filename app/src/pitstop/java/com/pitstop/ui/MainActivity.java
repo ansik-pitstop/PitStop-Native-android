@@ -72,6 +72,7 @@ import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -563,6 +564,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             tutorialSequence.dismissAllItems();
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Confirm Service Request");
+                                properties.put("State", "Tentative");
+                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     })
                     .show();
@@ -1125,7 +1135,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
-        Intent intent = new Intent(this, CarScanActivity.class);
+        Intent intent = new Intent(this, ScanCarActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);

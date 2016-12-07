@@ -1,4 +1,4 @@
-package com.pitstop.ui;
+package com.pitstop.ui.scan_car;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -56,6 +56,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -69,12 +70,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by Paul Soladoye  on 3/8/2016.
- */
-public class CarScanActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
-    private static String TAG = CarScanActivity.class.getSimpleName();
+public class ScanCarActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+
+    private static String TAG = ScanCarActivity.class.getSimpleName();
 
     private static final int CHECKED_CAR_ENGINE_ISSUE = 0;
     private static final int BLUETOOTH_DEVICE_CAR_CONNECTED = 1;
@@ -133,13 +132,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(CarScanActivity.this); // register
+            autoConnectService.setCallbacks(ScanCarActivity.this); // register
 
             if (BluetoothAdapter.getDefaultAdapter() != null) {
                 String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
                 for (String permission : locationPermissions) {
-                    if (ContextCompat.checkSelfPermission(CarScanActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermission(CarScanActivity.this, locationPermissions,
+                    if (ContextCompat.checkSelfPermission(ScanCarActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermission(ScanCarActivity.this, locationPermissions,
                                 MainActivity.RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
                         break;
                     }
@@ -393,13 +392,13 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                             final double mileage = Double.parseDouble(input.getText().toString())
                                     - (dashboardCar.getDisplayedMileage() - baseMileage);
                             if (mileage > 20000000) {
-                                Toast.makeText(CarScanActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ScanCarActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
                                 networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                     @Override
                                     public void done(String response, RequestError requestError) {
                                         if (requestError == null) {
-                                            Toast.makeText(CarScanActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ScanCarActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
                                             dashboardCar.setDisplayedMileage(Double.parseDouble(input.getText().toString()));
                                             dashboardCar.setTotalMileage(mileage);
                                             localCarAdapter.updateCar(dashboardCar);
@@ -424,7 +423,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                                         } else {
                                             Log.d(TAG, "Mileage update error: " + requestError.getError());
                                             Log.d(TAG, "Mileage update error message: " + requestError.getMessage());
-                                            Toast.makeText(CarScanActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ScanCarActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -586,7 +585,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
             return;
         }
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(CarScanActivity.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ScanCarActivity.this);
         alertDialog.setTitle("Device not connected");
 
         // Alert message
@@ -706,7 +705,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 //                    runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
-//                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+//                            carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
 //                            //carMileage.setText(String.valueOf(newTotalMileage));
 //                        }
 //                    });
@@ -731,7 +730,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 //                runOnUiThread(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+//                        carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this,
 //                                R.anim.mileage_update));
 //                        carMileage.setText(String.valueOf(newBaseMileage));
 //                    }
@@ -745,7 +744,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 //                    runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
-//                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+//                            carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this,
 //                                    R.anim.mileage_update));
 //                            carMileage.setText(String.valueOf(newDisplayedMileage));
 //                        }
@@ -769,7 +768,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
                     }
                 });
             }
@@ -999,7 +998,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(CarScanActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
+                                ActivityCompat.requestPermissions(ScanCarActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
                             }
                         })
                         .show();

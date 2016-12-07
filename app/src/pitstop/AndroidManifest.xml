@@ -166,7 +166,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".ui.CarScanActivity"
+            android:name=".ui.scan_car.ScanCarActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
             android:parentActivityName=".ui.MainActivity"

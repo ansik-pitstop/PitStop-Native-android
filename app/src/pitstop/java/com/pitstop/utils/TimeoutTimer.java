@@ -39,11 +39,13 @@ public abstract class TimeoutTimer extends CountDownTimer {
 
     /**
      * E.g, re-request data
+     * After this method call the timer will start itself
      */
     public abstract void onRetry();
 
     /**
-     * Failed after all retries
+     * Failed after all retries <br>
+     * After this method call the timer will get cancel itself
      */
     public abstract void onTimeout();
 }
