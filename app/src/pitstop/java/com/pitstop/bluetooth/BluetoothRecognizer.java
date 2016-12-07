@@ -101,14 +101,14 @@ public class BluetoothRecognizer {
         final NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mContext)
                         .setDefaults(Notification.DEFAULT_ALL)
-                        .setTicker("Unrecognized OBD device found!")
+                        .setTicker("Unrecognized Pitstop device found!")
                         .setAutoCancel(true)
                         .setOnlyAlertOnce(true)
                         .setContentIntent(click)
                         .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                         .setLargeIcon(icon)
                         .setColor(ContextCompat.getColor(mContext, R.color.highlight))
-                        .setContentTitle("Unrecognized OBD device found")
+                        .setContentTitle("Unrecognized Pitstop device found")
                         .setContentText("Tap to pair with " + scannerName);
 
         notificationManager.notify(NOTIFICATION_ID, builder.build());
