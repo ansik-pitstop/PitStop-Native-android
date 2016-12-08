@@ -49,10 +49,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private BluetoothAutoConnectService mAutoConnectService;
     private ServiceConnection mServiceConnection;
 
+    private double baseMileage;
+
     public ScanCarPresenter(ScanCarContract.View viewCallback, GlobalApplication application, Car dashboardCar) {
         this.mCallback = viewCallback;
         this.dashboardCar = dashboardCar;
         this.application = application;
+        baseMileage = dashboardCar.getTotalMileage();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);
         localCarAdapter = new LocalCarAdapter(application);
@@ -71,8 +74,26 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void updateMileage(String input) {
+    public void updateMileage(final double input) {
         mAutoConnectService.manuallyUpdateMileage = true;
+        networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError != null) {
+                    mCallback.onNetworkError(requestError.getMessage());
+                    return;
+                }
+
+                if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED && mAutoConnectService.getLastTripId() != -1){
+                    networkHelper.updateMileageStart(input, mAutoConnectService.getLastTripId(), null);
+                }
+
+                dashboardCar.setDisplayedMileage(input);
+                dashboardCar.setTotalMileage(input);
+                localCarAdapter.updateCar(dashboardCar);
+                mCallback.onInputtedMileageUpdated(input);
+            }
+        });
     }
 
     private Set<CarIssue> services;
@@ -211,11 +232,11 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                 dashboardCar.setDisplayedMileage(newTotalMileage);
                 localCarAdapter.updateCar(dashboardCar);
             }
-            mCallback.onMileageUpdate(newTotalMileage);
+            mCallback.onTripMileageUpdated(newTotalMileage);
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
             dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
             final double newBaseMileage = dashboardCar.getTotalMileage();
-            mCallback.onMileageUpdate(newBaseMileage);
+            mCallback.onTripMileageUpdated(newBaseMileage);
         }
     }
 

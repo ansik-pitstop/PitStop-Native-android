@@ -11,9 +11,6 @@ import com.pitstop.ui.ILoadingActivity;
 
 import java.util.Set;
 
-/**
- * Created by yifan on 16/12/6.
- */
 
 public interface ScanCarContract {
 
@@ -27,8 +24,15 @@ public interface ScanCarContract {
 
         /**
          * callback for updateMileage(String input);
+         * @param updatedMileage
          */
-        void onMileageUpdated();
+        void onInputtedMileageUpdated(double updatedMileage);
+
+        /**
+         * Trip mileage updates
+         * @param updatedMileage
+         */
+        void onTripMileageUpdated(double updatedMileage);
 
         /**
          * callback for getServicesAndRecalls();
@@ -41,8 +45,6 @@ public interface ScanCarContract {
         void onServicesRetrieved(Set<CarIssue> services);
 
         void onGetRealtimeDataTimeout();
-
-        void onMileageUpdate(double newMileage);
 
         /**
          * callback for getEngineCodes();
@@ -70,7 +72,10 @@ public interface ScanCarContract {
 
         void connectToDevice();
 
-        void updateMileage(String input);
+        /**
+         * @param input validated mileage(non-negative, less than max value)
+         */
+        void updateMileage(double input);
 
         void getEngineCodes();
 

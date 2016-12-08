@@ -18,6 +18,7 @@ import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -140,8 +141,7 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public String getFreezeFrame() {
-        // TODO: 16/12/6 figure out what command to use
-        return null; // return ffPackage("0", "0");
+        return null; // 215B does not require explicit command to read FF
     }
 
     // read data handler
@@ -430,6 +430,27 @@ public class Device215B implements AbstractDevice {
 
                 if (idrInfo.freezeFrame != null && !idrInfo.freezeFrame.isEmpty()){
                     Log.i("FreezeFrame", idrInfo.freezeFrame);
+                    // e.g. 25/2102/0001/2103/0002/2104/00/2105/D8/2106/64/2107/64/210B/00/210C/0003/
+                    // 210D/00/210E/C0/210F/D8/2110/0056/2111/00/211F/0000/212E/00/212F/00/2133/00/
+                    // 2142/0031/2143/02/2144/0080/2145/00/2147/00/2149/00/214A/00/214C/00
+                    String[] unparsedFFCodes = idrInfo.freezeFrame.split("/");
+                    if (unparsedFFCodes.length > 1 && unparsedFFCodes.length % 2 == 1) {
+                        try {
+                            Log.i(TAG, "Parsing FF data: " + idrInfo.freezeFrame);
+                            FreezeFramePackage ffPackage = new FreezeFramePackage();
+                            ffPackage.rtcTime = parseRtcTime(idrInfo.ignitionTime) + Long.parseLong(idrInfo.runTime);
+                            ffPackage.deviceId = idrInfo.terminalSN;
+                            ffPackage.freezeData = parseFreezeFrame(unparsedFFCodes);
+                            dataListener.ffData(ffPackage);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                            Log.e(TAG, "Parsing freeze frame error! " + idrInfo.freezeFrame);
+                        }
+                    }
+                }
+
+                if (idrInfo.snapshot != null && !idrInfo.snapshot.isEmpty()){
+                    Log.i("SnapShot", idrInfo.snapshot);
                 }
 
                 Log.d(TAG, idrInfo.toString());
@@ -574,4 +595,11 @@ public class Device215B implements AbstractDevice {
         return pidMap;
     }
 
+    private HashMap<String, String> parseFreezeFrame(String[] pidArray) {
+        HashMap<String, String> pidMap = new HashMap<>();
+        for (int i = 1; i < pidArray.length - 1; i += 2) {
+            pidMap.put(pidArray[i], pidArray[i + 1]);
+        }
+        return pidMap;
+    }
 }
