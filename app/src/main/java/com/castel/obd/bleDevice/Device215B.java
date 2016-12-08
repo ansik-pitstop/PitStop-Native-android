@@ -301,19 +301,6 @@ public class Device215B implements AbstractDevice {
         return msg;
     }
 
-//    public static String ffPackage(String controlEventID, String terminalSN){
-//        String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
-//                + Constants.INSTRUCTION_FF + "," + controlEventID + ","
-//                + Constants.INSTRUCTION_STAR;
-//
-//        // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-//        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
-//
-//        String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
-//
-//        return msg;
-//    }
-
     private StringBuilder sbRead = new StringBuilder();
 
     // parser for 215B data
