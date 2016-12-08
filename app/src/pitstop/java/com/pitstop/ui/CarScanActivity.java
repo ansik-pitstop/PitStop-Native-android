@@ -346,7 +346,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
-    private boolean showingDialog = false;
+    private boolean updatingMileage = false;
 
     public void updateMileage(final View view) {
         if (isFinishing() || isDestroyed()) {
@@ -357,17 +357,22 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         final TextInputEditText input = (TextInputEditText) dialogLayout.findViewById(R.id.mileage_input);
         input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
 
-        if (!showingDialog) {
-            showingDialog = true;
+        if (!updatingMileage) {
+            updatingMileage = true;
             final AlertDialog dialog = new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")
                     .setView(dialogLayout)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            updatingMileage = false;
+                        }
+                    })
                     .setPositiveButton("Confirm", null)
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            showingDialog = false;
                             dialog.cancel();
                         }
                     })
@@ -388,7 +393,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
                             updatedMileageOrDtcsFound = true;
 
-                            showingDialog = false;
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString())
                                     - (dashboardCar.getDisplayedMileage() - baseMileage);
