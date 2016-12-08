@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.pitstop.R;
-import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.application.GlobalApplication;
@@ -40,7 +39,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private LocalCarIssueAdapter carIssueAdapter;
 
     private boolean needToRefresh = false;
 
@@ -59,14 +57,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         application     = (GlobalApplication) getApplicationContext();
         mixpanelHelper  = new MixpanelHelper(application);
-        carIssueAdapter = new LocalCarIssueAdapter(application);
 
         Intent intent   = getIntent();
         dashboardCar    = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
         carIssue        = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
         fromHistory     = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
         allIssues       = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
-        issueAdapter     = new IssuePagerAdapter(this, allIssues);
+        issueAdapter    = new IssuePagerAdapter(this, allIssues);
 
         if (fromHistory) {
             findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);

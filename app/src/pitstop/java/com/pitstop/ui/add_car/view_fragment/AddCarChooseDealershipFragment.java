@@ -20,7 +20,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.R;
 import com.pitstop.adapters.DealershipSelectAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.utils.ILoadingActivity;
+import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;

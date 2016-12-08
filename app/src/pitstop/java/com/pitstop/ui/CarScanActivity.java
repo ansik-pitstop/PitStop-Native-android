@@ -36,18 +36,20 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.Utils;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -63,6 +65,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -120,7 +123,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
     private boolean askingForDtcs = false;
     private boolean result5Retrieved = false;
     private boolean scanStarted = false;
-    private Set<String> dtcCodes = new HashSet<>();
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -344,7 +346,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         });
     }
 
-    private boolean showingDialog = false;
+    private boolean updatingMileage = false;
 
     public void updateMileage(final View view) {
         if (isFinishing() || isDestroyed()) {
@@ -355,17 +357,22 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         final TextInputEditText input = (TextInputEditText) dialogLayout.findViewById(R.id.mileage_input);
         input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
 
-        if (!showingDialog) {
-            showingDialog = true;
+        if (!updatingMileage) {
+            updatingMileage = true;
             final AlertDialog dialog = new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")
                     .setView(dialogLayout)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            updatingMileage = false;
+                        }
+                    })
                     .setPositiveButton("Confirm", null)
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            showingDialog = false;
                             dialog.cancel();
                         }
                     })
@@ -386,7 +393,6 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
                             updatedMileageOrDtcsFound = true;
 
-                            showingDialog = false;
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString())
                                     - (dashboardCar.getDisplayedMileage() - baseMileage);
@@ -571,7 +577,7 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
         engineCodeStartTime = System.currentTimeMillis();
         handler.post(checkEngineIssuesRunnable);
         handler.post(getResult5Runnable);
-        autoConnectService.getPendingDTCs();
+//        autoConnectService.getPendingDTCs();
         autoConnectService.getDTCs();
     }
 
@@ -677,88 +683,126 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
 
     }
 
+//    @Override
+//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+//
+//    }
+
+//    /**
+//     * @param dataPackageInfo
+//     */
+//    @Override
+//    public void getIOData(DataPackageInfo dataPackageInfo) {
+//        Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
+//        Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
+//
+//        if (dataPackageInfo.result == 5) {
+//            result5Retrieved = true;
+//            if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
+//                final double newTotalMileage = ((int) ((baseMileage
+//                        + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+//
+//                Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+//
+//                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+//                    dashboardCar.setDisplayedMileage(newTotalMileage);
+//                    localCarAdapter.updateCar(dashboardCar);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+//                            //carMileage.setText(String.valueOf(newTotalMileage));
+//                        }
+//                    });
+//                }
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        carMileage.setText(String.valueOf(newTotalMileage));
+//                    }
+//                });
+//            }
+//        }
+//
+//        // Update displayed mileage if not scanning
+//        if (dataPackageInfo.result == 4
+//                && (!scanStarted || result5Retrieved)) {
+//            Log.d(TAG, "Receiving historical data");
+//            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
+//                Log.d(TAG, "Trip end flag received, Update mileage");
+//                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+//                final double newBaseMileage = dashboardCar.getTotalMileage();
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+//                                R.anim.mileage_update));
+//                        carMileage.setText(String.valueOf(newBaseMileage));
+//                    }
+//                });
+//            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
+//                Log.d(TAG, "Trip start flag received");
+//            } else { // just display whatever you get, but not update the actual mileage
+//                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
+//                    final double newDisplayedMileage = ((int) ((baseMileage
+//                            + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
+//                                    R.anim.mileage_update));
+//                            carMileage.setText(String.valueOf(newDisplayedMileage));
+//                        }
+//                    });
+//                }
+//            }
+//        }
+//    }
+
+
     @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    public void tripData(TripInfoPackage tripInfoPackage) {
+        if(tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage = ((int) ((baseMileage + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+
+            if(dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
+                    }
+                });
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    carMileage.setText(String.valueOf(newTotalMileage));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void parameterData(ParameterPackage parameterPackage) {
 
     }
 
-    /**
-     * @param dataPackageInfo
-     */
     @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-        Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
-        Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
+    public void pidData(PidPackage pidPackage) {
 
-        if (dataPackageInfo.result == 5) {
-            result5Retrieved = true;
-            if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
-                final double newTotalMileage = ((int) ((baseMileage
-                        + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
+    }
 
-                Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
+    private Set<String> dtcCodes = new HashSet<>();
 
-                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                    dashboardCar.setDisplayedMileage(newTotalMileage);
-                    localCarAdapter.updateCar(dashboardCar);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this, R.anim.mileage_update));
-                            //carMileage.setText(String.valueOf(newTotalMileage));
-                        }
-                    });
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        carMileage.setText(String.valueOf(newTotalMileage));
-                    }
-                });
-            }
-        }
-
-        // Update displayed mileage if not scanning
-        if (dataPackageInfo.result == 4
-                && (!scanStarted || result5Retrieved)) {
-            Log.d(TAG, "Receiving historical data");
-            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
-                Log.d(TAG, "Trip end flag received, Update mileage");
-                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-                final double newBaseMileage = dashboardCar.getTotalMileage();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
-                                R.anim.mileage_update));
-                        carMileage.setText(String.valueOf(newBaseMileage));
-                    }
-                });
-            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
-                Log.d(TAG, "Trip start flag received");
-            } else { // just display whatever you get, but not update the actual mileage
-                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
-                    final double newDisplayedMileage = ((int) ((baseMileage
-                            + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            carMileage.startAnimation(AnimationUtils.loadAnimation(CarScanActivity.this,
-                                    R.anim.mileage_update));
-                            carMileage.setText(String.valueOf(newDisplayedMileage));
-                        }
-                    });
-                }
-            }
-        }
-
-
-        if (!Utils.isEmpty(dataPackageInfo.dtcData) && askingForDtcs) {
-
-            String[] dtcs = dataPackageInfo.dtcData.split(",");
-            for (String dtc : dtcs) {
-                dtcCodes.add(dtc);
-            }
+    @Override
+    public void dtcData(DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null && askingForDtcs) {
+            dtcCodes.addAll(Arrays.asList(dtcPackage.dtcs));
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -771,9 +815,14 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                     }
 
                     loadingEngineIssues.setVisibility(View.GONE);
-                    engineIssuesStateLayout.setVisibility(View.GONE);
-                    engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                    engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    if(dtcCodes.size() != 0) {
+                        engineIssuesStateLayout.setVisibility(View.GONE);
+                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
+                    } else {
+                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
+                        engineIssuesCountLayout.setVisibility(View.GONE);
+                    }
                     engineIssuesText.setText("Engine issues");
 
                     Log.i(TAG, "Finished car scan, dtcs found");
@@ -801,6 +850,11 @@ public class CarScanActivity extends AppCompatActivity implements ObdManager.IBl
                 }
             });
         }
+    }
+
+    @Override
+    public void ffData(FreezeFramePackage ffPackage) {
+
     }
 
     private long engineCodeStartTime = 0;

@@ -11,7 +11,7 @@ public class Pid {
     private String dataNumber;
     private String rtcTime;
     private String timeStamp;
-    private int tripId;
+    private long tripId;
     private String pids;
     private double mileage;
     private double calculatedMileage;
@@ -42,11 +42,11 @@ public class Pid {
         this.timeStamp = timeStamp;
     }
 
-    public int getTripId() {
+    public long getTripId() {
         return tripId;
     }
 
-    public void setTripId(int tripId) {
+    public void setTripId(long tripId) {
         this.tripId = tripId;
     }
 

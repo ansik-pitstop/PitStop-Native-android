@@ -8,8 +8,8 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
-import com.pitstop.utils.BSAbstractedFragmentActivity;
-import com.pitstop.utils.ILoadingActivity;
+import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.ILoadingActivity;
 
 /**
  * Created by yifan on 16/11/21.

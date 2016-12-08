@@ -44,9 +44,6 @@ public class MixpanelHelper {
     //    public static final String CONNECTED = "Connected to Bluetooth";
     public static final String CONNECTED = "Connected";
 
-    public static final String ADDED_MANUALLY = "Car Added Manually";
-    public static final String ADDED_WITH_DEVICE = "Car Added Through Device";
-
     /**
      * Login View and Registration View
      */

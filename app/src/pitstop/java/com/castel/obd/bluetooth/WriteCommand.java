@@ -8,32 +8,49 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
+import com.castel.obd215b.util.LogUtil;
+import com.castel.obd215b.util.Utils;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Created by Paul Soladoye on 19/04/2016.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class WriteCommand extends BluetoothCommand {
+public class WriteCommand {
 
-    private byte[] bytes;
+    public byte[] bytes;
     private WRITE_TYPE type;
 
-    public WriteCommand(byte[] bytes, WRITE_TYPE type) {
+    private UUID serviceUuid;
+    private UUID writeChar;
+    private UUID readChar;
+
+    public WriteCommand(byte[] bytes, WRITE_TYPE type, UUID serviceUuid, UUID writeChar, UUID readChar) {
         this.bytes = bytes;
         this.type = type;
+        this.serviceUuid = serviceUuid;
+        this.writeChar = writeChar;
+        this.readChar = readChar;
     }
 
-    @Override
     public void execute(BluetoothGatt gatt) {
         BluetoothGattService mainObdGattService =
-                gatt.getService(BluetoothLeComm.OBD_IDD_212_MAIN_SERVICE);
+                gatt.getService(serviceUuid);
+
+        if(mainObdGattService == null) {
+            return;
+        }
 
         if(type == WRITE_TYPE.DATA) {
 
             BluetoothGattCharacteristic obdWriteCharacteristic =
-                    mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_WRITE_CHAR);
+                    mainObdGattService.getCharacteristic(writeChar);
             obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
-            Log.i("WriteCommandDebug", "Writing characteristic...");
+            Log.d("Write data", Utils.bytesToHexString(bytes));
             boolean result =  gatt.writeCharacteristic(obdWriteCharacteristic);
 
             Log.i("WriteCommandDebug", "Write result "+result);
@@ -41,7 +58,7 @@ public class WriteCommand extends BluetoothCommand {
         } else if( type == WRITE_TYPE.NOTIFICATION) {
 
             BluetoothGattCharacteristic obdReadCharacteristic =
-                    mainObdGattService.getCharacteristic(BluetoothLeComm.OBD_READ_CHAR);
+                    mainObdGattService.getCharacteristic(readChar);
 
             Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 
@@ -49,16 +66,15 @@ public class WriteCommand extends BluetoothCommand {
             gatt.setCharacteristicNotification(obdReadCharacteristic, true);
 
             // Enable remote notification
-            BluetoothGattDescriptor descriptor =
-                    obdReadCharacteristic.getDescriptor(BluetoothLeComm.CONFIG_DESCRIPTOR);
-            Log.i("WriteCommandDebug", "descriptor: " + descriptor.getUuid());
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            boolean result = gatt.writeDescriptor(descriptor);
-            Log.i("WriteCommandDebug", "Writing descriptor... result: "+result);
-
+            List<BluetoothGattDescriptor> descriptors =
+                    obdReadCharacteristic.getDescriptors();
+            for(BluetoothGattDescriptor descriptor : descriptors) {
+                Log.i("WriteCommandDebug", "descriptor: " + descriptor.getUuid());
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                boolean result = gatt.writeDescriptor(descriptor);
+                Log.i("WriteCommandDebug", "Writing descriptor... result: " + result);
+            }
         }
-
-
     }
 
     public enum WRITE_TYPE {

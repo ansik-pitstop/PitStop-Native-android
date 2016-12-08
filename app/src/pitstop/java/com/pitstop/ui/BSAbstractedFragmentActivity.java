@@ -1,4 +1,4 @@
-package com.pitstop.utils;
+package com.pitstop.ui;
 
 import android.support.v4.app.FragmentActivity;
 

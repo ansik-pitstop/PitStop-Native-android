@@ -12,7 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.pitstop.ui.MainActivity;
-import com.pitstop.utils.BSAbstractedFragmentActivity;
+import com.pitstop.ui.BSAbstractedFragmentActivity;
 
 /**
  * Created by david on 7/21/2016.

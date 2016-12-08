@@ -32,11 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ParameterPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -67,8 +62,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class MainDashboardFragment extends Fragment implements ObdManager.IBluetoothDataListener,
-        MainActivity.MainDashboardCallback {
+public class MainDashboardFragment extends Fragment implements MainActivity.MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
@@ -124,7 +118,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     public Runnable carConnectedRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "Scan for cars in MainDashboardFragment");
             handler.sendEmptyMessage(MSG_UPDATE_CONNECTED_CAR);
         }
     };
@@ -139,7 +132,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
             switch (msg.what) {
                 case MSG_UPDATE_CONNECTED_CAR:
-                    Log.d(TAG, "Msg0, BluetoothAutoConnectState: " + autoConnectService.getState());
+                    Log.d(TAG, "BluetoothAutoConnectState: " + autoConnectService.getState());
                     if (autoConnectService != null
                             && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                             && dashboardCar != null
@@ -462,10 +455,12 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
 
     }
 
-
     private void populateCarIssuesAdapter() {
         // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) " + dashboardCar.getId());
+        Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
+        if(carIssueLocalStore == null) {
+            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
+        }
         List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
         if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
                 || dashboardCar.getNumberOfRecalls() > 0)) {
@@ -508,40 +503,6 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
         }
         carIssuesAdapter.updateTutorial();
     }
-
-    // From ObdManager.IBluetoothDataListener
-
-    @Override
-    public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED) {
-            Log.i(TAG, "Bluetooth disconnected");
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-    }
-
-    @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-    }
-
-    @Override
-    public void getIOData(DataPackageInfo dataPackageInfo) {
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
-    }
-
 
     // From MainActivity.MainDashboardCallback
 
@@ -624,7 +585,7 @@ public class MainDashboardFragment extends Fragment implements ObdManager.IBluet
     /**
      * Issues list view
      */
-    class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+    private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         private List<CarIssue> carIssueList;
         static final int VIEW_TYPE_EMPTY = 100;

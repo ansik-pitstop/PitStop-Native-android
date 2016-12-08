@@ -39,7 +39,7 @@ import com.pitstop.ui.service_request.view_fragment.LimitedDatePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedTimePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.ServiceIssueAdapter;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.ILoadingActivity;
+import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.DateTimeFormatUtil;
