@@ -17,7 +17,7 @@ import com.pitstop.ui.ILoadingActivity;
 
 public interface AddCarContract {
 
-    interface View extends BaseView, ILoadingActivity {
+    interface View extends BaseView<Presenter>, ILoadingActivity {
 
         /**
          * After user entered the mileage

@@ -12,5 +12,7 @@ public interface BluetoothPresenter extends BasePresenter, ObdManager.IBluetooth
 
     void unbindBluetoothService();
 
+    void onServiceUnbind();
+
     void checkBluetoothService();
 }

@@ -64,6 +64,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
+    public double getLatestMileage() {
+        Car car = localCarAdapter.getCar(dashboardCar.getId());
+        return car != null ? car.getDisplayedMileage() : 0;
+    }
+
+    @Override
     public void connectToDevice() {
         if (isConnectedToDevice()) {
             mCallback.onDeviceConnected();
@@ -76,9 +82,11 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void updateMileage(final double input) {
         mAutoConnectService.manuallyUpdateMileage = true;
+        mCallback.showLoading("Updating mileage...");
         networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                mCallback.hideLoading("Mileage updated!");
                 if (requestError != null) {
                     mCallback.onNetworkError(requestError.getMessage());
                     return;
@@ -96,20 +104,28 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         });
     }
 
-    private Set<CarIssue> services;
-    private Set<CarIssue> recalls;
+    @Override
+    public void checkRealTime() {
+        realTimeDataRetrieved = false;
+        checkRealTimeTimer.cancel();
+        checkRealTimeTimer.start();
+    }
 
     @Override
     public void getEngineCodes() {
-        retrievedDtcs = new HashSet<>();
+        retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
         mAutoConnectService.getDTCs();
         checkEngineIssuesTimer.cancel();
         checkEngineIssuesTimer.start();
     }
 
+    private Set<CarIssue> services;
+    private Set<CarIssue> recalls;
+
     @Override
     public void getServicesAndRecalls() {
+        Log.d(TAG, "getServicesAndRecalls");
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -133,16 +149,18 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                     services = new HashSet<>();
                     recalls = new HashSet<>();
 
+                    Log.d(TAG, "Total issue size: " + issues.size());
+
                     for (CarIssue issue : issues) {
                         if (issue.getStatus().equals(CarIssue.ISSUE_DONE)) continue;
-                        if (issue.getIssueType().equals(CarIssue.RECALL)) {
+                        if (issue.getIssueType().contains(CarIssue.RECALL)) {
                             recalls.add(issue);
-                        } else if (issue.getIssueType().equals(CarIssue.SERVICE)) {
+                        } else if (issue.getIssueType().contains(CarIssue.SERVICE)) {
                             services.add(issue);
                         }
                     }
-
-                    checkProgress();
+                    mCallback.onServicesRetrieved(services);
+                    mCallback.onRecallRetrieved(recalls);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -158,6 +176,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void finishScan() {
         if (!mCallback.isScanning()) return;
         cancelAllTimers();
+        mCallback.onRecallRetrieved(recalls);
+        mCallback.onServicesRetrieved(services);
+        mCallback.onEngineCodesRetrieved(retrievedDtcs);
     }
 
     @Override
@@ -186,6 +207,11 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
+    public void onServiceUnbind() {
+        mAutoConnectService = null;
+    }
+
+    @Override
     public void checkBluetoothService() {
         if (mAutoConnectService == null) {
             mAutoConnectService = mCallback.getAutoConnectService();
@@ -199,9 +225,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         switch (state) {
             case BluetoothCommunicator.CONNECTED:
                 mCallback.onDeviceConnected();
-                break;
-            case BluetoothCommunicator.DISCONNECTED:
-                mCallback.onDeviceDisconnected();
                 break;
         }
     }
@@ -247,7 +270,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void pidData(PidPackage pidPackage) {
-
+        if (!realTimeDataRetrieved && pidPackage.realTime){
+            realTimeDataRetrieved = true;
+            mCallback.onRealTimeDataRetrieved();
+        }
     }
 
     private Set<String> retrievedDtcs;
@@ -257,7 +283,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
         if (dtcPackage.dtcs != null && isAskingForDtcs) {
             retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
-            mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
     }
 
@@ -268,10 +293,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void start() {
-        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-    }
-
-    private void checkProgress() {
 
     }
 
@@ -306,10 +327,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         public void onTimeout() {
             if (isConnectedToDevice()) return;
             mCallback.onConnectingTimeout();
-            // TODO: 16/12/7 Remember what to do if it connects before timeout
         }
     };
 
+    /**
+     * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
+     * is no DTCs currently.
+     */
     private boolean isAskingForDtcs = false;
     private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(20, 0) {
         @Override
@@ -322,11 +346,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
             if (!isAskingForDtcs) return;
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
-            checkProgress();
         }
     };
 
-    private boolean realTimeDataRetrieved = false;
+    private boolean realTimeDataRetrieved = true;
     private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
         @Override
         public void onRetry() {
@@ -335,8 +358,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (realTimeDataRetrieved) return;
-            mCallback.onGetRealtimeDataTimeout();
+            if (realTimeDataRetrieved || !mCallback.isScanning()) return;
+            mCallback.onGetRealTimeDataTimeout();
         }
     };
 

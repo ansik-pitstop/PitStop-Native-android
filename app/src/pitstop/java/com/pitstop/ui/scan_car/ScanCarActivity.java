@@ -1,26 +1,16 @@
 package com.pitstop.ui.scan_car;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,32 +18,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.BSAbstractedFragmentActivity;
 import com.pitstop.ui.MainActivity;
@@ -61,115 +40,75 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-public class ScanCarActivity extends BSAbstractedFragmentActivity implements ObdManager.IBluetoothDataListener {
+public class ScanCarActivity extends BSAbstractedFragmentActivity implements ScanCarContract.View {
 
     private static String TAG = ScanCarActivity.class.getSimpleName();
 
-    private static final int CHECKED_CAR_ENGINE_ISSUE = 0;
-    private static final int BLUETOOTH_DEVICE_CAR_CONNECTED = 1;
-    private static final int BLUETOOTH_DEVICE_CAR_TIMEOUT = 2;
-    private static final int GET_RESULT_5_TIMEOUT = 3;
-
-    private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private BluetoothAutoConnectService autoConnectService;
-    private boolean serviceIsBound;
+    private ScanCarContract.Presenter presenter;
 
-    private RelativeLayout loadingRecalls, recallsStateLayout, recallsCountLayout;
-    private ImageView recallsState;
-    private TextView recallsText, recallsCount;
+    @BindView(R.id.loading_recalls) RelativeLayout loadingRecalls;
+    @BindView(R.id.recalls_state_layout) RelativeLayout recallsStateLayout;
+    @BindView(R.id.recalls_count_layout) RelativeLayout recallsCountLayout;
+    @BindView(R.id.recalls_text) TextView recallsText;
+    @BindView(R.id.recalls_count) TextView recallsCount;
 
-    private RelativeLayout loadingServices, servicesStateLayout, servicesCountLayout;
-    private ImageView servicesState;
-    private TextView servicesText, servicesCount;
+    @BindView(R.id.loading_services) RelativeLayout loadingServices;
+    @BindView(R.id.services_state_layout) RelativeLayout servicesStateLayout;
+    @BindView(R.id.services_count_layout) RelativeLayout servicesCountLayout;
+    @BindView(R.id.services_text) TextView servicesText;
+    @BindView(R.id.services_count) TextView servicesCount;
 
-    private RelativeLayout loadingEngineIssues, engineIssuesStateLayout, engineIssuesCountLayout;
-    private ImageView engineIssuesState;
-    private TextView engineIssuesText, engineIssuesCount;
+    @BindView(R.id.loading_engine_issues) RelativeLayout loadingEngineIssues;
+    @BindView(R.id.engine_issues_state_layout) RelativeLayout engineIssuesStateLayout;
+    @BindView(R.id.engine_issues_count_layout) RelativeLayout engineIssuesCountLayout;
+    @BindView(R.id.engine_issues_text) TextView engineIssuesText;
+    @BindView(R.id.engine_issues_count) TextView engineIssuesCount;
 
-    private int searchAttempts = 0;
-
-    private TextView carMileage;
-    private Button carScanButton;
-    private DecoView arcView;
-    private TextView textPercent;
+    @BindView(R.id.car_mileage) TextView carMileage;
+    @BindView(R.id.dashboard_car_scan_btn) Button carScanButton;
+    @BindView(R.id.dynamicArcView) DecoView arcView;
+    @BindView(R.id.textPercentage) TextView textPercent;
     private SeriesItem seriesItem;
     private int seriesIndex;
 
-    private int numberOfIssues = 0;
-    private int recalls = 0, services = 0;
+    private AlertDialog updateMileageDialog;
+    private AlertDialog uploadHistoricalDialog;
+    private AlertDialog connectTimeoutDialog;
 
+    private int numberOfIssues = 0;
     private Car dashboardCar;
     private double baseMileage;
     private boolean updatedMileageOrDtcsFound = false;
     private ProgressDialog progressDialog;
 
-    private LocalCarAdapter localCarAdapter;
-
-    private NetworkHelper networkHelper;
-
     private boolean isScanning = false;
-    private boolean askingForDtcs = false;
-    private boolean result5Retrieved = false;
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.i(TAG, "onServiceConnection");
-            // cast the IBinder and get MyService instance
-            serviceIsBound = true;
-
-            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(ScanCarActivity.this); // register
-
-            if (BluetoothAdapter.getDefaultAdapter() != null) {
-                String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
-                for (String permission : locationPermissions) {
-                    if (ContextCompat.checkSelfPermission(ScanCarActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermission(ScanCarActivity.this, locationPermissions,
-                                MainActivity.RC_LOCATION_PERM, true, getString(R.string.request_permission_location_message));
-                        break;
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-            serviceIsBound = false;
-            autoConnectService = null;
-            Log.i("Disconnecting", "onServiceConnection");
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_scan);
-
-        networkHelper = new NetworkHelper(getApplicationContext());
-
-        application = (GlobalApplication) getApplicationContext();
-        mixpanelHelper = new MixpanelHelper(application);
-        bindService(new Intent(this, BluetoothAutoConnectService.class),
-                serviceConnection, BIND_AUTO_CREATE);
-
-        localCarAdapter = new LocalCarAdapter(this);
-
+        ButterKnife.bind(this);
+        setPresenter(new ScanCarPresenter(this, (GlobalApplication) getApplicationContext(), (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA)));
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
+        mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
+        baseMileage = dashboardCar.getTotalMileage();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initUi();
+        updateCarHealthMeter();
         try {
             JSONObject properties = new JSONObject();
             properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
@@ -179,29 +118,18 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        setupUiReferences();
-        baseMileage = dashboardCar.getTotalMileage();
-        carMileage.setText(String.valueOf(((int) (localCarAdapter.getCar(dashboardCar.getId()).getDisplayedMileage() * 100)) / 100.0));
-
-        if (!BuildConfig.DEBUG) {
-            findViewById(R.id.update_mileage).setVisibility(View.GONE);
-        }
     }
 
     @Override
     protected void onPause() {
-        handler.removeCallbacksAndMessages(null);
+        presenter.finishScan();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (serviceIsBound) {
-            Log.i(TAG, "unbinding service");
-            unbindService(serviceConnection);
-        }
+        presenter.onActivityFinish();
     }
 
     @Override
@@ -217,7 +145,7 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
 
     @Override
     public void finish() {
-        handler.removeCallbacksAndMessages(null);
+        presenter.finishScan();
         Intent data = new Intent();
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
         setResult(MainActivity.RESULT_OK, data);
@@ -237,11 +165,11 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case MainActivity.RC_ENABLE_BT:
+            case BluetoothServiceConnection.RC_ENABLE_BT:
                 try {
                     if (resultCode == RESULT_OK) {
                         mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
-                        carScanButton.performClick();
+                        if (isScanning) carScanButton.performClick();
                     } else {
                         mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
                     }
@@ -256,51 +184,13 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
 
     }
 
-    private void setupUiReferences() {
+    private void initUi() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setCanceledOnTouchOutside(false);
-        carMileage = (TextView) findViewById(R.id.car_mileage);
-
-        carScanButton = (Button) findViewById(R.id.dashboard_car_scan_btn);
-
-        recallsText = (TextView) findViewById(R.id.recalls_text);
-        servicesText = (TextView) findViewById(R.id.services_text);
-        engineIssuesText = (TextView) findViewById(R.id.engine_issues_text);
-
-        recallsCount = (TextView) findViewById(R.id.recalls_count);
-        servicesCount = (TextView) findViewById(R.id.services_count);
-        engineIssuesCount = (TextView) findViewById(R.id.engine_issues_count);
-
-        loadingRecalls = (RelativeLayout) findViewById(R.id.loading_recalls);
-        loadingRecalls.setVisibility(View.GONE);
-        recallsCountLayout = (RelativeLayout) findViewById(R.id.recalls_count_layout);
-
-        recallsStateLayout = (RelativeLayout) findViewById(R.id.recalls_state_layout);
-        recallsStateLayout.setVisibility(View.GONE);
-        recallsState = (ImageView) findViewById(R.id.recalls_state_image_icon);
-
-        loadingServices = (RelativeLayout) findViewById(R.id.loading_services);
-        loadingServices.setVisibility(View.GONE);
-        servicesCountLayout = (RelativeLayout) findViewById(R.id.services_count_layout);
-
-        servicesStateLayout = (RelativeLayout) findViewById(R.id.services_state_layout);
-        servicesStateLayout.setVisibility(View.GONE);
-        servicesState = (ImageView) findViewById(R.id.services_state_image_icon);
-
-        loadingEngineIssues = (RelativeLayout) findViewById(R.id.loading_engine_issues);
-        loadingEngineIssues.setVisibility(View.GONE);
-        engineIssuesCountLayout = (RelativeLayout) findViewById(R.id.engine_issues_count_layout);
-
-        engineIssuesStateLayout = (RelativeLayout) findViewById(R.id.engine_issues_state_layout);
-        engineIssuesStateLayout.setVisibility(View.GONE);
-        engineIssuesState = (ImageView) findViewById(R.id.engine_issues_state_image_icon);
-
-        setUpCarHealthMeter();
-    }
-
-    private void setUpCarHealthMeter() {
-        arcView = (DecoView) findViewById(R.id.dynamicArcView);
-        textPercent = (TextView) findViewById(R.id.textPercentage);
+        carMileage.setText(String.format("%.2f", presenter.getLatestMileage()));
+        if (!BuildConfig.DEBUG) {
+            findViewById(R.id.update_mileage).setVisibility(View.GONE);
+        }
 
         // Create background track
         arcView.addSeries(new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
@@ -344,29 +234,20 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
         });
     }
 
-    private boolean updatingMileage = false;
-
     public void updateMileage(final View view) {
-        if (isFinishing() || isDestroyed()) {
+        if (isFinishing() || isDestroyed() || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
             return;
         }
 
         final View dialogLayout = LayoutInflater.from(this).inflate(R.layout.dialog_input_mileage, null);
         final TextInputEditText input = (TextInputEditText) dialogLayout.findViewById(R.id.mileage_input);
-        input.setText(String.valueOf((int) Double.parseDouble(carMileage.getText().toString())));
+        input.setText(String.valueOf((int) presenter.getLatestMileage()));
 
-        if (!updatingMileage) {
-            updatingMileage = true;
-            final AlertDialog dialog = new AnimatedDialogBuilder(this)
+        if (updateMileageDialog == null) {
+            updateMileageDialog = new AnimatedDialogBuilder(this)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")
                     .setView(dialogLayout)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            updatingMileage = false;
-                        }
-                    })
                     .setPositiveButton("Confirm", null)
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
@@ -376,61 +257,24 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
                     })
                     .create();
 
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            updateMileageDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(final DialogInterface d) {
-                    dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    updateMileageDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //The user confirm scan after update the Mileage
                             try {
                                 mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
-                            updatedMileageOrDtcsFound = true;
-
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
-                            final double mileage = Double.parseDouble(input.getText().toString())
-                                    - (dashboardCar.getDisplayedMileage() - baseMileage);
+                            final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - baseMileage);
                             if (mileage > 20000000) {
                                 Toast.makeText(ScanCarActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
-                                networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
-                                    @Override
-                                    public void done(String response, RequestError requestError) {
-                                        if (requestError == null) {
-                                            Toast.makeText(ScanCarActivity.this, "Mileage updated", Toast.LENGTH_SHORT).show();
-                                            dashboardCar.setDisplayedMileage(Double.parseDouble(input.getText().toString()));
-                                            dashboardCar.setTotalMileage(mileage);
-                                            localCarAdapter.updateCar(dashboardCar);
-                                            baseMileage = mileage;
-                                            carMileage.setText(input.getText().toString());
-
-                                            if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED && autoConnectService.getLastTripId() != -1) {
-                                                networkHelper.updateMileageStart(mileage, autoConnectService.getLastTripId(), null);
-                                            }
-
-                                            if (view == null) {
-                                                if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState() || autoConnectService.isCommunicatingWithDevice()) {
-                                                    startCarScan();
-                                                } else {
-                                                    progressDialog.setMessage("Connecting to car");
-                                                    progressDialog.show();
-                                                    carSearchStartTime = System.currentTimeMillis();
-                                                    autoConnectService.startBluetoothSearch();  // for car scan
-                                                    handler.postDelayed(connectCarRunnable, 3000);
-                                                }
-                                            }
-                                        } else {
-                                            Log.d(TAG, "Mileage update error: " + requestError.getError());
-                                            Log.d(TAG, "Mileage update error message: " + requestError.getMessage());
-                                            Toast.makeText(ScanCarActivity.this, "An error occurred while updating mileage. Please try again.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-
+                                presenter.updateMileage(mileage);
                                 d.dismiss();
                             }
                         }
@@ -438,8 +282,8 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
                 }
             });
 
-            dialog.show();
         }
+        updateMileageDialog.show();
     }
 
     /**
@@ -465,11 +309,10 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
 
     private void startCarScan() {
         Log.i(TAG, "Starting car scan");
-
-        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
         isScanning = true;
 
-        autoConnectService.manuallyUpdateMileage = true;
+        mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+
         recallsStateLayout.setVisibility(View.GONE);
         recallsCountLayout.setVisibility(View.GONE);
         loadingRecalls.setVisibility(View.VISIBLE);
@@ -485,549 +328,20 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
         loadingEngineIssues.setVisibility(View.VISIBLE);
         engineIssuesText.setText("Checking for engine issues");
 
-        checkForServices();
+        numberOfIssues = 0; // clear previous result
+        updateCarHealthMeter();
 
-        checkForEngineIssues();
-    }
-
-    private void checkForServices() {
-        Log.d(TAG, "Start check for services");
-        services = 0;
-        recalls = 0;
-        networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null) {
-                    try {
-                        Object issuesArr = new JSONObject(response).get("issues");
-                        ArrayList<CarIssue> issues = new ArrayList<>();
-
-                        if (issuesArr instanceof JSONArray) {
-                            issues = CarIssue.createCarIssues((JSONArray) issuesArr, dashboardCar.getId());
-                        }
-
-                        for (CarIssue issue : issues) {
-                            if (!issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
-                                if (issue.getIssueType().equals(CarIssue.RECALL)) {
-                                    ++recalls;
-                                } else if (issue.getIssueType().contains(CarIssue.SERVICE)) {
-                                    ++services;
-                                }
-                            }
-                        }
-
-                        loadingServices.setVisibility(View.GONE);
-                        loadingRecalls.setVisibility(View.GONE);
-
-                        numberOfIssues += services;
-                        numberOfIssues += recalls;
-                        updateCarHealthMeter();
-
-                        if (services > 0) {
-                            servicesCountLayout.setVisibility(View.VISIBLE);
-                            servicesCount.setText(String.valueOf(services));
-                            servicesText.setText("Services");
-
-                            Drawable background = servicesCountLayout.getBackground();
-                            GradientDrawable gradientDrawable = (GradientDrawable) background;
-                            gradientDrawable.setColor(Color.rgb(203, 77, 69));
-
-                        } else {
-                            servicesStateLayout.setVisibility(View.VISIBLE);
-                            servicesText.setText("No services due");
-                        }
-
-                        if (recalls > 0) {
-                            recallsCountLayout.setVisibility(View.VISIBLE);
-                            recallsCount.setText(String.valueOf(recalls));
-                            recallsText.setText("Recalls");
-
-                            Drawable background = recallsCountLayout.getBackground();
-                            GradientDrawable gradientDrawable = (GradientDrawable) background;
-                            gradientDrawable.setColor(Color.rgb(203, 77, 69));
-
-                        } else {
-                            recallsStateLayout.setVisibility(View.VISIBLE);
-                            recallsText.setText("No recalls");
-                        }
-
-                        if (!loadingEngineIssues.isShown() && !loadingRecalls.isShown() &&
-                                !loadingServices.isShown()) {
-                            carScanButton.setEnabled(true);
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Log.e(TAG, "getCarsById response: " + requestError.getMessage());
-                }
-            }
-        });
-    }
-
-    private void checkForEngineIssues() {
-        Log.d(TAG, "Start checking for engine issues");
-        dtcCodes.clear();
-        askingForDtcs = true;
-        result5Retrieved = false;
-        engineCodeStartTime = System.currentTimeMillis();
-        handler.post(checkEngineIssuesRunnable);
-        handler.post(getResult5Runnable);
-//        autoConnectService.getPendingDTCs();
-        autoConnectService.getDTCs();
-    }
-
-    /**
-     * Prompt the user to try again when connecting to bluetooth(peripheral) get timeout
-     */
-    private void tryAgainDialog() {
-
-        if (isFinishing()) { // You don't want to add a dialog to a finished activity
-            return;
-        }
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ScanCarActivity.this);
-        alertDialog.setTitle("Device not connected");
-
-        // Alert message
-        alertDialog.setMessage("Make sure your vehicle engine is on and " +
-                "OBD device is properly plugged in.\n\nTry again ?");
-        alertDialog.setCancelable(false);
-
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                carScanButton.performClick();
-            }
-        });
-
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                dialog.cancel();
-
-            }
-        });
-        alertDialog.show();
-    }
-
-    /**
-     * Show user that it takes a long time to retrieve all historical data
-     */
-    private void showHistoricalDataAlert() {
-        if (isFinishing()) {
-            return;
-        }
-
-        new AnimatedDialogBuilder(this)
-                .setTitle("Uploading historical data")
-                .setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
-                        "while and the device is still uploading all of that data to the phone which could take a" +
-                        "while. You can continue driving and the engine codes will eventually popup on your phone.")
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setNegativeButton("", null)
-                .show();
-
-        mixpanelHelper.trackAlertAppeared("Device still uploading previous data.", MixpanelHelper.SCAN_CAR_VIEW);
+        presenter.getServicesAndRecalls();
+        presenter.checkRealTime(); // for DTC
     }
 
     private void updateCarHealthMeter() {
         if (numberOfIssues >= 3) {
-            arcView.addEvent(new DecoEvent.Builder(30)
-                    .setIndex(seriesIndex).build());
+            arcView.addEvent(new DecoEvent.Builder(30).setIndex(seriesIndex).build());
         } else if (numberOfIssues < 3 && numberOfIssues > 0) {
-            arcView.addEvent(new DecoEvent.Builder(65)
-                    .setIndex(seriesIndex).build());
+            arcView.addEvent(new DecoEvent.Builder(65).setIndex(seriesIndex).build());
         } else {
-            arcView.addEvent(new DecoEvent.Builder(100)
-                    .setIndex(seriesIndex).build());
-        }
-    }
-
-    @Override
-    public void getBluetoothState(int state) {
-        Log.i(TAG, "getBluetoothState: " + state);
-        if (state == IBluetoothCommunicator.CONNECTED) {
-            handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-//    @Override
-//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-//
-//    }
-
-//    /**
-//     * @param dataPackageInfo
-//     */
-//    @Override
-//    public void getIOData(DataPackageInfo dataPackageInfo) {
-//        Log.i(MainActivity.TAG, "Result " + dataPackageInfo.result);
-//        Log.i(MainActivity.TAG, "DTC " + dataPackageInfo.dtcData);
-//
-//        if (dataPackageInfo.result == 5) {
-//            result5Retrieved = true;
-//            if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) { // live mileage update
-//                final double newTotalMileage = ((int) ((baseMileage
-//                        + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
-//
-//                Log.v(TAG, "Mileage updated: tripMileage: " + dataPackageInfo.tripMileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
-//
-//                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-//                    dashboardCar.setDisplayedMileage(newTotalMileage);
-//                    localCarAdapter.updateCar(dashboardCar);
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
-//                            //carMileage.setText(String.valueOf(newTotalMileage));
-//                        }
-//                    });
-//                }
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        carMileage.setText(String.valueOf(newTotalMileage));
-//                    }
-//                });
-//            }
-//        }
-//
-//        // Update displayed mileage if not scanning
-//        if (dataPackageInfo.result == 4
-//                && (!scanStarted || result5Retrieved)) {
-//            Log.d(TAG, "Receiving historical data");
-//            if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_END_FLAG)) { // get the updated mileage
-//                Log.d(TAG, "Trip end flag received, Update mileage");
-//                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-//                final double newBaseMileage = dashboardCar.getTotalMileage();
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this,
-//                                R.anim.mileage_update));
-//                        carMileage.setText(String.valueOf(newBaseMileage));
-//                    }
-//                });
-//            } else if (dataPackageInfo.tripFlag.equals(ObdManager.TRIP_START_FLAG)) { // Do nothing
-//                Log.d(TAG, "Trip start flag received");
-//            } else { // just display whatever you get, but not update the actual mileage
-//                if (dataPackageInfo.tripMileage != null && !dataPackageInfo.tripMileage.isEmpty()) {
-//                    final double newDisplayedMileage = ((int) ((baseMileage
-//                            + Double.parseDouble(dataPackageInfo.tripMileage) / 1000) * 100)) / 100.0; // round to 2 decimal places
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this,
-//                                    R.anim.mileage_update));
-//                            carMileage.setText(String.valueOf(newDisplayedMileage));
-//                        }
-//                    });
-//                }
-//            }
-//        }
-//    }
-
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-        if(tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage = ((int) ((baseMileage + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + baseMileage + ", newMileage: " + newTotalMileage);
-
-            if(dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
-                    }
-                });
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    carMileage.setText(String.valueOf(newTotalMileage));
-                }
-            });
-        }
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-
-    }
-
-    @Override
-    public void pidData(PidPackage pidPackage) {
-
-    }
-
-    private Set<String> dtcCodes = new HashSet<>();
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
-        if(dtcPackage.dtcs != null && askingForDtcs) {
-            dtcCodes.addAll(Arrays.asList(dtcPackage.dtcs));
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    numberOfIssues = services + recalls + dtcCodes.size();
-                    updateCarHealthMeter();
-
-                    if (numberOfIssues != 0) {
-                        updatedMileageOrDtcsFound = true;
-                    }
-
-                    loadingEngineIssues.setVisibility(View.GONE);
-                    if(dtcCodes.size() != 0) {
-                        engineIssuesStateLayout.setVisibility(View.GONE);
-                        engineIssuesCountLayout.setVisibility(View.VISIBLE);
-                        engineIssuesCount.setText(String.valueOf(dtcCodes.size()));
-                    } else {
-                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
-                        engineIssuesCountLayout.setVisibility(View.GONE);
-                    }
-                    engineIssuesText.setText("Engine issues");
-
-                    Log.i(TAG, "Finished car scan, dtcs found");
-
-                    // Finished car scan
-                    try {
-                        JSONObject properties = new JSONObject();
-                        properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
-                        properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
-                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (isScanning) {
-                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        isScanning = false;
-                    }
-
-                    handler.removeCallbacks(checkEngineIssuesRunnable);
-
-                    Drawable background = engineIssuesCountLayout.getBackground();
-                    GradientDrawable gradientDrawable = (GradientDrawable) background;
-                    gradientDrawable.setColor(Color.rgb(203, 77, 69));
-                }
-            });
-        }
-    }
-
-    @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
-    }
-
-    private long engineCodeStartTime = 0;
-    private long carSearchStartTime = 0;
-
-    final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (isFinishing() || isDestroyed()) {
-                return;
-            }
-            switch (msg.what) {
-                case CHECKED_CAR_ENGINE_ISSUE:
-                    Log.i(TAG, "Finished car scan, no dtcs");
-                    if (dtcCodes.isEmpty()) {
-                        loadingEngineIssues.setVisibility(View.GONE);
-                        engineIssuesCountLayout.setVisibility(View.GONE);
-                        engineIssuesStateLayout.setVisibility(View.VISIBLE);
-                        engineIssuesText.setText("No Engine Issues");
-                    } else {
-                        updatedMileageOrDtcsFound = true;
-                    }
-                    updateCarHealthMeter();
-                    carScanButton.setEnabled(true);
-
-                    // Finished car scan
-                    try {
-                        JSONObject properties = new JSONObject();
-                        properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
-                        properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
-                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if (isScanning) {
-                        mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-                        isScanning = false;
-                    }
-                    break;
-
-                case BLUETOOTH_DEVICE_CAR_CONNECTED:
-                    progressDialog.dismiss();
-                    if (isScanning){
-                        startCarScan();
-                    }
-                    break;
-
-                case BLUETOOTH_DEVICE_CAR_TIMEOUT:
-                    searchAttempts = 0;
-                    progressDialog.dismiss();
-                    tryAgainDialog();
-                    break;
-
-                case GET_RESULT_5_TIMEOUT:
-                    progressDialog.dismiss();
-                    showHistoricalDataAlert();
-                    break;
-            }
-        }
-    };
-
-    /**
-     * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
-     * is no DTCs currently.
-     */
-    private final Runnable checkEngineIssuesRunnable = new Runnable() {
-        @Override
-        public void run() {
-            long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - engineCodeStartTime;
-            int seconds = (int) (timeDiff / 1000);
-
-            if (!askingForDtcs){
-                handler.removeCallbacks(checkEngineIssuesRunnable);
-            } else if (seconds > 20) {
-                askingForDtcs = false;
-                handler.sendEmptyMessage(CHECKED_CAR_ENGINE_ISSUE);
-                handler.removeCallbacks(checkEngineIssuesRunnable);
-            } else {
-                handler.post(checkEngineIssuesRunnable);
-            }
-        }
-    };
-
-    /**
-     * This runnable is used to observe timeout on getting real time data (result 5)
-     */
-    private final Runnable getResult5Runnable = new Runnable() {
-        @Override
-        public void run() {
-            long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - engineCodeStartTime;
-
-            int seconds = (int) (timeDiff / 1000);
-
-            if (result5Retrieved || !isScanning) {
-                handler.removeCallbacks(getResult5Runnable);
-            } else if (seconds > 30) {
-                handler.sendEmptyMessage(GET_RESULT_5_TIMEOUT);
-                handler.removeCallbacks(getResult5Runnable);
-            } else {
-                handler.postDelayed(getResult5Runnable, 5000);
-            }
-        }
-    };
-
-    private final Runnable connectCarRunnable = new Runnable() {
-        @Override
-        public void run() {
-            long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - carSearchStartTime;
-            int seconds = (int) (timeDiff / 1000);
-            if (autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-                    && autoConnectService.isCommunicatingWithDevice()) { //
-                handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_CONNECTED);
-                handler.removeCallbacks(connectCarRunnable);
-            } else if (seconds > 15) {
-                if (searchAttempts++ > 2) {
-                    handler.sendEmptyMessage(BLUETOOTH_DEVICE_CAR_TIMEOUT);
-                    handler.removeCallbacks(connectCarRunnable);
-                } else {
-                    Log.i(TAG, "Search attempt: " + searchAttempts);
-                    carSearchStartTime = System.currentTimeMillis();
-                    autoConnectService.startBluetoothSearch();
-                    handler.postDelayed(connectCarRunnable, 1000);
-                }
-            } else {
-                handler.postDelayed(connectCarRunnable, 1000);
-            }
-        }
-    };
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == MainActivity.RC_LOCATION_PERM) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();  // after permissions granted
-            } else {
-                Snackbar.make(findViewById(R.id.car_scan_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Retry", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                ActivityCompat.requestPermissions(ScanCarActivity.this, MainActivity.LOC_PERMS, MainActivity.RC_LOCATION_PERM);
-                            }
-                        })
-                        .show();
-            }
-        }
-    }
-
-    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
-                                   final boolean needDescription, @Nullable final String message) {
-        if (isFinishing()) {
-            return;
-        }
-
-        if (needDescription) {
-            new AnimatedDialogBuilder(activity)
-                    .setCancelable(false)
-                    .setTitle("Request Permissions")
-                    .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
-                    .setNegativeButton("", null)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(activity, permissions, requestCode);
-                        }
-                    }).show();
-        } else {
-            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+            arcView.addEvent(new DecoEvent.Builder(100).setIndex(seriesIndex).build());
         }
     }
 
@@ -1041,4 +355,275 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Obd
         super.onBackPressed();
     }
 
+    @Override
+    public void onDeviceConnected() {
+        if (connectTimeoutDialog != null && connectTimeoutDialog.isShowing()) connectTimeoutDialog.dismiss();
+        hideLoading(null);
+        if (isScanning) startCarScan();
+    }
+
+    @Override
+    public void onConnectingTimeout() {
+        if (isFinishing()) { // You don't want to add a dialog to a finished activity
+            return;
+        }
+        hideLoading(null);
+        if (connectTimeoutDialog == null) {
+            connectTimeoutDialog = new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Device not connected")
+                    .setMessage("Make sure your vehicle engine is on and " +
+                            "OBD device is properly plugged in.\n\nTry again ?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            carScanButton.performClick();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            dialog.cancel();
+                        }
+                    }).create();
+        }
+
+        connectTimeoutDialog.show();
+    }
+
+    @Override
+    public void onInputtedMileageUpdated(double updatedMileage) {
+        if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState()
+                || autoConnectService.isCommunicatingWithDevice()) {
+            updatedMileageOrDtcsFound = true;
+            carMileage.setText(String.format("%.2f", updatedMileage));
+            startCarScan();
+        } else {
+            numberOfIssues = 0;
+            presenter.connectToDevice();
+        }
+    }
+
+    @Override
+    public void onTripMileageUpdated(final double updatedMileage) {
+        Log.d(TAG, "Updated Mileage: " + updatedMileage);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
+                carMileage.setText(String.valueOf(updatedMileage));
+            }
+        });
+    }
+
+    private Set<CarIssue> recalls;
+
+    @Override
+    public void onRecallRetrieved(@Nullable Set<CarIssue> recalls) {
+        Log.d(TAG, "onRecallRetrieved, num: " + (recalls == null ? 0 : recalls.size()));
+        this.recalls = recalls == null ? new HashSet<CarIssue>() : recalls;
+        numberOfIssues += (recalls == null ? 0 : recalls.size());
+        updateCarHealthMeter();
+
+        loadingRecalls.setVisibility(View.GONE);
+
+        if (this.recalls.size() > 0) {
+            recallsCountLayout.setVisibility(View.VISIBLE);
+            recallsCount.setText(String.valueOf(this.recalls.size()));
+            recallsText.setText("Recalls");
+
+            Drawable background = recallsCountLayout.getBackground();
+            GradientDrawable gradientDrawable = (GradientDrawable) background;
+            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+        } else {
+            recallsStateLayout.setVisibility(View.VISIBLE);
+            recallsText.setText("No recalls");
+        }
+
+        checkScanProgress();
+    }
+
+    private Set<CarIssue> services;
+
+    @Override
+    public void onServicesRetrieved(@Nullable Set<CarIssue> services) {
+        Log.d(TAG, "onServicesRetrieved, num: " + (services == null ? 0 : services.size()));
+        this.services = services == null ? new HashSet<CarIssue>() : services;
+        numberOfIssues += (services == null ? 0 : services.size());
+        updateCarHealthMeter();
+
+        loadingServices.setVisibility(View.GONE);
+
+        if (this.services.size() > 0) {
+            servicesCountLayout.setVisibility(View.VISIBLE);
+            servicesCount.setText(String.valueOf(this.services.size()));
+            servicesText.setText("Services");
+
+            Drawable background = servicesCountLayout.getBackground();
+            GradientDrawable gradientDrawable = (GradientDrawable) background;
+            gradientDrawable.setColor(Color.rgb(203, 77, 69));
+
+        } else {
+            servicesStateLayout.setVisibility(View.VISIBLE);
+            servicesText.setText("No services due");
+        }
+
+        checkScanProgress();
+    }
+
+    private Set<String> dtcCodes = new HashSet<>();
+
+    @Override
+    public void onEngineCodesRetrieved(@Nullable Set<String> dtcCodes) {
+        Log.d(TAG, "onEngineCodesRetrieved, num: " + (dtcCodes == null ? 0 : dtcCodes.size()));
+        this.dtcCodes = dtcCodes == null ? new HashSet<String>() : dtcCodes;
+        updatedMileageOrDtcsFound = true;
+        numberOfIssues += dtcCodes == null ? 0 : dtcCodes.size();
+        updateCarHealthMeter();
+
+        if (numberOfIssues != 0) updatedMileageOrDtcsFound = true;
+
+        loadingEngineIssues.setVisibility(View.GONE);
+        if (this.dtcCodes.size() != 0) {
+            engineIssuesStateLayout.setVisibility(View.GONE);
+            engineIssuesCountLayout.setVisibility(View.VISIBLE);
+            engineIssuesCount.setText(String.valueOf(this.dtcCodes.size()));
+            engineIssuesText.setText("Engine issues");
+        } else {
+            engineIssuesStateLayout.setVisibility(View.VISIBLE);
+            engineIssuesCountLayout.setVisibility(View.GONE);
+            engineIssuesText.setText("No Engine Issues");
+        }
+
+        Drawable background = engineIssuesCountLayout.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) background;
+        gradientDrawable.setColor(Color.rgb(203, 77, 69));
+
+        checkScanProgress();
+    }
+
+    /**
+     * Show user that it takes a long time to retrieve all historical data
+     */
+    @Override
+    public void onGetRealTimeDataTimeout() {
+        if (isFinishing()) {
+            return;
+        }
+
+        if (uploadHistoricalDialog == null) {
+            uploadHistoricalDialog = new AnimatedDialogBuilder(this)
+                    .setTitle("Uploading historical data")
+                    .setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
+                            "while and the device is still uploading all of that data to the phone which could take a" +
+                            "while. You can continue driving and the engine codes will eventually popup on your phone.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton("", null).create();
+        }
+        uploadHistoricalDialog.show();
+
+        mixpanelHelper.trackAlertAppeared("Device still uploading previous data.", MixpanelHelper.SCAN_CAR_VIEW);
+    }
+
+    @Override
+    public void onRealTimeDataRetrieved() {
+        if (uploadHistoricalDialog != null && uploadHistoricalDialog.isShowing()) uploadHistoricalDialog.dismiss();
+        if (isScanning) presenter.getEngineCodes();
+    }
+
+    @Override
+    public boolean checkNetworkConnection(@Nullable String errorToShow) {
+        if (NetworkHelper.isConnected(this)) {
+            return true;
+        } else {
+            if (errorToShow != null) {
+                hideLoading(errorToShow);
+            } else {
+                hideLoading("No network connection! Please check your network connection and try again.");
+            }
+            return false;
+        }
+    }
+
+    @Override
+    public void onNetworkError(@NonNull String errorMessage) {
+        hideLoading(errorMessage);
+    }
+
+    @Override
+    public boolean isScanning() {
+        return isScanning;
+    }
+
+    @Override
+    public BluetoothAutoConnectService getAutoConnectService() {
+        return autoConnectService;
+    }
+
+    @Override
+    public BSAbstractedFragmentActivity getActivity() {
+        return this;
+    }
+
+    private void checkScanProgress() {
+        isScanning = loadingEngineIssues.isShown() || loadingRecalls.isShown() || loadingServices.isShown();
+        carScanButton.setEnabled(!isScanning);
+        if (!isScanning) {
+            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+            // Finished car scan
+            try {
+                JSONObject properties = new JSONObject();
+                properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
+                properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
+                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void hideLoading(String string) {
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        if (string != null) {
+            Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void showLoading(final String string) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.setMessage(string);
+                if (!progressDialog.isShowing()) {
+                    progressDialog.show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setPresenter(ScanCarContract.Presenter presenter) {
+        this.presenter = presenter;
+    }
 }

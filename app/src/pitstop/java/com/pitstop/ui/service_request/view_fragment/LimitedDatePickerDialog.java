@@ -2,7 +2,6 @@ package com.pitstop.ui.service_request.view_fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;

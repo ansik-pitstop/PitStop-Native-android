@@ -23,17 +23,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Car;
-import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
@@ -67,9 +59,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     public static boolean isPairingUnrecognizedDevice = false;
 
     // activity result
-    public static int ADD_CAR_SUCCESS = 51;
-    public static int PAIR_CAR_SUCCESS = 52;
-    public static int ADD_CAR_NO_DEALER_SUCCESS = 53;
+    public static final int ADD_CAR_SUCCESS = 51;
+    public static final int PAIR_CAR_SUCCESS = 52;
+    public static final int ADD_CAR_NO_DEALER_SUCCESS = 53;
     private static final int RC_PENDING_ADD_CAR = 1043;
 
     // views
@@ -82,7 +74,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
 
     public static boolean addingCar = false;
     public static boolean addingCarWithDevice = false;
-    private boolean carSuccessfullyAdded = false;
+    private boolean carSuccessfullyAdded;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -97,8 +89,8 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     };
 
     @Override
-    public void setPresenter(BasePresenter presenter) {
-        mAddCarPresenter = (AddCarContract.Presenter) presenter;
+    public void setPresenter(AddCarContract.Presenter presenter) {
+        mAddCarPresenter = presenter;
     }
 
     private class CarListAdapter extends BaseAdapter {
@@ -143,9 +135,9 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_car_fragmented);
         isPairingUnrecognizedDevice = getIntent().getBooleanExtra(EXTRA_PAIR_PENDING, false);
+        setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice));
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        mAddCarPresenter = new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice);
 
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
@@ -157,6 +149,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
             ((TextView) findViewById(R.id.step_text)).setText("Pair Scanner");
         } else {
             mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
+            carSuccessfullyAdded = false;
         }
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
