@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.ILoadingActivity;
@@ -66,7 +66,7 @@ public interface ScanCarContract {
 
         BluetoothAutoConnectService getAutoConnectService();
 
-        BSAbstractedFragmentActivity getActivity();
+        IBluetoothServiceActivity getActivity();
     }
 
     interface Presenter extends BluetoothPresenter{

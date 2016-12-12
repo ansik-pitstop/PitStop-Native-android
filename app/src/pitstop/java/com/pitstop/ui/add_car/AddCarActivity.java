@@ -38,7 +38,7 @@ import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarMileageDialog;
 import com.pitstop.ui.add_car.view_fragment.AddCarViewPager;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -50,7 +50,7 @@ import java.util.List;
 /**
  * Created by David on 7/20/2016.
  */
-public class AddCarActivity extends BSAbstractedFragmentActivity implements AddCarContract.View {
+public class AddCarActivity extends IBluetoothServiceActivity implements AddCarContract.View {
 
     private final String TAG = AddCarActivity.class.getSimpleName();
 
@@ -512,7 +512,7 @@ public class AddCarActivity extends BSAbstractedFragmentActivity implements AddC
     }
 
     @Override
-    public BSAbstractedFragmentActivity getActivity() {
+    public IBluetoothServiceActivity getActivity() {
         return this;
     }
 

@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,11 +36,13 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.PixelConvertUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +53,7 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ScanCarActivity extends BSAbstractedFragmentActivity implements ScanCarContract.View {
+public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCarContract.View {
 
     private static String TAG = ScanCarActivity.class.getSimpleName();
 
@@ -81,6 +85,11 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Sca
     private SeriesItem seriesItem;
     private int seriesIndex;
 
+    @BindView(R.id.car_view_layout) CardView carCard;
+    @BindView(R.id.recalls_scan_details) CardView recallCard;
+    @BindView(R.id.services_scan_details) CardView serviceCard;
+    @BindView(R.id.engine_scan_details) CardView dtcCard;
+
     private AlertDialog updateMileageDialog;
     private AlertDialog uploadHistoricalDialog;
     private AlertDialog connectTimeoutDialog;
@@ -92,6 +101,8 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Sca
     private ProgressDialog progressDialog;
 
     private boolean isScanning = false;
+
+    private IssuePagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -578,7 +589,7 @@ public class ScanCarActivity extends BSAbstractedFragmentActivity implements Sca
     }
 
     @Override
-    public BSAbstractedFragmentActivity getActivity() {
+    public IBluetoothServiceActivity getActivity() {
         return this;
     }
 

@@ -8,7 +8,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
-import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.ILoadingActivity;
 
 /**
@@ -121,7 +121,7 @@ public interface AddCarContract {
 
         BluetoothAutoConnectService getAutoConnectService();
 
-        BSAbstractedFragmentActivity getActivity();
+        IBluetoothServiceActivity getActivity();
     }
 
 

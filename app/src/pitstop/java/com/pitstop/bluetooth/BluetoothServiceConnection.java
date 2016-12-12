@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.ui.BluetoothPresenter;
-import com.pitstop.ui.BSAbstractedFragmentActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
 
 /**
  * Created by david on 7/21/2016.
@@ -20,13 +20,13 @@ import com.pitstop.ui.BSAbstractedFragmentActivity;
 public class BluetoothServiceConnection implements ServiceConnection {
     private static final String TAG = BluetoothServiceConnection.class.getSimpleName();
     private Context context;
-    private BSAbstractedFragmentActivity activity;
+    private IBluetoothServiceActivity activity;
     private BluetoothPresenter presenter;
 
     public static final int RC_LOCATION_PERM = 101;
     public static final int RC_ENABLE_BT = 102;
 
-    public BluetoothServiceConnection(Context context, BSAbstractedFragmentActivity activity, BluetoothPresenter presenter){
+    public BluetoothServiceConnection(Context context, IBluetoothServiceActivity activity, BluetoothPresenter presenter){
         this.context = context;
         this.activity = activity;
         this.presenter = presenter;

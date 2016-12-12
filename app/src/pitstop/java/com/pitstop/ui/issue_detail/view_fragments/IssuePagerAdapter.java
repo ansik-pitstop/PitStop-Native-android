@@ -14,8 +14,10 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.utils.DateTimeFormatUtil;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 
 public class IssuePagerAdapter extends PagerAdapter {
@@ -28,6 +30,13 @@ public class IssuePagerAdapter extends PagerAdapter {
         mIssues         = issues;
         mContext        = context;
         mLayoutInflater = LayoutInflater.from(context);
+    }
+
+    public IssuePagerAdapter(Context context, Set<CarIssue> issueSet){
+        mIssues         = new ArrayList<>();
+        mContext        = context;
+        mLayoutInflater = LayoutInflater.from(context);
+        mIssues.addAll(issueSet);
     }
 
     @Override

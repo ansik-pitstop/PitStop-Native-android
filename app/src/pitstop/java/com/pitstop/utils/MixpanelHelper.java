@@ -169,6 +169,10 @@ public class MixpanelHelper {
      * Settings Activity
      */
     public static final String SETTINGS_VIEW = "Settings";
+    public static final String DELETE_CAR = "Delete Car";
+    public static final String DELETE_CAR_CONFIRM = "Confirm Delete Car";
+    public static final String DELETE_CAR_CANCEL = "Cancel Delete Car";
+    public static final String DELETE_CAR_ERROR = "Delete Car Error";
 
     /**
      * Detect unrecognized module

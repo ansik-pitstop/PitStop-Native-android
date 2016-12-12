@@ -679,6 +679,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                try {
+                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR, MixpanelHelper.SETTINGS_VIEW);
+                                } catch (JSONException e){
+                                    e.printStackTrace();
+                                }
                                 new AnimatedDialogBuilder(getContext())
                                         .setTitle("Delete car")
                                         .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -687,6 +692,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CONFIRM, MixpanelHelper.SETTINGS_VIEW);
+                                                } catch (JSONException e){
+                                                    e.printStackTrace();
+                                                }
                                                 loadingCallback.showLoading("Deleting");
                                                 networkHelper.deleteUserCar(vehicle.getId(), new RequestCallback() {
                                                     @Override
@@ -700,6 +710,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     .findPreference(getString(R.string.pref_vehicles)))
                                                                     .removePreference(VehiclePreference.this);
                                                         } else {
+                                                            try {
+                                                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_ERROR, MixpanelHelper.SETTINGS_VIEW);
+                                                            } catch (JSONException e){
+                                                                e.printStackTrace();
+                                                            }
                                                             Log.e(TAG, requestError.getMessage());
                                                             loadingCallback.hideLoading("Delete failed!");
                                                         }
@@ -707,7 +722,16 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                 });
                                             }
                                         })
-                                        .setNegativeButton("CANCEL", null).show();
+                                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CANCEL, MixpanelHelper.SETTINGS_VIEW);
+                                                } catch (JSONException e){
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).show();
                             }
                         });
                 root.findViewById(R.id.preference_vehicle_modify_button)

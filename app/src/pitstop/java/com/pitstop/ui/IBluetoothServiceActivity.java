@@ -18,7 +18,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 /**
  * Created by david on 7/21/2016.
  */
-public abstract class BSAbstractedFragmentActivity extends AppCompatActivity{
+public abstract class IBluetoothServiceActivity extends AppCompatActivity{
     public BluetoothAutoConnectService autoConnectService;
     public boolean serviceIsBound;
 
@@ -56,7 +56,7 @@ public abstract class BSAbstractedFragmentActivity extends AppCompatActivity{
                         .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ActivityCompat.requestPermissions(BSAbstractedFragmentActivity.this,
+                                ActivityCompat.requestPermissions(IBluetoothServiceActivity.this,
                                         getResources().getStringArray(R.array.permissions_location),
                                         BluetoothServiceConnection.RC_LOCATION_PERM);
                             }
