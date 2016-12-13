@@ -338,7 +338,9 @@ public class Device212B implements AbstractDevice {
             }
 
             if(dataPackageInfo.result == 5) {
+                Log.d(TAG, "Result 5 PIDs");
                 PidPackage pidPackage = new PidPackage();
+                pidPackage.deviceId = dataPackageInfo.deviceId;
                 pidPackage.realTime = true;
                 dataListener.pidData(pidPackage);
             }
@@ -346,6 +348,7 @@ public class Device212B implements AbstractDevice {
             // fixed upload pids
             if(dataPackageInfo.result == 4 && tripFlag.equals("1")
                     && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
+                Log.d(TAG, "Result 4 PIDs");
                 PidPackage templatePidPackage = new PidPackage();
 
                 templatePidPackage.deviceId = dataPackageInfo.deviceId;

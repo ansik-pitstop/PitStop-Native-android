@@ -874,55 +874,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
+    }
 
     @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {}
+    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
 
-//    @Override
-//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {}
-
-//    @Override
-//    public void getIOData(final DataPackageInfo dataPackageInfo) {
-//        /*if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
-//
-//            final HashSet<String> activeIssueNames = new HashSet<>();
-//
-//            if (dashboardCar == null) {
-//                return;
-//            }
-//
-//            for (CarIssue issues : dashboardCar.getActiveIssues()) {
-//                activeIssueNames.add(issues.getItem());
-//            }
-//
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    boolean newDtcFound = false;
-//
-//                    if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
-//                        String[] DTCs = dataPackageInfo.dtcData.split(",");
-//                        for (String dtc : DTCs) {
-//                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-//                            if (!activeIssueNames.contains(parsedDtc)) {
-//                                newDtcFound = true;
-//                            }
-//                        }
-//                    }
-//
-//                    if (newDtcFound) {
-//                        new Handler().postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                refreshFromServer();
-//                            }
-//                        }, 1111);
-//                    }
-//                }
-//            });
-//        }*/
-//    }
+    }
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
@@ -930,7 +889,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     @Override
-    public void parameterData(ParameterPackage parameterPackage) {}
+    public void parameterData(ParameterPackage parameterPackage) {
+
+    }
 
     @Override
     public void pidData(PidPackage pidPackage) {
@@ -1356,11 +1317,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (discountAmount != 0 && discountUnit != null) {
                 firstServicePromotion.append(" You can also receive a discount of ");
                 if (discountUnit.contains("%")) {
-                    firstServicePromotion.append(discountAmount)
+                    firstServicePromotion.append((int) discountAmount)
                             .append(discountUnit).append(" towards your first service");
                 } else {
                     firstServicePromotion.append(discountUnit)
-                            .append((int) discountAmount).append(" towards your first service.");
+                            .append(String.format("%.2f", discountAmount)).append(" towards your first service.");
                 }
             }
         }
@@ -1454,8 +1415,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void prepareAndStartTutorialSequence() {
         if (!checkDealership()) return;
 
-        Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
-        Log.d("FSB", "Start getting user settings");
         showLoading("Loading dealership information...");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
@@ -1476,10 +1435,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         if (jsonObject.has("shop")) {
                             JSONObject shop = jsonObject.getJSONObject("shop");
                             JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
-
-                            enableDiscountTutorial = shop.getBoolean("enableDiscountTutorial");
-                            amount = (float) firstAppointmentDiscount.getDouble("amount");
-                            unit = firstAppointmentDiscount.getString("unit");
+                            if (firstAppointmentDiscount.has("amount")) amount = (float) firstAppointmentDiscount.getDouble("amount");
+                            if (firstAppointmentDiscount.has("unit")) unit = firstAppointmentDiscount.getString("unit");
                         }
                     } catch (JSONException je) {
                         je.printStackTrace();
@@ -1488,6 +1445,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                 }
+
+                enableDiscountTutorial = (unit != null && !unit.isEmpty()) && (amount > 0);
 
                 //Show the tutorial
                 try {

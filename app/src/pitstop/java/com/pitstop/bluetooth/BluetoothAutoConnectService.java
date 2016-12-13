@@ -496,6 +496,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned");
+            if(callbacks != null) {
+                callbacks.pidData(pidPackage);
+            }
             return;
         }
 

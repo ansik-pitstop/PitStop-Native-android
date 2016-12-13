@@ -895,7 +895,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean isAskingForRtc = false;
     private boolean isAskingForVin = false;
     private int getVinAttempts = 0;
-    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(30, 2) {
+    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(15, 4) {
         @Override
         public void onRetry() {
             if (!isAskingForVin && !isAskingForRtc) {
