@@ -30,6 +30,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -277,6 +278,16 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();
 
+                String readData = "";
+
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Log.v("onCharacteristicRead", "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
+
                 if(data != null && data.length > 0 && status == BluetoothGatt.GATT_SUCCESS) {
                     deviceManager.readData(data);
                 }
@@ -288,6 +299,16 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();
+
+                String readData = "";
+
+                try {
+                    readData = new String(data, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                Log.v("onCharacteristicChanged", "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
                 if(data != null && data.length > 0) {
                     deviceManager.readData(data);

@@ -31,7 +31,7 @@ public class BluetoothDeviceRecognizer {
     private static final int NOTIFICATION_ID = 9101; // arbitrary id
 
     public enum RecognizeResult {
-        IGNORE, CONNECT, DISCONNECT, YOLO
+        IGNORE, CONNECT, DISCONNECT
     }
 
     private final LocalScannerAdapter mLocalScannerStore;
@@ -65,7 +65,7 @@ public class BluetoothDeviceRecognizer {
             mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
             return RecognizeResult.IGNORE;
         } else { // this part should never be reached.... but whatever
-            return RecognizeResult.YOLO;
+            return RecognizeResult.IGNORE;
         }
     }
 

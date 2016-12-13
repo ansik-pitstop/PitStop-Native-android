@@ -854,7 +854,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private boolean isSearchingForCar = false; // flag variable
-    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(20, 3) {
+    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(10, 6) {
         @Override
         public void onRetry() {
             if (!isSearchingForCar) {
@@ -895,7 +895,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private boolean isAskingForRtc = false;
     private boolean isAskingForVin = false;
     private int getVinAttempts = 0;
-    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(15, 4) {
+    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(10, 6) {
         @Override
         public void onRetry() {
             if (!isAskingForVin && !isAskingForRtc) {

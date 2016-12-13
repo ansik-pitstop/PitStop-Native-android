@@ -156,13 +156,18 @@ public class Device215B implements AbstractDevice {
             e.printStackTrace();
         }
 
-        //Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
+        Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
         if(readData.isEmpty()) {
             return;
         }
 
-        parseReadData(readData);
+        try {
+            parseReadData(readData);
+        } catch (Exception e){
+            sbRead = new StringBuilder(); // reset sb
+            e.printStackTrace();
+        }
     }
 
     public String replyIDRPackage() {
@@ -304,12 +309,13 @@ public class Device215B implements AbstractDevice {
     private StringBuilder sbRead = new StringBuilder();
 
     // parser for 215B data
-    private void parseReadData(String msg) {
+    private void parseReadData(String msg) throws Exception{
         sbRead.append(msg);
 
         if (sbRead.toString().contains("\r\n")) {
-            String msgInfo = sbRead.toString().replace("\r\n",
-                    "\\r\\n");
+            String msgInfo = sbRead.toString().replace("\r\n", "\\r\\n");
+
+            msgInfo = msgInfo.substring(msgInfo.lastIndexOf("$$"), msgInfo.length() - 1); // TODO: 16/12/13 Test this
 
             Log.v(TAG, "Data Read: " + msgInfo);
 
