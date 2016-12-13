@@ -304,8 +304,8 @@ public class Device212B implements AbstractDevice {
             final String tripFlag = dataPackageInfo.tripFlag != null ? dataPackageInfo.tripFlag : "-1";
 
             // process dtc data
-            if ((dataPackageInfo.dtcData != null && dataPackageInfo.result == 6) ||
-                    tripFlag.equals("6") || tripFlag.equals("5")) { // TODO: Check if dtcData null works
+            if (/*(dataPackageInfo.dtcData != null && dataPackageInfo.result == 6) ||*/ // TODO: 16/12/13 Check what happen if result 6 is removed
+                    (tripFlag.equals("6") || tripFlag.equals("5")) && dataPackageInfo.dtcData != null) { // TODO: Check if dtcData null works
 
                 Log.i(TAG, "Parsing DTC data");
 
@@ -417,8 +417,8 @@ public class Device212B implements AbstractDevice {
             }
 
             // handle freeze frame data
-            if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){
-                if (dataPackageInfo.result == 6 || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){
+            if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){ // TODO: 16/12/13 Check what happen if result 6 is removed
+                if (/*dataPackageInfo.result == 6 || */(dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){
                     FreezeFramePackage ffPackage = new FreezeFramePackage();
                     ffPackage.deviceId = dataPackageInfo.deviceId;
                     ffPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);
