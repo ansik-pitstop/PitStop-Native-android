@@ -132,6 +132,15 @@ public class IssuePagerAdapter extends PagerAdapter {
                 severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[3]);
                 break;
         }
+
+        if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)){
+            rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.VISIBLE);
+            severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_low_indicator));
+            severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[0]);
+        } else {
+            rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.GONE);
+        }
+
     }
 
 }

@@ -70,7 +70,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     private ProgressDialog progressDialog;
 
     private MixpanelHelper mixpanelHelper;
-    private AddCarContract.Presenter mAddCarPresenter;
+    private AddCarContract.Presenter presenter;
 
     public static boolean addingCar = false;
     public static boolean addingCarWithDevice = false;
@@ -90,7 +90,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void setPresenter(AddCarContract.Presenter presenter) {
-        mAddCarPresenter = presenter;
+        this.presenter = presenter;
     }
 
     private class CarListAdapter extends BaseAdapter {
@@ -164,7 +164,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mAddCarPresenter.cancelAllTimeouts();
+                presenter.cancelAllTimeouts();
             }
         });
     }
@@ -186,7 +186,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent data = new Intent();
-                            data.putExtra(MainActivity.CAR_EXTRA, mAddCarPresenter.getCreatedCar());
+                            data.putExtra(MainActivity.CAR_EXTRA, presenter.getCreatedCar());
                             data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
                             setResult(ADD_CAR_NO_DEALER_SUCCESS, data);
                             finish();
@@ -220,13 +220,13 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 return;
             }
 
-            mAddCarPresenter.updateCreatedCarDealership(addCarChooseDealershipFragment.getShop());
+            presenter.updateCreatedCarDealership(addCarChooseDealershipFragment.getShop());
 
             try { // Log in Mixpanel
                 JSONObject properties = new JSONObject();
                 properties.put("Button", "Selected " + ((AddCarChooseDealershipFragment) fragment).getShop().getName())
                         .put("View", MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW)
-                        .put("Car", mAddCarPresenter.getPendingCar().getMake() + " " + mAddCarPresenter.getPendingCar().getModel());
+                        .put("Car", presenter.getPendingCar().getMake() + " " + presenter.getPendingCar().getModel());
                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -282,7 +282,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public void searchForCar(View view) {
 
         if (isPairingUnrecognizedDevice) { // if is searching for unrecognized device
-            mAddCarPresenter.searchForUnrecognizedDevice();
+            presenter.searchForUnrecognizedDevice();
             return;
         }
 
@@ -300,7 +300,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) { // If in the AddCar2NoDongleFragment
             String enteredVin = ((EditText) findViewById(R.id.VIN)).getText().toString();
-            mAddCarPresenter.setPendingCarVin(enteredVin);
+            presenter.setPendingCarVin(enteredVin);
             if (AddCarPresenter.isValidVin(enteredVin)) {
                 Log.i(TAG, "Searching for car");
 
@@ -308,11 +308,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
 
-                if (!mAddCarPresenter.hasGotMileage()) {
+                if (!presenter.hasGotMileage()) {
                     AddCarMileageDialog dialog = new AddCarMileageDialog();
-                    dialog.setCallback(mAddCarPresenter).show(getSupportFragmentManager(), "Input Mileage");
+                    dialog.setCallback(presenter).show(getSupportFragmentManager(), "Input Mileage");
                 } else {
-                    mAddCarPresenter.searchAndGetVin();
+                    presenter.searchAndGetVin();
                 }
 
             } else {
@@ -324,11 +324,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             // Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view != null ? view.getWindowToken() : null, 0);
-            if (!mAddCarPresenter.hasGotMileage()) {
+            if (!presenter.hasGotMileage()) {
                 AddCarMileageDialog dialog = new AddCarMileageDialog();
-                dialog.setCallback(mAddCarPresenter).show(getSupportFragmentManager(), "Input Mileage");
+                dialog.setCallback(presenter).show(getSupportFragmentManager(), "Input Mileage");
             } else {
-                mAddCarPresenter.searchAndGetVin();
+                presenter.searchAndGetVin();
             }
         }
     }
@@ -420,10 +420,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         isPairingUnrecognizedDevice = false;
 
         if (serviceIsBound) {
-            mAddCarPresenter.unbindBluetoothService();
+            presenter.unbindBluetoothService();
         }
 
-        mAddCarPresenter.finish();
+        presenter.finish();
 
         if (carSuccessfullyAdded) {
             mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_ADD_CAR);
@@ -467,7 +467,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         } else if (requestCode == RC_PENDING_ADD_CAR) {
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
-            mAddCarPresenter.startAddingNewCar();
+            presenter.startAddingNewCar();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -576,7 +576,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                             }
                             searchForCar(null);
                         } else {
-                            mAddCarPresenter.searchForUnrecognizedDevice();
+                            presenter.searchForUnrecognizedDevice();
                         }
                     }
                 })
@@ -683,7 +683,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         if (isFinishing()) return;
 
         if (autoConnectService != null && !selectCarDialogShowing) {
-            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
+//            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
+            final CarListAdapter carListAdapter = new CarListAdapter(presenter.getAllLocalCars());
             final Car[] pickedCar = new Car[1];
 
             final AlertDialog d = new AnimatedDialogBuilder(this)
@@ -713,8 +714,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                         public void onClick(View v) {
                             if (pickedCar[0] == null) {
                                 Toast.makeText(AddCarActivity.this, "Please pick a car!", Toast.LENGTH_SHORT).show();
-                            } else if (mAddCarPresenter.selectedValidCar(pickedCar[0])) {
-                                mAddCarPresenter.validateAndPostScanner(pickedCar[0], scannerId, scannerName);
+                            } else if (presenter.selectedValidCar(pickedCar[0])) {
+                                presenter.validateAndPostScanner(pickedCar[0], scannerId, scannerName);
                                 d.dismiss();
                             } else {
                                 Toast.makeText(AddCarActivity.this, "This car has scanner!", Toast.LENGTH_SHORT).show();
@@ -757,7 +758,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mAddCarPresenter.validateAndPostScanner(existedCar, scannerId, scannerName);
+                        presenter.validateAndPostScanner(existedCar, scannerId, scannerName);
                     }
                 }).show();
     }
@@ -786,7 +787,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mAddCarPresenter.searchForUnrecognizedDevice();
+                        presenter.searchForUnrecognizedDevice();
                     }
                 }).show();
     }

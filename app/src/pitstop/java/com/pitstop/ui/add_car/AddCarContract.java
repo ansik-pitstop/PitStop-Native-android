@@ -11,6 +11,8 @@ import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.ILoadingActivity;
 
+import java.util.List;
+
 /**
  * Created by yifan on 16/11/21.
  */
@@ -207,6 +209,8 @@ public interface AddCarContract {
         Car getPendingCar();
 
         Car getCreatedCar();
+
+        List<Car> getAllLocalCars();
 
         /**
          * @return true if user has already inputted the mileage (so we don't need to ask again)

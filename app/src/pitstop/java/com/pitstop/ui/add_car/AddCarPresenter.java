@@ -23,6 +23,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -39,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,6 +62,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private ServiceConnection mServiceConnection;
 
     private LocalScannerAdapter mLocalScannerAdapter;
+    private LocalCarAdapter mLocalCarAdapter;
 
     private final boolean isPairingUnrecognizedDevice;
 
@@ -70,6 +73,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mNetworkHelper = new NetworkHelper(application);
         mMixpanelHelper = new MixpanelHelper(application);
         mLocalScannerAdapter = new LocalScannerAdapter(application);
+        mLocalCarAdapter = new LocalCarAdapter(application);
         mAutoConnectService = callback.getAutoConnectService();
         mServiceConnection = new BluetoothServiceConnection(application, callback.getActivity(), this);
         bindBluetoothService();
@@ -223,10 +227,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                     Log.d(TAG, "Create car response: " + response);
                                     try {
                                         createdCar = Car.createCar(response);
+                                        List<Car> localCarList = mLocalCarAdapter.getAllCars();
 
-                                        Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+//                                        Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+                                        Log.d(TAG, "Current car list size: " + localCarList.size());
                                         Log.d(TAG, "Created car id: " + createdCar.getId());
-                                        if (MainActivity.carList.size() == 0) {
+//                                        if (MainActivity.carList.size() == 0) {
+                                        if (localCarList.size() == 0) {
                                             Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                                     .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
                                             Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
@@ -328,10 +335,12 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         if (requestError == null) {
                             try {
                                 createdCar = Car.createCar(response);
-
-                                Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+                                List<Car> localCarList = mLocalCarAdapter.getAllCars();
+//                                Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
+                                Log.d(TAG, "Current car list size: " + localCarList.size());
                                 Log.d(TAG, "Created car id: " + createdCar.getId());
-                                if (MainActivity.carList.size() == 0) {
+//                                if (MainActivity.carList.size() == 0) {
+                                if (localCarList.size() == 0) {
                                     Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                             .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
                                     Log.d(TAG, "Old set size: " + carsAwaitingTutorial.size());
@@ -568,6 +577,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public Car getCreatedCar() {
         return createdCar;
+    }
+
+    @Override
+    public List<Car> getAllLocalCars() {
+        return mLocalCarAdapter.getAllCars();
     }
 
     @Override
