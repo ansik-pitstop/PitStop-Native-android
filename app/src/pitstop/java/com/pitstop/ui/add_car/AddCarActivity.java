@@ -164,7 +164,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mAddCarPresenter.cancelAllTimeouts(); // sounds like a bad idea
+                mAddCarPresenter.cancelAllTimeouts();
             }
         });
     }
@@ -585,11 +585,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void onConfirmPostCar(String deviceId, String VIN) {
-
-    }
-
-    @Override
     public void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton) {
         if (isFinishing()) return;
 
@@ -691,9 +686,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
             final Car[] pickedCar = new Car[1];
 
-            final AnimatedDialogBuilder dialogBuilder = new AnimatedDialogBuilder(this)
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW);
-            final AlertDialog d = dialogBuilder.setCancelable(false)
+            final AlertDialog d = new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setCancelable(false)
                     .setTitle("Unrecognized module detected, please select the car this device is connected to:")
                     .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
                         @Override

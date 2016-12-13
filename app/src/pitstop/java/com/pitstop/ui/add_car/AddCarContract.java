@@ -52,16 +52,27 @@ public interface AddCarContract {
         void onTimeoutRetry(final String timeoutEvent, final String mixpanelEvent);
 
         /**
-         * Show confirm postCar dialog
+         * Show alert when the car the user wanted to add is already in the backend and it was "deleted" by a user
+         * @param deletedCar
+         * @param positiveButton
          */
-        void onConfirmPostCar(String deviceId, String VIN);
-
         void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton);
 
+        /**
+         * When we start creating a new car in the backend
+         */
         void onPostCarStarted();
 
+        /**
+         * When a error is returned when we are POSTing car.
+         * @param errorMessage
+         */
         void onPostCarFailed(String errorMessage);
 
+        /**
+         * When a car is successfully created in the backend and OK is returned
+         * @param createdCar
+         */
         void onPostCarSucceeded(Car createdCar);
 
         /**
@@ -92,7 +103,9 @@ public interface AddCarContract {
          */
         void confirmPairCarWithDevice(Car existedCar, String scannerName, String scannerId);
 
-
+        /**
+         * When start validating and creating new scanner in the backend
+         */
         void onPairingDeviceWithCar();
 
         /**
@@ -195,6 +208,9 @@ public interface AddCarContract {
 
         Car getCreatedCar();
 
+        /**
+         * @return true if user has already inputted the mileage (so we don't need to ask again)
+         */
         boolean hasGotMileage();
     }
 

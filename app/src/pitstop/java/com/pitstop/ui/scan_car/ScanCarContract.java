@@ -17,8 +17,14 @@ public interface ScanCarContract {
 
     interface View extends BaseView<Presenter>, ILoadingActivity{
 
+        /**
+         * Invoked when the OBD device is connected
+         */
         void onDeviceConnected();
 
+        /**
+         * Invoked when user started scan car process, but we cannot connect to the OBD device for too long
+         */
         void onConnectingTimeout();
 
         /**
@@ -28,7 +34,7 @@ public interface ScanCarContract {
         void onInputtedMileageUpdated(double updatedMileage);
 
         /**
-         * Trip mileage updates
+         * callback for live mileage updates (OBD trip data)
          * @param updatedMileage
          */
         void onTripMileageUpdated(double updatedMileage);
@@ -43,8 +49,14 @@ public interface ScanCarContract {
          */
         void onServicesRetrieved(@Nullable Set<CarIssue> services);
 
+        /**
+         * Invoked when we retrieved real time data
+         */
         void onRealTimeDataRetrieved();
 
+        /**
+         * Invoked when we should be getting DTC, but we cannot retrieve real time data for too long
+         */
         void onGetRealTimeDataTimeout();
 
         /**
@@ -80,12 +92,27 @@ public interface ScanCarContract {
          */
         void updateMileage(double input);
 
+        /**
+         * Check if OBD device is uploading the real time data to the app <br>
+         * The reason we should check this prior to getting engine codes is that
+         * for IDD-212B devices, engine codes will not be returned if it is still uploading non-realtime data. <br>
+         */
         void checkRealTime();
 
+        /**
+         * Ask BluetoothAutoConnectService to get engine codes from the device <br>
+         * The callback for this method is dtcData(DtcPackage) <br>
+         */
         void getEngineCodes();
 
+        /**
+         * Make network calls to our backend to see if any services/recalls is currently active
+         */
         void getServicesAndRecalls();
 
+        /**
+         * Do cleanup when scan is finished, e.g. cancel all timeoutTimers
+         */
         void finishScan();
 
         void onActivityFinish();
