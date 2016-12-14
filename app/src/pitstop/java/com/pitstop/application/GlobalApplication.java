@@ -1,6 +1,7 @@
 package com.pitstop.application;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -26,6 +27,12 @@ import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
+
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.config.ACRAConfiguration;
+import org.acra.config.ACRAConfigurationException;
+import org.acra.config.ConfigurationBuilder;
 
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -61,6 +68,24 @@ public class GlobalApplication extends Application {
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+
+        if (BuildConfig.DEBUG) {
+            try {
+                final ACRAConfiguration config = new ConfigurationBuilder(this)
+                        .setAlsoReportToAndroidFramework(true)
+                        .setMailTo("developers@getpitstop.io")
+                        .build();
+                ACRA.init(this, config);
+            } catch (ACRAConfigurationException e) {
+                e.printStackTrace();
+                ACRA.init(this);
+            }
+        }
+    }
 
     @Override
     public void onCreate() {

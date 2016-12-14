@@ -63,7 +63,7 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 123
+            versionCode 124
             versionName "2.2.0"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
@@ -107,6 +107,7 @@ dependencies {
     pitstopCompile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'ch.acra:acra:4.9.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
