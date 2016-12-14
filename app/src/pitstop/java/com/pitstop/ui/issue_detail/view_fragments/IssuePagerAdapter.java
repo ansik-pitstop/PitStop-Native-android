@@ -123,10 +123,10 @@ public class IssuePagerAdapter extends PagerAdapter {
                 severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_medium_indicator));
                 severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[1]);
                 break;
-            case 3:
-                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_high_indicator));
-                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[2]);
-                break;
+//            case 3:
+//                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_high_indicator));
+//                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[2]);
+//                break;
             default:
                 severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_critical_indicator));
                 severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[3]);
