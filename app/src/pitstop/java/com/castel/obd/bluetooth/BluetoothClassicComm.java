@@ -93,7 +93,22 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     @Override
     public void connectToDevice(BluetoothDevice device) {
-        mBluetoothChat.connectBluetooth(device);
+        switch (device.getBondState()) {
+            case BluetoothDevice.BOND_NONE:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    if (device.createBond()) Log.d(TAG, "Bond creation will be done");
+                    else {
+                        Log.d(TAG, "Error doing bond creation");
+                        mBluetoothChat.connectBluetooth(device);
+                    }
+                }
+                break;
+            case BluetoothDevice.BOND_BONDED:
+                mBluetoothChat.connectBluetooth(device);
+                break;
+        }
+
+//        mBluetoothChat.connectBluetooth(device);
     }
 
     private final Runnable runnable = new Runnable() {
@@ -169,48 +184,48 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 Log.d(TAG, "ACL_CONNECTED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
-                int bondState = device.getBondState();
-                btConnectionState = CONNECTED;
-                try {
-                    new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                deviceManager.connectionStateChange(btConnectionState);
-                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
-                    switch (bondState) {
-                        case BluetoothDevice.BOND_BONDED:
-                            Log.i(TAG, "Connected to a PAIRED device: " + deviceName);
-                            Toast.makeText(mContext, "Connected to a paired device", Toast.LENGTH_SHORT).show();
-                            break;
-                        case BluetoothDevice.BOND_NONE:
-                            Toast.makeText(mContext, "Connected to a device, bonding...", Toast.LENGTH_SHORT).show();
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                try {
-                                    if (device.createBond()) { // true if bond creation will be done
-                                        Log.d(TAG, "Bond creation will be done");
-                                    } else { // false if immediate error
-                                        Log.d(TAG, "Error doing bond creation");
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            break;
-                    }
-                }
-//                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-//                    Log.i(TAG, "Connected to device: " + device.getName());
-//                    btConnectionState = CONNECTED;
-//                    LogUtil.i("Bluetooth state:CONNECTED");
-//                    try {
-//                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    deviceManager.connectionStateChange(btConnectionState);
+//                btConnectionState = CONNECTED;
+//                try {
+//                    new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
 //                }
+//                deviceManager.connectionStateChange(btConnectionState);
+//                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
+//                    switch (bondState) {
+//                        case BluetoothDevice.BOND_BONDED:
+//                            Log.i(TAG, "Connected to a PAIRED device: " + deviceName);
+//                            Toast.makeText(mContext, "Connected to a paired device", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case BluetoothDevice.BOND_NONE:
+//                            Toast.makeText(mContext, "Connected to a device, bonding...", Toast.LENGTH_SHORT).show();
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                                try {
+//                                    if (device.createBond()) { // true if bond creation will be done
+//                                        Log.d(TAG, "Bond creation will be done");
+//                                    } else { // false if immediate error
+//                                        Log.d(TAG, "Error doing bond creation");
+//                                    }
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                            break;
+//                    }
+//                }
+                if (deviceName != null && deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
+                    Log.i(TAG, "Connected to device: " + deviceName);
+                    Log.d(TAG, "Bonding status: " + device.getBondState());
+                    btConnectionState = CONNECTED;
+                    LogUtil.i("Bluetooth state:CONNECTED");
+                    try {
+                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    deviceManager.connectionStateChange(btConnectionState);
+                }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 Log.i(TAG, "BOND_STATE_CHANGED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -223,7 +238,8 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 switch (bondState) {
                     case BluetoothDevice.BOND_BONDED:
                         if (!mBluetoothChat.isConnected() && !mBluetoothChat.isConnecting()) {
-                            connectToDevice(device);
+//                            connectToDevice(device);
+                            mBluetoothChat.connectBluetooth(device);
                             Log.i(TAG, "Connecting to device after bonding");
                             Toast.makeText(mContext, "Connecting to device after bonding", Toast.LENGTH_SHORT).show();
                         } else if (mBluetoothChat.isConnected()) {
@@ -234,6 +250,11 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                             Toast.makeText(mContext, "Connecting to device after bonding", Toast.LENGTH_SHORT).show();
                         }
                         break;
+                    case BluetoothDevice.BOND_NONE:
+                        if (previousBondState == BluetoothDevice.BOND_BONDING && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            if (device.createBond()) Log.d(TAG, "Bond creation will be done");
+                            else Log.d(TAG, "Error doing bond creation");
+                        }
                 }
 
 //                if (device.getBondState() == BluetoothDevice.BOND_BONDED &&

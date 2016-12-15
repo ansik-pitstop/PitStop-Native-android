@@ -232,7 +232,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     private void updateConnectedCarIndicator(boolean isConnected) {
         if (isConnected) {
             connectedCarIndicator.setImageDrawable(
-                    ContextCompat.getDrawable(getActivity(), R.drawable.severity_low_indicator));
+                    ContextCompat.getDrawable(getActivity(), R.drawable.device_connected_indicator));
         } else {
             connectedCarIndicator.setImageDrawable(
                     ContextCompat.getDrawable(getActivity(), R.drawable.circle_indicator_stroke));
