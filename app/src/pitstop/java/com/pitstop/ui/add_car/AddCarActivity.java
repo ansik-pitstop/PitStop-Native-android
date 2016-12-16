@@ -91,6 +91,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     @Override
     public void setPresenter(AddCarContract.Presenter presenter) {
         this.presenter = presenter;
+        presenter.bind(this);
+        presenter.bindBluetoothService();
     }
 
     private class CarListAdapter extends BaseAdapter {
@@ -424,6 +426,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         }
 
         presenter.finish();
+        presenter.unbind();
 
         if (carSuccessfullyAdded) {
             mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_ADD_CAR);

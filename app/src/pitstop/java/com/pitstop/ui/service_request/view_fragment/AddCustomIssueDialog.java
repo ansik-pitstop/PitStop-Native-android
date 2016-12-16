@@ -29,6 +29,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,41 +39,33 @@ public class AddCustomIssueDialog extends DialogFragment {
     private static final String TAG = AddCustomIssueDialog.class.getSimpleName();
 
     private MixpanelHelper mixpanelHelper;
-    private Context context;
-    private CustomIssueCallback callback;
+    private WeakReference<Context> contextReference;
+    private WeakReference<CustomIssueCallback> callbackReference;
 
     private List<CarIssue> pickedIssues;
 
     public static AddCustomIssueDialog newInstance(Context context, List<CarIssue> pickedIssues) {
-        Bundle args = new Bundle();
-
         AddCustomIssueDialog fragment = new AddCustomIssueDialog();
-        fragment.setArguments(args);
-        fragment.setContext(context);
-        fragment.setMixpanelHelper(new MixpanelHelper((GlobalApplication) context.getApplicationContext()));
-        fragment.setPickedIssues(pickedIssues);
+        fragment.init(context, pickedIssues);
         return fragment;
     }
 
-    public void setMixpanelHelper(MixpanelHelper mixpanelHelper) {
-        this.mixpanelHelper = mixpanelHelper;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
+    private void init(Context context, List<CarIssue> pickedIssues){
+        contextReference = new WeakReference<>(context);
+        mixpanelHelper = new MixpanelHelper((GlobalApplication)contextReference.get().getApplicationContext());
+        this.pickedIssues = pickedIssues != null ? pickedIssues : new ArrayList<CarIssue>();
     }
 
     public void setCallback(CustomIssueCallback callback){
-        this.callback = callback;
-    }
-
-    public void setPickedIssues(List<CarIssue> pickedIssues) {
-        this.pickedIssues = pickedIssues != null ? pickedIssues : new ArrayList<CarIssue>();
+        callbackReference = new WeakReference<>(callback);
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (contextReference.get() == null) return null;
+        Context context = contextReference.get();
+
         final View dialogList = LayoutInflater.from(context).inflate(R.layout.dialog_add_preset_issue_list, null);
         final RecyclerView list = (RecyclerView) dialogList.findViewById(R.id.dialog_add_preset_issue_recycler_view);
         final IssueAdapter adapter = new IssueAdapter(pickedIssues);
@@ -115,6 +108,8 @@ public class AddCustomIssueDialog extends DialogFragment {
 
     @Override
     public void onDismiss(DialogInterface dialog) {
+        if (callbackReference.get() == null) return;
+        CustomIssueCallback callback = callbackReference.get();
         Log.d(TAG, "Confirm pickedIssues: " + pickedIssues.size());
         if (callback != null) callback.onCustomIssueSelected(pickedIssues);
         super.onDismiss(dialog);
@@ -125,6 +120,8 @@ public class AddCustomIssueDialog extends DialogFragment {
         private List<CarIssue> mPresetIssues;
 
         private void populateContent() {
+            if (contextReference.get() == null) return;
+            Context context = contextReference.get();
             mPresetIssues = new ArrayList<>();
             mPresetIssues.add(new CarIssue.Builder()
                     .setId(4)
@@ -176,6 +173,8 @@ public class AddCustomIssueDialog extends DialogFragment {
 
         @Override
         public void onBindViewHolder(final IssueAdapter.IssueViewHolder holder, final int position) {
+            if (contextReference.get() == null) return;
+            Context context = contextReference.get();
             final CarIssue presetIssue = mPresetIssues.get(position);
 
             holder.description.setText(presetIssue.getDescription());
@@ -284,6 +283,9 @@ public class AddCustomIssueDialog extends DialogFragment {
      * @param data Chosen preset issue
      */
     private void showDetailDialog(CarIssue data) {
+        if (contextReference.get() == null) return;
+        Context context = contextReference.get();
+
         if (data == null) return;
 
         final View dialogDetail = LayoutInflater.from(context).inflate(R.layout.dialog_add_preset_issue_detail, null);

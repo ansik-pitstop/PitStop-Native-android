@@ -109,7 +109,8 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_scan);
         ButterKnife.bind(this);
-        setPresenter(new ScanCarPresenter(this, (GlobalApplication) getApplicationContext(), (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA)));
+        setPresenter(new ScanCarPresenter(this, (GlobalApplication) getApplicationContext(),
+                (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA)));
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         baseMileage = dashboardCar.getTotalMileage();
@@ -141,6 +142,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     protected void onDestroy() {
         super.onDestroy();
         presenter.onActivityFinish();
+        presenter.unbind();
     }
 
     @Override
@@ -636,5 +638,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     @Override
     public void setPresenter(ScanCarContract.Presenter presenter) {
         this.presenter = presenter;
+        presenter.bind(this);
+        presenter.bindBluetoothService();
     }
 }

@@ -21,6 +21,9 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.BasePresenter;
+import com.pitstop.ui.BaseView;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
@@ -51,16 +54,14 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     private double baseMileage;
 
-    public ScanCarPresenter(ScanCarContract.View viewCallback, GlobalApplication application, Car dashboardCar) {
-        this.mCallback = viewCallback;
+    public ScanCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, Car dashboardCar) {
         this.dashboardCar = dashboardCar;
         this.application = application;
         baseMileage = dashboardCar.getTotalMileage();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);
         localCarAdapter = new LocalCarAdapter(application);
-        mServiceConnection = new BluetoothServiceConnection(application, mCallback.getActivity(), this);
-        bindBluetoothService();
+        mServiceConnection = new BluetoothServiceConnection(application, activity, this);
     }
 
     @Override
@@ -291,11 +292,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     }
 
-    @Override
-    public void start() {
-
-    }
-
     private void cancelAllTimers() {
         connectCarTimer.cancel();
         checkEngineIssuesTimer.cancel();
@@ -364,4 +360,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     };
 
 
+    @Override
+    public void bind(BaseView<? extends BasePresenter> view) {
+        mCallback = (ScanCarContract.View) view;
+    }
+
+    @Override
+    public void unbind() {
+        mCallback = null;
+    }
 }
