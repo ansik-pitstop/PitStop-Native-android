@@ -13,6 +13,7 @@ import com.pitstop.R;
 import com.pitstop.models.CarIssue;
 import com.pitstop.utils.DateTimeFormatUtil;
 
+import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,18 +25,21 @@ public class IssuePagerAdapter extends PagerAdapter {
 
     private List<CarIssue> mIssues;
     private final LayoutInflater mLayoutInflater;
-    private final Context mContext;
+    private WeakReference<Context> contextReference;
+//    private final Context mContext;
 
     public IssuePagerAdapter(Context context, List<CarIssue> issues) {
+        contextReference= new WeakReference<>(context);
         mIssues         = issues;
-        mContext        = context;
-        mLayoutInflater = LayoutInflater.from(context);
+//        mContext        = context;
+        mLayoutInflater = LayoutInflater.from(contextReference.get());
     }
 
     public IssuePagerAdapter(Context context, Set<CarIssue> issueSet){
+        contextReference= new WeakReference<>(context);
         mIssues         = new ArrayList<>();
-        mContext        = context;
-        mLayoutInflater = LayoutInflater.from(context);
+//        mContext        = context;
+        mLayoutInflater = LayoutInflater.from(contextReference.get());
         mIssues.addAll(issueSet);
     }
 
@@ -64,6 +68,9 @@ public class IssuePagerAdapter extends PagerAdapter {
     }
 
     private void setupView(View rootView, CarIssue carIssue){
+        if (contextReference.get() == null) return;
+        Context context = contextReference.get();
+
         String title        = carIssue.getAction() + " " + carIssue.getItem();
         String description  = carIssue.getDescription();
         String symptoms     = carIssue.getSymptoms();
@@ -116,27 +123,27 @@ public class IssuePagerAdapter extends PagerAdapter {
 
         switch (severity) {
             case 1:
-                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_low_indicator));
-                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[0]);
+                severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_low_indicator));
+                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[0]);
                 break;
             case 2:
-                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_medium_indicator));
-                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[1]);
+                severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_medium_indicator));
+                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[1]);
                 break;
 //            case 3:
 //                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_high_indicator));
 //                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[2]);
 //                break;
             default:
-                severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_critical_indicator));
-                severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[3]);
+                severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_critical_indicator));
+                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[3]);
                 break;
         }
 
         if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)){
             rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.VISIBLE);
-            severityLayout.setBackground(ContextCompat.getDrawable(mContext, R.drawable.severity_low_indicator));
-            severityTV.setText(mContext.getResources().getStringArray(R.array.severity_indicators)[0]);
+            severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_low_indicator));
+            severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[0]);
         } else {
             rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.GONE);
         }
