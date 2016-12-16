@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 
 import java.util.ArrayList;
@@ -326,6 +327,44 @@ public class LocalScannerAdapter {
         if (db.isOpen()) db.close();
         return numberOfDeviceNames != numberOfScanners;
     }
+
+
+    /**
+     * @param scannerId
+     * @param scannerName
+     * @return true if scanner is found and its name is updated, false if scanner is not found
+     */
+    public boolean updateScannerName(String scannerId, String scannerName){
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.query(TABLES.SCANNER.TABLE_NAME, null, null, null, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    String storedID = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
+                    if (storedID != null && storedID.equals(scannerId)) {
+                        ObdScanner scanner = cursorToScanner(c);
+                        scanner.setDeviceName(scannerName);
+                        updateScanner(scanner);
+                        return true;
+                    }
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) c.close();
+            if (db.isOpen()) db.close();
+        }
+        if (db.isOpen()) db.close();
+        return false;
+    }
+
+    public void deleteCar(Car car){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.delete(TABLES.SCANNER.TABLE_NAME, TABLES.SCANNER.KEY_CAR_ID + "=?",
+                new String[]{String.valueOf(car.getId())});
+        db.close();
+    }
+
 
     public void deleteAllRows() {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

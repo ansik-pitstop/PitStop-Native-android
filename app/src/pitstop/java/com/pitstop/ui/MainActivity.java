@@ -1,15 +1,13 @@
 package com.pitstop.ui;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,6 +18,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.BuildConfig;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -28,45 +28,38 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.PIDInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.castel.obd.util.ObdDataUtil;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.models.CarIssuePreset;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
@@ -78,13 +71,16 @@ import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.scan_car.ScanCarActivity;
+import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.mainFragments.MainAppViewPager;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.ServiceRequestUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +90,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -109,21 +105,6 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
-    /**
-     * Used in communication between MainActivity and BluetoothAutoConnectService<br>
-     * Action for intents
-     */
-    // --------------------------- results --------------------------
-    public static final String ACTION_PAIRING_MODULE_ID_INVALID = "Obd - device id invalid";
-    public static final String ACTION_PAIRING_MODULE_SUCCESS = "Obd - paired device with car";
-    public static final String ACTION_PAIRING_MODULE_NETWORK_ERROR = "Network error happened";
-    public static final String ACTION_PAIRING_MODULE_UNKNOWN_ERROR = "Unknown error during pairing";
-    // --------------------------- steps ----------------------------
-    public static final String ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED = "Obd - discovered";
-    public static final String ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER = "Validating scanner";
-    public static final String ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER = "Connecting";
-    public static final String ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE = "Saving to api";
 
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
@@ -142,12 +123,16 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
-
-                if (ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(MainActivity.this, LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
-                } else {
-                    autoConnectService.startBluetoothSearch();
+                final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+                for (String permission : locationPermissions) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermission(MainActivity.this, locationPermissions, RC_LOCATION_PERM,
+                                true, getString(R.string.request_permission_location_message));
+                        return;
+                    }
+                }
+                if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    autoConnectService.startBluetoothSearch(); // refresh clicked
                 }
             }
         }
@@ -167,16 +152,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private Car dashboardCar;
 
     // Database accesses
-    public static LocalCarAdapter carLocalStore;
-    public static LocalCarIssueAdapter carIssueLocalStore;
-    public static LocalShopAdapter shopLocalStore;
-    public static LocalScannerAdapter scannerLocalStore;
+    private LocalCarAdapter carLocalStore;
+    private LocalCarIssueAdapter carIssueLocalStore;
+    private LocalShopAdapter shopLocalStore;
+    private LocalScannerAdapter scannerLocalStore;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
     public static final int RC_SETTINGS = 52;
     public static final int RC_DISPLAY_ISSUE = 53;
     public static final int RC_ADD_CUSTOM_ISSUE = 54;
+    public static final int RC_REQUEST_SERVICE = 55;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
     public static final int RC_ENABLE_BT = 102;
@@ -188,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
+    public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
     public static final int LOC_PERM_REQ = 112;
     public static final int RC_LOCATION_PERM = 101;
@@ -213,80 +200,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private NetworkHelper networkHelper;
 
     private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
+    private boolean isRefreshingFromServer = false;
 
     public static MainDashboardCallback callback;
-
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch (action) {
-                // pairing unrecognized scanner with car lack scanner
-                // <-------------------------start---------------------------------->
-                // Results
-                case ACTION_PAIRING_MODULE_NETWORK_ERROR:
-                    Log.d(TAG, "Network error occurred");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
-                    showSimpleMessage("Sorry, some network error occurred.", false);
-                    break;
-                case ACTION_PAIRING_MODULE_ID_INVALID:
-                    Log.d(TAG, "Device ID invalid");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
-                    showSimpleMessage("This device belongs to another vehicle.", false);
-                    break;
-                case ACTION_PAIRING_MODULE_SUCCESS:
-                    Log.d(TAG, "Successfully paried device with car");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
-                    showSimpleMessage("OK, we have linked the device with your car!", true);
-                    refreshFromServer();
-                    break;
-                case ACTION_PAIRING_MODULE_UNKNOWN_ERROR:
-                    Log.d(TAG, "Unknown error happened during pairing process");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    if (isLoading) hideLoading();
-                    showSimpleMessage("Unknown network error occurred, please retry later", false);
-                    break;
-                // Step
-                case ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED:
-                    Log.d(TAG, "OBD device discovered intent received!");
-                    mixpanelHelper.trackAlertAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND,
-                            MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-                    viewPager.setCurrentItem(MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD);
-                    showPairDeviceWithCarDialog();
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER:
-                    Log.d(TAG, "Connecting to obd scanner");
-                    showLoading("Connecting to module...");
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER:
-                    Log.d(TAG, "Validating scanner");
-                    showLoading("Validating module...");
-                    break;
-                case ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE:
-                    Log.d(TAG, "Saving scanner to the backend");
-                    showLoading("Module is valid and ready to use, storing information...");
-                    break;
-                // <---------------------------end---------------------------------->
-            }
-        }
-    };
 
     private MainDashboardFragment mDashboardFragment;
     private MainToolFragment mToolFragment;
 
+    private MaterialShowcaseSequence tutorialSequence;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
-        super.onCreate(savedInstanceState);
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -338,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             createdOrAttached = true;
         }
+
+        logAuthInfo();
     }
 
     @Override
@@ -346,29 +276,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onResume");
 
-        if (autoConnectService != null) {
-            autoConnectService.setCallbacks(this);
-        }
+        if (autoConnectService != null) autoConnectService.setCallbacks(this);
 
         resetMenus(false);
 
         try {
-            if (dashboardCar == null || dashboardCar.getDealership() == null) {
-                switch (viewPager.getCurrentItem()) {
-                    case MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD:
-                        mixpanelHelper.trackViewAppeared(MixpanelHelper.DASHBOARD_VIEW);
-                        break;
-                    case MainAppViewPager.PAGE_NUM_MAIN_TOOL:
-                        mixpanelHelper.trackViewAppeared(MixpanelHelper.TOOLS_VIEW);
-                        break;
-                }
-            } else {
-                String view = viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW;
-                mixpanelHelper.trackCustom("View Appeared",
-                        new JSONObject("{'View':'" + view + "','Dealership':'" + dashboardCar.getDealership().getName()
-                                + "'}"));
-            }
+            mixpanelHelper.trackViewAppeared(viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -378,18 +292,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     protected void onPause() {
         super.onPause();
         createdOrAttached = false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        registerBroadcastReceiver();
-    }
-
-    @Override
-    protected void onStop() {
-        unregisterBroadcastReceiver();
-        super.onStop();
     }
 
     private void setupViewPager(final ViewPager viewPager) {
@@ -490,20 +392,26 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     // repopulate car list
     public void resetMenus(boolean refresh) {
+        Log.d(TAG, "Car List Size: " + carList.size());
+        Log.d(TAG, "Refresh: " + refresh);
         if (carList.size() == 0 && refresh) {
+            Log.d(TAG, "Refresh from server");
             refreshFromServer();
         }
 
         int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
-
+        Log.d(TAG, "Current car id: " + id);
+        dashboardCar = null;
         if (carList.size() > 0) {
             for (Car car : carList) {
                 if (car.getId() == id) {
+                    Log.d(TAG, "Set to id: " + id);
                     dashboardCar = car;
                     car.setCurrentCar(true);
                 }
             }
             if (dashboardCar == null) {
+                Log.d(TAG, "Set to first Car");
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
             }
@@ -523,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 mainAppSideMenuAdapter.notifyDataSetChanged();
             }
             // Set the adapter for the list view
-//         Set the list's click listener
+            // Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         }
     }
@@ -544,21 +452,66 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
-            if (requestCode == RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                Car addedCar = data.getParcelableExtra(CAR_EXTRA);
-                Log.d("OnActivityResult", "CarList: " + carList.size());
-                if (carList.size() == 0) {
-                    Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                            .getStringSet(getString(R.string.pfAwaitTutorial), new HashSet<String>());
-                    carsAwaitingTutorial.add(String.valueOf(addedCar.getId()));
-                    PreferenceManager.getDefaultSharedPreferences(application).edit()
-                            .putStringSet(getString(R.string.pfAwaitTutorial), carsAwaitingTutorial)
-                            .apply(); // See if we should use commit
-                }
-                if (shouldRefreshFromServer) {
-                    refreshFromServer();
-                }
+            if (requestCode == RC_ADD_CAR) {
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                    Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                    Log.d("OnActivityResult", "CarList: " + carList.size());
+                    if (carList.size() == 0) { // first car
+                        dashboardCar = addedCar;
+                        carList.add(dashboardCar);
+                        dashboardCar.setCurrentCar(true);
+                        callback.setDashboardCar(carList);
+                        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
 
+                        com.pitstop.models.User user = application.getCurrentUser();
+
+                        final HashMap<String, Object> customProperties = new HashMap<>();
+                        customProperties.put("VIN", addedCar.getVin());
+                        Log.d(TAG, addedCar.getVin());
+                        customProperties.put("Car Make", addedCar.getMake());
+                        Log.d(TAG, addedCar.getMake());
+                        customProperties.put("Car Model", addedCar.getModel());
+                        Log.d(TAG, addedCar.getModel());
+                        customProperties.put("Car Year", addedCar.getYear());
+                        Log.d(TAG, String.valueOf(addedCar.getYear()));
+
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
+                            customProperties.put("Email", addedCar.getDealership().getEmail());
+                            Log.d(TAG, addedCar.getDealership().getEmail());
+                        }
+
+                        if (user != null) {
+                            customProperties.put("Phone", user.getPhone());
+                            User.getCurrentUser().setFirstName(user.getFirstName());
+                            User.getCurrentUser().setEmail(user.getEmail());
+                        }
+
+                        User.getCurrentUser().addProperties(customProperties);
+
+                        if (user != null) {
+                            Log.d("MainActivity Smooch", "Sending message");
+                            Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
+                                    (user.getLastName() == null || user.getLastName().equals("null") ?
+                                            "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                        }
+
+                        Smooch.track("User Logged In");
+
+                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
+                            prepareAndStartTutorialSequence();
+                        }
+                    }
+                    if (shouldRefreshFromServer) {
+                        refreshFromServer();
+                    }
+                } else {
+                    try {
+                        mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -571,9 +524,21 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-            } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK){
-                if (shouldRefreshFromServer){
+            } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK) {
+                if (shouldRefreshFromServer) {
                     refreshFromServer();
+                }
+            } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS) {
+                if (shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
+            } else if (requestCode == RC_REQUEST_SERVICE){
+                if (shouldRefreshFromServer) {
+                    refreshFromServer();
+                }
+                boolean shouldRemoveTutorial = data.getBooleanExtra(REMOVE_TUTORIAL_EXTRA, false);
+                if (shouldRemoveTutorial) {
+                    removeTutorial();
                 }
             }
             callback.activityResultCallback(requestCode, resultCode, data);
@@ -589,6 +554,40 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
+        if (tutorialSequence != null && tutorialSequence.hasStarted()) {
+            new AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(getString(R.string.first_service_booking_cancel_title))
+                    .setMessage(getString(R.string.first_service_booking_cancel_message))
+                    .setNegativeButton("Continue booking", null) // Do nothing on continue
+                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Cancel Service Request");
+                                properties.put("State", "Tentative");
+                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            tutorialSequence.dismissAllItems();
+                            try {
+                                JSONObject properties = new JSONObject();
+                                properties.put("Button", "Confirm Service Request");
+                                properties.put("State", "Tentative");
+                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
+                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -622,6 +621,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         return carIssueList;
     }
 
+    /**
+     * Onclick method for service history button
+     *
+     * @param view
+     */
     public void clickServiceHistory(View view) {
         try {
             mixpanelHelper.trackButtonTapped("History", MixpanelHelper.TOOLS_VIEW);
@@ -841,6 +845,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
                                     mainAppSideMenuAdapter.notifyDataSetChanged();
+                                    resetMenus(false);
                                     hideLoading();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -870,27 +875,40 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
     }
 
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+
     }
 
     @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
     }
 
     @Override
-    public void getIOData(final DataPackageInfo dataPackageInfo) {
-        if (dataPackageInfo.dtcData != null && !dataPackageInfo.dtcData.isEmpty()) {
+    public void parameterData(ParameterPackage parameterPackage) {
 
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
+    public void dtcData(final DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+        if(dtcPackage.dtcs != null) {
             final HashSet<String> activeIssueNames = new HashSet<>();
 
-            if (dashboardCar == null) {
+            if(dashboardCar == null) {
                 return;
             }
 
-            for (CarIssue issues : dashboardCar.getActiveIssues()) {
+            for(CarIssue issues : dashboardCar.getActiveIssues()) {
                 activeIssueNames.add(issues.getItem());
             }
 
@@ -899,17 +917,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 public void run() {
                     boolean newDtcFound = false;
 
-                    if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
-                        String[] DTCs = dataPackageInfo.dtcData.split(",");
-                        for (String dtc : DTCs) {
-                            String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-                            if (!activeIssueNames.contains(parsedDtc)) {
+                    if(dtcPackage.dtcs.length > 0){
+                        for(String dtc : dtcPackage.dtcs) {
+                            if(!activeIssueNames.contains(dtc)) {
                                 newDtcFound = true;
                             }
                         }
                     }
 
-                    if (newDtcFound) {
+                    if(newDtcFound) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -920,6 +936,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 }
             });
         }
+    }
+
+    @Override
+    public void ffData(FreezeFramePackage ffPackage) {
+
     }
 
     @Override
@@ -1016,7 +1037,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                            int[] grantResults) {
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //autoConnectService.startBluetoothSearch();
+                if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                    autoConnectService.startBluetoothSearch();
+                }
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {
@@ -1027,6 +1050,39 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         })
                         .show();
             }
+        }
+    }
+
+    /**
+     * Request permission with custom message dialog
+     *
+     * @param activity
+     * @param permissions
+     * @param requestCode
+     * @param needDescription
+     * @param message
+     */
+    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                   final boolean needDescription, @Nullable final String message) {
+        if (isFinishing()) {
+            return;
+        }
+
+        if (needDescription) {
+            new AnimatedDialogBuilder(activity)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setCancelable(false)
+                    .setTitle("Request Permissions")
+                    .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
+                    .setNegativeButton("", null)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity, permissions, requestCode);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(activity, permissions, requestCode);
         }
     }
 
@@ -1049,7 +1105,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
-        Intent intent = new Intent(this, CarScanActivity.class);
+        Intent intent = new Intent(this, ScanCarActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
@@ -1142,9 +1198,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /**
      * Onclick method for requesting services
      *
-     * @param view
+     * @param view if this view is null, we consider the service booking is tentative (first time)
      */
     public void requestMultiService(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Request Service",
                     viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
@@ -1154,7 +1212,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
 
         // view is null for request from tutorial
-        new ServiceRequestUtil(this, dashboardCar, view == null).start();
+        final Intent intent = new Intent(this, ServiceRequestActivity.class);
+        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
+        startActivityForResult(intent, RC_REQUEST_SERVICE);
+        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
     /**
@@ -1163,6 +1225,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void startChat(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(),
                     viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
@@ -1194,6 +1258,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void navigateToDealer(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
                     MixpanelHelper.TOOLS_VIEW);
@@ -1215,6 +1281,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param view
      */
     public void callDealer(View view) {
+        if (!checkDealership()) return;
+
         try {
             mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
                     MixpanelHelper.TOOLS_VIEW);
@@ -1229,153 +1297,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Onclick method for Add Preset Issues button
-     *
-     * @param button
-     */
-    public void addPresetIssues(View button) {
-        if (dashboardCar == null) return;
-
-        try{
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_BUTTON, MixpanelHelper.DASHBOARD_VIEW);
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-
-        View dialogList = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_list, null);
-        View dialogTitle = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_title, null);
-        RecyclerView list = (RecyclerView) dialogList.findViewById(R.id.dialog_add_preset_issue_recycler_view);
-
-        final IssueAdapter adapter = new IssueAdapter();
-        list.setAdapter(adapter);
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        list.setLayoutManager(linearLayoutManager);
-        list.setHasFixedSize(true);
-
-        final AlertDialog d = new AlertDialog.Builder(this)
-                .setCustomTitle(dialogTitle)
-                .setView(dialogList)
-                .setPositiveButton("CONFIRM", null)
-                .setNegativeButton("CANCEL", null)
-                .create();
-
-        d.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
-                positiveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try{
-                            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CONFIRM, MixpanelHelper.DASHBOARD_VIEW);
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                        }
-
-                        List<CarIssuePreset> pickedIssues = adapter.getPickedIssues();
-                        if (pickedIssues.size() == 0){
-                            Toast.makeText(MainActivity.this, "Please pick issues you want to add!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        StringBuilder checkedItems = new StringBuilder();
-                        for (CarIssuePreset pickedIssue: pickedIssues){
-                            checkedItems.append(pickedIssue.getItem() + " ");
-                        }
-
-                        showLoading("Saving issue");
-                        networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedIssues, new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                hideLoading();
-                                if (requestError == null) {
-                                    Log.d(TAG, "Success!");
-                                    showSimpleMessage("We have saved issues you requested!", true);
-                                    refreshFromServer(); // Test this
-
-                                } else {
-                                    Log.d(TAG, "Post custom issue failed, error message: " + requestError.getMessage() + ", " +
-                                            "error: " + requestError.getError());
-                                    showSimpleMessage("Network error, please try again later.", false);
-                                }
-                            }
-                        });
-                        d.dismiss();
-                    }
-                });
-            }
-        });
-
-        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                try{
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
-                } catch (JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        d.show();
-    }
-
-    /**
-     *
-     * @param data
-     */
-    private void showDetailDialog(CarIssuePreset data){
-        if (data == null) return;
-
-        View dialogDetail = getLayoutInflater().inflate(R.layout.dialog_add_preset_issue_detail, null);
-
-        String title = data.getAction() + " " + data.getItem();
-        String description = data.getDescription();
-        int severity =  data.getPriority();
-
-        ((TextView)dialogDetail.findViewById(R.id.dialog_preset_issue_title_text)).setText(title);
-        ((TextView)dialogDetail.findViewById(R.id.dialog_preset_issue_description)).setText(description);
-
-        RelativeLayout rLayout = (RelativeLayout) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_indicator_layout);
-        TextView severityTextView = (TextView) dialogDetail.findViewById(R.id.dialog_preset_issue_severity_text);
-
-        switch (severity) {
-            case 1:
-                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_low_indicator));
-                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[0]);
-                break;
-            case 2:
-                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_medium_indicator));
-                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[1]);
-                break;
-            case 3:
-                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_high_indicator));
-                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[2]);
-                break;
-            default:
-                rLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_critical_indicator));
-                severityTextView.setText(getResources().getStringArray(R.array.severity_indicators)[3]);
-                break;
-        }
-
-        final AlertDialog d = new AlertDialog.Builder(this)
-                .setTitle("Detail")
-                .setView(dialogDetail)
-                .setPositiveButton("OK", null)
-                .create();
-
-        d.show();
-    }
-
-    /**
      * Given the tutorial should be shown to the user, show tutorial sequence
      */
     private void presentShowcaseSequence(boolean discountAvailable, String discountUnit, float discountAmount) {
         Log.i(TAG, "running present show case");
 
-        final MaterialShowcaseSequence discountSequence = new MaterialShowcaseSequence(this);
+        tutorialSequence = new MaterialShowcaseSequence(this);
 
         try {
             mixpanelHelper.trackViewAppeared(MixpanelHelper.TUTORIAL_VIEW_APPEARED);
@@ -1390,9 +1317,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (discountAmount != 0 && discountUnit != null) {
                 firstServicePromotion.append(" You can also receive a discount of ");
                 if (discountUnit.contains("%")) {
-                    firstServicePromotion.append(discountAmount + discountUnit + " towards your first service");
+                    firstServicePromotion.append((int) discountAmount)
+                            .append(discountUnit).append(" towards your first service");
                 } else {
-                    firstServicePromotion.append(discountUnit + (int) discountAmount + " towards your first service.");
+                    firstServicePromotion.append(discountUnit)
+                            .append(String.format("%.2f", discountAmount)).append(" towards your first service.");
                 }
             }
         }
@@ -1424,10 +1353,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 })
                 .build();
 
-        discountSequence.addSequenceItem(firstBookingDiscountShowcase)
+        tutorialSequence.addSequenceItem(firstBookingDiscountShowcase)
                 .addSequenceItem(tentativeDateShowcase);
 
-        discountSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+        tutorialSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
             @Override
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
@@ -1435,8 +1364,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
                         requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
                         requestServiceButton.setText(getResources().getString(R.string.first_service_booking_tutorial_button_text));
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1451,43 +1378,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
         });
 
-        discountSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+        tutorialSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
             @Override
             public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
 
                 if (!materialShowcaseView.equals(firstBookingDiscountShowcase)) return;
-
-                try {
-                    mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                com.pitstop.models.User user = application.getCurrentUser();
-
-                final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", dashboardCar.getVin());
-                customProperties.put("Car Make", dashboardCar.getMake());
-                customProperties.put("Car Model", dashboardCar.getModel());
-                customProperties.put("Car Year", dashboardCar.getYear());
-                customProperties.put("Email", dashboardCar.getDealership().getEmail());
-
-                if (user != null) {
-                    customProperties.put("Phone", user.getPhone());
-                    User.getCurrentUser().setFirstName(user.getFirstName());
-                    User.getCurrentUser().setEmail(user.getEmail());
-                }
-                User.getCurrentUser().addProperties(customProperties);
-
-                if (user != null) {
-                    Log.d("MainActivity Smooch", "Sending message");
-                    Smooch.getConversation().sendMessage(
-                            new io.smooch.core.Message(user.getFirstName() +
-                                    (user.getLastName() == null || user.getLastName().equals("null")
-                                            ? "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                }
-
-                Smooch.track("User Logged In");
 
                 //Change the color and text back to the original request service button
                 try {
@@ -1504,7 +1399,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         viewPager.setCurrentItem(0);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 
-        discountSequence.start();
+        tutorialSequence.start();
     }
 
     /**
@@ -1518,12 +1413,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * </ul>
      */
     public void prepareAndStartTutorialSequence() {
-        Log.d("FSBretrieveUserSetting", "Is carListEmpty: " + carList.isEmpty());
-        Log.d("FSB", "Start getting user settings");
+        if (!checkDealership()) return;
+
+        showLoading("Loading dealership information...");
         networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-
+                hideLoading();
                 String unit = "";
                 float amount = 0f;
                 boolean enableDiscountTutorial = false;
@@ -1539,10 +1435,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         if (jsonObject.has("shop")) {
                             JSONObject shop = jsonObject.getJSONObject("shop");
                             JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
-
-                            enableDiscountTutorial = shop.getBoolean("enableDiscountTutorial");
-                            amount = (float) firstAppointmentDiscount.getDouble("amount");
-                            unit = firstAppointmentDiscount.getString("unit");
+                            if (firstAppointmentDiscount.has("amount")) amount = (float) firstAppointmentDiscount.getDouble("amount");
+                            if (firstAppointmentDiscount.has("unit")) unit = firstAppointmentDiscount.getString("unit");
                         }
                     } catch (JSONException je) {
                         je.printStackTrace();
@@ -1551,6 +1445,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
                 }
+
+                enableDiscountTutorial = (unit != null && !unit.isEmpty()) && (amount > 0);
 
                 //Show the tutorial
                 try {
@@ -1563,40 +1459,160 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     /**
-     * Invoked when broadcast receiver receives ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED intnet
+     * clear the tutorial item from dashboard
      */
-    private void showPairDeviceWithCarDialog() {
+    private void removeTutorial() {
+        Log.d(TAG, "Remove tutorial");
+
         try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+            mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "Dashboard fragment handler select car message sent");
-        mDashboardFragment.selectCarForUnrecognizedModule();
+
+        callback.removeTutorial();
     }
 
-    /**
-     * Register all actions, invoked at onStart()
-     */
-    private void registerBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_PAIRING_MODULE_ID_INVALID);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_SUCCESS);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_NETWORK_ERROR);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_UNKNOWN_ERROR);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_UNRECOGNIZED_MODULE_DISCOVERED);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_CONNECTING_SCANNER);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_VALIDATING_SCANNER);
-        intentFilter.addAction(ACTION_PAIRING_MODULE_STEP_SAVING_SCANNER_ONLINE);
+    private boolean checkDealership() {
+        if (dashboardCar == null) {
+            return false;
+        }
 
-        this.registerReceiver(mBroadcastReceiver, intentFilter);
+        if (dashboardCar.getDealership() == null) {
+            Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
+                    .setAction("Select", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            selectDealershipForDashboardCar();
+                        }
+                    })
+                    .show();
+            return false;
+        }
+        return true;
     }
 
-    /**
-     * unregister broadcast receiver, invoked at onStop()
-     */
-    private void unregisterBroadcastReceiver() {
-        this.unregisterReceiver(mBroadcastReceiver);
+    private void selectDealershipForDashboardCar() {
+        final List<Dealership> dealerships = shopLocalStore.getAllDealerships();
+        final List<String> shops = new ArrayList<>();
+        final List<String> shopIds = new ArrayList<>();
+
+        // Try local store for dealerships
+        if (dealerships.isEmpty()) {
+            showLoading("Getting shop information..");
+            networkHelper.getShops(new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    hideLoading();
+                    if (requestError == null) {
+                        try {
+                            List<Dealership> dealers = Dealership.createDealershipList(response);
+                            shopLocalStore.deleteAllDealerships();
+                            shopLocalStore.storeDealerships(dealers);
+                            for (Dealership dealership : dealers) {
+                                shops.add(dealership.getName());
+                                shopIds.add(String.valueOf(dealership.getId()));
+                            }
+                            showSelectDealershipDialog(shops.toArray(new String[shops.size()]),
+                                    shopIds.toArray(new String[shopIds.size()]));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    } else {
+                        Log.e(TAG, "Get shops: " + requestError.getMessage());
+                        Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+            });
+        } else {
+            for (Dealership shop : dealerships) {
+                shops.add(shop.getName());
+                shopIds.add(String.valueOf(shop.getId()));
+            }
+            showSelectDealershipDialog(shops.toArray(new String[shops.size()]),
+                    shopIds.toArray(new String[shopIds.size()]));
+        }
+    }
+
+    private void showSelectDealershipDialog(final String[] shops, final String[] shopIds) {
+        final int[] pickedPosition = {-1};
+
+        final AlertDialog dialog = new AnimatedDialogBuilder(this)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setSingleChoiceItems(shops, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        pickedPosition[0] = which;
+                    }
+                })
+                .setNegativeButton("CANCEL", null)
+                .setPositiveButton("CONFIRM", null)
+                .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (pickedPosition[0] == -1) {
+                            Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
+
+                        try {
+                            mixpanelHelper.trackCustom("Button Tapped",
+                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                            MixpanelHelper.SETTINGS_VIEW, dashboardCar.getMake(), dashboardCar.getModel())));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        networkHelper.updateCarShop(dashboardCar.getId(), shopId, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                dialog.dismiss();
+                                if (requestError == null) {
+                                    Log.i(TAG, "Dealership updated - carId: " + dashboardCar.getId() + ", dealerId: " + shopId);
+                                    // Update car in local database
+                                    dashboardCar.setShopId(shopId);
+                                    dashboardCar.setDealership(shopLocalStore.getDealership(shopId));
+                                    carLocalStore.updateCar(dashboardCar);
+
+                                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
+                                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
+                                    User.getCurrentUser().addProperties(properties);
+
+                                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+
+                                    refreshFromLocal();
+                                    resetMenus(false);
+                                } else {
+                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                    }
+                });
+            }
+        });
+
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+
+    private void logAuthInfo(){
+        if (BuildConfig.DEBUG){
+            Log.d(TAG, "RefreshToken: " + application.getRefreshToken());
+            Log.d(TAG, "AccessToken: " + application.getAccessToken());
+        }
     }
 
     public interface MainDashboardCallback {
@@ -1610,167 +1626,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         void setCarDetailsUI();
 
-        void selectCarForUnrecognizedModule();
-    }
-
-    public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHolder> {
-
-        private List<CarIssuePreset> mPresetIssues;
-
-        private List<CarIssuePreset> mPickedIssues;
-
-        private void populateContent(){
-            mPresetIssues = new ArrayList<>();
-            mPresetIssues.add(new CarIssuePreset.Builder()
-                    .setId(4)
-                    .setAction(getString(R.string.preset_issue_service_emergency))
-                    .setItem(getString(R.string.preset_issue_item_tow_truck))
-                    .setType(CarIssuePreset.TYPE_PRESET)
-                    .setDescription(getString(R.string.tow_truck_description))
-                    .setPriority(5).build());
-            mPresetIssues.add(new CarIssuePreset.Builder()
-                    .setId(1)
-                    .setAction(getString(R.string.preset_issue_service_emergency))
-                    .setItem(getString(R.string.preset_issue_item_flat_tire))
-                    .setType(CarIssuePreset.TYPE_PRESET)
-                    .setDescription(getString(R.string.flat_tire_description))
-                    .setPriority(5).build());
-            mPresetIssues.add(new CarIssuePreset.Builder()
-                    .setId(2)
-                    .setAction(getString(R.string.preset_issue_service_replace))
-                    .setItem(getString(R.string.preset_issue_item_engine_oil_filter))
-                    .setType(CarIssuePreset.TYPE_PRESET)
-                    .setDescription(getString(R.string.engine_oil_filter_description))
-                    .setPriority(3).build());
-            mPresetIssues.add(new CarIssuePreset.Builder()
-                    .setId(3)
-                    .setAction(getString(R.string.preset_issue_service_replace))
-                    .setItem(getString(R.string.preset_issue_item_wipers_fluids))
-                    .setType(CarIssuePreset.TYPE_PRESET)
-                    .setDescription(getString(R.string.wipers_fluids_description))
-                    .setPriority(2).build());
-            mPresetIssues.add(new CarIssuePreset.Builder()
-                    .setId(5)
-                    .setAction(getString(R.string.preset_issue_service_request))
-                    .setItem(getString(R.string.preset_issue_item_shuttle_service))
-                    .setType(CarIssuePreset.TYPE_PRESET)
-                    .setDescription(getString(R.string.shuttle_service_description))
-                    .setPriority(3).build());
-        }
-
-        public IssueAdapter() {
-            populateContent();
-            mPickedIssues = new ArrayList<>();
-        }
-
-        @Override
-        public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.activity_add_preset_issue_item, parent, false);
-            return new IssueViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(final IssueViewHolder holder, final int position) {
-            final CarIssuePreset presetIssue = mPresetIssues.get(position);
-
-            holder.description.setText(presetIssue.getDescription());
-            holder.description.setEllipsize(TextUtils.TruncateAt.END);
-            holder.title.setText(String.format("%s %s", presetIssue.getAction(), presetIssue.getItem()));
-
-            holder.container.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try{
-                        showDetailDialog(presetIssue);
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    try{
-                        mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
-                                MixpanelHelper.DASHBOARD_VIEW);
-                    } catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked){
-                        mPickedIssues.add(presetIssue);
-                    } else if(mPickedIssues.contains(presetIssue)){
-                        mPickedIssues.remove(presetIssue);
-                    }
-
-                    try{
-                        String check = isChecked ? "Checked: " : "Unchecked: ";
-                        mixpanelHelper.trackButtonTapped(check + presetIssue.getAction() + " " + presetIssue.getItem(),
-                                MixpanelHelper.DASHBOARD_VIEW);
-                    } catch (JSONException e){
-                        e.printStackTrace();
-                    }
-
-                }
-            });
-
-            switch (presetIssue.getId()){
-                case 1:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_flat_tire_severe));
-                    break;
-                case 2:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_replace_orange_48px));
-                    break;
-                case 3:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_replace_yellow_48px));
-                    break;
-                case 4:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_tow_truck_severe));
-                    break;
-                case 5:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
-                    break;
-                default:
-                    holder.imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.preset_service_medium));
-                    break;
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return mPresetIssues.size();
-        }
-
-        public List<CarIssuePreset> getPickedIssues() {
-            return mPickedIssues;
-        }
-
-        public class IssueViewHolder extends RecyclerView.ViewHolder {
-            public TextView title;
-            public TextView description;
-            public ImageView imageView;
-            public CheckBox checkBox;
-            public View container;
-
-            public IssueViewHolder(View itemView) {
-                super(itemView);
-                checkBox = (CheckBox) itemView.findViewById(R.id.dialog_preset_issue_list_checkbox);
-                title = (TextView) itemView.findViewById(R.id.title);
-                description = (TextView) itemView.findViewById(R.id.description);
-                imageView = (ImageView) itemView.findViewById(R.id.image_icon);
-                container = itemView.findViewById(R.id.list_car_item);
-            }
-        }
-    }
-
-    private void logScannerTable(){
-        List<ObdScanner> scanners = scannerLocalStore.getAllScanners();
-        for (ObdScanner scanner: scanners){
-            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
-            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
-            Log.d(TAG, "Car ID: " + scanner.getCarId());
-        }
+        void removeTutorial();
     }
 
 }

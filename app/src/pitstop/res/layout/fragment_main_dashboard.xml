@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#f6f6f6">
@@ -407,16 +406,16 @@
                 android:layout_height="match_parent"
                 android:scrollbars="vertical"/>
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/add_preset_issues"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/activity_horizontal_margin"
-                android:onClick="addPresetIssues"
-                android:src="@drawable/ic_add_preset_issues"
-                app:backgroundTint="@color/primary"
-                app:layout_anchor="@id/car_issues_list"
-                app:layout_anchorGravity="bottom|right|end"/>
+            <!--<android.support.design.widget.FloatingActionButton-->
+                <!--android:id="@+id/add_preset_issues"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="@dimen/activity_horizontal_margin"-->
+                <!--android:onClick="addCustomIssues"-->
+                <!--android:src="@drawable/ic_add_preset_issues"-->
+                <!--app:backgroundTint="@color/primary"-->
+                <!--app:layout_anchor="@id/car_issues_list"-->
+                <!--app:layout_anchorGravity="bottom|right|end"/>-->
 
         </android.support.design.widget.CoordinatorLayout>
 
@@ -468,7 +467,6 @@
         android:id="@+id/dashboard_request_service_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:background="@drawable/color_button_rectangle_primary"
         android:drawableRight="@drawable/request_service_button"
         android:elevation="2dp"
@@ -476,6 +474,8 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="@string/service_request_button"
-        android:textColor="#fff"/>
+        android:textColor="#fff"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"/>
 
 </RelativeLayout>

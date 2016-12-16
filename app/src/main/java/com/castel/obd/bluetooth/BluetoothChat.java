@@ -29,6 +29,7 @@ public class BluetoothChat {
 	}
 
 	public synchronized void connectBluetooth(BluetoothDevice device) {
+		if (isConnecting()) return;
 		connectThread = new ConnectThread(device);
 		connectThread.start();
 	}
@@ -43,6 +44,14 @@ public class BluetoothChat {
 			connectThread.cancel();
 			connectThread = null;
 		}
+	}
+
+	public boolean isConnecting(){
+		return connectThread != null && connectThread.isAlive();
+	}
+
+	public boolean isConnected(){
+		return connectedThread != null && connectedThread.isAlive();
 	}
 
 	// establish connection with socket

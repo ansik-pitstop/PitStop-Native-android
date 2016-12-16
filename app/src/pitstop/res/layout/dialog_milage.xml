@@ -1,23 +1,32 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You can change this anytime later"
-        android:id="@+id/textView67" />
+        android:text="You can change this anytime later"/>
 
-    <EditText
-        android:id="@+id/milage"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:imeOptions="actionDone"
-        android:hint="Mileage"
-        android:inputType="number"
-        android:singleLine="true" />
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/mileage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:hint="Mileage"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"/>
+
+    </android.support.design.widget.TextInputLayout>
+
 </LinearLayout>

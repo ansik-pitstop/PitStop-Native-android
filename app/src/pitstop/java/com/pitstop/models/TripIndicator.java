@@ -22,7 +22,7 @@ public abstract class TripIndicator {
         return rtcTime;
     }
 
-    public int getTripId() {
+    public long getTripId() {
         return tripId;
     }
 

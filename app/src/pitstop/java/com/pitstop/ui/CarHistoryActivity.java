@@ -19,6 +19,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -32,6 +33,8 @@ import java.util.LinkedHashMap;
  * Created by DavidIsDum on 1/30/2016.
  */
 public class CarHistoryActivity extends AppCompatActivity {
+    private static final String TAG = CarHistoryActivity.class.getSimpleName();
+
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
     //private CustomAdapter customAdapter;
@@ -46,8 +49,6 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
     ArrayList<String> headers = new ArrayList<>();
-
-    private static final String TAG = CarHistoryActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

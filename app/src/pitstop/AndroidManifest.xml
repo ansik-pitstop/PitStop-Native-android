@@ -2,22 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pitstop">
 
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />  <!--normal-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!--normal-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!--dangerous-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!--dangerous-->
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!--normal-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!--normal-->
+    <!--<uses-permission android:name="android.permission.CALL_PHONE" />-->
 
     <!-- Internet permission -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.INTERNET" /> <!--normal-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!--normal-->
+    <!--<uses-permission android:name="android.permission.VIBRATE" />-->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" /> <!--dangerous-->
 
     <!-- permission for barcode scanner -->
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA" /> <!--dangerous-->
 
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -35,10 +35,10 @@
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+    <!--<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />-->
+    <!--<uses-permission android:name="android.permission.READ_LOGS" />-->
 
     <!--
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
@@ -111,19 +111,15 @@
         <activity
             android:name=".ui.ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
-        <activity
-            android:name=".ui.PendingAddCarActivity"
-            android:label="Please Connect to Internet" />
-        <activity
-            android:name=".ui.IssueDetailsActivity"
-            android:label="@string/title_activity_display_item"
-            android:screenOrientation="portrait" />
 
         <activity
-            android:name=".ui.AddPresetIssueActivity"
-            android:label="@string/title_activity_add_custom_issue"
-            android:screenOrientation="portrait">
-        </activity>
+            android:name=".ui.add_car.PendingAddCarActivity"
+            android:label="Please Connect to Internet" />
+
+        <activity
+            android:name=".ui.issue_detail.IssueDetailsActivity"
+            android:label="@string/title_activity_display_item"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".bluetooth.BluetoothAutoConnectService"
@@ -144,7 +140,7 @@
         </activity>
 
         <activity
-            android:name=".ui.AddCarActivity"
+            android:name=".ui.add_car.AddCarActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
@@ -154,6 +150,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.CarHistoryActivity"
             android:label="History"
@@ -169,7 +166,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
         <activity
-            android:name=".ui.CarScanActivity"
+            android:name=".ui.scan_car.ScanCarActivity"
             android:label="@string/title_activity_car_scan"
             android:screenOrientation="portrait"
             android:parentActivityName=".ui.MainActivity"
@@ -178,6 +175,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".ui.service_request.ServiceRequestActivity"
+            android:label="Request Service"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
 
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">

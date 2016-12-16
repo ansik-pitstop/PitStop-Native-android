@@ -15,24 +15,26 @@ import android.widget.TextView;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.PIDInfo;
-import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
-/**
- * TODO move to DEBUG folder
- */
+import java.util.Map;
+
 public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+
+    private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
 
     TextView BTSTATUS;
     boolean pendingUpload, clicked;
-    private BluetoothAutoConnectService service;
     /** Callbacks for service binding, passed to bindService() */
-    private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
+    private BluetoothAutoConnectService service;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -90,10 +92,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void uploadRecords() {
-        //TODO
         //service.uploadRecords();
     }
-
 
     @Override
     public void getBluetoothState(int state) {
@@ -129,60 +129,129 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         Log.i(TAG, "setParameterResponse: " + responsePackageInfo.toString());
     }
 
+//    @Override
+//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
+//        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
+//    }
+
     @Override
-    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
+    public void tripData(TripInfoPackage tripInfoPackage) {
+
     }
 
     @Override
-    public void getIOData(final DataPackageInfo dataPackageInfo) {
-        Log.i(TAG, "getIOData");
+    public void parameterData(final ParameterPackage parameterPackage) {
+        Log.i(TAG, "parameterData: " + parameterPackage.toString());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView) findViewById(R.id.debug_log)).setText("Parameter data: " + parameterPackage.toString());
+            }
+        });
+    }
 
-        /*if(!pendingUpload) {
-            findViewById(R.id.loading).setVisibility(View.GONE);
-        }*/
+    @Override
+    public void pidData(PidPackage pidPackage) {
+        final StringBuilder pidList = new StringBuilder();
 
-        //display out
-        String out = "";
-        out += "result : " + dataPackageInfo.result + "\n";
-        out += "deviceId : " + dataPackageInfo.deviceId + "\n";
-        out += "tripId : " + dataPackageInfo.tripId + "\n";
-        out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
-        out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
-        out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
-        out += "protocolType : " + dataPackageInfo.protocolType + "\n";
-        out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
-        out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
-        out += "vState : " + dataPackageInfo.vState + "\n";
-        out += "OBD Data \n";
-        for (PIDInfo i : dataPackageInfo.obdData) {
-            out += "     " + i.pidType + " : " + i.value + "\n";
+        pidList.append("PIDS:\n");
+
+        for(Map.Entry<String, String> pid : pidPackage.pids.entrySet()) {
+            pidList.append(pid.getKey());
+            pidList.append(": ");
+            pidList.append(pid.getValue());
+            pidList.append("\n");
         }
-        out += "Freeze Data \n";
-        for (PIDInfo i : dataPackageInfo.freezeData) {
-            out += "     " + i.pidType + " : " + i.value + "\n";
-        }
-        out += "surportPid : " + dataPackageInfo.surportPid + "\n";
-        out += "dtcData : " + dataPackageInfo.dtcData + "\n";
-
-        final String output = out;
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 findViewById(R.id.loading).setVisibility(View.GONE);
-                ((TextView) findViewById(R.id.debug_log)).setText(output);
+                ((TextView) findViewById(R.id.debug_log)).setText(pidList.toString());
             }
         });
-
-        Log.e(TAG, dataPackageInfo.toString());
     }
+
+    @Override
+    public void dtcData(final DtcPackage dtcPackage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView)findViewById(R.id.debug_log)).setText(dtcPackage.toString());
+            }
+        });
+    }
+
+    @Override
+    public void ffData(final FreezeFramePackage ffPackage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                ((TextView)findViewById(R.id.debug_log)).setText(ffPackage.toString());
+            }
+        });
+    }
+
+//    @Override
+//    public void getIOData(final DataPackageInfo dataPackageInfo) {
+//        Log.i(TAG, "getIOData");
+//
+//        /*if(!pendingUpload) {
+//            findViewById(R.id.loading).setVisibility(View.GONE);
+//        }*/
+//
+//        //display out
+//        String out = "";
+//        out += "result : " + dataPackageInfo.result + "\n";
+//        out += "deviceId : " + dataPackageInfo.deviceId + "\n";
+//        out += "tripId : " + dataPackageInfo.tripId + "\n";
+//        out += "dataNumber : " + dataPackageInfo.dataNumber + "\n";
+//        out += "tripFlag : " + dataPackageInfo.tripFlag + "\n";
+//        out += "rtcTime : " + dataPackageInfo.rtcTime + "\n";
+//        out += "protocolType : " + dataPackageInfo.protocolType + "\n";
+//        out += "tripMileage : " + dataPackageInfo.tripMileage + "\n";
+//        out += "tripfuel : " + dataPackageInfo.tripfuel + "\n";
+//        out += "vState : " + dataPackageInfo.vState + "\n";
+//        out += "OBD Data \n";
+//        for (PIDInfo i : dataPackageInfo.obdData) {
+//            out += "     " + i.pidType + " : " + i.value + "\n";
+//        }
+//        out += "Freeze Data \n";
+//        for (PIDInfo i : dataPackageInfo.freezeData) {
+//            out += "     " + i.pidType + " : " + i.value + "\n";
+//        }
+//        out += "surportPid : " + dataPackageInfo.surportPid + "\n";
+//        out += "dtcData : " + dataPackageInfo.dtcData + "\n";
+//
+//        final String output = out;
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                findViewById(R.id.loading).setVisibility(View.GONE);
+//                ((TextView) findViewById(R.id.debug_log)).setText(output);
+//            }
+//        });
+//
+//        //Log.e(TAG, dataPackageInfo.toString());
+//    }
 
     @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
 
     }
 
+    public void getSupportedPids(View view) {
+        service.getSupportedPids();
+    }
+
+    public void getPids(View view) {
+        String values = ((EditText) findViewById(R.id.values)).getText().toString();
+        service.getPids(values);
+    }
 
     public void getDTC(View view) {
         if (service.getState() != IBluetoothCommunicator.CONNECTED) {
@@ -198,14 +267,14 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         if (service.getState() != IBluetoothCommunicator.CONNECTED) {
             service.startBluetoothSearch();
         }else {
-            service.getPIDs();
+            service.getSupportedPids();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
 
     public void getParam(View view) {
         String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
-        service.getFreeze(tag);
+        //service.getFreeze(tag);
     }
 
     public void getVin(View view) {
@@ -234,4 +303,14 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         service.setFixedUpload();
     }
 
+    public void initialize(View view) {
+        //service.initialize();
+    }
+
+    public void writeToObd(View view) {
+        String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
+        String value = ((EditText) findViewById(R.id.values)).getText().toString();
+
+        service.changeSetting(tag, value);
+    }
 }

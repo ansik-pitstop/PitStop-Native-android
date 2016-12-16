@@ -24,6 +24,8 @@ public class CarIssue implements Parcelable {
     public static final String EDMUNDS = "service_edmunds";
     public static final String FIXED = "fixed";
     public static final String INTERVAL = "interval";
+    public static final String TYPE_USER_INPUT = "userInput";
+    public static final String TYPE_PRESET = "preset";
 
     public static final String ISSUE_DONE = "done";
     public static final String ISSUE_NEW = "new";
@@ -38,6 +40,8 @@ public class CarIssue implements Parcelable {
     private String issueType;
     private String item;
     private String description;
+    private String symptoms;
+    private String causes;
     private String action;
 
     public CarIssue() {}
@@ -114,9 +118,24 @@ public class CarIssue implements Parcelable {
         this.description = description;
     }
 
+    public String getSymptoms() {
+        return symptoms;
+    }
+
+    public void setSymptoms(String symptoms) {
+        this.symptoms = symptoms;
+    }
+
+    public String getCauses() {
+        return causes;
+    }
+
+    public void setCauses(String causes) {
+        this.causes = causes;
+    }
+
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
         CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
-
         carIssue.setCarId(carId);
 
         JSONObject issueDetail = issueObject.getJSONObject("issueDetail");
@@ -135,6 +154,12 @@ public class CarIssue implements Parcelable {
             }
             if(!issueDetail.isNull("description")) {
                 carIssue.setDescription(issueDetail.getString("description"));
+            }
+            if (!issueDetail.isNull("symptoms")){
+                carIssue.setSymptoms(issueDetail.getString("symptoms"));
+            }
+            if (!issueDetail.isNull("causes")){
+                carIssue.setCauses(issueDetail.getString("causes"));
             }
         }
 
@@ -173,6 +198,8 @@ public class CarIssue implements Parcelable {
         dest.writeString(this.item);
         dest.writeString(this.description);
         dest.writeString(this.action);
+        dest.writeString(this.symptoms);
+        dest.writeString(this.causes);
     }
 
     protected CarIssue(Parcel in) {
@@ -185,6 +212,8 @@ public class CarIssue implements Parcelable {
         this.item = in.readString();
         this.description = in.readString();
         this.action = in.readString();
+        this.symptoms = in.readString();
+        this.causes = in.readString();
     }
 
     public static final Creator<CarIssue> CREATOR = new Creator<CarIssue>() {
@@ -209,6 +238,8 @@ public class CarIssue implements Parcelable {
         item = builder.item;
         description = builder.description;
         action = builder.action;
+        symptoms = builder.symptoms;
+        causes = builder.causes;
     }
 
     public static class Builder{
@@ -221,6 +252,8 @@ public class CarIssue implements Parcelable {
         private String item = "";
         private String description = "";
         private String action = "";
+        private String symptoms;
+        private String causes;
 
         public Builder() {}
 
@@ -267,6 +300,14 @@ public class CarIssue implements Parcelable {
         public Builder setAction(String action) {
             this.action = action;
             return this;
+        }
+
+        public void setSymptoms(String symptoms) {
+            this.symptoms = symptoms;
+        }
+
+        public void setCauses(String causes) {
+            this.causes = causes;
         }
 
         public CarIssue build(){

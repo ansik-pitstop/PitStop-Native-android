@@ -9,13 +9,14 @@ import android.widget.Toast;
 import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.CarIssue;
-import com.pitstop.models.CarIssuePreset;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.service_request.ServiceRequestActivity;
 
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
@@ -25,6 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by Ben Wu on 2016-05-20.
@@ -133,6 +136,37 @@ public class NetworkHelper {
         }
 
         post("car", callback, body);
+    }
+
+    public void createNewCarWithoutShopId(int userId, int mileage, String vin, String scannerId,
+                                          RequestCallback callback){
+        LOGI(TAG, "createNewCarWithoutShopId");
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("vin", vin);
+            body.put("baseMileage", mileage);
+            body.put("userId", userId);
+            body.put("scannerId", scannerId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("car", callback, body);
+    }
+
+    public void deleteUserCar(int carId, RequestCallback callback) {
+        LOGI(TAG, "Delete car: " + carId);
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("userId", 0);
+            body.put("carId", carId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        put("car", callback, body);
     }
 
     public void getCarsByUserId(int userId, RequestCallback callback) {
@@ -267,18 +301,17 @@ public class NetworkHelper {
         postNoAuth("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending,
-                          List<PIDInfo> freezeData, RequestCallback callback) {
+    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
         LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
                 " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
 
         JSONObject body = new JSONObject();
-        JSONArray data = new JSONArray();
+        //JSONArray data = new JSONArray(); // TODO: Freeze data
 
         try {
-            for (PIDInfo info : freezeData) {
-                data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
-            }
+            //for(PIDInfo info : freezeData) {
+            //    data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
+            //}
 
             body.put("carId", carId);
             body.put("issueType", CarIssue.DTC);
@@ -287,12 +320,35 @@ public class NetworkHelper {
                             .put("rtcTime", Long.parseLong(rtcTime))
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending));
-            //.put("freezeData", data));
+                            //.put("freezeData", data));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         post("issue", callback, body);
+    }
+
+    public void postFreezeFrame(FreezeFramePackage ffPackage, RequestCallback callback){
+        Log.d(TAG, "Posting FF:" + ffPackage);
+        JSONObject body = new JSONObject();
+        JSONArray freezePidArray = new JSONArray();
+        JSONArray pids = new JSONArray();
+        Map<String, String> ff = ffPackage.freezeData;
+        try {
+            for (Map.Entry<String, String> entry : ff.entrySet()){
+                pids.put(new JSONObject()
+                        .put("id", entry.getKey())
+                        .put("data", entry.getValue()));
+            }
+            freezePidArray.put(new JSONObject()
+                    .put("rtcTime", ffPackage.rtcTime)
+                    .put("pids", pids));
+            body.put("scannerId", ffPackage.deviceId).put("freezePidArray", freezePidArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        post("scan/pids/freeze", callback, body);
     }
 
     /**
@@ -304,13 +360,13 @@ public class NetworkHelper {
      */
     public void postPresetIssue(int carId, int issueId, RequestCallback callback) {
         LOGI(TAG, String.format("postPresetIssue: carId: %s, issueId: %s, " +
-                "issueType: %s", carId, issueId, CarIssuePreset.TYPE_PRESET));
+                "issueType: %s", carId, issueId, CarIssue.TYPE_PRESET));
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
 
         try {
             data.put(new JSONObject()
-                    .put("type", CarIssuePreset.TYPE_PRESET)
+                    .put("type", CarIssue.TYPE_PRESET)
                     .put("id", issueId));
             body.put("data", data);
         } catch (JSONException e) {
@@ -332,14 +388,14 @@ public class NetworkHelper {
     public void postUserInputIssue(int carId, String item, String action,
                                    String description, int priority, RequestCallback callback) {
         LOGI(TAG, String.format("postPresetIssue: carId: %s, item: %s, " +
-                "issueType: %s", carId, item, CarIssuePreset.TYPE_USER_INPUT));
+                "issueType: %s", carId, item, CarIssue.TYPE_USER_INPUT));
 
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
 
         try {
             data.put(new JSONObject()
-                    .put("type", CarIssuePreset.TYPE_USER_INPUT)
+                    .put("type", CarIssue.TYPE_USER_INPUT)
                     .put("item", item)
                     .put("action", action)
                     .put("description", description)
@@ -359,20 +415,20 @@ public class NetworkHelper {
      * @param pickedIssues
      * @param callback
      */
-    public void postMultiplePresetIssue(int carId, List<CarIssuePreset> pickedIssues, RequestCallback callback) {
+    public void postMultiplePresetIssue(int carId, List<CarIssue> pickedIssues, RequestCallback callback) {
         LOGI(TAG, "Post multiple preset issues: carId: " + carId + ", pickedIssues: " + pickedIssues.size());
 
         JSONObject body = new JSONObject();
         JSONArray data = new JSONArray();
         try {
-            for (CarIssuePreset issue : pickedIssues) {
-                if (issue.getType().equals(CarIssuePreset.TYPE_PRESET)) {
+            for (CarIssue issue : pickedIssues) {
+                if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)) {
                     data.put(new JSONObject()
-                            .put("type", issue.getType())
+                            .put("type", issue.getIssueType())
                             .put("id", issue.getId()));
                 } else {
                     data.put(new JSONObject()
-                            .put("type", issue.getType())
+                            .put("type", issue.getIssueType())
                             .put("item", issue.getItem())
                             .put("action", issue.getAction())
                             .put("description", issue.getDescription())
@@ -456,7 +512,7 @@ public class NetworkHelper {
         try {
             body.put("scannerId", scannerId);
             body.put("serviceType", serviceType);
-            body.put("data", new JSONObject());
+            body.put("data", new JSONObject()); //?
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -545,7 +601,7 @@ public class NetworkHelper {
         post("utility/serviceRequest", callback, body);
 
         // If state is tentative, we put salesPerson to another endpoint
-        if (state.equals(ServiceRequestUtil.STATE_TENTATIVE)) {
+        if (state.equals(ServiceRequestActivity.STATE_TENTATIVE)) {
             JSONObject updateSalesman = new JSONObject();
             try {
                 updateSalesman.put("carId", carId);
@@ -568,7 +624,6 @@ public class NetworkHelper {
         }
 
     }
-
 
     public void getUser(int userId, RequestCallback callback) {
         LOGI(TAG, "getUser: " + userId);
@@ -715,5 +770,6 @@ public class NetworkHelper {
         LOGI(TAG, "validate scanner id: " + scannerId);
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
+
 
 }

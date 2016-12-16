@@ -3,7 +3,7 @@ package com.castel.obd.util;
 import android.util.Log;
 
 public final class LogUtil {
-	private static boolean isDebug = true;
+	private static boolean isDebug = false;
 	public static final String TAG_GF = "gf";
 
 	/**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
 
     <PreferenceCategory android:title="My Account">
@@ -22,15 +22,7 @@
 
     </PreferenceCategory>
 
-    <!--<PreferenceCategory-->
-        <!--android:key="dashboard_car"-->
-        <!--android:title="Main Car">-->
-        <!--<Preference-->
-            <!--android:key="current_car"-->
-            <!--/>-->
-    <!--</PreferenceCategory>-->
-
-    <PreferenceCategory android:title="My Vehicles (Tap to change dealership)" android:key="@string/pref_vehicles">
+    <PreferenceCategory android:title="My Vehicles" android:key="@string/pref_vehicles">
 
     </PreferenceCategory>
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">

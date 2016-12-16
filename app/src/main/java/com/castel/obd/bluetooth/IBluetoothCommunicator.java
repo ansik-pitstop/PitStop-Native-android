@@ -22,30 +22,23 @@ public interface IBluetoothCommunicator {
     void obdSetMonitor(int type, String valueList);
     void obdSetParameter(String tlvTagList, String valueList);
     void obdGetParameter(String tlvTag);
+    void writeRawInstruction(String instruction);
     void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener);
     boolean hasDiscoveredServices();
     void close();
+    void initDevice();
     void bluetoothStateChanged(int state);
+
+    // parameters
+    void getVin();
+    void getRtc();
+    void setRtc(long rtcTime);
+    void getPids(String pids);
+    void getSupportedPids();
+    void setPidsToSend(String pids);
+
+    // monitor
+    void getDtcs(); // pending and stored
+
     String getConnectedDeviceName();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>Bluetooth communicators are supposed to connect previous saved (pending) device
-     * based on the positive response from the user</p>
-     */
-    void connectPendingDevice();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>After the connection, we shall validate the scanner Id with the backend.
-     * If the scanner is invalid, we should disconnect at once so we won't interfere with others' connection.</p>
-     */
-    void manuallyDisconnectCurrentDevice();
-
-    /**
-     * <p>Used for detecting unrecognized module</p>
-     * <p>Bluetooth communicators are supposed to delete previous saved (pending) device
-     * based on the negative response from the user</p>
-     */
-    void cancelPendingDevice();
 }

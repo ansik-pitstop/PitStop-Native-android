@@ -1,9 +1,11 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -11,10 +13,12 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,6 +33,7 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
@@ -39,6 +43,7 @@ import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -49,7 +54,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
@@ -63,6 +68,8 @@ public class SettingsActivity extends AppCompatActivity {
     private boolean localUpdatePerformed = false;
     private LocalCarAdapter localCarAdapter;
     private List<Car> carList = new ArrayList<>();
+
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
                 localUpdatePerformed = true;
             }
         });
+        settingsFragment.setLoadingCallback(this);
 
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("cars", cars);
@@ -92,8 +100,10 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putParcelable("carList", intentProxyObject);
 
         settingsFragment.setArguments(bundle);
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -161,6 +171,52 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Create and show an snackbar that is used to show users some information.<br>
+     * The purpose of this method is to display message that requires user's confirm to be dismissed.
+     *
+     * @param content snack bar message
+     */
+    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
+                .setAction("OK", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // DO nothing
+                    }
+                })
+                .setActionTextColor(Color.WHITE);
+        View snackBarView = snackbar.getView();
+        if (isSuccess) {
+            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
+        } else {
+            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
+        }
+        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
+
+        snackbar.show();
+
+    }
+
+    @Override
+    public void hideLoading(@Nullable String string) {
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        if (string != null) {
+            Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void showLoading(@NonNull String string) {
+        progressDialog.setMessage(string);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
     public static class SettingsFragment extends PreferenceFragment {
 
         public interface OnInfoUpdated {
@@ -168,18 +224,18 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private OnInfoUpdated listener;
+        private ILoadingActivity loadingCallback;
         private ArrayList<ListPreference> preferenceList;
         private ArrayList<String> cars;
         private ArrayList<Integer> ids;
         private ArrayList<String> dealers;
 
         private List<Car> carList;
-        private CarListAdapter listAdapter;
 
         private GlobalApplication application;
-        private Car mainCar;
         private LocalCarAdapter localCarAdapter;
         private LocalShopAdapter shopAdapter;
+        private LocalScannerAdapter localScannerAdapter;
 
         private User currentUser;
 
@@ -187,11 +243,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         private NetworkHelper networkHelper;
 
-        public SettingsFragment() {
-        }
+        public SettingsFragment() {}
 
         public void setOnInfoUpdatedListener(OnInfoUpdated listener) {
             this.listener = listener;
+        }
+
+        public void setLoadingCallback(ILoadingActivity callback) {
+            loadingCallback = callback;
         }
 
         @Override
@@ -208,14 +267,14 @@ public class SettingsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            localCarAdapter = new LocalCarAdapter(getActivity().getApplicationContext());
-            shopAdapter = new LocalShopAdapter(getActivity().getApplicationContext());
+            localCarAdapter = new LocalCarAdapter(getActivity());
+            shopAdapter = new LocalShopAdapter(getActivity());
+            localScannerAdapter = new LocalScannerAdapter(getActivity());
 
             Bundle bundle = getArguments();
             cars = bundle.getStringArrayList("cars");
             ids = bundle.getIntegerArrayList("ids");
             dealers = bundle.getStringArrayList("dealers");
-            mainCar = bundle.getParcelable("mainCar");
 
             IntentProxyObject listObject = bundle.getParcelable("carList");
             if (listObject != null) {
@@ -224,10 +283,12 @@ public class SettingsActivity extends AppCompatActivity {
                 carList = localCarAdapter.getAllCars();
             }
 
-            listAdapter = new CarListAdapter(carList);
-
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
+            populateCarListPreference();
+        }
+
+        private void populateCarListPreference() {
             final List<Dealership> dealerships = shopAdapter.getAllDealerships();
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
@@ -235,7 +296,7 @@ public class SettingsActivity extends AppCompatActivity {
             // Try local store for dealerships
             if (dealerships.isEmpty()) {
                 Log.i(TAG, "Local store has no dealerships");
-
+                loadingCallback.showLoading("Retrieving store information..");
                 networkHelper.getShops(new RequestCallback() {
                     @Override
                     public void done(String response, RequestError requestError) {
@@ -244,13 +305,21 @@ public class SettingsActivity extends AppCompatActivity {
                                 List<Dealership> dealers = Dealership.createDealershipList(response);
                                 shopAdapter.deleteAllDealerships();
                                 shopAdapter.storeDealerships(dealers);
+
+                                for (Dealership dealership : dealers) {
+                                    shops.add(dealership.getName());
+                                    shopIds.add(String.valueOf(dealership.getId()));
+                                }
+                                setUpCarListPreference(shops, shopIds);
+
+                                loadingCallback.hideLoading(null);
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                                loadingCallback.hideLoading("An error occurred, please try again");
                             }
                         } else {
                             Log.e(TAG, "Get shops: " + requestError.getMessage());
-                            Toast.makeText(getActivity(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                            loadingCallback.hideLoading("An error occurred, please try again");
                         }
                     }
                 });
@@ -262,21 +331,19 @@ public class SettingsActivity extends AppCompatActivity {
 
                 setUpCarListPreference(shops, shopIds);
             }
-
         }
 
         private void setUpCarListPreference(List<String> shops, List<String> shopIds) {
             for (int i = 0; i < cars.size(); i++) {
-                ListPreference listPreference = new ListPreference(getActivity());
-                listPreference.setTitle(cars.get(i));
-                listPreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
-                listPreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
-                listPreference.setValue(dealers.get(i));
-                listPreference.setDialogTitle("Choose Shop for: " + cars.get(i));
+                VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), carList.get(i));
+                vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
+                vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+                vehiclePreference.setValue(dealers.get(i));
+                vehiclePreference.setDialogTitle("Choose Shop for: " + cars.get(i));
                 final int index = i;
-                listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
-                    public boolean onPreferenceChange(Preference preference, final Object newValue) {
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
                         final String shopSelected = (String) newValue;
 
                         // Update car in local database
@@ -298,6 +365,7 @@ public class SettingsActivity extends AppCompatActivity {
                             listener.localUpdatePerformed();
                         }
 
+                        loadingCallback.showLoading("Updating");
                         networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
@@ -307,18 +375,21 @@ public class SettingsActivity extends AppCompatActivity {
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
                                                     if (requestError == null) {
+                                                        loadingCallback.hideLoading("Car dealership updated");
                                                         Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
-                                                        Toast.makeText(getActivity(), "Car dealership updated", Toast.LENGTH_SHORT).show();
+                                                        Car updatedCar = localCarAdapter.getCar(itemCar.getId());
+                                                        updatedCar.setShopId(shopId);
+                                                        localCarAdapter.updateCar(updatedCar);
                                                         listener.localUpdatePerformed();
                                                     } else {
+                                                        loadingCallback.hideLoading("An error occurred, please try again.");
                                                         Log.e(TAG, "Dealership update error: " + requestError.getError());
-                                                        Toast.makeText(getActivity(), "There was an error, please try again", Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
                                             });
                                 } else {
+                                    loadingCallback.hideLoading("An error occurred, please try again.");
                                     Log.e(TAG, "Get shops: " + requestError.getMessage());
-                                    Toast.makeText(getActivity(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -327,7 +398,7 @@ public class SettingsActivity extends AppCompatActivity {
                 });
                 ((PreferenceCategory) getPreferenceManager()
                         .findPreference(getString(R.string.pref_vehicles)))
-                        .addPreference(listPreference);
+                        .addPreference(vehiclePreference);
             }
         }
 
@@ -457,16 +528,15 @@ public class SettingsActivity extends AppCompatActivity {
             findPreference(getString(R.string.pref_term_of_use)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    try{
+                    try {
                         mixpanelHelper.trackButtonTapped("Terms of Use", MixpanelHelper.SETTINGS_VIEW);
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/AppAgreement.pdf")));
                     return true;
                 }
             });
-
 
 
             //logging out
@@ -541,22 +611,21 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
-
+            loadingCallback.showLoading("Updating..");
             networkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         namePreference.setTitle(String.format("%s %s", firstName, lastName));
 
-                        Toast.makeText(getActivity(), "Name successfully updated", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("Name successfully updated");
 
                         currentUser.setFirstName(firstName);
                         currentUser.setLastName(lastName);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$name", firstName + (lastName == null ? "" : " " + lastName));
-
                     } else {
-                        Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -568,21 +637,19 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
+            loadingCallback.showLoading("Updating");
             networkHelper.updateUserPhone(application.getCurrentUserId(), phoneNumber, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         phonePreference.setTitle(phoneNumber);
-
-                        Toast.makeText(getActivity(), "Phone successfully updated", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("Phone successfully updated");
 
                         currentUser.setPhone(phoneNumber);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$phone", phoneNumber);
-
                     } else {
-                        Toast.makeText(getActivity(), "An error occurred, please try again", Toast.LENGTH_SHORT).show();
+                        loadingCallback.hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -590,95 +657,109 @@ public class SettingsActivity extends AppCompatActivity {
 
         List<Car> selectedCar = new ArrayList<>();
 
-        private void switchCarDialog(final Car formerDashboardCar, final Preference mainPreference) {
+        private class VehiclePreference extends ListPreference {
 
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            private Car vehicle;
+            private View root;
+            private TextView vehicleName;
 
-            dialog.setTitle("Switch Car");
+            public VehiclePreference(Context context, Car vehicle) {
+                super(context);
+                this.vehicle = vehicle;
+                setLayoutResource(R.layout.preference_vehicle_item);
+            }
 
-            dialog.setSingleChoiceItems(listAdapter, -1, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    selectedCar.clear();
-                    selectedCar.add((Car) listAdapter.getItem(which));
-                }
-            });
-            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+            @Override
+            protected View onCreateView(ViewGroup parent) {
+                root = super.onCreateView(parent);
+                vehicleName = (TextView) root.findViewById(R.id.preference_vehicle_name);
+                vehicleName.setText(vehicle.getMake() + " " + vehicle.getModel());
+                root.findViewById(R.id.preference_vehicle_delete_button)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR, MixpanelHelper.SETTINGS_VIEW);
+                                } catch (JSONException e){
+                                    e.printStackTrace();
+                                }
+                                new AnimatedDialogBuilder(getContext())
+                                        .setTitle("Delete car")
+                                        .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                                        .setMessage("Are you sure you want to delete the car from your account? " +
+                                                "Your can add it back later on.")
+                                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CONFIRM, MixpanelHelper.SETTINGS_VIEW);
+                                                } catch (JSONException e){
+                                                    e.printStackTrace();
+                                                }
+                                                loadingCallback.showLoading("Deleting");
+                                                networkHelper.deleteUserCar(vehicle.getId(), new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        if (requestError == null) {
+                                                            loadingCallback.hideLoading("Delete succeeded!");
+                                                            listener.localUpdatePerformed();
+                                                            localCarAdapter.deleteCar(vehicle);
+                                                            localScannerAdapter.deleteCar(vehicle);
+                                                            ((PreferenceCategory) getPreferenceManager()
+                                                                    .findPreference(getString(R.string.pref_vehicles)))
+                                                                    .removePreference(VehiclePreference.this);
+                                                        } else {
+                                                            try {
+                                                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_ERROR, MixpanelHelper.SETTINGS_VIEW);
+                                                            } catch (JSONException e){
+                                                                e.printStackTrace();
+                                                            }
+                                                            Log.e(TAG, requestError.getMessage());
+                                                            loadingCallback.hideLoading("Delete failed!");
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        })
+                                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                try {
+                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CANCEL, MixpanelHelper.SETTINGS_VIEW);
+                                                } catch (JSONException e){
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).show();
+                            }
+                        });
+                root.findViewById(R.id.preference_vehicle_modify_button)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showDialog(null);
+                            }
+                        });
+                return root;
+            }
 
-                    if (selectedCar.isEmpty()) {
-                        return;
-                    }
+            @Override
+            protected View onCreateDialogView() {
+                return super.onCreateDialogView();
+            }
 
-                    final Car newDashboardCar = selectedCar.get(0);
+            @Override
+            public void setDialogTitle(CharSequence dialogTitle) {
+                super.setDialogTitle(dialogTitle);
+            }
 
-                    if (formerDashboardCar.getVin().equals(newDashboardCar.getVin())) {
-                        return;
-                    }
-
-                    mainCar = newDashboardCar;
-                    mainPreference.setTitle(mainCar.getMake() + " " + mainCar.getModel());
-                    listener.localUpdatePerformed();
-
-                    try {
-                        mixpanelHelper.trackCustom("Button Tapped",
-                                new JSONObject(String.format("{'Button':'Select Car', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                        MixpanelHelper.SETTINGS_VIEW, newDashboardCar.getMake(), newDashboardCar.getModel())));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(MainDashboardFragment.pfCurrentCar, newDashboardCar.getId()).apply();
-
-                    networkHelper.setMainCar(currentUser.getId(), newDashboardCar.getId(), null);
-
-                }
-            });
-            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
+            @Override
+            protected void onClick() {
+                // super.onClick();
+                // Do nothing :D
+            }
         }
 
-        private class CarListAdapter extends BaseAdapter {
-            private List<Car> ownedCars;
-
-            public CarListAdapter(List<Car> cars) {
-                ownedCars = cars;
-            }
-
-            @Override
-            public int getCount() {
-                return ownedCars.size();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                return ownedCars.get(position);
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                LayoutInflater inflater = (LayoutInflater) getActivity()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View rowView = inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
-                Car ownedCar = (Car) getItem(position);
-
-                TextView carName = (TextView) rowView.findViewById(android.R.id.text1);
-                carName.setText(String.format("%s %s", ownedCar.getMake(), ownedCar.getModel()));
-                return rowView;
-            }
-        }
     }
 
 }
