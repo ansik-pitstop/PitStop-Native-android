@@ -149,7 +149,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/linearLayout6"
+            android:id="@+id/notification_nav_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/carName"
@@ -245,7 +245,7 @@
             android:id="@+id/car_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/linearLayout6"
+            android:layout_below="@+id/notification_nav_container"
             android:layout_gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"

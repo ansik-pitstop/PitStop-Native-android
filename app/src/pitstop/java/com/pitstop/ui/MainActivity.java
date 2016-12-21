@@ -1195,6 +1195,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
 
+    public void notificationsClicked(View view){
+        try {
+            mixpanelHelper.trackButtonTapped(getString(R.string.notifications),
+                    viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
+                            MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+        startActivity(new Intent(MainActivity.this, NotificationsActivity.class));
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
     /**
      * Onclick method for requesting services
      *
