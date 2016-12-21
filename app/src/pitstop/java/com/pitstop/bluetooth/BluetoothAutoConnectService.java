@@ -201,7 +201,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        //handler.postDelayed(runnable, 15000); // TODO: put in auto periodic scan
+        handler.postDelayed(runnable, 15000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
