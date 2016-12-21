@@ -133,6 +133,12 @@
     <string name="transition_name_issue_description">transition_name_issue_description</string>
     <string name="transition_name_request_service_btn">transition_name_request_service_btn</string>
 
+    <!--      Notifications       -->
+
+    <string name="try_again">TRY AGAIN</string>
+    <string name="notifications">Notifications</string>
+
+
 
 
 </resources>

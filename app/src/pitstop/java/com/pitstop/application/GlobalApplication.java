@@ -16,6 +16,7 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
@@ -24,12 +25,12 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
 
 import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
@@ -110,6 +111,7 @@ public class GlobalApplication extends Application {
         Smooch.init(this, settings);
 
         // Parse
+        ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
         FacebookSdk.sdkInitialize(this);
         if(BuildConfig.DEBUG) {
