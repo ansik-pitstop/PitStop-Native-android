@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class DtcPackage {
     public String deviceId;
     public boolean isPending;
-    public int dtcNumber; // TODO: remove?
+    public int dtcNumber;
     public String[] dtcs;
     public String rtcTime;
 

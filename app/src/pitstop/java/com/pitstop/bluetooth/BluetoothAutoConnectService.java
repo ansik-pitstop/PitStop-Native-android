@@ -582,7 +582,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Log.d(TAG, "PID json: " + json);
         }
 
-        Log.i(TAG, "PIDs received: " + sb.toString());
+        Log.d(TAG, "PIDs received: " + sb.toString());
 
         pidDataObject.setPids(pids.toString());
 

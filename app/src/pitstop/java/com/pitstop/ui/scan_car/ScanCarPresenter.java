@@ -321,7 +321,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (isConnectedToDevice()) return;
+            if (isConnectedToDevice() || mCallback == null) return;
             mCallback.onConnectingTimeout();
         }
     };

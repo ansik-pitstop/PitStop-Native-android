@@ -271,10 +271,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
                                 final CarIssue issue = carIssuesAdapter.getItem(i);
 
-                                final String[] timeCompleted = new String[1];
-
-                                final int[] daysAgo = new int[1];
-
                                 //Swipe to start deleting(completing) the selected issue
                                 try {
                                     mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
@@ -295,19 +291,40 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
                                                     calendar.set(year, monthOfYear, dayOfMonth);
 
-                                                    daysAgo[0] = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
+                                                    int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
+                                                    String timeCompleted;
 
-                                                    if (daysAgo[0] < 13) { // approximate categorization of the time service was completed
-                                                        timeCompleted[0] = "Recently";
-                                                    } else if (daysAgo[0] < 28) {
-                                                        timeCompleted[0] = "2 Weeks Ago";
-                                                    } else if (daysAgo[0] < 56) {
-                                                        timeCompleted[0] = "1 Month Ago";
-                                                    } else if (daysAgo[0] < 170) {
-                                                        timeCompleted[0] = "2 to 3 Months Ago";
+                                                    if (daysAgo < 13) { // approximate categorization of the time service was completed
+                                                        timeCompleted = "Recently";
+                                                    } else if (daysAgo < 28) {
+                                                        timeCompleted = "2 Weeks Ago";
+                                                    } else if (daysAgo < 56) {
+                                                        timeCompleted = "1 Month Ago";
+                                                    } else if (daysAgo < 170) {
+                                                        timeCompleted = "2 to 3 Months Ago";
                                                     } else {
-                                                        timeCompleted[0] = "6 to 12 Months Ago";
+                                                        timeCompleted = "6 to 12 Months Ago";
                                                     }
+
+                                                    try {
+                                                        mixpanelHelper.trackButtonTapped("Completed Service: " +
+                                                                (issue.getAction() == null ? "" : (issue.getAction() + " ")) +
+                                                                issue.getItem() + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
+                                                            daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
+                                                                @Override
+                                                                public void done(String response, RequestError requestError) {
+                                                                    if (requestError == null) {
+                                                                        Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
+                                                                        carIssueList.remove(i);
+                                                                        carIssuesAdapter.notifyDataSetChanged();
+                                                                        ((MainActivity) getActivity()).refreshFromServer();
+                                                                    }
+                                                                }
+                                                            });
                                                 }
                                             }
                                         },
@@ -316,54 +333,10 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         currentDay
                                 );
 
-                                try {
-                                    datePicker.getWindow().setWindowAnimations(AnimatedDialogBuilder.ANIMATION_GROW);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
                                 final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
                                 ((TextView) titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
 
                                 datePicker.setCustomTitle(titleView);
-
-                                datePicker.setButton(DialogInterface.BUTTON_POSITIVE, "Confirm", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            mixpanelHelper.trackButtonTapped("Completed Service: " +
-                                                    (issue.getAction() == null ? "" : (issue.getAction() + " ")) +
-                                                    issue.getItem() + " " + timeCompleted[0], MixpanelHelper.DASHBOARD_VIEW);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                        networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
-                                                daysAgo[0], dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                    @Override
-                                                    public void done(String response, RequestError requestError) {
-                                                        if (requestError == null) {
-                                                            Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                            carIssueList.remove(i);
-                                                            carIssuesAdapter.notifyDataSetChanged();
-                                                            ((MainActivity) getActivity()).refreshFromServer();
-                                                        }
-                                                    }
-                                                });
-                                    }
-                                });
-
-                                datePicker.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-                                        try {
-                                            mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                    + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
 
                                 //Cancel the service completion
                                 datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
