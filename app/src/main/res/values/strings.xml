@@ -133,6 +133,47 @@
     <string name="transition_name_issue_description">transition_name_issue_description</string>
     <string name="transition_name_request_service_btn">transition_name_request_service_btn</string>
 
+    <!--      Notifications       -->
+
+    <string name="try_again">TRY AGAIN</string>
+    <string name="notifications">Notifications</string>
+
+    <!--        Login Activity    -->
+    <string name="feature_bluetooth">Pitstop uses a device that is installed into the diagnostic port of your vehicle which transmits the vehicle\'s engine and sensor data to your phone over bluetooth.</string>
+    <string name="feature_cloud">"Pitstop is thoroughly compiling data sources from manufacturers, dealerships, and other vehicles to consistently provide with you with the most accurate information about your vehicle.</string>
+    <string name="feature_notification">Pitstop alerts you when your vehicle is due for service, when there\'s a manufacturing recall, and when there is an issue with your engine.</string>
+    <string name="debug_toast_message">This is a debug build - </string>
+    <string name="logging_in_message">Logging in...</string>
+    <string name="sign_up_fb">Sign up with facebook</string>
+    <string name="log_in_button">LOG IN</string>
+    <string name="log_in_fb">Log in with Facebook</string>
+    <string name="sign_up_button">SIGN UP</string>
+    <string name="internet_check_error">Please check your internet connection</string>
+    <string name="empty_email_pass_error">Email or Password Field are not filled</string>
+    <string name="empty_name_error">First and last name are required</string>
+    <string name="password_length_error">Password length must be greater than 6</string>
+    <string name="invalid_phone_error">Invalid phone number</string>
+    <string name="generic_error">An error occurred, please try again</string>
+    <string name="finalize_button">FINALIZE PROFILE</string>
+    <string name="invalid_credentials_error">Invalid username/password</string>
+    <string name="update_fail_error">Update failed. Please contact us at info@getpitstop.io.</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="try_again_button">Try again</string>
+    <string name="updating_app_message">We are updating the app, this may take a few minutes. Feel free to leave the app during this time.</string>
+    <string name="retry_button">Retry</string>
+    <string name="email_hint">Email</string>
+    <string name="forgot_password_dialog_title">Reset Password</string>
+    <string name="forgot_password_dialog_message">Please enter your email address</string>
+    <string name="ok_button">OK</string>
+    <string name="email_sent_message">An email has been sent to %s with further instructions. It may take up to a few minutes to arrive.</string>
+    <string name="first_name_hint">First Name</string>
+    <string name="last_name_hint">Last Name</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password_button">Forgot password?</string>
+
+
+
 
 
 </resources>
