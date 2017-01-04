@@ -21,6 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:paddingBottom="8dp"
+        android:inAnimation="@anim/view_left_in"
+        android:outAnimation="@anim/view_left_out"
         android:alpha="0">
         <LinearLayout
             android:id="@+id/feature_one"

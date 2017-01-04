@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final float PERCENTAGE_OF_SCREEN_HEIGHT = 0.38f;
     public static final int INITIAL_LOGIN_ANIMATION_INTERVAL = 400;
-    public static final int INITIAL_LOGIN_ANIMATION_DELAY = 300;
+    public static final int INITIAL_LOGIN_ANIMATION_DELAY = 1000;
 
     public static final int FEATURE_HIGHLIGHTS_INDICATOR_RADIUS = 15;
     public static final int FEATURE_HIGHLIGHTS_INDICATOR_MARGIN = 20;
@@ -135,6 +135,8 @@ public class LoginActivity extends AppCompatActivity {
     ImageView mLogoImageView;
     @BindView(R.id.log_in_sign_up_container)
     LinearLayout mButtonContainer;
+    @BindView(R.id.login_signup_fragment_container)
+    protected FrameLayout mLoginContainer;
 
     // for facebook login
     public CallbackManager callbackManager;
@@ -145,8 +147,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.feature_highlights)
     protected ViewFlipperIndicator mFeatureHighlights;
     private GestureDetector mFeatureHighlightGestureDetector;
-    @BindView(R.id.login_signup_fragment_container)
-    protected FrameLayout mLoginContainer;
+
 
 
     @Override
@@ -211,13 +212,6 @@ public class LoginActivity extends AppCompatActivity {
 
         }
 
-        //findViewById(R.id.log_in_sign_up_container).setVisibility(View.INVISIBLE);
-        try {
-            Log.d(MIXPANEL_TAG, "Login view appeared");
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         facebookLoginButton = (LoginButton) findViewById(R.id.fb_login);
         if (facebookLoginButton != null) {
             facebookLoginButton.setReadPermissions(FB_PROFILE_PERMISSION, FB_EMAIL_PERMISSION);
@@ -290,6 +284,32 @@ public class LoginActivity extends AppCompatActivity {
         AnimatorSet fadeInViewAnimatorSet = new AnimatorSet();
         fadeInViewAnimatorSet.playTogether(highlightsAnimator, buttonAnimator);
         fadeInViewAnimatorSet.setDuration(INITIAL_LOGIN_ANIMATION_INTERVAL);
+        fadeInViewAnimatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                try {
+                    Log.d("Mixpanel", "Onboarding view appeared");
+                    mixpanelHelper.trackViewAppeared(MixpanelHelper.ONBOARDING_VIEW_APPEARED);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         fadeInViewAnimatorSet.start();
     }
 
@@ -333,9 +353,11 @@ public class LoginActivity extends AppCompatActivity {
                 phoneLayout.setVisibility(View.GONE);
                 emailLayout.setVisibility(View.VISIBLE);
                 passwordLayout.setVisibility(View.VISIBLE);
-                findViewById(R.id.sign_log_switcher_button).setVisibility(View.VISIBLE);
-                findViewById(R.id.fb_login_butt).setVisibility(View.VISIBLE);
-                ((Button) findViewById(R.id.login_btn)).setText(getString(R.string.sign_up_button));
+                mSwitcherButton.setVisibility(View.VISIBLE);
+                mFbButton.setVisibility(View.VISIBLE);
+                mLoginButton.setText(getString(R.string.sign_up_button));
+
+
             } else {
                 slideOutLoginSignUpSection(false);
             }
@@ -605,9 +627,9 @@ public class LoginActivity extends AppCompatActivity {
         phoneLayout.setVisibility(View.VISIBLE);
         emailLayout.setVisibility(View.GONE);
         passwordLayout.setVisibility(View.GONE);
-        findViewById(R.id.sign_log_switcher_button).setVisibility(View.GONE);
-        findViewById(R.id.fb_login_butt).setVisibility(View.GONE);
-        ((Button) findViewById(R.id.login_btn)).setText(R.string.finalize_button);
+        mSwitcherButton.setVisibility(View.GONE);
+        mFbButton.setVisibility(View.GONE);
+        mLoginButton.setText(R.string.finalize_button);
 
         // Confirm your information view shows up
         // Prompt the user for the name and phone number
@@ -960,7 +982,6 @@ public class LoginActivity extends AppCompatActivity {
     class FeatureHighlightGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
             // Swipe left (next)
             if (e1.getX() > e2.getX()) {
                 mFeatureHighlights.setInAnimation(LoginActivity.this, R.anim.view_left_in);
@@ -973,10 +994,13 @@ public class LoginActivity extends AppCompatActivity {
             if (e1.getX() < e2.getX()) {
                 mFeatureHighlights.setInAnimation(LoginActivity.this, R.anim.view_right_in);
                 mFeatureHighlights.setOutAnimation(LoginActivity.this, R.anim.view_right_out);
-
                 mFeatureHighlights.showPrevious();
+                //set animation back to default
+                mFeatureHighlights.setInAnimation(LoginActivity.this, R.anim.view_left_in);
+                mFeatureHighlights.setOutAnimation(LoginActivity.this, R.anim.view_left_out);
                 return true;
             }
+
             return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
