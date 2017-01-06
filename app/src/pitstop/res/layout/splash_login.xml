@@ -51,7 +51,7 @@
                     android:layout_gravity="center_horizontal"
                     android:backgroundTint="#dedede"
                     android:ems="10"
-                    android:hint="First Name"
+                    android:hint="@string/first_name_hint"
                     android:maxLines="1"
                     android:textColor="#efefef"
                     android:textColorHint="#dedede"
@@ -74,7 +74,7 @@
                     android:layout_gravity="center_horizontal"
                     android:backgroundTint="#dedede"
                     android:ems="10"
-                    android:hint="Last Name"
+                    android:hint="@string/last_name_hint"
                     android:maxLines="1"
                     android:textColor="#efefef"
                     android:textColorHint="#dedede"
@@ -99,7 +99,7 @@
                 android:layout_gravity="center_horizontal"
                 android:backgroundTint="#dedede"
                 android:ems="10"
-                android:hint="Phone Number"
+                android:hint="@string/phone_number_hint"
                 android:inputType="phone"
                 android:maxLines="1"
                 android:textColor="#efefef"
@@ -121,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="#dedede"
                 android:ems="10"
-                android:hint="Email"
+                android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:textColor="#efefef"
@@ -142,7 +142,7 @@
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#dedede"
                 android:ems="10"
-                android:hint="Password"
+                android:hint="@string/password_hint"
                 android:imeOptions="actionSend"
                 android:inputType="textPassword"
                 android:textColor="#efefef"
@@ -152,7 +152,7 @@
 
         <Button
             android:id="@+id/login_btn"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp"
@@ -160,7 +160,7 @@
             android:elegantTextHeight="true"
             android:elevation="6dp"
             android:onClick="loginOrSignUp"
-            android:text="Sign Up"
+            android:text="@string/sign_up_button"
             android:textColor="#fff"/>
 
         <Button
@@ -168,18 +168,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/color_button_fb"
-            android:drawableLeft="@drawable/fb_logo"
+            android:drawableLeft="@drawable/fb_blue_logo"
             android:onClick="loginFacebook"
             android:paddingLeft="34dp"
             android:paddingTop="1dp"
-            android:text="Sign Up with Facebook"
-            android:textColor="#efefef"/>
+            android:text="@string/sign_up_fb"
+            android:textColor="@color/facebook_blue" />
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/fb_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:visibility="gone"/>
 
         <Button
@@ -189,7 +188,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:onClick="forgotPassword"
-            android:text="Forgot password?"
+            android:text="@string/forgot_password_button"
             android:textAllCaps="false"
             android:textColor="#fff"/>
 
@@ -207,7 +206,7 @@
         android:elegantTextHeight="true"
         android:elevation="6dp"
         android:onClick="signUpSwitcher"
-        android:text="Log In"
+        android:text="@string/log_in_button"
         android:textColor="#fff"/>
 
 </RelativeLayout>

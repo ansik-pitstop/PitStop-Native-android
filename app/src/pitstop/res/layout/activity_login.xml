@@ -1,96 +1,160 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/splash_layout"
     style="@style/AppNoActionBarTheme"
-    android:id="@+id/splash_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/onboarding_bg"
     android:orientation="vertical"
     tools:context=".ui.LoginActivity">
 
-    <android.support.v4.view.ViewPager
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <ImageView
+        android:id="@+id/logo_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_margin="32dp"
+        android:src="@drawable/whitelogo"
+        android:layout_centerInParent="true"
+        />
+
+
+    <ViewFlipper
+        android:id="@+id/feature_highlights"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inAnimation="@anim/view_left_in"
+        android:outAnimation="@anim/view_left_out"
+        android:alpha="0"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true">
+        <LinearLayout
+            android:id="@+id/feature_one"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:src="@drawable/phone_to_bluetooth"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/feature_bluetooth"
+                style="@style/FeatureText"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/feature_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:src="@drawable/notification_bells"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/feature_notification"
+                style="@style/FeatureText"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/feature_three"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:src="@drawable/cloud_to_phone"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/feature_cloud"
+                style="@style/FeatureText"
+                />
+
+        </LinearLayout>
+    </ViewFlipper>
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+        android:id="@+id/feature_highlights_indicator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/log_in_sign_up_container"
+        android:layout_below="@+id/feature_highlights"
         android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
-        android:id="@+id/radio_layout"
-        android:layout_marginBottom="16dp">
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:alpha="0"
+        >
 
-        <RadioButton
-            android:clickable="false"
+        <ImageView
+            android:id="@+id/feature_indicator_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:textColor="#fff"
-            android:textColorHighlight="#fff"
-            android:textColorHint="#fff"
-            android:buttonTint="#fff"
-            style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
+            android:background="@drawable/walkthrough_carousel_gray"
+            android:layout_marginRight="10dp" />
 
-        <RadioButton
-            android:clickable="false"
+        <ImageView
+            android:id="@+id/feature_indicator_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="false"
-            android:id="@+id/radioButton"
-            android:textColorHint="#fff"
-            android:textColorHighlight="#fff"
-            android:textColor="#fff"
-            android:buttonTint="#fff"
-            style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />
+            android:background="@drawable/walkthrough_carousel_gray"
+            android:layout_marginRight="10dp" />
 
-        <!--<RadioButton-->
-            <!--android:clickable="false"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:checked="false"-->
-            <!--android:id="@+id/radioButton2"-->
-            <!--android:textColorHint="#fff"-->
-            <!--android:textColorHighlight="#fff"-->
-            <!--android:textColor="#fff"-->
-            <!--android:buttonTint="#fff"-->
-            <!--style="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton" />-->
+        <ImageView
+            android:id="@+id/feature_indicator_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/walkthrough_carousel_gray"
+            />
 
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/log_in_sign_up_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/log_in_sign_up_container"
-        android:weightSum="2">
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:alpha="0">
 
         <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Log In"
             android:id="@+id/log_in_skip"
-            android:background="@drawable/color_button_rectangle_primary_dark"
-            android:layout_weight="1"
-            android:textColor="#fff"
-            android:typeface="normal"
-            android:textStyle="bold"
-            android:onClick="goToLogin" />
-
-        <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Sign Up"
-            android:id="@+id/sign_up_skip"
-            android:background="@drawable/color_button_rectangle_primary"
             android:layout_weight="1"
+            android:background="@drawable/color_button_rectangle_primary_dark"
+            android:onClick="goToLogin"
+            android:text="@string/log_in_button"
             android:textColor="#fff"
-            android:typeface="normal"
             android:textStyle="bold"
-            android:onClick="goToLogin" />
+            android:typeface="normal" />
+
+        <Button
+            android:id="@+id/sign_up_skip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/color_button_rectangle_primary"
+            android:onClick="goToLogin"
+            android:text="@string/sign_up_button"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:typeface="normal" />
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/login_signup_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="true">
+        <include layout="@layout/splash_login"/>
+    </FrameLayout>
 
 </RelativeLayout>

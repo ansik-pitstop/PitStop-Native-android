@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -42,7 +41,6 @@ import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.PixelConvertUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;

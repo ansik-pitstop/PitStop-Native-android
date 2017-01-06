@@ -1,11 +1,12 @@
 package com.pitstop.utils;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
-public class PixelConvertUtil {
+public class UiUtils {
     /**
      * This method converts dp unit to equivalent pixels, depending on device density.
      *
@@ -13,11 +14,10 @@ public class PixelConvertUtil {
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent px equivalent to dp depending on device density
      */
-    public static float convertDpToPixel(float dp, Context context){
+    public static int convertDpToPixel(float dp, Context context){
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
+        return (int) (dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     /**
@@ -27,10 +27,22 @@ public class PixelConvertUtil {
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent dp equivalent to px value
      */
-    public static float convertPixelsToDp(float px, Context context){
+    public static int convertPixelsToDp(float px, Context context){
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return dp;
+        return (int) (px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT));
+
+    }
+
+    public static int getScreenWidth(Activity activity){
+        DisplayMetrics metrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        return metrics.widthPixels;
+    }
+
+    public static int getScreenHeight(Activity activity){
+        DisplayMetrics metrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        return metrics.heightPixels;
     }
 }
