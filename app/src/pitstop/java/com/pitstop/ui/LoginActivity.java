@@ -13,11 +13,11 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
@@ -26,6 +26,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.castel.obd.util.Utils;
 import com.facebook.AccessToken;
@@ -52,7 +54,6 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.controls.ViewFlipperIndicator;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -86,9 +87,9 @@ public class LoginActivity extends AppCompatActivity {
     public static final int INITIAL_LOGIN_ANIMATION_INTERVAL = 400;
     public static final int INITIAL_LOGIN_ANIMATION_DELAY = 1000;
 
-    public static final int FEATURE_HIGHLIGHTS_INDICATOR_RADIUS = 15;
-    public static final int FEATURE_HIGHLIGHTS_INDICATOR_MARGIN = 20;
-    public static final int FEATURE_HIGHLIGHTS_INTERVAL = 5000;
+    public static final int FIRST_INDICATOR = 0;
+    public static final int SECOND_INDICATOR = 1;
+    public static final int THIRD_INDICATOR = 2;
 
     public static final int SECTION_SLIDE_ANIMATION_INTERVAL = 300;
 
@@ -136,7 +137,16 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.log_in_sign_up_container)
     LinearLayout mButtonContainer;
     @BindView(R.id.login_signup_fragment_container)
-    protected FrameLayout mLoginContainer;
+    FrameLayout mLoginContainer;
+    @BindView(R.id.feature_highlights_indicator)
+    LinearLayout mFeatureIndicatorContainer;
+    @BindView(R.id.feature_indicator_1)
+    ImageView mFeatureIndicator1;
+    @BindView(R.id.feature_indicator_2)
+    ImageView mFeatureIndicator2;
+    @BindView(R.id.feature_indicator_3)
+    ImageView mFeatureIndicator3;
+
 
     // for facebook login
     public CallbackManager callbackManager;
@@ -145,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
     private NetworkHelper networkHelper;
 
     @BindView(R.id.feature_highlights)
-    protected ViewFlipperIndicator mFeatureHighlights;
+    protected ViewFlipper mFeatureHighlights;
     private GestureDetector mFeatureHighlightGestureDetector;
 
 
@@ -281,8 +291,9 @@ public class LoginActivity extends AppCompatActivity {
     private void fadeInLoginViews() {
         ObjectAnimator highlightsAnimator =  ObjectAnimator.ofFloat(mFeatureHighlights, View.ALPHA, 0, 1);
         ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(mButtonContainer, View.ALPHA, 0,1);
+        ObjectAnimator indicatorAnimator = ObjectAnimator.ofFloat(mFeatureIndicatorContainer, View.ALPHA, 0,1);
         AnimatorSet fadeInViewAnimatorSet = new AnimatorSet();
-        fadeInViewAnimatorSet.playTogether(highlightsAnimator, buttonAnimator);
+        fadeInViewAnimatorSet.playTogether(highlightsAnimator, buttonAnimator, indicatorAnimator);
         fadeInViewAnimatorSet.setDuration(INITIAL_LOGIN_ANIMATION_INTERVAL);
         fadeInViewAnimatorSet.addListener(new Animator.AnimatorListener() {
             @Override
@@ -293,7 +304,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animator) {
                 try {
-                    Log.d("Mixpanel", "Onboarding view appeared");
+                    Log.d(MIXPANEL_TAG, "Onboarding view appeared");
                     mixpanelHelper.trackViewAppeared(MixpanelHelper.ONBOARDING_VIEW_APPEARED);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -316,14 +327,6 @@ public class LoginActivity extends AppCompatActivity {
     private void setUpFeatureHighlightCarousel() {
         FeatureHighlightGestureListener customGestureDetector = new FeatureHighlightGestureListener();
         mFeatureHighlightGestureDetector = new GestureDetector(this, customGestureDetector);
-        mFeatureHighlights.setRadius(FEATURE_HIGHLIGHTS_INDICATOR_RADIUS);
-        mFeatureHighlights.setMargin(FEATURE_HIGHLIGHTS_INDICATOR_MARGIN);
-        Paint paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.primary));
-        mFeatureHighlights.setPaintCurrent(paint);
-        paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.white));
-        mFeatureHighlights.setPaintNormal(paint);
         mFeatureHighlights.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -331,9 +334,51 @@ public class LoginActivity extends AppCompatActivity {
                 return true;
             }
         });
-        mFeatureHighlights.setAutoStart(true);
-        mFeatureHighlights.setFlipInterval(FEATURE_HIGHLIGHTS_INTERVAL);
+        setUpFeatureFlipListener();
+        selectFeatureIndicator(FIRST_INDICATOR);
 
+
+    }
+
+    private void setUpFeatureFlipListener() {
+        mFeatureHighlights.getInAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                selectFeatureIndicator(mFeatureHighlights.getDisplayedChild());
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    private void selectFeatureIndicator(int i) {
+        resetIndicators();
+        switch (i){
+            case FIRST_INDICATOR:
+                mFeatureIndicator1.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.walkthrough_carousel_yellow));
+                break;
+            case SECOND_INDICATOR:
+                mFeatureIndicator2.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.walkthrough_carousel_yellow));
+                break;
+            case THIRD_INDICATOR:
+                mFeatureIndicator3.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.walkthrough_carousel_yellow));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void resetIndicators() {
+        for (int i = 0; i<mFeatureIndicatorContainer.getChildCount(); i++){
+            ((ImageView)mFeatureIndicatorContainer.getChildAt(i)).setImageDrawable(ContextCompat.getDrawable(this, R.drawable.walkthrough_carousel_gray));
+        }
     }
 
     @Override
@@ -987,6 +1032,8 @@ public class LoginActivity extends AppCompatActivity {
                 mFeatureHighlights.setInAnimation(LoginActivity.this, R.anim.view_left_in);
                 mFeatureHighlights.setOutAnimation(LoginActivity.this, R.anim.view_left_out);
                 mFeatureHighlights.showNext();
+                setUpFeatureFlipListener();
+                selectFeatureIndicator(mFeatureHighlights.getDisplayedChild());
                 return true;
             }
 
@@ -998,8 +1045,11 @@ public class LoginActivity extends AppCompatActivity {
                 //set animation back to default
                 mFeatureHighlights.setInAnimation(LoginActivity.this, R.anim.view_left_in);
                 mFeatureHighlights.setOutAnimation(LoginActivity.this, R.anim.view_left_out);
+                setUpFeatureFlipListener();
+                selectFeatureIndicator(mFeatureHighlights.getDisplayedChild());
                 return true;
             }
+
 
             return super.onFling(e1, e2, velocityX, velocityY);
         }

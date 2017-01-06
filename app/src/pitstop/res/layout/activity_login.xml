@@ -13,17 +13,19 @@
         android:layout_height="60dp"
         android:layout_margin="32dp"
         android:src="@drawable/whitelogo"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        />
 
-    <com.pitstop.ui.controls.ViewFlipperIndicator
+
+    <ViewFlipper
         android:id="@+id/feature_highlights"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:paddingBottom="8dp"
         android:inAnimation="@anim/view_left_in"
         android:outAnimation="@anim/view_left_out"
-        android:alpha="0">
+        android:alpha="0"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true">
         <LinearLayout
             android:id="@+id/feature_one"
             android:layout_width="match_parent"
@@ -38,10 +40,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/feature_bluetooth"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:layout_margin="8dp"/>
+                style="@style/FeatureText"
+                />
 
         </LinearLayout>
         <LinearLayout
@@ -57,10 +57,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/feature_notification"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:layout_margin="8dp"/>
+                style="@style/FeatureText"
+                />
 
         </LinearLayout>
         <LinearLayout
@@ -76,20 +74,51 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/feature_cloud"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:layout_margin="8dp"/>
+                style="@style/FeatureText"
+                />
 
         </LinearLayout>
-    </com.pitstop.ui.controls.ViewFlipperIndicator>
+    </ViewFlipper>
+
+    <LinearLayout
+        android:id="@+id/feature_highlights_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/feature_highlights"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:alpha="0"
+        >
+
+        <ImageView
+            android:id="@+id/feature_indicator_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/walkthrough_carousel_gray"
+            android:layout_marginRight="10dp" />
+
+        <ImageView
+            android:id="@+id/feature_indicator_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/walkthrough_carousel_gray"
+            android:layout_marginRight="10dp" />
+
+        <ImageView
+            android:id="@+id/feature_indicator_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/walkthrough_carousel_gray"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/log_in_sign_up_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:orientation="horizontal"
         android:weightSum="2"
         android:alpha="0">
