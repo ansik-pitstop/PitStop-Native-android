@@ -153,6 +153,10 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        if(pidPackage.pids == null) {
+            return;
+        }
+
         final StringBuilder pidList = new StringBuilder();
 
         pidList.append("PIDS:\n");
