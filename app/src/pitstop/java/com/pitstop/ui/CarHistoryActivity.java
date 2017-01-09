@@ -96,12 +96,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
         issueGroup = (ExpandableListView) findViewById(R.id.issue_expandable_list);
         issueGroup.setAdapter(new IssueGroupAdapter(sortedIssues, headers));
-
-        try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
     }
 
     @Override
@@ -152,11 +147,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        try{
-            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SERVICE_HISTORY_VIEW);
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SERVICE_HISTORY_VIEW);
         super.onBackPressed();
     }
 
@@ -257,12 +248,7 @@ public class CarHistoryActivity extends AppCompatActivity {
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
-                        mixpanelHelper.trackButtonTapped(issue.getItem(), MixpanelHelper.SERVICE_HISTORY_VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
+                    mixpanelHelper.trackButtonTapped(issue.getItem(), MixpanelHelper.SERVICE_HISTORY_VIEW);
                     Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
                     intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
                     intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);

@@ -272,11 +272,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                 final CarIssue issue = carIssuesAdapter.getItem(i);
 
                                 //Swipe to start deleting(completing) the selected issue
-                                try {
-                                    mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+
 
                                 DatePickerDialog datePicker = new DatePickerDialog(getContext(),
                                         new DatePickerDialog.OnDateSetListener() {
@@ -306,13 +303,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                                         timeCompleted = "6 to 12 Months Ago";
                                                     }
 
-                                                    try {
-                                                        mixpanelHelper.trackButtonTapped("Completed Service: " +
-                                                                (issue.getAction() == null ? "" : (issue.getAction() + " ")) +
-                                                                issue.getItem() + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                    mixpanelHelper.trackButtonTapped("Completed Service: " + (issue.getAction() == null ? "" : (issue.getAction() + " ")) + issue.getItem()
+                                                            + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
                                                     networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
                                                             daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
                                                                 @Override
@@ -343,12 +335,9 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-                                        try {
-                                            mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                    + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+                                        mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
+                                                + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+
                                     }
                                 });
 
@@ -646,12 +635,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        try {
-                            new MixpanelHelper((GlobalApplication)activity.getApplicationContext())
-                                    .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        new MixpanelHelper((GlobalApplication)activity.getApplicationContext())
+                                .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
 
                         Intent intent = new Intent(activity, IssueDetailsActivity.class);
                         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);

@@ -292,11 +292,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         dateDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -334,11 +330,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         timePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -477,12 +469,9 @@ public class ServiceRequestActivity extends AppCompatActivity
         address.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
-                            MixpanelHelper.SERVICE_REQUEST_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.SERVICE_REQUEST_VIEW);
+
 
                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s",
                         dashboardCar.getDealership().getAddress());
@@ -495,12 +484,8 @@ public class ServiceRequestActivity extends AppCompatActivity
         phone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
-                            MixpanelHelper.SERVICE_REQUEST_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.SERVICE_REQUEST_VIEW);
 
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         dashboardCar.getDealership().getPhone()));

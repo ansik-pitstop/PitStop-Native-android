@@ -83,11 +83,7 @@ public class AddCustomIssueDialog extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CONFIRM, MixpanelHelper.DASHBOARD_VIEW);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CONFIRM, MixpanelHelper.DASHBOARD_VIEW);
                     }
                 })
                 .create();
@@ -98,11 +94,7 @@ public class AddCustomIssueDialog extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         Log.d(TAG, "On cancel");
-        try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_PRESET_ISSUE_CANCEL, MixpanelHelper.DASHBOARD_VIEW);
         super.onCancel(dialog);
     }
 
@@ -189,12 +181,8 @@ public class AddCustomIssueDialog extends DialogFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    try {
-                        mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
-                                MixpanelHelper.DASHBOARD_VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackButtonTapped("Detail: " + presetIssue.getAction() + " " + presetIssue.getItem(),
+                            MixpanelHelper.DASHBOARD_VIEW);
                 }
             });
 
@@ -220,14 +208,9 @@ public class AddCustomIssueDialog extends DialogFragment {
                     }
 
                     Log.d(TAG, "Picked size: " + pickedIssues.size());
-
-                    try {
-                        String check = isChecked ? "Checked: " : "Unchecked: ";
-                        mixpanelHelper.trackButtonTapped(check + presetIssue.getAction() + " " + presetIssue.getItem(),
-                                MixpanelHelper.DASHBOARD_VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    String check = isChecked ? "Checked: " : "Unchecked: ";
+                    mixpanelHelper.trackButtonTapped(check + presetIssue.getAction() + " " + presetIssue.getItem(),
+                            MixpanelHelper.DASHBOARD_VIEW);
                 }
             });
 

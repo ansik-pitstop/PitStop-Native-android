@@ -185,11 +185,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mixpanelHelper = new MixpanelHelper(application);
 
-        try {
-            mixpanelHelper.trackAppStatus(MixpanelHelper.APP_LAUNCHED);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackAppStatus(MixpanelHelper.APP_LAUNCHED);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -303,12 +299,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                try {
-                    Log.d(MIXPANEL_TAG, "Onboarding view appeared");
-                    mixpanelHelper.trackViewAppeared(MixpanelHelper.ONBOARDING_VIEW_APPEARED);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Log.d(MIXPANEL_TAG, "Onboarding view appeared");
+                mixpanelHelper.trackViewAppeared(MixpanelHelper.ONBOARDING_VIEW_APPEARED);
             }
 
             @Override
@@ -409,13 +401,8 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // When the user tap back to move to previous screen
-        try {
-            String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, view);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, view);
     }
 
     @Override
@@ -455,13 +442,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void showSignupSection() {
-        try {
-            Log.d(MIXPANEL_TAG, "Register view appeared");
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.REGISTER_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        Log.d(MIXPANEL_TAG, "Register view appeared");
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.REGISTER_VIEW);
         mFbButton.setText(R.string.sign_up_fb);
         mLoginButton.setText(R.string.sign_up_button);
         mSwitcherButton.setText(R.string.log_in_button);
@@ -469,12 +451,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showLoginSection() {
-        try {
-            Log.d(MIXPANEL_TAG, "Login view appeared");
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Log.d(MIXPANEL_TAG, "Login view appeared");
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.LOGIN_VIEW);
         firstNameLayout.setVisibility(View.GONE);
         lastNameLayout.setVisibility(View.GONE);
         phoneLayout.setVisibility(View.GONE);
@@ -490,17 +468,13 @@ public class LoginActivity extends AppCompatActivity {
      * @param view The Login/Signup with Facebook button in the splash screen
      */
     public void loginFacebook(View view) {
-        try {
-            if (signup) {
-                Log.d(MIXPANEL_TAG, "Register with facebook");
-                application.modifyMixpanelSettings("Registered With", "Facebook");
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
-            } else {
-                Log.d(MIXPANEL_TAG, "Login with facebook");
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, MixpanelHelper.LOGIN_VIEW);
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
+        if (signup) {
+            Log.d(MIXPANEL_TAG, "Register with facebook");
+            application.modifyMixpanelSettings("Registered With", "Facebook");
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
+        } else {
+            Log.d(MIXPANEL_TAG, "Login with facebook");
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_FACEBOOK, MixpanelHelper.LOGIN_VIEW);
         }
 
         if (facebookLoginButton != null) {
@@ -526,12 +500,8 @@ public class LoginActivity extends AppCompatActivity {
                     && firstNameLayout.getVisibility() != View.VISIBLE) {
 
                 // The user tapped on the SIGNUP button after he entered his email and password
-                try {
-                    Log.d(MIXPANEL_TAG, "Register button tapped");
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.REGISTER_BUTTON_TAPPED, MixpanelHelper.REGISTER_VIEW);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Log.d(MIXPANEL_TAG, "Register button tapped");
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.REGISTER_BUTTON_TAPPED, MixpanelHelper.REGISTER_VIEW);
 
                 finalizeProfile();
                 return;
@@ -558,12 +528,8 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             // At this point, the user tapped the "FINALIZE PROFILE" button after entering his information
-            try {
-                Log.d(MIXPANEL_TAG, "Confirm information countinue");
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.CONFIRM_INFORMATION_CONTINUE, MixpanelHelper.CONFIRM_INFORMATION_VIEW);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            Log.d(MIXPANEL_TAG, "Confirm information countinue");
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.CONFIRM_INFORMATION_CONTINUE, MixpanelHelper.CONFIRM_INFORMATION_VIEW);
 
             // creating json to post
             if (!facebookSignup) {
@@ -591,13 +557,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             // Track REGISTER_WITH_EMAIL
                             application.modifyMixpanelSettings("Registered With", "Email");
-                            try {
-                                Log.d(MIXPANEL_TAG, "Register with email");
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, MixpanelHelper.REGISTER_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
+                            Log.d(MIXPANEL_TAG, "Register with email");
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, MixpanelHelper.REGISTER_VIEW);
                             login(email.getText().toString().toLowerCase(), password.getText().toString());
                         } else {
                             Log.e(TAG, "Sign up error: " + requestError.getMessage());
@@ -620,12 +581,8 @@ public class LoginActivity extends AppCompatActivity {
                                     application.setCurrentUser(user);
                                     application.setUpMixPanel();
                                     goToMainActivity(true);
-                                    try {
-                                        Log.d(MIXPANEL_TAG, "Register facebook");
-                                        mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
+                                    Log.d(MIXPANEL_TAG, "Register facebook");
+                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
                                 } else {
                                     Toast.makeText(LoginActivity.this, R.string.generic_error, Toast.LENGTH_SHORT).show();
                                 }
@@ -634,12 +591,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         } else {
             // Login
-            try {
-                Log.d(MIXPANEL_TAG, "Login with email");
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
-            } catch (JSONException e2) {
-                e2.printStackTrace();
-            }
+            Log.d(MIXPANEL_TAG, "Login with email");
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
 
             if (!NetworkHelper.isConnected(this)) {
                 Snackbar.make(findViewById(R.id.splash_layout), R.string.internet_check_error, Snackbar.LENGTH_SHORT)
@@ -678,12 +631,8 @@ public class LoginActivity extends AppCompatActivity {
 
         // Confirm your information view shows up
         // Prompt the user for the name and phone number
-        try {
-            Log.d(MIXPANEL_TAG, "Confirm information view appeared");
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.CONFIRM_INFORMATION_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Log.d(MIXPANEL_TAG, "Confirm information view appeared");
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.CONFIRM_INFORMATION_VIEW);
     }
 
     private void loginSocial(final String fbAccessToken, final String provider) {
@@ -820,13 +769,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
-        try {
-            Log.d(MIXPANEL_TAG, "Login with email");
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
-        } catch (JSONException e2) {
-            e2.printStackTrace();
-        }
-
+        Log.d(MIXPANEL_TAG, "Login with email");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
         if (!NetworkHelper.isConnected(this)) {
             Toast.makeText(LoginActivity.this, R.string.internet_check_error, Toast.LENGTH_LONG).show();
             return;
@@ -990,12 +934,8 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
-                try {
-                    String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CONFIRM, view);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CONFIRM, view);
             }
         });
 
@@ -1003,24 +943,17 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                try {
-                    String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CANCEL, view);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                String view = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.FORGOT_PASSWORD_CANCEL, view);
             }
         });
 
         dialog.show();
 
         //Track FORGOT_PASSWORD
-        try {
-            String mixpanelView = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_FORGOT_PASSWORD, mixpanelView);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        String mixpanelView = signup ? MixpanelHelper.REGISTER_VIEW : MixpanelHelper.LOGIN_VIEW;
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_FORGOT_PASSWORD, mixpanelView);
+
 
     }
 

@@ -81,11 +81,7 @@ public class MigrationService extends Service {
 
         notificationManager.notify(notificationId, notif.build());
 
-        try {
-            mixpanelHelper.trackMigrationProgress("Started", userId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackMigrationProgress("Started", userId);
 
         timer = new CountDownTimer(120000, 6000) {
             @Override
@@ -100,12 +96,7 @@ public class MigrationService extends Service {
                             JSONObject jsonResponse = new JSONObject(response);
                             if (requestError == null && jsonResponse.getJSONObject("migration").getBoolean("isMigrationDone")) {
                                 Log.i(TAG, "Migration complete");
-
-                                try {
-                                    mixpanelHelper.trackMigrationProgress("Complete", userId);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                mixpanelHelper.trackMigrationProgress("Complete", userId);
 
                                 new CountDownTimer(3000, 3000) { // in case not all data is completely migrated
                                     @Override
@@ -140,12 +131,7 @@ public class MigrationService extends Service {
             @Override
             public void onFinish() {
                 Log.i(TAG, "Migration failed");
-
-                try {
-                    mixpanelHelper.trackMigrationProgress("Failed", userId);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mixpanelHelper.trackMigrationProgress("Failed", userId);
 
                 notificationManager.notify(notificationId,
                         notif.setContentTitle("Update failed").setContentText("Please email us at info@getpitstop.io").setAutoCancel(true)

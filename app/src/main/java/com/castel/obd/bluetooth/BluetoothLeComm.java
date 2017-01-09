@@ -215,11 +215,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 case BluetoothProfile.STATE_CONNECTED:
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     btConnectionState = CONNECTED;
-                    try {
-                        mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
                     needToScan = false;
                     deviceManager.connectionStateChange(btConnectionState);
                     gatt.discoverServices();
@@ -234,11 +230,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
-                    try {
-                        mixpanelHelper.trackConnectionStatus(MixpanelHelper.DISCONNECTED);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackConnectionStatus(MixpanelHelper.DISCONNECTED);
                     deviceManager.connectionStateChange(btConnectionState);
                     NotificationManager mNotificationManager =
                             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
