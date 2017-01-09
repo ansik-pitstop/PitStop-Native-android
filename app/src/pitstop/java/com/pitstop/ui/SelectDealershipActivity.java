@@ -74,12 +74,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        try {
-            mixpanelHelper.trackViewAppeared("Select Dealership");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackViewAppeared("Select Dealership");
     }
 
     @Override
@@ -107,13 +102,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
-        try {
-            mixpanelHelper.trackButtonTapped("Back", "Select Dealership");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        mixpanelHelper.trackButtonTapped("Back", "Select Dealership");
         Intent mainActivity = new Intent(this, MainActivity.class);
         mainActivity.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
         startActivity(mainActivity);
@@ -219,11 +208,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.i(TAG, "Dealership selected: " + shop.getName());
-                    try {
-                        mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), "Select Dealership");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackButtonTapped("Selected " + shop.getName(), "Select Dealership");
                     Intent data = new Intent();
                     data.putExtra(SELECTED_DEALERSHIP, displayedShopId);
                     setResult(RESULT_OK, data);

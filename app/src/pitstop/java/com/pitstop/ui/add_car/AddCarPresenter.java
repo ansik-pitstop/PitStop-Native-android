@@ -214,12 +214,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                 public void done(String response, RequestError requestError) {
                                     if (requestError != null) {
                                         //Scanner id exists in backend
-                                        try {
-                                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            Log.e(TAG, "Error in posting button tracking info to mixpanel");
-                                        }
+                                        mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
                                         mCallback.onPostCarFailed(requestError.getMessage());
                                         Log.e(TAG, "Create new car: " + requestError.getMessage());
                                         return;
@@ -371,12 +366,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         } else {
                             //Scanner id exists in backend
-                            try {
-                                mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.e(TAG, "Error in posting button tracking info to mixpanel");
-                            }
+                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
                             mCallback.hideLoading(requestError.getMessage());
                             Log.e(TAG, "Create new car: " + requestError.getMessage());
                         }

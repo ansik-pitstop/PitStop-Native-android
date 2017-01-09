@@ -200,12 +200,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
-
-        try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BACK, MixpanelHelper.ADD_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BACK, MixpanelHelper.ADD_CAR_VIEW);
     }
 
     /**
@@ -245,11 +240,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         addingCarWithDevice = true;
 
-        try { // Log in Mixpanel
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        // Log in Mixpanel
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
         mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "YesDongle", 1);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
@@ -265,11 +257,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         addingCarWithDevice = false;
 
-        try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE, MixpanelHelper.ADD_CAR_VIEW);
         mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
@@ -354,11 +342,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      * @param view the "Scan VIN Barcode" button
      */
     public void startScanner(View view) {
-        try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
 
         if (!checkBackCamera()) {
             Toast.makeText(this, "This device does not have a back facing camera",
@@ -373,23 +357,15 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         barcodeScanner.initiateScan();
 
         //When the Barcode Scanner view appears
-        try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_BARCODE_SCANNER_VIEW_APPEARED);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_BARCODE_SCANNER_VIEW_APPEARED);
     }
 
     @Override
     protected void onResume() {
-        try {
-            if (isPairingUnrecognizedDevice) {
-                mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-            } else {
-                mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (isPairingUnrecognizedDevice) {
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
+        } else {
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
         }
 
         registerBluetoothReceiver();
@@ -572,11 +548,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (!isPairingUnrecognizedDevice) {
-                            try {
-                                mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
                             searchForCar(null);
                         } else {
                             presenter.searchForUnrecognizedDevice();
@@ -668,11 +640,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         mPager.setCurrentItem(2);
 
         // Go to the selectDealership fragment
-        try {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);
     }
 
     /**

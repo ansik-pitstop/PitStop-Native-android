@@ -137,23 +137,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        try {
-            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.ISSUE_DETAIL_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.ISSUE_DETAIL_VIEW);
         finish();
     }
 
     public void requestService(View view) {
         if (isFinishing()) return;
-
-        try {
-            mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
         startRequestServiceActivity();
     }
 

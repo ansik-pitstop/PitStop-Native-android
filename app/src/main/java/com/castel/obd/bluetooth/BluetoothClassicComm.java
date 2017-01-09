@@ -218,12 +218,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                     Log.d(TAG, "Bonding status: " + device.getBondState());
                     btConnectionState = CONNECTED;
                     LogUtil.i("Bluetooth state:CONNECTED");
-                    try {
-                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
+                    new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.CONNECTED);
                     deviceManager.connectionStateChange(btConnectionState);
                 }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
@@ -270,11 +265,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
-                    try {
-                        new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    new MixpanelHelper(application).trackConnectionStatus(MixpanelHelper.DISCONNECTED);
                     deviceManager.connectionStateChange(btConnectionState);
                 }
 

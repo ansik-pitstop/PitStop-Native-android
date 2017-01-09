@@ -177,15 +177,11 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case BluetoothServiceConnection.RC_ENABLE_BT:
-                try {
-                    if (resultCode == RESULT_OK) {
-                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
-                        if (isScanning) carScanButton.performClick();
-                    } else {
-                        mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (resultCode == RESULT_OK) {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
+                    if (isScanning) carScanButton.performClick();
+                } else {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
                 }
                 break;
 
@@ -274,12 +270,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
                     updateMileageDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - baseMileage);
                             if (mileage > 20000000) {
@@ -303,11 +294,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
      * @param view the "Scan Car" button
      */
     public void startCarScan(View view) {
-        try {
-            mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -358,11 +345,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
 
     @Override
     public void onBackPressed() {
-        try {
-            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, MixpanelHelper.SCAN_CAR_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, MixpanelHelper.SCAN_CAR_VIEW);
         super.onBackPressed();
     }
 
@@ -389,22 +372,14 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             carScanButton.performClick();
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CANCEL_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             dialog.cancel();
                         }
                     }).create();
