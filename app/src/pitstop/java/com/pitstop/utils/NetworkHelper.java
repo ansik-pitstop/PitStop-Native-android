@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.castel.obd.info.PIDInfo;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -26,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -37,6 +35,8 @@ public class NetworkHelper {
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
     private static final String clientId = BuildConfig.CLIENT_ID;
+
+    public static final String INSTALLATION_ID_KEY = "installationId";
 
     private Context context;
 
@@ -773,6 +773,25 @@ public class NetworkHelper {
 
     public void getCarTimeline(String carId, RequestCallback callback){
         get(String.format("car/%s/issues?type=upcoming", carId), callback);
+    }
+
+    public void getUserInstallationId(int userId, final RequestCallback callback){
+        getUser(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                JSONObject jObject  = null;
+                String installationIDResponse = "";
+                try {
+                    jObject = new JSONObject(response);
+                    JSONArray data = jObject.getJSONArray(INSTALLATION_ID_KEY);
+                    installationIDResponse = data.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                callback.done(installationIDResponse, requestError);
+            }
+        });
+
     }
 
 }

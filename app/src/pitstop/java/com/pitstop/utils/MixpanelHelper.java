@@ -204,6 +204,14 @@ public class MixpanelHelper {
     public static final String TIME_EVENT_SCAN_CAR = "Scan Car Time";
     public static final String TIME_EVENT_APP_OPEN = "App Open Time";
 
+    /**
+     * Notifications
+     * */
+    public static final String NOTIFICATION_DISPLAYED = "Notification(s) Displayed";
+    public static final String NOTIFICATION_FETCH_ERROR = "Error in fetching Notification(s) / Network Error";
+    public static final String NO_NOTIFICATION_DISPLAYED = "Empty Notification Message Displated";
+
+
     private GlobalApplication application;
 
     public MixpanelHelper(GlobalApplication context) {
