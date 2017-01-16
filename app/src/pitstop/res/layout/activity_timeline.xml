@@ -21,13 +21,18 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/error_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/timeline_error_message"
             android:textStyle="bold"
+            android:padding="8dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
             />
 
         <TextView
+            android:id="@+id/try_again"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/try_again_button"

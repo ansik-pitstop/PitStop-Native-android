@@ -57,6 +57,12 @@ public class TimelineActivity extends AppCompatActivity {
     @BindView(R.id.error_view_container)
     LinearLayout mErrorViewContainer;
 
+    @BindView(R.id.error_text)
+    TextView mErrorText;
+
+    @BindView(R.id.try_again)
+    TextView mTryAgain;
+
     @BindView(R.id.issue_details_view)
     FrameLayout mIssueDetailsView;
 
@@ -108,7 +114,10 @@ public class TimelineActivity extends AppCompatActivity {
                 if (response != null && requestError == null) {
                     mTimelineData = new Gson().fromJson(response, Timeline.class);
                     mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
-                    populateList();
+                    if (mIssueList != null && mIssueList.size() != 0)
+                        populateList();
+                    else
+                        showNoData();
                 }
                 else
                     showError();
@@ -157,11 +166,20 @@ public class TimelineActivity extends AppCompatActivity {
 
 
     private void showError() {
+        mErrorText.setText(R.string.timeline_error_message);
         mErrorViewContainer.setVisibility(View.VISIBLE);
+        mTryAgain.setVisibility(View.VISIBLE);
+    }
+
+    private void showNoData() {
+        mErrorText.setText(R.string.no_data_timeline);
+        mErrorViewContainer.setVisibility(View.VISIBLE);
+        mTryAgain.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.error_view_container)
     protected void onTryAgainClicked(){
+        if (mTryAgain.getVisibility() != View.VISIBLE) return;
         mErrorViewContainer.setVisibility(View.GONE);
         fetchData();
     }
