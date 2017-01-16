@@ -241,6 +241,12 @@
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
+        <activity
+            android:name=".ui.upcoming_timeline.TimelineActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="Upcoming Services"
+            android:parentActivityName=".ui.MainActivity"
+            />
     </application>
 
 </manifest>

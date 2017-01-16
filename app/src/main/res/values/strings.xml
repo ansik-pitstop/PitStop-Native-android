@@ -171,7 +171,12 @@
     <string name="phone_number_hint">Phone Number</string>
     <string name="password_hint">Password</string>
     <string name="forgot_password_button">Forgot password?</string>
-
+    
+    
+    <!--Upcoming Timeline-->
+    
+    <string name="kilometers_unit">KMs</string>
+    <string name="timeline_error_message">Something went wrong...</string>
 
 
 
