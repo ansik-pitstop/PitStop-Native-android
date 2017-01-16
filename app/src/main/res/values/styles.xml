@@ -75,4 +75,19 @@
         <item name="@android:windowExitAnimation">@anim/dialog_grow_out</item>
     </style>
 
+    <style name="SplashTheme" parent="AppNoActionBarTheme">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+    
+    <style name="FeatureText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginTop">32dp</item>
+
+    </style>
+
 </resources>

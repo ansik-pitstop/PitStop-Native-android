@@ -166,7 +166,7 @@ public class BluetoothChat {
 						byte[] data = new byte[count];
 						System.arraycopy(buffer, 0, data, 0, count);
 
-						Log.i("Reading Raw Data", Utils.bytesToHexString(data));
+						Log.d("Reading Raw Data", Utils.bytesToHexString(data));
 
 						mHandler.sendMessage(mHandler.obtainMessage(
 								IBluetoothCommunicator.BLUETOOTH_READ_DATA, data));

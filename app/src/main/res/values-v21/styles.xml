@@ -58,4 +58,8 @@
         <item name="@android:windowExitAnimation">@anim/dialog_slide_out_left</item>
     </style>
 
+    <style name="SplashTheme" parent="AppNoActionBarTheme">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+
 </resources>

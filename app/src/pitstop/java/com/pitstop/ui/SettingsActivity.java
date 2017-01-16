@@ -129,11 +129,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     @Override
     public void onBackPressed() {
-        try {
-            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SETTINGS_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.SETTINGS_VIEW);
         finish();
     }
 
@@ -261,11 +257,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
             mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
-            try {
-                mixpanelHelper.trackViewAppeared(MixpanelHelper.SETTINGS_VIEW);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mixpanelHelper.trackViewAppeared(MixpanelHelper.SETTINGS_VIEW);
+
 
             localCarAdapter = new LocalCarAdapter(getActivity());
             shopAdapter = new LocalShopAdapter(getActivity());
@@ -514,11 +507,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             findPreference(getString(R.string.pref_privacy_policy)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Privacy Policy", MixpanelHelper.SETTINGS_VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackButtonTapped("Privacy Policy", MixpanelHelper.SETTINGS_VIEW);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/PrivacyPolicy.pdf")));
                     return true;
                 }
@@ -528,11 +517,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             findPreference(getString(R.string.pref_term_of_use)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    try {
-                        mixpanelHelper.trackButtonTapped("Terms of Use", MixpanelHelper.SETTINGS_VIEW);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    mixpanelHelper.trackButtonTapped("Terms of Use", MixpanelHelper.SETTINGS_VIEW);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/AppAgreement.pdf")));
                     return true;
                 }
@@ -591,12 +576,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         }
 
         private void navigateToLogin() {
-            try {
-                mixpanelHelper.trackButtonTapped("Logout", MixpanelHelper.SETTINGS_VIEW);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
+            mixpanelHelper.trackButtonTapped("Logout", MixpanelHelper.SETTINGS_VIEW);
             Intent intent = new Intent(this.getActivity(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -605,12 +585,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         }
 
         private void updateUserName(final String firstName, final String lastName, final Preference namePreference) {
-            try {
-                mixpanelHelper.trackButtonTapped("First Name", MixpanelHelper.SETTINGS_VIEW);
-                mixpanelHelper.trackButtonTapped("Last Name", MixpanelHelper.SETTINGS_VIEW);
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
+            mixpanelHelper.trackButtonTapped("First Name", MixpanelHelper.SETTINGS_VIEW);
+            mixpanelHelper.trackButtonTapped("Last Name", MixpanelHelper.SETTINGS_VIEW);
             loadingCallback.showLoading("Updating..");
             networkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
@@ -632,11 +608,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         }
 
         private void updateUserPhone(final String phoneNumber, final Preference phonePreference) {
-            try {
-                mixpanelHelper.trackButtonTapped("Phone", MixpanelHelper.SETTINGS_VIEW);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mixpanelHelper.trackButtonTapped("Phone", MixpanelHelper.SETTINGS_VIEW);
             loadingCallback.showLoading("Updating");
             networkHelper.updateUserPhone(application.getCurrentUserId(), phoneNumber, new RequestCallback() {
                 @Override
@@ -678,11 +650,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                try {
-                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR, MixpanelHelper.SETTINGS_VIEW);
-                                } catch (JSONException e){
-                                    e.printStackTrace();
-                                }
+                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR, MixpanelHelper.SETTINGS_VIEW);
+
                                 new AnimatedDialogBuilder(getContext())
                                         .setTitle("Delete car")
                                         .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -691,11 +660,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                try {
-                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CONFIRM, MixpanelHelper.SETTINGS_VIEW);
-                                                } catch (JSONException e){
-                                                    e.printStackTrace();
-                                                }
+                                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CONFIRM, MixpanelHelper.SETTINGS_VIEW);
                                                 loadingCallback.showLoading("Deleting");
                                                 networkHelper.deleteUserCar(vehicle.getId(), new RequestCallback() {
                                                     @Override
@@ -709,11 +674,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     .findPreference(getString(R.string.pref_vehicles)))
                                                                     .removePreference(VehiclePreference.this);
                                                         } else {
-                                                            try {
-                                                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_ERROR, MixpanelHelper.SETTINGS_VIEW);
-                                                            } catch (JSONException e){
-                                                                e.printStackTrace();
-                                                            }
+                                                            mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_ERROR, MixpanelHelper.SETTINGS_VIEW);
                                                             Log.e(TAG, requestError.getMessage());
                                                             loadingCallback.hideLoading("Delete failed!");
                                                         }
@@ -724,11 +685,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                try {
-                                                    mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CANCEL, MixpanelHelper.SETTINGS_VIEW);
-                                                } catch (JSONException e){
-                                                    e.printStackTrace();
-                                                }
+                                                mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CANCEL, MixpanelHelper.SETTINGS_VIEW);
                                             }
                                         }).show();
                             }

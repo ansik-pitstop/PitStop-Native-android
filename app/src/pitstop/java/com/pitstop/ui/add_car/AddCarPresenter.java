@@ -30,6 +30,9 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.BasePresenter;
+import com.pitstop.ui.BaseView;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -53,7 +56,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     private Car pendingCar, createdCar;
 
-    private final AddCarContract.View mCallback;
+    private AddCarContract.View mCallback;
     private final GlobalApplication mApplication;
     private final NetworkHelper mNetworkHelper;
     private final MixpanelHelper mMixpanelHelper;
@@ -66,17 +69,15 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     private final boolean isPairingUnrecognizedDevice;
 
-    public AddCarPresenter(AddCarContract.View callback, GlobalApplication application, boolean isPairingUnrecognizedDevice) {
+    public AddCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, boolean isPairingUnrecognizedDevice) {
         pendingCar = new Car();
-        mCallback = callback;
         mApplication = application;
         mNetworkHelper = new NetworkHelper(application);
         mMixpanelHelper = new MixpanelHelper(application);
         mLocalScannerAdapter = new LocalScannerAdapter(application);
         mLocalCarAdapter = new LocalCarAdapter(application);
-        mAutoConnectService = callback.getAutoConnectService();
-        mServiceConnection = new BluetoothServiceConnection(application, callback.getActivity(), this);
-        bindBluetoothService();
+        mAutoConnectService = activity.autoConnectService;
+        mServiceConnection = new BluetoothServiceConnection(application, activity, this);
         this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
     }
 
@@ -213,12 +214,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                 public void done(String response, RequestError requestError) {
                                     if (requestError != null) {
                                         //Scanner id exists in backend
-                                        try {
-                                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            Log.e(TAG, "Error in posting button tracking info to mixpanel");
-                                        }
+                                        mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
                                         mCallback.onPostCarFailed(requestError.getMessage());
                                         Log.e(TAG, "Create new car: " + requestError.getMessage());
                                         return;
@@ -229,10 +225,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                         createdCar = Car.createCar(response);
                                         List<Car> localCarList = mLocalCarAdapter.getAllCars();
 
-//                                        Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
                                         Log.d(TAG, "Current car list size: " + localCarList.size());
                                         Log.d(TAG, "Created car id: " + createdCar.getId());
-//                                        if (MainActivity.carList.size() == 0) {
                                         if (localCarList.size() == 0) {
                                             Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                                     .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
@@ -336,10 +330,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                             try {
                                 createdCar = Car.createCar(response);
                                 List<Car> localCarList = mLocalCarAdapter.getAllCars();
-//                                Log.d(TAG, "Current car list size: " + MainActivity.carList.size());
                                 Log.d(TAG, "Current car list size: " + localCarList.size());
                                 Log.d(TAG, "Created car id: " + createdCar.getId());
-//                                if (MainActivity.carList.size() == 0) {
                                 if (localCarList.size() == 0) {
                                     Set<String> carsAwaitingTutorial = PreferenceManager.getDefaultSharedPreferences(mApplication)
                                             .getStringSet(mApplication.getString(R.string.pfAwaitTutorial), new HashSet<String>());
@@ -374,12 +366,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         } else {
                             //Scanner id exists in backend
-                            try {
-                                mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.e(TAG, "Error in posting button tracking info to mixpanel");
-                            }
+                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
                             mCallback.hideLoading(requestError.getMessage());
                             Log.e(TAG, "Create new car: " + requestError.getMessage());
                         }
@@ -963,7 +950,12 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     };
 
     @Override
-    public void start() {
+    public void bind(BaseView<? extends BasePresenter> view) {
+        this.mCallback = (AddCarContract.View)view;
+    }
 
+    @Override
+    public void unbind() {
+        this.mCallback = null;
     }
 }

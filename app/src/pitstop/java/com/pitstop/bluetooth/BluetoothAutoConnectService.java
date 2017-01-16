@@ -201,7 +201,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        //handler.postDelayed(runnable, 15000); // TODO: put in auto periodic scan
+        handler.postDelayed(runnable, 15000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
@@ -582,7 +582,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Log.d(TAG, "PID json: " + json);
         }
 
-        Log.i(TAG, "PIDs received: " + sb.toString());
+        Log.d(TAG, "PIDs received: " + sb.toString());
 
         pidDataObject.setPids(pids.toString());
 

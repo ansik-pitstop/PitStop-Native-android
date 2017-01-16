@@ -7,6 +7,8 @@ package com.pitstop.ui;
  */
 public interface BasePresenter {
 
-    void start();
+    void bind(BaseView<? extends BasePresenter> view);
+
+    void unbind();
 
 }

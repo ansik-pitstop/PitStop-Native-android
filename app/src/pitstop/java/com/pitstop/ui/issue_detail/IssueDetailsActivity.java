@@ -17,7 +17,7 @@ import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.PixelConvertUtil;
+import com.pitstop.utils.UiUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,7 +71,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         issuesPager.setAdapter(issueAdapter);
         issuesPager.setOffscreenPageLimit(5);
-        issuesPager.setPageMargin(- (int) (1.5 * PixelConvertUtil.convertDpToPixel(24, this)));
+        issuesPager.setPageMargin(- (int) (1.5 * UiUtils.convertDpToPixel(24, this)));
         for (int index = 0; index < allIssues.size(); index++){
             if (carIssue.getId() == allIssues.get(index).getId()){
                 issuesPager.setCurrentItem(index);
@@ -137,23 +137,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        try {
-            mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.ISSUE_DETAIL_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mixpanelHelper.trackButtonTapped("Back", MixpanelHelper.ISSUE_DETAIL_VIEW);
         finish();
     }
 
     public void requestService(View view) {
         if (isFinishing()) return;
-
-        try {
-            mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
         startRequestServiceActivity();
     }
 

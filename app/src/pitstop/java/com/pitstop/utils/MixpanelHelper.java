@@ -218,99 +218,118 @@ public class MixpanelHelper {
         application = context;
     }
 
-    public void trackAppStatus(String value) throws JSONException {
+    public void trackAppStatus(String value)  {
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("Status", value);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("Status", value);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_APP_STATUS, json);
     }
 
-    public void trackViewAppeared(String value) throws JSONException{
-        if (BuildConfig.DEBUG) {
-            return;
-        }
-        JSONObject json = new JSONObject();
-        json.put("View", value);
+    private void insertUsername(JSONObject json)  {
         User user = application.getCurrentUser();
         if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+            try {
+                json.put("Username", user.getEmail());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public void trackViewAppeared(String value){
+/*        if (BuildConfig.DEBUG) {
+            return;
+        }*/
+        JSONObject json = new JSONObject();
+        try {
+            json.put("View", value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_VIEW_APPEARED, json);
     }
 
-    public void trackConnectionStatus(String value) throws JSONException {
+    public void trackConnectionStatus(String value) {
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("Status", value);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("Status", value);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_PERIPHERAL_CONNECTION_STATUS, json);
     }
 
-    public void trackButtonTapped(String value, String view) throws JSONException {
+    public void trackButtonTapped(String value, String view) {
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("Button", value);
-        json.put("View", view);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("Button", value);
+            json.put("View", view);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
-    public void trackScrolledInView(String view) throws JSONException {
+    public void trackScrolledInView(String view) {
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("View", view);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("View", view);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
     }
 
-    public void trackCarAdded(String view, String mileage, String method) throws JSONException {
+    public void trackCarAdded(String view, String mileage, String method) {
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("Button", "Add Car");
-        json.put("View", view);
-        json.put("Mileage", mileage);
-        json.put("Method of Adding Car", method);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("Button", "Add Car");
+            json.put("View", view);
+            json.put("Mileage", mileage);
+            json.put("Method of Adding Car", method);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
+        insertUsername(json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
-    public void trackMigrationProgress(String status, int userId) throws JSONException {
+    public void trackMigrationProgress(String status, int userId){
         if (BuildConfig.DEBUG) {
             return;
         }
         JSONObject json = new JSONObject();
-        json.put("Status", status);
-        json.put("UserId", userId);
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            json.put("Username", user.getEmail());
+        try {
+            json.put("Status", status);
+            json.put("UserId", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
         application.getMixpanelAPI().track("Migration Status", json);
     }
 
@@ -319,14 +338,11 @@ public class MixpanelHelper {
      * @param properties
      * @throws JSONException
      */
-    public void trackCustom(String event, JSONObject properties) throws JSONException {
+    public void trackCustom(String event, JSONObject properties) {
         if (BuildConfig.DEBUG) {
             return;
         }
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
-            properties.put("Username", user.getEmail());
-        }
+        insertUsername(properties);
         application.getMixpanelAPI().track(event, properties);
     }
 

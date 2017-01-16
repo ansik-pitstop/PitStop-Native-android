@@ -124,29 +124,17 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private void showNotifications() {
         mNotificationsRecyclerView.setAdapter(new NotificationListAdapter());
-        try {
-            mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_DISPLAYED);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_DISPLAYED);
     }
 
     private void showEmptyListView() {
         showErrorMessage(NO_NOTIFICATION);
-        try {
-            mMixPanelHelper.trackViewAppeared(MixpanelHelper.NO_NOTIFICATION_DISPLAYED);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mMixPanelHelper.trackViewAppeared(MixpanelHelper.NO_NOTIFICATION_DISPLAYED);
     }
 
     private void showFetchError() {
         showErrorMessage(NETWORK_ERROR);
-        try {
-            mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_FETCH_ERROR);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_FETCH_ERROR);
     }
 
     private void showErrorMessage(int errorType){

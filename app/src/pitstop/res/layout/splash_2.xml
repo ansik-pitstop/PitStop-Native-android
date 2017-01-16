@@ -21,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/linearLayout6">
 
 
         <TextView
@@ -86,12 +87,12 @@
         android:id="@+id/imageView10"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="32dp"
         android:paddingLeft="80dp"
         android:paddingRight="80dp"
-        android:src="@drawable/whitelogo"/>
+        android:src="@drawable/whitelogo"
+        android:layout_above="@+id/linearLayout6"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="26dp" />
 
 
 </RelativeLayout>
