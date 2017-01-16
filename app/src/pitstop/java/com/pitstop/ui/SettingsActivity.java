@@ -299,7 +299,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 shopAdapter.deleteAllDealerships();
                                 shopAdapter.storeDealerships(dealers);
 
-                                // Test this:
                                 for (Dealership dealership : dealers) {
                                     shops.add(dealership.getName());
                                     shopIds.add(String.valueOf(dealership.getId()));
