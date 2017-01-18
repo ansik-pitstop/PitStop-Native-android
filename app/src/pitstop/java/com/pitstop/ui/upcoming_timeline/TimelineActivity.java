@@ -89,6 +89,7 @@ public class TimelineActivity extends AppCompatActivity {
     List<Object> mTimelineDisplayList;
     List<Issue> mIssueList;
     boolean mIssueDetailsViewVisible = false;
+    boolean mIssueDetailsViewAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,6 +204,7 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void showIssueDetails(Issue issue) {
+        if (mIssueDetailsViewVisible || mIssueDetailsViewAnimating) return;
         mIssueTitle.setText(issue.getIssueDetail().getAction() + " " + issue.getIssueDetail().getItem());
         if (!TextUtils.isEmpty(issue.getIssueDetail().getDescription())) {
             mIssueDescriptionContainer.setVisibility(View.VISIBLE);
@@ -227,12 +229,14 @@ public class TimelineActivity extends AppCompatActivity {
         showIssueDetailsAnimation.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
+                        mIssueDetailsViewAnimating = true;
                         mIssueDetailsView.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animator) {
                         mIssueDetailsViewVisible = true;
+                        mIssueDetailsViewAnimating = false;
                     }
 
                     @Override
@@ -255,13 +259,14 @@ public class TimelineActivity extends AppCompatActivity {
         hideIssueDetailsAnimation.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
-
+                mIssueDetailsViewAnimating = true;
             }
 
             @Override
             public void onAnimationEnd(Animator animator) {
                 mIssueDetailsView.setVisibility(View.GONE);
                 mIssueDetailsViewVisible = false;
+                mIssueDetailsViewAnimating = false;
             }
 
             @Override
