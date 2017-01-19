@@ -114,6 +114,10 @@ public class LoginActivity extends AppCompatActivity {
     TextInputLayout passwordLayout;
     @BindView(R.id.password)
     TextInputEditText password;
+    @BindView(R.id.confirm_password_layout)
+    TextInputLayout confirmPasswordLayout;
+    @BindView(R.id.confirm_password)
+    TextInputEditText confirmPassword;
     @BindView(R.id.phoneLayout)
     TextInputLayout phoneLayout;
     @BindView(R.id.phone)
@@ -390,6 +394,7 @@ public class LoginActivity extends AppCompatActivity {
                 phoneLayout.setVisibility(View.GONE);
                 emailLayout.setVisibility(View.VISIBLE);
                 passwordLayout.setVisibility(View.VISIBLE);
+                confirmPasswordLayout.setVisibility(View.VISIBLE);
                 mSwitcherButton.setVisibility(View.VISIBLE);
                 mFbButton.setVisibility(View.VISIBLE);
                 mLoginButton.setText(getString(R.string.sign_up_button));
@@ -447,6 +452,7 @@ public class LoginActivity extends AppCompatActivity {
         mFbButton.setText(R.string.sign_up_fb);
         mLoginButton.setText(R.string.sign_up_button);
         mSwitcherButton.setText(R.string.log_in_button);
+        confirmPasswordLayout.setVisibility(View.VISIBLE);
         signup = true;
     }
 
@@ -456,8 +462,8 @@ public class LoginActivity extends AppCompatActivity {
         firstNameLayout.setVisibility(View.GONE);
         lastNameLayout.setVisibility(View.GONE);
         phoneLayout.setVisibility(View.GONE);
+        confirmPasswordLayout.setVisibility(View.GONE);
         mFbButton.setText(R.string.log_in_fb);
-
         mLoginButton.setText(R.string.log_in_button);
         mSwitcherButton.setText(R.string.sign_up_button);
         signup = false;
@@ -497,16 +503,23 @@ public class LoginActivity extends AppCompatActivity {
 
             if ((!email.getText().toString().equals(""))
                     && (!password.getText().toString().equals(""))
-                    && firstNameLayout.getVisibility() != View.VISIBLE) {
+                    && firstNameLayout.getVisibility() != View.VISIBLE
+                    && password.getText().toString().equals(confirmPassword.getText().toString())) {
 
                 // The user tapped on the SIGNUP button after he entered his email and password
                 Log.d(MIXPANEL_TAG, "Register button tapped");
                 mixpanelHelper.trackButtonTapped(MixpanelHelper.REGISTER_BUTTON_TAPPED, MixpanelHelper.REGISTER_VIEW);
-
                 finalizeProfile();
                 return;
-            } else if (firstName.getVisibility() != View.VISIBLE && !facebookSignup) {
+
+            } else if (firstNameLayout.getVisibility() != View.VISIBLE && !facebookSignup
+                    && (email.getText().toString().equals("") || password.getText().toString().equals(""))) {
                 Snackbar.make(splashLayout, R.string.empty_email_pass_error, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+            else if (firstNameLayout.getVisibility() != View.VISIBLE && !facebookSignup
+                    && !(password.getText().toString().equals(confirmPassword.getText().toString()))){
+                Snackbar.make(splashLayout, R.string.password_no_match_error, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
@@ -521,6 +534,7 @@ public class LoginActivity extends AppCompatActivity {
                 hideLoading();
                 return;
             }
+
             if (phoneNumber.getText().toString().length() != 10 && phoneNumber.getText().toString().length() != 11) {
                 Toast.makeText(LoginActivity.this, R.string.invalid_phone_error, Toast.LENGTH_LONG).show();
                 hideLoading();
@@ -625,6 +639,7 @@ public class LoginActivity extends AppCompatActivity {
         phoneLayout.setVisibility(View.VISIBLE);
         emailLayout.setVisibility(View.GONE);
         passwordLayout.setVisibility(View.GONE);
+        confirmPasswordLayout.setVisibility(View.GONE);
         mSwitcherButton.setVisibility(View.GONE);
         mFbButton.setVisibility(View.GONE);
         mLoginButton.setText(R.string.finalize_button);

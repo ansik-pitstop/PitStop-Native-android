@@ -152,6 +152,7 @@
     <string name="empty_email_pass_error">Email or Password Field are not filled</string>
     <string name="empty_name_error">First and last name are required</string>
     <string name="password_length_error">Password length must be greater than 6</string>
+    <string name="password_no_match_error">Passwords do not match</string>
     <string name="invalid_phone_error">Invalid phone number</string>
     <string name="generic_error">An error occurred, please try again</string>
     <string name="finalize_button">FINALIZE PROFILE</string>
@@ -170,6 +171,7 @@
     <string name="last_name_hint">Last Name</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
     <string name="forgot_password_button">Forgot password?</string>
     
     
