@@ -273,7 +273,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:id="@+id/upcoming_service_icon"
-                        android:src="@drawable/ic_history_light_blue_500_24dp"
+                        android:src="@drawable/timeline_icon"
                         android:layout_gravity="center_vertical"
                         android:layout_marginRight="16dp" />
 
