@@ -2,6 +2,7 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_car_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,26 +20,20 @@
         android:background="@drawable/cardview_background_white"
         android:padding="10dp">
 
+        <ImageView
+            android:id="@+id/issue_severity_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_warning_amber_300_24dp"
+            android:scaleType="centerInside"/>
+
+
         <RelativeLayout
             android:id="@+id/issue_info_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/issue_image_layout"
-            android:layout_alignParentLeft="true"
             android:orientation ="horizontal">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-light"
-                android:maxLines="1"
-                android:text="ISSUE"
-                android:textColor="@color/primary_dark"
-                android:textIsSelectable="false"
-                android:layout_centerVertical="true"
-                android:textSize="17sp" />
 
         </RelativeLayout>
 
@@ -58,5 +53,18 @@
                 android:src="@drawable/right_chevron"
                 android:scaleType="centerInside"/>
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:maxLines="1"
+            tools:text="ISSUE"
+            android:textColor="@color/black"
+            android:textIsSelectable="false"
+            android:layout_marginStart="16dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/issue_severity_indicator" />
     </RelativeLayout>
 </android.support.v7.widget.CardView>
