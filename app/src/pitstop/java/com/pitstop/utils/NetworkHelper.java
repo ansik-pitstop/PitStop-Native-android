@@ -771,6 +771,9 @@ public class NetworkHelper {
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
+    public void getCarTimeline(String carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=upcoming", carId), callback);
+    }
 
     public void getUserInstallationId(int userId, final RequestCallback callback){
         getUser(userId, new RequestCallback() {

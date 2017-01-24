@@ -74,6 +74,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
@@ -608,6 +609,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    public void upcomingServiceClicked(View view){
+        mixpanelHelper.trackButtonTapped("Upcoming", MixpanelHelper.TOOLS_VIEW);
+        Intent carTimelineIntent = new Intent(this, TimelineActivity.class);
+        carTimelineIntent.putExtra(TimelineActivity.CAR_BUNDLE_KEY, dashboardCar);
+        startActivity(carTimelineIntent);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

@@ -173,7 +173,13 @@
     <string name="password_hint">Password</string>
     <string name="confirm_password_hint">Confirm Password</string>
     <string name="forgot_password_button">Forgot password?</string>
-
+    
+    
+    <!--Upcoming Timeline-->
+    
+    <string name="kilometers_unit">KMs</string>
+    <string name="timeline_error_message">Something went wrong...</string>
+    <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
 
 
 
