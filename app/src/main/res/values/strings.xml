@@ -179,7 +179,7 @@
     
     <string name="kilometers_unit">KMs</string>
     <string name="timeline_error_message">Something went wrong...</string>
-    <string name="no_data_timeline">Looks like we don\'t have upcoming data about your car at the moment</string>
+    <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
 
 
 
