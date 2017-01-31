@@ -93,6 +93,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     parseQuery.findInBackground(new FindCallback<Notification>() {
                         @Override
                         public void done(List<Notification> notificationsList, ParseException e) {
+                            if (notificationsList == null) {
+                                showFetchError();
+                                mLoadingSpinner.setVisibility(View.GONE);
+                                return;
+                            }
                             mNotificationList = notificationsList;
                             Collections.sort(mNotificationList, new Comparator<Notification>() {
                                 @Override
@@ -119,7 +124,6 @@ public class NotificationsActivity extends AppCompatActivity {
             }
 
         });
-
     }
 
     private void showNotifications() {
