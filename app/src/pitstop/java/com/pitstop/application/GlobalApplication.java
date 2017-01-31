@@ -52,6 +52,7 @@ public class GlobalApplication extends Application {
     public final static String pfAccessToken = "com.pitstop.access";
     public final static String pfRefreshToken = "com.pitstop.refresh";
     public final static String pfLoggedIn = "com.pitstop.logged_in";
+    public static final String PARSE_CLIENT_KEY = "android";
 
     private static MixpanelAPI mixpanelAPI;
 
@@ -120,11 +121,14 @@ public class GlobalApplication extends Application {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
         }
 
-        Parse.initialize(getApplicationContext(), BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
-                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev),
-
-                BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
-                        getString(R.string.parse_clientID_prod) : getString(R.string.parse_clientID_dev));
+        Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
+                .applicationId(BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
+                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev))
+                .clientKey(PARSE_CLIENT_KEY)
+                .enableLocalDataStore()
+                .server(getString(R.string.parse_server_url))
+                .build()
+        );
 
         ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
             @Override
