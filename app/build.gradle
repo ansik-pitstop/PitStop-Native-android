@@ -38,6 +38,7 @@ android {
             buildConfigField "String", "CLIENT_ID", "\"DINCPNWtqjjG69xfMWuF8BIJ8QjwjyLwCq36C19CkTIMkFnE6zSxz7Xoow0aeq8M6Tlkybu8gd4sDIKD\""
             buildConfigField "String", "SERVER_URL", isStaging ? staging : snapshot
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? "\"staging\"" : "\"snapshot\""
+            resValue "string", "parse_server_url", "http://parseserverpush-staging.us-west-2.elasticbeanstalk.com/parse"
             versionNameSuffix ".debug"
         }
         beta.initWith(buildTypes.debug)
@@ -52,6 +53,8 @@ android {
             buildConfigField "String", "CLIENT_ID", "\"8pLSeDGJdlW89dzfbfI4uNr0x2Blo4FG8TEkCB5LXKgtfVf8\""
             buildConfigField "String", "SERVER_URL", "\"https://api.getpitstop.io/\""
             buildConfigField "String", "ENDPOINT_TYPE", "\"release\""
+            resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+
         }
     }
 
@@ -63,8 +66,8 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 131
-            versionName "2.3.1"
+            versionCode 133
+            versionName "2.3.2"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""

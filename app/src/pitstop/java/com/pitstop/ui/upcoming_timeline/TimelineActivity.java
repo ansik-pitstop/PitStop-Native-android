@@ -151,7 +151,7 @@ public class TimelineActivity extends AppCompatActivity {
         }
     }
 
-    private void  prepareMap() {
+    private void prepareMap() {
         List<Issue> newIssueList;
         for (Issue issue : mIssueList){
             if (mTimeLineMap.containsKey(issue.getIntervalMileage())) {
@@ -164,7 +164,6 @@ public class TimelineActivity extends AppCompatActivity {
             mTimeLineMap.put(issue.getIntervalMileage(), newIssueList);
         }
     }
-
 
     private void showError() {
         mErrorText.setText(R.string.timeline_error_message);
