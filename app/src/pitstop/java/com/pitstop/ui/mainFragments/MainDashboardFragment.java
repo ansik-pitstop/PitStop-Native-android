@@ -515,7 +515,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         dashboardCar = carList.get(0);
 
         carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setAdapter(carIssuesAdapter);
+        if (carIssueListView != null)
+            carIssueListView.setAdapter(carIssuesAdapter);
     }
 
     /**
@@ -537,7 +538,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             setIssuesCount();
         }
         carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setAdapter(carIssuesAdapter);
+        if (carIssueListView != null)
+            carIssueListView.setAdapter(carIssuesAdapter);
     }
 
 
