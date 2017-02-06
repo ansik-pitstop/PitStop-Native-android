@@ -474,6 +474,14 @@ public class LoginActivity extends AppCompatActivity {
      * @param view The Login/Signup with Facebook button in the splash screen
      */
     public void loginFacebook(View view) {
+        if(!NetworkHelper.isConnected(this)){
+            showNoInternetSnackback(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loginOrSignUp(view);
+                }
+            });
+        }
         if (signup) {
             Log.d(MIXPANEL_TAG, "Register with facebook");
             application.modifyMixpanelSettings("Registered With", "Facebook");
@@ -494,13 +502,16 @@ public class LoginActivity extends AppCompatActivity {
      * @param view
      */
     public void loginOrSignUp(final View view) {
+        if (!NetworkHelper.isConnected(this)) {
+            showNoInternetSnackback(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loginOrSignUp(view);
+                }
+            });
+            return;
+        }
         if (signup) {
-            //if signing up
-            if (!NetworkHelper.isConnected(this)) {
-                Toast.makeText(LoginActivity.this, R.string.internet_check_error, Toast.LENGTH_LONG).show();
-                return;
-            }
-
             if ((!email.getText().toString().equals(""))
                     && (!password.getText().toString().equals(""))
                     && firstNameLayout.getVisibility() != View.VISIBLE
@@ -607,25 +618,17 @@ public class LoginActivity extends AppCompatActivity {
             // Login
             Log.d(MIXPANEL_TAG, "Login with email");
             mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
-
-            if (!NetworkHelper.isConnected(this)) {
-                Snackbar.make(findViewById(R.id.splash_layout), R.string.internet_check_error, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.retry_button, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                signUpSwitcher(null);
-                            }
-                        })
-                        .show();
-                return;
-            }
-
             showLoading(getString(R.string.logging_in_message));
             final String usernameInput = email.getText().toString().toLowerCase();
             final String passwordInput = password.getText().toString();
 
             login(usernameInput, passwordInput);
         }
+    }
+
+    private void showNoInternetSnackback(View.OnClickListener onRetryClickListener) {
+        Snackbar.make(findViewById(R.id.splash_layout), R.string.internet_check_error, Snackbar.LENGTH_SHORT)
+                .setAction(R.string.retry_button, onRetryClickListener).show();
     }
 
     /**
@@ -787,7 +790,12 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(MIXPANEL_TAG, "Login with email");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_LOGIN_WITH_EMAIL, MixpanelHelper.LOGIN_VIEW);
         if (!NetworkHelper.isConnected(this)) {
-            Toast.makeText(LoginActivity.this, R.string.internet_check_error, Toast.LENGTH_LONG).show();
+            showNoInternetSnackback(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    login(view);
+                }
+            });
             return;
         }
 
