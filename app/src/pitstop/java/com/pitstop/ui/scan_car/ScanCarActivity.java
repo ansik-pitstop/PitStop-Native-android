@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -23,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.castel.obd.bleDevice.Device215B;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.EdgeDetail;
@@ -30,6 +32,7 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -294,6 +297,8 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
      * @param view the "Scan Car" button
      */
     public void startCarScan(View view) {
+        if (autoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_215B)
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(Device215B.KEY_LAST_SCAN_TIME, System.currentTimeMillis() / 1000L).apply();
         mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {

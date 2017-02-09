@@ -10,6 +10,7 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -119,6 +120,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         mAutoConnectService.getDTCs();
         checkEngineIssuesTimer.cancel();
         checkEngineIssuesTimer.start();
+
     }
 
     private Set<CarIssue> services;
@@ -248,19 +250,37 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+            if (mAutoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_212B) {
+                final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
-            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
+                Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
 
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
+                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                    dashboardCar.setDisplayedMileage(newTotalMileage);
+                    localCarAdapter.updateCar(dashboardCar);
+                }
+                mCallback.onTripMileageUpdated(newTotalMileage);
+            }else {
+                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+                final double newTotalMileage = ((int) ((dashboardCar.getDisplayedMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+
+                Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getDisplayedMileage() + ", newMileage: " + newTotalMileage);
+
+                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                    dashboardCar.setDisplayedMileage(newTotalMileage);
+                    localCarAdapter.updateCar(dashboardCar);
+                }
+                mCallback.onTripMileageUpdated(newTotalMileage);
+
             }
-            mCallback.onTripMileageUpdated(newTotalMileage);
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-            final double newBaseMileage = dashboardCar.getTotalMileage();
-            mCallback.onTripMileageUpdated(newBaseMileage);
+            if (mAutoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_212B) {
+                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+                final double newBaseMileage = dashboardCar.getTotalMileage();
+                mCallback.onTripMileageUpdated(newBaseMileage);
+            }else {
+
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.castel.obd.bleDevice;
 
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 
 import java.util.UUID;
@@ -24,6 +25,8 @@ public interface AbstractDevice {
     String requestData(); // for 215 to ask for IDR
 
     String getDeviceName();
+
+    BluetoothDeviceManager.DeviceType getDeviceType();
 
     // parameters
     String getVin();

@@ -6,6 +6,7 @@ import android.util.Log;
 import com.castel.obd.OBD;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.util.ObdDataUtil;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
@@ -95,6 +96,11 @@ public class Device212B implements AbstractDevice {
     @Override
     public String getDeviceName() {
         return deviceName;
+    }
+
+    @Override
+    public BluetoothDeviceManager.DeviceType getDeviceType() {
+        return BluetoothDeviceManager.DeviceType.DEVICE_212B;
     }
 
     @Override

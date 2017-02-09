@@ -1680,4 +1680,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    public BluetoothDeviceManager.DeviceType getDeviceType(){
+        return deviceManager.getDeviceType();
+    }
+
 }
