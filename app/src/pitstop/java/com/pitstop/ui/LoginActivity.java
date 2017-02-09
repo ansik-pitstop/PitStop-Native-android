@@ -50,10 +50,10 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -93,6 +93,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final int SECTION_SLIDE_ANIMATION_INTERVAL = 300;
 
+    private final int PASSWORD_MIN_LENGTH = 8;
 
     GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -492,7 +493,12 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (facebookLoginButton != null) {
-            facebookLoginButton.performClick();
+            AccessToken token = AccessToken.getCurrentAccessToken();
+            if (token != null && !token.isExpired()) {
+                loginSocial(token.getToken(), FACEBOOK_PROVIDER);
+            } else {
+                facebookLoginButton.performClick();
+            }
         }
     }
 
@@ -512,8 +518,9 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         if (signup) {
-            if ((!email.getText().toString().equals(""))
-                    && (!password.getText().toString().equals(""))
+            if (!email.getText().toString().isEmpty()
+                    && !password.getText().toString().isEmpty()
+                    && !(password.getText().length() < PASSWORD_MIN_LENGTH || confirmPassword.getText().length() < PASSWORD_MIN_LENGTH)
                     && firstNameLayout.getVisibility() != View.VISIBLE
                     && password.getText().toString().equals(confirmPassword.getText().toString())) {
 
@@ -523,15 +530,17 @@ public class LoginActivity extends AppCompatActivity {
                 finalizeProfile();
                 return;
 
-            } else if (firstNameLayout.getVisibility() != View.VISIBLE && !facebookSignup
-                    && (email.getText().toString().equals("") || password.getText().toString().equals(""))) {
-                Snackbar.make(splashLayout, R.string.empty_email_pass_error, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-            else if (firstNameLayout.getVisibility() != View.VISIBLE && !facebookSignup
-                    && !(password.getText().toString().equals(confirmPassword.getText().toString()))){
-                Snackbar.make(splashLayout, R.string.password_no_match_error, Snackbar.LENGTH_SHORT).show();
-                return;
+            } else if (firstNameLayout.getVisibility() != View.VISIBLE && !facebookSignup) {
+                if (password.getText().length() < PASSWORD_MIN_LENGTH || confirmPassword.getText().length() < PASSWORD_MIN_LENGTH) {
+                    Snackbar.make(splashLayout, R.string.password_length_error, Snackbar.LENGTH_SHORT).show();
+                    return;
+                } else if (email.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
+                    Snackbar.make(splashLayout, R.string.empty_email_pass_error, Snackbar.LENGTH_SHORT).show();
+                    return;
+                } else if (!password.getText().toString().equals(confirmPassword.getText().toString())) {
+                    Snackbar.make(splashLayout, R.string.password_no_match_error, Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
             }
 
             showLoading(getString(R.string.loading));
@@ -540,7 +549,7 @@ public class LoginActivity extends AppCompatActivity {
                 hideLoading();
                 return;
             }
-            if (password.getText().toString().length() < 6 && !facebookSignup) {
+            if (password.getText().toString().length() < PASSWORD_MIN_LENGTH && !facebookSignup) {
                 Toast.makeText(LoginActivity.this, R.string.password_length_error, Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
@@ -685,7 +694,7 @@ public class LoginActivity extends AppCompatActivity {
                     goToMainActivity(true);
                 } else {
                     Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                    Snackbar.make(findViewById(R.id.splash_layout), R.string.invalid_credentials_error, Snackbar.LENGTH_SHORT)
+                    Snackbar.make(findViewById(R.id.splash_layout), R.string.facebook_login_error, Snackbar.LENGTH_LONG)
                             .show();
                 }
             }
