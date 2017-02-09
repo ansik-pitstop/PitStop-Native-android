@@ -151,12 +151,13 @@
     <string name="internet_check_error">Please check your internet connection</string>
     <string name="empty_email_pass_error">Email or Password Field are not filled</string>
     <string name="empty_name_error">First and last name are required</string>
-    <string name="password_length_error">Password length must be greater than 6</string>
+    <string name="password_length_error">Password length must be greater than 8</string>
     <string name="password_no_match_error">Passwords do not match</string>
     <string name="invalid_phone_error">Invalid phone number</string>
     <string name="generic_error">An error occurred, please try again</string>
     <string name="finalize_button">FINALIZE PROFILE</string>
     <string name="invalid_credentials_error">Invalid username/password</string>
+    <string name="facebook_login_error">An error occurred, please try again later</string>
     <string name="update_fail_error">Update failed. Please contact us at info@getpitstop.io.</string>
     <string name="cancel_button">Cancel</string>
     <string name="try_again_button">Try again</string>
