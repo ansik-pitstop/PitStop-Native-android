@@ -23,6 +23,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -1680,7 +1681,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    public BluetoothDeviceManager.DeviceType getDeviceType(){
+    public AbstractDevice.DeviceType getDeviceType(){
         return deviceManager.getDeviceType();
     }
 

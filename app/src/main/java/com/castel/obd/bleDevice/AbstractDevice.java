@@ -26,7 +26,12 @@ public interface AbstractDevice {
 
     String getDeviceName();
 
-    BluetoothDeviceManager.DeviceType getDeviceType();
+    enum DeviceType{
+        DEVICE_212B,
+        DeviceType, DEVICE_215B
+    }
+
+    DeviceType getDeviceType();
 
     // parameters
     String getVin();

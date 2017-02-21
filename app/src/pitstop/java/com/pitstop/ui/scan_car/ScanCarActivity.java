@@ -297,8 +297,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
      * @param view the "Scan Car" button
      */
     public void startCarScan(View view) {
-        if (autoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_215B)
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(Device215B.KEY_LAST_SCAN_TIME, System.currentTimeMillis() / 1000L).apply();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(Device215B.KEY_LAST_SCAN_TIME, System.currentTimeMillis() / 1000L).apply();
         mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {

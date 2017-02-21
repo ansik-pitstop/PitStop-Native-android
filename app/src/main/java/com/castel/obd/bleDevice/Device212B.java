@@ -99,8 +99,8 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public BluetoothDeviceManager.DeviceType getDeviceType() {
-        return BluetoothDeviceManager.DeviceType.DEVICE_212B;
+    public DeviceType getDeviceType() {
+        return DeviceType.DEVICE_212B;
     }
 
     @Override

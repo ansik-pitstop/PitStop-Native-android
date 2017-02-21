@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.util.Log;
 
+import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
@@ -250,7 +251,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            if (mAutoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_212B) {
+            if (mAutoConnectService.getDeviceType() == AbstractDevice.DeviceType.DEVICE_212B) {
                 final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
                 Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
@@ -274,12 +275,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
             }
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            if (mAutoConnectService.getDeviceType() == BluetoothDeviceManager.DeviceType.DEVICE_212B) {
+            if (mAutoConnectService.getDeviceType() == AbstractDevice.DeviceType.DEVICE_212B) {
                 dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
                 final double newBaseMileage = dashboardCar.getTotalMileage();
                 mCallback.onTripMileageUpdated(newBaseMileage);
             }else {
-
+                // we do not get TripInfoPackage.TripFlag.END for 215B, so nothing is done
             }
         }
     }

@@ -85,11 +85,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         CLASSIC, LE
     }
 
-    public enum DeviceType{
-        DEVICE_212B,
-        DEVICE_215B
-    }
-
     public BluetoothDeviceManager(Context context) {
 
         mContext = context;
@@ -438,7 +433,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.requestData());
     }
 
-    public DeviceType getDeviceType() {
+    public AbstractDevice.DeviceType getDeviceType() {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED)
+            return null;
         return deviceInterface.getDeviceType();
     }
 }
