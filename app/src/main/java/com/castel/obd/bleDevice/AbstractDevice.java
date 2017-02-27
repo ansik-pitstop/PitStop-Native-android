@@ -28,7 +28,7 @@ public interface AbstractDevice {
 
     enum DeviceType{
         DEVICE_212B,
-        DeviceType, DEVICE_215B
+        DEVICE_215B
     }
 
     DeviceType getDeviceType();

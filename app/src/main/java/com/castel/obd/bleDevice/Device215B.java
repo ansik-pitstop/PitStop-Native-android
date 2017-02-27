@@ -357,13 +357,15 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
                     tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
-                    //TODO make this unique for different car
+                    //TODO make this unique for different car, minus the mileage from 215B mileage in the callback method, not here
                     mLastMileage = Double.longBitsToDouble(mSharedPrefs.getLong(KEY_LAST_MILEAGE_215, 0));
                     Long lastScanTime = mSharedPrefs.getLong(KEY_LAST_SCAN_TIME, 0);
-                    if (lastScanTime == 0 || lastScanTime <= tripInfoPackage.rtcTime)
+                    if (lastScanTime == 0 || lastScanTime <= tripInfoPackage.rtcTime) {
                         tripInfoPackage.mileage = (Double.parseDouble(idrInfo.mileage) - mLastMileage) / 1000;
-                    else
+                    }
+                    else {
                         tripInfoPackage.mileage = 0;
+                    }
                     mSharedPrefs.edit().putLong(KEY_LAST_MILEAGE_215, Double.doubleToLongBits(Double.parseDouble(idrInfo.mileage)))
                             .apply();
                     dataListener.tripData(tripInfoPackage);

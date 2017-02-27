@@ -251,38 +251,38 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            if (mAutoConnectService.getDeviceType() == AbstractDevice.DeviceType.DEVICE_212B) {
-                final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-                Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
-
-                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                    dashboardCar.setDisplayedMileage(newTotalMileage);
-                    localCarAdapter.updateCar(dashboardCar);
-                }
-                mCallback.onTripMileageUpdated(newTotalMileage);
-            }else {
-                dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-                final double newTotalMileage = ((int) ((dashboardCar.getDisplayedMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-                Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getDisplayedMileage() + ", newMileage: " + newTotalMileage);
-
-                if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                    dashboardCar.setDisplayedMileage(newTotalMileage);
-                    localCarAdapter.updateCar(dashboardCar);
-                }
-                mCallback.onTripMileageUpdated(newTotalMileage);
-
+            double newTotalMileage = 0;
+            switch (mAutoConnectService.getDeviceType()){
+                case DEVICE_212B:
+                    newTotalMileage = calculateUpdatedMileage(dashboardCar.getTotalMileage(), tripInfoPackage.mileage);
+                    break;
+                case DEVICE_215B:
+                    dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
+                    newTotalMileage =  calculateUpdatedMileage(dashboardCar.getDisplayedMileage(), tripInfoPackage.mileage);
+                    break;
             }
+            
+            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                localCarAdapter.updateCar(dashboardCar);
+            }
+            mCallback.onTripMileageUpdated(newTotalMileage);
+
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
             if (mAutoConnectService.getDeviceType() == AbstractDevice.DeviceType.DEVICE_212B) {
                 dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
                 final double newBaseMileage = dashboardCar.getTotalMileage();
                 mCallback.onTripMileageUpdated(newBaseMileage);
-            }else {
+            } else {
                 // we do not get TripInfoPackage.TripFlag.END for 215B, so nothing is done
             }
         }
+    }
+
+    private double calculateUpdatedMileage(double carMileage, double tripMileage){
+        double newMileage =  ((int) ((carMileage + tripMileage) * 100)) / 100.0; // round to 2 decimal places
+        Log.v(TAG, "Mileage updated: tripMileage: " + tripMileage+ ", baseMileage: " + carMileage + ", newMileage: " + newMileage);
+        return newMileage;
     }
 
     @Override
