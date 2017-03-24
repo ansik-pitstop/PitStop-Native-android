@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
@@ -34,6 +35,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -51,6 +59,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean hasDiscoveredServices = false;
 
     private Handler mHandler = new Handler();
+
+    private Handler mBenchmarkHandler = new Handler();
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
@@ -323,19 +333,66 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 Log.d(TAG, deviceName + "   " + device.getAddress());
                 switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
                     case CONNECT:
-                        Log.v(TAG, "Found device: " + deviceName);
-                        if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
-                            deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, deviceName);
-                            connectToDevice(device);
-                        } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
-                            deviceInterface = new Device215B(mContext, dataListener, deviceName);
-                            connectToDevice(device);
-                        }
+                        benchmarkRSSI(device, intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE));
+                        Log.v(TAG, "Found device: " + deviceName +" with "+ intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE) + "dBm\n");
                         break;
                 }
             }
         }
     };
+
+    private Timer rssiBenchmarkTimer = null;
+    private Map<BluetoothDevice, Short> mDeviceRssiMap = new HashMap<>();
+    private List<BluetoothDevice> mBluetoothDeviceList = new ArrayList<>();
+
+    /*
+    *
+    * Start TimerTask for 5 seconds and keep adding discovered Bluetooth Device -> RSSI (BT signal strength) Key - Value pairs.
+    * After 5 seconds, sort by strongest rssi and connect to the BT device
+    *
+    * */
+
+    private void benchmarkRSSI(BluetoothDevice bluetoothDevice, short signalStrength) {
+        if (btConnectionState != BluetoothCommunicator.CONNECTING || btConnectionState != BluetoothCommunicator.CONNECTED){
+            if (rssiBenchmarkTimer == null){
+                rssiBenchmarkTimer = new Timer();
+                rssiBenchmarkTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        //sortList and connect to the strongest bluetooth;
+                        Short strongestRssi = null;
+                        for (Short rssi : mDeviceRssiMap.values()) {
+                            if (strongestRssi == null || rssi > strongestRssi) {
+                                strongestRssi = rssi;
+                            }
+                        }
+                        for (BluetoothDevice device : mDeviceRssiMap.keySet()){
+                            if (mDeviceRssiMap.get(device).equals(strongestRssi)) {
+                                final BluetoothDevice btDevice = device;
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (btDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                                            deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, btDevice.getName());
+                                            connectToDevice(btDevice);
+                                        } else if (btDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                                            deviceInterface = new Device215B(mContext, dataListener, btDevice.getName());
+                                            connectToDevice(btDevice);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                        rssiBenchmarkTimer.cancel();
+                        rssiBenchmarkTimer = null;
+                        mDeviceRssiMap = new HashMap<>();
+                    }
+                },0, 5000);
+            }
+            mDeviceRssiMap.put(bluetoothDevice, signalStrength);
+            mBluetoothDeviceList.add(bluetoothDevice);
+        }
+    }
 
     public void readData(final byte[] data) {
         mHandler.post(new Runnable() {
