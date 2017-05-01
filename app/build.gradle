@@ -66,8 +66,8 @@ android {
 
     productFlavors {
         pitstop {
-            versionCode 133
-            versionName "2.3.2"
+            versionCode 139
+            versionName "2.4.1"
             buildConfigField "String", "BETA_TYPE", "\"beta\""
             buildConfigField "String", "DEBUG_TYPE", "\"debug\""
             buildConfigField "String", "RELEASE_TYPE", "\"release\""
@@ -100,8 +100,8 @@ dependencies {
     pitstopCompile 'com.google.android.gms:play-services-gcm:10.0.1'
     pitstopCompile 'com.parse:parse-android:1.+'
     pitstopCompile 'com.facebook.android:facebook-android-sdk:4.12.1'
-    pitstopCompile 'io.smooch:core:latest.release'
-    pitstopCompile 'io.smooch:ui:latest.release'
+    pitstopCompile 'io.smooch:core:4.2.0'
+    pitstopCompile 'io.smooch:ui:4.2.0'
     pitstopCompile 'com.mixpanel.android:mixpanel-android:4.8.0'
     pitstopCompile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     pitstopCompile 'com.google.zxing:core:3.2.1'
