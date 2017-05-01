@@ -6,11 +6,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.BuildConfig;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -19,10 +23,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -102,6 +108,9 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
+
+    @BindView(R.id.banner_overlay)
+    FrameLayout mDealerBannerOverlay;
 
     @BindView(R.id.car_logo_imageview)
     ImageView mCarLogoImage;
@@ -473,23 +482,45 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     }
 
     private void setDealerVisuals(Dealership dealership) {
-        if (dealership.getId() == 4 || dealership.getId() == 18){
-            mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
-            mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-            mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-            mHighwayIcon.setImageResource(R.drawable.mercedes_h);
-            mCityIcon.setImageResource(R.drawable.mercedes_c);
-            mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-            mRequestApptsIcon.setImageResource(R.drawable.mercedes_book);
-        }else {
+        if (BuildConfig.DEBUG && (dealership.getId() == 4 || dealership.getId() == 18)){
+            bindMercedesDealerUI();
+        } else if (!BuildConfig.DEBUG && dealership.getId() == 14){
+            bindMercedesDealerUI();
+        } else {
             mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
-            mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
+            mMileageIcon.setImageResource(R.drawable.odometer);
             mEngineIcon.setImageResource(R.drawable.car_engine);
             mHighwayIcon.setImageResource(R.drawable.highwaymileage);
             mCityIcon.setImageResource(R.drawable.citymileage);
             mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-            mRequestApptsIcon.setImageResource(R.drawable.mercedes_book);
+            mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
+            ((MainActivity)getActivity()).changeTheme(false);
+            mCarLogoImage.setVisibility(View.VISIBLE);
+            dealershipName.setVisibility(View.VISIBLE);
+            carName.setTextColor(Color.BLACK);
+            dealershipName.setTextColor(Color.BLACK);
+            carName.setTypeface(Typeface.DEFAULT_BOLD);
+            carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            mDealerBannerOverlay.setVisibility(View.VISIBLE);
+
         }
+    }
+
+    private void bindMercedesDealerUI() {
+        mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
+        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
+        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
+        mHighwayIcon.setImageResource(R.drawable.mercedes_h);
+        mCityIcon.setImageResource(R.drawable.mercedes_c);
+        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
+        mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
+        ((MainActivity)getActivity()).changeTheme(true);
+        mCarLogoImage.setVisibility(View.GONE);
+        dealershipName.setVisibility(View.GONE);
+        carName.setTextColor(Color.WHITE);
+        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/mercedes.otf"));
+        mDealerBannerOverlay.setVisibility(View.GONE);
+        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
     }
 
     private int getDealerSpecificBanner(String name) {
@@ -1074,6 +1105,9 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                             return;
                                         }
 
+                                        /*
+                                        * Ask Ben why this updateMileageStart is being called here
+                                        * */
                                         if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == BluetoothCommunicator.CONNECTED && ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId() != -1){
                                             networkHelper.updateMileageStart(mileage, ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId(), null);
                                         }
@@ -1085,6 +1119,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
                                             mMileageText.setText(String.format("%.2f", mileage));
+                                            ((MainActivity)getActivity()).getBluetoothConnectService().
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
                                                     ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice())
