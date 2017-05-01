@@ -28,9 +28,9 @@ public class ServicesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         currentCar = getIntent().getParcelableExtra("dashboardCar");
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("History"));
-        tabLayout.addTab(tabLayout.newTab().setText("Current"));
         tabLayout.addTab(tabLayout.newTab().setText("Upcoming"));
+        tabLayout.addTab(tabLayout.newTab().setText("Current"));
+        tabLayout.addTab(tabLayout.newTab().setText("History"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -61,9 +61,9 @@ public class ServicesActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             switch (position){
-                case 0: return HistoryServiceFragment.newInstance(currentCar);
+                case 0: return UpcomingServicesFragment.newInstance(currentCar);
                 case 1: return CurrentServicesFragment.newInstance(currentCar);
-                case 2: return UpcomingServicesFragment.newInstance(currentCar);
+                case 2: return HistoryServiceFragment.newInstance(currentCar);
             }
             return null;
         }
