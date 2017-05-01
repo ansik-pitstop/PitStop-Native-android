@@ -12,7 +12,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,11 +38,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -191,11 +196,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     // Views
     private View rootView;
     private Toolbar toolbar;
-    private CharSequence mTitle = "Pitstop";
-    private CharSequence mDrawerTitle = "Your Vehicles";
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+
+    @BindView(R.id.left_drawer)
+    protected RelativeLayout mDrawer;
+
     //private MainAppViewPager viewPager;
     //private TabLayout tabLayout;
     private ProgressDialog progressDialog;
@@ -253,12 +260,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         startService(serviceIntent);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
         toggleConnectionStatusActionBar(false);
-
-
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
         R.string.bluetooth, R.string.bluetooth) {
@@ -283,20 +285,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
             }
         };
+        //mDrawerToggle.setDrawerIndicatorEnabled(true);
 
+
+       // viewPager.setAdapter(adapter);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.addDrawerListener(mDrawerToggle);
-       // viewPager.setAdapter(adapter);
-        mDrawerToggle.syncState();
-        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
-                    mDrawerLayout.openDrawer(GravityCompat.START);
-                else
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
-            }
-        });
 
 
         progressDialog = new ProgressDialog(this);
@@ -325,6 +319,17 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
     }
 
+    public void changeTheme(boolean darkTheme) {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
+        Window window = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this , darkTheme ? R.color.black : R.color.primary_dark));
+        }
+        mDrawer.setBackground(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -335,7 +340,19 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         resetMenus(false);
         //mixpanelHelper.trackViewAppeared(viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ? MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+        toggleDrawerLocked();
+    }
 
+    private void toggleDrawerLocked() {
+        if (dashboardCar == null) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
+        else {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -468,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             // Set the list's click listener
             mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         }
+        toggleDrawerLocked();
     }
 
     @Override
@@ -495,6 +513,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
                         callback.setDashboardCar(carList);
+                        toggleDrawerLocked();
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
 
@@ -551,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     refreshFromServer();
                 }
                 callback.setCarDetailsUI();
-            } /*else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
+            } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
@@ -571,11 +590,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRemoveTutorial) {
                     removeTutorial();
                 }
-            }*/
+            }
             callback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+        toggleDrawerLocked();
     }
 
     public BluetoothAutoConnectService getBluetoothConnectService() {
@@ -634,9 +654,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-/*        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (mDrawerToggle.onOptionsItemSelected(item))
             return true;
-        }*/
         switch (item.getItemId()){
             case R.id.action_settings:
                 settingsClicked(null);
@@ -652,7 +671,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-//        mDrawerToggle.syncState();
+        mDrawerToggle.syncState();
     }
 
 /*    public List<CarIssue> getCarIssueList() {
@@ -724,6 +743,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 hideLoading();
             }
         }
+        toggleDrawerLocked();
     }
 
     public void refreshFromLocal() {
@@ -758,6 +778,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
             hideLoading();
         }
+
+        toggleDrawerLocked();
     }
 
     /**
@@ -900,6 +922,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         }
                     });
                 }
+                toggleDrawerLocked();
             }
         });
     }
@@ -1251,7 +1274,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         // view is null for request from tutorial
         final Intent intent = new Intent(this, ServiceRequestActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
-        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
+        //intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
+        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
         startActivityForResult(intent, RC_REQUEST_SERVICE);
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
