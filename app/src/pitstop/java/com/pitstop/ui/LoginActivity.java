@@ -39,6 +39,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.castel.obd.util.Utils;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -67,6 +68,7 @@ import java.security.NoSuchAlgorithmException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.fabric.sdk.android.Fabric;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -168,7 +170,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(MainActivity.TAG, "Calling on create");
+
+        //Begin Crashlytics
+        Fabric.with(this, new Crashlytics());
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_login);

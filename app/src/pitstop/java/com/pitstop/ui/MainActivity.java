@@ -105,6 +105,8 @@ import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by David on 6/8/2016.
@@ -222,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
