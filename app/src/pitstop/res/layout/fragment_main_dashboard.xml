@@ -45,7 +45,8 @@
         android:id="@+id/no_car_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="gone"
+        >
 
         <TextView
             android:id="@+id/no_car_line_1"
@@ -91,11 +92,46 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bffeffff"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Loading"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="16dp"
+                android:indeterminate="true"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
     <RelativeLayout
         android:id="@+id/main_view"
@@ -110,10 +146,18 @@
             <ImageView
                 android:id="@+id/dealer_background_imageview"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="220dp"
                 tools:src="@drawable/mercedes_brampton"
                 android:scaleType="centerCrop"
                 />
+
+            <FrameLayout
+                android:id="@+id/banner_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@color/white"
+                android:alpha="0.7"
+                android:visibility="gone"/>
 
             <RelativeLayout
                 android:id="@+id/carName"
@@ -431,7 +475,6 @@
             android:id="@+id/notification_nav_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/carName"
             android:layout_marginBottom="6dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -711,53 +754,19 @@
     </RelativeLayout>
     </ScrollView>
 
-    <RelativeLayout
-        android:id="@+id/loading_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#bffeffff"
-        android:visibility="gone">
-
-        <LinearLayout
+    <!--    <Button
+            android:id="@+id/dashboard_request_service_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/loading_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Loading"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#000"/>
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_margin="16dp"
-                android:indeterminate="true"/>
-        </LinearLayout>
-
-    </RelativeLayout>
-
-<!--    <Button
-        android:id="@+id/dashboard_request_service_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/color_button_rectangle_primary"
-        android:drawableRight="@drawable/request_service_button"
-        android:elevation="2dp"
-        android:onClick="requestMultiService"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="@string/service_request_button"
-        android:textColor="#fff"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"/>-->
+            android:background="@drawable/color_button_rectangle_primary"
+            android:drawableRight="@drawable/request_service_button"
+            android:elevation="2dp"
+            android:onClick="requestMultiService"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/service_request_button"
+            android:textColor="#fff"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"/>-->
 
 </RelativeLayout>
