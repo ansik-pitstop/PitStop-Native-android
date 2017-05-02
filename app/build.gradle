@@ -24,14 +24,6 @@ allprojects {
 }
 
 android {
-    signingConfigs {
-        config {
-            keyAlias '123'
-            keyPassword '123'
-            storeFile file('123')
-            storePassword '123'
-        }
-    }
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 24
     buildToolsVersion '25.0.0'
