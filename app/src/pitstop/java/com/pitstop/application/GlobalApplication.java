@@ -10,6 +10,7 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -35,6 +36,7 @@ import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
 
+import io.fabric.sdk.android.Fabric;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -94,6 +96,9 @@ public class GlobalApplication extends Application {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
+
+        //Begin Crashlytics
+        Fabric.with(this, new Crashlytics());
 
         MultiDex.install(this);
 

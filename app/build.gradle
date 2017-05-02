@@ -24,6 +24,14 @@ allprojects {
 }
 
 android {
+    signingConfigs {
+        config {
+            keyAlias '123'
+            keyPassword '123'
+            storeFile file('123')
+            storePassword '123'
+        }
+    }
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 24
     buildToolsVersion '25.0.0'
@@ -31,7 +39,6 @@ android {
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""
     def isStaging = true
-
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def file = output.outputFile
@@ -73,13 +80,11 @@ android {
 
         }
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
     }
-
     productFlavors {
         pitstop {
             versionCode 135
