@@ -1119,7 +1119,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
                                             mMileageText.setText(String.format("%.2f", mileage));
-                                            ((MainActivity)getActivity()).getBluetoothConnectService().
+                                            ((MainActivity)getActivity()).getBluetoothConnectService();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
                                                     ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice())
