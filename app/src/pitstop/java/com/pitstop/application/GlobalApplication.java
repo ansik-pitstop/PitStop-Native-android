@@ -26,10 +26,12 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
+import com.pitstop.ui.MainActivity;
 
 import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
@@ -252,6 +254,15 @@ public class GlobalApplication extends Application {
 
     public User getCurrentUser() {
         return mUserAdapter.getUser();
+    }
+
+    public Car getCurrentCar(){
+        for (Car c: MainActivity.carList){
+            if (c.isCurrentCar()){
+                return c;
+            }
+        }
+        return null;
     }
 
     public boolean isLoggedIn() {
