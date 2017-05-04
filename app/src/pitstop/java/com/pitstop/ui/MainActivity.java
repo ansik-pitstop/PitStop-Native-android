@@ -26,6 +26,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -52,6 +53,9 @@ import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.R;
+import com.pitstop.adapters.TabViewPagerAdapter;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -71,6 +75,8 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
@@ -93,7 +99,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -101,13 +106,11 @@ import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends DebugDrawerActivity implements ObdManager.IBluetoothDataListener {
+public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -163,6 +166,12 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     private LocalShopAdapter shopLocalStore;
     private LocalScannerAdapter scannerLocalStore;
 
+    //tabs
+    private final int TAB_DASHBOARD = 0;
+    private final int TAB_SERVICES = 1;
+    private final int TAB_SCAN = 2;
+    private final int TAB_NOTIF = 3;
+
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
     public static final int RC_SETTINGS = 52;
@@ -190,15 +199,10 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     // Views
     private View rootView;
     private Toolbar toolbar;
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
 
-    @BindView(R.id.left_drawer)
-    protected RelativeLayout mDrawer;
+    private ViewPager viewPager;
+    private TabViewPagerAdapter mTabViewPagerAdapter;
 
-    //private MainAppViewPager viewPager;
-    //private TabLayout tabLayout;
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
     private MainAppSideMenuAdapter mainAppSideMenuAdapter;
@@ -217,9 +221,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
     private MaterialShowcaseSequence tutorialSequence;
 
-    @BindView(R.id.main_container)
-    FrameLayout mMainContainer;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -236,6 +237,69 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
         acl.setPublicWriteAccess(true);
+
+        //Initialize tab navigation
+        //View pager adapter that returns the corresponding fragment for each page
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+
+        // Set up the ViewPager with the sections adapter.
+        viewPager = (ViewPager) findViewById(R.id.main_container);
+        viewPager.setAdapter(mTabViewPagerAdapter);
+
+        //Populate tabs with icons
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
+        tabLayout.setupWithViewPager(viewPager);
+
+        int[] tabIcons = {R.drawable.dealership,R.drawable.history
+                ,R.drawable.scan_icon,R.drawable.notification_bells};
+
+        for (int i=0;i<tabIcons.length;i++){
+            try{
+                tabLayout.getTabAt(i).setIcon(tabIcons[i]);
+            }catch(java.lang.NullPointerException e){
+
+            }
+        }
+
+        //Switch to selected fragment when tab is clicked
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch(tab.getPosition()){
+
+                    case TAB_DASHBOARD:
+                        //Go to dashboard fragment
+                        viewPager.setCurrentItem(TAB_DASHBOARD);
+                        break;
+
+                    case TAB_SERVICES:
+                        //Go to services fragment
+                        viewPager.setCurrentItem(TAB_SERVICES);
+                        break;
+
+                    case TAB_SCAN:
+                        //Go to scan fragment
+                        viewPager.setCurrentItem(TAB_SCAN);
+                        break;
+
+                    case TAB_NOTIF:
+                        //Go to settings fragment
+                        viewPager.setCurrentItem(TAB_NOTIF);
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                //do nothing
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.setACL(acl);
@@ -1257,6 +1321,7 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     /**
      * Onclick method for requesting services
      *
+     * @param view if this view is null, we consider the service booking is tentative (first time)
      */
     public void requestMultiService(View view) {
         if (!checkDealership()) return;
