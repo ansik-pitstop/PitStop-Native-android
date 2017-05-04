@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.mainFragments.MainDashboardFragment;
 
 /**
  * Class responsible for providing fragments, and their associated data
@@ -61,6 +62,10 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
         // Return a PlaceholderFragment (defined as a static inner class below).
+        switch(position){
+            case MainActivity.TAB_DASHBOARD:
+                return new MainDashboardFragment();
+        }
         return PlaceholderFragment.newInstance(0);
     }
 
