@@ -156,10 +156,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private LocalScannerAdapter scannerLocalStore;
 
     //tabs
-    private final int TAB_DASHBOARD = 0;
-    private final int TAB_SERVICES = 1;
-    private final int TAB_SCAN = 2;
-    private final int TAB_NOTIF = 3;
+    public static final int TAB_DASHBOARD = 0;
+    public static final int TAB_SERVICES = 1;
+    public static final int TAB_SCAN = 2;
+    public static final int TAB_NOTIF = 3;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
@@ -239,11 +239,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         tabLayout.setupWithViewPager(viewPager);
 
         int[] tabIcons = {R.drawable.dealership,R.drawable.history
-                ,R.drawable.scan_icon,R.drawable.notification_bells};
+                ,R.drawable.scan_icon,R.drawable.ic_notifications_white_24dp};
 
         for (int i=0;i<tabIcons.length;i++){
             try{
                 tabLayout.getTabAt(i).setIcon(tabIcons[i]);
+                //tabLayout.getTabAt(i).setText("Hey");
             }catch(java.lang.NullPointerException e){
 
             }

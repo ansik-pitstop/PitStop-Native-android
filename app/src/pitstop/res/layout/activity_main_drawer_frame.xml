@@ -29,6 +29,7 @@
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/main_tablayout"
+                app:tabTextAppearance="@style/NavigationTabTextAppeareance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -56,7 +57,7 @@
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_notification"
                     android:text="Notification"
-                    android:icon="@drawable/notification_bells"
+                    android:icon="@drawable/ic_notifications_white_24dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 

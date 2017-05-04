@@ -90,4 +90,8 @@
 
     </style>
 
+    <style name="NavigationTabTextAppeareance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">9sp</item>
+    </style>
+
 </resources>

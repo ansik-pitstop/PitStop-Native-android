@@ -10,9 +10,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.ui.MainActivity;
 
 /**
- * Created by Work on 5/4/2017.
+ * Class responsible for providing fragments, and their associated data
+ *  for each of the tabs.
+ *
+ * Created by Karol Zdebel on 5/4/2017.
  */
 
 public class TabViewPagerAdapter extends FragmentPagerAdapter {
@@ -68,6 +72,16 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return null;
+        switch(position){
+            case MainActivity.TAB_DASHBOARD:
+                return "Dashboard";
+            case MainActivity.TAB_NOTIF:
+                return "Notifications";
+            case MainActivity.TAB_SCAN:
+                return "Scan";
+            case MainActivity.TAB_SERVICES:
+                return "Services";
+        }
+        return "";
     }
 }
