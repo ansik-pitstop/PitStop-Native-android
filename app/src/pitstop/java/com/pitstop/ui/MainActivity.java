@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.BuildConfig;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -30,6 +31,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -82,7 +84,7 @@ import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
-import com.pitstop.ui.services.ServicesActivity;
+import com.pitstop.ui.services.ServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -216,8 +218,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static MainDashboardCallback callback;
 
+    //Fragments
     private MainDashboardFragment mDashboardFragment;
     private MainToolFragment mToolFragment;
+    private ServicesFragment servicesFragment;
 
     private MaterialShowcaseSequence tutorialSequence;
 
@@ -240,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager(),this);
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
@@ -528,6 +532,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
             callback.setDashboardCar(MainActivity.carList);
             callback.setCarDetailsUI();
+
+            //Update dashboard car in fragments
+            if (servicesFragment != null){
+                servicesFragment.onDashboardCarUpdated(getCurrentCar());
+            }
         }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
@@ -574,6 +583,12 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         dashboardCar.setCurrentCar(true);
                         callback.setDashboardCar(carList);
                         toggleDrawerLocked();
+
+                        //Update dashboard car in fragment
+                        if (servicesFragment != null) {
+                            servicesFragment.onDashboardCarUpdated(dashboardCar);
+                        }
+
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
 
@@ -836,10 +851,25 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 callback.setDashboardCar(MainActivity.carList);
                 callback.setCarDetailsUI();
             }
+
+            //Update current car in fragments
+            if (servicesFragment != null) {
+                servicesFragment.onDashboardCarUpdated(getCurrentCar());
+            }
+
             hideLoading();
         }
 
         toggleDrawerLocked();
+    }
+
+    private Car getCurrentCar(){
+        for (Car c: carList){
+            if (c.isCurrentCar()){
+                return c;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1145,6 +1175,11 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 /*        if (viewPager.getCurrentItem() == 0) {
             findViewById(R.id.main_view).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
         }*/
+
+        //Update the dashboard car in fragments
+        if (servicesFragment != null) {
+            servicesFragment.onDashboardCarUpdated(getCurrentCar());
+        }
     }
 
     public void startAddCarActivity(View view) {
@@ -1314,7 +1349,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void servicesClicked(View view){
-        Intent intent = new Intent(this, ServicesActivity.class);
+        Intent intent = new Intent(this, ServicesFragment.class);
         intent.putExtra("dashboardCar", dashboardCar);
         startActivity(intent);
     }
@@ -1516,6 +1551,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
         isFirstAppointment = true;
         tutorialSequence.start();
+    }
+
+    public void setServicesFragment(ServicesFragment servicesFragment){
+        this.servicesFragment = servicesFragment;
+
+        //Provide dashboard car information if its available
+        if (dashboardCar != null){
+            servicesFragment.onDashboardCarUpdated(dashboardCar);
+        }
     }
 
     /**
