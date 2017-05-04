@@ -136,6 +136,9 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     @BindView(R.id.request_appts_icon)
     ImageView mRequestApptsIcon;
 
+    @BindView(R.id.my_appts_icon)
+    ImageView mMyApptsIcon;
+
     ProgressDialog progressDialog;
 
     // Models
@@ -480,15 +483,17 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             mHighwayIcon.setImageResource(R.drawable.mercedes_h);
             mCityIcon.setImageResource(R.drawable.mercedes_c);
             mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-            mRequestApptsIcon.setImageResource(R.drawable.mercedes_book);
+            mRequestApptsIcon.setImageResource(R.drawable.mercedes_tentaicon3x);
+            mMyApptsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
         }else {
             mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
-            mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
+            mMileageIcon.setImageResource(R.drawable.odometer3x);
             mEngineIcon.setImageResource(R.drawable.car_engine);
             mHighwayIcon.setImageResource(R.drawable.highwaymileage);
             mCityIcon.setImageResource(R.drawable.citymileage);
             mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-            mRequestApptsIcon.setImageResource(R.drawable.mercedes_book);
+            mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
+            mMyApptsIcon.setImageResource(R.drawable.clipboard3x);
         }
     }
 
@@ -1021,6 +1026,10 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     @OnClick(R.id.dashboard_request_service_btn)
     protected void onServiceRequestButtonClicked(){
         ((MainActivity)getActivity()).requestMultiService(null);
+    }
+    @OnClick(R.id.my_appointments_btn)
+    protected void onMyApptsButtonClicked(){
+        ((MainActivity)getActivity()).myAppointments(null);
     }
 
     @OnClick(R.id.mileage_container)

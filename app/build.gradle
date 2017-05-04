@@ -10,7 +10,7 @@ allprojects {
 android {
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 24
-    buildToolsVersion '24.0.3'
+    buildToolsVersion '25.0.0'
     def staging = "\"http://staging.api.getpitstop.io:10010/\""
     def snapshot = "\"http://snapshot.api.getpitstop.io:10011/\""
     def testing = "\"http://45.55.82.111:10011/\""

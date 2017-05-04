@@ -74,6 +74,7 @@ import com.pitstop.adapters.MainAppViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.ServicesActivity;
@@ -170,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final int RC_DISPLAY_ISSUE = 53;
     public static final int RC_ADD_CUSTOM_ISSUE = 54;
     public static final int RC_REQUEST_SERVICE = 55;
+    public static final int RC_MY_APPOINTMENTS = 56;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
     public static final int RC_ENABLE_BT = 102;
@@ -1253,6 +1255,15 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
         startActivityForResult(intent, RC_REQUEST_SERVICE);
+        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
+    }
+
+    public void myAppointments(View view){
+        if (!checkDealership()) return;
+
+        final Intent intent = new Intent(this, MyAppointmentActivity.class);
+        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        startActivityForResult(intent, RC_MY_APPOINTMENTS);
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
