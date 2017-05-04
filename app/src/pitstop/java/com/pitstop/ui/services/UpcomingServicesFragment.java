@@ -2,8 +2,6 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
@@ -30,7 +28,6 @@ import com.pitstop.models.Issue;
 import com.pitstop.models.Timeline;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
@@ -96,12 +93,8 @@ public class UpcomingServicesFragment extends Fragment {
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
-    public static UpcomingServicesFragment newInstance(Car currentCar){
-        UpcomingServicesFragment fragment = new UpcomingServicesFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
-        return fragment;
+    public static UpcomingServicesFragment newInstance(){
+        return new UpcomingServicesFragment();
     }
 
     public UpcomingServicesFragment() {
@@ -111,16 +104,13 @@ public class UpcomingServicesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
-            mCar = getArguments().getParcelable("dashboardCar");
-        }
+
         mNetworkHelper = new NetworkHelper(getContext().getApplicationContext());
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
 
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -133,7 +123,7 @@ public class UpcomingServicesFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        fetchData();
+       // fetchData();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0 , UiUtils.getScreenWidth(getActivity())).start();
     }

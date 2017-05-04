@@ -261,12 +261,6 @@
             android:label="Upcoming Services"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.services.ServicesActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/services_nav_text"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.DealershipActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="Dealership"

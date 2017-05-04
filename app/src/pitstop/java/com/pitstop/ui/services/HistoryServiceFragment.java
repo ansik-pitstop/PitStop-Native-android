@@ -2,7 +2,6 @@ package com.pitstop.ui.services;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,9 +19,6 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.CarHistoryActivity;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -59,20 +55,13 @@ public class HistoryServiceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static HistoryServiceFragment newInstance(Car currentCar) {
-        HistoryServiceFragment fragment = new HistoryServiceFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
-        return fragment;
+    public static HistoryServiceFragment newInstance() {
+        return new HistoryServiceFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            dashboardCar = getArguments().getParcelable("dashboardCar");
-        }
 
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
@@ -90,6 +79,15 @@ public class HistoryServiceFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
+    }
+
+    //Update GUI elements when car is updated or first provided
+    public void onDashboardCarUpdated(Car car){
+        dashboardCar = car;
+
+        //Update GUI elements that require car information
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
         Arrays.sort(doneIssues, new Comparator<CarIssue>() {
@@ -123,7 +121,6 @@ public class HistoryServiceFragment extends Fragment {
         }
 
         issueGroup.setAdapter(new IssueGroupAdapter(sortedIssues, headers));
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
     }
 
     @Override
