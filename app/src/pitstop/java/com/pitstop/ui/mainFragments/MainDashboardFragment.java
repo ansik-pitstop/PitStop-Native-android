@@ -692,7 +692,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         mCityText.setText(dashboardCar.getCityMileage());
         mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
 
-
     }
 
     private int getCarSpecificLogo(String make) {
