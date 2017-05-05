@@ -745,15 +745,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     }
 
-    private Car getCurrentCar(){
-        for (Car c: carList){
-            if (c.isCurrentCar()){
-                return c;
-            }
-        }
-        return null;
-    }
-
     /**
      * Call function to retrieve live data from parse
      *

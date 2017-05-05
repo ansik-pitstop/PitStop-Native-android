@@ -4,7 +4,6 @@ package com.pitstop.ui.services;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,7 +28,7 @@ import java.util.LinkedHashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends Fragment {
+public class HistoryServiceFragment extends CurrentServicesFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
@@ -55,11 +54,8 @@ public class HistoryServiceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static HistoryServiceFragment newInstance(Car currentCar) {
+    public static HistoryServiceFragment newInstance() {
         HistoryServiceFragment fragment = new HistoryServiceFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -81,17 +77,29 @@ public class HistoryServiceFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    //Called whenever the fragment is set to visible or invisible by the ViewPager
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
 
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
+        //Update the dashboard car if one exists
+        if (isVisibleToUser) {
+            Car prevCar = dashboardCar;
+            dashboardCar = getCurrentCar();
+
+            //Check whether the dashboard car changed if so update GUI and adapters
+            if (prevCar == null && dashboardCar != null){
+                updateIssueGroupView();
+            }
+            else if (prevCar.getId() != dashboardCar.getId()){
+                updateIssueGroupView();
+            }
+        }
+        else{
+        }
+
     }
 
-    //Update GUI elements when car is updated or first provided
-    public void onDashboardCarUpdated(Car car){
-        dashboardCar = car;
-
-        //Update GUI elements that require car information
+    private void updateIssueGroupView(){
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
         Arrays.sort(doneIssues, new Comparator<CarIssue>() {
@@ -125,6 +133,13 @@ public class HistoryServiceFragment extends Fragment {
         }
 
         issueGroup.setAdapter(new IssueGroupAdapter(sortedIssues, headers));
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
     }
 
     @Override

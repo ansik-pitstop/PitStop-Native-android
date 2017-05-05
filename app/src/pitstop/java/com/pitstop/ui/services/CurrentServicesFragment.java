@@ -28,6 +28,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -44,7 +45,7 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends Fragment {
+public class CurrentServicesFragment extends CarDataFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
 
@@ -53,18 +54,16 @@ public class CurrentServicesFragment extends Fragment {
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private Car dashboardCar;
     private LocalCarIssueAdapter carIssueLocalStore;
     private LocalCarAdapter carLocalStore;
     private LocalCarAdapter localCarStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    public static CurrentServicesFragment newInstance(Car currentCar){
+    private Car dashboardCar;
+
+    public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -85,17 +84,20 @@ public class CurrentServicesFragment extends Fragment {
         return view;
     }
 
-    //Update GUI elements when car is updated or first provided, called by MainServicesFragment
-    public void onDashboardCarUpdated(Car car) {
-        Car prevCar = dashboardCar;
-        dashboardCar = car;
+    @Override
+    //Called whenever the fragment is set to visible or invisible by the ViewPager
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
 
-        //Dashboard car changed, or first time being set so update View
-        if (prevCar == null || prevCar.getId() != dashboardCar.getId()){
+        //Update the dashboard car if one exists
+        if (isVisibleToUser && getView() != null) {
+            dashboardCar = getCurrentCar();
             carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
             carIssueListView.setLayoutManager(new LinearLayoutManager(getActivity()));
             carIssueListView.setAdapter(carIssuesAdapter);
             populateCarIssuesAdapter();
+        }
+        else{
         }
 
     }
