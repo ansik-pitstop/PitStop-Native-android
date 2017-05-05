@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +27,7 @@ import com.pitstop.models.Issue;
 import com.pitstop.models.Timeline;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
@@ -44,7 +44,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends Fragment {
+public class UpcomingServicesFragment extends CarDataFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -93,11 +93,8 @@ public class UpcomingServicesFragment extends Fragment {
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
-    public static UpcomingServicesFragment newInstance(Car currentCar){
+    public static UpcomingServicesFragment newInstance(){
         UpcomingServicesFragment fragment = new UpcomingServicesFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -130,6 +127,18 @@ public class UpcomingServicesFragment extends Fragment {
        // fetchData();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0 , UiUtils.getScreenWidth(getActivity())).start();
+    }
+
+    //Called whenever the fragment is set to visible or invisible by the ViewPager
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        //Update the dashboard car if one exists
+        if (isVisibleToUser && getView() != null) {
+            mCar = getCurrentCar();
+        }
+        else{
+        }
     }
 
     private void fetchData() {
@@ -226,11 +235,6 @@ public class UpcomingServicesFragment extends Fragment {
         }
         else
             return super.onOptionsItemSelected(item);
-    }
-
-    //Update GUI elements when car is updated or first provided
-    public void onDashboardCarUpdated(Car car) {
-        mCar = car;
     }
 
     private void showIssueDetails(Issue issue) {
