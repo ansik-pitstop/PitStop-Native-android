@@ -60,10 +60,13 @@ public class CurrentServicesFragment extends Fragment {
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    public static CurrentServicesFragment newInstance(){
-        return new CurrentServicesFragment();
+    public static CurrentServicesFragment newInstance(Car currentCar){
+        CurrentServicesFragment fragment = new CurrentServicesFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("dashboardCar", currentCar);
+        fragment.setArguments(args);
+        return fragment;
     }
-
 
     public CurrentServicesFragment() {
     }
@@ -82,26 +85,24 @@ public class CurrentServicesFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        carLocalStore = new LocalCarAdapter(getActivity());
-    }
-
-    //Update GUI elements when car is updated or first provided
+    //Update GUI elements when car is updated or first provided, called by MainServicesFragment
     public void onDashboardCarUpdated(Car car) {
+        Car prevCar = dashboardCar;
         dashboardCar = car;
 
-        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        carIssueListView.setAdapter(carIssuesAdapter);
+        //Dashboard car changed, or first time being set so update View
+        if (prevCar == null || prevCar.getId() != dashboardCar.getId()){
+            carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
+            carIssueListView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            carIssueListView.setAdapter(carIssuesAdapter);
+            populateCarIssuesAdapter();
+        }
 
-        populateCarIssuesAdapter();
     }
 
     private void populateCarIssuesAdapter() {
         // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
+//        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
         if(carIssueLocalStore == null) {
             carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
         }

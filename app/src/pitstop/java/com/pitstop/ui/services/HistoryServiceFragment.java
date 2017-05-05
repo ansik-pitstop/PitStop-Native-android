@@ -55,8 +55,12 @@ public class HistoryServiceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static HistoryServiceFragment newInstance() {
-        return new HistoryServiceFragment();
+    public static HistoryServiceFragment newInstance(Car currentCar) {
+        HistoryServiceFragment fragment = new HistoryServiceFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("dashboardCar", currentCar);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override

@@ -10,10 +10,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.models.Car;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.services.ServicesFragment;
+import com.pitstop.ui.services.MainServicesFragment;
 
 /**
  * Class responsible for providing fragments, and their associated data
@@ -23,12 +22,6 @@ import com.pitstop.ui.services.ServicesFragment;
  */
 
 public class TabViewPagerAdapter extends FragmentPagerAdapter {
-
-    private MainActivity mainActivity;
-
-    private MainDashboardFragment mainDashboardFragment; //Main dashboard
-    private ServicesFragment servicesFragment; //Services
-    //Implement ScanFragment and Notifications fragments here
 
     public static class PlaceholderFragment extends Fragment {
         /**
@@ -62,9 +55,8 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
-    public TabViewPagerAdapter(FragmentManager fm, MainActivity activity) {
+    public TabViewPagerAdapter(FragmentManager fm) {
         super(fm);
-        mainActivity = activity;
     }
 
     @Override
@@ -76,18 +68,7 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
                 return new MainDashboardFragment();
 
             case MainActivity.TAB_SERVICES:
-
-                //Get the current car and use it as argument for spawning services activity
-                Car currentCar = null;
-                for (Car c: MainActivity.carList){
-                    if (c.isCurrentCar()){
-                        currentCar = c;
-                        break;
-                    }
-                }
-
-                ServicesFragment servicesFragment = new ServicesFragment();
-                mainActivity.setServicesFragment(servicesFragment);
+                MainServicesFragment servicesFragment = new MainServicesFragment();
                 return servicesFragment;
         }
         return PlaceholderFragment.newInstance(0);
@@ -112,14 +93,6 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
                 return "Services";
         }
         return "";
-    }
-
-    public MainDashboardFragment getMainDashboardFragment() {
-        return mainDashboardFragment;
-    }
-
-    public ServicesFragment getServicesFragment() {
-        return servicesFragment;
     }
 
 }

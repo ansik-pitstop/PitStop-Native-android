@@ -84,7 +84,7 @@ import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
-import com.pitstop.ui.services.ServicesFragment;
+import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -218,11 +218,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static MainDashboardCallback callback;
 
-    //Fragments
-    private MainDashboardFragment mDashboardFragment;
-    private MainToolFragment mToolFragment;
-    private ServicesFragment servicesFragment;
-
     private MaterialShowcaseSequence tutorialSequence;
 
     @Override
@@ -244,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager(),this);
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
@@ -532,11 +527,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             }
             callback.setDashboardCar(MainActivity.carList);
             callback.setCarDetailsUI();
-
-            //Update dashboard car in fragments
-            if (servicesFragment != null){
-                servicesFragment.onDashboardCarUpdated(getCurrentCar());
-            }
         }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
@@ -583,11 +573,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         dashboardCar.setCurrentCar(true);
                         callback.setDashboardCar(carList);
                         toggleDrawerLocked();
-
-                        //Update dashboard car in fragment
-                        if (servicesFragment != null) {
-                            servicesFragment.onDashboardCarUpdated(dashboardCar);
-                        }
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
@@ -850,11 +835,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             if (callback != null) {
                 callback.setDashboardCar(MainActivity.carList);
                 callback.setCarDetailsUI();
-            }
-
-            //Update current car in fragments
-            if (servicesFragment != null) {
-                servicesFragment.onDashboardCarUpdated(getCurrentCar());
             }
 
             hideLoading();
@@ -1349,7 +1329,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     }
 
     public void servicesClicked(View view){
-        Intent intent = new Intent(this, ServicesFragment.class);
+        Intent intent = new Intent(this, MainServicesFragment.class);
         intent.putExtra("dashboardCar", dashboardCar);
         startActivity(intent);
     }
@@ -1551,15 +1531,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
         isFirstAppointment = true;
         tutorialSequence.start();
-    }
-
-    public void setServicesFragment(ServicesFragment servicesFragment){
-        this.servicesFragment = servicesFragment;
-
-        //Provide dashboard car information if its available
-        if (dashboardCar != null){
-            servicesFragment.onDashboardCarUpdated(dashboardCar);
-        }
     }
 
     /**
