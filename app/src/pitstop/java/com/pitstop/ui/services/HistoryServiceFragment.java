@@ -18,6 +18,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.LinkedHashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends CurrentServicesFragment {
+public class HistoryServiceFragment extends CarDataFragment implements SubServiceFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
@@ -68,35 +69,17 @@ public class HistoryServiceFragment extends CurrentServicesFragment {
 
     }
 
+    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
+
+        dashboardCar = getCurrentCar();
+        updateIssueGroupView();
+
         return view;
-    }
-
-    @Override
-    //Called whenever the fragment is set to visible or invisible by the ViewPager
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        //Update the dashboard car if one exists
-        if (isVisibleToUser) {
-            Car prevCar = dashboardCar;
-            dashboardCar = getCurrentCar();
-
-            //Check whether the dashboard car changed if so update GUI and adapters
-            if (prevCar == null && dashboardCar != null){
-                updateIssueGroupView();
-            }
-            else if (prevCar.getId() != dashboardCar.getId()){
-                updateIssueGroupView();
-            }
-        }
-        else{
-        }
-
     }
 
     private void updateIssueGroupView(){
@@ -169,6 +152,12 @@ public class HistoryServiceFragment extends CurrentServicesFragment {
         return Integer.parseInt(splittedDate[2])
                 + Integer.parseInt(splittedDate[1]) * 30
                 + Integer.parseInt(splittedDate[0]) * 365;
+    }
+
+    @Override
+    public void onMainServiceTabReopened() {
+        dashboardCar = getCurrentCar();
+        updateIssueGroupView();
     }
 
     private class IssueGroupAdapter extends BaseExpandableListAdapter {
