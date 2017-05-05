@@ -93,8 +93,12 @@ public class UpcomingServicesFragment extends Fragment {
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
-    public static UpcomingServicesFragment newInstance(){
-        return new UpcomingServicesFragment();
+    public static UpcomingServicesFragment newInstance(Car currentCar){
+        UpcomingServicesFragment fragment = new UpcomingServicesFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("dashboardCar", currentCar);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public UpcomingServicesFragment() {
@@ -222,6 +226,11 @@ public class UpcomingServicesFragment extends Fragment {
         }
         else
             return super.onOptionsItemSelected(item);
+    }
+
+    //Update GUI elements when car is updated or first provided
+    public void onDashboardCarUpdated(Car car) {
+        mCar = car;
     }
 
     private void showIssueDetails(Issue issue) {
