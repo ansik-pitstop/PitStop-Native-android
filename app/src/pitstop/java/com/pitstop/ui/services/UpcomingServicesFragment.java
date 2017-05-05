@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,7 +43,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends CarDataFragment {
+public class UpcomingServicesFragment extends CarDataFragment implements SubServiceFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -110,7 +109,6 @@ public class UpcomingServicesFragment extends CarDataFragment {
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
-
     }
 
     @Override
@@ -118,29 +116,18 @@ public class UpcomingServicesFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
+
+        //Populate views
+        mCar = getCurrentCar();
+
+        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+        fetchData();
+
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-       // fetchData();
-        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0 , UiUtils.getScreenWidth(getActivity())).start();
-    }
-
-    //Called whenever the fragment is set to visible or invisible by the ViewPager
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        //Update the dashboard car if one exists
-        if (isVisibleToUser && getView() != null) {
-            mCar = getCurrentCar();
-        }
-        else{
-        }
-    }
-
+    //Why are we using network helper here???
     private void fetchData() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
         String carId = String.valueOf(mCar.getId());
@@ -314,6 +301,16 @@ public class UpcomingServicesFragment extends CarDataFragment {
             }
         });
         hideIssueDetailsAnimation.start();
+    }
+
+    //Called when the Main Service Tab is re-opened, update elements
+    @Override
+    public void onMainServiceTabReopened() {
+        mCar = getCurrentCar();
+
+        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+        fetchData();
     }
 
     class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{

@@ -45,7 +45,7 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends CarDataFragment {
+public class CurrentServicesFragment extends CarDataFragment implements SubServiceFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
 
@@ -81,25 +81,15 @@ public class CurrentServicesFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
+
+        dashboardCar = getCurrentCar();
+
+        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        carIssueListView.setAdapter(carIssuesAdapter);
+        populateCarIssuesAdapter();
+
         return view;
-    }
-
-    @Override
-    //Called whenever the fragment is set to visible or invisible by the ViewPager
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        //Update the dashboard car if one exists
-        if (isVisibleToUser && getView() != null) {
-            dashboardCar = getCurrentCar();
-            carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-            carIssueListView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            carIssueListView.setAdapter(carIssuesAdapter);
-            populateCarIssuesAdapter();
-        }
-        else{
-        }
-
     }
 
     private void populateCarIssuesAdapter() {
@@ -149,6 +139,17 @@ public class CurrentServicesFragment extends CarDataFragment {
             carIssuesAdapter.notifyDataSetChanged();
         }
         //carIssuesAdapter.updateTutorial();
+    }
+
+    //Called when the Main Service Tab is opened
+    @Override
+    public void onMainServiceTabReopened() {
+        dashboardCar = getCurrentCar();
+
+        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        carIssueListView.setAdapter(carIssuesAdapter);
+        populateCarIssuesAdapter();
     }
 
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
