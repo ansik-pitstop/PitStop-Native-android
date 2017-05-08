@@ -19,18 +19,6 @@ public abstract class CarDataFragment extends Fragment{
     private LocalCarAdapter localCarStorage;
     private List<Car> carList;
 
-//    //Called whenever the fragment is set to visible or invisible by the ViewPager
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//
-//        //Update the dashboard car if one exists
-//        if (isVisibleToUser && localCarStorage == null) {
-//
-//        }
-//        else{
-//        }
-//    }
-
     //Get the current/dashboard car
     protected Car getCurrentCar(){
 
