@@ -182,7 +182,23 @@
     <string name="timeline_error_message">Something went wrong...</string>
     <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
 
+    <!--Dashboard-->
+    <string name="mileage_title">Mileage</string>
+    <string name="mileage_subtitle">Tap here to manually update you mileage</string>
+    <string name="engine_title">Engine</string>
+    <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
+    <string name="highway_title">Highway</string>
+    <string name="city_title">City</string>
+    <string name="tools_header">TOOLS</string>
+    <string name="past_appts_title">My Appointments</string>
+    <string name="request_appts_title">Request Service Appointment</string>
 
+    <!--Services-->
+    <string name="services_nav_text">Services</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="scan_nav_text">Scan</string>
+    <string name="connected_device">Connected</string>
+    <string name="disconnected_device">Disconnected</string>
 
 
 </resources>

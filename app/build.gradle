@@ -1,6 +1,22 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
@@ -28,8 +44,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 25
         // Change versioning in productFlavors instead of here
-        versionCode 133
-        versionName "2.3.2"
+        versionCode 134
+        versionName "2.3.3"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "BETA_TYPE", "\"beta\""
@@ -57,6 +73,7 @@ android {
             buildConfigField "String", "SERVER_URL", "\"https://api.getpitstop.io/\""
             buildConfigField "String", "ENDPOINT_TYPE", "\"release\""
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+
         }
     }
 
@@ -102,6 +119,10 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'ch.acra:acra:4.9.0'
+    pitstopCompile 'de.hdodenhof:circleimageview:2.1.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+        transitive = true;
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'
