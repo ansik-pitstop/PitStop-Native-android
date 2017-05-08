@@ -83,7 +83,7 @@ public class MainServicesFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setUserVisibleHint(false);
         //Set to false since its true by defult and we don't want functionality being triggered
         //unpredictably
         setUserVisibleHint(false);
