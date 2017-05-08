@@ -76,8 +76,8 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
-        dashboardCar = getCurrentCar();
-        updateIssueGroupView();
+//        dashboardCar = getCurrentCar();
+//        updateIssueGroupView();
 
         return view;
     }

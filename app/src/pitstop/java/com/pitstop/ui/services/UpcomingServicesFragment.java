@@ -118,11 +118,11 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
         ButterKnife.bind(this, view);
 
         //Populate views
-        mCar = getCurrentCar();
-
-        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-        fetchData();
+//        mCar = getCurrentCar();
+//
+//        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+//        fetchData();
 
         return view;
     }

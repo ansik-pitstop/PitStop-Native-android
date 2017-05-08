@@ -81,13 +81,13 @@ public class CurrentServicesFragment extends CarDataFragment implements SubServi
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
-
-        dashboardCar = getCurrentCar();
-
-        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        carIssueListView.setAdapter(carIssuesAdapter);
-        populateCarIssuesAdapter();
+//
+//        dashboardCar = getCurrentCar();
+//
+//        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
+//        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        carIssueListView.setAdapter(carIssuesAdapter);
+//        populateCarIssuesAdapter();
 
         return view;
     }
