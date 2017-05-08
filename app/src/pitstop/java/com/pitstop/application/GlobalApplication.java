@@ -10,6 +10,7 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -25,16 +26,19 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.R;
+import com.pitstop.ui.MainActivity;
 
 import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
 
+import io.fabric.sdk.android.Fabric;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -94,6 +98,9 @@ public class GlobalApplication extends Application {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
+
+        //Begin Crashlytics
+        Fabric.with(this, new Crashlytics());
 
         MultiDex.install(this);
 
@@ -247,6 +254,15 @@ public class GlobalApplication extends Application {
 
     public User getCurrentUser() {
         return mUserAdapter.getUser();
+    }
+
+    public Car getCurrentCar(){
+        for (Car c: MainActivity.carList){
+            if (c.isCurrentCar()){
+                return c;
+            }
+        }
+        return null;
     }
 
     public boolean isLoggedIn() {
