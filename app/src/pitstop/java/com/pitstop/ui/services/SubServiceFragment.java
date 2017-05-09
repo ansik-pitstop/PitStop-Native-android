@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.pitstop.models.Car;
 
@@ -15,6 +18,7 @@ public abstract class SubServiceFragment extends Fragment {
 
     public static Car dashboardCar;
     private boolean isViewShown;
+    private boolean onCreateViewReady;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -25,6 +29,8 @@ public abstract class SubServiceFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+
+        //Check whether onCreateView() has finished
         if (isVisibleToUser && getView() != null) {
             isViewShown = true;
         } else {
@@ -32,8 +38,36 @@ public abstract class SubServiceFragment extends Fragment {
         }
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //Check whether UI will be set inside OnCreateView or whether it will have to happen inside OnStart()
+        if (isViewShown() || dashboardCar == null){
+            onCreateViewReady = false;
+        }
+        else{
+            onCreateViewReady = true;
+            setUI();
+        }
+
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        /*If the fragment didn't receive the current car in OnCreateView or SetUserVisibilityHint
+        then either the dashboard car will be available here or onDashboardCarUpdated()
+        will be called once onStart() finishes*/
+        if (!onCreateViewReady && dashboardCar != null){
+            setUI();
+        }
+    }
+
     /*Returns whether the view was being shown at the time of setUserVisibilityHint() being called,
-    * if it wasn't then this means that OnCreateView() hasn't finished yet*/
+            * if it wasn't then this means that OnCreateView() hasn't finished yet*/
     public boolean isViewShown(){
         return isViewShown;
     }
@@ -44,4 +78,6 @@ public abstract class SubServiceFragment extends Fragment {
     }
 
     public abstract void onMainServiceTabReopened();
+    public abstract void onDashboardCarUpdated();
+    public abstract void setUI();
 }

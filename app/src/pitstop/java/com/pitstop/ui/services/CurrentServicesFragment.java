@@ -80,17 +80,18 @@ public class CurrentServicesFragment extends SubServiceFragment {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
 
-       /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
-        then update the UI here instead, dashboardCar is not null in this case because
-        the views aren't loaded until the MainServicesTab is pressed*/
-        if (!isViewShown() && dashboardCar != null){
-            carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-            carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-            carIssueListView.setAdapter(carIssuesAdapter);
-            populateCarIssuesAdapter();
-        }
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
 
         return view;
+    }
+
+    @Override
+    public void setUI(){
+        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        carIssueListView.setAdapter(carIssuesAdapter);
+        populateCarIssuesAdapter();
     }
 
     @Override
@@ -152,12 +153,11 @@ public class CurrentServicesFragment extends SubServiceFragment {
     //Called when the Main Service Tab is opened
     @Override
     public void onMainServiceTabReopened() {
-  //      dashboardCar = getCurrentCar();
+    }
 
-//        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-//        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        carIssueListView.setAdapter(carIssuesAdapter);
-//        populateCarIssuesAdapter();
+    @Override
+    public void onDashboardCarUpdated() {
+        setUI();
     }
 
     /*If setUserVisibilityHint is called and the view has been created then this
