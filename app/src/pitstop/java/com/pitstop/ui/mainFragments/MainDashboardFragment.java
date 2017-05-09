@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,39 +19,34 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
-import com.pitstop.models.Dealership;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
+import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -75,10 +69,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
     public final static String pfName = "com.pitstop.login.name";
-    public final static String pfCodeForObjectID = "com.pitstop.login.objectID";
     public final static String pfCurrentCar = "ccom.pitstop.currentcar";
-    public final static String pfShopName = "com.pitstop.shop.name";
-    public final static String pfCodeForShopObjectID = "com.pitstop.shop.objectID";
 
     public final static int MSG_UPDATE_CONNECTED_CAR = 1076;
 
@@ -86,25 +77,11 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     private CustomAdapter carIssuesAdapter;
 
     private View rootview;
-/*    private RecyclerView carIssueListView;
-    private CustomAdapter carIssuesAdapter;
-    private RecyclerView.LayoutManager layoutManager;*/
-    private ImageView connectedCarIndicator;
-    private ImageView serviceCountBackground;
-    private LinearLayout dealershipLayout;
     private TextView dealershipAddress;
     private TextView dealershipPhone;
-    private RelativeLayout addressLayout, phoneNumberLayout;
-    private Toolbar toolbar;
-    private TextView serviceCountText;
     private TextView carName, dealershipName;
-    private RelativeLayout carScan;
-    private LinearLayout requestServiceButton;
-    private boolean dialogShowing = false;
 
     private AlertDialog updateMileageDialog;
-    private AlertDialog uploadHistoricalDialog;
-    private AlertDialog connectTimeoutDialog;
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -261,31 +238,11 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     }
 
     private void setUpUIReferences() {
-        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        //carIssueListView = (RecyclerView) rootview.findViewById(R.id.car_issues_list);
-/*        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        carIssueListView.setHasFixedSize(true);
-        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setAdapter(carIssuesAdapter);
-
-        setSwipeDeleteListener(carIssueListView);*/
 
         carName = (TextView) rootview.findViewById(R.id.car_name);
-        //serviceCountText = (TextView) rootview.findViewById(R.id.service_count_text);
         dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
         dealershipAddress = (TextView) rootview.findViewById(R.id.dealership_address);
         dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
-        //serviceCountBackground = (ImageView) rootview.findViewById(R.id.service_count_background);
-        dealershipLayout = (LinearLayout) rootview.findViewById(R.id.dealership_info_layout);
-
-        carScan = (RelativeLayout) rootview.findViewById(R.id.dashboard_car_scan_btn);
-        addressLayout = (RelativeLayout) rootview.findViewById(R.id.address_layout);
-
-        phoneNumberLayout = (RelativeLayout) rootview.findViewById(R.id.phone_layout);
-
-        connectedCarIndicator = (ImageView) rootview.findViewById(R.id.car_connected_indicator_layout);
-
-        requestServiceButton = (LinearLayout) rootview.findViewById(R.id.dashboard_request_service_btn);
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
@@ -298,135 +255,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                     ContextCompat.getDrawable(getActivity(), R.drawable.circle_indicator_stroke));*/
             ((MainActivity)getActivity()).toggleConnectionStatusActionBar(false);
         }
-    }
-
-    /**
-     * Detect Swipes on each list item
-     *
-     * @param //carIssueListView
-     */
-    /*private void setSwipeDeleteListener(RecyclerView recyclerView) {
-        SwipeableRecyclerViewTouchListener swipeTouchListener =
-                new SwipeableRecyclerViewTouchListener(recyclerView,
-                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
-
-                            @Override
-                            public boolean canSwipe(int position) {
-                                return carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_EMPTY
-                                        && carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_TENTATIVE;
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView,
-                                                               final int[] reverseSortedPositions) {
-
-                                final Calendar calendar = Calendar.getInstance();
-                                calendar.setTimeInMillis(System.currentTimeMillis());
-                                final int currentYear = calendar.get(Calendar.YEAR);
-                                final int currentMonth = calendar.get(Calendar.MONTH);
-                                final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-                                final int i = reverseSortedPositions[0];
-
-                                final CarIssue issue = carIssuesAdapter.getItem(i);
-
-                                //Swipe to start deleting(completing) the selected issue
-                                mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-
-                                DatePickerDialog datePicker = new DatePickerDialog(getContext(),
-                                        new DatePickerDialog.OnDateSetListener() {
-                                            @Override
-                                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                                if (year > currentYear || (year == currentYear
-                                                        && (monthOfYear > currentMonth
-                                                        || (monthOfYear == currentMonth && dayOfMonth > currentDay)))) {
-                                                    Toast.makeText(getActivity(), "Please choose a date that has passed", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    long currentTime = calendar.getTimeInMillis();
-
-                                                    calendar.set(year, monthOfYear, dayOfMonth);
-
-                                                    int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
-                                                    String timeCompleted;
-
-                                                    if (daysAgo < 13) { // approximate categorization of the time service was completed
-                                                        timeCompleted = "Recently";
-                                                    } else if (daysAgo < 28) {
-                                                        timeCompleted = "2 Weeks Ago";
-                                                    } else if (daysAgo < 56) {
-                                                        timeCompleted = "1 Month Ago";
-                                                    } else if (daysAgo < 170) {
-                                                        timeCompleted = "2 to 3 Months Ago";
-                                                    } else {
-                                                        timeCompleted = "6 to 12 Months Ago";
-                                                    }
-
-                                                    mixpanelHelper.trackButtonTapped("Completed Service: " + (issue.getAction() == null ? "" : (issue.getAction() + " ")) + issue.getItem()
-                                                            + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
-                                                    networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
-                                                            daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                                @Override
-                                                                public void done(String response, RequestError requestError) {
-                                                                    if (requestError == null) {
-                                                                        Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                        carIssueList.remove(i);
-                                                                        carIssuesAdapter.notifyDataSetChanged();
-                                                                        ((MainActivity) getActivity()).refreshFromServer();
-                                                                    }
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        },
-                                        currentYear,
-                                        currentMonth,
-                                        currentDay
-                                );
-
-                                final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
-                                ((TextView) titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
-
-                                datePicker.setCustomTitle(titleView);
-
-                                //Cancel the service completion
-                                datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-                                        mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-                                    }
-                                });
-
-
-                                datePicker.show();
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeRight(RecyclerView recyclerView
-                                    , int[] reverseSortedPositions) {
-                                onDismissedBySwipeLeft(recyclerView, reverseSortedPositions);
-                            }
-                        });
-
-        recyclerView.addOnItemTouchListener(swipeTouchListener);
-    }*/
-
-    private void setIssuesCount() { // sets the number of active issues to display
-        int total = dashboardCar.getActiveIssues().size();
-
-        //serviceCountText.setText(String.valueOf(total));
-
-        /*Drawable background = serviceCountBackground.getDrawable();
-        GradientDrawable gradientDrawable = (GradientDrawable) background;
-
-        if (total > 0) {
-            gradientDrawable.setColor(Color.rgb(203, 77, 69));
-        } else {
-            gradientDrawable.setColor(Color.rgb(93, 172, 129));
-        }*/
     }
 
     private void setDealership() {
@@ -582,8 +410,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                     new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
                             carIssueList.clear();
                             carIssueList.addAll(dashboardCar.getActiveIssues());
-                            //carIssuesAdapter.notifyDataSetChanged();
-                            setIssuesCount();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             if (getActivity() != null) {
@@ -630,20 +456,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     }
 
     @Override
-    public void onServerRefreshed() {
-        if (getActivity() != null) {
-            //carIssueList = ((MainActivity) getActivity()).getCarIssueList();
-        }
-    }
-
-    @Override
-    public void onLocalRefreshed() {
-        if (getActivity() != null) {
-            //carIssueList = ((MainActivity) getActivity()).getCarIssueList();
-        }
-    }
-
-    @Override
     public void setDashboardCar(List<Car> carList) {
         if (getActivity() == null) {
             return;
@@ -658,10 +470,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             }
         }
         dashboardCar = carList.get(0);
-
-/*        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        if (carIssueListView != null)
-            carIssueListView.setAdapter(carIssuesAdapter);*/
     }
 
     /**
@@ -680,11 +488,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             carName.setText(dashboardCar.getYear() + " "
                     + dashboardCar.getMake() + " "
                     + dashboardCar.getModel());
-            setIssuesCount();
         }
-/*        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        if (carIssueListView != null)
-            carIssueListView.setAdapter(carIssuesAdapter);*/
 
         mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
         mEngineText.setText(dashboardCar.getEngine());
@@ -789,48 +593,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             return R.drawable.volvo;
         }else{
             return 0;
-        }
-    }
-
-
-    @Override
-    public void removeTutorial() {
-        Log.d(TAG, "Remove tutorial");
-/*        if (carIssuesAdapter != null) {
-            carIssuesAdapter.removeTutorial();
-        }*/
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
-
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                carLocalStore.updateCar(dashboardCar);
-            }
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newTotalMileage));
-                }
-            });
-
-        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            dashboardCar = carLocalStore.getCar(dashboardCar.getId());
-            final double newBaseMileage = dashboardCar.getTotalMileage();
-            //mCallback.onTripMileageUpdated(newBaseMileage);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newBaseMileage));
-                }
-            });
         }
     }
 
@@ -1055,9 +817,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
     @OnClick(R.id.mileage_container)
     protected void onMileageClicked(){
-/*        if (isFinishing() || isDestroyed() || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
-            return;
-        }*/
 
         if (updateMileageDialog != null && updateMileageDialog.isShowing())
             return;
@@ -1114,7 +873,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         dashboardCar.setDisplayedMileage(mileage);
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
-                                        //mCallback.onInputtedMileageUpdated(mileage);
+
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
                                             mMileageText.setText(String.format("%.2f", mileage));
@@ -1123,7 +882,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
                                                     ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice())
                                                 ((MainActivity)getActivity()).getBluetoothConnectService().startBluetoothSearch();
-                                                //connectToDevice();
                                         }
                                     }
                                 });
