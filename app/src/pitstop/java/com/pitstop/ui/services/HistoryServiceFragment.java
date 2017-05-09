@@ -65,11 +65,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     }
 
-    @Override
-    public void onDashboardCarUpdated() {
-      //  updateIssueGroupView();
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -273,19 +268,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
             }
 
             title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
-
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    /*mixpanelHelper.trackButtonTapped(issue.getItem(), MixpanelHelper.SERVICE_HISTORY_VIEW);
-                    Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
-                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
-                    intent.putExtra(ISSUE_FROM_HISTORY, true);
-                    startActivity(intent);*/
-                    //TODO launch issueDetails
-                }
-            });
 
             return convertView;
         }
