@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,6 +77,9 @@ public class HistoryServiceFragment extends SubServiceFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
+        /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
+        then update the UI here instead, dashboardCar is not null in this case because
+        the views aren't loaded until the MainServicesTab is pressed*/
         if (!isViewShown() && dashboardCar != null){
             updateIssueGroupView();
         }
@@ -163,11 +165,12 @@ public class HistoryServiceFragment extends SubServiceFragment {
                 + Integer.parseInt(splittedDate[0]) * 365;
     }
 
+    /*If setUserVisibilityHint is called and the view has been created then this
+    means that MainServicesTab has been created and therefore dashboard car is set
+    therefore proceed with updating UI elements*/
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-
-        Log.d("KAROL",this.getClass().getSimpleName()+" , setUserVisibleHint(true) called, getView() is:"+(getView() == null));
 
         if (isVisibleToUser && getView() != null){
             updateIssueGroupView();
