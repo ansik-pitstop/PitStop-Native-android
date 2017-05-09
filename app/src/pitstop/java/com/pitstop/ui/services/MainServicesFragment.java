@@ -90,13 +90,13 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         MainActivity.servicesCallback = this;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //Set to false since its true by defult and we don't want functionality being triggered
-        //unpredictably
-        setUserVisibleHint(false);
-    }
+//    @Override
+//    public void onCreate(@Nullable Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        //Set to false since its true by defult and we don't want functionality being triggered
+//        //unpredictably
+//        setUserVisibleHint(false);
+//    }
 
     @Nullable
     @Override
@@ -110,7 +110,13 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     @Override
     public void onDashboardCarUpdated(Car car) {
         UpcomingServicesFragment.setDashboardCar(car);
+        if (upcomingServicesFragment != null){
+            upcomingServicesFragment.onDashboardCarUpdated();
+        }
 
+        if (historyServicesFragment != null){
+
+        }
         HistoryServiceFragment.setDashboardCar(car);
 
         CurrentServicesFragment.setDashboardCar(car);

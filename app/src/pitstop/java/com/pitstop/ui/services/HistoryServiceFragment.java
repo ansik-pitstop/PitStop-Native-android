@@ -72,14 +72,17 @@ public class HistoryServiceFragment extends SubServiceFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
-        /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
-        then update the UI here instead, dashboardCar is not null in this case because
-        the views aren't loaded until the MainServicesTab is pressed*/
-        if (!isViewShown() && dashboardCar != null){
-            updateIssueGroupView();
-        }
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+
     }
 
     @Override
@@ -176,6 +179,16 @@ public class HistoryServiceFragment extends SubServiceFragment {
     public void onMainServiceTabReopened() {
 //        dashboardCar = getCurrentCar();
 //        updateIssueGroupView();
+    }
+
+    @Override
+    public void onDashboardCarUpdated() {
+        setUI();
+    }
+
+    @Override
+    public void setUI(){
+        updateIssueGroupView();
     }
 
     private class IssueGroupAdapter extends BaseExpandableListAdapter {

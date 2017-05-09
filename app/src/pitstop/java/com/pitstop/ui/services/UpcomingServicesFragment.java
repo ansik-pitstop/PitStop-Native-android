@@ -113,19 +113,25 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
 
-       /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
-        then update the UI here instead, dashboardCar is not null in this case because
-        the views aren't loaded until the MainServicesTab is pressed*/
-        if (!isViewShown() && dashboardCar != null){
-            mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-            fetchData();
-        }
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
 
         return view;
+    }
+
+    public void onDashboardCarUpdated(){
+        setUI();
+    }
+
+    @Override
+    public void setUI() {
+        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+        fetchData();
     }
 
     @Override
@@ -135,6 +141,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     }
 
     private void fetchData() {
+        Log.d("TAG","UpcomingServicesFragment, fetchData()");
         mLoadingSpinner.setVisibility(View.VISIBLE);
         String carId = String.valueOf(dashboardCar.getId());
         mNetworkHelper.getCarTimeline(carId, new RequestCallback() {
