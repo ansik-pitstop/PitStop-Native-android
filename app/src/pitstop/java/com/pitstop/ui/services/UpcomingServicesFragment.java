@@ -2,12 +2,14 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,12 +23,10 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.Issue;
 import com.pitstop.models.Timeline;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
@@ -43,7 +43,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends CarDataFragment implements SubServiceFragment {
+public class UpcomingServicesFragment extends SubServiceFragment{
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -84,7 +84,6 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
 
     NetworkHelper mNetworkHelper;
     MixpanelHelper mMixPanelHelper;
-    Car mCar;
     Timeline mTimelineData;
     Map<String, List<Issue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
@@ -112,25 +111,36 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
     }
 
     @Override
+    public void onDashboardCarUpdated() {
+        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+        fetchData();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
 
-        //Populate views
-//        mCar = getCurrentCar();
-//
-//        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-//        fetchData();
+        if (!isViewShown() && dashboardCar != null){
+            mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+            fetchData();
+        }
 
         return view;
     }
 
-    //Why are we using network helper here???
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        MainServicesFragment.upcomingServicesFragment = this;
+    }
+
     private void fetchData() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        String carId = String.valueOf(mCar.getId());
+        String carId = String.valueOf(dashboardCar.getId());
         mNetworkHelper.getCarTimeline(carId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -139,8 +149,10 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
                     mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
                     if (mIssueList != null && mIssueList.size() != 0)
                         populateList();
-                    else
+                    else{
+                        Log.d("TAG","UpcomingServicesFragment, showNoData()");
                         showNoData();
+                    }
                 }
                 else
                     showError();
@@ -303,19 +315,27 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
         hideIssueDetailsAnimation.start();
     }
 
-    @Override
-    public void setDashboardCar(Car c) {
-        mCar = c;
-    }
 
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isViewShown()){
+            mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+            fetchData();
+        }
+    }
     //Called when the Main Service Tab is re-opened, update elements
     @Override
     public void onMainServiceTabReopened() {
-        mCar = getCurrentCar();
-
-        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-        fetchData();
+//        mCar = getCurrentCar();
+//
+        Log.d("TAG","UpcomingServicesFragment, OnMainServiceTabReopened()");
+////        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+////        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+//        fetchData();
     }
 
     class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
