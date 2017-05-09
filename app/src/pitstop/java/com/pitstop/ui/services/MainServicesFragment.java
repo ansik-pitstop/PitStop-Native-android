@@ -13,11 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
+import com.pitstop.models.Car;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.mainFragments.MainFragmentCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainServicesFragment extends Fragment {
+public class MainServicesFragment extends Fragment implements MainFragmentCallback{
 
     @BindView(R.id.services_viewpager)
     ViewPager mServicesPager;
@@ -78,6 +81,9 @@ public class MainServicesFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        //Allow MainActivity to notify this fragment
+        MainActivity.servicesCallback = this;
     }
 
     @Override
@@ -96,6 +102,17 @@ public class MainServicesFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.activity_services,null);
         ButterKnife.bind(this,rootview);
         return rootview;
+    }
+
+    @Override
+    public void onDashboardCarUpdated(Car car) {
+
+        if (upcomingServicesFragment != null && historyServicesFragment != null
+                && currentServicesFragment != null) {
+            upcomingServicesFragment.setDashboardCar(car);
+            historyServicesFragment.setDashboardCar(car);
+            currentServicesFragment.setDashboardCar(car);
+        }
     }
 
     //Return data associated with fragment of the provided tab

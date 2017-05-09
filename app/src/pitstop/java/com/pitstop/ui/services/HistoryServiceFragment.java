@@ -155,6 +155,11 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
     }
 
     @Override
+    public void setDashboardCar(Car c) {
+        dashboardCar = c;
+    }
+
+    @Override
     public void onMainServiceTabReopened() {
         dashboardCar = getCurrentCar();
         updateIssueGroupView();

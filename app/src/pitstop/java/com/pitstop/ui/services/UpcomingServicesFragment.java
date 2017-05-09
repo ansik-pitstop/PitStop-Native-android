@@ -303,6 +303,11 @@ public class UpcomingServicesFragment extends CarDataFragment implements SubServ
         hideIssueDetailsAnimation.start();
     }
 
+    @Override
+    public void setDashboardCar(Car c) {
+        mCar = c;
+    }
+
     //Called when the Main Service Tab is re-opened, update elements
     @Override
     public void onMainServiceTabReopened() {

@@ -222,6 +222,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         //Log.w(TAG, "onAttach");
         super.onAttach(context);
 
+        MainActivity.mainDashboardCallback = this;
+
         application = (GlobalApplication) getActivity().getApplicationContext();
         networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
