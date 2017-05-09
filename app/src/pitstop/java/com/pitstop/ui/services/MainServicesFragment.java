@@ -109,17 +109,24 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
 
     @Override
     public void onDashboardCarUpdated(Car car) {
+
+        //Send car data to upcoming services fragment
         UpcomingServicesFragment.setDashboardCar(car);
         if (upcomingServicesFragment != null){
             upcomingServicesFragment.onDashboardCarUpdated();
         }
 
-        if (historyServicesFragment != null){
-
-        }
+        //Send car data to history services fragment
         HistoryServiceFragment.setDashboardCar(car);
+        if (historyServicesFragment != null){
+            historyServicesFragment.onDashboardCarUpdated();
+        }
 
+        //Send car data to current services fragment
         CurrentServicesFragment.setDashboardCar(car);
+        if (currentServicesFragment != null){
+            currentServicesFragment.onDashboardCarUpdated();
+        }
     }
 
     @Override
