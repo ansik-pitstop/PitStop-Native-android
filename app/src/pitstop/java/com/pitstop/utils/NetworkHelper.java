@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.models.Appointment;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
@@ -24,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -793,5 +795,11 @@ public class NetworkHelper {
         });
 
     }
+
+
+    public void getAppointments(int carId, RequestCallback callback){
+        get(String.format("car/%d/appointments",carId), callback);
+    }
+
 
 }

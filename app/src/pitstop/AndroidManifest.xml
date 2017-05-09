@@ -186,6 +186,14 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
+        <activity
+            android:name=".ui.my_appointments.MyAppointmentActivity"
+            android:label="My Appointments"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
+
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>

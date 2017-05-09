@@ -14,7 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.BuildConfig;
+
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -37,6 +37,7 @@ import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -145,11 +146,17 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     @BindView(R.id.request_appts_icon)
     ImageView mRequestApptsIcon;
 
+    @BindView(R.id.my_appts_icon)
+    ImageView mMyAppointmentsIcon;
+
+
+
     ProgressDialog progressDialog;
 
     // Models
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
+
 
     // Database accesses
     private LocalCarAdapter carLocalStore;
@@ -494,6 +501,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
             mCityIcon.setImageResource(R.drawable.citymileage);
             mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
             mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
+            mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
             ((MainActivity)getActivity()).changeTheme(false);
             mCarLogoImage.setVisibility(View.VISIBLE);
             dealershipName.setVisibility(View.VISIBLE);
@@ -514,6 +522,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         mCityIcon.setImageResource(R.drawable.mercedes_c);
         mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
         mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
+        mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
         ((MainActivity)getActivity()).changeTheme(true);
         mCarLogoImage.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
@@ -892,6 +901,8 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                     public void onClick(View v) {
                         // removeTutorial();
                         ((MainActivity)activity).prepareAndStartTutorialSequence();
+
+
                     }
                 });
             } else {
@@ -1051,7 +1062,11 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
     @OnClick(R.id.dashboard_request_service_btn)
     protected void onServiceRequestButtonClicked(){
-        ((MainActivity)getActivity()).requestMultiService(null);
+        ((MainActivity)getActivity()).requestMultiService(null);//find
+    }
+    @OnClick(R.id.my_appointments_btn)
+    protected void onMyAppointmentsButtonClicked(){
+        ((MainActivity)getActivity()).myAppointments();
     }
 
     @OnClick(R.id.mileage_container)
