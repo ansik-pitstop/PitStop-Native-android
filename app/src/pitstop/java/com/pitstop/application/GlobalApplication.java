@@ -21,6 +21,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
+import com.pitstop.database.LocalAppointmentAdapter;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
@@ -69,6 +70,7 @@ public class GlobalApplication extends Application {
     private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
     private LocalCarIssueAdapter mLocalCarIssueAdapter;
+    private LocalAppointmentAdapter mLocalAppointmentAdapter;
     private LocalPidAdapter mLocalPidAdapter;
     private LocalShopAdapter mLocalShopAdapter;
 
@@ -333,6 +335,7 @@ public class GlobalApplication extends Application {
         mUserAdapter = new UserAdapter(this);
         mLocalScannerAdapter = new LocalScannerAdapter(this);
         mLocalCarAdapter = new LocalCarAdapter(this);
+        mLocalAppointmentAdapter = new LocalAppointmentAdapter(this);
         mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
         mLocalPidAdapter = new LocalPidAdapter(this);
         mLocalShopAdapter = new LocalShopAdapter(this);
@@ -346,6 +349,7 @@ public class GlobalApplication extends Application {
         mLocalScannerAdapter.deleteAllRows();
         mLocalPidAdapter.deleteAllRows();
         mLocalCarAdapter.deleteAllRows();
+        mLocalAppointmentAdapter.deleteAllRows();
         mLocalCarIssueAdapter.deleteAllRows();
         mLocalShopAdapter.deleteAllRows();
     }

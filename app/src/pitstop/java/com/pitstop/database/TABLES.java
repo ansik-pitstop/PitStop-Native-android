@@ -42,6 +42,14 @@ public final class TABLES {
         String KEY_NUM_SERVICES = "numberOfServices";
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
     }
+    public interface APPOINTMENT {
+        String TABLE_NAME = "appointment";
+        String KEY_COMMENT = "comment";
+        String KEY_DATE = "date";
+        String KEY_STATE = "state";
+        String KEY_SHOP_ID = "shopId";
+    }
+
 
     public interface CAR_ISSUES {
         String TABLE_NAME = "carIssues";
