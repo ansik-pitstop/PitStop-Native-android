@@ -21,18 +21,19 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
+import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentAdapter;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.database.UserAdapter;
-import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.utils.SecretUtils;
 
 import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
@@ -59,7 +60,7 @@ public class GlobalApplication extends Application {
     public final static String pfLoggedIn = "com.pitstop.logged_in";
     public static final String PARSE_CLIENT_KEY = "android";
 
-    private static MixpanelAPI mixpanelAPI;
+    private MixpanelAPI mixpanelAPI;
 
     private ActivityLifecycleObserver activityLifecycleObserver;
 
@@ -109,13 +110,7 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
-        Settings settings;
-
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE)){
-            settings = new Settings(getString(R.string.smooch_token));
-        } else {
-            settings = new Settings(getString(R.string.smooch_token_debug));
-        }
+        Settings settings = new Settings(SecretUtils.getSmoochToken());
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, settings);
@@ -131,8 +126,7 @@ public class GlobalApplication extends Application {
         }
 
         Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
-                .applicationId(BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
-                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev))
+                .applicationId(SecretUtils.getParseAppId())
                 .clientKey(PARSE_CLIENT_KEY)
                 .enableLocalDataStore()
                 .server(getString(R.string.parse_server_url))
@@ -151,8 +145,7 @@ public class GlobalApplication extends Application {
         });
 
         // MixPanel
-        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token)
-                : getString(R.string.prod_mixpanel_api_token));
+        mixpanelAPI = getMixpanelAPI();
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
@@ -174,7 +167,7 @@ public class GlobalApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "grpogrjer" : getString(R.string.prod_mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, SecretUtils.getMixpanelToken());
         }
         return mixpanelAPI;
     }
