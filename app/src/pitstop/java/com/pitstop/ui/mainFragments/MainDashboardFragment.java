@@ -37,7 +37,6 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
@@ -64,7 +63,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainDashboardFragment extends Fragment implements MainActivity.MainDashboardCallback {
+public class MainDashboardFragment extends Fragment implements MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
@@ -72,9 +71,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     public final static String pfCurrentCar = "ccom.pitstop.currentcar";
 
     public final static int MSG_UPDATE_CONNECTED_CAR = 1076;
-
-    // Views
-    private CustomAdapter carIssuesAdapter;
 
     private View rootview;
     private TextView dealershipAddress;
@@ -132,7 +128,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     private LocalCarAdapter carLocalStore;
     private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
-    private LocalScannerAdapter scannerLocalStore;
 
     private GlobalApplication application;
     private SharedPreferences sharedPreferences;
@@ -191,12 +186,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, rootview);
         setUpUIReferences();
-/*        if (dashboardCar != null) {
-            carName.setText(dashboardCar.getYear() + " "
-                    + dashboardCar.getMake() + " "
-                    + dashboardCar.getModel());
-            setIssuesCount();*/
-            setCarDetailsUI();
+        setCarDetailsUI();
         //}
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
@@ -225,16 +215,12 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        //carIssueList = ((MainActivity) getActivity()).getCarIssueList();
-        //carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(getActivity());
         carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
         shopLocalStore = new LocalShopAdapter(getActivity());
-        scannerLocalStore = new LocalScannerAdapter(getActivity());
 
-        MainActivity.callback = this;
     }
 
     private void setUpUIReferences() {
@@ -456,20 +442,14 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     }
 
     @Override
-    public void setDashboardCar(List<Car> carList) {
+    public void onDashboardCarUpdated(Car car) {
+
+        Log.d("TAG","Dashboard car updated, car.id:"+car.getId());
+
         if (getActivity() == null) {
             return;
         }
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        int currentCarId = sharedPreferences.getInt(pfCurrentCar, -1);
-
-        for (Car car : carList) {
-            if (car.getId() == currentCarId) {
-                dashboardCar = car;
-                return;
-            }
-        }
-        dashboardCar = carList.get(0);
+        dashboardCar = car;
     }
 
     /**
@@ -478,9 +458,14 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
      */
     @Override
     public void setCarDetailsUI() {
+
+        Log.d("TAG","setCarDetailsUI()");
+
         if (dashboardCar == null) {
             return;
         }
+        Log.d("TAG","car.id:"+ dashboardCar.getId());
+
         setDealership();
         populateCarIssuesAdapter();
 
@@ -608,13 +593,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
         static final int VIEW_TYPE_EMPTY = 100;
         static final int VIEW_TYPE_TENTATIVE = 101;
 
-        public CustomAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
-            this.dashboardCar = dashboardCar;
-            this.carIssues = carIssues;
-            Log.d(TAG, "Car issue list size: " + this.carIssues.size());
-            activityReference = new WeakReference<>(activity);
-        }
-
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
@@ -711,32 +689,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                 return 1;
             }
             return carIssues.size();
-        }
-
-        public void removeTutorial() {
-            if (activityReference.get() == null) return;
-            GlobalApplication application = (GlobalApplication) activityReference.get().getApplicationContext();
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
-            Set<String> carsAwaitTutorial = preferences.getStringSet(application.getString(R.string.pfAwaitTutorial), new HashSet<String>());
-            Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
-            for (String item : carsAwaitTutorial) {
-                if (!item.equals(String.valueOf(dashboardCar.getId()))) {
-                    copy.add(item);
-                }
-            }
-            Log.d(TAG, String.valueOf(dashboardCar.getId()));
-            Log.d(TAG, String.valueOf(copy.size()));
-            preferences.edit().putStringSet(application.getString(R.string.pfAwaitTutorial), copy).apply();
-
-            for (int index = 0; index < carIssues.size(); index++) {
-                CarIssue issue = carIssues.get(index);
-                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
-                    carIssues.remove(index);
-                    new LocalCarIssueAdapter(application).deleteCarIssue(issue);
-                    notifyDataSetChanged();
-                }
-            }
         }
 
         private void addTutorial() {
