@@ -27,9 +27,9 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     ViewPager mServicesPager;
 
     //Fragments being navigated
-    public static UpcomingServicesFragment upcomingServicesFragment;
-    public static HistoryServiceFragment historyServicesFragment;
-    public static CurrentServicesFragment currentServicesFragment;
+    private UpcomingServicesFragment upcomingServicesFragment;
+    private HistoryServiceFragment historyServicesFragment;
+    private CurrentServicesFragment currentServicesFragment;
 
     public static final int SUB_SERVICE_COUNT = 3;
     private int attachedSubServiceCounter = 0;
@@ -90,14 +90,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         MainActivity.servicesCallback = this;
     }
 
-//    @Override
-//    public void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        //Set to false since its true by defult and we don't want functionality being triggered
-//        //unpredictably
-//        setUserVisibleHint(false);
-//    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -151,17 +143,17 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         @Override
         public Fragment getItem(int position) {
 
-            //Set the current car once so that it doesn't keep getting pulled from disc
-            // also so that all fragments must receive the same car
-
-            //Return respective fragment
+            //Return respective fragment and set the variable inside outer class for later callback reference
             switch (position){
                 case FRAGMENT_UPCOMING:
-                    return UpcomingServicesFragment.newInstance();
+                    upcomingServicesFragment = UpcomingServicesFragment.newInstance();
+                    return upcomingServicesFragment;
                 case FRAGMENT_CURRENT:
-                    return  CurrentServicesFragment.newInstance();
+                    currentServicesFragment = CurrentServicesFragment.newInstance();
+                    return  currentServicesFragment;
                 case FRAGMENT_HISTORY:
-                    return HistoryServiceFragment.newInstance();
+                    historyServicesFragment = HistoryServiceFragment.newInstance();
+                    return historyServicesFragment;
             }
             return null;
         }
