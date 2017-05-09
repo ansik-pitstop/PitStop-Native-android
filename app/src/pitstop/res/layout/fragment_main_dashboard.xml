@@ -445,7 +445,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:layout_marginRight="10dp"
-                    tools:src="@drawable/mercedes_mileage"
+                    tools:src="@drawable/mercedes_tentaicon3x"
                     android:layout_gravity="center"/>
 
                 <TextView
@@ -466,6 +466,39 @@
                     android:src="@drawable/right_chevron"
                     />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_appointments_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/my_appts_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/mercedes_clipboard3x" />
+
+                <TextView
+                    android:id="@+id/my_appointments_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="4dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="My Appointments"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/right_chevron" />
             </LinearLayout>
 
         </LinearLayout>

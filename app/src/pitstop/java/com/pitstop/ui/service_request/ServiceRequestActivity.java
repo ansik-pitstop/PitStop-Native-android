@@ -99,7 +99,7 @@ public class ServiceRequestActivity extends AppCompatActivity
 
         application = (GlobalApplication) getApplicationContext();
         dashboardCar = getIntent().getParcelableExtra(EXTRA_CAR);
-        isFirstBooking = getIntent().getBooleanExtra(EXTRA_FIRST_BOOKING, false);
+        isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);

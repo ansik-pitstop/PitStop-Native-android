@@ -16,7 +16,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     private static LocalDatabaseHelper instance;
 
 //    private static final int DATABASE_VERSION = 18;
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private Context mContext;
@@ -39,6 +39,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalPidResult4Adapter.CREATE_TABLE_PID_DATA);
         db.execSQL(LocalCarAdapter.CREATE_TABLE_CAR);
         db.execSQL(LocalCarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
+        db.execSQL(LocalAppointmentAdapter.CREATE_TABLE_APPOINTMENT);
         db.execSQL(LocalShopAdapter.CREATE_TABLE_DEALERSHIP);
         db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
         db.execSQL(UserAdapter.CREATE_TABLE_USER);
@@ -51,6 +52,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME_RESULT_4);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_ISSUES.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.APPOINTMENT.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SHOP.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
