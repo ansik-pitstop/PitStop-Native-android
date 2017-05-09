@@ -7,7 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.ParseInstallation;
-import com.pitstop.BuildConfig;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.CarIssue;
@@ -15,11 +15,7 @@ import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
-
-import static com.pitstop.utils.LogUtils.LOGI;
-import static com.pitstop.utils.LogUtils.LOGV;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.pitstop.utils.LogUtils.LOGI;
+import static com.pitstop.utils.LogUtils.LOGV;
+
 /**
  * Created by Ben Wu on 2016-05-20.
  */
@@ -36,7 +35,7 @@ public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static final String clientId = BuildConfig.CLIENT_ID;
+    private static final String CLIENT_ID = SecretUtils.getClientId();
 
     public static final String INSTALLATION_ID_KEY = "installationId";
 
@@ -55,7 +54,7 @@ public class NetworkHelper {
 
     private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
+                .header("Client-Id", CLIENT_ID)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -70,7 +69,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
+                .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -86,7 +85,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
+                .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
@@ -101,7 +100,7 @@ public class NetworkHelper {
             return;
         }
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
+                .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
@@ -113,7 +112,7 @@ public class NetworkHelper {
 
     private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
-                .header("Client-Id", clientId)
+                .header("Client-Id", CLIENT_ID)
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
@@ -662,7 +661,7 @@ public class NetworkHelper {
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
-                    .header("Client-Id", clientId)
+                    .header("Client-Id", CLIENT_ID)
                     .body(new JSONObject().put("refreshToken", refreshToken))
                     .requestCallBack(callback)
                     .requestType(RequestType.POST)

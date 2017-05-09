@@ -9,18 +9,18 @@ import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
-import com.pitstop.BuildConfig;
-import com.pitstop.ui.LoginActivity;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-
-import static com.pitstop.utils.LogUtils.LOGD;
+import com.pitstop.utils.SecretUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+
+import static com.pitstop.utils.LogUtils.LOGD;
 
 /**
  * Created by Paul Soladoye  on 3/8/2016.
@@ -29,7 +29,7 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
 
-    private static final String BASE_ENDPOINT = BuildConfig.SERVER_URL;
+    private static final String BASE_ENDPOINT = SecretUtils.getEndpointUrl();
     private static Webb webClient;
     private RequestCallback listener;
     private RequestType requestType;
