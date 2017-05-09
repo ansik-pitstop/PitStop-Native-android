@@ -68,9 +68,12 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -197,9 +200,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
     private boolean isRefreshingFromServer = false;
 
-    public static MainDashboardCallback callback;
+    public static MainDashboardCallback mainDashboardCallback;
+    public static MainFragmentCallback servicesCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
+
+    private int attachedFragmentCounter = 0;
+    private final int TOTAL_WORKING_FRAGMENT_NUM = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -348,11 +355,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof MainDashboardFragment) {
+        if (fragment instanceof MainDashboardFragment || fragment instanceof MainServicesFragment) {
+
+            attachedFragmentCounter++;
+
             // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
-            if (createdOrAttached) {
+            if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
                 refreshFromServer();
-            } else {
+            } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
                 createdOrAttached = true;
             }
         }
@@ -383,8 +393,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
             }
-            callback.setDashboardCar(MainActivity.carList);
-            callback.setCarDetailsUI();
+            mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
+            servicesCallback.onDashboardCarUpdated(getCurrentCar());
+            mainDashboardCallback.setCarDetailsUI();
         }
     }
 
@@ -395,6 +406,22 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
+    }
+
+    private Car getCurrentCar(){
+        if (carList == null){
+            return null;
+        }
+        if (carList.size() == 0){
+            return null;
+        }
+
+        for (Car c: carList){
+            if (c.isCurrentCar()){
+                return c;
+            }
+        }
+        return carList.get(0);
     }
 
     @Override
@@ -412,7 +439,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
-                        callback.setDashboardCar(carList);
+                        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
+                        servicesCallback.onDashboardCarUpdated(getCurrentCar());
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
@@ -469,7 +497,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-                callback.setCarDetailsUI();
+                mainDashboardCallback.setCarDetailsUI();
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -491,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     removeTutorial();
                 }
             }
-            callback.activityResultCallback(requestCode, resultCode, data);
+            mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -638,9 +666,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             Log.i(TAG, "Trying local store for cars");
             MainActivity.carList = localCars;
 
-            if (callback != null) {
-                callback.setDashboardCar(MainActivity.carList);
-                callback.setCarDetailsUI();
+            if (mainDashboardCallback != null) {
+                mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
+                servicesCallback.onDashboardCarUpdated(getCurrentCar());
+                mainDashboardCallback.setCarDetailsUI();
             }
 
             hideLoading();
@@ -745,7 +774,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if (requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.VISIBLE);
                                         }
-                                        callback.setDashboardCar(carList);
+                                        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
+                                        servicesCallback.onDashboardCarUpdated(getCurrentCar());
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
 
@@ -758,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         }
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
-                                        callback.setCarDetailsUI();
+                                        mainDashboardCallback.setCarDetailsUI();
                                     }
 
                                     resetMenus(false);
@@ -930,8 +960,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
         // Highlight the selected item, update the title, and close the drawer
-        callback.setDashboardCar(carList);
-        callback.setCarDetailsUI();
+        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
+        servicesCallback.onDashboardCarUpdated(getCurrentCar());
+        mainDashboardCallback.setCarDetailsUI();
     }
 
     public void startAddCarActivity(View view) {
@@ -1442,15 +1473,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public void toggleConnectionStatusActionBar(boolean isConnected){
         if (getSupportActionBar() != null)
             getSupportActionBar().setSubtitle(isConnected ? R.string.connected_device:R.string.disconnected_device);
-
-    }
-
-    public interface MainDashboardCallback {
-        void activityResultCallback(int requestCode, int resultCode, Intent data);
-
-        void setDashboardCar(List<Car> carList);
-
-        void setCarDetailsUI();
 
     }
 

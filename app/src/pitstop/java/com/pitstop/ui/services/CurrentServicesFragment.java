@@ -141,6 +141,11 @@ public class CurrentServicesFragment extends CarDataFragment implements SubServi
         //carIssuesAdapter.updateTutorial();
     }
 
+    @Override
+    public void setDashboardCar(Car c) {
+        dashboardCar = c;
+    }
+
     //Called when the Main Service Tab is opened
     @Override
     public void onMainServiceTabReopened() {
