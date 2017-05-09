@@ -66,7 +66,10 @@
         <!--<meta-data
             android:name="com.parse.push.notification_icon"
             android:resource="@drawable/common_plus_signin_btn_icon_dark_disabled" />-->
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="7d2f21bc8eccedf9dcf6b118731fb330ed5fd017"
+            />
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -255,6 +258,19 @@
             android:label="Upcoming Services"
             android:parentActivityName=".ui.MainActivity"
             />
+
+        <activity
+            android:name=".ui.services.ServicesActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/services_nav_text"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".ui.DealershipActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="Dealership"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

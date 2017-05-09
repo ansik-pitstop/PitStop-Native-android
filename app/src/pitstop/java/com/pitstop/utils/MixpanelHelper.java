@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.application.GlobalApplication;
 
@@ -229,6 +230,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_APP_STATUS, json);
     }
 
@@ -237,6 +239,26 @@ public class MixpanelHelper {
         if (application.getCurrentUser() != null) {
             try {
                 json.put("Username", user.getEmail());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //Insert car data into json object if available
+    private void insertCar(JSONObject json)  {
+        Car car = application.getCurrentCar();
+
+        if (application.getCurrentCar() != null) {
+            try {
+                json.put("make", car.getMake());
+                json.put("model", car.getModel());
+                json.put("year", car.getYear());
+                json.put("carId", car.getId());
+                json.put("mileage",car.getTotalMileage());
+                json.put("services",car.getNumberOfServices());
+                json.put("recalls",car.getNumberOfRecalls());
+                json.put("engineCodes",car.getEngine());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -254,6 +276,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_VIEW_APPEARED, json);
     }
 
@@ -268,6 +291,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_PERIPHERAL_CONNECTION_STATUS, json);
     }
 
@@ -283,6 +307,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
@@ -297,6 +322,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
     }
 
@@ -315,6 +341,7 @@ public class MixpanelHelper {
         }
 
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
@@ -330,6 +357,7 @@ public class MixpanelHelper {
             e.printStackTrace();
         }
         insertUsername(json);
+        insertCar(json);
         application.getMixpanelAPI().track("Migration Status", json);
     }
 
@@ -343,6 +371,7 @@ public class MixpanelHelper {
             return;
         }
         insertUsername(properties);
+        insertCar(properties);
         application.getMixpanelAPI().track(event, properties);
     }
 
