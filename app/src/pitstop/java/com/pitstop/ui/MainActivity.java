@@ -187,12 +187,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final String CAR_EXTRA = "car";
     public static final String CAR_ISSUE_EXTRA = "car_issue";
     public static final String CAR_LIST_EXTRA = "car_list";
-    public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
     public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
-    public static final int LOC_PERM_REQ = 112;
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -703,9 +701,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
             carLocalStore.deleteAllCars();
 
             getCarDetails();
-            if (callback != null) {
-                callback.onServerRefreshed();
-            }
         } else {
             View drawerLayout = findViewById(R.id.drawer_layout);
             if (drawerLayout != null) {
@@ -725,9 +720,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         getCarDetails();
         if (isLoading) {
             hideLoading();
-        }
-        if (callback != null) {
-            callback.onLocalRefreshed();
         }
     }
 
@@ -1459,7 +1451,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private void removeTutorial() {
         Log.d(TAG, "Remove tutorial");
         mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
-        callback.removeTutorial();
     }
 
     private boolean checkDealership() {
@@ -1612,17 +1603,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public interface MainDashboardCallback {
         void activityResultCallback(int requestCode, int resultCode, Intent data);
 
-        void onServerRefreshed();
-
-        void onLocalRefreshed();
-
         void setDashboardCar(List<Car> carList);
 
         void setCarDetailsUI();
 
-        void removeTutorial();
-
-        void tripData(TripInfoPackage tripInfoPackage);
     }
 
 

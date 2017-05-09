@@ -53,7 +53,7 @@ public class MainServicesFragment extends Fragment {
 
             }
         });
-        mServicesPager.setAdapter(new ServicesAdapter(getFragmentManager()));
+        mServicesPager.setAdapter(new ServicesAdapter(getChildFragmentManager()));
     }
 
     //Called when the fragment is set to visible or invisible by ViewPager
