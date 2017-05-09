@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
+    private boolean isFirstAppointment = false;
     private Intent serviceIntent;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -1267,7 +1268,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     /**
      * Onclick method for requesting services
      *
-     * @param view if this view is null, we consider the service booking is tentative (first time)
      */
     public void requestMultiService(View view) {
         if (!checkDealership()) return;
@@ -1280,12 +1280,13 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         final Intent intent = new Intent(this, ServiceRequestActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         //intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, view == null);
-        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
+        isFirstAppointment = false;
         startActivityForResult(intent, RC_REQUEST_SERVICE);
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
-    public void myAppointments(View view){
+    public void myAppointments(){
         if (!checkDealership()) return;
 
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
@@ -1458,7 +1459,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         //viewPager.setCurrentItem(0);
         mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-
+        isFirstAppointment = true;
         tutorialSequence.start();
     }
 

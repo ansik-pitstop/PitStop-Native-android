@@ -12,7 +12,11 @@ import com.pitstop.R;
 import com.pitstop.models.Appointment;
 import com.pitstop.ui.service_request.view_fragment.ServiceIssueAdapter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-02.
@@ -41,20 +45,30 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
     @Override
     public void onBindViewHolder(AppointmentsAdapter.MyAppointmentsViewHolder holder, int position) {
         int viewType = getItemViewType(position);
+        String pretext = "";
+
 
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.date.setText("No Appointments");
             holder.details.setText("There are currently no appointments");
 
         } else {
-            holder.date.setText(mAppts.get(position).getDate());
-            if(mAppts.get(position).getComments().equals("")) {
-                holder.details.setText("No Comments");
+            Appointment currentApp = mAppts.get(position);
+            holder.date.setText(dateFormat(currentApp.getDate()));
+            if(currentApp.getComments().equals("")) {
+                if(currentApp.getState().equals("tentative")){
+                    holder.details.setText("No Salesperson");
+                }else {
+                    holder.details.setText("No Comments");
+                }
             }else{
-                holder.details.setText(mAppts.get(position).getComments());
+                if(currentApp.getState().equals("tentative")){
+                    pretext = "Salesperson: ";
+                }else{
+                    pretext = "Comments: ";
+                }
+                holder.details.setText(pretext+currentApp.getComments());
             }
-
-
         }
     }
 
@@ -71,6 +85,19 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
     public int getItemCount() {
         if (mAppts.isEmpty()) return 1;
         return mAppts.size();
+    }
+
+    private String dateFormat(String date){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.CANADA);
+        SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
+        try {
+            Date formDate = sdf.parse(date);
+            String newDate = newFormat.format(formDate);
+            return newDate;
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        return date;
     }
 
     public class MyAppointmentsViewHolder extends RecyclerView.ViewHolder{
