@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.LinkedHashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends CarDataFragment implements SubServiceFragment {
+public class HistoryServiceFragment extends SubServiceFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
@@ -45,8 +44,6 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-
-    private Car dashboardCar;
 
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
     ArrayList<String> headers = new ArrayList<>();
@@ -69,6 +66,11 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
 
     }
 
+    @Override
+    public void onDashboardCarUpdated() {
+      //  updateIssueGroupView();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,10 +78,17 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
-//        dashboardCar = getCurrentCar();
-//        updateIssueGroupView();
+        if (!isViewShown() && dashboardCar != null){
+            updateIssueGroupView();
+        }
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        MainServicesFragment.historyServicesFragment = this;
     }
 
     private void updateIssueGroupView(){
@@ -155,14 +164,20 @@ public class HistoryServiceFragment extends CarDataFragment implements SubServic
     }
 
     @Override
-    public void setDashboardCar(Car c) {
-        dashboardCar = c;
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        Log.d("KAROL",this.getClass().getSimpleName()+" , setUserVisibleHint(true) called, getView() is:"+(getView() == null));
+
+        if (isVisibleToUser && getView() != null){
+            updateIssueGroupView();
+        }
     }
 
     @Override
     public void onMainServiceTabReopened() {
-        dashboardCar = getCurrentCar();
-        updateIssueGroupView();
+//        dashboardCar = getCurrentCar();
+//        updateIssueGroupView();
     }
 
     private class IssueGroupAdapter extends BaseExpandableListAdapter {

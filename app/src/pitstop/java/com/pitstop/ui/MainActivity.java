@@ -74,6 +74,7 @@ import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
+import com.pitstop.ui.services.SubServiceFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -355,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof MainDashboardFragment || fragment instanceof MainServicesFragment) {
+        if (fragment instanceof MainServicesFragment || fragment instanceof MainDashboardFragment) {
 
             attachedFragmentCounter++;
 

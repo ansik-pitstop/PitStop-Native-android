@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +27,20 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     ViewPager mServicesPager;
 
     //Fragments being navigated
-    private UpcomingServicesFragment upcomingServicesFragment;
-    private HistoryServiceFragment historyServicesFragment;
-    private CurrentServicesFragment currentServicesFragment;
+    public static UpcomingServicesFragment upcomingServicesFragment;
+    public static HistoryServiceFragment historyServicesFragment;
+    public static CurrentServicesFragment currentServicesFragment;
+
+    public static final int SUB_SERVICE_COUNT = 3;
+    private int attachedSubServiceCounter = 0;
+
+    private MainActivity mainActivity;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        mainActivity = (MainActivity)getActivity();
 
         //Create tab layout
         TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
@@ -65,16 +73,12 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         super.setUserVisibleHint(isVisibleToUser);
 
         //Notify child fragments that the tab has been re-opened
-        if (isVisibleToUser && getView() != null){
+        if (isVisibleToUser && upcomingServicesFragment != null
+                && historyServicesFragment != null && currentServicesFragment != null){
 
-            if (upcomingServicesFragment != null & historyServicesFragment != null
-                    && currentServicesFragment != null){
-
-                upcomingServicesFragment.onMainServiceTabReopened();
-                historyServicesFragment.onMainServiceTabReopened();
-                currentServicesFragment.onMainServiceTabReopened();
-            }
-
+            upcomingServicesFragment.onMainServiceTabReopened();
+            historyServicesFragment.onMainServiceTabReopened();
+            currentServicesFragment.onMainServiceTabReopened();
         }
     }
 
@@ -89,7 +93,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setUserVisibleHint(false);
         //Set to false since its true by defult and we don't want functionality being triggered
         //unpredictably
         setUserVisibleHint(false);
@@ -106,17 +109,22 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
 
     @Override
     public void onDashboardCarUpdated(Car car) {
+        UpcomingServicesFragment.setDashboardCar(car);
 
-        if (upcomingServicesFragment != null && historyServicesFragment != null
-                && currentServicesFragment != null) {
-            upcomingServicesFragment.setDashboardCar(car);
-            historyServicesFragment.setDashboardCar(car);
-            currentServicesFragment.setDashboardCar(car);
-        }
+        HistoryServiceFragment.setDashboardCar(car);
+
+        CurrentServicesFragment.setDashboardCar(car);
+    }
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        super.onAttachFragment(childFragment);
+
+        Log.d("KAROL","attached fragment: "+childFragment.getClass().getSimpleName());
     }
 
     //Return data associated with fragment of the provided tab
-    private class ServicesAdapter extends FragmentPagerAdapter{
+    private class ServicesAdapter extends FragmentPagerAdapter {
 
         private final int FRAGMENT_UPCOMING = 0;
         private final int FRAGMENT_CURRENT = 1;
@@ -136,14 +144,11 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
             //Return respective fragment
             switch (position){
                 case FRAGMENT_UPCOMING:
-                    upcomingServicesFragment = UpcomingServicesFragment.newInstance();
-                    return upcomingServicesFragment;
+                    return UpcomingServicesFragment.newInstance();
                 case FRAGMENT_CURRENT:
-                    currentServicesFragment = CurrentServicesFragment.newInstance();
-                    return currentServicesFragment;
+                    return  CurrentServicesFragment.newInstance();
                 case FRAGMENT_HISTORY:
-                    historyServicesFragment = HistoryServiceFragment.newInstance();
-                    return historyServicesFragment;
+                    return HistoryServiceFragment.newInstance();
             }
             return null;
         }
