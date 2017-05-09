@@ -2,7 +2,6 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -123,21 +122,11 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         return view;
     }
 
-    public void onDashboardCarUpdated(){
-        setUI();
-    }
-
     @Override
     public void setUI() {
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
         fetchData();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        MainServicesFragment.upcomingServicesFragment = this;
     }
 
     private void fetchData() {

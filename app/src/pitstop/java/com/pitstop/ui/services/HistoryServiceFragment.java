@@ -85,12 +85,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        MainServicesFragment.historyServicesFragment = this;
-    }
-
     private void updateIssueGroupView(){
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
@@ -177,13 +171,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     @Override
     public void onMainServiceTabReopened() {
-//        dashboardCar = getCurrentCar();
-//        updateIssueGroupView();
-    }
-
-    @Override
-    public void onDashboardCarUpdated() {
-        setUI();
     }
 
     @Override

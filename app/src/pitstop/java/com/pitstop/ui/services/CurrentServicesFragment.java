@@ -2,7 +2,6 @@ package com.pitstop.ui.services;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -94,13 +93,6 @@ public class CurrentServicesFragment extends SubServiceFragment {
         populateCarIssuesAdapter();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        MainServicesFragment.currentServicesFragment = this;
-    }
-
     private void populateCarIssuesAdapter() {
         // Try local store
 //        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
@@ -153,11 +145,6 @@ public class CurrentServicesFragment extends SubServiceFragment {
     //Called when the Main Service Tab is opened
     @Override
     public void onMainServiceTabReopened() {
-    }
-
-    @Override
-    public void onDashboardCarUpdated() {
-        setUI();
     }
 
     /*If setUserVisibilityHint is called and the view has been created then this

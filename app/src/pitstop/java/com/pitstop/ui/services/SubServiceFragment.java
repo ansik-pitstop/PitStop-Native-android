@@ -19,11 +19,13 @@ public abstract class SubServiceFragment extends Fragment {
     public static Car dashboardCar;
     private boolean isViewShown;
     private boolean onCreateViewReady;
+    private boolean onStartFinished = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUserVisibleHint(false);
+        onStartFinished = false;
     }
 
     @Override
@@ -53,7 +55,6 @@ public abstract class SubServiceFragment extends Fragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -64,6 +65,8 @@ public abstract class SubServiceFragment extends Fragment {
         if (!onCreateViewReady && dashboardCar != null){
             setUI();
         }
+
+        onStartFinished = true;
     }
 
     /*Returns whether the view was being shown at the time of setUserVisibilityHint() being called,
@@ -77,7 +80,14 @@ public abstract class SubServiceFragment extends Fragment {
         dashboardCar = c;
     }
 
+    public void onDashboardCarUpdated(){
+        //Check whether onStart() finished, otherwise don't update since it'll update inside onStart
+        if (getView() != null){
+            setUI();
+        }
+    }
+
     public abstract void onMainServiceTabReopened();
-    public abstract void onDashboardCarUpdated();
+
     public abstract void setUI();
 }
