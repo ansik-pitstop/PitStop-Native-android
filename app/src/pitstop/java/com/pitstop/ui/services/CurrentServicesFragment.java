@@ -75,19 +75,14 @@ public class CurrentServicesFragment extends SubServiceFragment {
     }
 
     @Override
-    public void onDashboardCarUpdated() {
-//        carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-//        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        carIssueListView.setAdapter(carIssuesAdapter);
-//        populateCarIssuesAdapter();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
 
+       /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
+        then update the UI here instead, dashboardCar is not null in this case because
+        the views aren't loaded until the MainServicesTab is pressed*/
         if (!isViewShown() && dashboardCar != null){
             carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
             carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -165,6 +160,9 @@ public class CurrentServicesFragment extends SubServiceFragment {
 //        populateCarIssuesAdapter();
     }
 
+    /*If setUserVisibilityHint is called and the view has been created then this
+    means that MainServicesTab has been created and therefore dashboard car is set
+    therefore proceed with updating UI elements*/
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);

@@ -111,18 +111,14 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     }
 
     @Override
-    public void onDashboardCarUpdated() {
-        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-        fetchData();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
 
+       /*If setUserVisibilityHint() had view null because OnCreateView hasn't finished yet
+        then update the UI here instead, dashboardCar is not null in this case because
+        the views aren't loaded until the MainServicesTab is pressed*/
         if (!isViewShown() && dashboardCar != null){
             mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
@@ -218,14 +214,6 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         fetchData();
     }
 
-/*    @Override
-    public void onBackPressed() {
-        if (mIssueDetailsViewVisible)
-            hideIssueDetails();
-        else
-            super.onBackPressed();
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mIssueDetailsViewVisible) {
@@ -315,8 +303,9 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         hideIssueDetailsAnimation.start();
     }
 
-
-
+    /*If setUserVisibilityHint is called and the view has been created then this
+    means that MainServicesTab has been created and therefore dashboard car is set
+    therefore proceed with updating UI elements*/
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -327,15 +316,11 @@ public class UpcomingServicesFragment extends SubServiceFragment{
             fetchData();
         }
     }
+
     //Called when the Main Service Tab is re-opened, update elements
     @Override
     public void onMainServiceTabReopened() {
-//        mCar = getCurrentCar();
-//
-        Log.d("TAG","UpcomingServicesFragment, OnMainServiceTabReopened()");
-////        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-////        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-//        fetchData();
+
     }
 
     class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{

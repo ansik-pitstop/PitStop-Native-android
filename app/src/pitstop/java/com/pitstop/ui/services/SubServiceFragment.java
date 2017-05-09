@@ -32,6 +32,8 @@ public abstract class SubServiceFragment extends Fragment {
         }
     }
 
+    /*Returns whether the view was being shown at the time of setUserVisibilityHint() being called,
+    * if it wasn't then this means that OnCreateView() hasn't finished yet*/
     public boolean isViewShown(){
         return isViewShown;
     }
@@ -40,8 +42,6 @@ public abstract class SubServiceFragment extends Fragment {
         Log.d("KAROL","SubServiceFragment, setDashboardCar, car.id:"+c.getId());
         dashboardCar = c;
     }
-
-    public abstract void onDashboardCarUpdated();
 
     public abstract void onMainServiceTabReopened();
 }
