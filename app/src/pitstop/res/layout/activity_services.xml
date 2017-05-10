@@ -27,7 +27,7 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <android.support.v4.view.ViewPager
+    <com.pitstop.ui.services.NonScrollableViewPager
         android:id="@+id/services_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

@@ -3,7 +3,7 @@ package com.pitstop.ui.mainFragments;
 import android.content.Intent;
 
 /**
- * Created by Work on 5/9/2017.
+ * Created by Karol Zdebel on 5/9/2017.
  */
 
 public interface MainDashboardCallback extends MainFragmentCallback{

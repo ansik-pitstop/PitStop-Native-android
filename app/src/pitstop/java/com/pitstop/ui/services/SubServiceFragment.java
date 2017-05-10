@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import com.pitstop.models.Car;
 
 /**
- * Created by Work on 5/5/2017.
+ * Created by Karol Zdebel on 5/5/2017.
  */
 
 public abstract class SubServiceFragment extends Fragment {
