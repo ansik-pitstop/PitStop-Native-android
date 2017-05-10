@@ -37,8 +37,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.Animation;
+import android.view.WindowManager;import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -101,6 +100,8 @@ import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+
+;
 
 /**
  * Created by David on 6/8/2016.
@@ -302,10 +303,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     //Set up fab, and fab menu click listener and the animations that will be taking place
     private void setFabUI(){
 
-        final Animation fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
-        final Animation fab_close = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close);
-        final Animation rotate_forward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_forward);
-        final Animation rotate_backward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_backward);
+        final Animation fab_open = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_open);
+        final Animation fab_close = AnimationUtils.loadAnimation(getApplication(),R.anim.fab_close);
+        final Animation rotate_forward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_forward);
+        final Animation rotate_backward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_backward);
 
         fabMain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,6 +346,70 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                     isFabOpen = true;
 
                 }
+            }
+        });
+
+        final Activity thisActivity = this;
+        //Begin message activity
+        fabMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final HashMap<String, Object> customProperties = new HashMap<>();
+                customProperties.put("VIN", dashboardCar.getVin());
+                customProperties.put("Car Make", dashboardCar.getMake());
+                customProperties.put("Car Model", dashboardCar.getModel());
+                customProperties.put("Car Year", dashboardCar.getYear());
+                Log.i(TAG, dashboardCar.getDealership().getEmail());
+                customProperties.put("Email", dashboardCar.getDealership().getEmail());
+                User.getCurrentUser().addProperties(customProperties);
+                if (application.getCurrentUser() != null) {
+                    customProperties.put("Phone", application.getCurrentUser().getPhone());
+                    User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
+                    User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
+                }
+                ConversationActivity.show(thisActivity);
+                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+            }
+        });
+
+        //Begin request service activity
+        fabRequestService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
+                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+                intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+                startActivityForResult(intent, RC_REQUEST_SERVICE);
+                overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
+            }
+        });
+
+        //Begin call activity
+        fabCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                        dashboardCar.getDealership().getPhone()));
+                startActivity(intent);
+                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+            }
+        });
+
+        //Begin directions activity
+        fabDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
+
+                String uri = String.format(Locale.ENGLISH,
+                        "http://maps.google.com/maps?daddr=%s",
+                        dashboardCar.getDealership().getAddress());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(intent);
+                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
     }
