@@ -36,6 +36,11 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
 
     private MainActivity mainActivity;
 
+    public static MainServicesFragment newInstance() {
+        MainServicesFragment fragment = new MainServicesFragment();
+        return fragment;
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

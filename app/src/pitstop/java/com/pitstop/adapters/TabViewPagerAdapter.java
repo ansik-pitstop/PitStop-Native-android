@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 
@@ -65,11 +66,13 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
             case MainActivity.TAB_DASHBOARD:
-                return new MainDashboardFragment();
+                return MainDashboardFragment.newInstance();
 
             case MainActivity.TAB_SERVICES:
-                MainServicesFragment servicesFragment = new MainServicesFragment();
-                return servicesFragment;
+                return MainServicesFragment.newInstance();
+
+            case MainActivity.TAB_NOTIF:
+                return NotificationsFragment.newInstance();
         }
         return PlaceholderFragment.newInstance(0);
     }
