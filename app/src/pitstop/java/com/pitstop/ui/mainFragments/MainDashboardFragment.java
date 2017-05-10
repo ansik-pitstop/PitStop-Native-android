@@ -46,6 +46,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.services.HistoryServiceFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -179,6 +180,10 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         }
     };
 
+    public static MainDashboardFragment newInstance() {
+        MainDashboardFragment fragment = new MainDashboardFragment();
+        return fragment;
+    }
 
     @Nullable
     @Override

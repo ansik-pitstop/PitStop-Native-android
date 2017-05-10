@@ -2,11 +2,11 @@ package com.pitstop.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -26,8 +26,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONException;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,11 +34,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 /**
  * Created by zohaibhussain on 2016-12-19.
  */
 
-public class NotificationsActivity extends AppCompatActivity {
+public class NotificationsFragment extends Fragment {
 
     private static final int NO_NOTIFICATION = 0;
     private static final int NETWORK_ERROR = 1;
@@ -63,20 +63,29 @@ public class NotificationsActivity extends AppCompatActivity {
     List<Notification> mNotificationList;
     MixpanelHelper mMixPanelHelper;
 
+    public static NotificationsFragment newInstance() {
+        NotificationsFragment fragment = new NotificationsFragment();
+        return fragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications);
-        getSupportActionBar().setTitle("Notifications");
-        ButterKnife.bind(this);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View rootview = inflater.inflate(R.layout.activity_notifications,null);
+        ButterKnife.bind(this,rootview);
+
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        mNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mNetworkHelper = new NetworkHelper(getApplicationContext());
+
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Notifications");
         fetchNotifications();
+        return rootview;
     }
 
     private void fetchNotifications() {
-        if(!mNetworkHelper.isConnected(this)) {
+        if(!mNetworkHelper.isConnected(getActivity())) {
             showErrorMessage(NO_NETWORK);
             return;
         }
@@ -153,17 +162,6 @@ public class NotificationsActivity extends AppCompatActivity {
          message = "Please connect to the Internet";
         mNoNotificationsTextView.setText(message);
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @OnClick(R.id.no_notification_container)
