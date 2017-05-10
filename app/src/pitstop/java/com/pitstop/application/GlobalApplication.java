@@ -21,18 +21,20 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
+import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentAdapter;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.database.UserAdapter;
-import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.utils.PreferenceKeys;
+import com.pitstop.utils.SecretUtils;
 
 import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
@@ -50,16 +52,9 @@ public class GlobalApplication extends Application {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 
-    public final static String pfName = "com.pitstop.credentials";
-    public final static String pfUserName = "com.pitstop.user_name";
-    public final static String pfPassword = "com.pitstop.password";
-    public final static String pfUserId = "com.pitstop.user_id";
-    public final static String pfAccessToken = "com.pitstop.access";
-    public final static String pfRefreshToken = "com.pitstop.refresh";
-    public final static String pfLoggedIn = "com.pitstop.logged_in";
     public static final String PARSE_CLIENT_KEY = "android";
 
-    private static MixpanelAPI mixpanelAPI;
+    private MixpanelAPI mixpanelAPI;
 
     private ActivityLifecycleObserver activityLifecycleObserver;
 
@@ -109,13 +104,7 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
-        Settings settings;
-
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE)){
-            settings = new Settings(getString(R.string.smooch_token));
-        } else {
-            settings = new Settings(getString(R.string.smooch_token_debug));
-        }
+        Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, settings);
@@ -131,8 +120,7 @@ public class GlobalApplication extends Application {
         }
 
         Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
-                .applicationId(BuildConfig.BUILD_TYPE.equals(BuildConfig.RELEASE_TYPE) ?
-                        getString(R.string.parse_appID_prod) : getString(R.string.parse_appID_dev))
+                .applicationId(SecretUtils.getParseAppId(this))
                 .clientKey(PARSE_CLIENT_KEY)
                 .enableLocalDataStore()
                 .server(getString(R.string.parse_server_url))
@@ -151,8 +139,7 @@ public class GlobalApplication extends Application {
         });
 
         // MixPanel
-        mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? getString(R.string.dev_mixpanel_api_token)
-                : getString(R.string.prod_mixpanel_api_token));
+        mixpanelAPI = getMixpanelAPI();
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
@@ -174,7 +161,7 @@ public class GlobalApplication extends Application {
 
     public MixpanelAPI getMixpanelAPI() {
         if(mixpanelAPI == null) {
-            mixpanelAPI = MixpanelAPI.getInstance(this, BuildConfig.DEBUG ? "grpogrjer" : getString(R.string.prod_mixpanel_api_token));
+            mixpanelAPI = MixpanelAPI.getInstance(this, SecretUtils.getMixpanelToken(this));
         }
         return mixpanelAPI;
     }
@@ -228,12 +215,12 @@ public class GlobalApplication extends Application {
     }
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putString(pfAccessToken, accessToken);
-        editor.putString(pfRefreshToken, refreshToken);
-        editor.putBoolean(pfLoggedIn, true);
+        editor.putString(PreferenceKeys.KEY_ACCESS_TOKEN, accessToken);
+        editor.putString(PreferenceKeys.KEY_REFRESH_TOKEN, refreshToken);
+        editor.putBoolean(PreferenceKeys.KEY_LOGGED_IN, true);
         editor.apply();
 
         ParseUser.logOut();
@@ -249,9 +236,9 @@ public class GlobalApplication extends Application {
 
     public int getCurrentUserId() {
         SharedPreferences settings =
-                getSharedPreferences(GlobalApplication.pfName, MODE_PRIVATE);
+                getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
 
-        return settings.getInt(GlobalApplication.pfUserId, -1);
+        return settings.getInt(PreferenceKeys.KEY_USER_ID, -1);
     }
 
     public User getCurrentUser() {
@@ -268,50 +255,48 @@ public class GlobalApplication extends Application {
     }
 
     public boolean isLoggedIn() {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getBoolean(pfLoggedIn, false);
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
+        return settings.getBoolean(PreferenceKeys.KEY_LOGGED_IN, false);
     }
 
     public void setCurrentUser(User user) {
         Log.i(TAG, "UserId:"+user.getId());
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(pfUserId, user.getId());
+        editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
         editor.apply();
 
         mUserAdapter.storeUserData(user);
     }
 
     public void setTokens(String accessToken, String refreshToken) {
-        SharedPreferences.Editor prefEditor = getSharedPreferences(pfName, MODE_PRIVATE).edit();
+        SharedPreferences.Editor prefEditor = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE).edit();
 
-        prefEditor.putString(pfAccessToken, accessToken);
-        prefEditor.putString(pfRefreshToken, refreshToken);
+        prefEditor.putString(PreferenceKeys.KEY_ACCESS_TOKEN, accessToken);
+        prefEditor.putString(PreferenceKeys.KEY_REFRESH_TOKEN, refreshToken);
 
         prefEditor.apply();
     }
 
     public String getAccessToken() {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfAccessToken, "");
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
+        return settings.getString(PreferenceKeys.KEY_ACCESS_TOKEN, "");
     }
 
     public String getRefreshToken() {
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
-        return settings.getString(pfRefreshToken, "");
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
+        return settings.getString(PreferenceKeys.KEY_REFRESH_TOKEN, "");
     }
 
     public void logOutUser() {
         Log.i(TAG, "Logging user out");
-        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putString(pfUserName, null);
-        editor.putString(pfPassword, null);
-        editor.putInt(pfUserId, -1);
-        editor.putString(pfAccessToken, null);
-        editor.putString(pfRefreshToken, null);
-        editor.putBoolean(pfLoggedIn, false);
+        editor.putInt(PreferenceKeys.KEY_USER_ID, -1);
+        editor.putString(PreferenceKeys.KEY_ACCESS_TOKEN, null);
+        editor.putString(PreferenceKeys.KEY_REFRESH_TOKEN, null);
+        editor.putBoolean(PreferenceKeys.KEY_LOGGED_IN, false);
         editor.apply();
 
         ParseUser.logOut();
