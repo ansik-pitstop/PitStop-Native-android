@@ -28,9 +28,9 @@ import static com.pitstop.utils.LogUtils.LOGD;
 public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
-
-    private static final String BASE_ENDPOINT = SecretUtils.getEndpointUrl();
     private static Webb webClient;
+
+    private final String BASE_ENDPOINT;
     private RequestCallback listener;
     private RequestType requestType;
     private String uri;
@@ -47,6 +47,7 @@ public class HttpRequest {
                         JSONObject body,
                         Context context
     ) {
+        BASE_ENDPOINT = SecretUtils.getEndpointUrl(context);
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -184,7 +185,7 @@ public class HttpRequest {
 
                     if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
                         // Error handling
-                        NetworkHelper.refreshToken(application.getRefreshToken(), new RequestCallback() {
+                        NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if (requestError == null) {

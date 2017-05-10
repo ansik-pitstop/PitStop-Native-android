@@ -1,11 +1,20 @@
 package com.pitstop.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import com.pitstop.BuildConfig;
 
 public class SecretUtils {
 
     static {
         System.loadLibrary("secret");
+    }
+
+    private static String getEndpointType(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(PreferenceKeys.KEY_ENDPOINT, BuildConfig.ENDPOINT_TYPE);
     }
 
     /**
@@ -18,8 +27,8 @@ public class SecretUtils {
 
     private static native String getPitstopEndpointRelease();
 
-    public static String getEndpointUrl() {
-        switch (BuildConfig.ENDPOINT_TYPE) {
+    public static String getEndpointUrl(Context context) {
+        switch (getEndpointType(context)) {
             case BuildConfig.ENDPOINT_TYPE_RELEASE:
                 return getPitstopEndpointRelease();
             case BuildConfig.ENDPOINT_TYPE_STAGING:
@@ -35,8 +44,8 @@ public class SecretUtils {
 
     private static native String getPitstopClientIdRelease();
 
-    public static String getClientId() {
-        return BuildConfig.ENDPOINT_TYPE.equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
+    public static String getClientId(Context context) {
+        return getEndpointType(context).equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
                 ? getPitstopClientIdRelease() : getPitstopClientIdDebug();
     }
 
@@ -48,8 +57,8 @@ public class SecretUtils {
 
     private static native String getMixpanelTokenProd();
 
-    public static String getMixpanelToken() {
-        return BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+    public static String getMixpanelToken(Context context) {
+        return getEndpointType(context).equals(BuildConfig.BUILD_TYPE_RELEASE)
                 ? getMixpanelTokenProd() : getMixpanelTokenDev();
     }
 
@@ -61,8 +70,8 @@ public class SecretUtils {
 
     private static native String getSmoochTokenProd();
 
-    public static String getSmoochToken() {
-        return BuildConfig.ENDPOINT_TYPE.equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
+    public static String getSmoochToken(Context context) {
+        return getEndpointType(context).equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
                 ? getSmoochTokenProd() : getSmoochTokenDev();
     }
 
@@ -74,8 +83,8 @@ public class SecretUtils {
 
     private static native String getParseAppIdProd();
 
-    public static String getParseAppId() {
-        return BuildConfig.ENDPOINT_TYPE.equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
+    public static String getParseAppId(Context context) {
+        return getEndpointType(context).equals(BuildConfig.ENDPOINT_TYPE_RELEASE)
                 ? getParseAppIdProd() : getParseAppIdDev();
     }
 
