@@ -7,7 +7,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +17,7 @@ import com.pitstop.models.Car;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class MainServicesFragment extends Fragment implements MainFragmentCallback{
-
-    @BindView(R.id.services_viewpager)
-    ViewPager mServicesPager;
 
     //Fragments being navigated
     private UpcomingServicesFragment upcomingServicesFragment;
@@ -35,6 +28,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     private int attachedSubServiceCounter = 0;
 
     private MainActivity mainActivity;
+    private NonScrollableViewPager mServicesPager;
 
     public static MainServicesFragment newInstance() {
         MainServicesFragment fragment = new MainServicesFragment();
@@ -46,6 +40,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         super.onActivityCreated(savedInstanceState);
 
         mainActivity = (MainActivity)getActivity();
+        mServicesPager = (NonScrollableViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         //Create tab layout
         TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
@@ -100,7 +95,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View rootview = inflater.inflate(R.layout.activity_services,null);
-        ButterKnife.bind(this,rootview);
         return rootview;
     }
 
