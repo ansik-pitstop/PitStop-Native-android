@@ -239,4 +239,12 @@
         android:text="@string/log_in_button"
         android:textColor="#fff"/>
 
+    <TextView
+        android:id="@+id/endpoint_chooser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="16dp"
+        android:textColor="@color/white" />
+
 </RelativeLayout>
