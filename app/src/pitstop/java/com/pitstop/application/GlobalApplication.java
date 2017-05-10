@@ -13,6 +13,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
+import com.facebook.stetho.Stetho;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -21,17 +22,17 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
+import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentAdapter;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.database.UserAdapter;
-import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
 
 import org.acra.ACRA;
@@ -100,6 +101,8 @@ public class GlobalApplication extends Application {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
+
+        Stetho.initializeWithDefaults(this);
 
         //Begin Crashlytics
         Fabric.with(this, new Crashlytics());
