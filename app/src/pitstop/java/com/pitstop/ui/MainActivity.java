@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.BuildConfig;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -39,6 +40,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -87,7 +90,6 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
-import com.pitstop.ui.services.SubServiceFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -104,6 +106,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.ButterKnife;
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -118,6 +122,22 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    //Bind floating action buttons
+    @BindView(R.id.fab_main)
+    FloatingActionButton fabMain;
+
+    @BindView(R.id.fab_call)
+    FloatingActionButton fabCall;
+
+    @BindView(R.id.fab_find_directions)
+    FloatingActionButton fabDirections;
+
+    @BindView(R.id.fab_menu_request_service)
+    FloatingActionButton fabRequestService;
+
+    @BindView(R.id.fab_menu_message)
+    FloatingActionButton fabMessage;
 
     private GlobalApplication application;
     private BluetoothAutoConnectService autoConnectService;
@@ -216,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
     private boolean isRefreshingFromServer = false;
+    private boolean isFabOpen = false;
 
     public static MainDashboardCallback mainDashboardCallback;
     public static MainFragmentCallback servicesCallback;
@@ -235,13 +256,116 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
-        rootView = getLayoutInflater().inflate(R.layout.activity_main_drawer_frame, null);
+        rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(rootView);
         ButterKnife.bind(this);
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
         acl.setPublicWriteAccess(true);
 
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.setACL(acl);
+        installation.put("userId", String.valueOf(application.getCurrentUserId()));
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d(TAG, "Installation saved");
+                } else {
+                    Log.w(TAG, "Error saving installation: " + e.getMessage());
+                }
+            }
+        });
+
+        serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
+        startService(serviceIntent);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toggleConnectionStatusActionBar(false);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+        // Local db adapters
+        carLocalStore = new LocalCarAdapter(application);
+        shopLocalStore = new LocalShopAdapter(application);
+        scannerLocalStore = new LocalScannerAdapter(application);
+
+        if (createdOrAttached) {
+            refreshFromServer();
+        } else {
+            createdOrAttached = true;
+        }
+
+        logAuthInfo();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
+
+        setTabUI();
+        setFabUI();
+    }
+
+    public void changeTheme(boolean darkTheme) {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
+        Window window = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this , darkTheme ? R.color.black : R.color.primary_dark));
+        }
+    }
+
+    //Set up fab, and fab menu click listener and the animations that will be taking place
+    private void setFabUI(){
+
+        final Animation fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        final Animation fab_close = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close);
+        final Animation rotate_forward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_forward);
+        final Animation rotate_backward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_backward);
+
+        fabMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isFabOpen){
+
+                    //Begin closing animation
+                    fabMain.startAnimation(rotate_backward);
+                    fabDirections.startAnimation(fab_close);
+                    fabCall.startAnimation(fab_close);
+                    fabMessage.startAnimation(fab_close);
+                    fabRequestService.startAnimation(fab_close);
+
+                    //Don't let the user click
+                    fabCall.setClickable(false);
+                    fabRequestService.setClickable(false);
+                    fabDirections.setClickable(false);
+                    fabMessage.setClickable(false);
+
+                    isFabOpen = false;
+
+                } else {
+
+                    //Begin opening animation
+                    fabMain.startAnimation(rotate_forward);
+                    fabRequestService.startAnimation(fab_open);
+                    fabMessage.startAnimation(fab_open);
+                    fabCall.startAnimation(fab_open);
+                    fabDirections.startAnimation(fab_open);
+
+                    //Let the user click fab
+                    fabCall.setClickable(true);
+                    fabRequestService.setClickable(true);
+                    fabDirections.setClickable(true);
+                    fabMessage.setClickable(true);
+
+                    isFabOpen = true;
+
+                }
+            }
+        });
+    }
+
+    private void setTabUI(){
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
         mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());

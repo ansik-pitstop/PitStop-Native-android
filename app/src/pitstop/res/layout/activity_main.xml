@@ -74,12 +74,66 @@
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_find_directions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="300dp"
+        android:layout_gravity="bottom|right"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:backgroundTint="@color/primary"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_directions"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="230dp"
+        android:layout_gravity="bottom|right"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:backgroundTint="@color/primary"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_call"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_menu_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="160dp"
+        android:layout_gravity="bottom|right"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:backgroundTint="@color/primary"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_message"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_menu_request_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="90dp"
+        android:layout_gravity="bottom|right"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:backgroundTint="@color/primary"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_request_service"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         app:fabSize="normal"
         app:backgroundTint="@color/primary"
-        android:layout_margin="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ic_plus_white"
         app:layout_anchorGravity="bottom|right|end" />
 
