@@ -10,10 +10,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -29,11 +31,13 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -57,6 +61,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.UiUtils;
 
 import org.json.JSONException;
@@ -64,15 +69,14 @@ import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
 
-    final static String pfName = "com.pitstop.login.name";
     public static String ACTIVITY_NAME = "splash_screen";
-
     public static String LOGIN_REFRESH = "login_refresh";
 
     public static final String TAG = LoginActivity.class.getSimpleName();
@@ -151,7 +155,8 @@ public class LoginActivity extends AppCompatActivity {
     ImageView mFeatureIndicator2;
     @BindView(R.id.feature_indicator_3)
     ImageView mFeatureIndicator3;
-
+    @BindView(R.id.endpoint_chooser)
+    TextView mEndpointChooser;
 
     // for facebook login
     public CallbackManager callbackManager;
@@ -163,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
     protected ViewFlipper mFeatureHighlights;
     private GestureDetector mFeatureHighlightGestureDetector;
 
-
+    private SharedPreferences mPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,10 +179,15 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (BuildConfig.DEBUG) {
             Toast.makeText(this, getString(R.string.debug_toast_message) + BuildConfig.ENDPOINT_TYPE, Toast.LENGTH_LONG).show();
         }
 
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+            setupEndpointSelector();
+        }
 
         networkHelper = new NetworkHelper(getApplicationContext());
 
@@ -430,6 +440,30 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setupEndpointSelector() {
+        ArrayList<String> endpointList = new ArrayList<>();
+        endpointList.add(BuildConfig.ENDPOINT_TYPE_STAGING);
+        endpointList.add(BuildConfig.ENDPOINT_TYPE_SNAPSHOT);
+        endpointList.add(BuildConfig.ENDPOINT_TYPE_RELEASE);
+
+        ArrayAdapter<String> endpointListAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice, endpointList);
+
+        mEndpointChooser.setText(mPreferences.getString(PreferenceKeys.KEY_ENDPOINT, BuildConfig.ENDPOINT_TYPE));
+        mEndpointChooser.setOnClickListener(view ->
+                new AlertDialog.Builder(LoginActivity.this)
+                        .setAdapter(endpointListAdapter,
+                                (dialogInterface, i) -> {
+                                    // clear access/refresh tokens and set new endpoint
+                                    getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE).edit().clear().apply();
+                                    mPreferences.edit()
+                                            .putString(PreferenceKeys.KEY_ENDPOINT, endpointList.get(i)).apply();
+                                    mEndpointChooser.setText(endpointList.get(i));
+                                    networkHelper = new NetworkHelper(getApplicationContext());
+                                })
+                        .show()
+        );
     }
 
     /**

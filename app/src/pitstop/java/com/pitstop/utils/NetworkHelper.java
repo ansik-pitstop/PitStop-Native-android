@@ -35,14 +35,15 @@ public class NetworkHelper {
 
     private static final String TAG = NetworkHelper.class.getSimpleName();
 
-    private static final String CLIENT_ID = SecretUtils.getClientId();
+    private final String CLIENT_ID;
 
-    public static final String INSTALLATION_ID_KEY = "installationId";
+    private static final String INSTALLATION_ID_KEY = "installationId";
 
     private Context context;
 
     public NetworkHelper(Context context) {
         this.context = context;
+        CLIENT_ID = SecretUtils.getClientId(context);
     }
 
     public static boolean isConnected(Context context) {
@@ -656,16 +657,16 @@ public class NetworkHelper {
         }
     }
 
-    public static void refreshToken(String refreshToken, RequestCallback callback) {
+    public static void refreshToken(String refreshToken, Context context, RequestCallback callback) {
         LOGI(TAG, "refreshToken: " + refreshToken);
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
-                    .header("Client-Id", CLIENT_ID)
+                    .header("Client-Id", SecretUtils.getClientId(context))
                     .body(new JSONObject().put("refreshToken", refreshToken))
                     .requestCallBack(callback)
                     .requestType(RequestType.POST)
-                    .context(null)
+                    .context(context)
                     .createRequest()
                     .executeAsync();
         } catch (JSONException e) {
