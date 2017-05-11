@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.models.Appointment;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
@@ -21,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +49,17 @@ public class NetworkHelper {
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void getWithCustomUrl(String url, String uri, RequestCallback callback) {
+        new HttpRequest.Builder()
+                .url(url)
+                .uri(uri)
+                .requestCallBack(callback)
+                .requestType(RequestType.GET)
+                .context(context)
+                .createRequest()
+                .executeAsync();
     }
 
     private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
@@ -796,10 +805,12 @@ public class NetworkHelper {
 
     }
 
-
     public void getAppointments(int carId, RequestCallback callback){
         get(String.format("car/%d/appointments",carId), callback);
     }
 
+    public void getRandomVin(RequestCallback callback) {
+        getWithCustomUrl("http://randomvin.com", "getvin.php?type=valid", callback);
+    }
 
 }

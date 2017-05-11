@@ -200,5 +200,10 @@
     <string name="connected_device">Connected</string>
     <string name="disconnected_device">Disconnected</string>
 
+    <!--Debug-->
+    <string name="debug_drawer_header">Debug</string>
+    <string name="debug_clear_prefs">Clear Prefs</string>
+    <string name="debug_clear_db">Clear DB</string>
+    <string name="debug_random_vin">Random Vin</string>
 
 </resources>

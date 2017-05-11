@@ -38,16 +38,14 @@ public class HttpRequest {
     private HashMap<String, String> headers = new HashMap<>();
     private GlobalApplication application;
 
-    private int retryAttempts = 0;
-
     private HttpRequest(RequestType requestType,
+                        String url,
                         String uri,
                         HashMap<String, String> headers,
                         RequestCallback listener,
                         JSONObject body,
-                        Context context
-    ) {
-        BASE_ENDPOINT = SecretUtils.getEndpointUrl(context);
+                        Context context) {
+        BASE_ENDPOINT = url == null ? SecretUtils.getEndpointUrl(context) : url;
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -251,6 +249,7 @@ public class HttpRequest {
     public static class Builder {
 
         private HashMap<String, String> headers;
+        private String url;
         private String uri;
         private JSONObject body;
         private RequestType requestType;
@@ -259,6 +258,11 @@ public class HttpRequest {
 
         public Builder() {
             this.headers = new HashMap<>();
+        }
+
+        public Builder url(String url) {
+            this.url = url;
+            return this;
         }
 
         public Builder uri(String uri) {
@@ -297,7 +301,7 @@ public class HttpRequest {
         }
 
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType, uri, headers, callback, body, context);
+            return new HttpRequest(requestType, url, uri, headers, callback, body, context);
         }
     }
 }
