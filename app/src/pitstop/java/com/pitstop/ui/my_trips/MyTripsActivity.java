@@ -11,11 +11,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -56,7 +58,8 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
-                 googleMap = map;
+                googleMap = map;
+                getMyLocation();
             }
         });
 
@@ -64,21 +67,33 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
         tripHistory = new TripHistory();
         addTrip = new AddTrip();
         tripView = new TripView();
+        supMapFragment.getView().setVisibility(View.GONE);
         setViewTripHistory();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
     }
 
     @SuppressWarnings("all")
     void getMyLocation() {
+        if (googleMap != null) {
+            // Now that map has loaded, let's get our location!
+            googleMap.setMyLocationEnabled(true);
+            mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+            connectClient();
+        }
 
     }
 
 
     protected void connectClient() {
+        //if (isGooglePlayServicesAvailable() && mGoogleApiClient != null) {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
 
     }
 
@@ -99,12 +114,17 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
 
     @Override
     public void onConnected(Bundle dataBundle) {
-
+        startLocationUpdates();
     }
-
+    @SuppressWarnings("all")
     protected void startLocationUpdates() {
-
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(60000);
+        mLocationRequest.setFastestInterval(5000);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -132,6 +152,7 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
 
     public void setViewTripView(){
         getSupportActionBar().setTitle("Trip View");
+        supMapFragment.getView().setVisibility(View.VISIBLE);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.trip_view_holder, tripView);
         fragmentTransaction.commit();
@@ -160,8 +181,9 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
         if(tripHistory.isVisible()){
             super.onBackPressed();
         } else if(addTrip.isVisible()){
-          setViewTripHistory();
+            setViewTripHistory();
         } else if(tripView.isVisible()){
+            supMapFragment.getView().setVisibility(View.GONE);
             setViewAddTrip();
         }
 
