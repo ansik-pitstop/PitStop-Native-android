@@ -32,14 +32,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;import android.view.animation.Animation;
+import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -87,6 +87,7 @@ import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.scan_car.ScanCarActivity;
+import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
@@ -120,7 +121,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -141,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     FloatingActionButton fabMessage;
 
     private GlobalApplication application;
-    private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public static MainDashboardCallback mainDashboardCallback;
     public static MainFragmentCallback servicesCallback;
+    public static MainFragmentCallback scanCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
 
@@ -608,16 +609,14 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof MainServicesFragment || fragment instanceof MainDashboardFragment) {
+        //Wait for all fragments being attached prior to performing a refresh because they need the car data
+        attachedFragmentCounter++;
 
-            attachedFragmentCounter++;
-
-            // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
-            if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
-                refreshFromServer();
-            } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
-                createdOrAttached = true;
-            }
+        // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
+        if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
+            refreshFromServer();
+        } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
+            createdOrAttached = true;
         }
     }
 
@@ -646,9 +645,30 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
             }
-            mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
-            servicesCallback.onDashboardCarUpdated(getCurrentCar());
-            mainDashboardCallback.setCarDetailsUI();
+
+            broadCastCarDataToFragments();
+            mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+        }
+    }
+
+    private void broadCastCarDataToFragments(){
+        MainDashboardFragment.setDashboardCar(getCurrentCar());
+
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (mainDashboardCallback != null){
+            mainDashboardCallback.onDashboardCarUpdated();
+        }
+
+        MainServicesFragment.setDashboardCar(getCurrentCar());
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (servicesCallback != null){
+            servicesCallback.onDashboardCarUpdated();
+        }
+
+        ScanCarFragment.setDashboardCar(getCurrentCar());
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (scanCallback != null){
+            scanCallback.onDashboardCarUpdated();
         }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
@@ -713,6 +733,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                         toggleDrawerLocked();
                         mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
                         servicesCallback.onDashboardCarUpdated(getCurrentCar());
+                        broadCastCarDataToFragments();
+
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
@@ -956,12 +978,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         } else {
             Log.i(TAG, "Trying local store for cars");
             MainActivity.carList = localCars;
-
-            if (mainDashboardCallback != null) {
-                mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
-                servicesCallback.onDashboardCarUpdated(getCurrentCar());
-                mainDashboardCallback.setCarDetailsUI();
-            }
+            broadCastCarDataToFragments();
 
             hideLoading();
         }
@@ -1066,8 +1083,9 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
                                         if (requestServiceButton != null) {
                                             requestServiceButton.setVisibility(View.VISIBLE);
                                         }
-                                        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
-                                        servicesCallback.onDashboardCarUpdated(getCurrentCar());
+
+                                        broadCastCarDataToFragments();
+
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
 
@@ -1272,6 +1290,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         }
         mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
         servicesCallback.onDashboardCarUpdated(getCurrentCar());
+        broadCastCarDataToFragments();
+
         mainDashboardCallback.setCarDetailsUI();
     }
 
@@ -1311,8 +1331,8 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
      * @param needDescription
      * @param message
      */
-    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
-                                   final boolean needDescription, @Nullable final String message) {
+    public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                  final boolean needDescription, @Nullable final String message) {
         if (isFinishing()) {
             return;
         }
@@ -1345,7 +1365,7 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
-        Intent intent = new Intent(this, ScanCarActivity.class);
+        Intent intent = new Intent(this, ScanCarFragment.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);

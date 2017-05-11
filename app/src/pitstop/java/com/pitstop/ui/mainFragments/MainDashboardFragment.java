@@ -52,7 +52,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.ui.services.HistoryServiceFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -133,7 +132,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     ProgressDialog progressDialog;
 
     // Models
-    private Car dashboardCar;
+    private static Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
 
@@ -150,6 +149,10 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     private MixpanelHelper mixpanelHelper;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
+
+    public static void setDashboardCar(Car c){
+        dashboardCar = c;
+    }
 
     /**
      * Monitor app connection to device, so that ui can be updated
@@ -461,17 +464,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
     }
 
-    @Override
-    public void onDashboardCarUpdated(Car car) {
-
-        Log.d("TAG","Dashboard car updated, car.id:"+car.getId());
-
-        if (getActivity() == null) {
-            return;
-        }
-        dashboardCar = car;
-    }
-
     /**
      * Update ui with current car info
      * And retrieve available car issues
@@ -599,6 +591,11 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         }else{
             return 0;
         }
+    }
+
+    @Override
+    public void onDashboardCarUpdated() {
+
     }
 
     /**

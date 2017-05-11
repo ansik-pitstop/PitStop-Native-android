@@ -189,7 +189,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void bindBluetoothService() {
-        mCallback.getActivity().bindService(
+        mCallback.getBluetoothActivity().bindService(
                 new Intent(application, BluetoothAutoConnectService.class),
                 mServiceConnection,
                 Context.BIND_AUTO_CREATE
@@ -204,7 +204,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void unbindBluetoothService() {
-        mCallback.getActivity().unbindService(mServiceConnection);
+        mCallback.getBluetoothActivity().unbindService(mServiceConnection);
     }
 
     @Override
