@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
     
     <ScrollView
-        android:layout_width="300dp"
+        android:layout_width="400dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="@color/black50">
@@ -50,6 +50,89 @@
                 android:background="@color/white80"
                 android:padding="8dp"
                 />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:text="@string/debug_log_header"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <Button
+                    android:id="@+id/logBluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_bt" />
+
+                <Button
+                    android:id="@+id/logNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_network" />
+
+                <Button
+                    android:id="@+id/logOther"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_other" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/debugMessageToggleBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_bluetooth_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/debugLogToggleNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_network_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/debugMessageToggleOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_other_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
 
         </LinearLayout>
 

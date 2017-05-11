@@ -12,6 +12,15 @@ public final class TABLES {
         String KEY_CREATED_AT = "createdAt";
     }
 
+    public interface DEBUG_MESSAGES extends COMMON {
+        String TABLE_NAME = "debug_messages";
+
+        String COLUMN_TIMESTAMP = "timestamp";
+        String COLUMN_TYPE = "type";
+        String COLUMN_MESSAGE = "message";
+        String COLUMN_LEVEL = "level";
+    }
+
     public interface PID {
         String TABLE_NAME = "pidData";
         String TABLE_NAME_RESULT_4 = "pidResult4";
@@ -42,6 +51,7 @@ public final class TABLES {
         String KEY_NUM_SERVICES = "numberOfServices";
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
     }
+
     public interface APPOINTMENT {
         String TABLE_NAME = "appointment";
         String KEY_COMMENT = "comment";
@@ -49,7 +59,6 @@ public final class TABLES {
         String KEY_STATE = "state";
         String KEY_SHOP_ID = "shopId";
     }
-
 
     public interface CAR_ISSUES {
         String TABLE_NAME = "carIssues";

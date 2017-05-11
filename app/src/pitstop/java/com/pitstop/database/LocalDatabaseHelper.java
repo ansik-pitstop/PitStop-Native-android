@@ -4,6 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
+
+import rx.android.schedulers.AndroidSchedulers;
 
 
 /**
@@ -15,10 +19,10 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 21;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
-    private Context mContext;
+    private BriteDatabase mBriteDatabase;
 
     public static LocalDatabaseHelper getInstance(Context context){
         if (instance == null) {
@@ -29,7 +33,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private LocalDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        mContext = context;
+        mBriteDatabase = new SqlBrite.Builder().build().wrapDatabaseHelper(this, AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -43,6 +47,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
         db.execSQL(UserAdapter.CREATE_TABLE_USER);
         db.execSQL(LocalScannerAdapter.CREATE_TABLE_CAR_ISSUES);
+        db.execSQL(LocalDebugMessageAdapter.CREATE_TABLE_DEBUG_MESSAGE);
     }
 
     @Override
@@ -56,6 +61,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SCANNER.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.DEBUG_MESSAGES.TABLE_NAME);
         onCreate(db);
+    }
+
+    BriteDatabase getBriteDatabase() {
+        return mBriteDatabase;
     }
 }

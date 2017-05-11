@@ -8,13 +8,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -38,22 +36,22 @@ import android.widget.Toast;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.BuildConfig;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
-import com.pitstop.models.Dealership;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
+import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -194,7 +192,6 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
 
             switch (msg.what) {
                 case MSG_UPDATE_CONNECTED_CAR:
-                    Log.d(TAG, "BluetoothAutoConnectState: " + autoConnectService.getState());
                     if (autoConnectService != null
                             && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
                             && dashboardCar != null
