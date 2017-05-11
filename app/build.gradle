@@ -146,6 +146,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

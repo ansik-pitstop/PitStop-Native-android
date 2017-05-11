@@ -128,6 +128,9 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @BindView(R.id.my_appts_icon)
     ImageView mMyAppointmentsIcon;
 
+    @BindView(R.id.my_trips_icon)
+    ImageView mMyTripsIcon;
+
 
 
     ProgressDialog progressDialog;
@@ -324,6 +327,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
             mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
             mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
             mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
+            mMyTripsIcon.setImageResource(R.drawable.route_2);
             ((MainActivity)getActivity()).changeTheme(false);
             mCarLogoImage.setVisibility(View.VISIBLE);
             dealershipName.setVisibility(View.VISIBLE);
@@ -345,6 +349,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
         mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
         mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
+        mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
         ((MainActivity)getActivity()).changeTheme(true);
         mCarLogoImage.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
@@ -778,6 +783,10 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @OnClick(R.id.my_appointments_btn)
     protected void onMyAppointmentsButtonClicked(){
         ((MainActivity)getActivity()).myAppointments();
+    }
+    @OnClick(R.id.my_trips_btn)
+    protected void onMyTripsButtonCllicked(){
+        ((MainActivity)getActivity()).myTrips();
     }
 
     @OnClick(R.id.mileage_container)

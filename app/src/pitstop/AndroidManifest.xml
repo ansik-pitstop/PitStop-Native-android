@@ -49,6 +49,8 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:name=".application.GlobalApplication"
@@ -86,6 +88,10 @@
 
         <meta-data android:name="com.parse.push.gcm_sender_id"
             android:value="id:309712221750" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAjJNef8uduAKyjAOlWwvkHa9ozaRvnLZk"/>
 
         <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
 
@@ -189,7 +195,11 @@
         <activity
             android:name=".ui.my_appointments.MyAppointmentActivity"
             android:label="My Appointments"
-            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".ui.my_trips.MyTripsActivity"
+            android:label="My Trips"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
