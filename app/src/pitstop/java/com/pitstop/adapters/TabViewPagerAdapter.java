@@ -13,6 +13,7 @@ import com.pitstop.R;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 
 /**
@@ -70,6 +71,9 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
 
             case MainActivity.TAB_SERVICES:
                 return MainServicesFragment.newInstance();
+
+            case MainActivity.TAB_SCAN:
+                return ScanCarFragment.newInstance();
 
             case MainActivity.TAB_NOTIF:
                 return NotificationsFragment.newInstance();

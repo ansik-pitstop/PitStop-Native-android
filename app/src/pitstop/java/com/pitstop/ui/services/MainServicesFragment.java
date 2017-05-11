@@ -24,6 +24,8 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     private HistoryServiceFragment historyServicesFragment;
     private CurrentServicesFragment currentServicesFragment;
 
+    private static Car dashboardCar;
+
     public static final int SUB_SERVICE_COUNT = 3;
     private int attachedSubServiceCounter = 0;
 
@@ -33,6 +35,10 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     public static MainServicesFragment newInstance() {
         MainServicesFragment fragment = new MainServicesFragment();
         return fragment;
+    }
+
+    public static void setDashboardCar(Car c){
+        dashboardCar = c;
     }
 
     @Override
@@ -95,26 +101,32 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View rootview = inflater.inflate(R.layout.activity_services,null);
+
+        //Check if onDashboardCarUpdated() was called prior to MainServicesFragment view being created
+        if (dashboardCar != null){
+            onDashboardCarUpdated();
+        }
+
         return rootview;
     }
 
     @Override
-    public void onDashboardCarUpdated(Car car) {
+    public void onDashboardCarUpdated() {
 
         //Send car data to upcoming services fragment
-        UpcomingServicesFragment.setDashboardCar(car);
+        UpcomingServicesFragment.setDashboardCar(dashboardCar);
         if (upcomingServicesFragment != null){
             upcomingServicesFragment.onDashboardCarUpdated();
         }
 
         //Send car data to history services fragment
-        HistoryServiceFragment.setDashboardCar(car);
+        HistoryServiceFragment.setDashboardCar(dashboardCar);
         if (historyServicesFragment != null){
             historyServicesFragment.onDashboardCarUpdated();
         }
 
         //Send car data to current services fragment
-        CurrentServicesFragment.setDashboardCar(car);
+        CurrentServicesFragment.setDashboardCar(dashboardCar);
         if (currentServicesFragment != null){
             currentServicesFragment.onDashboardCarUpdated();
         }
