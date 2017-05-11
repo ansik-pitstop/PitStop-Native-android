@@ -79,6 +79,7 @@ import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
+import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -1303,6 +1304,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         mixpanelHelper.trackButtonTapped("My Appointments","Dashboard");
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        startActivity(intent);
+    }
+
+    public void myTrips(){
+        final Intent intent = new Intent(this, MyTripsActivity.class);
         startActivity(intent);
     }
 
