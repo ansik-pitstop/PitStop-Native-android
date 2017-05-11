@@ -30,7 +30,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
     private int attachedSubServiceCounter = 0;
 
     private MainActivity mainActivity;
-    private NonScrollableViewPager mServicesPager;
+    private SubServiceViewPager mServicesPager;
 
     public static MainServicesFragment newInstance() {
         MainServicesFragment fragment = new MainServicesFragment();
@@ -46,7 +46,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         super.onActivityCreated(savedInstanceState);
 
         mainActivity = (MainActivity)getActivity();
-        mServicesPager = (NonScrollableViewPager)getActivity().findViewById(R.id.services_viewpager);
+        mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         //Create tab layout
         TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
