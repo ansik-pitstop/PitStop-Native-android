@@ -24,7 +24,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="returnToMainActivity"
                 android:orientation="vertical"
                 android:weightSum="3">
 
@@ -332,7 +331,6 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/mileage_text"
-                    android:text="3000009"
                     android:textSize="24sp"/>
 
                 <Button

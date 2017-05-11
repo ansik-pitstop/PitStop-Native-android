@@ -133,7 +133,13 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 
         /*Check if dashboard car was updated prior to the view being available*/
         if (dashboardCar != null){
-            onDashboardCarUpdated();
+            setPresenter(new ScanCarPresenter(bluetoothServiceActivity, (GlobalApplication) getApplicationContext(),dashboardCar));
+            baseMileage = dashboardCar.getTotalMileage();
+
+            uiUpdated = true;
+            viewShown = true;
+            updateUi();
+            updateCarHealthMeter();
         }
 
         return rootview;
@@ -200,6 +206,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 
     @Override
     public void onDashboardCarUpdated() {
+        Log.d(TAG,"onDashboardCarUpdated() called, viewShown="+viewShown+" uiUpdated="+uiUpdated);
         setPresenter(new ScanCarPresenter(bluetoothServiceActivity, (GlobalApplication) getApplicationContext(),dashboardCar));
         baseMileage = dashboardCar.getTotalMileage();
 
@@ -230,6 +237,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 
             //Show UI here
             if (dashboardCar != null && !uiUpdated){
+                Log.d(TAG,"setUserVisibilityHint() called, viewShown="+viewShown);
                 uiUpdated = true;
                 updateUi();
                 updateCarHealthMeter();
@@ -241,11 +249,11 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
         }
     }
 
-    @Override
-    public void onPause() {
-        presenter.finishScan();
-        super.onPause();
-    }
+//    @Override
+//    public void onPause() {
+//        presenter.finishScan();
+//        super.onPause();
+//    }
 
     @Override
     public void onDestroy() {
