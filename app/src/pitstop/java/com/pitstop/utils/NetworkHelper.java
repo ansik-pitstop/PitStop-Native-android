@@ -810,7 +810,7 @@ public class NetworkHelper {
     }
 
     public void getRandomVin(RequestCallback callback) {
-        getWithCustomUrl("http://randomvin.com", "getvin.php?type=valid", callback);
+        getWithCustomUrl("http://randomvin.com", "/getvin.php?type=valid", callback);
     }
 
 }

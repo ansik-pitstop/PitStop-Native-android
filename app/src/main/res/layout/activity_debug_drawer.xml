@@ -26,25 +26,25 @@
                 android:textSize="18sp" />
 
             <Button
-                android:id="@+id/clearPrefs"
+                android:id="@+id/debugClearPrefs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/debug_clear_prefs"/>
 
             <Button
-                android:id="@+id/clearDB"
+                android:id="@+id/debugClearDB"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/debug_clear_db" />
 
             <Button
-                android:id="@+id/randomVin"
+                android:id="@+id/debugRandomVin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/debug_random_vin" />
             
             <EditText
-                android:id="@+id/vinField"
+                android:id="@+id/debugVinField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white80"

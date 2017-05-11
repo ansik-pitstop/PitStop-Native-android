@@ -11,8 +11,13 @@ import android.widget.EditText;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.utils.NetworkHelper;
+
+import butterknife.ButterKnife;
 
 public abstract class DebugDrawerActivity extends AppCompatActivity {
+
+    private NetworkHelper mNetworkHelper;
 
     private DrawerLayout mDrawerLayout;
     private View mClearPrefsButton;
@@ -24,8 +29,22 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+            mNetworkHelper = new NetworkHelper(getApplicationContext());
+
             mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
             super.setContentView(mDrawerLayout);
+
+            mClearPrefsButton = findViewById(R.id.debugClearPrefs);
+
+            mClearDbButton = findViewById(R.id.debugClearDB);
+
+            mVinField = ButterKnife.findById(mDrawerLayout, R.id.debugVinField);
+            mVinButton = findViewById(R.id.debugRandomVin);
+            mVinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
+                    (response, requestError) -> {
+                        mVinField.setText(requestError == null ? response : "error: " + requestError.getMessage());
+                    })
+            );
         }
     }
 
