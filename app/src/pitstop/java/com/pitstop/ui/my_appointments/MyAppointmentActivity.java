@@ -19,6 +19,7 @@ import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -44,6 +45,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
     private GlobalApplication application;
     private NetworkHelper networkHelper;
     private LocalAppointmentAdapter localAppointmentAdapter;
+    private MixpanelHelper mixpanelHelper;
 
     private Car dashboardCar;
     private List<Appointment> mAppts;
@@ -59,12 +61,14 @@ public class MyAppointmentActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         application = (GlobalApplication) getApplicationContext();
+        mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);
         localAppointmentAdapter = new LocalAppointmentAdapter(application);
         dashboardCar = getIntent().getParcelableExtra(EXTRA_CAR);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
         mAppts = new ArrayList<Appointment>();
         fetchAppointments();
+        mixpanelHelper.trackViewAppeared("My Appointments");
     }
 
     private void fetchAppointments(){
@@ -135,10 +139,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == android.R.id.home){
-            Intent intent = new Intent();
-            intent.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
-            intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
-            setResult(RESULT_CANCELED, intent);
+            mixpanelHelper.trackButtonTapped("Back","My Appointments");
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -146,10 +147,6 @@ public class MyAppointmentActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, false);
-        intent.putExtra(MainActivity.REMOVE_TUTORIAL_EXTRA, false);
-        setResult(RESULT_CANCELED, intent);
         super.onBackPressed();
     }
     @Override

@@ -179,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
     public static final int RC_DISPLAY_ISSUE = 53;
     public static final int RC_ADD_CUSTOM_ISSUE = 54;
     public static final int RC_REQUEST_SERVICE = 55;
-    public static final int RC_MY_APPOINTMENTS = 56;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
 
     public static final int RC_ENABLE_BT = 102;
@@ -1288,10 +1287,10 @@ public class MainActivity extends AppCompatActivity implements ObdManager.IBluet
 
     public void myAppointments(){
         if (!checkDealership()) return;
-
+        mixpanelHelper.trackButtonTapped("My Appointments","Dashboard");
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
-        startActivityForResult(intent, RC_MY_APPOINTMENTS);
+        startActivity(intent);
         overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
