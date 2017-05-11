@@ -177,6 +177,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private LocalScannerAdapter scannerLocalStore;
 
     //tabs
+
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
+
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
@@ -415,12 +418,32 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void setTabUI(){
+
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
         mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
+
+        //Set up actionbar
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                getSupportActionBar().setTitle(TAB_NAMES[position]);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         viewPager.setAdapter(mTabViewPagerAdapter);
 
         //Populate tabs with icons
