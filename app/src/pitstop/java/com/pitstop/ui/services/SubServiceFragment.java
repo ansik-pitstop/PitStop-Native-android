@@ -17,16 +17,12 @@ import com.pitstop.models.Car;
 public abstract class SubServiceFragment extends Fragment {
 
     public static Car dashboardCar;
-    private boolean isViewShown;
     private boolean uiUpdated = false;
-    private boolean onCreateViewReady;
-    private boolean onStartFinished = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUserVisibleHint(false);
-        onStartFinished = false;
     }
 
     @Override
@@ -35,9 +31,9 @@ public abstract class SubServiceFragment extends Fragment {
 
         //Check whether onCreateView() has finished
         if (isVisibleToUser && getView() != null) {
-            isViewShown = true;
+            setUI();
+            uiUpdated = true;
         } else {
-            isViewShown = false;
             uiUpdated = false;
         }
     }
@@ -46,37 +42,12 @@ public abstract class SubServiceFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Check whether UI will be set inside OnCreateView or whether it will have to happen inside OnStart()
-        if (isViewShown() || dashboardCar == null){
-            onCreateViewReady = false;
-        }
-        else if (!uiUpdated){
-            onCreateViewReady = true;
+        if (!uiUpdated && dashboardCar != null){
             setUI();
             uiUpdated = true;
         }
 
         return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        /*If the fragment didn't receive the current car in OnCreateView or SetUserVisibilityHint
-        then either the dashboard car will be available here or onDashboardCarUpdated()
-        will be called once onStart() finishes*/
-        if (!onCreateViewReady && dashboardCar != null && !uiUpdated){
-            setUI();
-            uiUpdated = true;
-        }
-
-        onStartFinished = true;
-    }
-
-    /*Returns whether the view was being shown at the time of setUserVisibilityHint() being called,
-            * if it wasn't then this means that OnCreateView() hasn't finished yet*/
-    public boolean isViewShown(){
-        return isViewShown;
     }
 
     public static void setDashboardCar(Car c){
@@ -92,7 +63,12 @@ public abstract class SubServiceFragment extends Fragment {
         }
     }
 
-    public abstract void onMainServiceTabReopened();
+    public void onMainServiceTabReopened(){
+        if (!uiUpdated){
+            setUI();
+            uiUpdated = true;
+        }
+    }
 
     public abstract void setUI();
 }

@@ -299,12 +299,6 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         hideIssueDetailsAnimation.start();
     }
 
-    //Called when the Main Service Tab is re-opened, update elements
-    @Override
-    public void onMainServiceTabReopened() {
-
-    }
-
     class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         private static final int MILEAGE = 0;
