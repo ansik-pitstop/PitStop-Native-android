@@ -296,9 +296,9 @@ public class MixpanelHelper {
     }
 
     public void trackButtonTapped(String value, String view) {
-        if (BuildConfig.DEBUG) {
+      /*  if (BuildConfig.DEBUG) {
             return;
-        }
+        }*/
         JSONObject json = new JSONObject();
         try {
             json.put("Button", value);
