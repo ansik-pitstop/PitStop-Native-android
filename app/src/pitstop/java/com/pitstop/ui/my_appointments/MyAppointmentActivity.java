@@ -123,7 +123,6 @@ public class MyAppointmentActivity extends AppCompatActivity {
             setupList();
 
         }
-
     }
 
     private void setupList() {// find a way to run via async task or something
@@ -143,15 +142,6 @@ public class MyAppointmentActivity extends AppCompatActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
