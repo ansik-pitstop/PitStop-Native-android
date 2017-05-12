@@ -33,18 +33,19 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.User;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.utils.AnimatedDialogBuilder;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -53,6 +54,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.pitstop.ui.MainActivity.CAR_EXTRA;
+import static com.pitstop.ui.MainActivity.RC_ADD_CAR;
+import static com.pitstop.ui.MainActivity.REFRESH_FROM_SERVER;
 
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
@@ -136,7 +141,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
+        intent.putExtra(REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
         overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
@@ -323,6 +328,49 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 }
 
                 setUpCarListPreference(shops, shopIds);
+            }
+        }
+
+        //Begin AddCarActivity if add car button is pressed
+        private void setupAddCarButtonListener(){
+            Preference addCarButton = (Preference)getPreferenceManager().findPreference("add_car_button");
+            addCarButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(getActivity(), AddCarActivity.class);
+                    //Don't allow user to come back to tabs without first setting a car
+                    startActivityForResult(intent, RC_ADD_CAR);
+                    getActivity().overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+                    return false;
+                }
+            });
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            //Check for Add car finished, and whether it happened successfully, if so updated preferences view
+            if (data != null) {
+
+                if (requestCode == RC_ADD_CAR) {
+                    if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+
+                        //Add car to preference list inside settings
+                        Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                        List<Dealership> dealerships = shopAdapter.getAllDealerships();
+                        List<String> shops = new ArrayList<>();
+                        List<String> shopIds = new ArrayList<>();
+
+                        for (Dealership shop : dealerships) {
+                            shops.add(shop.getName());
+                            shopIds.add(String.valueOf(shop.getId()));
+                        }
+
+//                        setUpCarPreference(shops,shopIds,addedCar.getMake() + " " + addedCar.getModel()
+//                                ,String.valueOf(addedCar.getDealership().getId()),addedCar);
+                    }
+                }
             }
         }
 
@@ -561,6 +609,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     return true;
                 }
             });
+
+            setupAddCarButtonListener();
 
         }
 
