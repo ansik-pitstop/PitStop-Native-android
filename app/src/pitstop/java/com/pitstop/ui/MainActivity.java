@@ -26,7 +26,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -517,19 +516,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     protected void onPause() {
         super.onPause();
         createdOrAttached = false;
-    }
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-//        //Wait for all fragments being attached prior to performing a refresh because they need the car data
-//        attachedFragmentCounter++;
-//
-//        // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
-//        if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
-//            refreshFromServer();
-//        } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
-//            createdOrAttached = true;
-//        }
     }
 
     // repopulate car list
