@@ -1,38 +1,43 @@
 package com.pitstop.ui.my_trips;
 
 
-import android.Manifest;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+
+import android.location.LocationListener;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
 import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;
 import com.pitstop.ui.my_trips.view_fragments.TripView;
 
 
+
+
 /**
  * Created by Matthew on 2017-05-09.
  */
 
-public class MyTripsActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener{
+public class MyTripsActivity extends AppCompatActivity{
 
     private TripHistory tripHistory;
     private AddTrip addTrip;
@@ -41,8 +46,17 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
 
     private SupportMapFragment supMapFragment;
     private GoogleMap googleMap;
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Criteria criteria;
+    private String provider;
+
+
+    Location lastKnownLocation;
+
+    private static final long MIN_TIME = 10;
+    private static final float MIN_DISTANCE = 20;
+
 
 
 
@@ -54,12 +68,40 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
         setContentView(R.layout.activity_my_trips);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                locationChanged(location);
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria,true);
+        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
+        }
+
         supMapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
                 googleMap = map;
-                getMyLocation();
+                getInitialLocation();
             }
         });
 
@@ -71,75 +113,53 @@ public class MyTripsActivity extends AppCompatActivity implements GoogleApiClien
         setViewTripHistory();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+    private void locationChanged(Location location){
+        if((ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) || lastKnownLocation == null){
+            return;
+        }
+        drawLineOnMap(lastKnownLocation,location);
+        zoomOnUser(location);
+        lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
     }
 
-    @SuppressWarnings("all")
-    void getMyLocation() {
-        if (googleMap != null) {
-            // Now that map has loaded, let's get our location!
+    private void drawLineOnMap(Location start, Location end){
+        PolylineOptions line = new PolylineOptions();
+        LatLng latlngStart = new LatLng(start.getLatitude(), start.getLongitude());
+        LatLng latlngEnd =  new LatLng(end.getLatitude(), end.getLongitude());
+        line.add(latlngStart);
+        line.add(latlngEnd);
+        googleMap.addPolyline(line);
+    }
+
+
+    void getInitialLocation() {
+        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED){
+            return;
+        }
+        lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (googleMap != null && lastKnownLocation != null) {
             googleMap.setMyLocationEnabled(true);
-            mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-            connectClient();
+            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            snapCamera(lastKnownLocation);
         }
 
     }
-
-
-    protected void connectClient() {
-        //if (isGooglePlayServicesAvailable() && mGoogleApiClient != null) {
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        connectClient();
-    }
-
-    @Override
-    protected void onStop() {
-        // Disconnecting the client invalidates it.
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.disconnect();
-        }
-        super.onStop();
-    }
-
-    @Override
-    public void onConnected(Bundle dataBundle) {
-        startLocationUpdates();
-    }
-    @SuppressWarnings("all")
-    protected void startLocationUpdates() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(60000);
-        mLocationRequest.setFastestInterval(5000);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void snapCamera(Location location){
+        LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,15);
+        googleMap.moveCamera(cameraUpdate);
 
     }
 
 
-    public void onLocationChanged(Location location) {
+    public void zoomOnUser(Location location){
+        LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,15);
+        googleMap.animateCamera(cameraUpdate);
 
     }
+
 
 
 
