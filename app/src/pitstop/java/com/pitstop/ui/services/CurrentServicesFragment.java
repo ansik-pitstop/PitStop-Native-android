@@ -147,21 +147,6 @@ public class CurrentServicesFragment extends SubServiceFragment {
     public void onMainServiceTabReopened() {
     }
 
-    /*If setUserVisibilityHint is called and the view has been created then this
-    means that MainServicesTab has been created and therefore dashboard car is set
-    therefore proceed with updating UI elements*/
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser && getView() != null){
-            carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-            carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-            carIssueListView.setAdapter(carIssuesAdapter);
-            populateCarIssuesAdapter();
-        }
-    }
-
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         private WeakReference<Activity> activityReference;

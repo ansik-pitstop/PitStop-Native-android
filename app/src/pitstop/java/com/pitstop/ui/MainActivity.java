@@ -632,15 +632,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        //Wait for all fragments being attached prior to performing a refresh because they need the car data
-        attachedFragmentCounter++;
-
-        // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
-        if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
-            refreshFromServer();
-        } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
-            createdOrAttached = true;
-        }
+//        //Wait for all fragments being attached prior to performing a refresh because they need the car data
+//        attachedFragmentCounter++;
+//
+//        // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
+//        if (createdOrAttached && attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM) {
+//            refreshFromServer();
+//        } else if (attachedFragmentCounter == TOTAL_WORKING_FRAGMENT_NUM){
+//            createdOrAttached = true;
+//        }
     }
 
     // repopulate car list
