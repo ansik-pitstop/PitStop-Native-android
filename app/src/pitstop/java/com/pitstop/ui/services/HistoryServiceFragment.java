@@ -157,18 +157,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
                 + Integer.parseInt(splittedDate[0]) * 365;
     }
 
-    /*If setUserVisibilityHint is called and the view has been created then this
-    means that MainServicesTab has been created and therefore dashboard car is set
-    therefore proceed with updating UI elements*/
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser && getView() != null){
-            updateIssueGroupView();
-        }
-    }
-
     @Override
     public void onMainServiceTabReopened() {
     }

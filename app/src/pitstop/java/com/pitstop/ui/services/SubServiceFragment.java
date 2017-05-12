@@ -18,6 +18,7 @@ public abstract class SubServiceFragment extends Fragment {
 
     public static Car dashboardCar;
     private boolean isViewShown;
+    private boolean uiUpdated = false;
     private boolean onCreateViewReady;
     private boolean onStartFinished = false;
 
@@ -37,6 +38,7 @@ public abstract class SubServiceFragment extends Fragment {
             isViewShown = true;
         } else {
             isViewShown = false;
+            uiUpdated = false;
         }
     }
 
@@ -47,9 +49,10 @@ public abstract class SubServiceFragment extends Fragment {
         if (isViewShown() || dashboardCar == null){
             onCreateViewReady = false;
         }
-        else{
+        else if (!uiUpdated){
             onCreateViewReady = true;
             setUI();
+            uiUpdated = true;
         }
 
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -62,8 +65,9 @@ public abstract class SubServiceFragment extends Fragment {
         /*If the fragment didn't receive the current car in OnCreateView or SetUserVisibilityHint
         then either the dashboard car will be available here or onDashboardCarUpdated()
         will be called once onStart() finishes*/
-        if (!onCreateViewReady && dashboardCar != null){
+        if (!onCreateViewReady && dashboardCar != null && !uiUpdated){
             setUI();
+            uiUpdated = true;
         }
 
         onStartFinished = true;
@@ -82,8 +86,9 @@ public abstract class SubServiceFragment extends Fragment {
 
     public void onDashboardCarUpdated(){
         //Check whether onStart() finished, otherwise don't update since it'll update inside onStart
-        if (getView() != null){
+        if (getView() != null && !uiUpdated){
             setUI();
+            uiUpdated = true;
         }
     }
 

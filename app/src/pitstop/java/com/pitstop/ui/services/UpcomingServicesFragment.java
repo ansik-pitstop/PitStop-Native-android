@@ -299,20 +299,6 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         hideIssueDetailsAnimation.start();
     }
 
-    /*If setUserVisibilityHint is called and the view has been created then this
-    means that MainServicesTab has been created and therefore dashboard car is set
-    therefore proceed with updating UI elements*/
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isViewShown()){
-            mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-            fetchData();
-        }
-    }
-
     //Called when the Main Service Tab is re-opened, update elements
     @Override
     public void onMainServiceTabReopened() {
