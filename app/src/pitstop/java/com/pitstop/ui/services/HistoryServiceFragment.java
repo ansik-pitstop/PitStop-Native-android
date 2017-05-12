@@ -158,10 +158,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
     }
 
     @Override
-    public void onMainServiceTabReopened() {
-    }
-
-    @Override
     public void setUI(){
         updateIssueGroupView();
     }

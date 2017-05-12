@@ -142,11 +142,6 @@ public class CurrentServicesFragment extends SubServiceFragment {
         //carIssuesAdapter.updateTutorial();
     }
 
-    //Called when the Main Service Tab is opened
-    @Override
-    public void onMainServiceTabReopened() {
-    }
-
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
         private WeakReference<Activity> activityReference;
