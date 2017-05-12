@@ -193,6 +193,10 @@
     <string name="past_appts_title">My Appointments</string>
     <string name="request_appts_title">Request Service Appointment</string>
 
+    <!--MyTrips-->
+    <string name="first_card_text">Starting Point</string>
+    <string name="second_card_text">Current Stats</string>
+
     <!--Services-->
     <string name="services_nav_text">Services</string>
     <string name="action_refresh">Refresh</string>

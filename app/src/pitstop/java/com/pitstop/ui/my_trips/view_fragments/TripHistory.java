@@ -16,7 +16,7 @@ import com.pitstop.ui.my_trips.MyTripsActivity;
  */
 
 public class TripHistory extends Fragment {
-    FloatingActionButton addTripFab;
+    private FloatingActionButton addTripFab;
 
 
 

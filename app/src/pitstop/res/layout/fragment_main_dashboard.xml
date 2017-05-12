@@ -416,12 +416,15 @@
                     android:src="@drawable/right_chevron"/>
             </LinearLayout>
 
+            <include layout="@layout/divider" />
+
             <LinearLayout
                 android:id="@+id/dashboard_request_service_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="10dp">
+
                 <ImageView
                     android:id="@+id/request_appts_icon"
                     android:layout_width="25dp"
@@ -449,6 +452,8 @@
                     />
 
             </LinearLayout>
+
+            <include layout="@layout/divider" />
 
             <LinearLayout
                 android:id="@+id/my_appointments_btn"

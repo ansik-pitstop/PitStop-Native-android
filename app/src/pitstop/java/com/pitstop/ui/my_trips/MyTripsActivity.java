@@ -5,7 +5,9 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import android.view.View;
 
 
 import android.location.LocationListener;
+import android.widget.TextView;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,11 +30,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;
 import com.pitstop.ui.my_trips.view_fragments.TripView;
 
-
+import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -43,7 +49,9 @@ public class MyTripsActivity extends AppCompatActivity{
     private AddTrip addTrip;
     private TripView tripView;
     private FragmentManager fragmentManager;
+    private GlobalApplication application;
 
+    private Geocoder geocoder;
     private SupportMapFragment supMapFragment;
     private GoogleMap googleMap;
     private LocationManager locationManager;
@@ -55,11 +63,7 @@ public class MyTripsActivity extends AppCompatActivity{
     Location lastKnownLocation;
 
     private static final long MIN_TIME = 10;
-    private static final float MIN_DISTANCE = 20;
-
-
-
-
+    private static final float MIN_DISTANCE = 10;
 
 
     @Override
@@ -67,6 +71,9 @@ public class MyTripsActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_trips);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        application = (GlobalApplication) getApplicationContext();
+        geocoder = new Geocoder(application);
+
 
         locationListener = new LocationListener() {
             @Override
@@ -95,6 +102,10 @@ public class MyTripsActivity extends AppCompatActivity{
         if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
             locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
         }
+        fragmentManager = getFragmentManager();
+        tripHistory = new TripHistory();
+        addTrip = new AddTrip();
+        tripView = new TripView();
 
         supMapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -104,11 +115,6 @@ public class MyTripsActivity extends AppCompatActivity{
                 getInitialLocation();
             }
         });
-
-        fragmentManager = getFragmentManager();
-        tripHistory = new TripHistory();
-        addTrip = new AddTrip();
-        tripView = new TripView();
         supMapFragment.getView().setVisibility(View.GONE);
         setViewTripHistory();
     }
@@ -119,7 +125,7 @@ public class MyTripsActivity extends AppCompatActivity{
             return;
         }
         drawLineOnMap(lastKnownLocation,location);
-        zoomOnUser(location);
+        zoomLocation(location);
         lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
     }
 
@@ -143,17 +149,30 @@ public class MyTripsActivity extends AppCompatActivity{
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             snapCamera(lastKnownLocation);
         }
-
     }
+
+    public String getAddress(Location location){
+        List<Address> addresses = null;
+        try{
+            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        if(addresses.get(0) != null){
+            return addresses.get(0).getAddressLine(0)+" "+addresses.get(0).getAddressLine(1)+" "+addresses.get(0).getAddressLine(2);
+        }else{
+            return "No Address Available";
+        }
+    }
+
     public void snapCamera(Location location){
         LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,15);
         googleMap.moveCamera(cameraUpdate);
-
     }
 
 
-    public void zoomOnUser(Location location){
+    public void zoomLocation(Location location){
         LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,15);
         googleMap.animateCamera(cameraUpdate);
@@ -173,6 +192,7 @@ public class MyTripsActivity extends AppCompatActivity{
     public void setViewTripView(){
         getSupportActionBar().setTitle("Trip View");
         supMapFragment.getView().setVisibility(View.VISIBLE);
+        tripView.setAddress(getAddress(lastKnownLocation));
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.trip_view_holder, tripView);
         fragmentTransaction.commit();
