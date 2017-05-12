@@ -261,6 +261,7 @@
             android:label="Dealership"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".ui.add_car.PromptAddCarActivity"></activity>
     </application>
 
 </manifest>

@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.BuildConfig;
 import android.support.design.widget.FloatingActionButton;
@@ -38,7 +37,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -69,6 +67,7 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
@@ -220,7 +219,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
 
-    private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
     private boolean isRefreshingFromServer = false;
     private boolean isFabOpen = false;
 
@@ -279,11 +277,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         shopLocalStore = new LocalShopAdapter(application);
         scannerLocalStore = new LocalScannerAdapter(application);
 
-        if (createdOrAttached) {
-            refreshFromServer();
-        } else {
-            createdOrAttached = true;
-        }
+        refreshFromServer();
 
         logAuthInfo();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
@@ -434,6 +428,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             @Override
             public void onPageSelected(int position) {
+                //Change actionbar title
                 getSupportActionBar().setTitle(TAB_NAMES[position]);
             }
 
@@ -515,7 +510,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onPause() {
         super.onPause();
-        createdOrAttached = false;
     }
 
     // repopulate car list
@@ -611,7 +605,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
                         broadCastCarDataToFragments();
-
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
@@ -843,6 +836,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
+    private void startPromptAddCarActivity() {
+        Intent intent = new Intent(MainActivity.this, PromptAddCarActivity.class);
+        startActivityForResult(intent, RC_ADD_CAR);
+        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
     /**
      * Call function to retrieve live data from parse
      *
@@ -859,22 +858,23 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
-                    View mainView = findViewById(R.id.main_view);
-                    View noCarText = findViewById(R.id.no_car_text);
-                    View noConnectText = findViewById(R.id.no_connect_text);
-                    View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
-                    if (mainView != null) {
-                        mainView.setVisibility(View.GONE);
-                    }
-                    if (noCarText != null) {
-                        noCarText.setVisibility(View.GONE);
-                    }
-                    if (noConnectText != null) {
-                        noConnectText.setVisibility(View.VISIBLE);
-                    }
-                    if (requestServiceButton != null) {
-                        requestServiceButton.setVisibility(View.GONE);
-                    }
+//                    View mainView = findViewById(R.id.main_view);
+//                    View noCarText = findViewById(R.id.no_car_text);
+//                    View noConnectText = findViewById(R.id.no_connect_text);
+//                    View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
+//                    if (mainView != null) {
+//                        mainView.setVisibility(View.GONE);
+//                    }
+//                    if (noCarText != null) {
+//                        noCarText.setVisibility(View.GONE);
+//                    }
+//                    if (noConnectText != null) {
+//                        noConnectText.setVisibility(View.VISIBLE);
+//                    }
+//                    if (requestServiceButton != null) {
+//                        requestServiceButton.setVisibility(View.GONE);
+//                    }
+                    startPromptAddCarActivity();
 
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
                     hideLoading();
@@ -892,29 +892,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         @Override
                         public void done(String response, RequestError requestError) {
                             if (requestError == null) {
-                                View mainView = findViewById(R.id.main_view);
-                                View noCarText = findViewById(R.id.no_car_text);
-                                View noConnectText = findViewById(R.id.no_connect_text);
-                                View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
                                 try {
                                     carList = Car.createCarsList(response);
 
                                     if (carList.isEmpty()) { // show add first car text
-                                        if (isLoading) {
-                                            hideLoading();
-                                        }
-                                        if (mainView != null) {
-                                            mainView.setVisibility(View.GONE);
-                                        }
-                                        if (noCarText != null) {
-                                            noCarText.setVisibility(View.VISIBLE);
-                                        }
-                                        if (noConnectText != null) {
-                                            noConnectText.setVisibility(View.GONE);
-                                        }
-                                        if (requestServiceButton != null) {
-                                            requestServiceButton.setVisibility(View.GONE);
-                                        }
+                                        startPromptAddCarActivity();
 
                                     } else {
                                         if (mainCarIdCopy != -1) {
@@ -928,19 +910,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                             dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
-                                        if (mainView != null) {
-                                            mainView.setVisibility(View.VISIBLE);
-                                        }
-                                        if (noCarText != null) {
-                                            noCarText.setVisibility(View.GONE);
-                                        }
-                                        if (noConnectText != null) {
-                                            noConnectText.setVisibility(View.GONE);
-                                        }
-                                        if (requestServiceButton != null) {
-                                            requestServiceButton.setVisibility(View.VISIBLE);
-                                        }
-
                                         broadCastCarDataToFragments();
 
                                         carLocalStore.deleteAllCars();
@@ -1086,58 +1055,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         }
     }
 
-    /**
-     * Create and show an snackbar that is used to show users some information.<br>
-     * The purpose of this method is to display message that requires user's confirm to be dismissed.
-     *
-     * @param content snack bar message
-     */
-    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
-                .setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // DO nothing
-                    }
-                })
-                .setActionTextColor(Color.WHITE);
-        View snackBarView = snackbar.getView();
-        if (isSuccess) {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
-        } else {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
-        }
-        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
-
-        snackbar.show();
-
-    }
-
-    /**
-     * Swaps fragments in the main content view
-     */
-    private void selectItem(int position) {
-        dashboardCar = carList.get(position);
-        for (Car car : carList) {
-            car.setCurrentCar(false);
-        }
-        dashboardCar.setCurrentCar(true);
-        networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
-        // Highlight the selected item, update the title, and close the drawer
-        broadCastCarDataToFragments();
-
-        mainDashboardCallback.setCarDetailsUI();
-    }
-
-    public void startAddCarActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        startActivityForResult(intent, RC_ADD_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -1219,15 +1136,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
             autoConnectService.startBluetoothSearch(); // refresh clicked
         }
-    }
-
-    /**
-     * Onclick method for Add Vehicle button
-     *
-     * @param view
-     */
-    public void addClicked(View view) {
-        startAddCarActivity(null);
     }
 
     /**
