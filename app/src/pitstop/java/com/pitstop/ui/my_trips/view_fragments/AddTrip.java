@@ -15,7 +15,7 @@ import com.pitstop.ui.my_trips.MyTripsActivity;
  */
 
 public class AddTrip extends Fragment {
-    ImageButton startTrip;
+    private ImageButton startTrip;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
