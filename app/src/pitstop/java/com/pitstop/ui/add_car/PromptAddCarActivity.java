@@ -40,8 +40,13 @@ public class PromptAddCarActivity extends AppCompatActivity {
         }
     }
 
-    //Do not allow user to go back, so that  they cannot avoid not adding the car
+    //Go to home screen if back is pressed
     @Override
     public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
+
 }

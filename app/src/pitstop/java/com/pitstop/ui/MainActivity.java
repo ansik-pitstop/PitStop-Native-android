@@ -462,7 +462,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        int[] tabIcons = {R.drawable.dealership,R.drawable.history
+        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
                 ,R.drawable.scan_icon,R.drawable.ic_notifications_white_24dp};
 
         for (int i=0;i<tabIcons.length;i++){
@@ -991,6 +991,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void startPromptAddCarActivity() {
         Intent intent = new Intent(MainActivity.this, PromptAddCarActivity.class);
+        //Don't allow user to come back to tabs without first setting a car
         startActivityForResult(intent, RC_ADD_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
