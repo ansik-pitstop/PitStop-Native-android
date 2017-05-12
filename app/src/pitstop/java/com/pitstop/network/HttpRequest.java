@@ -10,7 +10,9 @@ import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.LoginActivity;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
@@ -38,16 +40,14 @@ public class HttpRequest {
     private HashMap<String, String> headers = new HashMap<>();
     private GlobalApplication application;
 
-    private int retryAttempts = 0;
-
     private HttpRequest(RequestType requestType,
+                        String url,
                         String uri,
                         HashMap<String, String> headers,
                         RequestCallback listener,
                         JSONObject body,
-                        Context context
-    ) {
-        BASE_ENDPOINT = SecretUtils.getEndpointUrl(context);
+                        Context context) {
+        BASE_ENDPOINT = url == null ? SecretUtils.getEndpointUrl(context) : url;
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -55,6 +55,9 @@ public class HttpRequest {
         this.headers = headers;
         this.listener = listener;
         this.body = body;
+
+        LogUtils.debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
+                false, DebugMessage.TYPE_NETWORK, context);
 
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
     }
@@ -172,13 +175,22 @@ public class HttpRequest {
         protected void onPostExecute(Response<String> response) {
             if (response != null) {
                 if (response.isSuccess()) {
-                    LOGD(TAG, response.getBody());
-                    LOGD(TAG, response.getResponseMessage());
+                    String responseString;
+                    try {
+                        JSONObject responseJson = new JSONObject(response.getBody());
+                        responseJson.remove("installationId");
+                        responseString = responseJson.toString(4);
+                    } catch (JSONException e) {
+                        responseString = response.getBody();
+                    }
+                    LogUtils.debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
+                            true, DebugMessage.TYPE_NETWORK, application);
+
                     listener.done(response.getBody(), null);
                 } else {
-                    LOGD(TAG, "Error: " + response.getStatusLine());
-                    LOGD(TAG, response.getResponseMessage());
-                    LOGD(TAG, (String) response.getErrorBody());
+                    LogUtils.debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
+                                    + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
+                            true, DebugMessage.TYPE_NETWORK, application);
 
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
                     error.setStatusCode(response.getStatusCode());
@@ -251,6 +263,7 @@ public class HttpRequest {
     public static class Builder {
 
         private HashMap<String, String> headers;
+        private String url;
         private String uri;
         private JSONObject body;
         private RequestType requestType;
@@ -259,6 +272,11 @@ public class HttpRequest {
 
         public Builder() {
             this.headers = new HashMap<>();
+        }
+
+        public Builder url(String url) {
+            this.url = url;
+            return this;
         }
 
         public Builder uri(String uri) {
@@ -297,7 +315,7 @@ public class HttpRequest {
         }
 
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType, uri, headers, callback, body, context);
+            return new HttpRequest(requestType, url, uri, headers, callback, body, context);
         }
     }
 }

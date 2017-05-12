@@ -200,5 +200,17 @@
     <string name="connected_device">Connected</string>
     <string name="disconnected_device">Disconnected</string>
 
+    <!--Debug-->
+    <string name="debug_drawer_header">Debug</string>
+    <string name="debug_clear_prefs">Clear Prefs</string>
+    <string name="debug_clear_db">Clear DB</string>
+    <string name="debug_random_vin">Random Vin</string>
+    <string name="debug_log_header">Logging</string>
+    <string name="debug_log_bt">Log Bluetooth</string>
+    <string name="debug_log_network">Log Network</string>
+    <string name="debug_log_other">Log Other</string>
+    <string name="debug_message_bluetooth_toggle">Toggle Bluetooth Logs</string>
+    <string name="debug_message_network_toggle">Toggle Network Logs</string>
+    <string name="debug_message_other_toggle">Toggle Other Logs</string>
 
 </resources>

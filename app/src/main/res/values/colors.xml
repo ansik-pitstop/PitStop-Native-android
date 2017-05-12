@@ -31,6 +31,7 @@
     <color name="date_picker_background">#00796b</color>
 
     <color name="white">#fefefe</color>
+    <color name="white80">#c8fefefe</color>
 
     <color name="light_grey">#f0f0f0</color>
     <color name="grey">#e0e0e0</color>
@@ -41,6 +42,7 @@
     <color name="darkBlueTrans">#ea031223</color>
 
     <color name="black">#000</color>
+    <color name="black50">#80000000</color>
 
     <color name="message_failure">#F44336</color>
     <color name="message_success">#388E3C</color>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <ScrollView
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@color/black50">
+
+        <LinearLayout
+            android:id="@+id/debug_drawer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/debug_drawer_header"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/debugClearPrefs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_clear_prefs"/>
+
+            <Button
+                android:id="@+id/debugClearDB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_clear_db" />
+
+            <Button
+                android:id="@+id/debugRandomVin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_random_vin" />
+            
+            <EditText
+                android:id="@+id/debugVinField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:text="@string/debug_log_header"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <Button
+                    android:id="@+id/logBluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_bt" />
+
+                <Button
+                    android:id="@+id/logNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_network" />
+
+                <Button
+                    android:id="@+id/logOther"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/debug_log_other" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/debugMessageToggleBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_bluetooth_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsBluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/debugLogToggleNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_network_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/debugMessageToggleOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_message_other_toggle" />
+
+            <com.pitstop.view.TextFeedView
+                android:id="@+id/debugLogsOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white80"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</android.support.v4.widget.DrawerLayout>
