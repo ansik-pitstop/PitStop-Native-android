@@ -48,5 +48,23 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/preference_vehicle_current_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_toLeftOf="@id/preference_vehicle_delete_button"
+        android:visibility="invisible"
+        android:layout_margin="16dp"
+        android:background="@drawable/shape_button_green">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_check_white_48dp"/>
+
+    </RelativeLayout>
+
 
 </RelativeLayout>
