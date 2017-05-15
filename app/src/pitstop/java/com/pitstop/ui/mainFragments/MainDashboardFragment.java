@@ -69,6 +69,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
+import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
+
 public class MainDashboardFragment extends Fragment implements MainActivity.MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
@@ -597,6 +600,11 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
                             }
                         }
+                        try {
+                            carLocalStore.updateCar(Car.createCar(response));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         Log.e(TAG, "Load issues error: " + requestError.getMessage());
                         if (getActivity() != null) {
@@ -811,7 +819,14 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+            final double newTotalMileage;
+            if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
+                if (tripInfoPackage.rtcTime >= Long.valueOf(sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null)))
+                    newTotalMileage = (dashboardCar.getTotalMileage() + tripInfoPackage.mileage) - Double.valueOf(sharedPreferences.getString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), null));
+                else
+                    return;
+            else
+                newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
             Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
 
@@ -1131,7 +1146,7 @@ public class MainDashboardFragment extends Fragment implements MainActivity.Main
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
                                             mMileageText.setText(String.format("%.2f", mileage));
-                                            ((MainActivity)getActivity()).getBluetoothConnectService();
+                                            ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
                                                     ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice())

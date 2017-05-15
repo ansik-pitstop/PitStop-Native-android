@@ -363,6 +363,12 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if (requestError == null) {
+                                    try {
+                                        localCarAdapter.deleteAllCars();
+                                        localCarAdapter.storeCars(Car.createCarsList(response));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     networkHelper.updateCarShop(itemCar.getId(), shopId,
                                             new RequestCallback() {
                                                 @Override

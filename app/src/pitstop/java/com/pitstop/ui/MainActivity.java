@@ -939,7 +939,8 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-
+        if (callback != null)
+            callback.tripData(tripInfoPackage);
     }
 
     @Override

@@ -268,6 +268,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     }
 
                     if (existedCar != null) {
+                        mLocalCarAdapter.updateCar(existedCar);
                         int carUserId = existedCar.getUserId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
                         if (carUserId != 0) { // User id is not 0, this car is still in use
@@ -412,6 +413,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         int carUserId = existedCar.getUserId();
                         String carScannerId = existedCar.getScannerId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
+                        mLocalCarAdapter.updateCar(existedCar);
 
                         if (carUserId != mApplication.getCurrentUserId()) {
                             mCallback.pairCarError("Sorry, the car we have connected to (" +
@@ -541,6 +543,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         cancelAllTimeouts();
         if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Now connected to device");
+            Log.i(TAG, "Asking for RTC and Mileage, if connected to 215");
+            mAutoConnectService.get215RtcAndMileage();
             mCallback.showLoading("Loading car engine codes");
             getDtcWithTimeout();
         } else {

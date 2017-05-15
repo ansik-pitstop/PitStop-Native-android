@@ -128,6 +128,11 @@ public class CurrentServicesFragment extends Fragment {
                                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
                             }
                         }
+                        try {
+                            carLocalStore.updateCar(Car.createCar(response));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         Log.e(TAG, "Load issues error: " + requestError.getMessage());
                         if (getActivity() != null) {
