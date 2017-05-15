@@ -5,12 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +42,7 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -75,6 +78,18 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         localCarAdapter = new LocalCarAdapter(this);
         carList = localCarAdapter.getAllCars();
+
+        boolean currentCarExists = false;
+        for (Car c: carList){
+            if (c.isCurrentCar()){
+                currentCarExists = true;
+            }
+        }
+
+        //Set first car to current car if none are set
+        if (!currentCarExists){
+            carList.get(0).setCurrentCar(true);
+        }
 
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
@@ -185,6 +200,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private MixpanelHelper mixpanelHelper;
 
         private NetworkHelper networkHelper;
+
+        private VehiclePreference currentCarVehiclePreference;
 
         public SettingsFragment() {}
 
@@ -322,12 +339,62 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         }
 
         private void setUpCarPreference(List<String> shops, List<String> shopIds,final Car car){
-            VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), car);
+            final VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), car);
             vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
             vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
             vehiclePreference.setValue(String.valueOf(car.getShopId()));
             vehiclePreference.setDialogTitle("Choose Shop for: "
                     + car.getMake()+" "+car.getModel());
+
+            //If is a current car add checkmark and set to current car pref. for later editing
+            if (car.isCurrentCar()){
+                vehiclePreference.setCurrentCarPreference(true);
+
+                //if its null will get exception here, first time being set
+                if (currentCarVehiclePreference != null){
+                    currentCarVehiclePreference.setCurrentCarPreference(false);
+                }
+                currentCarVehiclePreference = vehiclePreference;
+            }
+
+            //Change current car if preference is clicked
+            vehiclePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+
+                    //Get most recent version of car, since the parameter may be outdated
+                    Car recentCar = localCarAdapter.getCar(car.getId());
+
+                    //Check if the vehicle preference is already a current, if so return
+                    if (recentCar.isCurrentCar()){
+                        return false;
+                    }
+
+                    //Update current car to the one that was clicked
+                    for (Car c: localCarAdapter.getAllCars()){
+                        c.setCurrentCar(false);
+                        localCarAdapter.updateCar(c);
+                    }
+                    recentCar.setCurrentCar(true);
+                    localCarAdapter.updateCar(recentCar);
+
+                    //Send update to network
+                    networkHelper.setMainCar(currentUser.getId(), car.getId(), null);
+                    listener.localUpdatePerformed();
+
+                    //Update shared preferences
+                    PreferenceManager.getDefaultSharedPreferences(application).edit()
+                            .putInt(MainDashboardFragment.pfCurrentCar, car.getId()).apply();
+
+                    //Add checkmark
+                    vehiclePreference.setCurrentCarPreference(true);
+                    currentCarVehiclePreference.setCurrentCarPreference(false);
+                    currentCarVehiclePreference = vehiclePreference;
+
+                    return false;
+                }
+            });
+
             vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -627,13 +694,25 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private class VehiclePreference extends ListPreference {
 
             private Car vehicle;
+            private Color defaultColor;
             private View root;
             private TextView vehicleName;
+            private boolean viewCreated = false;
 
             public VehiclePreference(Context context, Car vehicle) {
                 super(context);
                 this.vehicle = vehicle;
                 setLayoutResource(R.layout.preference_vehicle_item);
+            }
+
+            //Set color of vehicle preference depending on if it is the current vehicle
+            public void setCurrentCarPreference(boolean isCurrentCar){
+                if (isCurrentCar && viewCreated){
+                    root.findViewById(R.id.preference_vehicle_current_icon).setVisibility(View.VISIBLE);
+                }
+                else if (viewCreated){
+                    root.findViewById(R.id.preference_vehicle_current_icon).setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -692,6 +771,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 showDialog(null);
                             }
                         });
+
+                viewCreated = true;
+                setCurrentCarPreference(vehicle.isCurrentCar());
+
                 return root;
             }
 
