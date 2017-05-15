@@ -321,6 +321,18 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                         Car addedCar = data.getParcelableExtra(CAR_EXTRA);
 
+                        //Update current car to the one that was clicked
+                        for (Car c: localCarAdapter.getAllCars()){
+                            c.setCurrentCar(false);
+                            localCarAdapter.updateCar(c);
+                        }
+
+                        //Check if inside local adapter, if not then add it
+                        addedCar.setCurrentCar(true);
+                        if (localCarAdapter.getCar(addedCar.getId()) == null){
+                            localCarAdapter.storeCarData(addedCar);
+                        }
+
                         List<String> shops = new ArrayList<>();
                         List<String> shopIds = new ArrayList<>();
                         List<Dealership> dealerships = shopAdapter.getAllDealerships();
@@ -348,6 +360,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
             //If is a current car add checkmark and set to current car pref. for later editing
             if (car.isCurrentCar()){
+
+                //Update shared preferences
+                PreferenceManager.getDefaultSharedPreferences(application).edit()
+                        .putInt(MainDashboardFragment.pfCurrentCar, car.getId()).apply();
+
                 vehiclePreference.setCurrentCarPreference(true);
 
                 //if its null will get exception here, first time being set
@@ -366,7 +383,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     Car recentCar = localCarAdapter.getCar(car.getId());
 
                     //Check if the vehicle preference is already a current, if so return
-                    if (recentCar.isCurrentCar()){
+                    if (car.getId() == PreferenceManager.getDefaultSharedPreferences(application)
+                            .getInt(MainDashboardFragment.pfCurrentCar,-1)){
+
                         return false;
                     }
 
@@ -388,7 +407,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                     //Add checkmark
                     vehiclePreference.setCurrentCarPreference(true);
-                    currentCarVehiclePreference.setCurrentCarPreference(false);
+                    if (currentCarVehiclePreference != null){
+                        currentCarVehiclePreference.setCurrentCarPreference(false);
+                    }
                     currentCarVehiclePreference = vehiclePreference;
 
                     return false;
@@ -453,6 +474,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             ((PreferenceCategory) getPreferenceManager()
                     .findPreference(getString(R.string.pref_vehicles)))
                     .addPreference(vehiclePreference);
+
         }
 
         @Override
@@ -707,6 +729,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
             //Set color of vehicle preference depending on if it is the current vehicle
             public void setCurrentCarPreference(boolean isCurrentCar){
+                vehicle.setCurrentCar(isCurrentCar);
                 if (isCurrentCar && viewCreated){
                     root.findViewById(R.id.preference_vehicle_current_icon).setVisibility(View.VISIBLE);
                 }
