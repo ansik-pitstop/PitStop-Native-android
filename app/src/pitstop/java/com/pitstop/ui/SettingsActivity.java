@@ -299,6 +299,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             addCarButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    mixpanelHelper.trackButtonTapped("Add Car",MixpanelHelper.SETTINGS_VIEW);
                     Intent intent = new Intent(getActivity(), AddCarActivity.class);
                     //Don't allow user to come back to tabs without first setting a car
                     startActivityForResult(intent, RC_ADD_CAR);
@@ -378,6 +379,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             vehiclePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+
+                    mixpanelHelper.trackButtonTapped("CurrentCarButton",MixpanelHelper.SETTINGS_VIEW);
 
                     //Get most recent version of car, since the parameter may be outdated
                     Car recentCar = localCarAdapter.getCar(car.getId());
