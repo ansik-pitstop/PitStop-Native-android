@@ -10,7 +10,6 @@ import com.castel.obd215b.util.FaultParse;
 import com.castel.obd215b.util.Utils;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.IDRInfo;
 import com.castel.obd215b.info.SettingInfo;
@@ -19,6 +18,7 @@ import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -46,6 +46,7 @@ public class Device215B implements AbstractDevice {
     public static final String SAMPLED_PID_PARAM = "A14";
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
+    public static final String MILEAGE_PARAM = "A09";
 
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
@@ -170,6 +171,10 @@ public class Device215B implements AbstractDevice {
         }
     }
 
+    public String getRtcAndMileage(){
+        return qiMulti(RTC_TIME_PARAM +","+ MILEAGE_PARAM);
+    }
+
     public String replyIDRPackage() {
         StringBuilder sb = new StringBuilder();
         sb.append(Constants.INSTRUCTION_HEAD);
@@ -258,6 +263,23 @@ public class Device215B implements AbstractDevice {
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
         return msg;
+    }
+
+    private String qiMulti(String params){
+        int numberOfParams = params.split(",").length;
+
+        String crcData = Constants.INSTRUCTION_HEAD
+                + "0"
+                + ","
+                + Constants.INSTRUCTION_QI
+                + ","
+                + numberOfParams
+                + ","
+                + params
+                +Constants.INSTRUCTION_STAR;
+
+        String crc = Utils.toHexString(OBD.CRC(crcData));
+        return crcData + crc + Constants.INSTRUCTION_FOOD;
     }
 
     private String pidPackage(String controlEventID, int pidNum,
@@ -461,29 +483,41 @@ public class Device215B implements AbstractDevice {
                 SettingInfo settingInfo = DataParseUtil
                         .parseQI(msgInfo);
 
-                ParameterPackage parameterPackage = new ParameterPackage();
-                parameterPackage.deviceId = settingInfo.terminalSN;
+                //multiple params
+                if (settingInfo.terminalRTCTime != null && settingInfo.totalMileage != null){
+                    MultiParameterPackage parameterPackage = new MultiParameterPackage();
+                    parameterPackage.success = true;
+                    parameterPackage.deviceId = settingInfo.terminalSN;
+                    parameterPackage.mParamsValueMap.put(ParameterPackage.ParamType.RTC_TIME, String.valueOf(parseRtcTime(settingInfo.terminalRTCTime)));
+                    String mileageKM = String.valueOf(Double.valueOf(settingInfo.totalMileage) / 1000);
+                    parameterPackage.mParamsValueMap.put(ParameterPackage.ParamType.MILEAGE, mileageKM);
+                    dataListener.parameterData(parameterPackage);
 
-                // assumes only one parameter queried per command
-                if(settingInfo.terminalRTCTime != null) {
-                    try {
-                        long rtcTime = parseRtcTime(settingInfo.terminalRTCTime);
+                }
+                else {
+                    // assumes only one parameter queried per command
+                    ParameterPackage parameterPackage = new ParameterPackage();
+                    parameterPackage.deviceId = settingInfo.terminalSN;
+                    if (settingInfo.terminalRTCTime != null) {
+                        try {
+                            long rtcTime = parseRtcTime(settingInfo.terminalRTCTime);
+                            parameterPackage.success = true;
+                            parameterPackage.paramType = ParameterPackage.ParamType.RTC_TIME;
+                            parameterPackage.value = String.valueOf(rtcTime);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            parameterPackage.success = false;
+                        }
+                    } else if (settingInfo.vehicleVINCode != null) {
                         parameterPackage.success = true;
-                        parameterPackage.paramType = ParameterPackage.ParamType.RTC_TIME;
-                        parameterPackage.value = String.valueOf(rtcTime);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                        parameterPackage.paramType = ParameterPackage.ParamType.VIN;
+                        parameterPackage.value = settingInfo.vehicleVINCode;
+                    } else {
                         parameterPackage.success = false;
                     }
-                } else if(settingInfo.vehicleVINCode != null) {
-                    parameterPackage.success = true;
-                    parameterPackage.paramType = ParameterPackage.ParamType.VIN;
-                    parameterPackage.value = settingInfo.vehicleVINCode;
-                } else {
-                    parameterPackage.success = false;
-                }
 
-                dataListener.parameterData(parameterPackage);
+                    dataListener.parameterData(parameterPackage);
+                }
             } else if (Constants.INSTRUCTION_PIDT
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 PIDInfo pidInfo = DataParseUtil.parsePIDT(msgInfo);
