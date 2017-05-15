@@ -325,6 +325,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Main");
                 if(isFabOpen){
 
                     //Begin closing animation
@@ -368,6 +369,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Message");
                 final HashMap<String, Object> customProperties = new HashMap<>();
                 customProperties.put("VIN", dashboardCar.getVin());
                 customProperties.put("Car Make", dashboardCar.getMake());
@@ -390,6 +392,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabRequestService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Request Service");
                 final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
                 intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
@@ -402,6 +405,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Call");
                 mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
@@ -415,6 +419,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabDirections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Directions");
                 mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
 
@@ -436,6 +441,36 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch(position){
+                    case TAB_DASHBOARD:
+                        mixpanelHelper.trackSwitchedToTab("Dashboard");
+                        break;
+                    case TAB_SERVICES:
+                        mixpanelHelper.trackSwitchedToTab("Services");
+                        break;
+                    case TAB_SCAN:
+                        mixpanelHelper.trackSwitchedToTab("Scan");
+                        break;
+                    case TAB_NOTIF:
+                        mixpanelHelper.trackSwitchedToTab("Notifications");
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         //Set up actionbar
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -495,7 +530,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         break;
 
                     case TAB_NOTIF:
-                        //Go to settings fragment
+                        //Go to notifications fragment
                         viewPager.setCurrentItem(TAB_NOTIF);
                         break;
                 }
