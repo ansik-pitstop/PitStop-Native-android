@@ -5,18 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.InputType;
@@ -44,7 +40,6 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -63,10 +58,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
-    private ArrayList<String> cars = new ArrayList<>();
-    private ArrayList<Integer> ids = new ArrayList<>();
-    private ArrayList<String> dealers = new ArrayList<>();
-
     private MixpanelHelper mixpanelHelper;
 
     private Car dashboardCar;
@@ -83,7 +74,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         localCarAdapter = new LocalCarAdapter(this);
-        populateCarNamesAndIdList();
+        carList = localCarAdapter.getAllCars();
 
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
@@ -95,10 +86,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         settingsFragment.setLoadingCallback(this);
 
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList("cars", cars);
-        bundle.putIntegerArrayList("ids", ids);
-        bundle.putStringArrayList("dealers", dealers);
-        bundle.putParcelable("mainCar", dashboardCar);
 
         IntentProxyObject intentProxyObject = new IntentProxyObject();
         intentProxyObject.setCarList(carList);
@@ -158,48 +145,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         super.onPause();
     }
 
-    private void populateCarNamesAndIdList() {
-        carList = localCarAdapter.getAllCars();
-
-        for (Car car : carList) {
-            if (car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
-                dashboardCar = car;
-            }
-
-            cars.add(car.getMake() + " " + car.getModel());
-            ids.add(car.getId());
-            dealers.add(String.valueOf(car.getShopId()));
-        }
-    }
-
-    /**
-     * Create and show an snackbar that is used to show users some information.<br>
-     * The purpose of this method is to display message that requires user's confirm to be dismissed.
-     *
-     * @param content snack bar message
-     */
-    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
-                .setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // DO nothing
-                    }
-                })
-                .setActionTextColor(Color.WHITE);
-        View snackBarView = snackbar.getView();
-        if (isSuccess) {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
-        } else {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
-        }
-        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
-
-        snackbar.show();
-
-    }
-
     @Override
     public void hideLoading(@Nullable String string) {
         if (progressDialog.isShowing()) {
@@ -227,9 +172,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private OnInfoUpdated listener;
         private ILoadingActivity loadingCallback;
         private ArrayList<ListPreference> preferenceList;
-        private ArrayList<String> cars;
-        private ArrayList<Integer> ids;
-        private ArrayList<String> dealers;
 
         private List<Car> carList;
 
@@ -270,14 +212,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             localScannerAdapter = new LocalScannerAdapter(getActivity());
 
             Bundle bundle = getArguments();
-            cars = bundle.getStringArrayList("cars");
-            ids = bundle.getIntegerArrayList("ids");
-            dealers = bundle.getStringArrayList("dealers");
-
             IntentProxyObject listObject = bundle.getParcelable("carList");
             if (listObject != null) {
                 carList = listObject.getCarList();
+                Log.d(TAG,"listObject != null");
+                Log.d(TAG,"carList.size(): "+carList.size());
             } else {
+                Log.d(TAG,"listObject == null");
                 carList = localCarAdapter.getAllCars();
             }
 
@@ -308,7 +249,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                     shops.add(dealership.getName());
                                     shopIds.add(String.valueOf(dealership.getId()));
                                 }
-                                setUpCarListPreference(shops, shopIds);
+                                for (int i = 0; i < carList.size(); i++) {
+                                    setUpCarPreference(shops,shopIds,carList.get(i));
+                                }
 
                                 loadingCallback.hideLoading(null);
                             } catch (JSONException e) {
@@ -327,7 +270,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     shopIds.add(String.valueOf(shop.getId()));
                 }
 
-                setUpCarListPreference(shops, shopIds);
+                for (int i = 0; i < carList.size(); i++) {
+                    setUpCarPreference(shops,shopIds,carList.get(i));
+                }
             }
         }
 
@@ -355,92 +300,92 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                 if (requestCode == RC_ADD_CAR) {
                     if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                        listener.localUpdatePerformed();
 
-                        //Add car to preference list inside settings
                         Car addedCar = data.getParcelableExtra(CAR_EXTRA);
-                        List<Dealership> dealerships = shopAdapter.getAllDealerships();
+
                         List<String> shops = new ArrayList<>();
                         List<String> shopIds = new ArrayList<>();
-
-                        for (Dealership shop : dealerships) {
-                            shops.add(shop.getName());
-                            shopIds.add(String.valueOf(shop.getId()));
+                        List<Dealership> dealerships = shopAdapter.getAllDealerships();
+                        for (Dealership dealership : dealerships) {
+                            shops.add(dealership.getName());
+                            shopIds.add(String.valueOf(dealership.getId()));
                         }
 
-//                        setUpCarPreference(shops,shopIds,addedCar.getMake() + " " + addedCar.getModel()
-//                                ,String.valueOf(addedCar.getDealership().getId()),addedCar);
+                        setUpCarPreference(shops,shopIds,addedCar);
+
                     }
+
                 }
+
             }
         }
 
-        private void setUpCarListPreference(List<String> shops, List<String> shopIds) {
-            for (int i = 0; i < cars.size(); i++) {
-                VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), carList.get(i));
-                vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
-                vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
-                vehiclePreference.setValue(dealers.get(i));
-                vehiclePreference.setDialogTitle("Choose Shop for: " + cars.get(i));
-                final int index = i;
-                vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        final String shopSelected = (String) newValue;
+        private void setUpCarPreference(List<String> shops, List<String> shopIds,final Car car){
+            VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), car);
+            vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
+            vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+            vehiclePreference.setValue(String.valueOf(car.getShopId()));
+            vehiclePreference.setDialogTitle("Choose Shop for: "
+                    + car.getMake()+" "+car.getModel());
+            vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final String shopSelected = (String) newValue;
 
-                        // Update car in local database
-                        final Car itemCar = localCarAdapter.getCar(ids.get(index));
-                        final int shopId = Integer.parseInt(shopSelected);
-                        itemCar.setShopId(shopId);
-                        int result = localCarAdapter.updateCar(itemCar);
+                    // Update car in local database
+                    final Car itemCar = localCarAdapter.getCar(car.getId());
+                    final int shopId = Integer.parseInt(shopSelected);
+                    itemCar.setShopId(shopId);
+                    int result = localCarAdapter.updateCar(itemCar);
 
-                        try {
-                            mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                            MixpanelHelper.SETTINGS_VIEW, itemCar.getMake(), itemCar.getModel())));
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
-                        }
-
-                        if (result != 0) {
-                            // Car shop was updated
-                            listener.localUpdatePerformed();
-                        }
-
-                        loadingCallback.showLoading("Updating");
-                        networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null) {
-                                    networkHelper.updateCarShop(itemCar.getId(), shopId,
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    if (requestError == null) {
-                                                        loadingCallback.hideLoading("Car dealership updated");
-                                                        Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
-                                                        Car updatedCar = localCarAdapter.getCar(itemCar.getId());
-                                                        updatedCar.setShopId(shopId);
-                                                        localCarAdapter.updateCar(updatedCar);
-                                                        listener.localUpdatePerformed();
-                                                    } else {
-                                                        loadingCallback.hideLoading("An error occurred, please try again.");
-                                                        Log.e(TAG, "Dealership update error: " + requestError.getError());
-                                                    }
-                                                }
-                                            });
-                                } else {
-                                    loadingCallback.hideLoading("An error occurred, please try again.");
-                                    Log.e(TAG, "Get shops: " + requestError.getMessage());
-                                }
-                            }
-                        });
-                        return true;
+                    try {
+                        mixpanelHelper.trackCustom("Button Tapped",
+                                new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                        MixpanelHelper.SETTINGS_VIEW, itemCar.getMake(), itemCar.getModel())));
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
                     }
-                });
-                ((PreferenceCategory) getPreferenceManager()
-                        .findPreference(getString(R.string.pref_vehicles)))
-                        .addPreference(vehiclePreference);
-            }
+
+                    if (result != 0) {
+                        // Car shop was updated
+                        listener.localUpdatePerformed();
+                    }
+
+                    loadingCallback.showLoading("Updating");
+                    networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                networkHelper.updateCarShop(itemCar.getId(), shopId,
+                                        new RequestCallback() {
+                                            @Override
+                                            public void done(String response, RequestError requestError) {
+                                                if (requestError == null) {
+                                                    loadingCallback.hideLoading("Car dealership updated");
+                                                    Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
+                                                    Car updatedCar = localCarAdapter.getCar(itemCar.getId());
+                                                    updatedCar.setShopId(shopId);
+                                                    localCarAdapter.updateCar(updatedCar);
+                                                    listener.localUpdatePerformed();
+                                                } else {
+                                                    loadingCallback.hideLoading("An error occurred, please try again.");
+                                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                }
+                                            }
+                                        });
+                            } else {
+                                loadingCallback.hideLoading("An error occurred, please try again.");
+                                Log.e(TAG, "Get shops: " + requestError.getMessage());
+                            }
+                        }
+                    });
+                    return true;
+                }
+            });
+            ((PreferenceCategory) getPreferenceManager()
+                    .findPreference(getString(R.string.pref_vehicles)))
+                    .addPreference(vehiclePreference);
         }
 
         @Override
