@@ -1,6 +1,8 @@
 package com.castel.obd.bleDevice;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.castel.obd.OBD;
@@ -10,7 +12,6 @@ import com.castel.obd215b.util.FaultParse;
 import com.castel.obd215b.util.Utils;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.IDRInfo;
 import com.castel.obd215b.info.SettingInfo;
@@ -46,15 +47,21 @@ public class Device215B implements AbstractDevice {
     public static final String SAMPLED_PID_PARAM = "A14";
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
+    private static final String KEY_LAST_MILEAGE_215 = "last_mileage_215";
+    public static final String KEY_LAST_SCAN_TIME = "last_scan_time";
 
     ObdManager.IBluetoothDataListener dataListener;
+    SharedPreferences mSharedPrefs;
     private Context context;
     private final String deviceName;
+    private double mLastMileage;
+    private String carId;
 
     public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.context);
     }
 
     // functions
@@ -92,6 +99,11 @@ public class Device215B implements AbstractDevice {
     @Override
     public String getDeviceName() {
         return deviceName;
+    }
+
+    @Override
+    public DeviceType getDeviceType() {
+        return DeviceType.DEVICE_215B;
     }
 
     @Override
@@ -345,8 +357,17 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
                     tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
-                    tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
-
+                    //TODO make this unique for different car, minus the mileage from 215B mileage in the callback method, not here
+                    mLastMileage = Double.longBitsToDouble(mSharedPrefs.getLong(KEY_LAST_MILEAGE_215, 0));
+                    Long lastScanTime = mSharedPrefs.getLong(KEY_LAST_SCAN_TIME, 0);
+                    if (lastScanTime == 0 || lastScanTime <= tripInfoPackage.rtcTime) {
+                        tripInfoPackage.mileage = (Double.parseDouble(idrInfo.mileage) - mLastMileage) / 1000;
+                    }
+                    else {
+                        tripInfoPackage.mileage = 0;
+                    }
+                    mSharedPrefs.edit().putLong(KEY_LAST_MILEAGE_215, Double.doubleToLongBits(Double.parseDouble(idrInfo.mileage)))
+                            .apply();
                     dataListener.tripData(tripInfoPackage);
                 }
 

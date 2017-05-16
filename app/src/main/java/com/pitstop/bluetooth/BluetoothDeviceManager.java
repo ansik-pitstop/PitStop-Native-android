@@ -432,4 +432,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         writeToObd(deviceInterface.requestData());
     }
+
+    public AbstractDevice.DeviceType getDeviceType() {
+        if (btConnectionState != BluetoothCommunicator.CONNECTED)
+            return null;
+        return deviceInterface.getDeviceType();
+    }
 }
