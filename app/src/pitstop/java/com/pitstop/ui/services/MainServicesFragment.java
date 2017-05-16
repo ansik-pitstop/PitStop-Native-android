@@ -1,6 +1,7 @@
 package com.pitstop.ui.services;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -8,10 +9,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.ui.MainActivity;
@@ -31,6 +34,9 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
 
     private MainActivity mainActivity;
     private SubServiceViewPager mServicesPager;
+    private TabLayout tabLayout;
+
+    private boolean didLoadCustomDesign = false;
 
     public static MainServicesFragment newInstance() {
         MainServicesFragment fragment = new MainServicesFragment();
@@ -49,7 +55,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         //Create tab layout
-        TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
+        tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Upcoming"));
         tabLayout.addTab(tabLayout.newTab().setText("Current"));
         tabLayout.addTab(tabLayout.newTab().setText("History"));
@@ -70,6 +76,16 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
 
             }
         });
+
+        //Check whether dashboard car was set prior to tablayout being set up
+        if (dashboardCar != null && !didLoadCustomDesign){
+            loadDealershipCustomDesign();
+            didLoadCustomDesign = true;
+        }
+        else{
+            didLoadCustomDesign = false;
+        }
+
         mServicesPager.setAdapter(new ServicesAdapter(getChildFragmentManager()));
     }
 
@@ -110,8 +126,46 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         return rootview;
     }
 
+    private void loadDealershipCustomDesign(){
+        //Update tab design to the current dealerships custom design if applicable
+        if (dashboardCar.getDealership() != null){
+            if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4
+                    || dashboardCar.getDealership().getId() == 18)){
+
+                bindMercedesDealerUI();
+            }else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+                bindMercedesDealerUI();
+            }
+            else{
+                bindDefaultDealerUI();
+            }
+        }
+    }
+
+    private void bindDefaultDealerUI(){
+        //Get the themes default primary color
+        TypedValue defaultColor = new TypedValue();
+        mainActivity.getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
+
+        //Set other changed UI elements back to original color
+        tabLayout.setBackgroundColor(defaultColor.data);
+    }
+
+    private void bindMercedesDealerUI(){
+        tabLayout.setBackgroundColor(Color.BLACK);
+    }
+
     @Override
     public void onDashboardCarUpdated() {
+
+        //Update design for custom dealers
+        if (getView() != null){
+            loadDealershipCustomDesign();
+            didLoadCustomDesign = true;
+        }
+        else{
+            didLoadCustomDesign = false;
+        }
 
         //Send car data to upcoming services fragment
         UpcomingServicesFragment.setDashboardCar(dashboardCar);

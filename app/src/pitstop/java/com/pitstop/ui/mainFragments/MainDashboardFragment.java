@@ -38,6 +38,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -307,13 +308,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         dealershipAddress.setText(dealership.getAddress());
         dealershipPhone.setText(dealership.getPhone());
         setDealerVisuals(dealership);
-/*        mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
-        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-        mHighwayIcon.setImageResource(R.drawable.mercedes_h);
-        mCityIcon.setImageResource(R.drawable.mercedes_c);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.mercedes_book);*/
     }
 
     private void setDealerVisuals(Dealership dealership) {
@@ -646,8 +640,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                     public void onClick(View v) {
                         // removeTutorial();
                         ((MainActivity)activity).prepareAndStartTutorialSequence();
-
-
                     }
                 });
             } else {

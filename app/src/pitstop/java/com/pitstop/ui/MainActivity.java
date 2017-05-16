@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.BuildConfig;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -32,6 +32,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +55,7 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -547,86 +549,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             }
         });
 
-
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        installation.setACL(acl);
-        installation.put("userId", String.valueOf(application.getCurrentUserId()));
-        installation.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d(TAG, "Installation saved");
-                } else {
-                    Log.w(TAG, "Error saving installation: " + e.getMessage());
-                }
-            }
-        });
-
-        serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
-        startService(serviceIntent);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toggleConnectionStatusActionBar(false);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-        R.string.bluetooth, R.string.bluetooth) {
-
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-/*                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_CLOSE_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-/*                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_OPEN_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-            }
-        };
-        //mDrawerToggle.setDrawerIndicatorEnabled(true);
-
-
-       // viewPager.setAdapter(adapter);
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-
-        // Local db adapters
-        carLocalStore = new LocalCarAdapter(application);
-        shopLocalStore = new LocalShopAdapter(application);
-        scannerLocalStore = new LocalScannerAdapter(application);
-
-        if (createdOrAttached) {
-            refreshFromServer();
-        } else {
-            createdOrAttached = true;
-        }
-
-        logAuthInfo();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
-    }
-
-    public void changeTheme(boolean darkTheme) {
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this , darkTheme ? R.color.black : R.color.primary_dark));
-        }
-        mDrawer.setBackground(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
     }
 
     @Override
@@ -638,20 +560,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
 
         resetMenus(false);
-        //mixpanelHelper.trackViewAppeared(viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ? MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
-        toggleDrawerLocked();
-    }
-
-    private void toggleDrawerLocked() {
-        if (dashboardCar == null) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        }
-        else {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -687,6 +595,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             broadCastCarDataToFragments();
             mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+            loadDealershipCustomDesign();
+
         }
     }
 
@@ -709,23 +619,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (scanCallback != null){
             scanCallback.onDashboardCarUpdated();
         }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
-
-        if (mDrawerList != null) {
-            if (mainAppSideMenuAdapter == null) {
-                mainAppSideMenuAdapter = new MainAppSideMenuAdapter(this,
-                        carList.toArray(new Car[carList.size()]));
-                mDrawerList.setAdapter(mainAppSideMenuAdapter);
-            } else {
-                mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
-                mainAppSideMenuAdapter.notifyDataSetChanged();
-            }
-            // Set the adapter for the list view
-            // Set the list's click listener
-            mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        }
-        toggleDrawerLocked();
     }
 
     @Override
@@ -768,10 +661,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
-                        callback.setDashboardCar(carList);
-                        toggleDrawerLocked();
-                        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
-                        servicesCallback.onDashboardCarUpdated(getCurrentCar());
                         broadCastCarDataToFragments();
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
@@ -830,6 +719,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     refreshFromServer();
                 }
                 mainDashboardCallback.setCarDetailsUI();
+                loadDealershipCustomDesign();
+
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -855,7 +746,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-        toggleDrawerLocked();
     }
 
     public BluetoothAutoConnectService getBluetoothConnectService() {
@@ -914,8 +804,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item))
-            return true;
         switch (item.getItemId()){
             case R.id.action_settings:
                 settingsClicked(null);
@@ -931,7 +819,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
     }
 
     /**
@@ -954,20 +841,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         startActivity(carTimelineIntent);
     }
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(position);
-            resetMenus(false);
-
-            // Track new selected car
-            String button = dashboardCar.getMake() + " " + dashboardCar.getModel();
-/*            mixpanelHelper.trackButtonTapped("Select Current Car: " + button, viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-        }
-    }
-
     /**
      * Retrieve a list of cars associated with current user
      */
@@ -981,9 +854,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             getCarDetails();
         } else {
-            View drawerLayout = findViewById(R.id.drawer_layout);
-            if (drawerLayout != null) {
-                Snackbar.make(mDrawerLayout, "You are not connected to internet", Snackbar.LENGTH_SHORT).show();
+            View linearLayout = findViewById(R.id.linear_layout);
+            if (linearLayout != null) {
+                Snackbar.make(linearLayout, "You are not connected to internet", Snackbar.LENGTH_SHORT).show();
             }
             refreshFromLocal();
             resetMenus(false);
@@ -991,7 +864,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 hideLoading();
             }
         }
-        toggleDrawerLocked();
     }
 
     public void refreshFromLocal() {
@@ -1021,7 +893,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             hideLoading();
         }
 
-        toggleDrawerLocked();
+        //After loading car details
+
     }
 
     private void startPromptAddCarActivity() {
@@ -1029,6 +902,42 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         //Don't allow user to come back to tabs without first setting a car
         startActivityForResult(intent, RC_ADD_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    private void loadDealershipCustomDesign(){
+        //Update tab design to the current dealerships custom design if applicable
+        if (dashboardCar.getDealership() != null){
+            if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4
+                    || dashboardCar.getDealership().getId() == 18)){
+
+                bindMercedesDealerUI();
+            }else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+                bindMercedesDealerUI();
+            }
+            else{
+                bindDefaultDealerUI();
+            }
+        }
+    }
+
+    private void bindMercedesDealerUI(){
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.main_tablayout);
+        tabLayout.setBackgroundColor(Color.BLACK);
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        appBarLayout.setBackgroundColor(Color.DKGRAY);
+    }
+
+    private void bindDefaultDealerUI(){
+        //Change theme elements back to default
+        changeTheme(false);
+
+        //Get the themes default primary color
+        TypedValue defaultColor = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
+
+        //Set other changed UI elements back to original color
+        ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
+        ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
 
     /**
@@ -1047,22 +956,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
-//                    View mainView = findViewById(R.id.main_view);
-//                    View noCarText = findViewById(R.id.no_car_text);
-//                    View noConnectText = findViewById(R.id.no_connect_text);
-//                    View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
-//                    if (mainView != null) {
-//                        mainView.setVisibility(View.GONE);
-//                    }
-//                    if (noCarText != null) {
-//                        noCarText.setVisibility(View.GONE);
-//                    }
-//                    if (noConnectText != null) {
-//                        noConnectText.setVisibility(View.VISIBLE);
-//                    }
-//                    if (requestServiceButton != null) {
-//                        requestServiceButton.setVisibility(View.GONE);
-//                    }
                     startPromptAddCarActivity();
 
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -1114,6 +1007,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
                                         mainDashboardCallback.setCarDetailsUI();
+                                        loadDealershipCustomDesign();
+
                                     }
 
                                     mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
@@ -1135,7 +1030,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         }
                     });
                 }
-                toggleDrawerLocked();
             }
         });
     }
@@ -1247,75 +1141,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         }
     }
 
-    /**
-     * Create and show an snackbar that is used to show users some information.<br>
-     * The purpose of this method is to display message that requires user's confirm to be dismissed.
-     *
-     * @param content snack bar message
-     */
-    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
-                .setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // DO nothing
-                    }
-                })
-                .setActionTextColor(Color.WHITE);
-        View snackBarView = snackbar.getView();
-        if (isSuccess) {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
-        } else {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
-        }
-        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
-
-        snackbar.show();
-
-    }
-
-    /**
-     * Swaps fragments in the main content view
-     */
-    private void selectItem(int position) {
-        dashboardCar = carList.get(position);
-        for (Car car : carList) {
-            car.setCurrentCar(false);
-        }
-        dashboardCar.setCurrentCar(true);
-        networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
-        // Highlight the selected item, update the title, and close the drawer
-        for (int i = 0; i < carList.size(); i++) {
-            mDrawerList.setItemChecked(i, false);
-        }
-        mDrawerList.setItemChecked(position, true);
-        callback.setDashboardCar(carList);
-        callback.setCarDetailsUI();
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-/*        if (viewPager.getCurrentItem() == 0) {
-            findViewById(R.id.main_view).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
-        }*/
-
-        //Update the dashboard car in fragments
-        if (servicesFragment != null) {
-            servicesFragment.onDashboardCarUpdated(getCurrentCar());
-        }
-        mainDashboardCallback.onDashboardCarUpdated(getCurrentCar());
-        servicesCallback.onDashboardCarUpdated(getCurrentCar());
-        broadCastCarDataToFragments();
-
-        mainDashboardCallback.setCarDetailsUI();
-    }
-
-    public void startAddCarActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        startActivityForResult(intent, RC_ADD_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -1397,7 +1222,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
             autoConnectService.startBluetoothSearch(); // refresh clicked
         }
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
 
     /**
@@ -1435,22 +1259,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             startActivityForResult(intent, RC_SETTINGS);
             overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
         }
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-    }
-
-    public void notificationsClicked(View view){
-/*        mixpanelHelper.trackButtonTapped(getString(R.string.notifications),
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-        startActivity(new Intent(MainActivity.this, NotificationsActivity.class));
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
-    }
-
-    public void servicesClicked(View view){
-        Intent intent = new Intent(this, MainServicesFragment.class);
-        intent.putExtra("dashboardCar", dashboardCar);
-        startActivity(intent);
     }
 
     /**
