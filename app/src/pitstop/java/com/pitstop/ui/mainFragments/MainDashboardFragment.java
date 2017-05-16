@@ -819,6 +819,10 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                 d.dismiss();
                                 ((MainActivity)getActivity()).getBluetoothConnectService().manuallyUpdateMileage = true;
                                 showLoading("Updating Mileage...");
+
+                                //Update mileage in the GUI so it doesn't have to be loaded from network
+                                mMileageText.setText(String.valueOf(mileage));
+
                                 networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                     @Override
                                     public void done(String response, RequestError requestError) {
@@ -850,6 +854,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         }
                                     }
                                 });
+
                             }
                         }
                     });
