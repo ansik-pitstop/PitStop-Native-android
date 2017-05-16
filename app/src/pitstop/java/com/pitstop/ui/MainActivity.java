@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.BuildConfig;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -30,6 +30,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +48,7 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -575,6 +577,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             broadCastCarDataToFragments();
             mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+            loadDealershipCustomDesign();
+
         }
     }
 
@@ -697,6 +701,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     refreshFromServer();
                 }
                 mainDashboardCallback.setCarDetailsUI();
+                loadDealershipCustomDesign();
+
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -869,6 +875,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             hideLoading();
         }
 
+        //After loading car details
+
     }
 
     private void startPromptAddCarActivity() {
@@ -876,6 +884,42 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         //Don't allow user to come back to tabs without first setting a car
         startActivityForResult(intent, RC_ADD_CAR);
         overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
+    }
+
+    private void loadDealershipCustomDesign(){
+        //Update tab design to the current dealerships custom design if applicable
+        if (dashboardCar.getDealership() != null){
+            if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4
+                    || dashboardCar.getDealership().getId() == 18)){
+
+                bindMercedesDealerUI();
+            }else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+                bindMercedesDealerUI();
+            }
+            else{
+                bindDefaultDealerUI();
+            }
+        }
+    }
+
+    private void bindMercedesDealerUI(){
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.main_tablayout);
+        tabLayout.setBackgroundColor(Color.BLACK);
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        appBarLayout.setBackgroundColor(Color.DKGRAY);
+    }
+
+    private void bindDefaultDealerUI(){
+        //Change theme elements back to default
+        changeTheme(false);
+
+        //Get the themes default primary color
+        TypedValue defaultColor = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
+
+        //Set other changed UI elements back to original color
+        ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
+        ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
 
     /**
@@ -894,22 +938,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
-//                    View mainView = findViewById(R.id.main_view);
-//                    View noCarText = findViewById(R.id.no_car_text);
-//                    View noConnectText = findViewById(R.id.no_connect_text);
-//                    View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
-//                    if (mainView != null) {
-//                        mainView.setVisibility(View.GONE);
-//                    }
-//                    if (noCarText != null) {
-//                        noCarText.setVisibility(View.GONE);
-//                    }
-//                    if (noConnectText != null) {
-//                        noConnectText.setVisibility(View.VISIBLE);
-//                    }
-//                    if (requestServiceButton != null) {
-//                        requestServiceButton.setVisibility(View.GONE);
-//                    }
                     startPromptAddCarActivity();
 
                     Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
@@ -961,6 +989,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
                                         mainDashboardCallback.setCarDetailsUI();
+                                        loadDealershipCustomDesign();
+
                                     }
 
                                     resetMenus(false);

@@ -31,7 +31,7 @@
                 android:id="@+id/main_tablayout"
                 app:tabTextAppearance="@style/NavigationTabTextAppeareance"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_dashboard"
