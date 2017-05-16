@@ -78,7 +78,6 @@ public class NotificationsFragment extends Fragment {
         mNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mNetworkHelper = new NetworkHelper(getApplicationContext());
 
-        fetchNotifications();
         return rootview;
     }
 
@@ -167,6 +166,16 @@ public class NotificationsFragment extends Fragment {
         mNoNotificationsContainer.setVisibility(View.GONE);
         mNotificationsRecyclerView.setVisibility(View.VISIBLE);
         fetchNotifications();
+    }
+
+    //Load notifications if view is opened
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser && getView() != null){
+            fetchNotifications();
+        }
     }
 
     private class NotificationListAdapter extends RecyclerView.Adapter<NotificationListViewHolder>{
