@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -10,6 +11,7 @@ import com.parse.ParseInstallation;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.Trip;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -812,5 +814,53 @@ public class NetworkHelper {
     public void getRandomVin(RequestCallback callback) {
         getWithCustomUrl("http://randomvin.com", "/getvin.php?type=valid", callback);
     }
+    public void postTripStep1(Trip trip,String vin,RequestCallback callback){//still need to add post statement
+        JSONObject body = new JSONObject();
+        try {
+            body.put("vin", vin);
+            body.put("rtcTimeStart",trip.getStart().getTime()/1000L);//millisecond time to unix time
+            body.put("deviceType","android");
+            body.put("locationStart",new JSONObject()
+                    .put("lat",Double.toString(trip.getStart().getLatitude()))
+                    .put("long",Double.toString(trip.getStart().getLongitude())));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println("testing "+body);
+        post("scan/trip",callback,body);
+
+    }
+
+    public void postTripStep2(Trip trip,RequestCallback callback){//still need to add post
+        JSONObject body = new JSONObject();
+        JSONArray pidArray = new JSONArray();
+        try {
+            body.put("tripId",trip.getId());
+            for(Location loc : trip.getPath()){
+                pidArray.put(new JSONObject()
+                .put("pids",new JSONArray())
+                .put("geolocation",new JSONObject().put("lat",Double.toString(loc.getLatitude())).put("long",Double.toString(loc.getLongitude())))
+                .put("rtcTime",loc.getTime()/1000L));
+            }
+            body.put("pidArray",pidArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Testing "+body);
+        post("scan/pids",callback,body);
+    }
+
+    public void putTripStep3(Trip trip, RequestCallback callback){//still need to add put statement
+        JSONObject body = new JSONObject();
+        try {
+            body.put("tripId",trip.getId());
+            body.put("rtcTimeEnd",trip.getEnd().getTime());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //put("scan/trip",callback,body);
+       /// System.out.println("Testing "+body);
+    }
+
 
 }

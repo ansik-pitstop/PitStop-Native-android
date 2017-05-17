@@ -30,6 +30,7 @@ import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalTripAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
@@ -68,6 +69,7 @@ public class GlobalApplication extends Application {
     private LocalCarAdapter mLocalCarAdapter;
     private LocalCarIssueAdapter mLocalCarIssueAdapter;
     private LocalAppointmentAdapter mLocalAppointmentAdapter;
+    private LocalTripAdapter mLocalTripAdapter;
     private LocalPidAdapter mLocalPidAdapter;
     private LocalShopAdapter mLocalShopAdapter;
 
@@ -334,6 +336,7 @@ public class GlobalApplication extends Application {
         mLocalScannerAdapter = new LocalScannerAdapter(this);
         mLocalCarAdapter = new LocalCarAdapter(this);
         mLocalAppointmentAdapter = new LocalAppointmentAdapter(this);
+        mLocalTripAdapter = new LocalTripAdapter(this);
         mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
         mLocalPidAdapter = new LocalPidAdapter(this);
         mLocalShopAdapter = new LocalShopAdapter(this);
@@ -348,6 +351,7 @@ public class GlobalApplication extends Application {
         mLocalPidAdapter.deleteAllRows();
         mLocalCarAdapter.deleteAllRows();
         mLocalAppointmentAdapter.deleteAllRows();
+        mLocalTripAdapter.deleteAllRows();
         mLocalCarIssueAdapter.deleteAllRows();
         mLocalShopAdapter.deleteAllRows();
     }

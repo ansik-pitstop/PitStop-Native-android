@@ -1,25 +1,15 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.app.Fragment;
-import android.icu.util.Calendar;
-import android.location.Address;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.R;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,10 +22,26 @@ import java.util.Locale;
 public class TripView extends Fragment {
 
     private String initialAddress;
+    private DecimalFormat decimalFormat;
+
+
 
 
     public void setAddress(String address){
         initialAddress = address;
+    }
+    public void setSpeed(double speed){
+        if(getView() != null){
+            TextView currentSpeedTextView = (TextView) getView().findViewById(R.id.current_speed);
+            currentSpeedTextView.setText("Speed: "+decimalFormat.format(speed) + " km/h");
+        }
+    }
+    public void setDistance(double distance){
+        if(getView() != null){
+            distance /= 1000;//distance is in meters
+            TextView currentDistanceTextView = (TextView) getView().findViewById(R.id.current_distance);
+            currentDistanceTextView.setText("Distance: " + decimalFormat.format(distance) + " km");
+        }
     }
 
     @Override
@@ -45,7 +51,7 @@ public class TripView extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        System.out.println("Testing onActivityCreated gets called now");
+        decimalFormat = new DecimalFormat("0.00");
         Date startTime  = new Date(System.currentTimeMillis());
         TextView startTimeTextView = (TextView) getView().findViewById(R.id.starting_time);
         startTimeTextView.setText(dateFormat(startTime.toString()));
