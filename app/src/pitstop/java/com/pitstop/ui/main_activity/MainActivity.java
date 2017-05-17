@@ -1303,12 +1303,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (!checkDealership()) return;
         mixpanelHelper.trackButtonTapped("My Appointments","Dashboard");
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
-        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
     }
 
     public void myTrips(){
         final Intent intent = new Intent(this, MyTripsActivity.class);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
     }
 

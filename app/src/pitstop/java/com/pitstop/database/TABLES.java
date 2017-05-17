@@ -59,6 +59,16 @@ public final class TABLES {
         String KEY_STATE = "state";
         String KEY_SHOP_ID = "shopId";
     }
+    public interface TRIP{
+        String TABLE_NAME = "trips";
+        String KEY_START = "start";
+        String KEY_END = "end";
+        String KEY_START_ADDRESS = "startAddress";
+        String KEY_END_ADDRESS = "endAddress";
+        String KEY_TOTAL_DISTANCE = "totalDistance";
+        String KEY_TRIP_ID = "tripId";
+        String KEY_PATH = "path";
+    }
 
     public interface CAR_ISSUES {
         String TABLE_NAME = "carIssues";
