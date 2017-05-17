@@ -27,8 +27,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -40,11 +38,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -58,9 +51,6 @@ import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.adapters.MainAppSideMenuAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
@@ -83,11 +73,7 @@ import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
-import com.pitstop.ui.mainFragments.MainToolFragment;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.mainFragments.MainToolFragment;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
-import com.pitstop.ui.scan_car.ScanCarActivity;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -108,7 +94,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.ButterKnife;
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -233,7 +218,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
-    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
 
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
@@ -1011,8 +995,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                                     }
 
-                                    mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
-                                    mainAppSideMenuAdapter.notifyDataSetChanged();
                                     resetMenus(false);
                                     hideLoading();
                                 } catch (JSONException e) {
@@ -1441,7 +1423,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         });
 
         //viewPager.setCurrentItem(0);
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
         isFirstAppointment = true;
         tutorialSequence.start();
     }
