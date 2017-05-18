@@ -102,7 +102,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
                     vinField.setText(requestError == null ? response : "error: " + requestError.getMessage());
                 })
         );
-
         setupLogging();
     }
 

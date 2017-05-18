@@ -94,6 +94,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
     @BindView(R.id.recalls_scan_details) CardView recallCard;
     @BindView(R.id.services_scan_details) CardView serviceCard;
     @BindView(R.id.engine_scan_details) CardView dtcCard;
+    @BindView(R.id.update_mileage) Button updateMileageButton;
 
     private AlertDialog updateMileageDialog;
     private AlertDialog uploadHistoricalDialog;
@@ -363,7 +364,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
     private void updateUi() {
         carMileage.setText(String.format("%.2f", presenter.getLatestMileage()));
         if (!BuildConfig.DEBUG) {
-            getActivity().findViewById(R.id.update_mileage).setVisibility(View.GONE);
+            updateMileageButton.setVisibility(View.GONE);
         }
     }
 
