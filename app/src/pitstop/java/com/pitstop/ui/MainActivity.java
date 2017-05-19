@@ -205,6 +205,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public static final String FROM_ACTIVITY = "from_activity";
     public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
+    private final int FAB_DELAY = 50;
+
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -303,8 +305,20 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     //Set up fab, and fab menu click listener and the animations that will be taking place
     private void setFabUI(){
 
-        final Animation fab_open = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_open);
-        final Animation fab_close = AnimationUtils.loadAnimation(getApplication(),R.anim.fab_close);
+        final ArrayList<Animation> open_anims = new ArrayList<>();
+        final ArrayList<Animation> close_anims = new ArrayList<>();
+
+        //Add delay between animations of each FAB to avoid performance decrease
+        for (int i=0;i<4;i++){
+            Animation fab_open = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_open);
+            fab_open.setStartOffset((4-i)*FAB_DELAY);
+            open_anims.add(fab_open);
+
+            Animation fab_close = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_close);
+            fab_close.setStartOffset(i*FAB_DELAY);
+            close_anims.add(fab_close);
+        }
+
         final Animation rotate_forward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_forward);
         final Animation rotate_backward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_backward);
 
@@ -314,12 +328,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 mixpanelHelper.trackFabClicked("Main");
                 if(isFabOpen){
 
-                    //Begin closing animation
                     fabMain.startAnimation(rotate_backward);
-                    fabDirections.startAnimation(fab_close);
-                    fabCall.startAnimation(fab_close);
-                    fabMessage.startAnimation(fab_close);
-                    fabRequestService.startAnimation(fab_close);
+                    //Begin closing animation
+                    fabDirections.startAnimation(close_anims.get(0));
+                    fabCall.startAnimation(close_anims.get(1));
+                    fabMessage.startAnimation(close_anims.get(2));
+                    fabRequestService.startAnimation(close_anims.get(3));
 
                     //Don't let the user click
                     fabCall.setClickable(false);
@@ -333,10 +347,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                     //Begin opening animation
                     fabMain.startAnimation(rotate_forward);
-                    fabRequestService.startAnimation(fab_open);
-                    fabMessage.startAnimation(fab_open);
-                    fabCall.startAnimation(fab_open);
-                    fabDirections.startAnimation(fab_open);
+                    fabDirections.startAnimation(open_anims.get(0));
+                    fabCall.startAnimation(open_anims.get(1));
+                    fabMessage.startAnimation(open_anims.get(2));
+                    fabRequestService.startAnimation(open_anims.get(3));
 
                     //Let the user click fab
                     fabCall.setClickable(true);
