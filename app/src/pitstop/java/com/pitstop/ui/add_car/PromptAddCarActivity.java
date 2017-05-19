@@ -15,6 +15,10 @@ public class PromptAddCarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prompt_add_car);
+
+        //Change toolbar
+        getSupportActionBar().setTitle("Add First Car");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     public void startAddCarActivity(View view) {
