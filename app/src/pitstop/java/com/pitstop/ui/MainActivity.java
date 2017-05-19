@@ -910,7 +910,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     || myCar.getDealership().getId() == 18)){
 
                 bindMercedesDealerUI();
-            }else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+            }else if (!BuildConfig.DEBUG && myCar.getDealership().getId() == 14) {
                 bindMercedesDealerUI();
             }
             else{
