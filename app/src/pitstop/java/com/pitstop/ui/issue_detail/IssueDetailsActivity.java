@@ -162,7 +162,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
-        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
 }

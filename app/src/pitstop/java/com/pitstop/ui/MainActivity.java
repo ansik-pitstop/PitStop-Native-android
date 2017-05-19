@@ -384,7 +384,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
                 }
                 ConversationActivity.show(thisActivity);
-                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
 
@@ -397,7 +396,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
                 startActivityForResult(intent, RC_REQUEST_SERVICE);
-                overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
             }
         });
 
@@ -411,7 +409,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         dashboardCar.getDealership().getPhone()));
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
 
@@ -428,7 +425,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         dashboardCar.getDealership().getAddress());
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
     }
@@ -829,7 +825,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     public void upcomingServiceClicked(View view){
@@ -899,7 +894,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Intent intent = new Intent(MainActivity.this, PromptAddCarActivity.class);
         //Don't allow user to come back to tabs without first setting a car
         startActivityForResult(intent, RC_ADD_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     private void loadDealershipCustomDesign(){
@@ -1206,7 +1200,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Intent intent = new Intent(this, ScanCarFragment.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1247,7 +1240,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     if (requestError == null) {
                         application.setCurrentUser(com.pitstop.models.User.jsonToUserObject(response));
                         startActivityForResult(intent, RC_SETTINGS);
-                        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     } else {
                         Log.e(TAG, "Get user error: " + requestError.getMessage());
                     }
@@ -1255,7 +1247,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
-            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
         }
     }
 
@@ -1274,7 +1265,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
         isFirstAppointment = false;
         startActivityForResult(intent, RC_REQUEST_SERVICE);
-        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
     public void myAppointments(){
@@ -1283,7 +1273,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
 
@@ -1315,7 +1304,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
         }
         ConversationActivity.show(this);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1334,7 +1322,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 dashboardCar.getDealership().getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1351,7 +1338,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                 dashboardCar.getDealership().getPhone()));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**

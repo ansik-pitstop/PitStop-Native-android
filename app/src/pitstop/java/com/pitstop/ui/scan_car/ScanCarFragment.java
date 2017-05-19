@@ -331,7 +331,6 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 //        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
 //        setResult(MainActivity.RESULT_OK, data);
 //        super.finish();
-//        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     /**

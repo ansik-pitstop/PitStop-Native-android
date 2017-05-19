@@ -24,13 +24,11 @@ public class PromptAddCarActivity extends AppCompatActivity {
     public void startAddCarActivity(View view) {
         Intent intent = new Intent(PromptAddCarActivity.this, AddCarActivity.class);
         startActivityForResult(intent, RC_ADD_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override

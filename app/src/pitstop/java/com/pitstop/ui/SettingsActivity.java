@@ -146,7 +146,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         intent.putExtra(REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override
@@ -303,7 +302,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     Intent intent = new Intent(getActivity(), AddCarActivity.class);
                     //Don't allow user to come back to tabs without first setting a car
                     startActivityForResult(intent, RC_ADD_CAR);
-                    getActivity().overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     return false;
                 }
             });
