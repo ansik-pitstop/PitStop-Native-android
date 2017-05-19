@@ -5,4 +5,14 @@ public class LoginPackageInfo {
 	public String instruction;
 	public String deviceId;
 	public String flag;
+
+	@Override
+	public String toString() {
+		return "LoginPackageInfo{" +
+				"result=" + result +
+				", instruction='" + instruction + '\'' +
+				", deviceId='" + deviceId + '\'' +
+				", flag='" + flag + '\'' +
+				'}';
+	}
 }

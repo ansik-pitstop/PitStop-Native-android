@@ -29,30 +29,32 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.Pid;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
-import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.R;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -339,65 +341,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-//    /**
-//     * @param parameterPackageInfo The response sent from device upon querying the
-//     *                             obd device for a specific tag or list of tags
-//     *                             If response is for device time, check if returned value for
-//     *                             is within 1 year. If device time is not within range then sync.
-//     * @see #syncObdDevice()
-//     * */
-//    @Override
-//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) { // TODO: remove after adding generic package
-//
-//        Log.i(TAG, "getParameterData(): " + parameterPackageInfo.value.get(0).value);
-//
-//        if (gettingPID) {
-//            Log.i(TAG, "Getting parameter data- auto-connect service");
-//            pids = parameterPackageInfo.value.get(0).value.split(","); // pids returned separated by commas
-//            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
-//            StringBuilder sb = new StringBuilder();
-//            int pidCount = 0;
-//            for (String dataType : PID_PRIORITY) {
-//                if (pidCount >= 10) {
-//                    break;
-//                }
-//                if (supportedPidsSet.contains(dataType)) {
-//                    sb.append(dataType);
-//                    sb.append(",");
-//                    ++pidCount;
-//                }
-//            }
-//            if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
-//                supportedPids = sb.substring(0, sb.length() - 1);
-//            } else {
-//                supportedPids = DEFAULT_PIDS;
-//            }
-//            setParam(ObdManager.FIXED_UPLOAD_TAG, "01;01;01;10;2;" + supportedPids);
-//
-//            //setFixedUpload();
-//
-//            pidI = 0;
-//            //sendForPIDS();
-//            gettingPID=false;
-//        }
-//
-//        if (isGettingVin) {
-//            isGettingVin = false;
-//        }
-//
-//        if (callbacks != null) {
-//            Log.i(TAG, "getting parameter data on service Callbacks - auto-connect service");
-//            callbacks.getParameterData(parameterPackageInfo);
-//        }
-//    }
-
     /**
      * Handles trip data containing mileage
      * @param tripInfoPackage
      */
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
-        Log.d(TAG, "tripData: " + tripInfoPackage.toString());
+        LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if(manuallyUpdateMileage) {
             Log.i(TAG, "Currently scanning car, ignoring trips");
@@ -409,9 +359,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             sharedPreferences.edit().putInt(pfDeviceTripId, lastDeviceTripId).apply();
 
             if(tripInfoPackage.flag == TripInfoPackage.TripFlag.START) {
-                Log.i(TAG, "Trip start flag received");
+                LogUtils.debugLogI(TAG, "Trip start flag received", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             } else if(tripInfoPackage.flag == TripInfoPackage.TripFlag.END) {
-                Log.i(TAG, "Trip end flag received");
+                LogUtils.debugLogI(TAG, "Trip end flag received", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 if(lastTripId == -1) {
                     networkHelper.getLatestTrip(tripInfoPackage.deviceId, new RequestCallback() {
                         @Override
@@ -454,7 +404,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
-        Log.d(TAG, "parameterData: " + parameterPackage.toString());
+        LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
             Log.i(TAG, "Supported pids returned");
@@ -579,7 +529,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            //Log.d(TAG, "PID json: " + json);
         }
 
         Log.d(TAG, "PIDs received: " + sb.toString());
@@ -605,7 +554,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void dtcData(DtcPackage dtcPackage) {
-        Log.d(TAG, "DTC data: " + dtcPackage.toString());
+        LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
             getFreezeData();
@@ -616,111 +565,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void ffData(FreezeFramePackage ffPackage) {
-        Log.d(TAG, "Receives FreezeFrame: " + ffPackage);
+        LogUtils.debugLogD(TAG, "Receives FreezeFrame: " + ffPackage, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         saveFreezeFrame(ffPackage);
     }
-
-//    /**
-//     * result=4 --> trip data uploaded by terminal
-//     * result=5 --> PID data uploaded by terminal
-//     * result=6 --> OBD monitor data uploaded from the terminal after the monitor command
-//     *
-//     * @see #processPIDData(DataPackageInfo)
-//     * @see #processResultFourData(DataPackageInfo)
-//     */
-//    @Override
-//    public void getIOData(DataPackageInfo dataPackageInfo) {
-//
-//        /*Log.v(TAG, dataPackageInfo.toString());
-//
-//        if (dataPackageInfo.dataNumber != null) {
-//            lastDataNum = dataPackageInfo.dataNumber;
-//        }
-//
-//        deviceConnState = true;
-//        if (dataPackageInfo.deviceId != null && !dataPackageInfo.deviceId.isEmpty()) {
-//            currentDeviceId = dataPackageInfo.deviceId;
-//        }
-//
-//        if (dataPackageInfo.rtcTime != null && !dataPackageInfo.rtcTime.isEmpty()) {
-//            lastData = dataPackageInfo;
-//        }
-//
-//        // if trip id is different, start a new trip
-//        if (dataPackageInfo.tripId != null && !dataPackageInfo.tripId.isEmpty()
-//                && carAdapter.getCarByScanner(dataPackageInfo.deviceId) != null) {
-//            int newTripId = Integer.parseInt(dataPackageInfo.tripId);
-//            if (newTripId != lastDeviceTripId) {
-//                lastDeviceTripId = newTripId;
-//                sharedPreferences.edit().putInt(pfDeviceTripId, newTripId).apply();
-//
-//                if (lastData != null) {
-//                    sendPidDataResult4ToServer(lastData);
-//                }
-//                tripRequestQueue.add(new TripStart(lastDeviceTripId, dataPackageInfo.rtcTime, dataPackageInfo.deviceId));
-//                executeTripRequests();
-//            }
-//        }
-//
-//        if (dataPackageInfo.result == 4) {
-//            processResultFourData(dataPackageInfo);
-//            processPIDData(dataPackageInfo);
-//
-//            if (dataPackageInfo.tripFlag.equals(ObdManager.STORE_DTC_FLAG)) {
-//                saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId); // Store DTCs
-//            } else if (dataPackageInfo.tripFlag.equals(ObdManager.PENDING_DTC_FLAG)) {
-//                saveDtcs(dataPackageInfo, true, dataPackageInfo.deviceId); // Pending DTCs
-//            }
-//        }
-//
-//        if (dataPackageInfo.result == 5) {
-//            processPIDData(dataPackageInfo);
-//        }
-//
-//        Log.d(TAG, "getting io data - auto-connect service");
-//
-//        if (dataPackageInfo.result == 6) {
-//            saveDtcs(dataPackageInfo, false, dataPackageInfo.deviceId); // result 6 DTCs
-//        }
-//
-//        // handle freeze frame data
-//        if (dataPackageInfo.freezeData != null
-//                && dataPackageInfo.freezeData.size() > 0
-//                && (dataPackageInfo.result == 6
-//                || (dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag)))) {
-//            saveFreezeFrame(dataPackageInfo);
-//        }
-//
-//        counter++;
-//        //keep looking for pids until all pids are recieved
-//        if (pidI != pids.length && dataPackageInfo.result != 5) {
-//            sendForPIDS();
-//        }
-//        //because theres a lot of status 5, keep looking
-//        if (dataPackageInfo.result == 5) {
-//            status5counter++;
-//        }
-//
-//        if (callbacks != null) {
-//            Log.d(TAG, "calling service callbacks for getIOdata - auto-connect service");
-//            callbacks.getIOData(dataPackageInfo);
-//        }
-//
-//        if(counter == 50) {
-//            if(!isGettingVin) {
-//                getSupportedPids();
-//            }
-//        }
-//        if (counter % 500 == 0) {
-//            getDTCs();
-//        }
-//        if (counter % 600 == 0) {
-//            getPendingDTCs();
-//        }
-//        if (counter == 1000) {
-//            counter = 1;
-//        }*/
-//    }
 
     private void saveDtcs(final DtcPackage dtcPackage) {
         Car car = carAdapter.getCarByScanner(dtcPackage.deviceId);
@@ -767,59 +614,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-//    // 212 specific
-//    private void saveDtcs(final DataPackageInfo dataPackageInfo, final boolean isPendingDtc, final String deviceId) { // TODO: remove after gtc package implemented
-//        Log.i(TAG, "save DTCs - auto-connect service");
-//        String dtcs = "";
-//        final ArrayList<String> dtcArr = new ArrayList<>();
-//        if (dataPackageInfo.dtcData != null && dataPackageInfo.dtcData.length() > 0) {
-//            String[] DTCs = dataPackageInfo.dtcData.split(",");
-//            for (String dtc : DTCs) {
-//                String parsedDtc = ObdDataUtil.parseDTCs(dtc);
-//                dtcs += parsedDtc + ",";
-//                dtcArr.add(parsedDtc);
-//            }
-//        }
-//
-//        Log.i(TAG, "DTCs found: " + dtcs);
-//
-//        Car car = carAdapter.getCarByScanner(dataPackageInfo.deviceId);
-//
-//        if (NetworkHelper.isConnected(this)) {
-//            if (car == null) return;
-//            for (final String dtc : dtcArr) {
-//                Log.d("Add New DTC", "carId" + car.getId());
-//                networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-//                        dataPackageInfo.rtcTime, dtc, isPendingDtc, new RequestCallback() {
-//                            @Override
-//                            public void done(String response, RequestError requestError) {
-//                                if (requestError == null) {
-//                                    Log.i("Add New DTC", "DTC added: " + dtc);
-//                                } else {
-//                                    Log.e("Add New DTC", requestError.getError());
-//                                    Log.e("Add New DTC", requestError.getMessage());
-//                                    Log.e("Add New DTC", "Error in posting DTC");
-//                                    Log.e("Add New DTC", getCurrentDeviceId());
-//                                }
-//                            }
-//                        });
-//            }
-//        } else if (car != null) {
-//            Log.i(TAG, "Saving dtcs offline");
-//            for (final String dtc : dtcArr) {
-//                dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dataPackageInfo.rtcTime,
-//                        dtc, isPendingDtc, dataPackageInfo.freezeData));
-//            }
-//        }
-//
-//        if (callbacks != null)
-//            callbacks.getIOData(dataPackageInfo);
-//
-//        if (dtcArr.size() > 0) { // If there is DTCs
-//            getFreezeData();
-//        }
-//    }
-
     private void saveFreezeFrame(FreezeFramePackage ffPackage){
         networkHelper.postFreezeFrame(ffPackage, new RequestCallback() {
             @Override
@@ -836,10 +630,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
             // Here's where the app get the device id for the first time
-            Log.i(TAG, "Device login: " + loginPackageInfo.deviceId);
-            Log.i(TAG, "Device result: " + loginPackageInfo.result);
-            Log.i(TAG, "Device flag: " + loginPackageInfo.flag);
-            Log.i(TAG, "Device instruction: "+loginPackageInfo.instruction);
+
+            LogUtils.debugLogD(TAG, "Login package: " + loginPackageInfo.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
             sharedPreferences.edit().putString("loginInstruction", loginPackageInfo.instruction).apply();
 
@@ -909,7 +701,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch(int... source) {
-        Log.d(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""));
+        LogUtils.debugLogD(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""),
+                true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.startScan();
     }
 
@@ -937,7 +730,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #parameterData(ParameterPackage)
      */
     public void getCarVIN() {
-        Log.i(TAG, "getCarVin");
+        LogUtils.debugLogI(TAG, "getCarVin", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         isGettingVin = true;
         getObdDeviceTime();
     }
@@ -950,7 +743,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * on the vin query.
      */
     public void getVinFromCar() {
-        Log.i(TAG, "Calling getCarVIN from Bluetooth auto-connect");
+        LogUtils.debugLogI(TAG, "Calling getCarVIN from Bluetooth auto-connect", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getVin();
     }
 
@@ -960,7 +753,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * by obd device.
      */
     public void getObdDeviceTime() {
-        Log.i(TAG, "Getting device time");
+        LogUtils.debugLogI(TAG, "Getting device time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getRtc();
     }
 
@@ -971,31 +764,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @see #setParameterResponse(ResponsePackageInfo)
      */
     public void syncObdDevice() {
-        Log.i(TAG, "Resetting RTC time - BluetoothAutoConn");
-
+        LogUtils.debugLogI(TAG, "Resetting RTC time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setRtc(System.currentTimeMillis());
     }
 
     public void resetObdDeviceTime() {
-        Log.i(TAG, "Setting RTC time to 200x - BluetoothAutoConn");
-
+        LogUtils.debugLogI(TAG, "Setting RTC time to 200x", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setRtc(1088804101);
     }
 
     public void setFixedUpload() { // to make result 4 pids send every 10 seconds
-        Log.i(TAG, "Setting fixed upload parameters");
+        LogUtils.debugLogI(TAG, "Setting fixed upload parameters", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setPidsToSend("2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
     }
 
-    public void setParam(String tag, String values) {
-        Log.i(TAG, "Setting param with tag: " + tag + ", values: " + values);
-
-        //bluetoothCommunicator.obdSetParameter(tag, values);
-    }
-
     public void changeSetting(String param, String value){
-        Log.i(TAG, "Changing setting with param: " + param + ", value: " + value);
-
+        LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,
+                true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setParam(param, value);
     }
 
@@ -1042,7 +827,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
 
     public void getSupportedPids(){ // supported pids
-        Log.i(TAG,"getting PIDs - auto-connect service");
+        LogUtils.debugLogI(TAG, "getting supported PIDs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getSupportedPids();
         gettingPID = true;
     }
@@ -1051,48 +836,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * Get both pending and stored DTCs
      */
     public void getDTCs() {
-        Log.i(TAG, "calling getting DTCs - auto-connect service");
+        LogUtils.debugLogI(TAG, "calling getting DTCs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getDtcs();
     }
 
-    public void getPendingDTCs() {
-        //Log.i(TAG, "Getting pending DTCs");
-        //deviceManager.getDtcs();
-    }
-
     public void getFreezeData() {
-        Log.i(TAG, "Getting freeze data");
+        LogUtils.debugLogI(TAG, "Getting freeze data", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getFreezeFrame();
     }
 
     public void clearDTCs() {
-        Log.i(TAG, "Clearing DTCs");
+        LogUtils.debugLogI(TAG, "Clearing DTCs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         //bluetoothCommunicator.obdSetCtrl(ObdManager.TYPE_DTC);
     }
 
     public void getPids(String pids) {
-        Log.i(TAG, "getting pids");
+        LogUtils.debugLogI(TAG, "getting pids", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getPids(pids);
     }
-
-//    public void clearDTCs() {
-//        Log.i(TAG, "Clearing DTCs");
-//        deviceManager.obdSetCtrl(ObdManager.TYPE_DTC);
-//    }
-
-    //public void getFreeze(String tag) {
-    //    Log.i(TAG, "getParameter with tag: " + tag);
-    //    deviceManager.obdGetParameter(tag);
-    //}
-
-    //public void writeLoginInstruction() {
-    //    String instruction = sharedPreferences.getString("loginInstruction", null);
-    //    if(instruction == null) {
-    //        Log.w(TAG, "No saved login instruction");
-    //    } else {
-    //        deviceManager.writeRawInstruction(instruction);
-    //    }
-    //}
 
     /**
      * Process result 4 data returned from OBD device for trip mileage
