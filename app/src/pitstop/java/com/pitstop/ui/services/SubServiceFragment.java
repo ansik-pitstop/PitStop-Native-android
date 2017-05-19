@@ -22,7 +22,7 @@ public abstract class SubServiceFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setUserVisibleHint(false);
+        uiUpdated = false;
     }
 
     @Override
@@ -30,7 +30,7 @@ public abstract class SubServiceFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         //Check whether onCreateView() has finished
-        if (isVisibleToUser && getView() != null) {
+        if (isVisibleToUser && getView() != null && dashboardCar != null) {
             setUI();
             uiUpdated = true;
         } else {
