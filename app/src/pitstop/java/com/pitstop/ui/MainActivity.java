@@ -889,10 +889,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void loadDealershipCustomDesign(){
+        Car myCar = getCurrentCar();
         //Update tab design to the current dealerships custom design if applicable
-        if (dashboardCar.getDealership() != null){
-            if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4
-                    || dashboardCar.getDealership().getId() == 18)){
+        if (myCar.getDealership() != null){
+            if (BuildConfig.DEBUG && (myCar.getDealership().getId() == 4
+                    || myCar.getDealership().getId() == 18)){
 
                 bindMercedesDealerUI();
             }else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
@@ -976,7 +977,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                             dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
+
                                         broadCastCarDataToFragments();
+                                        mainDashboardCallback.setCarDetailsUI();
+                                        loadDealershipCustomDesign();
 
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
@@ -989,9 +993,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                             }
                                         }
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
-
-                                        mainDashboardCallback.setCarDetailsUI();
-                                        loadDealershipCustomDesign();
 
                                     }
 
