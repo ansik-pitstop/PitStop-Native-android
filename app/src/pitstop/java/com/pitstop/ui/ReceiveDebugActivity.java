@@ -300,7 +300,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void setFixedUpload(View view) {
         String tag = ObdManager.FIXED_UPLOAD_TAG;
         String values = ((EditText) findViewById(R.id.values)).getText().toString();
-        service.setParam(tag, values);
     }
 
     public void setParam(View view) {

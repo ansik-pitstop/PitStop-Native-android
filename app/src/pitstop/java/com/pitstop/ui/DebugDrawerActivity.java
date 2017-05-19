@@ -181,19 +181,21 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
                 mQueryNetworkSubscription.unsubscribe();
                 mQueryOtherSubscription.unsubscribe();
             } else {
-                mQueryBluetoothSubscription = mQueryOtherObservable.subscribe(query -> {
+                mQueryBluetoothSubscription = mQueryBluetoothObservable.subscribe(query -> {
                     Cursor cursor = query.run();
-                    writeLogs(cursor, otherLogs);
+                    writeLogs(cursor, bluetoothLogs);
                 });
-                mQueryNetworkSubscription = mQueryOtherObservable.subscribe(query -> {
+                mQueryNetworkSubscription = mQueryNetworkObservable.subscribe(query -> {
                     Cursor cursor = query.run();
-                    writeLogs(cursor, otherLogs);
+                    writeLogs(cursor, networkLogs);
                 });
                 mQueryOtherSubscription = mQueryOtherObservable.subscribe(query -> {
                     Cursor cursor = query.run();
                     writeLogs(cursor, otherLogs);
                 });
             }
+            mLogsEnabled = !mLogsEnabled;
+            enableButton.setText("LOGS: " + mLogsEnabled);
         });
     }
 
