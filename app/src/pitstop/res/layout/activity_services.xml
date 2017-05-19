@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.pitstop.ui.services.ServicesActivity">
+    tools:context="com.pitstop.ui.services.MainServicesFragment">
 
 <!--    <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -27,7 +27,7 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <android.support.v4.view.ViewPager
+    <com.pitstop.ui.services.SubServiceViewPager
         android:id="@+id/services_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

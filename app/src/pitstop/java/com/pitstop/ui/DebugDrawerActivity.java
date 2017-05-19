@@ -51,7 +51,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view) {
-        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             mDrawerLayout.addView(view, 0);
         } else {
             super.setContentView(view);
@@ -60,7 +61,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             DrawerLayout drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
             drawerLayout.addView(view, 0, params);
             super.setContentView(drawerLayout);
@@ -73,7 +75,10 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) return;
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            return;
+        }
 
         mNetworkHelper = new NetworkHelper(getApplicationContext());
 
@@ -102,7 +107,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
                     vinField.setText(requestError == null ? response : "error: " + requestError.getMessage());
                 })
         );
-
         setupLogging();
     }
 

@@ -47,8 +47,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
-        versionCode 134
-        versionName "2.4.2"
+        versionCode 142
+        versionName "3.0.0"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
@@ -57,6 +57,10 @@ android {
         buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
         buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
         buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+        }
     }
     buildTypes {
         debug { // for development, dev backend, no mixpanel
@@ -133,8 +137,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
-    compile "com.github.akarnokd:rxjava2-interop:0.10.0"
-    compile "io.reactivex.rxjava2:rxjava:2.1.0"
+    compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'ch.acra:acra:4.9.0'

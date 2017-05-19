@@ -61,7 +61,6 @@ public class DealershipActivity extends AppCompatActivity {
             User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
         }
         ConversationActivity.show(this);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -81,7 +80,6 @@ public class DealershipActivity extends AppCompatActivity {
                 dashboardCar.getDealership().getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -99,7 +97,6 @@ public class DealershipActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                 dashboardCar.getDealership().getPhone()));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     private boolean checkDealership() {
