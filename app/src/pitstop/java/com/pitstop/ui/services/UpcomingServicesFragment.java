@@ -139,8 +139,11 @@ public class UpcomingServicesFragment extends SubServiceFragment{
                 if (response != null && requestError == null) {
                     mTimelineData = new Gson().fromJson(response, Timeline.class);
                     mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
-                    if (mIssueList != null && mIssueList.size() != 0)
+                    if (mIssueList != null && mIssueList.size() != 0){
+                        mTimeLineRecyclerView.setVisibility(View.VISIBLE);
+                        mErrorViewContainer.setVisibility(View.INVISIBLE);
                         populateList();
+                    }
                     else{
                         Log.d("TAG","UpcomingServicesFragment, showNoData()");
                         showNoData();
@@ -201,6 +204,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         mErrorText.setText(R.string.no_data_timeline);
         mErrorViewContainer.setVisibility(View.VISIBLE);
         mTryAgain.setVisibility(View.GONE);
+        mTimeLineRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.error_view_container)

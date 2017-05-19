@@ -17,34 +17,18 @@ import com.pitstop.models.Car;
 public abstract class SubServiceFragment extends Fragment {
 
     public static Car dashboardCar;
-    private boolean uiUpdated = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        uiUpdated = false;
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        //Check whether onCreateView() has finished
-        if (isVisibleToUser && getView() != null && dashboardCar != null) {
-            setUI();
-            uiUpdated = true;
-        } else {
-            uiUpdated = false;
-        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Check whether UI will be set inside OnCreateView or whether it will have to happen inside OnStart()
-        if (!uiUpdated && dashboardCar != null){
+        if (dashboardCar != null){
             setUI();
-            uiUpdated = true;
         }
 
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -57,18 +41,17 @@ public abstract class SubServiceFragment extends Fragment {
 
     public void onDashboardCarUpdated(){
         //Check whether onStart() finished, otherwise don't update since it'll update inside onStart
-        if (getView() != null && !uiUpdated){
+        if (getView() != null){
             setUI();
-            uiUpdated = true;
         }
     }
 
-    public void onMainServiceTabReopened(){
-        if (!uiUpdated){
-            setUI();
-            uiUpdated = true;
-        }
-    }
+//    public void onMainServiceTabReopened(){
+//        if (!uiUpdated){
+//            setUI();
+//            uiUpdated = true;
+//        }
+//    }
 
     public abstract void setUI();
 }

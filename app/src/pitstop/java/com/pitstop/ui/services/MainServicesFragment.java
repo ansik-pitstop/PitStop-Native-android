@@ -89,21 +89,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         mServicesPager.setAdapter(new ServicesAdapter(getChildFragmentManager()));
     }
 
-    //Called when the fragment is set to visible or invisible by ViewPager
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        //Notify child fragments that the tab has been re-opened
-        if (isVisibleToUser && upcomingServicesFragment != null
-                && historyServicesFragment != null && currentServicesFragment != null){
-
-            upcomingServicesFragment.onMainServiceTabReopened();
-            historyServicesFragment.onMainServiceTabReopened();
-            currentServicesFragment.onMainServiceTabReopened();
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
