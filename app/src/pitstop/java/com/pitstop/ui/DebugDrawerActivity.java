@@ -1,5 +1,6 @@
 package com.pitstop.ui;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
@@ -21,13 +23,12 @@ import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.ViewUtils;
-import com.pitstop.view.TextFeedView;
 import com.squareup.sqlbrite.QueryObservable;
 
 import java.util.Calendar;
 
 import rx.Subscription;
-import rx.schedulers.Schedulers;
+import rx.android.schedulers.AndroidSchedulers;
 
 public abstract class DebugDrawerActivity extends AppCompatActivity {
 
@@ -117,19 +118,19 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
             mQueryBluetoothSubscription.unsubscribe();
         }
         if (mQueryBluetoothObservable != null) {
-            mQueryBluetoothObservable.unsubscribeOn(Schedulers.io());
+            mQueryBluetoothObservable.unsubscribeOn(AndroidSchedulers.mainThread());
         }
         if (mQueryNetworkSubscription != null && !mQueryNetworkSubscription.isUnsubscribed()) {
             mQueryNetworkSubscription.unsubscribe();
         }
         if (mQueryNetworkObservable != null) {
-            mQueryNetworkObservable.unsubscribeOn(Schedulers.io());
+            mQueryNetworkObservable.unsubscribeOn(AndroidSchedulers.mainThread());
         }
         if (mQueryOtherSubscription != null && !mQueryOtherSubscription.isUnsubscribed()) {
             mQueryOtherSubscription.unsubscribe();
         }
         if (mQueryOtherObservable != null) {
-            mQueryOtherObservable.unsubscribeOn(Schedulers.io());
+            mQueryOtherObservable.unsubscribeOn(AndroidSchedulers.mainThread());
         }
     }
 
@@ -142,20 +143,15 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         testBluetoothLogButton.setOnClickListener(v ->
                 LogUtils.debugLogV("TEST", "Bluetooth test", false, DebugMessage.TYPE_BLUETOOTH, this));
 
-        TextFeedView bluetoothLogs = ViewUtils.findView(this, R.id.debugLogsBluetooth);
+        TextView bluetoothLogs = ViewUtils.findView(this, R.id.debugLogsBluetooth);
 
         View toggleBluetoothLogs = findViewById(R.id.debugMessageToggleBluetooth);
         toggleBluetoothLogs.setOnClickListener(v -> ViewUtils.setGone(bluetoothLogs, !ViewUtils.isVisible(bluetoothLogs)));
 
         mQueryBluetoothObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_BLUETOOTH);
         mQueryBluetoothSubscription = mQueryBluetoothObservable.subscribe(query -> {
-            bluetoothLogs.clearText();
-            Calendar calendar = Calendar.getInstance();
-            query.asRows(DebugMessage::fromCursor).subscribe(debugMessage -> {
-                calendar.setTimeInMillis(debugMessage.getTimestamp());
-                bluetoothLogs.addLine(DateTimeFormatUtil.format(calendar, DateTimeFormatUtil.TIMESTAMP_FORMAT)
-                        + ": " + debugMessage.getMessage());
-            });
+            Cursor cursor = query.run();
+            writeLogs(cursor, bluetoothLogs);
         });
 
         // network
@@ -163,20 +159,15 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         testNetworkLogButton.setOnClickListener(v ->
                 LogUtils.debugLogV("TEST", "Network test", false, DebugMessage.TYPE_NETWORK, this));
 
-        TextFeedView networkLogs = ViewUtils.findView(this, R.id.debugLogsNetwork);
+        TextView networkLogs = ViewUtils.findView(this, R.id.debugLogsNetwork);
 
         View toggleNetworkLogs = findViewById(R.id.debugLogToggleNetwork);
         toggleNetworkLogs.setOnClickListener(v -> ViewUtils.setGone(networkLogs, !ViewUtils.isVisible(networkLogs)));
 
         mQueryNetworkObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_NETWORK);
         mQueryNetworkSubscription = mQueryNetworkObservable.subscribe(query -> {
-            networkLogs.clearText();
-            Calendar calendar = Calendar.getInstance();
-            query.asRows(DebugMessage::fromCursor).subscribe(debugMessage -> {
-                calendar.setTimeInMillis(debugMessage.getTimestamp());
-                networkLogs.addLine(DateTimeFormatUtil.format(calendar, DateTimeFormatUtil.TIMESTAMP_FORMAT)
-                        + ": " + debugMessage.getMessage());
-            });
+            Cursor cursor = query.run();
+            writeLogs(cursor, networkLogs);
         });
 
         // other
@@ -184,21 +175,38 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         testOtherLogButton.setOnClickListener(v ->
                 LogUtils.debugLogV("TEST", "Other test", false, DebugMessage.TYPE_OTHER, this));
 
-        TextFeedView otherLogs = ViewUtils.findView(this, R.id.debugLogsOther);
+        TextView otherLogs = ViewUtils.findView(this, R.id.debugLogsOther);
 
         View toggleOtherLogs = findViewById(R.id.debugMessageToggleOther);
         toggleOtherLogs.setOnClickListener(v -> ViewUtils.setGone(otherLogs, !ViewUtils.isVisible(otherLogs)));
 
         mQueryOtherObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_OTHER);
         mQueryOtherSubscription = mQueryOtherObservable.subscribe(query -> {
-            otherLogs.clearText();
-            Calendar calendar = Calendar.getInstance();
-            query.asRows(DebugMessage::fromCursor).subscribe(debugMessage -> {
-                calendar.setTimeInMillis(debugMessage.getTimestamp());
-                otherLogs.addLine(DateTimeFormatUtil.format(calendar, DateTimeFormatUtil.TIMESTAMP_FORMAT)
-                        + ": " + debugMessage.getMessage());
-            });
+            Cursor cursor = query.run();
+            writeLogs(cursor, otherLogs);
         });
+    }
+
+    private void writeLogs(Cursor cursor, TextView logView) {
+        if (cursor != null && cursor.moveToFirst()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            Calendar calendar = Calendar.getInstance();
+
+            do {
+                DebugMessage debugMessage = DebugMessage.fromCursor(cursor);
+
+                calendar.setTimeInMillis(debugMessage.getTimestamp());
+                stringBuilder.append("\n");
+                stringBuilder.append(DateTimeFormatUtil.format(calendar, DateTimeFormatUtil.TIMESTAMP_FORMAT));
+                stringBuilder.append(": ");
+                stringBuilder.append(debugMessage.getMessage());
+                stringBuilder.append("\n");
+            } while (cursor.moveToNext());
+
+            logView.setText(stringBuilder.toString());
+
+            cursor.close();
+        }
     }
 
 }
