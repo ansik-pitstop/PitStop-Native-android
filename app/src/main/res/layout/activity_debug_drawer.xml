@@ -60,6 +60,11 @@
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
+            <Button
+                android:id="@+id/debugEnableLogs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

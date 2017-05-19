@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +45,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     private Subscription mQueryNetworkSubscription;
     private QueryObservable mQueryOtherObservable;
     private Subscription mQueryOtherSubscription;
+
+    private boolean mLogsEnabled;
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -145,10 +148,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         toggleBluetoothLogs.setOnClickListener(v -> ViewUtils.setGone(bluetoothLogs, !ViewUtils.isVisible(bluetoothLogs)));
 
         mQueryBluetoothObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_BLUETOOTH);
-        mQueryBluetoothSubscription = mQueryBluetoothObservable.subscribe(query -> {
-            Cursor cursor = query.run();
-            writeLogs(cursor, bluetoothLogs);
-        });
 
         // network
         View testNetworkLogButton = findViewById(R.id.logNetwork);
@@ -161,10 +160,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         toggleNetworkLogs.setOnClickListener(v -> ViewUtils.setGone(networkLogs, !ViewUtils.isVisible(networkLogs)));
 
         mQueryNetworkObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_NETWORK);
-        mQueryNetworkSubscription = mQueryNetworkObservable.subscribe(query -> {
-            Cursor cursor = query.run();
-            writeLogs(cursor, networkLogs);
-        });
 
         // other
         View testOtherLogButton = findViewById(R.id.logOther);
@@ -177,9 +172,28 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         toggleOtherLogs.setOnClickListener(v -> ViewUtils.setGone(otherLogs, !ViewUtils.isVisible(otherLogs)));
 
         mQueryOtherObservable = mDebugMessageAdapter.getQueryObservable(DebugMessage.TYPE_OTHER);
-        mQueryOtherSubscription = mQueryOtherObservable.subscribe(query -> {
-            Cursor cursor = query.run();
-            writeLogs(cursor, otherLogs);
+
+        Button enableButton = ViewUtils.findView(this, R.id.debugEnableLogs);
+        enableButton.setText("LOGS: " + mLogsEnabled);
+        enableButton.setOnClickListener(v -> {
+            if (mLogsEnabled) {
+                mQueryBluetoothSubscription.unsubscribe();
+                mQueryNetworkSubscription.unsubscribe();
+                mQueryOtherSubscription.unsubscribe();
+            } else {
+                mQueryBluetoothSubscription = mQueryOtherObservable.subscribe(query -> {
+                    Cursor cursor = query.run();
+                    writeLogs(cursor, otherLogs);
+                });
+                mQueryNetworkSubscription = mQueryOtherObservable.subscribe(query -> {
+                    Cursor cursor = query.run();
+                    writeLogs(cursor, otherLogs);
+                });
+                mQueryOtherSubscription = mQueryOtherObservable.subscribe(query -> {
+                    Cursor cursor = query.run();
+                    writeLogs(cursor, otherLogs);
+                });
+            }
         });
     }
 
