@@ -44,7 +44,7 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends Fragment {
+public class CurrentServicesFragment extends SubServiceFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
 
@@ -53,21 +53,16 @@ public class CurrentServicesFragment extends Fragment {
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private Car dashboardCar;
     private LocalCarIssueAdapter carIssueLocalStore;
     private LocalCarAdapter carLocalStore;
     private LocalCarAdapter localCarStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    public static CurrentServicesFragment newInstance(Car currentCar){
+    public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
-
 
     public CurrentServicesFragment() {
     }
@@ -83,25 +78,24 @@ public class CurrentServicesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
+
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
+
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        carLocalStore = new LocalCarAdapter(getActivity());
-        //dashboardCar = carLocalStore.getCar(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(MainDashboardFragment.pfCurrentCar, -1));
-        dashboardCar =  getArguments() != null ? (Car)getArguments().getParcelable("dashboardCar"):null;
+    public void setUI(){
         carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
-        carIssueListView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
         populateCarIssuesAdapter();
-
     }
 
     private void populateCarIssuesAdapter() {
         // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
+//        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
         if(carIssueLocalStore == null) {
             carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
         }
@@ -279,119 +273,5 @@ public class CurrentServicesFragment extends Fragment {
             }
         }
     }
-
-/*    @OnClick(R.id.dashboard_request_service_btn)
-    protected void onServiceRequestButtonClicked(){
-        ((MainActivity)getActivity()).requestMultiService(null);
-    }*/
-
-        /*private void setSwipeDeleteListener(RecyclerView recyclerView) {
-        SwipeableRecyclerViewTouchListener swipeTouchListener =
-                new SwipeableRecyclerViewTouchListener(recyclerView,
-                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
-
-                            @Override
-                            public boolean canSwipe(int position) {
-                                return carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_EMPTY
-                                        && carIssuesAdapter.getItemViewType(position) != CustomAdapter.VIEW_TYPE_TENTATIVE;
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeLeft(final RecyclerView recyclerView,
-                                                               final int[] reverseSortedPositions) {
-
-                                final Calendar calendar = Calendar.getInstance();
-                                calendar.setTimeInMillis(System.currentTimeMillis());
-                                final int currentYear = calendar.get(Calendar.YEAR);
-                                final int currentMonth = calendar.get(Calendar.MONTH);
-                                final int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-                                final int i = reverseSortedPositions[0];
-
-                                final CarIssue issue = carIssuesAdapter.getItem(i);
-
-                                //Swipe to start deleting(completing) the selected issue
-                                mixpanelHelper.trackButtonTapped("Done " + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-
-                                DatePickerDialog datePicker = new DatePickerDialog(getContext(),
-                                        new DatePickerDialog.OnDateSetListener() {
-                                            @Override
-                                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                                if (year > currentYear || (year == currentYear
-                                                        && (monthOfYear > currentMonth
-                                                        || (monthOfYear == currentMonth && dayOfMonth > currentDay)))) {
-                                                    Toast.makeText(getActivity(), "Please choose a date that has passed", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    long currentTime = calendar.getTimeInMillis();
-
-                                                    calendar.set(year, monthOfYear, dayOfMonth);
-
-                                                    int daysAgo = (int) TimeUnit.MILLISECONDS.toDays(currentTime - calendar.getTimeInMillis());
-                                                    String timeCompleted;
-
-                                                    if (daysAgo < 13) { // approximate categorization of the time service was completed
-                                                        timeCompleted = "Recently";
-                                                    } else if (daysAgo < 28) {
-                                                        timeCompleted = "2 Weeks Ago";
-                                                    } else if (daysAgo < 56) {
-                                                        timeCompleted = "1 Month Ago";
-                                                    } else if (daysAgo < 170) {
-                                                        timeCompleted = "2 to 3 Months Ago";
-                                                    } else {
-                                                        timeCompleted = "6 to 12 Months Ago";
-                                                    }
-
-                                                    mixpanelHelper.trackButtonTapped("Completed Service: " + (issue.getAction() == null ? "" : (issue.getAction() + " ")) + issue.getItem()
-                                                            + " " + timeCompleted, MixpanelHelper.DASHBOARD_VIEW);
-                                                    networkHelper.serviceDone(dashboardCar.getId(), issue.getId(),
-                                                            daysAgo, dashboardCar.getTotalMileage(), new RequestCallback() {
-                                                                @Override
-                                                                public void done(String response, RequestError requestError) {
-                                                                    if (requestError == null) {
-                                                                        Toast.makeText(getActivity(), "Issue cleared", Toast.LENGTH_SHORT).show();
-                                                                        carIssueList.remove(i);
-                                                                        carIssuesAdapter.notifyDataSetChanged();
-                                                                        ((MainActivity) getActivity()).refreshFromServer();
-                                                                    }
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        },
-                                        currentYear,
-                                        currentMonth,
-                                        currentDay
-                                );
-
-                                final View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_custom_title_primary_dark, null);
-                                ((TextView) titleView.findViewById(R.id.custom_title_text)).setText(R.string.dialog_clear_issue_title);
-
-                                datePicker.setCustomTitle(titleView);
-
-                                //Cancel the service completion
-                                datePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-                                        mixpanelHelper.trackButtonTapped("Nevermind, Did Not Complete Service: "
-                                                + issue.getAction() + " " + issue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-                                    }
-                                });
-
-
-                                datePicker.show();
-                            }
-
-                            @Override
-                            public void onDismissedBySwipeRight(RecyclerView recyclerView
-                                    , int[] reverseSortedPositions) {
-                                onDismissedBySwipeLeft(recyclerView, reverseSortedPositions);
-                            }
-                        });
-
-        recyclerView.addOnItemTouchListener(swipeTouchListener);
-    }*/
 
 }

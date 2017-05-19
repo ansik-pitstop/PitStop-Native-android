@@ -119,7 +119,6 @@ public class CarHistoryActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     private String formatDate(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"

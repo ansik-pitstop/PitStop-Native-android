@@ -2,10 +2,8 @@ package com.pitstop.ui.services;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,11 +16,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.CarHistoryActivity;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -33,7 +27,7 @@ import java.util.LinkedHashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends Fragment {
+public class HistoryServiceFragment extends SubServiceFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
@@ -50,8 +44,6 @@ public class HistoryServiceFragment extends Fragment {
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
-    private Car dashboardCar;
-
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
     ArrayList<String> headers = new ArrayList<>();
 
@@ -59,37 +51,41 @@ public class HistoryServiceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static HistoryServiceFragment newInstance(Car currentCar) {
+    public static HistoryServiceFragment newInstance() {
         HistoryServiceFragment fragment = new HistoryServiceFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            dashboardCar = getArguments().getParcelable("dashboardCar");
-        }
 
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
     }
 
+    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
+
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
+
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onStart() {
+        super.onStart();
+
+
+    }
+
+    private void updateIssueGroupView(){
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
         Arrays.sort(doneIssues, new Comparator<CarIssue>() {
@@ -123,6 +119,12 @@ public class HistoryServiceFragment extends Fragment {
         }
 
         issueGroup.setAdapter(new IssueGroupAdapter(sortedIssues, headers));
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         mixpanelHelper.trackViewAppeared(MixpanelHelper.SERVICE_HISTORY_VIEW);
     }
 
@@ -153,6 +155,11 @@ public class HistoryServiceFragment extends Fragment {
         return Integer.parseInt(splittedDate[2])
                 + Integer.parseInt(splittedDate[1]) * 30
                 + Integer.parseInt(splittedDate[0]) * 365;
+    }
+
+    @Override
+    public void setUI(){
+        updateIssueGroupView();
     }
 
     private class IssueGroupAdapter extends BaseExpandableListAdapter {
@@ -245,19 +252,6 @@ public class HistoryServiceFragment extends Fragment {
             }
 
             title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
-
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    /*mixpanelHelper.trackButtonTapped(issue.getItem(), MixpanelHelper.SERVICE_HISTORY_VIEW);
-                    Intent intent = new Intent(CarHistoryActivity.this, IssueDetailsActivity.class);
-                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
-                    intent.putExtra(ISSUE_FROM_HISTORY, true);
-                    startActivity(intent);*/
-                    //TODO launch issueDetails
-                }
-            });
 
             return convertView;
         }

@@ -258,7 +258,6 @@ public class ServiceRequestActivity extends AppCompatActivity
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
     }
 
     /**
@@ -477,7 +476,6 @@ public class ServiceRequestActivity extends AppCompatActivity
                         dashboardCar.getDealership().getAddress());
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
         final TextView phone = (TextView) dialogLayout.findViewById(R.id.dialog_dealership_phone);
@@ -490,7 +488,6 @@ public class ServiceRequestActivity extends AppCompatActivity
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         dashboardCar.getDealership().getPhone()));
                 startActivity(intent);
-                overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
             }
         });
 

@@ -11,9 +11,10 @@ public class LogUtils {
 
     private static boolean DEBUG = BuildConfig.DEBUG;
     private static boolean NOT_RELEASE = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE);
+    private static boolean NOT_BETA = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA);
 
     public static void debugLogV(String tag, String message, boolean showLogcat, int type, Context context) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.v(tag, message);
             }
@@ -23,7 +24,7 @@ public class LogUtils {
     }
 
     public static void debugLogD(String tag, String message, boolean showLogcat, int type, Context context) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.d(tag, message);
             }
@@ -33,7 +34,7 @@ public class LogUtils {
     }
 
     public static void debugLogI(String tag, String message, boolean showLogcat, int type, Context context) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.i(tag, message);
             }
@@ -43,7 +44,7 @@ public class LogUtils {
     }
 
     public static void debugLogW(String tag, String message, boolean showLogcat, int type, Context context) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.w(tag, message);
             }
@@ -53,7 +54,7 @@ public class LogUtils {
     }
 
     public static void debugLogE(String tag, String message, boolean showLogcat, int type, Context context) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.e(tag, message);
             }

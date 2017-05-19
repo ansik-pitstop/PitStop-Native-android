@@ -147,7 +147,6 @@ public class MyAppointmentActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
     }
 
 

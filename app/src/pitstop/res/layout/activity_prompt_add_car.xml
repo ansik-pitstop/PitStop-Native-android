@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.pitstop.ui.add_car.PromptAddCarActivity">
+
+    <RelativeLayout
+        android:id="@+id/no_car_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:id="@+id/no_car_line_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/no_car_line_2"
+            android:layout_centerHorizontal="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="There are no cars"
+            android:textAlignment="center"
+            android:textColor="#aaaaaa"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/no_car_line_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/addCarButton"
+            android:layout_centerHorizontal="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="in your dashboard"
+            android:textAlignment="center"
+            android:textColor="#aaaaaa"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/addCarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/color_button_primary"
+            android:onClick="startAddCarActivity"
+            android:padding="16dp"
+            android:text="Tap here to add your first car"
+            android:textAllCaps="false"
+            android:textColor="#efefef"
+            android:textSize="18sp"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
