@@ -1,9 +1,8 @@
 package com.pitstop.utils;
 
-import com.pitstop.BuildConfig;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
-import com.pitstop.application.GlobalApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +20,8 @@ public class MixpanelHelper {
     public static final String EVENT_APP_STATUS = "App Status";
     public static final String EVENT_PERIPHERAL_CONNECTION_STATUS = "Peripheral Connection Status";
     public static final String EVENT_SCROLLED_IN_VIEW = "Scrolled in View";
+    public static final String EVENT_SWIPED_TO_TAB = "Swiped through Tab";
+    public static final String EVENT_TAPPED_FAB = "Floating Action Button Clicked";
     public static final String EVENT_SCAN_COMPLETE = "Scan Complete";
     public static final String EVENT_ADD_CAR_PROCESS = "Add Car Process";
     public static final String EVENT_ALERT_APPEARED = "Alert Appeared";
@@ -220,9 +221,6 @@ public class MixpanelHelper {
     }
 
     public void trackAppStatus(String value)  {
-        if (BuildConfig.DEBUG) {
-            return;
-        }
         JSONObject json = new JSONObject();
         try {
             json.put("Status", value);
@@ -266,9 +264,6 @@ public class MixpanelHelper {
     }
 
     public void trackViewAppeared(String value){
-/*        if (BuildConfig.DEBUG) {
-            return;
-        }*/
         JSONObject json = new JSONObject();
         try {
             json.put("View", value);
@@ -281,9 +276,6 @@ public class MixpanelHelper {
     }
 
     public void trackConnectionStatus(String value) {
-        if (BuildConfig.DEBUG) {
-            return;
-        }
         JSONObject json = new JSONObject();
         try {
             json.put("Status", value);
@@ -296,9 +288,6 @@ public class MixpanelHelper {
     }
 
     public void trackButtonTapped(String value, String view) {
-      /*  if (BuildConfig.DEBUG) {
-            return;
-        }*/
         JSONObject json = new JSONObject();
         try {
             json.put("Button", value);
@@ -312,9 +301,6 @@ public class MixpanelHelper {
     }
 
     public void trackScrolledInView(String view) {
-        if (BuildConfig.DEBUG) {
-            return;
-        }
         JSONObject json = new JSONObject();
         try {
             json.put("View", view);
@@ -326,10 +312,31 @@ public class MixpanelHelper {
         application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
     }
 
-    public void trackCarAdded(String view, String mileage, String method) {
-        if (BuildConfig.DEBUG) {
-            return;
+    public void trackSwitchedToTab(String tab){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("Tab", tab);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        insertUsername(json);
+        insertCar(json);
+        application.getMixpanelAPI().track(EVENT_SWIPED_TO_TAB, json);
+    }
+
+    public void trackFabClicked(String fab){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("Fab", fab);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        insertUsername(json);
+        insertCar(json);
+        application.getMixpanelAPI().track(EVENT_TAPPED_FAB, json);
+    }
+
+    public void trackCarAdded(String view, String mileage, String method) {
         JSONObject json = new JSONObject();
         try {
             json.put("Button", "Add Car");
@@ -346,9 +353,6 @@ public class MixpanelHelper {
     }
 
     public void trackMigrationProgress(String status, int userId){
-        if (BuildConfig.DEBUG) {
-            return;
-        }
         JSONObject json = new JSONObject();
         try {
             json.put("Status", status);
@@ -367,9 +371,6 @@ public class MixpanelHelper {
      * @throws JSONException
      */
     public void trackCustom(String event, JSONObject properties) {
-        if (BuildConfig.DEBUG) {
-            return;
-        }
         insertUsername(properties);
         insertCar(properties);
         application.getMixpanelAPI().track(event, properties);

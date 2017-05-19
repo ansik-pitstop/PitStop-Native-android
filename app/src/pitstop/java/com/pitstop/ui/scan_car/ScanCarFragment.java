@@ -1,7 +1,9 @@
 package com.pitstop.ui.scan_car;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,12 +13,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -30,14 +33,15 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
-import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
+import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -50,10 +54,13 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCarContract.View {
+import static com.facebook.FacebookSdk.getApplicationContext;
 
-    private static String TAG = ScanCarActivity.class.getSimpleName();
+public class ScanCarFragment extends Fragment implements ScanCarContract.View, MainFragmentCallback {
+
+    private static String TAG = ScanCarFragment.class.getSimpleName();
 
     private MixpanelHelper mixpanelHelper;
     private ScanCarContract.Presenter presenter;
@@ -87,117 +94,61 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     @BindView(R.id.recalls_scan_details) CardView recallCard;
     @BindView(R.id.services_scan_details) CardView serviceCard;
     @BindView(R.id.engine_scan_details) CardView dtcCard;
+    @BindView(R.id.update_mileage) Button updateMileageButton;
 
     private AlertDialog updateMileageDialog;
     private AlertDialog uploadHistoricalDialog;
     private AlertDialog connectTimeoutDialog;
 
     private int numberOfIssues = 0;
-    private Car dashboardCar;
+    private static Car dashboardCar;
     private double baseMileage;
     private boolean updatedMileageOrDtcsFound = false;
     private ProgressDialog progressDialog;
 
     private boolean isScanning = false;
+    private boolean destroyed = false;
+    private boolean viewShown = false;
+    private boolean uiUpdated = false;
 
     private IssuePagerAdapter pagerAdapter;
+    private IBluetoothServiceActivity bluetoothServiceActivity;
 
+    public static ScanCarFragment newInstance(){
+        return new ScanCarFragment();
+    }
+
+    public static void setDashboardCar(Car c){
+        dashboardCar = c;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_car_scan);
-        ButterKnife.bind(this);
-        setPresenter(new ScanCarPresenter(this, (GlobalApplication) getApplicationContext(),
-                (Car) getIntent().getParcelableExtra(MainActivity.CAR_EXTRA)));
-        dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View rootview = inflater.inflate(R.layout.activity_car_scan,null);
+        ButterKnife.bind(this,rootview);
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        baseMileage = dashboardCar.getTotalMileage();
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initUi();
-        updateCarHealthMeter();
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
-            properties.put("Car Make", dashboardCar.getMake());
-            properties.put("Car Model", dashboardCar.getModel());
-            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
+        setStaticUI();
 
-    @Override
-    protected void onPause() {
-        presenter.finishScan();
-        super.onPause();
-    }
+        /*Check if dashboard car was updated prior to the view being available*/
+        if (dashboardCar != null){
+            setPresenter(new ScanCarPresenter(bluetoothServiceActivity, (GlobalApplication) getApplicationContext(),dashboardCar));
+            baseMileage = dashboardCar.getTotalMileage();
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onActivityFinish();
-        presenter.unbind();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void finish() {
-        presenter.finishScan();
-        Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
-        setResult(MainActivity.RESULT_OK, data);
-        super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
-    }
-
-    /**
-     * Invoked when the user tap on any area except for buttons,
-     *
-     * @param view
-     */
-    public void returnToMainActivity(View view) {
-        finish();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case BluetoothServiceConnection.RC_ENABLE_BT:
-                if (resultCode == RESULT_OK) {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
-                    if (isScanning) carScanButton.performClick();
-                } else {
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
-                }
-                break;
-
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
+            uiUpdated = true;
+            viewShown = true;
+            updateUi();
+            updateCarHealthMeter();
         }
 
+        return rootview;
     }
 
-    private void initUi() {
-        progressDialog = new ProgressDialog(this);
+    private void setStaticUI(){
+        progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
-        carMileage.setText(String.format("%.2f", presenter.getLatestMileage()));
-        if (!BuildConfig.DEBUG) {
-            findViewById(R.id.update_mileage).setVisibility(View.GONE);
-        }
 
         // Create background track
         arcView.addSeries(new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
@@ -241,17 +192,103 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
         });
     }
 
-    public void updateMileage(final View view) {
-        if (isFinishing() || isDestroyed() || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
+    @Override
+    public void onAttach(Context context) {
+        MainActivity.scanCallback = this;
+        super.onAttach(context);
+        bluetoothServiceActivity = (IBluetoothServiceActivity) context;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        destroyed = false;
+    }
+
+    @Override
+    public void onDashboardCarUpdated() {
+        Log.d(TAG,"onDashboardCarUpdated() called, viewShown="+viewShown+" uiUpdated="+uiUpdated);
+        setPresenter(new ScanCarPresenter(bluetoothServiceActivity, (GlobalApplication) getApplicationContext(),dashboardCar));
+        baseMileage = dashboardCar.getTotalMileage();
+
+        if (viewShown && !uiUpdated){
+            uiUpdated = true;
+            updateUi();
+            updateCarHealthMeter();
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        //Record that view has been opened
+        if (isVisibleToUser && getView() != null ) {
+            try {
+                JSONObject properties = new JSONObject();
+                properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
+                properties.put("Car Make", dashboardCar.getMake());
+                properties.put("Car Model", dashboardCar.getModel());
+                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            viewShown = true;
+
+            //Show UI here
+            if (dashboardCar != null && !uiUpdated){
+                Log.d(TAG,"setUserVisibilityHint() called, viewShown="+viewShown);
+                uiUpdated = true;
+                updateUi();
+                updateCarHealthMeter();
+            }
+            //Show UI in callback
+            else{
+                uiUpdated = false;
+            }
+        }
+    }
+
+//    @Override
+//    public void onPause() {
+//        presenter.finishScan();
+//        super.onPause();
+//    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onActivityFinish();
+        presenter.unbind();
+        destroyed = true;
+    }
+
+    @OnClick(R.id.dashboard_car_scan_btn)
+    public void startCarScan(View view) {
+        mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
+
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
             return;
         }
 
-        final View dialogLayout = LayoutInflater.from(this).inflate(R.layout.dialog_input_mileage, null);
+        updateMileage(null);
+    }
+
+    @OnClick(R.id.update_mileage)
+    public void updateMileage(final View view) {
+        if (presenter == null || isRemoving() || destroyed || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
+            return;
+        }
+
+        final View dialogLayout = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_input_mileage, null);
         final TextInputEditText input = (TextInputEditText) dialogLayout.findViewById(R.id.mileage_input);
         input.setText(String.valueOf((int) presenter.getLatestMileage()));
 
         if (updateMileageDialog == null) {
-            updateMileageDialog = new AnimatedDialogBuilder(this)
+            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")
                     .setView(dialogLayout)
@@ -274,7 +311,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - baseMileage);
                             if (mileage > 20000000) {
-                                Toast.makeText(ScanCarActivity.this, "Please enter valid mileage", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
                                 presenter.updateMileage(mileage);
                                 d.dismiss();
@@ -288,21 +325,46 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
         updateMileageDialog.show();
     }
 
-    /**
-     * Invoked when the "Scan Car" button is tapped
-     *
-     * @param view the "Scan Car" button
-     */
-    public void startCarScan(View view) {
-        mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
+    public void finish() {
+//        presenter.finishScan();
+//        Intent data = new Intent();
+//        data.putExtra(MainActivity.REFRESH_FROM_SERVER, updatedMileageOrDtcsFound);
+//        setResult(MainActivity.RESULT_OK, data);
+//        super.finish();
+    }
 
-        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
-            return;
+    /**
+     * Invoked when the user tap on any area except for buttons,
+     *
+     * @param view
+     */
+    public void returnToMainActivity(View view) {
+        finish();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case BluetoothServiceConnection.RC_ENABLE_BT:
+                if (resultCode == Activity.RESULT_OK) {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_ALLOW_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
+                    if (isScanning) carScanButton.performClick();
+                } else {
+                    mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_DENY_BLUETOOTH_ON, MixpanelHelper.SCAN_CAR_VIEW);
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
 
-        updateMileage(null);
+    }
+
+    private void updateUi() {
+        carMileage.setText(String.format("%.2f", presenter.getLatestMileage()));
+        if (!BuildConfig.DEBUG) {
+            updateMileageButton.setVisibility(View.GONE);
+        }
     }
 
     private void startCarScan() {
@@ -344,12 +406,6 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     }
 
     @Override
-    public void onBackPressed() {
-        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_BACK, MixpanelHelper.SCAN_CAR_VIEW);
-        super.onBackPressed();
-    }
-
-    @Override
     public void onDeviceConnected() {
         if (connectTimeoutDialog != null && connectTimeoutDialog.isShowing()) connectTimeoutDialog.dismiss();
         hideLoading(null);
@@ -358,12 +414,12 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
 
     @Override
     public void onConnectingTimeout() {
-        if (isFinishing()) { // You don't want to add a dialog to a finished activity
+        if (isRemoving()) { // You don't want to add a dialog to a finished activity
             return;
         }
         hideLoading(null);
         if (connectTimeoutDialog == null) {
-            connectTimeoutDialog = new AnimatedDialogBuilder(this)
+            connectTimeoutDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Device not connected")
                     .setMessage("Make sure your vehicle engine is on and " +
@@ -390,8 +446,8 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
 
     @Override
     public void onInputtedMileageUpdated(double updatedMileage) {
-        if (IBluetoothCommunicator.CONNECTED == autoConnectService.getState()
-                || autoConnectService.isCommunicatingWithDevice()) {
+        if (IBluetoothCommunicator.CONNECTED == (bluetoothServiceActivity).autoConnectService.getState()
+                || bluetoothServiceActivity.autoConnectService.isCommunicatingWithDevice()) {
             updatedMileageOrDtcsFound = true;
             carMileage.setText(String.format("%.2f", updatedMileage));
             startCarScan();
@@ -404,10 +460,10 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
     @Override
     public void onTripMileageUpdated(final double updatedMileage) {
         Log.d(TAG, "Updated Mileage: " + updatedMileage);
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                carMileage.startAnimation(AnimationUtils.loadAnimation(ScanCarActivity.this, R.anim.mileage_update));
+                carMileage.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
                 carMileage.setText(String.valueOf(updatedMileage));
             }
         });
@@ -504,12 +560,12 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
      */
     @Override
     public void onGetRealTimeDataTimeout() {
-        if (isFinishing()) {
+        if (isRemoving()) {
             return;
         }
 
         if (uploadHistoricalDialog == null) {
-            uploadHistoricalDialog = new AnimatedDialogBuilder(this)
+            uploadHistoricalDialog = new AnimatedDialogBuilder(getActivity())
                     .setTitle("Uploading historical data")
                     .setMessage("Device still uploading previous data. It seems you haven't connected to the device in a" +
                             "while and the device is still uploading all of that data to the phone which could take a" +
@@ -536,7 +592,7 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
 
     @Override
     public boolean checkNetworkConnection(@Nullable String errorToShow) {
-        if (NetworkHelper.isConnected(this)) {
+        if (NetworkHelper.isConnected(getActivity())) {
             return true;
         } else {
             if (errorToShow != null) {
@@ -560,12 +616,12 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
 
     @Override
     public BluetoothAutoConnectService getAutoConnectService() {
-        return autoConnectService;
+        return bluetoothServiceActivity.autoConnectService;
     }
 
     @Override
-    public IBluetoothServiceActivity getActivity() {
-        return this;
+    public IBluetoothServiceActivity getBluetoothActivity() {
+        return bluetoothServiceActivity;
     }
 
     private void checkScanProgress() {
@@ -591,13 +647,13 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
             progressDialog.dismiss();
         }
         if (string != null) {
-            Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), string, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void showLoading(final String string) {
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 progressDialog.setMessage(string);
@@ -614,4 +670,5 @@ public class ScanCarActivity extends IBluetoothServiceActivity implements ScanCa
         presenter.bind(this);
         presenter.bindBluetoothService();
     }
+
 }

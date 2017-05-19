@@ -19,28 +19,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.BuildConfig;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -51,8 +48,9 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.adapters.MainAppSideMenuAdapter;
+import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
@@ -71,12 +69,14 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.add_car.PromptAddCarActivity;
+import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.mainFragments.MainToolFragment;
+import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
-import com.pitstop.ui.scan_car.ScanCarActivity;
+import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
-import com.pitstop.ui.services.ServicesActivity;
+import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -102,15 +102,32 @@ import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
+;
+
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends DebugDrawerActivity implements ObdManager.IBluetoothDataListener {
+public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    //Bind floating action buttons
+    @BindView(R.id.fab_main)
+    FloatingActionButton fabMain;
+
+    @BindView(R.id.fab_call)
+    FloatingActionButton fabCall;
+
+    @BindView(R.id.fab_find_directions)
+    FloatingActionButton fabDirections;
+
+    @BindView(R.id.fab_menu_request_service)
+    FloatingActionButton fabRequestService;
+
+    @BindView(R.id.fab_menu_message)
+    FloatingActionButton fabMessage;
+
     private GlobalApplication application;
-    private BluetoothAutoConnectService autoConnectService;
     private boolean serviceIsBound;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
@@ -161,6 +178,15 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     private LocalShopAdapter shopLocalStore;
     private LocalScannerAdapter scannerLocalStore;
 
+    //tabs
+
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
+
+    public static final int TAB_DASHBOARD = 0;
+    public static final int TAB_SERVICES = 1;
+    public static final int TAB_SCAN = 2;
+    public static final int TAB_NOTIF = 3;
+
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
     public static final int RC_SETTINGS = 52;
@@ -175,12 +201,12 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     public static final String CAR_EXTRA = "car";
     public static final String CAR_ISSUE_EXTRA = "car_issue";
     public static final String CAR_LIST_EXTRA = "car_list";
-    public static final String HAS_CAR_IN_DASHBOARD = "has_car";
     public static final String REFRESH_FROM_SERVER = "_server";
     public static final String FROM_ACTIVITY = "from_activity";
     public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
-    public static final int LOC_PERM_REQ = 112;
+    private final int FAB_DELAY = 50;
+
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -188,35 +214,28 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     // Views
     private View rootView;
     private Toolbar toolbar;
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
 
-    @BindView(R.id.left_drawer)
-    protected RelativeLayout mDrawer;
+    private ViewPager viewPager;
+    private TabViewPagerAdapter mTabViewPagerAdapter;
 
-    //private MainAppViewPager viewPager;
-    //private TabLayout tabLayout;
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
-    private MainAppSideMenuAdapter mainAppSideMenuAdapter;
 
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
 
-    private boolean createdOrAttached = false; // check if onCreate or onAttachFragment has completed
     private boolean isRefreshingFromServer = false;
+    private boolean isFabOpen = false;
 
-    public static MainDashboardCallback callback;
-
-    private MainDashboardFragment mDashboardFragment;
-    private MainToolFragment mToolFragment;
+    public static MainDashboardCallback mainDashboardCallback;
+    public static MainFragmentCallback servicesCallback;
+    public static MainFragmentCallback scanCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
 
-    @BindView(R.id.main_container)
-    FrameLayout mMainContainer;
+    private int attachedFragmentCounter = 0;
+    private final int TOTAL_WORKING_FRAGMENT_NUM = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -228,7 +247,7 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
-        rootView = getLayoutInflater().inflate(R.layout.activity_main_drawer_frame, null);
+        rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(rootView);
         ButterKnife.bind(this);
         ParseACL acl = new ParseACL();
@@ -254,37 +273,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toggleConnectionStatusActionBar(false);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-        R.string.bluetooth, R.string.bluetooth) {
-
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-/*                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_CLOSE_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-/*                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_OPEN_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-            }
-        };
-        //mDrawerToggle.setDrawerIndicatorEnabled(true);
-
-
-       // viewPager.setAdapter(adapter);
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -292,24 +280,16 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(application);
-        //carIssueLocalStore = new LocalCarIssueAdapter(application);
         shopLocalStore = new LocalShopAdapter(application);
         scannerLocalStore = new LocalScannerAdapter(application);
 
-        //viewPager = (MainAppViewPager) findViewById(R.id.viewpager);
-        //setupViewPager(viewPager);
-
-        //tabLayout = (TabLayout) findViewById(R.id.tabs);
-        //tabLayout.setupWithViewPager(viewPager);
-
-        if (createdOrAttached) {
-            refreshFromServer();
-        } else {
-            createdOrAttached = true;
-        }
+        refreshFromServer();
 
         logAuthInfo();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
+
+        setTabUI();
+        setFabUI();
     }
 
     public void changeTheme(boolean darkTheme) {
@@ -320,47 +300,143 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(this , darkTheme ? R.color.black : R.color.primary_dark));
         }
-        mDrawer.setBackground(new ColorDrawable(darkTheme ? Color.BLACK : ContextCompat.getColor(this,R.color.primary)));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "onResume");
+    //Set up fab, and fab menu click listener and the animations that will be taking place
+    private void setFabUI(){
 
-        if (autoConnectService != null) autoConnectService.setCallbacks(this);
+        final ArrayList<Animation> open_anims = new ArrayList<>();
+        final ArrayList<Animation> close_anims = new ArrayList<>();
 
-        resetMenus(false);
-        //mixpanelHelper.trackViewAppeared(viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ? MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
-        toggleDrawerLocked();
-    }
+        //Add delay between animations of each FAB to avoid performance decrease
+        for (int i=0;i<4;i++){
+            Animation fab_open = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_open);
+            fab_open.setStartOffset((4-i)*FAB_DELAY);
+            open_anims.add(fab_open);
 
-    private void toggleDrawerLocked() {
-        if (dashboardCar == null) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            Animation fab_close = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_close);
+            fab_close.setStartOffset(i*FAB_DELAY);
+            close_anims.add(fab_close);
         }
-        else {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        invalidateOptionsMenu();
+
+        final Animation rotate_forward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_forward);
+        final Animation rotate_backward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_backward);
+
+        fabMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Main");
+                if(isFabOpen){
+
+                    fabMain.startAnimation(rotate_backward);
+                    //Begin closing animation
+                    fabDirections.startAnimation(close_anims.get(0));
+                    fabCall.startAnimation(close_anims.get(1));
+                    fabMessage.startAnimation(close_anims.get(2));
+                    fabRequestService.startAnimation(close_anims.get(3));
+
+                    //Don't let the user click
+                    fabCall.setClickable(false);
+                    fabRequestService.setClickable(false);
+                    fabDirections.setClickable(false);
+                    fabMessage.setClickable(false);
+
+                    isFabOpen = false;
+
+                } else {
+
+                    //Begin opening animation
+                    fabMain.startAnimation(rotate_forward);
+                    fabDirections.startAnimation(open_anims.get(0));
+                    fabCall.startAnimation(open_anims.get(1));
+                    fabMessage.startAnimation(open_anims.get(2));
+                    fabRequestService.startAnimation(open_anims.get(3));
+
+                    //Let the user click fab
+                    fabCall.setClickable(true);
+                    fabRequestService.setClickable(true);
+                    fabDirections.setClickable(true);
+                    fabMessage.setClickable(true);
+
+                    isFabOpen = true;
+
+                }
+            }
+        });
+
+        final Activity thisActivity = this;
+        //Begin message activity
+        fabMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Message");
+                final HashMap<String, Object> customProperties = new HashMap<>();
+                customProperties.put("VIN", dashboardCar.getVin());
+                customProperties.put("Car Make", dashboardCar.getMake());
+                customProperties.put("Car Model", dashboardCar.getModel());
+                customProperties.put("Car Year", dashboardCar.getYear());
+                Log.i(TAG, dashboardCar.getDealership().getEmail());
+                customProperties.put("Email", dashboardCar.getDealership().getEmail());
+                User.getCurrentUser().addProperties(customProperties);
+                if (application.getCurrentUser() != null) {
+                    customProperties.put("Phone", application.getCurrentUser().getPhone());
+                    User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
+                    User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
+                }
+                ConversationActivity.show(thisActivity);
+            }
+        });
+
+        //Begin request service activity
+        fabRequestService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Request Service");
+                final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
+                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+                intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+                startActivityForResult(intent, RC_REQUEST_SERVICE);
+            }
+        });
+
+        //Begin call activity
+        fabCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Call");
+                mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                        dashboardCar.getDealership().getPhone()));
+                startActivity(intent);
+            }
+        });
+
+        //Begin directions activity
+        fabDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mixpanelHelper.trackFabClicked("Directions");
+                mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
+
+                String uri = String.format(Locale.ENGLISH,
+                        "http://maps.google.com/maps?daddr=%s",
+                        dashboardCar.getDealership().getAddress());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(intent);
+            }
+        });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        createdOrAttached = false;
-    }
+    private void setTabUI(){
 
-/*    private void setupViewPager(final ViewPager viewPager) {
-        MainAppViewPagerAdapter adapter = new MainAppViewPagerAdapter(getSupportFragmentManager());
-        mDashboardFragment = new MainDashboardFragment();
-        mToolFragment = new MainToolFragment();
-        adapter.addFragment(mDashboardFragment, "DASHBOARD");
-        adapter.addFragment(mToolFragment, "TOOLS");
+        //Initialize tab navigation
+        //View pager adapter that returns the corresponding fragment for each page
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
 
+        // Set up the ViewPager with the sections adapter.
+        viewPager = (ViewPager) findViewById(R.id.main_container);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -369,15 +445,18 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
             @Override
             public void onPageSelected(int position) {
-                //Track user changed page
-                switch (position) {
-                    case MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD:
-                        Log.d(TAG, "Dashboard shows up");
-                        mixpanelHelper.trackButtonTapped("Dashboard", MixpanelHelper.DASHBOARD_VIEW);
+                switch(position){
+                    case TAB_DASHBOARD:
+                        mixpanelHelper.trackSwitchedToTab("Dashboard");
                         break;
-                    case MainAppViewPager.PAGE_NUM_MAIN_TOOL:
-                        Log.d(TAG, "Tools shows up");
-                        mixpanelHelper.trackButtonTapped("Tools", MixpanelHelper.TOOLS_VIEW);
+                    case TAB_SERVICES:
+                        mixpanelHelper.trackSwitchedToTab("Services");
+                        break;
+                    case TAB_SCAN:
+                        mixpanelHelper.trackSwitchedToTab("Scan");
+                        break;
+                    case TAB_NOTIF:
+                        mixpanelHelper.trackSwitchedToTab("Notifications");
                         break;
                 }
 
@@ -389,49 +468,97 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             }
         });
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-*//*        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.bluetooth, R.string.bluetooth) {
-
-            *//**//** Called when a drawer has settled in a completely closed state. *//**//*
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_CLOSE_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+        //Set up actionbar
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
             }
 
-            *//**//** Called when a drawer has settled in a completely open state. *//**//*
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                mixpanelHelper.trackButtonTapped(MixpanelHelper.MAIN_ACTIVITY_OPEN_SIDE_MENU,
-                        viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);
+            @Override
+            public void onPageSelected(int position) {
+                //Change actionbar title
+                getSupportActionBar().setTitle(TAB_NAMES[position]);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
 
             }
-        };*//*
+        });
 
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        viewPager.setAdapter(adapter);
-        mDrawerToggle.syncState();
-    }*/
+        viewPager.setAdapter(mTabViewPagerAdapter);
 
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof MainDashboardFragment) {
-            // refresh must only happen after onCreate is completed and onOnAttachFragment is completed
-            if (createdOrAttached) {
-                refreshFromServer();
-            } else {
-                createdOrAttached = true;
+        //Populate tabs with icons
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
+        tabLayout.setupWithViewPager(viewPager);
+
+        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
+                ,R.drawable.scan_icon,R.drawable.ic_notifications_white_24dp};
+
+        for (int i=0;i<tabIcons.length;i++){
+            try{
+                tabLayout.getTabAt(i).setIcon(tabIcons[i]);
+            }catch(java.lang.NullPointerException e){
+
             }
         }
+
+        //Switch to selected fragment when tab is clicked
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch(tab.getPosition()){
+
+                    case TAB_DASHBOARD:
+                        //Go to dashboard fragment
+                        viewPager.setCurrentItem(TAB_DASHBOARD);
+                        break;
+
+                    case TAB_SERVICES:
+                        //Go to services fragment
+                        viewPager.setCurrentItem(TAB_SERVICES);
+                        break;
+
+                    case TAB_SCAN:
+                        //Go to scan fragment
+                        viewPager.setCurrentItem(TAB_SCAN);
+                        break;
+
+                    case TAB_NOTIF:
+                        //Go to notifications fragment
+                        viewPager.setCurrentItem(TAB_NOTIF);
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                //do nothing
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onResume");
+
+        if (autoConnectService != null) autoConnectService.setCallbacks(this);
+
+        resetMenus(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     // repopulate car list
@@ -459,26 +586,33 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                 carList.get(0).setCurrentCar(true);
                 dashboardCar = carList.get(0);
             }
-            callback.setDashboardCar(MainActivity.carList);
-            callback.setCarDetailsUI();
-        }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer_listview);
 
-        if (mDrawerList != null) {
-            if (mainAppSideMenuAdapter == null) {
-                mainAppSideMenuAdapter = new MainAppSideMenuAdapter(this,
-                        carList.toArray(new Car[carList.size()]));
-                mDrawerList.setAdapter(mainAppSideMenuAdapter);
-            } else {
-                mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
-                mainAppSideMenuAdapter.notifyDataSetChanged();
-            }
-            // Set the adapter for the list view
-            // Set the list's click listener
-            mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            broadCastCarDataToFragments();
+            mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+            loadDealershipCustomDesign();
+
         }
-        toggleDrawerLocked();
+    }
+
+    private void broadCastCarDataToFragments(){
+        MainDashboardFragment.setDashboardCar(getCurrentCar());
+
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (mainDashboardCallback != null){
+            mainDashboardCallback.onDashboardCarUpdated();
+        }
+
+        MainServicesFragment.setDashboardCar(getCurrentCar());
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (servicesCallback != null){
+            servicesCallback.onDashboardCarUpdated();
+        }
+
+        ScanCarFragment.setDashboardCar(getCurrentCar());
+        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
+        if (scanCallback != null){
+            scanCallback.onDashboardCarUpdated();
+        }
     }
 
     @Override
@@ -488,6 +622,22 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
+    }
+
+    private Car getCurrentCar(){
+        if (carList == null){
+            return null;
+        }
+        if (carList.size() == 0){
+            return null;
+        }
+
+        for (Car c: carList){
+            if (c.isCurrentCar()){
+                return c;
+            }
+        }
+        return carList.get(0);
     }
 
     @Override
@@ -505,10 +655,10 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
-                        callback.setDashboardCar(carList);
-                        toggleDrawerLocked();
+                        broadCastCarDataToFragments();
+
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
-                                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
+                                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
 
                         com.pitstop.models.User user = application.getCurrentUser();
 
@@ -562,7 +712,9 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-                callback.setCarDetailsUI();
+                mainDashboardCallback.setCarDetailsUI();
+                loadDealershipCustomDesign();
+
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -584,11 +736,10 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                     removeTutorial();
                 }
             }
-            callback.activityResultCallback(requestCode, resultCode, data);
+            mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-        toggleDrawerLocked();
     }
 
     public BluetoothAutoConnectService getBluetoothConnectService() {
@@ -647,8 +798,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item))
-            return true;
         switch (item.getItemId()){
             case R.id.action_settings:
                 settingsClicked(null);
@@ -664,12 +813,7 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
     }
-
-/*    public List<CarIssue> getCarIssueList() {
-        return carIssueList;
-    }*/
 
     /**
      * Onclick method for service history button
@@ -679,10 +823,8 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     public void clickServiceHistory(View view) {
         mixpanelHelper.trackButtonTapped("History", MixpanelHelper.TOOLS_VIEW);
         Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
-        //intent.putExtra("carId",dashboardCar.getId());
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     public void upcomingServiceClicked(View view){
@@ -690,20 +832,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         Intent carTimelineIntent = new Intent(this, TimelineActivity.class);
         carTimelineIntent.putExtra(TimelineActivity.CAR_BUNDLE_KEY, dashboardCar);
         startActivity(carTimelineIntent);
-    }
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(position);
-            resetMenus(false);
-
-            // Track new selected car
-            String button = dashboardCar.getMake() + " " + dashboardCar.getModel();
-/*            mixpanelHelper.trackButtonTapped("Select Current Car: " + button, viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
-        }
     }
 
     /**
@@ -715,20 +843,13 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             if (carLocalStore == null) {
                 carLocalStore = new LocalCarAdapter(this);
             }
-/*            if (carIssueLocalStore == null) {
-                carIssueLocalStore = new LocalCarIssueAdapter(this);
-            }*/
             carLocalStore.deleteAllCars();
-/*            carIssueLocalStore.deleteAllCarIssues();
-            carIssueList.clear();*/
+
             getCarDetails();
-            if (callback != null) {
-                callback.onServerRefreshed();
-            }
         } else {
-            View drawerLayout = findViewById(R.id.drawer_layout);
-            if (drawerLayout != null) {
-                Snackbar.make(mDrawerLayout, "You are not connected to internet", Snackbar.LENGTH_SHORT).show();
+            View linearLayout = findViewById(R.id.linear_layout);
+            if (linearLayout != null) {
+                Snackbar.make(linearLayout, "You are not connected to internet", Snackbar.LENGTH_SHORT).show();
             }
             refreshFromLocal();
             resetMenus(false);
@@ -736,7 +857,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                 hideLoading();
             }
         }
-        toggleDrawerLocked();
     }
 
     public void refreshFromLocal() {
@@ -744,9 +864,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         getCarDetails();
         if (isLoading) {
             hideLoading();
-        }
-        if (callback != null) {
-            callback.onLocalRefreshed();
         }
     }
 
@@ -764,15 +881,56 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         } else {
             Log.i(TAG, "Trying local store for cars");
             MainActivity.carList = localCars;
+            broadCastCarDataToFragments();
 
-            if (callback != null) {
-                callback.setDashboardCar(MainActivity.carList);
-                callback.setCarDetailsUI();
-            }
             hideLoading();
         }
 
-        toggleDrawerLocked();
+        //After loading car details
+
+    }
+
+    private void startPromptAddCarActivity() {
+        Intent intent = new Intent(MainActivity.this, PromptAddCarActivity.class);
+        //Don't allow user to come back to tabs without first setting a car
+        startActivityForResult(intent, RC_ADD_CAR);
+    }
+
+    private void loadDealershipCustomDesign(){
+        Car myCar = getCurrentCar();
+        //Update tab design to the current dealerships custom design if applicable
+        if (myCar.getDealership() != null){
+            if (BuildConfig.DEBUG && (myCar.getDealership().getId() == 4
+                    || myCar.getDealership().getId() == 18)){
+
+                bindMercedesDealerUI();
+            }else if (!BuildConfig.DEBUG && myCar.getDealership().getId() == 14) {
+                bindMercedesDealerUI();
+            }
+            else{
+                bindDefaultDealerUI();
+            }
+        }
+    }
+
+    private void bindMercedesDealerUI(){
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.main_tablayout);
+        tabLayout.setBackgroundColor(Color.BLACK);
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        appBarLayout.setBackgroundColor(Color.DKGRAY);
+    }
+
+    private void bindDefaultDealerUI(){
+        //Change theme elements back to default
+        changeTheme(false);
+
+        //Get the themes default primary color
+        TypedValue defaultColor = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
+
+        //Set other changed UI elements back to original color
+        ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
+        ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
 
     /**
@@ -791,26 +949,11 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
-                    View mainView = findViewById(R.id.main_view);
-                    View noCarText = findViewById(R.id.no_car_text);
-                    View noConnectText = findViewById(R.id.no_connect_text);
-                    View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
-                    if (mainView != null) {
-                        mainView.setVisibility(View.GONE);
-                    }
-                    if (noCarText != null) {
-                        noCarText.setVisibility(View.GONE);
-                    }
-                    if (noConnectText != null) {
-                        noConnectText.setVisibility(View.VISIBLE);
-                    }
-                    if (requestServiceButton != null) {
-                        requestServiceButton.setVisibility(View.GONE);
-                    }
-/*                    tabLayout.setVisibility(View.GONE);
-                    viewPager.setPagingEnabled(false);*/
-                    Toast.makeText(application, "An error occurred, please try again", Toast.LENGTH_SHORT).show();
-                    hideLoading();
+
+                    application.logOutUser();
+                    Toast.makeText(application, "Networking error, please check internet connection.", Toast.LENGTH_LONG).show();
+                    finish();
+
                 } else {
                     int mainCarId = -1;
                     try {
@@ -818,8 +961,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                     } catch (JSONException e) {
 
                     }
-/*                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    sharedPreferences.edit().putInt(MainDashboardFragment.pfCurrentCar, mainCarId).commit();*/
 
                     final int mainCarIdCopy = mainCarId;
 
@@ -827,31 +968,12 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                         @Override
                         public void done(String response, RequestError requestError) {
                             if (requestError == null) {
-                                View mainView = findViewById(R.id.main_view);
-                                View noCarText = findViewById(R.id.no_car_text);
-                                View noConnectText = findViewById(R.id.no_connect_text);
-                                View requestServiceButton = findViewById(R.id.dashboard_request_service_btn);
                                 try {
                                     carList = Car.createCarsList(response);
 
                                     if (carList.isEmpty()) { // show add first car text
-                                        if (isLoading) {
-                                            hideLoading();
-                                        }
-                                        if (mainView != null) {
-                                            mainView.setVisibility(View.GONE);
-                                        }
-                                        if (noCarText != null) {
-                                            noCarText.setVisibility(View.VISIBLE);
-                                        }
-                                        if (noConnectText != null) {
-                                            noConnectText.setVisibility(View.GONE);
-                                        }
-                                        if (requestServiceButton != null) {
-                                            requestServiceButton.setVisibility(View.GONE);
-                                        }
-/*                                        viewPager.setPagingEnabled(false);
-                                        tabLayout.setVisibility(View.GONE);*/
+                                        startPromptAddCarActivity();
+
                                     } else {
                                         if (mainCarIdCopy != -1) {
                                             for (Car car : carList) {
@@ -864,25 +986,13 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                                             dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
-                                        if (mainView != null) {
-                                            mainView.setVisibility(View.VISIBLE);
-                                        }
-                                        if (noCarText != null) {
-                                            noCarText.setVisibility(View.GONE);
-                                        }
-                                        if (noConnectText != null) {
-                                            noConnectText.setVisibility(View.GONE);
-                                        }
-                                        if (requestServiceButton != null) {
-                                            requestServiceButton.setVisibility(View.VISIBLE);
-                                        }
-/*                                        viewPager.setPagingEnabled(true);
-                                        tabLayout.setVisibility(View.VISIBLE);*/
-                                        callback.setDashboardCar(carList);
+
+                                        broadCastCarDataToFragments();
+                                        mainDashboardCallback.setCarDetailsUI();
+                                        loadDealershipCustomDesign();
+
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
-/*                                        carIssueLocalStore.deleteAllCarIssues();
-                                        carIssueLocalStore.storeCarIssues(carList);*/
 
                                         // Populate the scanner table
                                         for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
@@ -893,11 +1003,8 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                                         }
                                         Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
 
-                                        callback.setCarDetailsUI();
                                     }
 
-                                    mainAppSideMenuAdapter.setData(carList.toArray(new Car[carList.size()]));
-                                    mainAppSideMenuAdapter.notifyDataSetChanged();
                                     resetMenus(false);
                                     hideLoading();
                                 } catch (JSONException e) {
@@ -915,7 +1022,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                         }
                     });
                 }
-                toggleDrawerLocked();
             }
         });
     }
@@ -1027,65 +1133,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         }
     }
 
-    /**
-     * Create and show an snackbar that is used to show users some information.<br>
-     * The purpose of this method is to display message that requires user's confirm to be dismissed.
-     *
-     * @param content snack bar message
-     */
-    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
-                .setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // DO nothing
-                    }
-                })
-                .setActionTextColor(Color.WHITE);
-        View snackBarView = snackbar.getView();
-        if (isSuccess) {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
-        } else {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
-        }
-        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
-
-        snackbar.show();
-
-    }
-
-    /**
-     * Swaps fragments in the main content view
-     */
-    private void selectItem(int position) {
-        dashboardCar = carList.get(position);
-        for (Car car : carList) {
-            car.setCurrentCar(false);
-        }
-        dashboardCar.setCurrentCar(true);
-        networkHelper.setMainCar(application.getCurrentUserId(), dashboardCar.getId(), null);
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).commit();
-        // Highlight the selected item, update the title, and close the drawer
-        for (int i = 0; i < carList.size(); i++) {
-            mDrawerList.setItemChecked(i, false);
-        }
-        mDrawerList.setItemChecked(position, true);
-        callback.setDashboardCar(carList);
-        callback.setCarDetailsUI();
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-/*        if (viewPager.getCurrentItem() == 0) {
-            findViewById(R.id.main_view).startAnimation(AnimationUtils.loadAnimation(this, R.anim.switch_car));
-        }*/
-    }
-
-    public void startAddCarActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, AddCarActivity.class);
-        startActivityForResult(intent, RC_ADD_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -1116,8 +1163,8 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
      * @param needDescription
      * @param message
      */
-    private void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
-                                   final boolean needDescription, @Nullable final String message) {
+    public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
+                                  final boolean needDescription, @Nullable final String message) {
         if (isFinishing()) {
             return;
         }
@@ -1146,23 +1193,13 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
      * @param view
      */
     public void scanClicked(View view) {
-/*        try {
-            mixpanelHelper.trackCustom("Button Tapped",
-                    new JSONObject(String.format("{'Button':'Scan', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                            viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                                    MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW
-                            , dashboardCar.getMake(), dashboardCar.getModel())));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
 
-        Intent intent = new Intent(this, ScanCarActivity.class);
+        Intent intent = new Intent(this, ScanCarFragment.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1171,29 +1208,11 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
      * @param view
      */
     public void refreshClicked(View view) {
-/*        mixpanelHelper.trackButtonTapped("Refresh",
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
         refreshFromServer();
 
         if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
             autoConnectService.startBluetoothSearch(); // refresh clicked
         }
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-    }
-
-    /**
-     * Onclick method for Add Vehicle button
-     *
-     * @param view
-     */
-    public void addClicked(View view) {
-/*        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED,
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-        startAddCarActivity(null);
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
     }
 
     /**
@@ -1202,9 +1221,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
      * @param view
      */
     public void settingsClicked(View view) {
-/*        mixpanelHelper.trackButtonTapped("Settings",
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
@@ -1224,7 +1240,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                     if (requestError == null) {
                         application.setCurrentUser(com.pitstop.models.User.jsonToUserObject(response));
                         startActivityForResult(intent, RC_SETTINGS);
-                        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
                     } else {
                         Log.e(TAG, "Get user error: " + requestError.getMessage());
                     }
@@ -1232,36 +1247,16 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
-            overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
         }
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-    }
-
-    public void notificationsClicked(View view){
-/*        mixpanelHelper.trackButtonTapped(getString(R.string.notifications),
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-        startActivity(new Intent(MainActivity.this, NotificationsActivity.class));
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
-    }
-
-    public void servicesClicked(View view){
-        Intent intent = new Intent(this, ServicesActivity.class);
-        intent.putExtra("dashboardCar", dashboardCar);
-        startActivity(intent);
     }
 
     /**
      * Onclick method for requesting services
      *
+     * @param view if this view is null, we consider the service booking is tentative (first time)
      */
     public void requestMultiService(View view) {
         if (!checkDealership()) return;
-
-/*        mixpanelHelper.trackButtonTapped("Request Service",
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
 
         // view is null for request from tutorial
         final Intent intent = new Intent(this, ServiceRequestActivity.class);
@@ -1270,7 +1265,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
         isFirstAppointment = false;
         startActivityForResult(intent, RC_REQUEST_SERVICE);
-        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
     public void myAppointments(){
@@ -1279,7 +1273,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
         intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_bottom_up_in, R.anim.activity_bottom_up_out);
     }
 
 
@@ -1296,10 +1289,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
      */
     public void startChat(View view) {
         if (!checkDealership()) return;
-/*        mixpanelHelper.trackButtonTapped("Confirm chat with " + dashboardCar.getDealership().getName(),
-                viewPager.getCurrentItem() == MainAppViewPager.PAGE_NUM_MAIN_DASHBOARD ?
-                        MixpanelHelper.DASHBOARD_VIEW : MixpanelHelper.TOOLS_VIEW);*/
-
 
         final HashMap<String, Object> customProperties = new HashMap<>();
         customProperties.put("VIN", dashboardCar.getVin());
@@ -1315,7 +1304,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
         }
         ConversationActivity.show(this);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1334,7 +1322,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
                 dashboardCar.getDealership().getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1351,7 +1338,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                 dashboardCar.getDealership().getPhone()));
         startActivity(intent);
-        overridePendingTransition(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out);
     }
 
     /**
@@ -1414,9 +1400,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
             public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
                 if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
                     try {
-/*                        Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
-                        requestServiceButton.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.service_button_tutorial));
-                        requestServiceButton.setText(getResources().getString(R.string.first_service_booking_tutorial_button_text));*/
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1434,9 +1417,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
 
                 //Change the color and text back to the original request service button
                 try {
-/*                    Button requestServiceButton = ((Button) viewPager.findViewById(R.id.dashboard_request_service_btn));
-                    requestServiceButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.color_button_rectangle_primary));
-                    requestServiceButton.setText(getResources().getString(R.string.service_request_button));*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -1445,7 +1425,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         });
 
         //viewPager.setCurrentItem(0);
-        mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
         isFirstAppointment = true;
         tutorialSequence.start();
     }
@@ -1512,7 +1491,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
     private void removeTutorial() {
         Log.d(TAG, "Remove tutorial");
         mixpanelHelper.trackButtonTapped("Tutorial - removeTutorial", MixpanelHelper.DASHBOARD_VIEW);
-        callback.removeTutorial();
     }
 
     private boolean checkDealership() {
@@ -1660,22 +1638,6 @@ public class MainActivity extends DebugDrawerActivity implements ObdManager.IBlu
         if (getSupportActionBar() != null)
             getSupportActionBar().setSubtitle(isConnected ? R.string.connected_device:R.string.disconnected_device);
 
-    }
-
-    public interface MainDashboardCallback {
-        void activityResultCallback(int requestCode, int resultCode, Intent data);
-
-        void onServerRefreshed();
-
-        void onLocalRefreshed();
-
-        void setDashboardCar(List<Car> carList);
-
-        void setCarDetailsUI();
-
-        void removeTutorial();
-
-        void tripData(TripInfoPackage tripInfoPackage);
     }
 
 

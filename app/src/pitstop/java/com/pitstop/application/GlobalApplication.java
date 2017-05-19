@@ -33,7 +33,6 @@ import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.ui.MainActivity;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
@@ -41,6 +40,8 @@ import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
+
+import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 import io.smooch.core.Settings;
@@ -146,6 +147,7 @@ public class GlobalApplication extends Application {
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
+
     }
 
     public void setUpMixPanel(){
@@ -249,12 +251,20 @@ public class GlobalApplication extends Application {
     }
 
     public Car getCurrentCar(){
-        for (Car c: MainActivity.carList){
-            if (c.isCurrentCar()){
+
+        //Get most recent version of car list
+        List<Car> carList = mLocalCarAdapter.getAllCars();
+
+        //Set car list to what it was initially
+        if (carList.size() == 0)
+            return null;
+
+        for (Car c: carList){
+            if (c.isCurrentCar())
                 return c;
-            }
         }
-        return null;
+
+        return carList.get(0);
     }
 
     public boolean isLoggedIn() {

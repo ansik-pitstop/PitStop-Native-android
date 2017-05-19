@@ -414,7 +414,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override
