@@ -279,7 +279,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 
     @OnClick(R.id.update_mileage)
     public void updateMileage(final View view) {
-        if (isRemoving() || destroyed || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
+        if (presenter == null || isRemoving() || destroyed || (updateMileageDialog != null && updateMileageDialog.isShowing())) {
             return;
         }
 
