@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
     
     <ScrollView
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="@color/black50">
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/debug_message_bluetooth_toggle" />
 
-            <com.pitstop.view.TextFeedView
+            <TextView
                 android:id="@+id/debugLogsBluetooth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/debug_message_network_toggle" />
 
-            <com.pitstop.view.TextFeedView
+            <TextView
                 android:id="@+id/debugLogsNetwork"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/debug_message_other_toggle" />
 
-            <com.pitstop.view.TextFeedView
+            <TextView
                 android:id="@+id/debugLogsOther"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
