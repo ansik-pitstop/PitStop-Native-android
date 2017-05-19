@@ -940,7 +940,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     application.logOutUser();
                     Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
                     finish();
-                } else if (response == null || response.isEmpty() || requestError != null || true) { // couldn't get cars from server, show try again
+                } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
 
                     application.logOutUser();
                     Toast.makeText(application, "Networking error, please check internet connection.", Toast.LENGTH_LONG).show();
