@@ -1635,8 +1635,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     public void toggleConnectionStatusActionBar(boolean isConnected){
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setSubtitle(isConnected ? R.string.connected_device:R.string.disconnected_device);
+        if (getSupportActionBar() != null){
+            //getSupportActionBar().setSubtitle(isConnected ? R.string.connected_device:R.string.disconnected_device);
+            //Above is temporarily removed until bluetooth status appearance is fixed and in order.
+        }
 
     }
 
