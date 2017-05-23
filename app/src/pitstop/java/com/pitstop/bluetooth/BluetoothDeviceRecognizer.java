@@ -61,7 +61,7 @@ public class BluetoothDeviceRecognizer {
                 || mLocalScannerStore.deviceNameExists(scannerName)) {
             return RecognizeResult.CONNECT;
         } else if (mLocalScannerStore.anyCarLackScanner()) {
-            notifyOnUnrecognizedDeviceFound(scannerName);
+            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
             mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
             return RecognizeResult.IGNORE;
         } else { // this part should never be reached.... but whatever
