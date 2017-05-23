@@ -162,6 +162,16 @@ public class CurrentServicesFragment extends SubServiceFragment {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_issue, parent, false);
+
+            //Set listener for closing issue
+            ImageView imageView = (ImageView)v.findViewById(R.id.image_done_issue);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d(TAG,"Close issue clicked");
+                }
+            });
+
             return new ViewHolder(v);
         }
 
