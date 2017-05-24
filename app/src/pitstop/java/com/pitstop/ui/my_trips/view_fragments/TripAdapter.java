@@ -51,23 +51,21 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
     @Override
     public void onBindViewHolder(TripAdapter.TripsViewHolder holder, final int position) {// do this last
         int viewType = getItemViewType(position);
-        String pretext = "";
-
-        View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tripHistory.listItemClicked(mTrips.get(position));
-            }
-        };
-        holder.setClickListener(clickListener);
 
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.date.setText("No Trips");
             holder.details.setText("There are currently no trips");
         } else {
+            View.OnClickListener clickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    tripHistory.listItemClicked(mTrips.get(position));
+                }
+            };
+            holder.setClickListener(clickListener);
             Trip currentTrip = mTrips.get(position);
             holder.date.setText(dateFormat(currentTrip.getStart().getTime()));
-            holder.details.setText(mTrips.get(position).getStartAddress()+" - "+mTrips.get(position).getEndAddress());
+            holder.details.setText(addressFormat(currentTrip));
         }
     }
 
@@ -78,6 +76,15 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
         } else {
             return super.getItemViewType(position);
         }
+    }
+
+    private String addressFormat(Trip trip){
+        String addressText;
+        String[] addOne = trip.getStartAddress().split(",");
+        String[] addTwo = trip.getEndAddress().split(",");
+
+        addressText = addOne[0] + " - " + addTwo[0];
+        return addressText;
     }
 
     @Override

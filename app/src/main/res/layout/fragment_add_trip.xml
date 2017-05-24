@@ -15,6 +15,7 @@
         app:srcCompat="@drawable/start_trip_button3x" />
 
     <android.support.v7.widget.CardView
+        android:id="@+id/back_ground_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -72,6 +73,7 @@
                     android:layout_weight="1"
                     android:maxLines="1"
                     android:text="@string/add_trip_previous"
+                    android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary" />
 
@@ -82,34 +84,35 @@
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:text="Start time" />
+                    android:text="No previous trips" />
 
                 <TextView
-                    android:id="@+id/prev_trip_start_location"
+                    android:id="@+id/prev_trip_start_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:text="Start Location" />
+                    android:text="" />
 
                 <TextView
-                    android:id="@+id/Prev_trip_start_address"
+                    android:id="@+id/prev_trip_end_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:text="Start Address" />
+                    android:text="" />
+
 
                 <TextView
-                    android:id="@+id/Prev_trip_distance"
+                    android:id="@+id/prev_trip_distance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:text="Trip Distance" />
+                    android:text="" />
 
             </LinearLayout>
         </android.support.v7.widget.CardView>

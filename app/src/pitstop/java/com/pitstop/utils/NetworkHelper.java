@@ -12,6 +12,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Trip;
+import com.pitstop.models.TripLocation;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -836,7 +837,7 @@ public class NetworkHelper {
         JSONArray pidArray = new JSONArray();
         try {
             body.put("tripId",trip.getId());
-            for(Location loc : trip.getPath()){
+            for(TripLocation loc : trip.getPath()){
                 pidArray.put(new JSONObject()
                 .put("pids",new JSONArray())
                 .put("geolocation",new JSONObject().put("lat",Double.toString(loc.getLatitude())).put("long",Double.toString(loc.getLongitude())))

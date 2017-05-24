@@ -1,6 +1,12 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,9 +18,12 @@ import android.view.ViewGroup;
 
 import com.pitstop.R;
 import com.pitstop.database.LocalTripAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.models.Trip;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,42 +37,58 @@ public class TripHistory extends Fragment {
     private TripAdapter mTripAdapter;
     private List<Trip> mTrips;
 
-    private LocalTripAdapter localTripAdapter;
+    private View rootView;
+    private int color;
+
+
+    LinearLayoutManager linearLayoutManager;
 
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.fragment_trip_history, container, false);
+        rootView = inflater.inflate(R.layout.fragment_trip_history, container, false);
+        color  = ((MyTripsActivity)getActivity()).getLineColor();
+        addTripFab = (FloatingActionButton)rootView.findViewById(R.id.add_trip_fab);
+        addTripFab.setBackgroundTintList(ColorStateList.valueOf(color));
+        addTripFab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                ((MyTripsActivity)getActivity()).setViewAddTrip();
+            }
+        });
+        return rootView;
     }
+
 
 
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mTripsList = (RecyclerView) getView().findViewById(R.id.trip_list);
+        linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mTripsList.setLayoutManager(linearLayoutManager);
         setupList();
-        addTripFab = (FloatingActionButton)getView().findViewById(R.id.add_trip_fab);
-        addTripFab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((MyTripsActivity)getActivity()).setViewAddTrip();
-            }
-        });
     }
     public void listItemClicked(Trip trip){
         ((MyTripsActivity)getActivity()).setViewPrevTrip(trip);
-        System.out.println("testing "+trip.getStartAddress());
     }
 
+    public void setList(List<Trip> trips){
+        mTrips = trips;
+    }
+
+
+
+
+
     public void setupList(){
-        localTripAdapter = new LocalTripAdapter(getActivity().getApplicationContext());
-        mTrips = localTripAdapter.getAllTrips();
-        mTripsList = (RecyclerView) getView().findViewById(R.id.trip_list);
-        mTripAdapter = new TripAdapter(getActivity().getApplicationContext(),mTrips,this);
+       // mTrips = localTripAdapter.getAllTrips();
+        List<Trip> revTrips = new ArrayList<>(mTrips);
+        Collections.reverse(revTrips);
+        mTripAdapter = new TripAdapter(getActivity().getApplicationContext(),revTrips,this);
         mTripsList.setAdapter(mTripAdapter);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mTripsList.setLayoutManager(linearLayoutManager);
+
     }
 }

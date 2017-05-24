@@ -46,7 +46,7 @@
     <string name="barcode_failure">No barcode captured</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
-    <string name="location_request_rationale">Access to device location is needed for bluetooth feature</string>
+    <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
     
     <string name="appversion">app_version</string>
     <string name="title_activity_select_dealership">Select Dealership</string>
@@ -198,6 +198,13 @@
     <string name="second_card_text">Current Stats</string>
 
     <string name="add_trip_previous">Previous Trip</string>
+
+    <string name="prev_trip_start">Start</string>
+
+    <string name="prev_trip_end">Destination</string>
+
+
+
 
     <!--Services-->
     <string name="services_nav_text">Services</string>

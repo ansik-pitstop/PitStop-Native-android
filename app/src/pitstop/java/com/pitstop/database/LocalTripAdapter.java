@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Trip;
+import com.pitstop.models.TripLocation;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -93,7 +94,6 @@ public class LocalTripAdapter {
         if(c.moveToFirst()) {
             trip = cursorToTrip(c);
         }
-
         db.close();
         return trip;
     }
@@ -127,10 +127,11 @@ public class LocalTripAdapter {
         db.close();
     }
 
+
     private Trip cursorToTrip(Cursor c) {
         Trip trip = new Trip();
         Gson gson = new Gson();
-        Type locListType = new TypeToken<List<Location>>(){}.getType();
+        Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
         trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),Location.class));
         trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),Location.class));
@@ -138,8 +139,7 @@ public class LocalTripAdapter {
         trip.setEndAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END_ADDRESS)));
         trip.setTotalDistance(c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_TOTAL_DISTANCE)));
         trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
-        trip.setPath((List<Location>)gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_PATH)),locListType));//probably wrong
-
+        trip.setPath((List<TripLocation>)gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_PATH)),locListType));
         return trip;
     }
 
@@ -149,8 +149,6 @@ public class LocalTripAdapter {
 
         Gson gson = new Gson();
         String jsonData;
-
-
 
         values.put(TABLES.COMMON.KEY_OBJECT_ID,trip.getId());
         jsonData = gson.toJson(trip.getStart());
