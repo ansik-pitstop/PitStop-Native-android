@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.ui.my_trips.MyTripsActivity;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -23,6 +24,13 @@ public class TripView extends Fragment {
 
     private String initialAddress;
     private DecimalFormat decimalFormat;
+    private TextView currentDistanceTextView;
+    private TextView currentSpeedTextView;
+
+    private TextView startTitle;
+    private TextView currentTitle;
+
+    private int color;
 
 
 
@@ -32,14 +40,14 @@ public class TripView extends Fragment {
     }
     public void setSpeed(double speed){
         if(getView() != null){
-            TextView currentSpeedTextView = (TextView) getView().findViewById(R.id.current_speed);
+            currentSpeedTextView = (TextView) getView().findViewById(R.id.current_speed);
             currentSpeedTextView.setText("Speed: "+decimalFormat.format(speed) + " km/h");
         }
     }
     public void setDistance(double distance){
         if(getView() != null){
             distance /= 1000;//distance is in meters
-            TextView currentDistanceTextView = (TextView) getView().findViewById(R.id.current_distance);
+            currentDistanceTextView = (TextView) getView().findViewById(R.id.current_distance);
             currentDistanceTextView.setText("Distance: " + decimalFormat.format(distance) + " km");
         }
     }
@@ -53,6 +61,13 @@ public class TripView extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         decimalFormat = new DecimalFormat("0.00");
         Date startTime  = new Date(System.currentTimeMillis());
+
+        color = ((MyTripsActivity)getActivity()).getLineColor();
+        startTitle = (TextView) getView().findViewById(R.id.starting_point_title);
+        currentTitle = (TextView) getView().findViewById(R.id.current_stats_title);
+        startTitle.setTextColor(color);
+        currentTitle.setTextColor(color);
+
         TextView startTimeTextView = (TextView) getView().findViewById(R.id.starting_time);
         startTimeTextView.setText(dateFormat(startTime.toString()));
         TextView addressTextView = (TextView) getView().findViewById(R.id.starting_point_address);

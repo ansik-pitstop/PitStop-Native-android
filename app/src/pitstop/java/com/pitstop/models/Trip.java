@@ -19,7 +19,7 @@ public class Trip  {
     private String endAddress;
     private double totalDistance;
     private int tripId;
-    private List<Location> path = new ArrayList<>();
+    private List<TripLocation> path = new ArrayList<>();
 
     public void setStart(Location start){
         this.start = start;
@@ -43,16 +43,16 @@ public class Trip  {
     public void setTripId(int tripId){
         this.tripId = tripId;
     }
-    public void setPath(List<Location> path){
+    public void setPath(List<TripLocation> path){
         this.path = path;
     }
 
 
-    public void addPoint(Location location){
+    public void addPoint(TripLocation location){
         path.add(location);
     }
 
-    public List<Location> getPath(){return path;}
+    public List<TripLocation> getPath(){return path;}
 
     public Location getEnd(){return end;}
 
