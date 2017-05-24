@@ -60,6 +60,17 @@ public class PrevTrip extends Fragment {
         tripToShow = trip;
     }
 
+    public String getAddresses(){
+        if(tripToShow != null){
+            return "Starting Address: " + tripToShow.getStartAddress() + "\n \n" +"End Address: "+
+                    tripToShow.getEndAddress() +"\n \n" + "Total Distance: "+
+                    decimalFormat.format(tripToShow.getTotalDistance()/1000)+" km";
+        }
+        return "";
+
+
+    }
+
     private String dateFormat(Long date){
         SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
         return newFormat.format(date);

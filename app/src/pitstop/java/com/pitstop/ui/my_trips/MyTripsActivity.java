@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
@@ -16,21 +17,25 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Image;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 import android.location.LocationListener;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -61,14 +66,17 @@ import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.PrevTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;
 import com.pitstop.ui.my_trips.view_fragments.TripView;
-import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.NetworkHelper;
 
-import org.acra.annotation.ReportsCrashes;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 
@@ -97,6 +105,7 @@ public class MyTripsActivity extends AppCompatActivity{
     private boolean tripStarted = false;
     private Car dashboardCar;
     private MenuItem endTripButton;
+    private MenuItem shareTripButton;
     private Location lastKnownLocation;
     private double totalDistance;
     private NetworkHelper networkHelper;
@@ -106,7 +115,7 @@ public class MyTripsActivity extends AppCompatActivity{
 
 
     private static final long MIN_TIME = 1000;
-    private static final float MIN_DISTANCE = 100;
+    private static final float MIN_DISTANCE = 10;
 
     private BitmapDescriptor startIcon;
     private BitmapDescriptor endIcon;
@@ -334,6 +343,7 @@ public class MyTripsActivity extends AppCompatActivity{
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.trip_view_holder, prevTripView);
         fragmentTransaction.commit();
+        shareTripButton.setVisible(true);
         PolylineOptions prevPath = new PolylineOptions();
         prevPath.color(lineColor);
         List<TripLocation> prevLocations  = prevTrip.getPath();
@@ -468,19 +478,56 @@ public class MyTripsActivity extends AppCompatActivity{
             } else if(tripView.isVisible()){
                 setViewAddTrip();
             }else if(prevTripView.isVisible()){
+                shareTripButton.setVisible(false);
                 setViewTripHistory();
             }
         }else if(id == R.id.end_trip){//end trip
             endTrip();
+        }else if(id == R.id.share_trip){
+
+            View v1 = getWindow().getDecorView().getRootView();
+            v1.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+            v1.setDrawingCacheEnabled(false);
+
+
+            File imagePath = new File(Environment.getExternalStorageDirectory() + "/trip.png");
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(imagePath);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
+                fos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            Uri uri = Uri.fromFile(imagePath);
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("image/*");
+            String shareBody = prevTripView.getAddresses();
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share Trip");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+            startActivity(Intent.createChooser(sharingIntent, "Share Trip Via"));
+
+
+
+
+
+
         }
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_end_trip, menu);
+        getMenuInflater().inflate(R.menu.menu_trip_navbar, menu);
         endTripButton = menu.findItem(R.id.end_trip);
-        endTripButton.setVisible(false);
+        shareTripButton = menu.findItem(R.id.share_trip);
         return true;
     }
 
@@ -493,6 +540,7 @@ public class MyTripsActivity extends AppCompatActivity{
         } else if(tripView.isVisible()){
             setViewAddTrip();
         }else if(prevTripView.isVisible()){
+            shareTripButton.setVisible(false);
             setViewTripHistory();
         }
     }
