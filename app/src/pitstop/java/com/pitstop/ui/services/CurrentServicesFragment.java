@@ -61,7 +61,6 @@ public class CurrentServicesFragment extends SubServiceFragment {
     private RecyclerView.LayoutManager layoutManager;
 
     private LocalCarIssueAdapter carIssueLocalStore;
-    private LocalCarAdapter carLocalStore;
     private LocalCarAdapter localCarStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -158,10 +157,12 @@ public class CurrentServicesFragment extends SubServiceFragment {
         private WeakReference<Activity> activityReference;
 
         private View view;
-        private ServicesDatePickerDialog datePickerDialog;
+        private DatePickerDialog datePickerDialog;
 
         private CarIssue currentlySelectedIssue;
         private ViewHolder currentlySelectedHolder;
+
+        private LocalCarAdapter localCarStore;
 
         private Car dashboardCar;
         private List<CarIssue> carIssues;
@@ -172,6 +173,7 @@ public class CurrentServicesFragment extends SubServiceFragment {
             this.dashboardCar = dashboardCar;
             this.carIssues = carIssues;
             Log.d(TAG, "Car issue list size: " + this.carIssues.size());
+            localCarStore = new LocalCarAdapter(activity);
             activityReference = new WeakReference<>(activity);
         }
 
@@ -202,9 +204,11 @@ public class CurrentServicesFragment extends SubServiceFragment {
                                     currentlySelectedIssue = issue;
 
                                     //Begin date selection
-                                    datePickerDialog = new ServicesDatePickerDialog(getContext()
-                                            ,thisInstance);
+                                    Calendar cal = Calendar.getInstance();
+                                    datePickerDialog = new DatePickerDialog(getContext()
+                                            ,thisInstance,cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
                                     datePickerDialog.setTitle("Please select the date when service was completed.");
+                                    //datePickerDialog.updateDate(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
                                     datePickerDialog.show();
 
                                     dialog.dismiss();
@@ -329,15 +333,16 @@ public class CurrentServicesFragment extends SubServiceFragment {
             carIssueList.remove(currentlySelectedHolder.getAdapterPosition());
             notifyDataSetChanged();
 
+            //Update backend and local storage
             int mileage = (int)(localCarStore.getCar(currentlySelectedIssue.getCarId())).getTotalMileage();
-
-            //Move current issue to history and update backend
             int daysToday = (int)TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
             int serviceDay = (int)TimeUnit.MILLISECONDS.toDays(calendar.getTimeInMillis());
             int daysAgo = daysToday - serviceDay;
+
             networkHelper.serviceDone(currentlySelectedIssue.getCarId()
                     ,currentlySelectedIssue.getId(),daysAgo,mileage,null);
             carIssueLocalStore.updateCarIssue(currentlySelectedIssue);
+
             mainServicesCallback.onServiceDone(currentlySelectedIssue);
         }
 
