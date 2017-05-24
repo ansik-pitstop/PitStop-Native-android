@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +44,7 @@ public class HistoryServiceFragment extends SubServiceFragment {
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
 
-    private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
+    private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
     ArrayList<String> headers = new ArrayList<>();
 
     public HistoryServiceFragment() {
@@ -84,6 +86,7 @@ public class HistoryServiceFragment extends SubServiceFragment {
     }
 
     private void updateIssueGroupView(){
+        sortedIssues = new LinkedHashMap<>();
         CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
         Arrays.sort(doneIssues, new Comparator<CarIssue>() {
@@ -101,6 +104,7 @@ public class HistoryServiceFragment extends SubServiceFragment {
                 String formattedDate = formatDate(issue.getDoneAt());
                 dateHeader = formattedDate.substring(0, 3) + " " + formattedDate.substring(9, 13);
             }
+            Log.d("TAG","Formatted date: "+dateHeader);
             ArrayList<CarIssue> issues = sortedIssues.get(dateHeader);
             if(issues == null) {
                 headers.add(dateHeader);
@@ -158,6 +162,14 @@ public class HistoryServiceFragment extends SubServiceFragment {
     @Override
     public void setUI(){
         updateIssueGroupView();
+    }
+
+    public void onServiceDone(CarIssue issue){
+        List<CarIssue> issueList = dashboardCar.getIssues();
+        issueList.add(issue);
+        dashboardCar.setIssues(issueList);
+        updateIssueGroupView();
+        Log.d("HistoryServiceFragment","onServiceDone() called.");
     }
 
     private class IssueGroupAdapter extends BaseExpandableListAdapter {
@@ -231,6 +243,10 @@ public class HistoryServiceFragment extends SubServiceFragment {
             TextView desc = (TextView)convertView.findViewById(R.id.description);
             TextView date = (TextView)convertView.findViewById(R.id.date);
             ImageView imageView = (ImageView) convertView.findViewById(R.id.image_icon);
+            ImageView doneImageView = (ImageView) convertView.findViewById((R.id.image_done_issue));
+
+            //Do not show done button inside history since services are already considered completed
+            doneImageView.setVisibility(View.INVISIBLE);
 
             desc.setText(issue.getDescription());
             if(issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {
