@@ -17,15 +17,18 @@ import android.view.ViewGroup;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
+import com.pitstop.models.CarIssue;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 
-public class MainServicesFragment extends Fragment implements MainFragmentCallback{
+public class MainServicesFragment extends Fragment implements MainFragmentCallback,MainServicesCallback{
 
     //Fragments being navigated
     private UpcomingServicesFragment upcomingServicesFragment;
     private HistoryServiceFragment historyServicesFragment;
     private CurrentServicesFragment currentServicesFragment;
+
+    private MainServicesCallback myCallback = this;
 
     private static Car dashboardCar;
 
@@ -178,6 +181,12 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         Log.d("KAROL","attached fragment: "+childFragment.getClass().getSimpleName());
     }
 
+    @Override
+    public void onServiceDone(CarIssue carIssue) {
+        //Notify history services fragment about the new car issue
+        historyServicesFragment.onServiceDone(carIssue);
+    }
+
     //Return data associated with fragment of the provided tab
     private class ServicesAdapter extends FragmentPagerAdapter {
 
@@ -199,7 +208,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
                     upcomingServicesFragment = UpcomingServicesFragment.newInstance();
                     return upcomingServicesFragment;
                 case FRAGMENT_CURRENT:
-                    currentServicesFragment = CurrentServicesFragment.newInstance();
+                    currentServicesFragment = CurrentServicesFragment.newInstance(myCallback);
                     return  currentServicesFragment;
                 case FRAGMENT_HISTORY:
                     historyServicesFragment = HistoryServiceFragment.newInstance();
