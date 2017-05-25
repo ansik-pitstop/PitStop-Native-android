@@ -21,9 +21,8 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,6 +72,10 @@ public class HistoryServiceFragment extends SubServiceFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
+        sortedIssues = new LinkedHashMap<>();
+        issueGroupAdapter = new IssueGroupAdapter(sortedIssues,headers);
+        issueGroup.setAdapter(issueGroupAdapter);
+
         //This must be called so that UI elements are set for SubService
         super.onCreateView(inflater,container,savedInstanceState);
 
@@ -97,38 +100,45 @@ public class HistoryServiceFragment extends SubServiceFragment {
         }
 
         ArrayList<CarIssue> issues = sortedIssues.get(dateHeader);
+
+        //Check if header already exists
         if(issues == null) {
             headers.add(dateHeader);
             issues = new ArrayList<>();
+            issues.add(issue);
         }
-        issues.add(issue);
+        else {
+            //Add issue to appropriate position within list, in order of date
+            for (int i = 0; i < issues.size(); i++) {
+                Log.d("TAG", "Date difference between issue and issues[i] = "
+                        + (getDateToCompare(issues.get(i).getDoneAt())
+                        - getDateToCompare(issue.getDoneAt())));
+                if (!(getDateToCompare(issues.get(i).getDoneAt())
+                        - getDateToCompare(issue.getDoneAt()) < 0)) {
+
+                    issues.add(i, issue);
+                }
+            }
+        }
+
         sortedIssues.put(dateHeader, issues);
     }
 
     private void updateIssueGroupView(){
-        CarIssue[] doneIssues = dashboardCar.getDoneIssues().toArray(new CarIssue[dashboardCar.getDoneIssues().size()]);
 
-        sortedIssues = new LinkedHashMap<>();
+        sortedIssues.clear();
 
-        Arrays.sort(doneIssues, new Comparator<CarIssue>() {
-            @Override
-            public int compare(CarIssue lhs, CarIssue rhs) {
-                return getDateToCompare(rhs.getDoneAt()) - getDateToCompare(lhs.getDoneAt());
-            }
-        });
+        List<CarIssue> doneIssues = dashboardCar.getDoneIssues();
 
-        for(CarIssue issue : doneIssues) {  // sort dates into groups
+        for (CarIssue issue: doneIssues){
             addIssue(issue);
         }
 
-        ArrayList<CarIssue> doneIssuesList = new ArrayList<>(Arrays.asList(doneIssues));
-
-        if(doneIssuesList.isEmpty()) {
+        if(doneIssues.isEmpty()) {
             messageCard.setVisibility(View.VISIBLE);
         }
 
-        issueGroupAdapter = new IssueGroupAdapter(sortedIssues,headers);
-        issueGroup.setAdapter(issueGroupAdapter);
+        issueGroupAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -173,6 +183,12 @@ public class HistoryServiceFragment extends SubServiceFragment {
     }
 
     public void onServiceDone(CarIssue issue){
+
+        //Set to invisible since it is about to be no longer empty
+        if(sortedIssues.isEmpty()) {
+            messageCard.setVisibility(View.INVISIBLE);
+        }
+
         addIssue(issue);
         issueGroupAdapter.notifyDataSetChanged();
         Log.d("HistoryServiceFragment","onServiceDone() called.");
