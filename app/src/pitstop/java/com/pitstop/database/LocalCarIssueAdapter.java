@@ -83,6 +83,60 @@ public class LocalCarIssueAdapter {
         return carIssue;
     }
 
+    public List<CarIssue> getAllUpcomingCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_NEW},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+
+        db.close();
+        return carIssues;
+    }
+
+    public List<CarIssue> getAllDoneCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_DONE},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+
+        db.close();
+        return carIssues;
+    }
+
+    public List<CarIssue> getAllCurrentCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_PENDING},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+
+        db.close();
+        return carIssues;
+    }
+
     public ArrayList<CarIssue> getAllCarIssues(int carId) {
 
         ArrayList<CarIssue> carIssues = new ArrayList<>();

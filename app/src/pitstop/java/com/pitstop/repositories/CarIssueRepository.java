@@ -53,9 +53,19 @@ public class CarIssueRepository implements Repository<CarIssue> {
         return null;
     }
 
-    public List<CarIssue> getAllUpcomingCarIssue(int carId, RequestCallback callback){
+    public List<CarIssue> getUpcomingCarIssues(int carId, RequestCallback callback){
         networkHelper.getUpcomingCarIssues(carId,callback);
-        return carIssueAdapter.getAllCarIssues(carId);
+        return carIssueAdapter.getAllUpcomingCarIssues();
+    }
+
+    public List<CarIssue> getCurrentCarIssues(int carId, RequestCallback callback){
+        networkHelper.getCurrentCarIssues(carId,callback);
+        return carIssueAdapter.getAllCurrentCarIssues();
+    }
+
+    public List<CarIssue> getDoneCarIssues(int carId, RequestCallback callback){
+        networkHelper.getDoneCarIssues(carId,callback);
+        return carIssueAdapter.getAllDoneCarIssues();
     }
 
     @Override
