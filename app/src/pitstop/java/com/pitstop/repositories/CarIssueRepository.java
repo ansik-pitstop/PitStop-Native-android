@@ -5,6 +5,8 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.utils.NetworkHelper;
 
+import java.util.List;
+
 /**
  * CarIssue repository, use this class to modify, retrieve, and delete car issue data.
  * Updates data both remotely and locally.
@@ -47,7 +49,13 @@ public class CarIssueRepository implements Repository<CarIssue> {
 
     @Override
     public CarIssue get(int id, RequestCallback callback) {
-        return carIssueAdapter.getCarIssue(id);
+        //not applicable
+        return null;
+    }
+
+    public List<CarIssue> getAllUpcomingCarIssue(int carId, RequestCallback callback){
+        networkHelper.getUpcomingCarIssues(carId,callback);
+        return carIssueAdapter.getAllCarIssues(carId);
     }
 
     @Override
