@@ -57,7 +57,7 @@ public class CarRepository implements Repository<Car> {
 
     @Override
     public Car get(int id, RequestCallback callback) {
-
+        networkHelper.getCarsById(id,callback);
         return localCarAdapter.getCar(id);
     }
 

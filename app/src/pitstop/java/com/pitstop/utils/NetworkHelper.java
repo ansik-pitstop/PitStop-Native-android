@@ -782,8 +782,16 @@ public class NetworkHelper {
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
-    public void getCarTimeline(String carId, RequestCallback callback){
-        get(String.format("car/%s/issues?type=upcoming", carId), callback);
+    public void getCurrentCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=pending", String.valueOf(carId)), callback);
+    }
+
+    public void getDoneCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=done", String.valueOf(carId)), callback);
+    }
+
+    public void getUpcomingCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=upcoming", String.valueOf(carId)), callback);
     }
 
     public void getUserInstallationId(int userId, final RequestCallback callback){
