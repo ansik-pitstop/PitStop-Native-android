@@ -464,8 +464,8 @@ public class NetworkHelper {
         get("car/" + carId + "/service", callback);
     }
 
-    public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
-        LOGI(TAG, String.format("serviceDone: carId: %s, issueId: %s," +
+    public void setIssueDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
+        LOGI(TAG, String.format("setIssueDone: carId: %s, issueId: %s," +
                 " daysAgo: %s, mileage: %s", carId, issueId, daysAgo, mileage));
 
         JSONObject body = new JSONObject();
@@ -483,8 +483,8 @@ public class NetworkHelper {
         put("issue", callback, body);
     }
 
-    public void servicePending(int carId, int issueId, RequestCallback callback) {
-        LOGI(TAG, String.format("servicePending: carId: %s, issueId: %s,", carId, issueId));
+    public void setIssuePending(int carId, int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("setIssuePending: carId: %s, issueId: %s,", carId, issueId));
 
         JSONObject body = new JSONObject();
 
