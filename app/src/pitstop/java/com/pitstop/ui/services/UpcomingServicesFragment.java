@@ -132,8 +132,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     private void fetchData() {
         Log.d("TAG","UpcomingServicesFragment, fetchData()");
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        String carId = String.valueOf(dashboardCar.getId());
-        mNetworkHelper.getCarTimeline(carId, new RequestCallback() {
+        mNetworkHelper.getUpcomingCarIssues(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (response != null && requestError == null) {

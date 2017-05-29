@@ -647,6 +647,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
+            //Returned from car being added
             if (requestCode == RC_ADD_CAR) {
 
                 //If a car was added then update the current car that is being displayed inside all the fragments
