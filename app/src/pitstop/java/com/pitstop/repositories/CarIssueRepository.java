@@ -5,6 +5,8 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.utils.NetworkHelper;
 
+import java.util.List;
+
 /**
  * Created by Karol Zdebel on 5/29/2017.
  */
@@ -44,7 +46,13 @@ public class CarIssueRepository implements Repository<CarIssue> {
 
     @Override
     public CarIssue get(int id, RequestCallback callback) {
-        return carIssueAdapter.getCarIssue(id);
+        //not applicable
+        return null;
+    }
+
+    public List<CarIssue> getAllUpcomingCarIssue(int carId, RequestCallback callback){
+        networkHelper.getUpcomingCarIssues(carId,callback);
+        return carIssueAdapter.getAllCarIssues(carId);
     }
 
     @Override

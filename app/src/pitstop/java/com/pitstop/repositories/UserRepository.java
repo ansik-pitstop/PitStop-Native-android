@@ -36,6 +36,7 @@ public class UserRepository implements Repository<User> {
 
     @Override
     public User get(int id, RequestCallback callback) {
+        networkHelper.getUser(id,callback);
         return userAdapter.getUser();
     }
 
