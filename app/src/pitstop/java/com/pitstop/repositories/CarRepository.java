@@ -6,6 +6,9 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.utils.NetworkHelper;
 
 /**
+ * Car repository, use this class to modify, retrieve, and delete car data.
+ * Updates data both remotely and locally.
+ *
  * Created by Karol Zdebel on 5/26/2017.
  */
 
