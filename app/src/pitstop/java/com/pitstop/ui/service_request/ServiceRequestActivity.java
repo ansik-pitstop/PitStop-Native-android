@@ -394,7 +394,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                             Smooch.track("User Requested Service");
                             for (CarIssue issue : dashboardCar.getActiveIssues()) {
                                 if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
-                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                                    networkHelper.setIssuePending(dashboardCar.getId(), issue.getId(), null);
                                 }
                             }
 

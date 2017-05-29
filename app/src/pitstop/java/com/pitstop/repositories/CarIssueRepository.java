@@ -44,12 +44,12 @@ public class CarIssueRepository implements Repository<CarIssue> {
 
     @Override
     public CarIssue get(int id, RequestCallback callback) {
-        //return carIssueAdapter.
-        return null;
+        return carIssueAdapter.getCarIssue(id);
     }
 
     @Override
     public boolean delete(CarIssue model, RequestCallback callback) {
+        carIssueAdapter.deleteCarIssue(model);
         return false;
     }
 }
