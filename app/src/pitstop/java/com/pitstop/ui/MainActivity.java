@@ -648,10 +648,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
             if (requestCode == RC_ADD_CAR) {
+
+                //If a car was added then update the current car that is being displayed inside all the fragments
                 if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
-                    if (carList.size() == 0) { // first car
+
+                    //Check whether the first car was just added if so set it to dashboard car
+                    if (carList.size() == 0) {
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
@@ -672,6 +676,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         customProperties.put("Car Year", addedCar.getYear());
                         Log.d(TAG, String.valueOf(addedCar.getYear()));
 
+                        //Add custom user properties
                         if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             customProperties.put("Email", addedCar.getDealership().getEmail());
                             Log.d(TAG, addedCar.getDealership().getEmail());
@@ -685,6 +690,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         User.getCurrentUser().addProperties(customProperties);
 
+                        //Send welcoming message since the first car was added
                         if (user != null) {
                             Log.d("MainActivity Smooch", "Sending message");
                             Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
@@ -694,39 +700,55 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         Smooch.track("User Logged In");
 
+                        //Start tutorial sequence since the first car was added
                         if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             prepareAndStartTutorialSequence();
                         }
                     }
+
+                    //Refresh from server if the resulting activity thought so
                     if (shouldRefreshFromServer) {
                         refreshFromServer();
                     }
+
                 } else {
                     mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
                 }
+
+            //If a scan completed check whether to refresh data
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If settings completed check whether to refresh data
             } else if (requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+                //Update dashboard UI since the dealership may have changed
                 mainDashboardCallback.setCarDetailsUI();
                 loadDealershipCustomDesign();
 
+            //If display issues completed check whether refresh is required
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If custom issue completed check whether refresh is required
             } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If paired with car after adding car then check whether to refresh
             } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If request service completed check whether to refresh
             } else if (requestCode == RC_REQUEST_SERVICE){
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -736,6 +758,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     removeTutorial();
                 }
             }
+
+            //Pass the data over to MainDashboardFragment
             mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
