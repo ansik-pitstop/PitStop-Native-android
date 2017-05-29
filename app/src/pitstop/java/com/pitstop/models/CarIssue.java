@@ -53,6 +53,8 @@ public class CarIssue implements Parcelable {
     public CarIssue() {}
 
     public int getDaysAgo(){
+        if (doneAt == null){ return -1; }
+
         Calendar doneAt = Calendar.getInstance();
         doneAt.set(year,month,day);
         int daysToday = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
@@ -182,14 +184,6 @@ public class CarIssue implements Parcelable {
 
     public void setCauses(String causes) {
         this.causes = causes;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof CarIssue)){ return false; }
-
-        CarIssue carIssue = (CarIssue)obj;
-        return carIssue.getId() == getId();
     }
 
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
