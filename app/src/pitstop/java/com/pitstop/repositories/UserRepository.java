@@ -51,11 +51,11 @@ public class UserRepository {
     public boolean insert(User model, UserInsertCallback callback) {
         userAdapter.storeUserData(model);
         networkHelper.updateUser(model.getId(),model.getFirstName(),model.getLastName()
-                ,model.getPhone(),getInsertUserUpdateRequestCallback(callback));
+                ,model.getPhone(),getInsertUserRequestCallback(callback));
         return true;
     }
 
-    private RequestCallback getInsertUserUpdateRequestCallback(UserInsertCallback callback){
+    private RequestCallback getInsertUserRequestCallback(UserInsertCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
