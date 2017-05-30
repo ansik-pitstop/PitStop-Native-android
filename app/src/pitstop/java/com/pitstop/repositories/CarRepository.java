@@ -22,22 +22,22 @@ public class CarRepository {
     private LocalCarAdapter localCarAdapter;
     private NetworkHelper networkHelper;
 
-    interface CarInsertCallback{
+    public interface CarInsertCallback{
         void onCarAdded();
         void onError();
     }
 
-    interface CarUpdateCallback{
+    public interface CarUpdateCallback{
         void onCarUpdated();
         void onError();
     }
 
-    interface CarGetCallback{
+    public interface CarGetCallback{
         void onCarGot(Car car);
         void onError();
     }
 
-    interface CarDeleteCallback{
+    public interface CarDeleteCallback{
         void onCarDeleted();
         void onError();
     }
@@ -131,8 +131,8 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public Car get(int id, RequestCallback callback) {
-        networkHelper.getCarsById(id,callback);
+    public Car get(int id, CarGetCallback callback) {
+        networkHelper.getCarsById(id,getGetCarRequestCallback(callback));
         return localCarAdapter.getCar(id);
     }
 
