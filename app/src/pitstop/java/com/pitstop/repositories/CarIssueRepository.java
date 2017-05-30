@@ -13,8 +13,17 @@ import java.util.List;
 
 public class CarIssueRepository implements Repository<CarIssue> {
 
+    private static CarIssueRepository INSTANCE;
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
+
+    public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
+            , NetworkHelper networkHelper) {
+        if (INSTANCE == null) {
+            INSTANCE = new CarIssueRepository(localCarIssueAdapter,networkHelper);
+        }
+        return INSTANCE;
+    }
 
     public CarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
         this.carIssueAdapter = localCarIssueAdapter;
