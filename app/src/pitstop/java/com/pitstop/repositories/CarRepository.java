@@ -12,7 +12,7 @@ import com.pitstop.utils.NetworkHelper;
  * Created by Karol Zdebel on 5/26/2017.
  */
 
-public class CarRepository implements Repository<Car> {
+public class CarRepository {
 
     private LocalCarAdapter localCarAdapter;
     private NetworkHelper networkHelper;
@@ -22,7 +22,6 @@ public class CarRepository implements Repository<Car> {
         this.networkHelper = networkHelper;
     }
 
-    @Override
     public boolean insert(Car model, RequestCallback callback) {
 
         //Insert locally
@@ -40,7 +39,6 @@ public class CarRepository implements Repository<Car> {
         return true;
     }
 
-    @Override
     public boolean update(Car model, RequestCallback callback) {
 
         //No rows updated, therefore updating car that doesnt exist
@@ -55,13 +53,11 @@ public class CarRepository implements Repository<Car> {
         return true;
     }
 
-    @Override
     public Car get(int id, RequestCallback callback) {
         networkHelper.getCarsById(id,callback);
         return localCarAdapter.getCar(id);
     }
 
-    @Override
     public boolean delete(Car model, RequestCallback callback) {
 
         //Check if car exists before deleting
