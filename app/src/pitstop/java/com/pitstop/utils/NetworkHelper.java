@@ -698,6 +698,23 @@ public class NetworkHelper {
         }
     }
 
+    public void getMainCar(final int userId, final RequestCallback callback){
+        getUserSettingsById(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try{
+                    JSONObject options = new JSONObject(response).getJSONObject("settings");
+                    int mainCarId = options.getJSONObject("settings").getInt("mainCar");
+                    getCarsById(mainCarId,callback);
+                }
+                catch(JSONException e){
+
+                }
+
+            }
+        });
+    }
+
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
