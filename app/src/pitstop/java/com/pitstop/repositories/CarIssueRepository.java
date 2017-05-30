@@ -1,21 +1,53 @@
 package com.pitstop.repositories;
 
+import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 
+//MAY BE USELESS FOR NOW SINCE CAR ISSUES ARE TIED TO CAR REPOSITORY ANYWAY, NOT IMPLEMENTED FULLY
+
 /**
+ * CarIssue repository, use this class to modify, retrieve, and delete car issue data.
+ * Updates data both remotely and locally.
+ *
  * Created by Karol Zdebel on 5/29/2017.
  */
 
-public class CarIssueRepository implements Repository<CarIssue> {
+public class CarIssueRepository {
 
     private static CarIssueRepository INSTANCE;
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
+
+    interface CarIssueInsertCallback{
+        void onCarIssueAdded();
+        void onError();
+    }
+
+    interface CarIssueUpdateCallback{
+        void onCarIssueUpdated();
+        void onError();
+    }
+
+    interface CarIssueGetUpcomingCallback{
+        void onCarIssueGotUpcoming(List<CarIssue> carIssueUpcoming);
+        void onError();
+    }
+
+    interface CarIssueGetCurrentCallback{
+        void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent);
+        void onError();
+    }
+
+    interface CarIssueGetDoneCallback{
+        void onCarIssueGotDone(List<CarIssue> carIssueDone);
+        void onError();
+    }
 
     public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
             , NetworkHelper networkHelper) {
@@ -30,7 +62,6 @@ public class CarIssueRepository implements Repository<CarIssue> {
         this.networkHelper = networkHelper;
     }
 
-    @Override
     public boolean insert(CarIssue model, RequestCallback callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
@@ -38,7 +69,28 @@ public class CarIssueRepository implements Repository<CarIssue> {
         return true;
     }
 
-    @Override
+    private RequestCallback getInsertCarIssueRequestCallback(CarIssueInsertCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onCarIssueAdded();
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JsonIOException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
     public boolean update(CarIssue model, RequestCallback callback) {
         carIssueAdapter.updateCarIssue(model);
 
@@ -53,20 +105,63 @@ public class CarIssueRepository implements Repository<CarIssue> {
         return false;
     }
 
-    @Override
-    public CarIssue get(int id, RequestCallback callback) {
-        //not applicable
-        return null;
+    private RequestCallback getUpdateCarIssueRequestCallback(CarIssueUpdateCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onCarIssueUpdated();
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JsonIOException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
     }
 
-    public List<CarIssue> getAllUpcomingCarIssue(int carId, RequestCallback callback){
+    public List<CarIssue> getUpcomingCarIssues(int carId, RequestCallback callback){
         networkHelper.getUpcomingCarIssues(carId,callback);
-        return carIssueAdapter.getAllCarIssues(carId);
+        return carIssueAdapter.getAllUpcomingCarIssues();
     }
 
-    @Override
-    public boolean delete(CarIssue model, RequestCallback callback) {
-        carIssueAdapter.deleteCarIssue(model);
-        return false;
+//    private RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
+//        //Create corresponding request callback
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void done(String response, RequestError requestError) {
+//                try {
+//                    if (requestError == null){
+//                        ArrayList<CarIssue> carIssues = new ArrayList<>();
+//                        JSONObject jsonObject = new JSONObject(response);
+//                    }
+//                    else{
+//                        callback.onError();
+//                    }
+//                }
+//                catch(JSONException e){
+//
+//                }
+//            }
+//        };
+//
+//        return requestCallback;
+//    }
+
+    public List<CarIssue> getCurrentCarIssues(int carId, RequestCallback callback){
+        networkHelper.getCurrentCarIssues(carId,callback);
+        return carIssueAdapter.getAllCurrentCarIssues();
+    }
+
+    public List<CarIssue> getDoneCarIssues(int carId, RequestCallback callback){
+        networkHelper.getDoneCarIssues(carId,callback);
+        return carIssueAdapter.getAllDoneCarIssues();
     }
 }
