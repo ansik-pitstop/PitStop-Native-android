@@ -17,6 +17,7 @@ import com.pitstop.models.Trip;
 
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,6 +36,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
     private final List<Trip> mTrips;
     private final Context mContext;
     private TripHistory tripHistory;
+    private DecimalFormat decimalFormat;
 
     public TripAdapter(Context context, @NonNull List<Trip> trips, TripHistory mTripHistory) {
         mTrips = trips;
@@ -45,6 +47,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
 
     @Override
     public TripAdapter.TripsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        decimalFormat = new DecimalFormat("0.00");
         return new TripAdapter.TripsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false));
     }
 
@@ -81,9 +84,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
     private String addressFormat(Trip trip){
         String addressText;
         String[] addOne = trip.getStartAddress().split(",");
-        String[] addTwo = trip.getEndAddress().split(",");
-
-        addressText = addOne[0] + " - " + addTwo[0];
+        addressText = addOne[0] + " - " + decimalFormat.format(trip.getTotalDistance()/1000) + " km";
         return addressText;
     }
 

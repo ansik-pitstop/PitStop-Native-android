@@ -88,6 +88,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
                         JSONObject jAppoiontment = responseArray.getJSONObject(i);
                         Appointment addAppt = new Appointment();
                         addAppt.setDate(jAppoiontment.getString("appointmentDate"));
+                        System.out.println("Testing date "+addAppt.getDate());
                         addAppt.setComments(jAppoiontment.getString("comments"));
                         addAppt.setState(jAppoiontment.getString("state"));
                         mAppts.add(addAppt);

@@ -4,12 +4,18 @@ package com.pitstop.ui.my_trips;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
@@ -17,18 +23,16 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +56,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -66,17 +72,17 @@ import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.PrevTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;
 import com.pitstop.ui.my_trips.view_fragments.TripView;
+import com.pitstop.ui.services.TripService;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.List;
 
 
@@ -111,6 +117,8 @@ public class MyTripsActivity extends AppCompatActivity{
     private NetworkHelper networkHelper;
     private Trip trip;
     private List<Trip> locallyStoredTrips;
+    private BroadcastReceiver broadcastReceiver;
+    LocalTripAdapter localTripAdapter;
 
 
 
@@ -121,7 +129,8 @@ public class MyTripsActivity extends AppCompatActivity{
     private BitmapDescriptor endIcon;
     private int lineColor;
     private boolean isMerc;
-    private ProgressDialog loading;
+    public ProgressDialog loading;
+    boolean isTaskRunning;
 
 
     private static final double KMH_FACTOR = 3600/1000;
@@ -153,7 +162,7 @@ public class MyTripsActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         application = (GlobalApplication) getApplicationContext();
 
-        LocalTripAdapter localTripAdapter = new LocalTripAdapter(application);
+        localTripAdapter = new LocalTripAdapter(this);
         locallyStoredTrips = localTripAdapter.getAllTrips();
         networkHelper = new NetworkHelper(application);
         geocoder = new Geocoder(application);
@@ -181,7 +190,6 @@ public class MyTripsActivity extends AppCompatActivity{
             lineColor = defaultColor.data;
             isMerc = false;
         }
-
 
         locationListener = new LocationListener() {
             @Override
@@ -211,14 +219,33 @@ public class MyTripsActivity extends AppCompatActivity{
         if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
             locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
         }
+        broadcastReceiver = new BroadcastReceiver() {//come out of background
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Gson gson = new Gson();
+                Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
+                List<Location> locations = gson.fromJson(intent.getStringExtra("Location"),locListType);
+                if(locations != null && locations.size()>0) {
+                    updateFromBackground(locations);
+                    zoomLocation(locations.get(locations.size()-1));
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter("com.pitstop.TRIP_BROADCAST");
+        registerReceiver(broadcastReceiver,filter);
+
+
         fragmentManager = getFragmentManager();
         tripHistory = new TripHistory();
         prevTripView = new PrevTrip();
         addTrip = new AddTrip();
         tripView = new TripView();
 
+        isTaskRunning = false;
+
         loading = new ProgressDialog(MyTripsActivity.this);
         loading.setMessage("loading");
+        loading.hide();
 
         supMapFragment = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -228,6 +255,51 @@ public class MyTripsActivity extends AppCompatActivity{
                 setViewTripHistory();
             }
         });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        System.out.println("Testing onStop");
+        if(tripStarted){//start service
+            Intent notificationIntent = new Intent(getApplicationContext(), MyTripsActivity.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+
+
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            builder.setContentTitle("Pitstop Trip Tracking");
+            builder.setContentText("Your trip is still being tracked");
+            builder.setTicker("Fancy Notification");
+            builder.setContentIntent(intent);
+            builder.setSmallIcon(R.drawable.ic_directions_car_white_24dp);
+            builder.setOngoing(true);
+            builder.setAutoCancel(true);
+            Notification notification = builder.build();
+            NotificationManager notificationManger =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManger.notify(154, notification);
+            Intent serviceIntent = new Intent(getApplicationContext(),TripService.class);
+            startService(serviceIntent);
+        }
+    }
+    @Override
+    protected void onRestart() {//get data from service
+        super.onRestart();
+        if(tripStarted) {
+            Intent intent = new Intent(getApplicationContext(), TripService.class);
+            stopService(intent);
+            System.out.println("Testing onRestart");
+        }
+        NotificationManager notificationManger =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManger.cancel(154);
+    }
+
+
+    public void removeTrip(Trip trip){
+        localTripAdapter.deleteTrip(trip);
+        locallyStoredTrips.remove(trip);
     }
 
 
@@ -240,9 +312,9 @@ public class MyTripsActivity extends AppCompatActivity{
         zoomLocation(location);
         TripLocation tripLoc = new TripLocation(location);
         trip.addPoint(tripLoc);
-        accumulateDistance(lastKnownLocation,location);// maybe put this into the trip object
+        accumulateDistance(lastKnownLocation,location);
         //System.out.println("testing "+location.getSpeed() + totalDistance);
-        tripView.setSpeed(location.getSpeed()*KMH_FACTOR);// this is actually currently in m/s need to change to km/h
+        tripView.setSpeed(location.getSpeed()*KMH_FACTOR);
         tripView.setDistance(totalDistance);
         lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
     }
@@ -292,9 +364,9 @@ public class MyTripsActivity extends AppCompatActivity{
         totalDistance += start.distanceTo(end);
     }
 
-    private void snapCamera(Location location){
+    public void snapCamera(Location location){
         LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,15);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation,5000);
         googleMap.moveCamera(cameraUpdate);
     }
 
@@ -323,44 +395,92 @@ public class MyTripsActivity extends AppCompatActivity{
 
 
     public void setViewTripHistory(){
+        leaveMap();
         tripHistory.setList(locallyStoredTrips);
-        getSupportActionBar().setTitle("Trip History");
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.trip_view_holder, tripHistory);
         fragmentTransaction.commit();
-        leaveMap();
+        getSupportActionBar().setTitle("Trip History");
     }
 
 
+    public void drawPath(Trip trip) {
+        PolylineOptions prevPath = new PolylineOptions();
+        List<TripLocation> prevLocations = trip.getPath();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (TripLocation loc : prevLocations) {
+            LatLng latlng = new LatLng(loc.getLatitude(), loc.getLongitude());
+            prevPath.add(latlng);
+            builder.include(latlng);
+        }
+        prevPath.color(lineColor);
+        googleMap.addPolyline(prevPath);
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(trip.getStart().getLatitude(), trip.getStart().getLongitude()))
+                .icon(startIcon));
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(trip.getEnd().getLatitude(), trip.getEnd().getLongitude()))
+                .icon(endIcon));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+    }
 
+     private void updateFromBackground(List<Location> locations){
+         PolylineOptions prevPath = new PolylineOptions();
+         prevPath.color(lineColor);
+         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+         for (Location loc : locations) {
+             trip.addPoint(new TripLocation(loc));
+             LatLng latlng = new LatLng(loc.getLatitude(), loc.getLongitude());
+             prevPath.add(latlng);
+             builder.include(latlng);
+         }
+         googleMap.addPolyline(prevPath);
+     }
+
+    private class GrabLocal extends AsyncTask<Void, Void, Void> {
+        Trip sendTrip;
+        Trip fetchTrip;
+
+        public void setFetchTrip(Trip trip){
+            this.fetchTrip = trip;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loading.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            //LocalTripAdapter localTripAdapter = new LocalTripAdapter(getApplicationContext());
+            sendTrip = localTripAdapter.getTrip(Integer.toString(fetchTrip.getId()));
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            afterLocalGrab(sendTrip);
+            loading.hide();
+        }
+
+    }
     public void setViewPrevTrip(Trip prevTrip){
-        leaveMap();
-        getSupportActionBar().setTitle("Previous Trip");
+        GrabLocal grabLocal = new GrabLocal();
+        grabLocal.setFetchTrip(prevTrip);
+        grabLocal.execute();
+    }
+    private void afterLocalGrab(Trip prevTrip){
         prevTripView.setTrip(prevTrip);
+        leaveMap();
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.activity_bottom_down_in,R.anim.activity_bottom_down_out).show(supMapFragment).commit();
+        getSupportActionBar().setTitle("Previous Trip");
+        shareTripButton.setVisible(true);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.trip_view_holder, prevTripView);
         fragmentTransaction.commit();
-        shareTripButton.setVisible(true);
-        PolylineOptions prevPath = new PolylineOptions();
-        prevPath.color(lineColor);
-        List<TripLocation> prevLocations  = prevTrip.getPath();
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for(TripLocation loc : prevLocations){
-            LatLng latlng = new LatLng(loc.getLatitude(),loc.getLongitude());
-            prevPath.add(latlng);
-            builder.include(latlng);
-        }
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-        googleMap.addPolyline(prevPath);
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(prevTrip.getStart().getLatitude(),prevTrip.getStart().getLongitude()))
-                .icon(startIcon));
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(prevTrip.getEnd().getLatitude(),prevTrip.getEnd().getLongitude()))
-                .icon(endIcon));
+        drawPath(prevTrip);
 
     }
 
@@ -399,10 +519,6 @@ public class MyTripsActivity extends AppCompatActivity{
         trip = new Trip();
         tripStarted = true;
         TripLocation tripLoc = new TripLocation(lastKnownLocation);
-        //for(int i =0 ; i<100000;i++){
-            //trip.addPoint(tripLoc);
-            //System.out.println(" count "+i);
-       // }
         snapCamera(lastKnownLocation);
         tripView.setAddress(getAddress(lastKnownLocation));
         trip.setStartAddress(getAddress(lastKnownLocation));
@@ -461,67 +577,87 @@ public class MyTripsActivity extends AppCompatActivity{
         trip.setEndAddress(getAddress(lastKnownLocation));
         trip.setTotalDistance(totalDistance);
         locallyStoredTrips.add(trip);
-        setViewTripHistory();
-        LocalTripAdapter localTripAdapter = new LocalTripAdapter(application);
         localTripAdapter.storeTripData(trip);
-    }
+        setViewTripHistory();
 
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == android.R.id.home){
-            if(tripHistory.isVisible()){
+        if(id == android.R.id.home) {
+            if (tripHistory.isVisible()) {
                 finish();
-            } else if(addTrip.isVisible()){
+            } else if (addTrip.isVisible()) {
                 setViewTripHistory();
-            } else if(tripView.isVisible()){
+            } else if (tripView.isVisible()) {
                 setViewAddTrip();
-            }else if(prevTripView.isVisible()){
+            } else if (prevTripView.isVisible()) {
                 shareTripButton.setVisible(false);
                 setViewTripHistory();
             }
-        }else if(id == R.id.end_trip){//end trip
+
+        } else if (id == R.id.end_trip) {//end trip
             endTrip();
-        }else if(id == R.id.share_trip){
-
-            View v1 = getWindow().getDecorView().getRootView();
-            v1.setDrawingCacheEnabled(true);
-            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-            v1.setDrawingCacheEnabled(false);
-
-
-            File imagePath = new File(Environment.getExternalStorageDirectory() + "/trip.png");
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(imagePath);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                fos.flush();
-                fos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            Uri uri = Uri.fromFile(imagePath);
-            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-            sharingIntent.setType("image/*");
-            String shareBody = prevTripView.getAddresses();
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share Trip");
-            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
-            startActivity(Intent.createChooser(sharingIntent, "Share Trip Via"));
-
-
-
-
-
-
+        } else if (id == R.id.share_trip) {
+            GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+                @Override
+                public void onSnapshotReady(Bitmap snapshot) {
+                    if(prevTripView.isVisible()){
+                        shareTrip(snapshot);
+                    }
+                }
+            };
+            googleMap.snapshot(callback);
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public Bitmap combineImages(Bitmap c, Bitmap s) {
+        Bitmap cs = null;
+        int width, height = 0;
+        if(c.getHeight() > s.getHeight()) {
+            width = c.getWidth();
+            height = c.getHeight() + s.getHeight();
+        } else {
+            width = c.getWidth() ;
+            height = s.getHeight() +s.getHeight();
+        }
+        cs = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas comboImage = new Canvas(cs);
+        comboImage.drawBitmap(s, 0f, 0f, null);
+        comboImage.drawBitmap(c, 0f,c.getHeight(), null);
+        return cs;
+    }
+
+    private void shareTrip(Bitmap bitmapMap){
+        View v1 = prevTripView.getView();
+        v1.setDrawingCacheEnabled(true);
+        Bitmap bitmapAll = Bitmap.createBitmap(v1.getDrawingCache());
+        v1.setDrawingCacheEnabled(false);
+
+        Bitmap bitmap = combineImages(bitmapAll,bitmapMap);
+
+        File imagePath = new File(Environment.getExternalStorageDirectory() + "/trip.jpg");
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(imagePath);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Uri uri = Uri.fromFile(imagePath);
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("image/*");
+        String shareBody = prevTripView.getAddresses();
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Pitstop Trip");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(sharingIntent, "Share Trip Via"));
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -540,8 +676,8 @@ public class MyTripsActivity extends AppCompatActivity{
         } else if(tripView.isVisible()){
             setViewAddTrip();
         }else if(prevTripView.isVisible()){
-            shareTripButton.setVisible(false);
             setViewTripHistory();
+            shareTripButton.setVisible(false);
         }
     }
 

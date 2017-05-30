@@ -72,7 +72,7 @@ public class LocalTripAdapter {
 
         if(c.moveToFirst()) {
             while(!c.isAfterLast()) {
-                trips.add(cursorToTrip(c));
+                trips.add(cursorToTripWithPath(c));
                 c.moveToNext();
             }
         }
@@ -92,7 +92,7 @@ public class LocalTripAdapter {
                 TABLES.COMMON.KEY_OBJECT_ID +"=?", new String[] {parseId},null,null,null);
         Trip trip = null;
         if(c.moveToFirst()) {
-            trip = cursorToTrip(c);
+            trip = cursorToTripWithPath(c);
         }
         db.close();
         return trip;
@@ -139,9 +139,24 @@ public class LocalTripAdapter {
         trip.setEndAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END_ADDRESS)));
         trip.setTotalDistance(c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_TOTAL_DISTANCE)));
         trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
+        return trip;
+    }
+    private Trip cursorToTripWithPath(Cursor c) {
+        Trip trip = new Trip();
+        Gson gson = new Gson();
+        Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
+        trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
+        trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),Location.class));
+        trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),Location.class));
+        trip.setStartAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START_ADDRESS)));
+        trip.setEndAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END_ADDRESS)));
+        trip.setTotalDistance(c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_TOTAL_DISTANCE)));
+        trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         trip.setPath((List<TripLocation>)gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_PATH)),locListType));
         return trip;
     }
+
+
 
 
     private ContentValues tripObjectToContentValues(Trip trip) {
