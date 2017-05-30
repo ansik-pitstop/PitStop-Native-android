@@ -1,6 +1,7 @@
 package com.pitstop.interactors;
 
 import com.pitstop.database.UserAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
@@ -12,36 +13,18 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
-    private int carId;
-    int userId;
+    private Car car;
     private Callback callback;
-
-    public SetUserCarUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
-        this.userAdapter = userAdapter;
-        this.networkHelper = networkHelper;
-    }
 
     @Override
     public void run() {
-        UserRepository.getInstance(userAdapter,networkHelper)
-                .setUserCar(userId, carId, new UserRepository.UserSetCarCallback() {
-            @Override
-            public void onSetCar() {
-                callback.onUserCarSet();
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });
+        UserRepository.getInstance(userAdapter,networkHelper).
     }
 
     @Override
-    public void execute(int userId, int carId, Callback callback) {
+    public void execute(Car car, Callback callback) {
         this.callback = callback;
-        this.userId = userId;
-        this.carId = carId;
+        this.car = car;
         new Thread(this).start();
     }
 }
