@@ -14,8 +14,17 @@ import com.pitstop.utils.NetworkHelper;
 
 public class CarRepository {
 
+    private static CarRepository INSTANCE;
     private LocalCarAdapter localCarAdapter;
     private NetworkHelper networkHelper;
+
+    public static synchronized CarRepository getInstance(LocalCarAdapter localCarAdapter
+            , NetworkHelper networkHelper) {
+        if (INSTANCE == null) {
+            INSTANCE = new CarRepository(localCarAdapter, networkHelper);
+        }
+        return INSTANCE;
+    }
 
     public CarRepository(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
         this.localCarAdapter = localCarAdapter;

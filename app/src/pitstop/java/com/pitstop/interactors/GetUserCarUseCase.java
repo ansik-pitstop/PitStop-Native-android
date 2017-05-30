@@ -10,7 +10,7 @@ import com.pitstop.models.Car;
  * That callback should be executed in the UI thread.
  */
 
-public interface GetUserCarUseCase extends Interactor{
+public interface GetUserCarUseCase {
     interface Callback{
         void onCarRetrieved(Car car);
         void onNoCarSet();
@@ -18,5 +18,5 @@ public interface GetUserCarUseCase extends Interactor{
     }
 
     //Execute the use case
-    void execute(int userId, Callback callback);
+    void execute(Callback callback);
 }
