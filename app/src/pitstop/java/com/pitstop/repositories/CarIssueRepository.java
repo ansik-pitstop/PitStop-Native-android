@@ -14,7 +14,7 @@ import java.util.List;
  * Created by Karol Zdebel on 5/29/2017.
  */
 
-public class CarIssueRepository implements Repository<CarIssue> {
+public class CarIssueRepository {
 
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
@@ -24,7 +24,6 @@ public class CarIssueRepository implements Repository<CarIssue> {
         this.networkHelper = networkHelper;
     }
 
-    @Override
     public boolean insert(CarIssue model, RequestCallback callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
@@ -32,7 +31,6 @@ public class CarIssueRepository implements Repository<CarIssue> {
         return true;
     }
 
-    @Override
     public boolean update(CarIssue model, RequestCallback callback) {
         carIssueAdapter.updateCarIssue(model);
 
@@ -45,12 +43,6 @@ public class CarIssueRepository implements Repository<CarIssue> {
         }
 
         return false;
-    }
-
-    @Override
-    public CarIssue get(int id, RequestCallback callback) {
-        //not applicable
-        return null;
     }
 
     public List<CarIssue> getUpcomingCarIssues(int carId, RequestCallback callback){
@@ -66,11 +58,5 @@ public class CarIssueRepository implements Repository<CarIssue> {
     public List<CarIssue> getDoneCarIssues(int carId, RequestCallback callback){
         networkHelper.getDoneCarIssues(carId,callback);
         return carIssueAdapter.getAllDoneCarIssues();
-    }
-
-    @Override
-    public boolean delete(CarIssue model, RequestCallback callback) {
-        carIssueAdapter.deleteCarIssue(model);
-        return false;
     }
 }
