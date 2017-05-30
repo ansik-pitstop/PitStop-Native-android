@@ -7,6 +7,11 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 //MAY BE USELESS FOR NOW SINCE CAR ISSUES ARE TIED TO CAR REPOSITORY ANYWAY, NOT IMPLEMENTED FULLY
@@ -24,27 +29,27 @@ public class CarIssueRepository {
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
 
-    interface CarIssueInsertCallback{
+    public interface CarIssueInsertCallback{
         void onCarIssueAdded();
         void onError();
     }
 
-    interface CarIssueUpdateCallback{
+    public interface CarIssueUpdateCallback{
         void onCarIssueUpdated();
         void onError();
     }
 
-    interface CarIssueGetUpcomingCallback{
+    public interface CarIssueGetUpcomingCallback{
         void onCarIssueGotUpcoming(List<CarIssue> carIssueUpcoming);
         void onError();
     }
 
-    interface CarIssueGetCurrentCallback{
+    public interface CarIssueGetCurrentCallback{
         void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent);
         void onError();
     }
 
-    interface CarIssueGetDoneCallback{
+    public interface CarIssueGetDoneCallback{
         void onCarIssueGotDone(List<CarIssue> carIssueDone);
         void onError();
     }
@@ -62,10 +67,10 @@ public class CarIssueRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(CarIssue model, RequestCallback callback) {
+    public boolean insert(CarIssue model, CarIssueInsertCallback callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
-                ,model.getDescription(),model.getPriority(),callback);
+                ,model.getDescription(),model.getPriority(),getInsertCarIssueRequestCallback(callback));
         return true;
     }
 
@@ -91,15 +96,16 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public boolean update(CarIssue model, RequestCallback callback) {
+    public boolean update(CarIssue model, CarIssueUpdateCallback callback) {
         carIssueAdapter.updateCarIssue(model);
 
         if (model.getStatus().equals(CarIssue.ISSUE_DONE)){
             networkHelper.setIssueDone(model.getCarId(),model.getId(),model.getDaysAgo()
-                    ,model.getDoneMileage(),callback);
+                    ,model.getDoneMileage(),getUpdateCarIssueRequestCallback(callback));
         }
         else if (model.getStatus().equals(CarIssue.ISSUE_PENDING)){
-            networkHelper.setIssuePending(model.getCarId(),model.getId(),callback);
+            networkHelper.setIssuePending(model.getCarId(),model.getId()
+                    ,getUpdateCarIssueRequestCallback(callback));
         }
 
         return false;
@@ -127,41 +133,117 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public List<CarIssue> getUpcomingCarIssues(int carId, RequestCallback callback){
-        networkHelper.getUpcomingCarIssues(carId,callback);
+    public List<CarIssue> getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
+        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllUpcomingCarIssues();
     }
 
-//    private RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
-//        //Create corresponding request callback
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void done(String response, RequestError requestError) {
-//                try {
-//                    if (requestError == null){
-//                        ArrayList<CarIssue> carIssues = new ArrayList<>();
-//                        JSONObject jsonObject = new JSONObject(response);
-//                    }
-//                    else{
-//                        callback.onError();
-//                    }
-//                }
-//                catch(JSONException e){
-//
-//                }
-//            }
-//        };
-//
-//        return requestCallback;
-//    }
+    private RequestCallback getUpcomingCarIssuesRequestCallback(final int carId, CarIssueGetUpcomingCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        ArrayList<CarIssue> carIssues = new ArrayList<>();
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray jsonArray = jsonObject.getJSONArray("issues");
 
-    public List<CarIssue> getCurrentCarIssues(int carId, RequestCallback callback){
-        networkHelper.getCurrentCarIssues(carId,callback);
+                        carIssues = CarIssue.createCarIssues(jsonArray,carId);
+                        for (CarIssue i: carIssues){
+                            if (!i.getStatus().equals(CarIssue.ISSUE_NEW)){
+                                carIssues.remove(i);
+                            }
+                        }
+
+                        callback.onCarIssueGotUpcoming(carIssues);
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JSONException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+    public List<CarIssue> getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
+        networkHelper.getCurrentCarIssues(carId,getCurrentCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllCurrentCarIssues();
     }
 
-    public List<CarIssue> getDoneCarIssues(int carId, RequestCallback callback){
-        networkHelper.getDoneCarIssues(carId,callback);
+    private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, CarIssueGetCurrentCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        ArrayList<CarIssue> carIssues = new ArrayList<>();
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray jsonArray = jsonObject.getJSONArray("issues");
+
+                        carIssues = CarIssue.createCarIssues(jsonArray,carId);
+                        for (CarIssue i: carIssues){
+                            if (!i.getStatus().equals(CarIssue.ISSUE_PENDING)){
+                                carIssues.remove(i);
+                            }
+                        }
+
+                        callback.onCarIssueGotCurrent(carIssues);
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JSONException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+    public List<CarIssue> getDoneCarIssues(int carId, CarIssueGetDoneCallback callback){
+        networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllDoneCarIssues();
+    }
+
+    private RequestCallback getDoneCarIssuesRequestCallback(final int carId, CarIssueGetDoneCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        ArrayList<CarIssue> carIssues = new ArrayList<>();
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray jsonArray = jsonObject.getJSONArray("issues");
+
+                        carIssues = CarIssue.createCarIssues(jsonArray,carId);
+                        for (CarIssue i: carIssues){
+                            if (!i.getStatus().equals(CarIssue.ISSUE_DONE)){
+                                carIssues.remove(i);
+                            }
+                        }
+
+                        callback.onCarIssueGotDone(carIssues);
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JSONException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
     }
 }
