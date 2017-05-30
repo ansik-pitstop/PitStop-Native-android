@@ -1,8 +1,7 @@
 package com.pitstop.interactors;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.models.User;
-import com.pitstop.repositories.CarRepository;
+import com.pitstop.database.UserAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
@@ -12,13 +11,13 @@ import com.pitstop.utils.NetworkHelper;
 
 public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
-    private LocalCarAdapter localCarAdapter;
+    private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
     private int userId;
     private Callback callback;
 
-    public GetUserCarUseCaseImpl(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper) {
-        this.localCarAdapter = localCarAdapter;
+    public GetUserCarUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
+        this.userAdapter = userAdapter;
         this.networkHelper = networkHelper;
     }
 
@@ -31,11 +30,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     @Override
     public void run() {
-        CarRepository.getInstance(localCarAdapter,networkHelper).get(userId, new U
+        UserRepository.getInstance(userAdapter,networkHelper)
+                .getUserCar(userId, new UserRepository.UserGetCarCallback(){
 
             @Override
-            public void onGotuser(User user){
-                callback.onCarRetrieved();
+            public void onGotCar(Car car){
+                callback.onCarRetrieved(car);
             }
 
             @Override
