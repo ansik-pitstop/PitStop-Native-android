@@ -25,6 +25,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
+        new Thread(this).start();
     }
 
     @Override

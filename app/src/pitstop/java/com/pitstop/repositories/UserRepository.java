@@ -20,17 +20,17 @@ public class UserRepository {
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
 
-    interface UserGetCallback {
+    public interface UserGetCallback {
         void onGotUser(User user);
         void onError();
     }
 
-    interface UserUpdateCallback {
+    public interface UserUpdateCallback {
         void onUpdatedUser();
         void onError();
     }
 
-    interface UserInsertCallback {
+    public interface UserInsertCallback {
         void onInsertedUser();
         void onError();
     }
