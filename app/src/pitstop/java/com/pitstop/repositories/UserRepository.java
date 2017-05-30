@@ -2,10 +2,13 @@ package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
+
+import org.json.JSONException;
 
 /**
  * User repository, use this class to modify, retrieve, and delete user data.
@@ -32,6 +35,11 @@ public class UserRepository {
 
     interface UserInsertCallback {
         void onInsertedUser();
+        void onError();
+    }
+
+    public interface UserGetCarCallback {
+        void onGotCar(Car car);
         void onError();
     }
 
@@ -132,5 +140,34 @@ public class UserRepository {
 
         return requestCallback;
     }
+
+    public Car getUserCar(int userId, UserGetCarCallback callback){
+        networkHelper.getMainCar(userId,getUserGetCarRequestCallback(callback));
+        return null; // can't get car locally yet, needs to be implemented
+    }
+
+    private RequestCallback getUserGetCarRequestCallback(UserGetCarCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onGotCar(Car.createCar(response));
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JSONException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+
 
 }
