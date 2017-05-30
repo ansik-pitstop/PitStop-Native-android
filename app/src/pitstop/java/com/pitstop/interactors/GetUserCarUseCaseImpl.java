@@ -42,6 +42,6 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
             public void onError(){
 
             }
-        })
+        });
     }
 }
