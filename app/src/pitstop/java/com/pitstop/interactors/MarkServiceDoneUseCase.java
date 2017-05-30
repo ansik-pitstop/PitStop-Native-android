@@ -15,5 +15,5 @@ public interface MarkServiceDoneUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(int userId, int issueId, Callback callback);
+    void execute(Callback callback);
 }
