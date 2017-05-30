@@ -206,6 +206,8 @@
             android:label="My Trips"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
+        <service android:name=".ui.services.TripService" android:process=":trip_tracking" />
+
 
 
         <receiver android:name=".utils.GcmReceiver"

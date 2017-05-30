@@ -51,7 +51,7 @@
     <color name="text_hint">#757575</color>
 
     <!--<color name="indicator_critical">#ED5565</color>-->
-    <color name="indicator_critical">#FF0000</color>
+    <color name="indicator_critical">#ff0000</color>
     <!--<color name="indicator_high">#FF6F00</color>-->
     <!--<color name="indicator_medium">#FFCE54</color>-->
     <color name="indicator_medium">#FF6F00</color>
