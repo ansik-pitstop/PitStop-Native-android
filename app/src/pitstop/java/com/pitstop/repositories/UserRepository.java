@@ -14,8 +14,17 @@ import com.pitstop.utils.NetworkHelper;
 
 public class UserRepository {
 
+    private static UserRepository INSTANCE;
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
+
+    public static synchronized UserRepository getInstance(UserAdapter userAdapter
+            , NetworkHelper networkHelper) {
+        if (INSTANCE == null) {
+            INSTANCE = new UserRepository(userAdapter, networkHelper);
+        }
+        return INSTANCE;
+    }
 
     public UserRepository(UserAdapter userAdapter, NetworkHelper networkHelper){
         this.userAdapter = userAdapter;
