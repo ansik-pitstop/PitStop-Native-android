@@ -67,10 +67,10 @@ public class CarIssueRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(CarIssue model, RequestCallback callback) {
+    public boolean insert(CarIssue model, CarIssueInsertCallback callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
-                ,model.getDescription(),model.getPriority(),callback);
+                ,model.getDescription(),model.getPriority(),getInsertCarIssueRequestCallback(callback));
         return true;
     }
 
@@ -96,15 +96,16 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public boolean update(CarIssue model, RequestCallback callback) {
+    public boolean update(CarIssue model, CarIssueUpdateCallback callback) {
         carIssueAdapter.updateCarIssue(model);
 
         if (model.getStatus().equals(CarIssue.ISSUE_DONE)){
             networkHelper.setIssueDone(model.getCarId(),model.getId(),model.getDaysAgo()
-                    ,model.getDoneMileage(),callback);
+                    ,model.getDoneMileage(),getUpdateCarIssueRequestCallback(callback));
         }
         else if (model.getStatus().equals(CarIssue.ISSUE_PENDING)){
-            networkHelper.setIssuePending(model.getCarId(),model.getId(),callback);
+            networkHelper.setIssuePending(model.getCarId(),model.getId()
+                    ,getUpdateCarIssueRequestCallback(callback));
         }
 
         return false;
@@ -208,8 +209,8 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public List<CarIssue> getDoneCarIssues(int carId, RequestCallback callback){
-        networkHelper.getDoneCarIssues(carId,callback);
+    public List<CarIssue> getDoneCarIssues(int carId, CarIssueGetDoneCallback callback){
+        networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllDoneCarIssues();
     }
 
