@@ -25,6 +25,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
+        new Thread(this).start();
     }
 
     @Override
