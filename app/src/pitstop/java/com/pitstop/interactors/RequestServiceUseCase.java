@@ -1,7 +1,5 @@
 package com.pitstop.interactors;
 
-import com.pitstop.models.CarIssue;
-
 /**
  * Created by Karol Zdebel on 5/30/2017.
  *
@@ -17,5 +15,5 @@ public interface RequestServiceUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(CarIssue carIssue, Callback callback);
+    void execute(Callback callback);
 }
