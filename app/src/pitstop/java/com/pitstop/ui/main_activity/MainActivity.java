@@ -1076,8 +1076,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-        if (callback != null)
-            callback.tripData(tripInfoPackage);
+        if (mainDashboardCallback != null)
+            mainDashboardCallback.tripData(tripInfoPackage);
     }
 
     @Override
