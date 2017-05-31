@@ -183,7 +183,8 @@ public class LoginActivity extends DebugDrawerActivity {
             Toast.makeText(this, getString(R.string.debug_toast_message) + BuildConfig.ENDPOINT_TYPE, Toast.LENGTH_LONG).show();
         }
 
-        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             setupEndpointSelector();
         }
 

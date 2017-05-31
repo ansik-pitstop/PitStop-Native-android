@@ -2,16 +2,13 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,12 +22,10 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.Issue;
 import com.pitstop.models.Timeline;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
@@ -47,7 +42,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends Fragment {
+public class UpcomingServicesFragment extends SubServiceFragment{
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -88,7 +83,6 @@ public class UpcomingServicesFragment extends Fragment {
 
     NetworkHelper mNetworkHelper;
     MixpanelHelper mMixPanelHelper;
-    Car mCar;
     Timeline mTimelineData;
     Map<String, List<Issue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
@@ -96,11 +90,8 @@ public class UpcomingServicesFragment extends Fragment {
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
-    public static UpcomingServicesFragment newInstance(Car currentCar){
+    public static UpcomingServicesFragment newInstance(){
         UpcomingServicesFragment fragment = new UpcomingServicesFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("dashboardCar", currentCar);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -111,46 +102,52 @@ public class UpcomingServicesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
-            mCar = getArguments().getParcelable("dashboardCar");
-        }
+
         mNetworkHelper = new NetworkHelper(getContext().getApplicationContext());
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
+
+        //This must be called so that UI elements are set for SubService
+        super.onCreateView(inflater,container,savedInstanceState);
+
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        fetchData();
+    public void setUI() {
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0 , UiUtils.getScreenWidth(getActivity())).start();
+        ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
+        fetchData();
     }
 
     private void fetchData() {
+        Log.d("TAG","UpcomingServicesFragment, fetchData()");
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        String carId = String.valueOf(mCar.getId());
+        String carId = String.valueOf(dashboardCar.getId());
         mNetworkHelper.getCarTimeline(carId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (response != null && requestError == null) {
                     mTimelineData = new Gson().fromJson(response, Timeline.class);
                     mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
-                    if (mIssueList != null && mIssueList.size() != 0)
+                    if (mIssueList != null && mIssueList.size() != 0){
+                        mTimeLineRecyclerView.setVisibility(View.VISIBLE);
+                        mErrorViewContainer.setVisibility(View.INVISIBLE);
                         populateList();
-                    else
+                    }
+                    else{
+                        Log.d("TAG","UpcomingServicesFragment, showNoData()");
                         showNoData();
+                    }
                 }
                 else
                     showError();
@@ -207,6 +204,7 @@ public class UpcomingServicesFragment extends Fragment {
         mErrorText.setText(R.string.no_data_timeline);
         mErrorViewContainer.setVisibility(View.VISIBLE);
         mTryAgain.setVisibility(View.GONE);
+        mTimeLineRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.error_view_container)
@@ -215,14 +213,6 @@ public class UpcomingServicesFragment extends Fragment {
         mErrorViewContainer.setVisibility(View.GONE);
         fetchData();
     }
-
-/*    @Override
-    public void onBackPressed() {
-        if (mIssueDetailsViewVisible)
-            hideIssueDetails();
-        else
-            super.onBackPressed();
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

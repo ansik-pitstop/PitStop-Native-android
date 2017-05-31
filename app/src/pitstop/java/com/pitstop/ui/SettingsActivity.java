@@ -15,8 +15,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.InputType;
@@ -33,18 +31,19 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.User;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.utils.AnimatedDialogBuilder;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -54,13 +53,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pitstop.ui.MainActivity.CAR_EXTRA;
+import static com.pitstop.ui.MainActivity.RC_ADD_CAR;
+import static com.pitstop.ui.MainActivity.REFRESH_FROM_SERVER;
+
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
-
-    private ArrayList<String> cars = new ArrayList<>();
-    private ArrayList<Integer> ids = new ArrayList<>();
-    private ArrayList<String> dealers = new ArrayList<>();
 
     private MixpanelHelper mixpanelHelper;
 
@@ -78,7 +77,19 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         localCarAdapter = new LocalCarAdapter(this);
-        populateCarNamesAndIdList();
+        carList = localCarAdapter.getAllCars();
+
+        boolean currentCarExists = false;
+        for (Car c: carList){
+            if (c.isCurrentCar()){
+                currentCarExists = true;
+            }
+        }
+
+        //Set first car to current car if none are set
+        if (!currentCarExists){
+            carList.get(0).setCurrentCar(true);
+        }
 
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
@@ -90,10 +101,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         settingsFragment.setLoadingCallback(this);
 
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList("cars", cars);
-        bundle.putIntegerArrayList("ids", ids);
-        bundle.putStringArrayList("dealers", dealers);
-        bundle.putParcelable("mainCar", dashboardCar);
 
         IntentProxyObject intentProxyObject = new IntentProxyObject();
         intentProxyObject.setCarList(carList);
@@ -136,10 +143,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
+        intent.putExtra(REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
-        overridePendingTransition(R.anim.activity_slide_right_in, R.anim.activity_slide_right_out);
     }
 
     @Override
@@ -151,48 +157,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    private void populateCarNamesAndIdList() {
-        carList = localCarAdapter.getAllCars();
-
-        for (Car car : carList) {
-            if (car.getId() == PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, -1)) {
-                dashboardCar = car;
-            }
-
-            cars.add(car.getMake() + " " + car.getModel());
-            ids.add(car.getId());
-            dealers.add(String.valueOf(car.getShopId()));
-        }
-    }
-
-    /**
-     * Create and show an snackbar that is used to show users some information.<br>
-     * The purpose of this method is to display message that requires user's confirm to be dismissed.
-     *
-     * @param content snack bar message
-     */
-    public void showSimpleMessage(@NonNull String content, boolean isSuccess) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), content, Snackbar.LENGTH_LONG)
-                .setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // DO nothing
-                    }
-                })
-                .setActionTextColor(Color.WHITE);
-        View snackBarView = snackbar.getView();
-        if (isSuccess) {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_success));
-        } else {
-            snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.message_failure));
-        }
-        TextView textView = (TextView) snackBarView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, R.color.white_text));
-
-        snackbar.show();
-
     }
 
     @Override
@@ -222,9 +186,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private OnInfoUpdated listener;
         private ILoadingActivity loadingCallback;
         private ArrayList<ListPreference> preferenceList;
-        private ArrayList<String> cars;
-        private ArrayList<Integer> ids;
-        private ArrayList<String> dealers;
 
         private List<Car> carList;
 
@@ -238,6 +199,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private MixpanelHelper mixpanelHelper;
 
         private NetworkHelper networkHelper;
+
+        private VehiclePreference currentCarVehiclePreference;
 
         public SettingsFragment() {}
 
@@ -265,14 +228,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             localScannerAdapter = new LocalScannerAdapter(getActivity());
 
             Bundle bundle = getArguments();
-            cars = bundle.getStringArrayList("cars");
-            ids = bundle.getIntegerArrayList("ids");
-            dealers = bundle.getStringArrayList("dealers");
-
             IntentProxyObject listObject = bundle.getParcelable("carList");
             if (listObject != null) {
                 carList = listObject.getCarList();
+                Log.d(TAG,"listObject != null");
+                Log.d(TAG,"carList.size(): "+carList.size());
             } else {
+                Log.d(TAG,"listObject == null");
                 carList = localCarAdapter.getAllCars();
             }
 
@@ -303,7 +265,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                     shops.add(dealership.getName());
                                     shopIds.add(String.valueOf(dealership.getId()));
                                 }
-                                setUpCarListPreference(shops, shopIds);
+                                for (int i = 0; i < carList.size(); i++) {
+                                    setUpCarPreference(shops,shopIds,carList.get(i));
+                                }
 
                                 loadingCallback.hideLoading(null);
                             } catch (JSONException e) {
@@ -322,83 +286,196 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     shopIds.add(String.valueOf(shop.getId()));
                 }
 
-                setUpCarListPreference(shops, shopIds);
+                for (int i = 0; i < carList.size(); i++) {
+                    setUpCarPreference(shops,shopIds,carList.get(i));
+                }
             }
         }
 
-        private void setUpCarListPreference(List<String> shops, List<String> shopIds) {
-            for (int i = 0; i < cars.size(); i++) {
-                VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), carList.get(i));
-                vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
-                vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
-                vehiclePreference.setValue(dealers.get(i));
-                vehiclePreference.setDialogTitle("Choose Shop for: " + cars.get(i));
-                final int index = i;
-                vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        final String shopSelected = (String) newValue;
+        //Begin AddCarActivity if add car button is pressed
+        private void setupAddCarButtonListener(){
+            Preference addCarButton = (Preference)getPreferenceManager().findPreference("add_car_button");
+            addCarButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    mixpanelHelper.trackButtonTapped("Add Car",MixpanelHelper.SETTINGS_VIEW);
+                    Intent intent = new Intent(getActivity(), AddCarActivity.class);
+                    //Don't allow user to come back to tabs without first setting a car
+                    startActivityForResult(intent, RC_ADD_CAR);
+                    return false;
+                }
+            });
+        }
 
-                        // Update car in local database
-                        final Car itemCar = localCarAdapter.getCar(ids.get(index));
-                        final int shopId = Integer.parseInt(shopSelected);
-                        itemCar.setShopId(shopId);
-                        int result = localCarAdapter.updateCar(itemCar);
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
 
-                        try {
-                            mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                            MixpanelHelper.SETTINGS_VIEW, itemCar.getMake(), itemCar.getModel())));
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
+            //Check for Add car finished, and whether it happened successfully, if so updated preferences view
+            if (data != null) {
+
+                if (requestCode == RC_ADD_CAR) {
+                    if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                        listener.localUpdatePerformed();
+
+                        Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+
+                        //Update current car to the one that was clicked
+                        for (Car c: localCarAdapter.getAllCars()){
+                            c.setCurrentCar(false);
+                            localCarAdapter.updateCar(c);
                         }
 
-                        if (result != 0) {
-                            // Car shop was updated
-                            listener.localUpdatePerformed();
+                        //Check if inside local adapter, if not then add it
+                        addedCar.setCurrentCar(true);
+                        if (localCarAdapter.getCar(addedCar.getId()) == null){
+                            localCarAdapter.storeCarData(addedCar);
                         }
 
-                        loadingCallback.showLoading("Updating");
-                        networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null) {
-                                    try {
-                                        localCarAdapter.deleteAllCars();
-                                        localCarAdapter.storeCars(Car.createCarsList(response));
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    networkHelper.updateCarShop(itemCar.getId(), shopId,
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    if (requestError == null) {
-                                                        loadingCallback.hideLoading("Car dealership updated");
-                                                        Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
-                                                        Car updatedCar = localCarAdapter.getCar(itemCar.getId());
-                                                        updatedCar.setShopId(shopId);
-                                                        localCarAdapter.updateCar(updatedCar);
-                                                        listener.localUpdatePerformed();
-                                                    } else {
-                                                        loadingCallback.hideLoading("An error occurred, please try again.");
-                                                        Log.e(TAG, "Dealership update error: " + requestError.getError());
-                                                    }
-                                                }
-                                            });
-                                } else {
-                                    loadingCallback.hideLoading("An error occurred, please try again.");
-                                    Log.e(TAG, "Get shops: " + requestError.getMessage());
-                                }
-                            }
-                        });
-                        return true;
+                        List<String> shops = new ArrayList<>();
+                        List<String> shopIds = new ArrayList<>();
+                        List<Dealership> dealerships = shopAdapter.getAllDealerships();
+                        for (Dealership dealership : dealerships) {
+                            shops.add(dealership.getName());
+                            shopIds.add(String.valueOf(dealership.getId()));
+                        }
+
+                        setUpCarPreference(shops,shopIds,addedCar);
+
                     }
-                });
-                ((PreferenceCategory) getPreferenceManager()
-                        .findPreference(getString(R.string.pref_vehicles)))
-                        .addPreference(vehiclePreference);
+
+                }
+
             }
+        }
+
+        private void setUpCarPreference(List<String> shops, List<String> shopIds,final Car car){
+            final VehiclePreference vehiclePreference = new VehiclePreference(getActivity(), car);
+            vehiclePreference.setEntries(shops.toArray(new CharSequence[shops.size()]));
+            vehiclePreference.setEntryValues(shopIds.toArray(new CharSequence[shopIds.size()]));
+            vehiclePreference.setValue(String.valueOf(car.getShopId()));
+            vehiclePreference.setDialogTitle("Choose Shop for: "
+                    + car.getMake()+" "+car.getModel());
+
+            //If is a current car add checkmark and set to current car pref. for later editing
+            if (car.isCurrentCar()){
+
+                //Update shared preferences
+                PreferenceManager.getDefaultSharedPreferences(application).edit()
+                        .putInt(MainDashboardFragment.pfCurrentCar, car.getId()).apply();
+
+                vehiclePreference.setCurrentCarPreference(true);
+
+                //if its null will get exception here, first time being set
+                if (currentCarVehiclePreference != null){
+                    currentCarVehiclePreference.setCurrentCarPreference(false);
+                }
+                currentCarVehiclePreference = vehiclePreference;
+            }
+
+            //Change current car if preference is clicked
+            vehiclePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+
+                    mixpanelHelper.trackButtonTapped("CurrentCarButton",MixpanelHelper.SETTINGS_VIEW);
+
+                    //Get most recent version of car, since the parameter may be outdated
+                    Car recentCar = localCarAdapter.getCar(car.getId());
+
+                    //Check if the vehicle preference is already a current, if so return
+                    if (car.getId() == PreferenceManager.getDefaultSharedPreferences(application)
+                            .getInt(MainDashboardFragment.pfCurrentCar,-1)){
+
+                        return false;
+                    }
+
+                    //Update current car to the one that was clicked
+                    for (Car c: localCarAdapter.getAllCars()){
+                        c.setCurrentCar(false);
+                        localCarAdapter.updateCar(c);
+                    }
+                    recentCar.setCurrentCar(true);
+                    localCarAdapter.updateCar(recentCar);
+
+                    //Send update to network
+                    networkHelper.setMainCar(currentUser.getId(), car.getId(), null);
+                    listener.localUpdatePerformed();
+
+                    //Update shared preferences
+                    PreferenceManager.getDefaultSharedPreferences(application).edit()
+                            .putInt(MainDashboardFragment.pfCurrentCar, car.getId()).apply();
+
+                    //Add checkmark
+                    vehiclePreference.setCurrentCarPreference(true);
+                    if (currentCarVehiclePreference != null){
+                        currentCarVehiclePreference.setCurrentCarPreference(false);
+                    }
+                    currentCarVehiclePreference = vehiclePreference;
+
+                    return false;
+                }
+            });
+
+            vehiclePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final String shopSelected = (String) newValue;
+
+                    // Update car in local database
+                    final Car itemCar = localCarAdapter.getCar(car.getId());
+                    final int shopId = Integer.parseInt(shopSelected);
+                    itemCar.setShopId(shopId);
+                    int result = localCarAdapter.updateCar(itemCar);
+
+                    try {
+                        mixpanelHelper.trackCustom("Button Tapped",
+                                new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                        MixpanelHelper.SETTINGS_VIEW, itemCar.getMake(), itemCar.getModel())));
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
+
+                    if (result != 0) {
+                        // Car shop was updated
+                        listener.localUpdatePerformed();
+                    }
+
+                    loadingCallback.showLoading("Updating");
+                    networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                networkHelper.updateCarShop(itemCar.getId(), shopId,
+                                        new RequestCallback() {
+                                            @Override
+                                            public void done(String response, RequestError requestError) {
+                                                if (requestError == null) {
+                                                    loadingCallback.hideLoading("Car dealership updated");
+                                                    Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
+                                                    Car updatedCar = localCarAdapter.getCar(itemCar.getId());
+                                                    updatedCar.setShopId(shopId);
+                                                    localCarAdapter.updateCar(updatedCar);
+                                                    listener.localUpdatePerformed();
+                                                } else {
+                                                    loadingCallback.hideLoading("An error occurred, please try again.");
+                                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                }
+                                            }
+                                        });
+                            } else {
+                                loadingCallback.hideLoading("An error occurred, please try again.");
+                                Log.e(TAG, "Get shops: " + requestError.getMessage());
+                            }
+                        }
+                    });
+                    return true;
+                }
+            });
+            ((PreferenceCategory) getPreferenceManager()
+                    .findPreference(getString(R.string.pref_vehicles)))
+                    .addPreference(vehiclePreference);
+
         }
 
         @Override
@@ -568,6 +645,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 }
             });
 
+            setupAddCarButtonListener();
+
         }
 
         @Override
@@ -638,13 +717,26 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private class VehiclePreference extends ListPreference {
 
             private Car vehicle;
+            private Color defaultColor;
             private View root;
             private TextView vehicleName;
+            private boolean viewCreated = false;
 
             public VehiclePreference(Context context, Car vehicle) {
                 super(context);
                 this.vehicle = vehicle;
                 setLayoutResource(R.layout.preference_vehicle_item);
+            }
+
+            //Set color of vehicle preference depending on if it is the current vehicle
+            public void setCurrentCarPreference(boolean isCurrentCar){
+                vehicle.setCurrentCar(isCurrentCar);
+                if (isCurrentCar && viewCreated){
+                    root.findViewById(R.id.preference_vehicle_current_icon).setVisibility(View.VISIBLE);
+                }
+                else if (viewCreated){
+                    root.findViewById(R.id.preference_vehicle_current_icon).setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -703,6 +795,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 showDialog(null);
                             }
                         });
+
+                viewCreated = true;
+                setCurrentCarPreference(vehicle.isCurrentCar());
+
                 return root;
             }
 

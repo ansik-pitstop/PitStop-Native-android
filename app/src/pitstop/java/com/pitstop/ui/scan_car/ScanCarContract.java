@@ -5,15 +5,19 @@ import android.support.annotation.Nullable;
 
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.ILoadingActivity;
 
 import java.util.Set;
 
 
 public interface ScanCarContract {
+
+    public interface MainActivity {
+        public void onScanCarFinished(boolean updatedMileageOrDtcsFound);
+    }
 
     interface View extends BaseView<Presenter>, ILoadingActivity{
 
@@ -78,7 +82,7 @@ public interface ScanCarContract {
 
         BluetoothAutoConnectService getAutoConnectService();
 
-        IBluetoothServiceActivity getActivity();
+        IBluetoothServiceActivity getBluetoothActivity();
     }
 
     interface Presenter extends BluetoothPresenter{

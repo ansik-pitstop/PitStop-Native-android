@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.scan_car.ScanCarActivity">
+    tools:context=".ui.scan_car.ScanCarFragment">
 
     <LinearLayout
         android:id="@+id/scan_details_cards"
@@ -24,7 +24,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="returnToMainActivity"
                 android:orientation="vertical"
                 android:weightSum="3">
 
@@ -332,7 +331,6 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/mileage_text"
-                    android:text="3000009"
                     android:textSize="24sp"/>
 
                 <Button
@@ -343,7 +341,6 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="6dp"
                     android:background="@drawable/color_button_rectangle_primary"
-                    android:onClick="updateMileage"
                     android:text="Update"
                     android:textColor="#FFFFFF"/>
 
@@ -401,7 +398,6 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:background="@drawable/color_button_highlight"
-        android:onClick="startCarScan"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="Scan Car"
