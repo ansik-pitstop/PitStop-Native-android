@@ -703,12 +703,12 @@ public class NetworkHelper {
             @Override
             public void done(String response, RequestError requestError) {
                 try{
-                    JSONObject options = new JSONObject(response).getJSONObject("settings");
-                    int mainCarId = options.getJSONObject("settings").getInt("mainCar");
+                    JSONObject options = new JSONObject(response);
+                    int mainCarId = options.getJSONObject("user").getInt("mainCar");
                     getCarsById(mainCarId,callback);
                 }
                 catch(JSONException e){
-
+                    Log.d("TAG","JSONException Caught!");
                 }
 
             }
@@ -815,11 +815,11 @@ public class NetworkHelper {
     }
 
     public void getCurrentCarIssues(int carId, RequestCallback callback){
-        get(String.format("car/%s/issues?type=pending", String.valueOf(carId)), callback);
+        get(String.format("car/%s/issues?type=active", String.valueOf(carId)), callback);
     }
 
     public void getDoneCarIssues(int carId, RequestCallback callback){
-        get(String.format("car/%s/issues?type=done", String.valueOf(carId)), callback);
+        get(String.format("car/%s/issues?type=history", String.valueOf(carId)), callback);
     }
 
     public void getUpcomingCarIssues(int carId, RequestCallback callback){

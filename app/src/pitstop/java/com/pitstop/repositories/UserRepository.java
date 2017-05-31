@@ -119,9 +119,13 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public User get(int id, UserGetCallback callback) {
+    public void getCurrentUser(UserGetCallback callback){
+        networkHelper.getUser(userAdapter.getUser()
+                .getId(),getUserGetRequestCallback(callback));
+    }
+
+    public void get(int id, UserGetCallback callback) {
         networkHelper.getUser(id,getUserGetRequestCallback(callback));
-        return userAdapter.getUser();
     }
 
     private RequestCallback getUserGetRequestCallback(UserGetCallback callback){
@@ -146,9 +150,16 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public Car getUserCar(int userId, UserGetCarCallback callback){
-        networkHelper.getMainCar(userId,getUserGetCarRequestCallback(callback));
-        return null; // can't get car locally yet, needs to be implemented
+    public void setCurrentUser(User user){
+        userAdapter.storeUserData(user);
+    }
+
+    public void removeAllUsers(){
+        userAdapter.deleteAllUsers();
+    }
+
+    public void getUserCar(UserGetCarCallback callback){
+        networkHelper.getMainCar(userAdapter.getUser().getId(),getUserGetCarRequestCallback(callback));
     }
 
     private RequestCallback getUserGetCarRequestCallback(UserGetCarCallback callback){

@@ -1,5 +1,7 @@
 package com.pitstop.interactors;
 
+import android.os.Handler;
+
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
@@ -42,6 +44,6 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     public void execute(CarIssue carIssue, Callback callback) {
         this.callback = callback;
         this.carIssue = carIssue;
-        new Thread(this).start();
+        new Handler().post(this);
     }
 }

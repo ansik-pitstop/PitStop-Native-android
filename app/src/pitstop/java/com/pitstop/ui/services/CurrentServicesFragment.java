@@ -20,19 +20,16 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.GetCurrentServicesUseCase;
+import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -53,9 +50,8 @@ public class CurrentServicesFragment extends SubServiceFragment {
     private CustomAdapter carIssuesAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private UserAdapter userAdapter;
     private LocalCarIssueAdapter carIssueLocalStore;
-    private LocalCarAdapter carLocalStore;
-    private LocalCarAdapter localCarStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
@@ -71,6 +67,8 @@ public class CurrentServicesFragment extends SubServiceFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         networkHelper = new NetworkHelper(getActivity().getApplicationContext());
+        carIssueLocalStore = new LocalCarIssueAdapter(getActivity().getApplicationContext());
+        userAdapter = new UserAdapter(getActivity().getApplicationContext());
     }
 
     @Override
@@ -82,6 +80,8 @@ public class CurrentServicesFragment extends SubServiceFragment {
         //This must be called so that UI elements are set for SubService
         super.onCreateView(inflater,container,savedInstanceState);
 
+        populateCarIssuesAdapter();
+
         return view;
     }
 
@@ -90,56 +90,27 @@ public class CurrentServicesFragment extends SubServiceFragment {
         carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
         carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
-        populateCarIssuesAdapter();
     }
 
     private void populateCarIssuesAdapter() {
-        // Try local store
-//        Log.i(TAG, "DashboardCar id: (Try local store) "+ dashboardCar.getId());
-        if(carIssueLocalStore == null) {
-            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
-        }
-        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
-        if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
-                || dashboardCar.getNumberOfRecalls() > 0)) {
-            Log.i(TAG, "No car issues in local store");
 
-            networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        try {
-                            dashboardCar.setIssues(CarIssue.createCarIssues(
-                                    new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
-                            carIssueList.clear();
-                            carIssueList.addAll(dashboardCar.getActiveIssues());
-                            carIssuesAdapter.notifyDataSetChanged();
-                           // setIssuesCount();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            if (getActivity() != null) {
-                                Toast.makeText(getActivity(),
-                                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    } else {
-                        Log.e(TAG, "Load issues error: " + requestError.getMessage());
-                        if (getActivity() != null) {
-                            Toast.makeText(getActivity(),
-                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
-        } else {
-            Log.i(TAG, "Trying local store for carIssues");
-            Log.i(TAG, "Number of active issues: " + dashboardCar.getActiveIssues().size());
-            dashboardCar.setIssues(carIssues);
-            carIssueList.clear();
-            carIssueList.addAll(dashboardCar.getActiveIssues());
-            carIssuesAdapter.notifyDataSetChanged();
-        }
-        //carIssuesAdapter.updateTutorial();
+        GetCurrentServicesUseCase getCurrentServices
+                = new GetCurrentServicesUseCaseImpl(userAdapter,carIssueLocalStore,networkHelper);
+
+        getCurrentServices.execute(new GetCurrentServicesUseCase.Callback() {
+            @Override
+            public void onGotCurrentServices(List<CarIssue> currentServices) {
+                carIssueList.clear();
+                carIssueList.addAll(currentServices);
+                carIssuesAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError() {
+                Toast.makeText(getActivity(),
+                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {

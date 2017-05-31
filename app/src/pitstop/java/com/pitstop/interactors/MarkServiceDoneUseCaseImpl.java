@@ -1,7 +1,6 @@
 package com.pitstop.interactors;
 
 import com.pitstop.database.UserAdapter;
-import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import static android.R.attr.id;

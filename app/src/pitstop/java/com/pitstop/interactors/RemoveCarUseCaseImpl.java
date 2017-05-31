@@ -1,5 +1,7 @@
 package com.pitstop.interactors;
 
+import android.os.Handler;
+
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.CarRepository;
@@ -25,7 +27,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
-        new Thread(this).start();
+        new Handler().post(this);
     }
 
     @Override

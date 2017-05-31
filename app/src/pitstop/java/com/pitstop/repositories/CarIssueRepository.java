@@ -185,7 +185,7 @@ public class CarIssueRepository {
                     if (requestError == null){
                         ArrayList<CarIssue> carIssues = new ArrayList<>();
                         JSONObject jsonObject = new JSONObject(response);
-                        JSONArray jsonArray = jsonObject.getJSONArray("issues");
+                        JSONArray jsonArray = jsonObject.getJSONArray("results");
 
                         carIssues = CarIssue.createCarIssues(jsonArray,carId);
                         for (CarIssue i: carIssues){
@@ -201,7 +201,7 @@ public class CarIssueRepository {
                     }
                 }
                 catch(JSONException e){
-
+                    callback.onError();
                 }
             }
         };
