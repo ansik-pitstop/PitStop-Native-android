@@ -548,7 +548,7 @@ public class NetworkHelper {
             body.put("rtcTimeStart", Long.parseLong(rtcTime));
             body.put("tripIdRaw", tripIdRaw);
             if (mileage != null)
-                body.put("IDR_MILEAGE_KEY", mileage);
+                body.put("mileageStart", mileage);
         } catch (JSONException e) {
             e.printStackTrace();
         }

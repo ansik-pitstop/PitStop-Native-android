@@ -434,7 +434,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getRtcAndMileage(){
-        if (deviceInterface instanceof Device215B && btConnectionState == BluetoothCommunicator.CONNECTED){
+        if (isConnectedTo215()){
             writeToObd(((Device215B) deviceInterface).getRtcAndMileage());
         }
     }

@@ -493,8 +493,7 @@ public class Device215B implements AbstractDevice {
                     parameterPackage.mParamsValueMap.put(ParameterPackage.ParamType.MILEAGE, mileageKM);
                     dataListener.parameterData(parameterPackage);
 
-                }
-                else {
+                } else {
                     // assumes only one parameter queried per command
                     ParameterPackage parameterPackage = new ParameterPackage();
                     parameterPackage.deviceId = settingInfo.terminalSN;
