@@ -80,6 +80,7 @@ public class PrevTrip extends Fragment {
                             public void onClick(DialogInterface dialog,int id) {
                                 ((MyTripsActivity)getActivity()).removeTrip(tripToShow);
                                 ((MyTripsActivity)getActivity()).setViewTripHistory();
+                                ((MyTripsActivity)getActivity()).hideShareTrip();
                             }
                         })
                         .setNegativeButton("No",new DialogInterface.OnClickListener() {
