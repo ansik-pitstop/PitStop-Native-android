@@ -84,7 +84,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 
 /**
@@ -100,8 +99,6 @@ public class MyTripsActivity extends AppCompatActivity{
     private TripView tripView;
     private FragmentManager fragmentManager;
     private GlobalApplication application;
-
-
 
     private Geocoder geocoder;
     private SupportMapFragment supMapFragment;
@@ -206,11 +203,9 @@ public class MyTripsActivity extends AppCompatActivity{
             }
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-               // System.out.println("Testing status changed "+ bundle.get("satellites"));
             }
             @Override
             public void onProviderEnabled(String s) {
-
             }
             @Override
             public void onProviderDisabled(String s) {
@@ -218,7 +213,6 @@ public class MyTripsActivity extends AppCompatActivity{
                     Toast.makeText(application, "Location services lost trip saved", Toast.LENGTH_SHORT).show();
                     endTrip();
                 }
-                //System.out.println("Testing provider disabled "+ s);
             }
         };
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -268,7 +262,6 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     public void onStop() {
         super.onStop();
-        System.out.println("Testing onStop");
         if(tripStarted){//start service
             Intent notificationIntent = new Intent(getApplicationContext(), MyTripsActivity.class);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -295,7 +288,6 @@ public class MyTripsActivity extends AppCompatActivity{
         if(tripStarted) {
             Intent intent = new Intent(getApplicationContext(), TripService.class);
             stopService(intent);
-            System.out.println("Testing onRestart");
         }
         NotificationManager notificationManger =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -319,7 +311,6 @@ public class MyTripsActivity extends AppCompatActivity{
         TripLocation tripLoc = new TripLocation(location);
         trip.addPoint(tripLoc);
         accumulateDistance(lastKnownLocation,location);
-        //System.out.println("testing "+location.getSpeed() + totalDistance);
         tripView.setSpeed(location.getSpeed()*KMH_FACTOR);
         tripView.setDistance(totalDistance);
         lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
@@ -445,6 +436,35 @@ public class MyTripsActivity extends AppCompatActivity{
          googleMap.addPolyline(prevPath);
      }
 
+    private class GetandDraw extends AsyncTask<Void, Void, Void>{
+        private Trip trip;
+        private Trip tripWithPath;
+
+        public void setTrip(Trip trip) {
+            this.trip = trip;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loading.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            tripWithPath = localTripAdapter.getTrip(Integer.toString(trip.getId()));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            drawPath(tripWithPath);
+            loading.hide();
+        }
+
+    }
+
 
     public void setViewPrevTrip(Trip prevTrip){
         prevTripView.setTrip(prevTrip);
@@ -455,8 +475,9 @@ public class MyTripsActivity extends AppCompatActivity{
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.activity_bottom_down_in,R.anim.activity_bottom_down_out).show(supMapFragment).commit();
         getSupportActionBar().setTitle("Previous Trip");
         shareTripButton.setVisible(true);
-        drawPath(prevTrip);
-
+        GetandDraw getandDraw = new GetandDraw();
+        getandDraw.setTrip(prevTrip);
+        getandDraw.execute();
     }
 
     public void setViewTripView(){//basically trip started
@@ -497,7 +518,7 @@ public class MyTripsActivity extends AppCompatActivity{
         snapCamera(lastKnownLocation);
         tripView.setAddress(getAddress(lastKnownLocation));
         trip.setStartAddress(getAddress(lastKnownLocation));
-        trip.setStart(lastKnownLocation);
+        trip.setStart(new TripLocation(lastKnownLocation));
         trip.addPoint(tripLoc);
         networkHelper.postTripStep1(trip,dashboardCar.getVin(),new RequestCallback() {
             @Override
@@ -548,7 +569,7 @@ public class MyTripsActivity extends AppCompatActivity{
     }
 
     public void endTrip(){
-        trip.setEnd(lastKnownLocation);
+        trip.setEnd(new TripLocation(lastKnownLocation));
         trip.setEndAddress(getAddress(lastKnownLocation));
         trip.setTotalDistance(totalDistance);
         locallyStoredTrips.add(trip);
@@ -562,7 +583,6 @@ public class MyTripsActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == android.R.id.home) {
-
             if (tripHistory.isVisible()) {
                 finish();
             } else if (addTrip.isVisible()) {

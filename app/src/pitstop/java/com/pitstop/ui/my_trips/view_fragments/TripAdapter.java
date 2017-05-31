@@ -1,10 +1,6 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,14 +11,9 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.models.Trip;
 
-
-import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-16.

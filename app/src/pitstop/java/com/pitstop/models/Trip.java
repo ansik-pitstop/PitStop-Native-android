@@ -13,18 +13,18 @@ import java.util.List;
 
 public class Trip  {
 
-    private Location start;
-    private Location end;
+    private TripLocation start;
+    private TripLocation end;
     private String startAddress;
     private String endAddress;
     private double totalDistance;
     private int tripId;
     private List<TripLocation> path = new ArrayList<>();
 
-    public void setStart(Location start){
+    public void setStart(TripLocation start){
         this.start = start;
     }
-    public void setEnd(Location end){
+    public void setEnd(TripLocation end){
         this.end = end;
     }
 
@@ -54,9 +54,9 @@ public class Trip  {
 
     public List<TripLocation> getPath(){return path;}
 
-    public Location getEnd(){return end;}
+    public TripLocation getEnd(){return end;}
 
-    public Location getStart(){return start;}
+    public TripLocation getStart(){return start;}
 
     public String getStartAddress(){return startAddress;}
 

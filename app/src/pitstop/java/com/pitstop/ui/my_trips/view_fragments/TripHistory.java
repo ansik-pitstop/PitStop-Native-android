@@ -1,24 +1,16 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
-import com.pitstop.database.LocalTripAdapter;
-import com.pitstop.models.Car;
 import com.pitstop.models.Trip;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 
@@ -65,7 +57,6 @@ public class TripHistory extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        System.out.println("Testing fragment onAct");
         mTripsList = (RecyclerView) getView().findViewById(R.id.trip_list);
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -77,7 +68,6 @@ public class TripHistory extends Fragment {
     }
 
     public void setList(List<Trip> trips){
-        System.out.println("Testing fragment sestList");
         mTrips = trips;
     }
 
