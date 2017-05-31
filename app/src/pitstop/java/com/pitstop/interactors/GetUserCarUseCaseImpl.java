@@ -15,7 +15,6 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
-    private int userId;
     private Callback callback;
 
     public GetUserCarUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
@@ -24,9 +23,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     }
 
     @Override
-    public void execute(int userId, Callback callback) {
+    public void execute(Callback callback) {
         this.callback = callback;
-        this.userId = userId;
         new Handler().post(this);
     }
 

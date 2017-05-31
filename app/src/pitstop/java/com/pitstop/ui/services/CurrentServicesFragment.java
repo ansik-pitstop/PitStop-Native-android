@@ -26,8 +26,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.pitstop.ui.services.SubServiceFragment.dashboardCar;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -38,7 +36,6 @@ public class CurrentServicesFragment extends Fragment{
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
     private CurrentServicesAdapter carIssuesAdapter;
-    private RecyclerView.LayoutManager layoutManager;
 
     private UserAdapter userAdapter;
     private LocalCarIssueAdapter carIssueLocalStore;
@@ -73,7 +70,7 @@ public class CurrentServicesFragment extends Fragment{
     }
 
     private void initUI(){
-        carIssuesAdapter = new CurrentServicesAdapter(this, dashboardCar, carIssueList, this.getActivity());
+        carIssuesAdapter = new CurrentServicesAdapter(carIssueList, this.getActivity());
         carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
     }
