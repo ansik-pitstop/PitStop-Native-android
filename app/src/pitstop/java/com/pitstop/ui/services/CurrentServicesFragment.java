@@ -71,6 +71,7 @@ public class CurrentServicesFragment extends SubServiceFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         networkHelper = new NetworkHelper(getActivity().getApplicationContext());
+        carLocalStore = new LocalCarAdapter(getActivity());
     }
 
     @Override
