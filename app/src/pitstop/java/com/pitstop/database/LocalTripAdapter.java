@@ -25,6 +25,8 @@ import java.util.concurrent.Semaphore;
 public class LocalTripAdapter {
    // public static Semaphore semaphore = new Semaphore(1);
     // APPOINTMENT table create statement
+
+    private Gson gson = new Gson();
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.TRIP.TABLE_NAME + "("
             + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
@@ -73,7 +75,7 @@ public class LocalTripAdapter {
 
         if(c.moveToFirst()) {
             while (!c.isAfterLast()) {
-                trips.add(cursorToTripWithPath(c));
+                trips.add(cursorToTrip(c));
                 c.moveToNext();
             }
         }
@@ -115,7 +117,6 @@ public class LocalTripAdapter {
                 new String[] { String.valueOf(trip.getId()) });
 
         db.close();
-
         return rows;
     }
 
@@ -131,11 +132,8 @@ public class LocalTripAdapter {
 
     private Trip cursorToTrip(Cursor c) {
         Trip trip = new Trip();
-        Gson gson = new Gson();
-        Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
-        trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
-        trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),Location.class));
-        trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),Location.class));
+        trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),TripLocation.class));
+        trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),TripLocation.class));
         trip.setStartAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START_ADDRESS)));
         trip.setEndAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END_ADDRESS)));
         trip.setTotalDistance(c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_TOTAL_DISTANCE)));
@@ -144,15 +142,13 @@ public class LocalTripAdapter {
     }
     private Trip cursorToTripWithPath(Cursor c) {
         Trip trip = new Trip();
-        Gson gson = new Gson();
         Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
         trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
-        trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),Location.class));
-        trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),Location.class));
+        trip.setStart(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START)),TripLocation.class));
+        trip.setEnd(gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END)),TripLocation.class));
         trip.setStartAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_START_ADDRESS)));
         trip.setEndAddress(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_END_ADDRESS)));
         trip.setTotalDistance(c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_TOTAL_DISTANCE)));
-        trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         trip.setPath((List<TripLocation>)gson.fromJson(c.getString(c.getColumnIndex(TABLES.TRIP.KEY_PATH)),locListType));
         return trip;
     }
