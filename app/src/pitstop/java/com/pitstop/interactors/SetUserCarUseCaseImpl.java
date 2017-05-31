@@ -1,5 +1,7 @@
 package com.pitstop.interactors;
 
+import android.os.Handler;
+
 import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -42,6 +44,6 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
         this.callback = callback;
         this.userId = userId;
         this.carId = carId;
-        new Thread(this).start();
+        new Handler().post(this);
     }
 }

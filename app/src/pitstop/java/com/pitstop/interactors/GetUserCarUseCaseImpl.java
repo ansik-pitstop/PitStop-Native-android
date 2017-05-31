@@ -1,5 +1,7 @@
 package com.pitstop.interactors;
 
+import android.os.Handler;
+
 import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.UserRepository;
@@ -25,13 +27,13 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     public void execute(int userId, Callback callback) {
         this.callback = callback;
         this.userId = userId;
-        new Thread(this).start();
+        new Handler().post(this);
     }
 
     @Override
     public void run() {
         UserRepository.getInstance(userAdapter,networkHelper)
-                .getUserCar(userId, new UserRepository.UserGetCarCallback(){
+                .getUserCar(new UserRepository.UserGetCarCallback(){
 
             @Override
             public void onGotCar(Car car){
@@ -40,7 +42,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
             @Override
             public void onError(){
-
+                callback.onError();
             }
         });
     }

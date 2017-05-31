@@ -293,6 +293,7 @@ public class GlobalApplication extends Application {
 
     public String getAccessToken() {
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
+        Log.d("AccessToken",settings.getString(PreferenceKeys.KEY_ACCESS_TOKEN, ""));
         return settings.getString(PreferenceKeys.KEY_ACCESS_TOKEN, "");
     }
 
