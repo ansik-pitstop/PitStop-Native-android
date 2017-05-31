@@ -1,6 +1,7 @@
 package com.pitstop.adapters;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -12,9 +13,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -27,11 +32,13 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     private WeakReference<Activity> activityReference;
 
     private List<CarIssue> carIssues;
+    private Car dashboardCar;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public CurrentServicesAdapter(List<CarIssue> carIssues, Activity activity) {
+    public CurrentServicesAdapter(List<CarIssue> carIssues, Activity activity, Car dashboardCar) {
         this.carIssues = carIssues;
+        this.dashboardCar = dashboardCar;
         Log.d(CurrentServicesFragment.TAG, "Car issue list size: " + this.carIssues.size());
         activityReference = new WeakReference<>(activity);
     }
@@ -103,13 +110,13 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    new MixpanelHelper((GlobalApplication) activity.getApplicationContext())
-//                            .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
-//
-//                    Intent intent = new Intent(activity, IssueDetailsActivity.class);
-//                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-//                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
-//                    activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+                    new MixpanelHelper((GlobalApplication) activity.getApplicationContext())
+                            .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
+
+                    Intent intent = new Intent(activity, IssueDetailsActivity.class);
+                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
+                    activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                 }
             });
         }

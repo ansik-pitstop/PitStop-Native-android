@@ -31,8 +31,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
-    //private CurrentServicesAdapter customAdapter;
-
     private RecyclerView issuesList;
 
     @BindView(R.id.message_card)
