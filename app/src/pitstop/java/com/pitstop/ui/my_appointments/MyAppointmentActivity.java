@@ -37,8 +37,6 @@ import java.util.List;
 
 public class MyAppointmentActivity extends AppCompatActivity {
 
-    public static final String EXTRA_CAR = "extra_car";
-
     private RecyclerView mApptsList;
     private AppointmentsAdapter mAppointmentAdapter;
 
@@ -64,7 +62,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);
         localAppointmentAdapter = new LocalAppointmentAdapter(application);
-        dashboardCar = getIntent().getParcelableExtra(EXTRA_CAR);
+        dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
         mAppts = new ArrayList<Appointment>();
         fetchAppointments();
