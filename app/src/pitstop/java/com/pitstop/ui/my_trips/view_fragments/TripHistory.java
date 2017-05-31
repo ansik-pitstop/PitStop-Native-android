@@ -65,6 +65,7 @@ public class TripHistory extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        System.out.println("Testing fragment onAct");
         mTripsList = (RecyclerView) getView().findViewById(R.id.trip_list);
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -76,6 +77,7 @@ public class TripHistory extends Fragment {
     }
 
     public void setList(List<Trip> trips){
+        System.out.println("Testing fragment sestList");
         mTrips = trips;
     }
 
@@ -84,9 +86,13 @@ public class TripHistory extends Fragment {
 
 
     public void setupList(){
-       // mTrips = localTripAdapter.getAllTrips();
-        List<Trip> revTrips = new ArrayList<>(mTrips);
-        Collections.reverse(revTrips);
+        List<Trip> revTrips;
+        if(mTrips != null){
+            revTrips = new ArrayList<>(mTrips);
+            Collections.reverse(revTrips);
+        }else{
+            revTrips = new ArrayList<>();
+        }
         mTripAdapter = new TripAdapter(getActivity().getApplicationContext(),revTrips,this);
         mTripsList.setAdapter(mTripAdapter);
 

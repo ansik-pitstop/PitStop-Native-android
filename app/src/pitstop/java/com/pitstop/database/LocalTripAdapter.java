@@ -16,12 +16,14 @@ import com.pitstop.models.TripLocation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Matthew on 2017-05-16.
  */
 
 public class LocalTripAdapter {
+   // public static Semaphore semaphore = new Semaphore(1);
     // APPOINTMENT table create statement
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.TRIP.TABLE_NAME + "("
@@ -66,12 +68,11 @@ public class LocalTripAdapter {
      */
     public List<Trip> getAllTrips() {
         List<Trip> trips = new ArrayList<>();
-
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.query(TABLES.TRIP.TABLE_NAME, null,null,null,null,null,null);
 
         if(c.moveToFirst()) {
-            while(!c.isAfterLast()) {
+            while (!c.isAfterLast()) {
                 trips.add(cursorToTripWithPath(c));
                 c.moveToNext();
             }
