@@ -31,7 +31,7 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
-    //private CustomAdapter customAdapter;
+    //private CurrentServicesAdapter customAdapter;
 
     private RecyclerView issuesList;
 
