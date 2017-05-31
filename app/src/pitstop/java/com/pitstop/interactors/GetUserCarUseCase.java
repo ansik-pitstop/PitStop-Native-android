@@ -18,5 +18,5 @@ public interface GetUserCarUseCase extends Interactor{
     }
 
     //Execute the use case
-    void execute(int userId, Callback callback);
+    void execute(Callback callback);
 }
