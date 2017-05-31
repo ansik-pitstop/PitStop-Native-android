@@ -38,10 +38,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.pitstop.ui.services.SubServiceFragment.dashboardCar;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends SubServiceFragment {
+public class CurrentServicesFragment extends Fragment{
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
 
@@ -76,24 +78,19 @@ public class CurrentServicesFragment extends SubServiceFragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
-
-        //This must be called so that UI elements are set for SubService
-        super.onCreateView(inflater,container,savedInstanceState);
-
-        populateCarIssuesAdapter();
+        initUI();
+        updateUI();
 
         return view;
     }
 
-    @Override
-    public void setUI(){
+    private void initUI(){
         carIssuesAdapter = new CustomAdapter(dashboardCar, carIssueList, this.getActivity());
         carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
     }
 
-    private void populateCarIssuesAdapter() {
-
+    private void updateUI(){
         GetCurrentServicesUseCase getCurrentServices
                 = new GetCurrentServicesUseCaseImpl(userAdapter,carIssueLocalStore,networkHelper);
 
@@ -112,6 +109,7 @@ public class CurrentServicesFragment extends SubServiceFragment {
             }
         });
     }
+
 
     private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
