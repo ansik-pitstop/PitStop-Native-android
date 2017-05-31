@@ -23,6 +23,11 @@ public class UserRepository {
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
 
+    public interface UserSetCarCallback {
+        void onSetCar();
+        void onError();
+    }
+
     public interface UserGetCallback {
         void onGotUser(User user);
         void onError();
@@ -160,6 +165,32 @@ public class UserRepository {
                     }
                 }
                 catch(JSONException e){
+
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+    public void setUserCar(int userId, int carId, UserSetCarCallback callback){
+        networkHelper.setMainCar(userId,carId,getUserSetCarRequestCallback(callback));
+    }
+
+    private RequestCallback getUserSetCarRequestCallback(UserSetCarCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onSetCar();
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JsonIOException e){
 
                 }
             }

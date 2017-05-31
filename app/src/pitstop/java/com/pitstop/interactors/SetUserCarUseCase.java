@@ -1,7 +1,5 @@
 package com.pitstop.interactors;
 
-import com.pitstop.models.Car;
-
 /**
  * Created by Karol Zdebel on 5/30/2017.
  *
@@ -17,5 +15,5 @@ public interface SetUserCarUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(Car car, Callback callback);
+    void execute(int userId,int carId, Callback callback);
 }
