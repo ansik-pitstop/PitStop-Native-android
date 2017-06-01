@@ -19,6 +19,16 @@ public class DateTimeFormatUtil {
         return format.format(calendar.getTime());
     }
 
+    public static String formatDateHistory(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"
+        String[] splittedDate = rawDate.split("-");
+        String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return months[Integer.parseInt(splittedDate[1])] + ". " + splittedDate[2] + ", " + splittedDate[0];
+    }
+
     public static String formatToISO8601(Calendar calendar){
         if (calendar == null) return null;
         return ISO8601_FORMAT.format(calendar.getTime());
