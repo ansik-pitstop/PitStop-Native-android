@@ -222,7 +222,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getBluetoothState(int state) {
-        Log.i(TAG, "Bluetooth state update");
+        Log.i(TAG, "Bluetooth state updateCarIssue");
         switch (state) {
             case BluetoothCommunicator.CONNECTED:
                 mCallback.onDeviceConnected();
@@ -247,7 +247,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage updateCarIssue
             final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 
             Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);

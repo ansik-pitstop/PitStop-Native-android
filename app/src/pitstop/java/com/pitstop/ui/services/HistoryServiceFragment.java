@@ -109,14 +109,14 @@ public class HistoryServiceFragment extends SubServiceFragment {
         }
         else {
             //Add issue to appropriate position within list, in order of date
-            for (int i = 0; i < issues.size(); i++) {
-                Log.d("TAG", "Date difference between issue and issues[i] = "
-                        + (getDateToCompare(issues.get(i).getDoneAt())
-                        - getDateToCompare(issue.getDoneAt())));
+            int issueSize = issues.size();
+            for (int i = 0; i < issueSize; i++) {
                 if (!(getDateToCompare(issues.get(i).getDoneAt())
-                        - getDateToCompare(issue.getDoneAt()) < 0)) {
-
+                        - getDateToCompare(issue.getDoneAt()) <= 0)) {
                     issues.add(i, issue);
+                }
+                if (i == issueSize -1){
+                    issues.add(issue);
                 }
             }
         }

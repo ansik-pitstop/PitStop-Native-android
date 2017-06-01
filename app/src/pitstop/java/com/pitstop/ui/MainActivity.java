@@ -650,7 +650,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             //Returned from car being added
             if (requestCode == RC_ADD_CAR) {
 
-                //If a car was added then update the current car that is being displayed inside all the fragments
+                //If a car was added then updateCarIssue the current car that is being displayed inside all the fragments
                 if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
@@ -1638,7 +1638,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                     refreshFromLocal();
                                     resetMenus(false);
                                 } else {
-                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
                                     Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }

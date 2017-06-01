@@ -40,7 +40,7 @@ public abstract class SubServiceFragment extends Fragment {
     }
 
     public void onDashboardCarUpdated(){
-        //Check whether onStart() finished, otherwise don't update since it'll update inside onStart
+        //Check whether onStart() finished, otherwise don't updateCarIssue since it'll updateCarIssue inside onStart
         if (getView() != null){
             setUI();
         }
