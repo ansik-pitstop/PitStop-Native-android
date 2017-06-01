@@ -53,8 +53,6 @@ public class CarIssue implements Parcelable {
     public CarIssue() {}
 
     public int getDaysAgo(){
-        if (doneAt == null){ return -1; }
-
         Calendar doneAt = Calendar.getInstance();
         doneAt.set(year,month,day);
         int daysToday = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
