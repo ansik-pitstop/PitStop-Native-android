@@ -1,6 +1,7 @@
 package com.pitstop.ui.services;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,9 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
+import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.GetUserCarUseCaseImpl;
+import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.utils.NetworkHelper;
 
@@ -64,17 +68,34 @@ public class CurrentServicesFragment extends Fragment{
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
         initUI();
-        updateUI();
 
         return view;
     }
 
+
+    //Call whenever you want to completely new UI objects
     private void initUI(){
-        carIssuesAdapter = new CurrentServicesAdapter(carIssueList, this.getActivity());
-        carIssueListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        carIssueListView.setAdapter(carIssuesAdapter);
+        final Activity activity = this.getActivity();
+        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userAdapter, networkHelper);
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList, activity);
+                carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                carIssueListView.setAdapter(carIssuesAdapter);
+                updateUI();
+            }
+
+            @Override
+            public void onError() {
+                Toast.makeText(activity.getApplicationContext()
+                        ,"Could not retrieve car issues, please check your internet connection",Toast.LENGTH_LONG);
+            }
+        });
+
     }
 
+    //Call whenever you want the most recent data from the backend
     private void updateUI(){
         GetCurrentServicesUseCase getCurrentServices
                 = new GetCurrentServicesUseCaseImpl(userAdapter,carIssueLocalStore,networkHelper);
@@ -94,6 +115,4 @@ public class CurrentServicesFragment extends Fragment{
             }
         });
     }
-
-
 }
