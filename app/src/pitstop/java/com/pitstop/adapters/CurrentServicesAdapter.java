@@ -40,6 +40,8 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         activityReference = new WeakReference<>(activity);
     }
 
+
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
