@@ -4,6 +4,7 @@ package com.pitstop.ui.services;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,8 +18,13 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.GetDoneServicesUseCase;
+import com.pitstop.interactors.GetDoneServicesUseCaseImpl;
 import com.pitstop.models.CarIssue;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,7 +33,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends SubServiceFragment {
+public class HistoryServiceFragment extends Fragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
@@ -41,6 +47,9 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
+    private UserAdapter userAdapter;
+    private NetworkHelper networkHelper;
+    private LocalCarIssueAdapter localCarIssueAdapter;
 
     private IssueGroupAdapter issueGroupAdapter;
 
@@ -62,6 +71,9 @@ public class HistoryServiceFragment extends SubServiceFragment {
 
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
+        networkHelper = new NetworkHelper(application);
+        userAdapter = new UserAdapter(application);
+        localCarIssueAdapter = new LocalCarIssueAdapter(application);
 
     }
 
@@ -72,9 +84,7 @@ public class HistoryServiceFragment extends SubServiceFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
 
-        sortedIssues = new LinkedHashMap<>();
-        issueGroupAdapter = new IssueGroupAdapter(sortedIssues,headers);
-        issueGroup.setAdapter(issueGroupAdapter);
+        initUI();
 
         //This must be called so that UI elements are set for SubService
         super.onCreateView(inflater,container,savedInstanceState);
@@ -124,21 +134,40 @@ public class HistoryServiceFragment extends SubServiceFragment {
         sortedIssues.put(dateHeader, issues);
     }
 
-    private void updateIssueGroupView(){
+    private void initUI(){
+        sortedIssues = new LinkedHashMap<>();
+        issueGroupAdapter = new IssueGroupAdapter(sortedIssues,headers);
+        issueGroup.setAdapter(issueGroupAdapter);
+
+        updateUI();
+    }
+
+    private void updateUI(){
 
         sortedIssues.clear();
 
-        List<CarIssue> doneIssues = dashboardCar.getDoneIssues();
+        GetDoneServicesUseCase getDoneServicesUseCase
+                = new GetDoneServicesUseCaseImpl(userAdapter,localCarIssueAdapter,networkHelper);
+        getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
+            @Override
+            public void onGotDoneServices(List<CarIssue> doneServices) {
+                if(doneServices.isEmpty()) {
+                    messageCard.setVisibility(View.VISIBLE);
+                }
 
-        for (CarIssue issue: doneIssues){
-            addIssue(issue);
-        }
+                for (CarIssue issue: doneServices){
+                    addIssue(issue);
+                }
+                issueGroupAdapter.notifyDataSetChanged();
 
-        if(doneIssues.isEmpty()) {
-            messageCard.setVisibility(View.VISIBLE);
-        }
+            }
 
-        issueGroupAdapter.notifyDataSetChanged();
+            @Override
+            public void onError() {
+
+            }
+        });
+
     }
 
     @Override
@@ -175,11 +204,6 @@ public class HistoryServiceFragment extends SubServiceFragment {
         return Integer.parseInt(splittedDate[2])
                 + Integer.parseInt(splittedDate[1]) * 30
                 + Integer.parseInt(splittedDate[0]) * 365;
-    }
-
-    @Override
-    public void setUI(){
-        updateIssueGroupView();
     }
 
     public void onServiceDone(CarIssue issue){
