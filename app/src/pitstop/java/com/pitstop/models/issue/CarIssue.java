@@ -189,6 +189,14 @@ public class CarIssue implements Parcelable, Issue {
         this.causes = causes;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CarIssue)){ return false; }
+
+        CarIssue carIssue = (CarIssue)obj;
+        return carIssue.getId() == getId();
+    }
+
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
         CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
         carIssue.setCarId(carId);
