@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.ui.services.CurrentServicesFragment;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.lang.ref.WeakReference;
@@ -31,15 +29,14 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
 
     private WeakReference<Activity> activityReference;
 
-    private List<CarIssue> carIssues;
     private Car dashboardCar;
+    private List<CarIssue> carIssues;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public CurrentServicesAdapter(List<CarIssue> carIssues, Activity activity, Car dashboardCar) {
-        this.carIssues = carIssues;
+    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
         this.dashboardCar = dashboardCar;
-        Log.d(CurrentServicesFragment.TAG, "Car issue list size: " + this.carIssues.size());
+        this.carIssues = carIssues;
         activityReference = new WeakReference<>(activity);
     }
 
