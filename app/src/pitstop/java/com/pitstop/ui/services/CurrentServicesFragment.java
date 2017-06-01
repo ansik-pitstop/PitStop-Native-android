@@ -45,6 +45,7 @@ public class CurrentServicesFragment extends Fragment{
     private LocalCarIssueAdapter carIssueLocalStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
+    private boolean start = true;
 
     public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
@@ -88,11 +89,20 @@ public class CurrentServicesFragment extends Fragment{
 
             @Override
             public void onError() {
-                Toast.makeText(activity.getApplicationContext()
-                        ,"Could not retrieve car issues, please check your internet connection",Toast.LENGTH_LONG);
             }
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //Update UI any time another activity(non-tab) is finished
+        if (start){ start = false; }
+        else{
+            updateUI();
+        }
     }
 
     //Call whenever you want the most recent data from the backend
