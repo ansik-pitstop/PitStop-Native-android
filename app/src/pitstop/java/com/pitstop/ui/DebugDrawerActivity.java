@@ -57,7 +57,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view) {
-        if (true) {
+        if (false) {
             mDrawerLayout.addView(view, 0);
         } else {
             super.setContentView(view);
@@ -66,7 +66,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        if (true) {
+        if (false) {
             DrawerLayout drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
             drawerLayout.addView(view, 0, params);
             super.setContentView(drawerLayout);
@@ -79,7 +79,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (true){
+        if (false){
             return;
         }
 
