@@ -244,7 +244,8 @@ public class Car implements Parcelable {
         ArrayList<CarIssue> activeIssues = new ArrayList<>();
 
         for(CarIssue issue : issues) {
-            if(issue.getStatus().equals(CarIssue.ISSUE_PENDING)) {
+            if(issue.getStatus().equals(CarIssue.ISSUE_PENDING)
+                || issue.getStatus().equals(CarIssue.ISSUE_NEW) ) {
                 activeIssues.add(issue);
             }
         }

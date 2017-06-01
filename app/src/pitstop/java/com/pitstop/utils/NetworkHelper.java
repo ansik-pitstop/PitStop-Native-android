@@ -451,6 +451,7 @@ public class NetworkHelper {
                 if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)) {
                     data.put(new JSONObject()
                             .put("type", issue.getIssueType())
+                            .put("status", issue.getStatus())
                             .put("id", issue.getId()));
                 } else {
                     data.put(new JSONObject()

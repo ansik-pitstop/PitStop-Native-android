@@ -208,7 +208,7 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
                     upcomingServicesFragment = UpcomingServicesFragment.newInstance();
                     return upcomingServicesFragment;
                 case FRAGMENT_CURRENT:
-                    currentServicesFragment = CurrentServicesFragment.newInstance(myCallback);
+                    currentServicesFragment = CurrentServicesFragment.newInstance();
                     return  currentServicesFragment;
                 case FRAGMENT_HISTORY:
                     historyServicesFragment = HistoryServiceFragment.newInstance();

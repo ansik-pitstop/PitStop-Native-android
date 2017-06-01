@@ -1,6 +1,7 @@
 package com.pitstop.adapters;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -8,18 +9,26 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.interactors.MarkServiceDoneUseCase;
+import com.pitstop.interactors.MarkServiceDoneUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.NetworkHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -65,6 +74,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
 
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.description.setMaxLines(2);
+            holder.doneImageView.setVisibility(View.INVISIBLE);
             holder.description.setText("You have no pending Engine Code, Recalls or Services");
             holder.title.setText("Congrats!");
             holder.imageView.setImageDrawable(
@@ -118,6 +128,45 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                     activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                 }
             });
+
+            //Get the done image view
+            holder.doneImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    //When clicked show date picker
+                    DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(activity
+                            , Calendar.getInstance(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+
+                            carIssue.setYear(year);
+                            carIssue.setMonth(month);
+                            carIssue.setDay(day);
+
+                            //When the date is set, update issue to done on that date
+                            MarkServiceDoneUseCase markServiceDoneUseCase
+                                    = new MarkServiceDoneUseCaseImpl(new LocalCarIssueAdapter(activity)
+                                    ,new NetworkHelper(activity));
+                            markServiceDoneUseCase.execute(carIssue, new MarkServiceDoneUseCase.Callback() {
+                                @Override
+                                public void onServiceMarkedAsDone() {
+                                    Toast.makeText(activity.getApplicationContext(),"Successfully marked service as done"
+                                            ,Toast.LENGTH_LONG);
+                                    carIssues.remove(carIssue);
+                                    notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onError() {
+                                }
+                            });
+                        }
+                    });
+                    servicesDatePickerDialog.setTitle("Select when you completed this service.");
+                    servicesDatePickerDialog.show();
+                }
+            });
         }
     }
 
@@ -146,12 +195,14 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         public ImageView imageView;
         public View container;
         public View date; // Not used here so it is set to GONE
+        public ImageView doneImageView;
 
         public ViewHolder(View v) {
             super(v);
             title = (TextView) v.findViewById(R.id.title);
             description = (TextView) v.findViewById(R.id.description);
             imageView = (ImageView) v.findViewById(R.id.image_icon);
+            doneImageView = (ImageView) v.findViewById(R.id.image_done_issue);
             container = v.findViewById(R.id.list_car_item);
             date = v.findViewById(R.id.date);
         }
