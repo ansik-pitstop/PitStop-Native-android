@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,11 +46,12 @@ public class HistoryServiceFragment extends Fragment {
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
     private LocalCarIssueAdapter localCarIssueAdapter;
+    private List<CarIssue> addedIssues;
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
-    ArrayList<String> headers = new ArrayList<>();
+    ArrayList<String> headers;
 
     public HistoryServiceFragment() {
         // Required empty public constructor
@@ -65,7 +65,6 @@ public class HistoryServiceFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         networkHelper = new NetworkHelper(application);
@@ -80,13 +79,14 @@ public class HistoryServiceFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
-
         initUI();
-
-        //This must be called so that UI elements are set for SubService
-        super.onCreateView(inflater,container,savedInstanceState);
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initUI();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class HistoryServiceFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser && getView() != null){
-            initUI();
+            updateUI();
         }
     }
 
@@ -134,6 +134,8 @@ public class HistoryServiceFragment extends Fragment {
     }
 
     private void initUI(){
+        addedIssues = new ArrayList<>();
+        headers = new ArrayList<>();
         sortedIssues = new LinkedHashMap<>();
         issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
         issueGroup.setAdapter(issueGroupAdapter);
@@ -143,8 +145,6 @@ public class HistoryServiceFragment extends Fragment {
 
     private void updateUI(){
 
-        sortedIssues.clear();
-
         GetDoneServicesUseCase getDoneServicesUseCase
                 = new GetDoneServicesUseCaseImpl(userAdapter,localCarIssueAdapter,networkHelper);
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
@@ -153,11 +153,21 @@ public class HistoryServiceFragment extends Fragment {
                 if(doneServices.isEmpty()) {
                     messageCard.setVisibility(View.VISIBLE);
                 }
-
+                List<CarIssue> toAdd = new ArrayList<CarIssue>();
                 for (CarIssue issue: doneServices){
-                    addIssue(issue);
+                    if (addedIssues.indexOf(issue) < 0){
+                        toAdd.add(issue);
+                        addIssue(issue);
+                    }
                 }
-                issueGroupAdapter.notifyDataSetChanged();
+                if (!toAdd.isEmpty()){
+                    addedIssues.addAll(toAdd);
+                    issueGroupAdapter.notifyDataSetChanged();
+                }
+
+                if(messageCard.getVisibility() == View.VISIBLE && !addedIssues.isEmpty()) {
+                    messageCard.setVisibility(View.INVISIBLE);
+                }
 
             }
 
@@ -193,18 +203,6 @@ public class HistoryServiceFragment extends Fragment {
         return Integer.parseInt(splittedDate[2])
                 + Integer.parseInt(splittedDate[1]) * 30
                 + Integer.parseInt(splittedDate[0]) * 365;
-    }
-
-    public void onServiceDone(CarIssue issue){
-
-        //Set to invisible since it is about to be no longer empty
-        if(sortedIssues.isEmpty()) {
-            messageCard.setVisibility(View.INVISIBLE);
-        }
-
-        addIssue(issue);
-        issueGroupAdapter.notifyDataSetChanged();
-        Log.d("HistoryServiceFragment","onServiceDone() called.");
     }
 
 }

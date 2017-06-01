@@ -17,18 +17,15 @@ import android.view.ViewGroup;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 
-public class MainServicesFragment extends Fragment implements MainFragmentCallback,MainServicesCallback{
+public class MainServicesFragment extends Fragment implements MainFragmentCallback{
 
     //Fragments being navigated
     private UpcomingServicesFragment upcomingServicesFragment;
     private HistoryServiceFragment historyServicesFragment;
     private CurrentServicesFragment currentServicesFragment;
-
-    private MainServicesCallback myCallback = this;
 
     private static Car dashboardCar;
 
@@ -173,12 +170,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         super.onAttachFragment(childFragment);
 
         Log.d("KAROL","attached fragment: "+childFragment.getClass().getSimpleName());
-    }
-
-    @Override
-    public void onServiceDone(CarIssue carIssue) {
-        //Notify history services fragment about the new car issue
-        historyServicesFragment.onServiceDone(carIssue);
     }
 
     //Return data associated with fragment of the provided tab
