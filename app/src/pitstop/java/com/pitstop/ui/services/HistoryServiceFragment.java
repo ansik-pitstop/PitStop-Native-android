@@ -126,6 +126,7 @@ public class HistoryServiceFragment extends Fragment {
                 if (!(DateTimeFormatUtil.getHistoryDateToCompare(issues.get(i).getDoneAt())
                         - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) <= 0)) {
                     issues.add(i, issue);
+                    break;
                 }
                 if (i == issueSize -1){
                     issues.add(issue);
