@@ -1,4 +1,4 @@
-package com.pitstop.ui.services;
+package com.pitstop.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -102,7 +102,7 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         if (issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {
             date.setText("Done");
         } else {
-            date.setText(String.format("Done on %s", DateTimeFormatUtil.formatDateHistory(issue.getDoneAt())));
+            date.setText(String.format("Done on %s", DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt())));
         }
 
         if (issue.getIssueType().equals(CarIssue.RECALL)) {

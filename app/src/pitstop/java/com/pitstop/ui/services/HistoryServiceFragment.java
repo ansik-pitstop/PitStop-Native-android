@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
 import com.pitstop.R;
+import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
@@ -23,6 +24,8 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -104,7 +107,7 @@ public class HistoryServiceFragment extends Fragment {
         if(issue.getDoneAt() == null || issue.getDoneAt().equals("")) {
             dateHeader = "";
         } else {
-            String formattedDate = DateTimeFormatUtil.formatDateHistory(issue.getDoneAt());
+            String formattedDate = DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt());
             dateHeader = formattedDate.substring(0, 3) + " " + formattedDate.substring(9, 13);
         }
 
@@ -120,8 +123,8 @@ public class HistoryServiceFragment extends Fragment {
             //Add issue to appropriate position within list, in order of date
             int issueSize = issues.size();
             for (int i = 0; i < issueSize; i++) {
-                if (!(getDateToCompare(issues.get(i).getDoneAt())
-                        - getDateToCompare(issue.getDoneAt()) <= 0)) {
+                if (!(DateTimeFormatUtil.getHistoryDateToCompare(issues.get(i).getDoneAt())
+                        - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) <= 0)) {
                     issues.add(i, issue);
                 }
                 if (i == issueSize -1){
@@ -132,6 +135,23 @@ public class HistoryServiceFragment extends Fragment {
 
         sortedIssues.put(dateHeader, issues);
     }
+
+    private void sortHeaders() {
+        Collections.sort(headers, new Comparator<String>() {
+            @Override
+            public int compare(String left, String right) {
+                Double leftYearPrecise = DateTimeFormatUtil.historyFormatToDouble(left);
+                Double rightYearPrecise = DateTimeFormatUtil.historyFormatToDouble(right);
+                if (rightYearPrecise < leftYearPrecise){
+                    return -1;
+                }
+                else{
+                    return 1;
+                }
+            }
+        });
+    }
+
 
     private void initUI(){
         addedIssues = new ArrayList<>();
@@ -162,6 +182,7 @@ public class HistoryServiceFragment extends Fragment {
                 }
                 if (!toAdd.isEmpty()){
                     addedIssues.addAll(toAdd);
+                    sortHeaders();
                     issueGroupAdapter.notifyDataSetChanged();
                 }
 
@@ -190,19 +211,6 @@ public class HistoryServiceFragment extends Fragment {
     public void onPause() {
         super.onPause();
         application.getMixpanelAPI().flush();
-    }
-
-    private int getDateToCompare(String rawDate) {
-        if(rawDate == null || rawDate.isEmpty() || rawDate.equals("null")) {
-            return 0;
-        }
-
-        String[] splittedDate = rawDate.split("-");
-        splittedDate[2] = splittedDate[2].substring(0, 2);
-
-        return Integer.parseInt(splittedDate[2])
-                + Integer.parseInt(splittedDate[1]) * 30
-                + Integer.parseInt(splittedDate[0]) * 365;
     }
 
 }
