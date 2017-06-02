@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageAdapter;
@@ -54,7 +55,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view) {
-        if (false) {
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             mDrawerLayout.addView(view, 0);
         } else {
             super.setContentView(view);
@@ -63,7 +65,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        if (false) {
+        if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             DrawerLayout drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
             drawerLayout.addView(view, 0, params);
             super.setContentView(drawerLayout);
@@ -76,7 +79,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (false){
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
+                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
             return;
         }
 
