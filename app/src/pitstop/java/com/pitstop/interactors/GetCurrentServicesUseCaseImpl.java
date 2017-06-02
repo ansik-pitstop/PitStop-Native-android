@@ -4,6 +4,9 @@ import android.os.Handler;
 
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerRepositoryComponent;
+import com.pitstop.dependency.RepositoryComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
@@ -42,7 +45,6 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
         UserRepository.getInstance(userAdapter,networkHelper).getUserCar(new UserRepository.UserGetCarCallback() {
             @Override
             public void onGotCar(Car car) {
-
                 //Use the current users car to get all the current issues
                 CarIssueRepository.getInstance(localCarIssueAdapter,networkHelper)
                         .getCurrentCarIssues(car.getId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
