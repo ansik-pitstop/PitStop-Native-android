@@ -16,16 +16,19 @@ import dagger.Provides;
 @Module(includes = ContextModule.class)
 public class LocalStorageModule {
 
+    @ApplicationScope
     @Provides
     public LocalCarAdapter localCarAdapter(Context context){
         return new LocalCarAdapter(context);
     }
 
+    @ApplicationScope
     @Provides
     public LocalCarIssueAdapter localCarIssueAdapter(Context context){
         return new LocalCarIssueAdapter(context);
     }
 
+    @ApplicationScope
     @Provides
     public UserAdapter userAdapter(Context context){
         return new UserAdapter(context);

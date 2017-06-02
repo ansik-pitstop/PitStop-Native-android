@@ -19,18 +19,21 @@ import dagger.Provides;
 public class RepositoryModule {
 
     @Provides
+    @ApplicationScope
     public UserRepository getUserRepository(UserAdapter userAdapter
             , NetworkHelper networkHelper){
         return new UserRepository(userAdapter,networkHelper);
     }
 
     @Provides
+    @ApplicationScope
     public CarRepository getCarRepository(LocalCarAdapter localCarAdapter
             , NetworkHelper networkHelper){
         return new CarRepository(localCarAdapter,networkHelper);
     }
 
     @Provides
+    @ApplicationScope
     public CarIssueRepository getCarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter
             , NetworkHelper networkHelper){
         return new CarIssueRepository(localCarIssueAdapter,networkHelper);

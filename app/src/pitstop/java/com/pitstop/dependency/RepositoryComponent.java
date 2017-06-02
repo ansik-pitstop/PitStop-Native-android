@@ -10,6 +10,7 @@ import dagger.Component;
  * Created by Karol Zdebel on 6/2/2017.
  */
 
+@ApplicationScope
 @Component(modules = RepositoryModule.class)
 public interface RepositoryComponent {
 
