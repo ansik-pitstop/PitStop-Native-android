@@ -37,7 +37,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
-    //private CustomAdapter customAdapter;
+    //private CurrentServicesAdapter customAdapter;
     private RecyclerView issuesList;
     private CardView messageCard;
     private ExpandableListView issueGroup;

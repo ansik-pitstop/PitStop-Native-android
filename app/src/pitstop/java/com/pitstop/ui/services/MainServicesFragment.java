@@ -158,17 +158,11 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
             upcomingServicesFragment.onDashboardCarUpdated();
         }
 
-        //Send car data to history services fragment
-        HistoryServiceFragment.setDashboardCar(dashboardCar);
-        if (historyServicesFragment != null){
-            historyServicesFragment.onDashboardCarUpdated();
-        }
-
         //Send car data to current services fragment
-        CurrentServicesFragment.setDashboardCar(dashboardCar);
-        if (currentServicesFragment != null){
-            currentServicesFragment.onDashboardCarUpdated();
-        }
+//        CurrentServicesFragment.setDashboardCar(dashboardCar);
+//        if (currentServicesFragment != null){
+//            currentServicesFragment.onDashboardCarUpdated();
+//        }
     }
 
     @Override

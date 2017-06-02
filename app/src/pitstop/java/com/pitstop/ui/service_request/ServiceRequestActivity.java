@@ -29,20 +29,23 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.ui.MainActivity;
 import com.pitstop.ui.service_request.view_fragment.AddCustomIssueDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedDatePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedTimePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.ServiceIssueAdapter;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.ui.ILoadingActivity;
+import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.DateTimeFormatUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,6 +74,7 @@ public class ServiceRequestActivity extends AppCompatActivity
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
+    private UserAdapter userAdapter;
 
     private Car dashboardCar;
     private Calendar mCalendar;
@@ -98,36 +102,57 @@ public class ServiceRequestActivity extends AppCompatActivity
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
 
         application = (GlobalApplication) getApplicationContext();
-        dashboardCar = getIntent().getParcelableExtra(EXTRA_CAR);
+        userAdapter = new UserAdapter(application);
+        networkHelper = new NetworkHelper(application);
+        mixpanelHelper = new MixpanelHelper(application);
+
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
-        mixpanelHelper = new MixpanelHelper(application);
-        networkHelper = new NetworkHelper(application);
 
-        setupUI();
+        setupStaticUI();
+        showLoading(getString(R.string.loading));
+
+        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userAdapter,networkHelper);
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                dashboardCar = car;
+                populateUI();
+                hideLoading(null);
+            }
+
+            @Override
+            public void onError() {
+            }
+        });
+
+
     }
 
-    private void setupUI() {
+    private void setupStaticUI(){
         mDate = (TextView) findViewById(R.id.activity_service_request_date_selection);
         mTime = (TextView) findViewById(R.id.activity_service_request_time_selection);
-
         mDealership = (TextView) findViewById(R.id.activity_service_request_shop_location);
-        mDealership.setText(dashboardCar.getDealership().getName());
+        mIssueList = (RecyclerView) findViewById(R.id.activity_service_request_issue_list);
         mComments = (TextInputEditText) findViewById(R.id.activity_service_request_comments);
+
+        setupCalendar();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
+    }
+
+    private void populateUI() {
+
+        mDealership.setText(dashboardCar.getDealership().getName());
         if (isFirstBooking) mComments.setHint("The name of your salesperson");
 
-        mIssueList = (RecyclerView) findViewById(R.id.activity_service_request_issue_list);
         mIssueAdapter = new ServiceIssueAdapter(this, dashboardCar.getActiveIssues());
         mIssueList.setAdapter(mIssueAdapter);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mIssueList.setLayoutManager(linearLayoutManager);
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setCancelable(false);
-
-        setupCalendar();
     }
 
     private void setupCalendar() {
@@ -147,6 +172,11 @@ public class ServiceRequestActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        if (dashboardCar == null){
+            Toast.makeText(application,"Loading information, please wait",Toast.LENGTH_LONG);
+            return false;
+        }
 
         switch (id) {
             case R.id.send:
@@ -394,7 +424,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                             Smooch.track("User Requested Service");
                             for (CarIssue issue : dashboardCar.getActiveIssues()) {
                                 if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
-                                    networkHelper.servicePending(dashboardCar.getId(), issue.getId(), null);
+                                    networkHelper.setIssuePending(dashboardCar.getId(), issue.getId(), null);
                                 }
                             }
 

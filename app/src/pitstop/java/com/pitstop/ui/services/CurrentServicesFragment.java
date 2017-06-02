@@ -2,11 +2,9 @@ package com.pitstop.ui.services;
 
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -14,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -24,11 +20,6 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -54,13 +45,15 @@ public class CurrentServicesFragment extends SubServiceFragment {
     private RecyclerView.LayoutManager layoutManager;
 
     private LocalCarIssueAdapter carIssueLocalStore;
-    private LocalCarAdapter carLocalStore;
     private LocalCarAdapter localCarStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    public static CurrentServicesFragment newInstance(){
+    private static MainServicesCallback mainServicesCallback;
+
+    public static CurrentServicesFragment newInstance(MainServicesCallback callback){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
+        mainServicesCallback = callback;
         return fragment;
     }
 
@@ -142,9 +135,18 @@ public class CurrentServicesFragment extends SubServiceFragment {
         //carIssuesAdapter.updateTutorial();
     }
 
-    private class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+    public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>
+        implements DatePickerDialog.OnDateSetListener{
 
         private WeakReference<Activity> activityReference;
+
+        private View view;
+        private DatePickerDialog datePickerDialog;
+
+        private CarIssue currentlySelectedIssue;
+        private ViewHolder currentlySelectedHolder;
+
+        private LocalCarAdapter localCarStore;
 
         private Car dashboardCar;
         private List<CarIssue> carIssues;
@@ -155,14 +157,58 @@ public class CurrentServicesFragment extends SubServiceFragment {
             this.dashboardCar = dashboardCar;
             this.carIssues = carIssues;
             Log.d(TAG, "Car issue list size: " + this.carIssues.size());
+            localCarStore = new LocalCarAdapter(activity);
             activityReference = new WeakReference<>(activity);
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
+            view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_issue, parent, false);
-            return new ViewHolder(v);
+
+            return new ViewHolder(view);
+        }
+
+        private void initIssueDoneImageView(CarIssue issue, ViewHolder holder){
+            //Set listener for closing issue
+            final CustomAdapter thisInstance = this;
+            holder.doneImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d(TAG,"Close issue clicked");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                    builder.setMessage("Are you sure you want to move this issue to history?")
+                            .setTitle("Issue Done")
+                            .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                    currentlySelectedHolder = holder;
+                                    currentlySelectedIssue = issue;
+
+                                    //Begin date selection
+                                    Calendar cal = Calendar.getInstance();
+                                    datePickerDialog = new DatePickerDialog(getContext()
+                                            ,thisInstance,cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+                                    datePickerDialog.setTitle("Please select the date when service was completed.");
+                                    //datePickerDialog.updateDate(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+                                    datePickerDialog.show();
+
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //Do nothing, close dialog
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
         }
 
         public CarIssue getItem(int position) {
@@ -185,12 +231,14 @@ public class CurrentServicesFragment extends SubServiceFragment {
                 holder.title.setText("Congrats!");
                 holder.imageView.setImageDrawable(
                         ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_green_400_36dp));
+                holder.doneImageView.setVisibility(View.INVISIBLE);
             } else if (viewType == VIEW_TYPE_TENTATIVE) {
                 holder.description.setMaxLines(2);
                 holder.description.setText("Tap to start");
                 holder.title.setText("Book your first tentative service");
                 holder.imageView.setImageDrawable(
                         ContextCompat.getDrawable(activity, R.drawable.ic_announcement_blue_600_24dp));
+                holder.doneImageView.setVisibility(View.INVISIBLE);
                 holder.container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -200,6 +248,8 @@ public class CurrentServicesFragment extends SubServiceFragment {
                 });
             } else {
                 final CarIssue carIssue = carIssues.get(position);
+
+                initIssueDoneImageView(carIssue,holder);
 
                 holder.description.setText(carIssue.getDescription());
                 holder.description.setEllipsize(TextUtils.TruncateAt.END);
@@ -255,11 +305,37 @@ public class CurrentServicesFragment extends SubServiceFragment {
             return carIssues.size();
         }
 
+        @Override
+        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year,month,day);
+
+            currentlySelectedIssue.setDoneAt(DateTimeFormatUtil.formatToISO8601(calendar)); //Update this with a proper date
+            currentlySelectedIssue.setStatus(CarIssue.ISSUE_DONE);
+
+            //Remove issue
+            carIssueList.remove(currentlySelectedHolder.getAdapterPosition());
+            notifyDataSetChanged();
+
+            //Update backend and local storage
+            int mileage = (int)(localCarStore.getCar(currentlySelectedIssue.getCarId())).getTotalMileage();
+            int daysToday = (int)TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
+            int serviceDay = (int)TimeUnit.MILLISECONDS.toDays(calendar.getTimeInMillis());
+            int daysAgo = daysToday - serviceDay;
+
+            networkHelper.serviceDone(currentlySelectedIssue.getCarId()
+                    ,currentlySelectedIssue.getId(),daysAgo,mileage,null);
+            carIssueLocalStore.updateCarIssue(currentlySelectedIssue);
+
+            mainServicesCallback.onServiceDone(currentlySelectedIssue);
+        }
+
         public  class ViewHolder extends RecyclerView.ViewHolder {
             // each data item is just a string in this case
             public TextView title;
             public TextView description;
             public ImageView imageView;
+            public ImageView doneImageView;
             public View container;
             public View date; // Not used here so it is set to GONE
 
@@ -270,6 +346,7 @@ public class CurrentServicesFragment extends SubServiceFragment {
                 imageView = (ImageView) v.findViewById(R.id.image_icon);
                 container = v.findViewById(R.id.list_car_item);
                 date = v.findViewById(R.id.date);
+                doneImageView = (ImageView)v.findViewById(R.id.image_done_issue);
             }
         }
     }

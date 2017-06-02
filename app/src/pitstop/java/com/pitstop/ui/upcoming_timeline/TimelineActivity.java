@@ -108,8 +108,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     private void fetchData() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        String carId = String.valueOf(mCar.getId());
-        mNetworkHelper.getCarTimeline(carId, new RequestCallback() {
+        mNetworkHelper.getUpcomingCarIssues(mCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (response != null && requestError == null) {

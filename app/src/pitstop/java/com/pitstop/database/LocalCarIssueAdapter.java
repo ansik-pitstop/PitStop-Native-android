@@ -67,6 +67,22 @@ public class LocalCarIssueAdapter {
         return rows;
     }
 
+    public CarIssue getCarIssue(int issueId){
+
+        CarIssue carIssue = null;
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
+                TABLES.COMMON.KEY_ID+"=?",new String[]{String.valueOf(issueId)},null,null,null);
+
+        if(c.moveToFirst()) {
+            carIssue = cursorToCarIssue(c);
+        }
+        db.close();
+
+        return carIssue;
+    }
+
     public ArrayList<CarIssue> getAllCarIssues(int carId) {
 
         ArrayList<CarIssue> carIssues = new ArrayList<>();

@@ -398,7 +398,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     recentCar.setCurrentCar(true);
                     localCarAdapter.updateCar(recentCar);
 
-                    //Send update to network
+                    //Send updateCarIssue to network
                     networkHelper.setMainCar(currentUser.getId(), car.getId(), null);
                     listener.localUpdatePerformed();
 
@@ -459,7 +459,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     listener.localUpdatePerformed();
                                                 } else {
                                                     loadingCallback.hideLoading("An error occurred, please try again.");
-                                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
                                                 }
                                             }
                                         });

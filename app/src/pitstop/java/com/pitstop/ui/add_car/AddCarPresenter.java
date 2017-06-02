@@ -612,7 +612,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void getBluetoothState(int state) {
-        Log.i(TAG, "Bluetooth state update");
+        Log.i(TAG, "Bluetooth state updateCarIssue");
         switch (state) {
             case BluetoothCommunicator.CONNECTED:
                 // Successfully connected to OBD device
