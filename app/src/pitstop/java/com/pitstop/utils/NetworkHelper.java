@@ -703,14 +703,20 @@ public class NetworkHelper {
         getUserSettingsById(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                try{
-                    JSONObject options = new JSONObject(response);
-                    int mainCarId = options.getJSONObject("user").getInt("mainCar");
-                    getCarsById(mainCarId,callback);
+                if (requestError != null){
+                    try{
+                        JSONObject options = new JSONObject(response);
+                        int mainCarId = options.getJSONObject("user").getInt("mainCar");
+                        getCarsById(mainCarId,callback);
+                    }
+                    catch(JSONException e){
+                        Log.d("TAG","JSONException Caught!");
+                    }
                 }
-                catch(JSONException e){
-                    Log.d("TAG","JSONException Caught!");
+                else{
+                    callback.done(response,requestError);
                 }
+
 
             }
         });
