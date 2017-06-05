@@ -184,7 +184,7 @@
 
     <!--Dashboard-->
     <string name="mileage_title">Mileage</string>
-    <string name="mileage_subtitle">Tap here to manually update you mileage</string>
+    <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
     <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
     <string name="highway_title">Highway</string>
