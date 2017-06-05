@@ -16,8 +16,10 @@ import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetDoneServicesUseCase;
-import com.pitstop.interactors.GetDoneServicesUseCaseImpl;
 import com.pitstop.models.CarIssue;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
@@ -28,6 +30,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,6 +60,9 @@ public class HistoryServiceFragment extends Fragment {
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
     ArrayList<String> headers;
 
+    @Inject
+    GetDoneServicesUseCase getDoneServicesUseCase;
+
     public HistoryServiceFragment() {
         // Required empty public constructor
     }
@@ -70,10 +77,11 @@ public class HistoryServiceFragment extends Fragment {
         super.onCreate(savedInstanceState);
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
-        networkHelper = new NetworkHelper(application);
-        userAdapter = new UserAdapter(application);
-        localCarIssueAdapter = new LocalCarIssueAdapter(application);
 
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(this);
     }
 
     @Nullable
@@ -165,8 +173,6 @@ public class HistoryServiceFragment extends Fragment {
 
     private void updateUI(){
 
-        GetDoneServicesUseCase getDoneServicesUseCase
-                = new GetDoneServicesUseCaseImpl(userAdapter,localCarIssueAdapter,networkHelper);
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
             @Override
             public void onGotDoneServices(List<CarIssue> doneServices) {
