@@ -1,8 +1,7 @@
 package com.pitstop.adapters;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -21,13 +20,11 @@ import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
-import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.List;
 
@@ -36,17 +33,21 @@ import java.util.List;
  */
 public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServicesAdapter.ViewHolder> {
 
-    private WeakReference<Activity> activityReference;
+    private Context context;
 
+    private MainActivityCallback mainActivityCallback;
     private Car dashboardCar;
     private List<CarIssue> carIssues;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
+    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Context context
+            ,MainActivityCallback tutorialCallback) {
+
+        this.mainActivityCallback = tutorialCallback;
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
-        activityReference = new WeakReference<>(activity);
+        this.context = context;
     }
 
 
@@ -65,8 +66,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         //Log.i(TAG,"On bind view holder");
-        if (activityReference.get() == null) return;
-        final Activity activity = activityReference.get();
+        if (context == null) return;
 
         int viewType = getItemViewType(position);
 
@@ -78,18 +78,18 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.description.setText("You have no pending Engine Code, Recalls or Services");
             holder.title.setText("Congrats!");
             holder.imageView.setImageDrawable(
-                    ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_green_400_36dp));
+                    ContextCompat.getDrawable(context, R.drawable.ic_check_circle_green_400_36dp));
         } else if (viewType == VIEW_TYPE_TENTATIVE) {
             holder.description.setMaxLines(2);
             holder.description.setText("Tap to start");
             holder.title.setText("Book your first tentative service");
             holder.imageView.setImageDrawable(
-                    ContextCompat.getDrawable(activity, R.drawable.ic_announcement_blue_600_24dp));
+                    ContextCompat.getDrawable(context, R.drawable.ic_announcement_blue_600_24dp));
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // removeTutorial();
-                    ((MainActivity) activity).prepareAndStartTutorialSequence();
+                    mainActivityCallback.prepareAndStartTutorialSequence();
                 }
             });
         } else {
@@ -99,19 +99,19 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.description.setEllipsize(TextUtils.TruncateAt.END);
             if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
                 holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(activity, R.drawable.ic_error_red_600_24dp));
+                        .getDrawable(context, R.drawable.ic_error_red_600_24dp));
 
             } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
                 holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(activity, R.drawable.car_engine_red));
+                        .getDrawable(context, R.drawable.car_engine_red));
 
             } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
                 holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(activity, R.drawable.car_engine_yellow));
+                        .getDrawable(context, R.drawable.car_engine_yellow));
             } else {
                 holder.description.setText(carIssue.getDescription());
                 holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(activity, R.drawable.ic_warning_amber_300_24dp));
+                        .getDrawable(context, R.drawable.ic_warning_amber_300_24dp));
             }
 
             holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
@@ -119,13 +119,10 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new MixpanelHelper((GlobalApplication) activity.getApplicationContext())
+                    new MixpanelHelper((GlobalApplication) context.getApplicationContext())
                             .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
 
-                    Intent intent = new Intent(activity, IssueDetailsActivity.class);
-                    intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                    intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
-                    activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+                    mainActivityCallback.startDisplayIssueActivity(dashboardCar,carIssue);
                 }
             });
 
@@ -135,7 +132,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                 public void onClick(View view) {
 
                     //When clicked show date picker
-                    DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(activity
+                    DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(context
                             , Calendar.getInstance(), new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker datePicker, int year, int month, int day) {
@@ -146,12 +143,12 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
 
                             //When the date is set, update issue to done on that date
                             MarkServiceDoneUseCase markServiceDoneUseCase
-                                    = new MarkServiceDoneUseCaseImpl(new LocalCarIssueAdapter(activity)
-                                    ,new NetworkHelper(activity));
+                                    = new MarkServiceDoneUseCaseImpl(new LocalCarIssueAdapter(context)
+                                    ,new NetworkHelper(context.getApplicationContext()));
                             markServiceDoneUseCase.execute(carIssue, new MarkServiceDoneUseCase.Callback() {
                                 @Override
                                 public void onServiceMarkedAsDone() {
-                                    Toast.makeText(activity.getApplicationContext(),"Successfully marked service as done"
+                                    Toast.makeText(context,"Successfully marked service as done"
                                             ,Toast.LENGTH_LONG);
                                     carIssues.remove(carIssue);
                                     notifyDataSetChanged();

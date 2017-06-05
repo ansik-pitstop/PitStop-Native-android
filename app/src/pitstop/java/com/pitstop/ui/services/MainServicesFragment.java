@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 
 public class MainServicesFragment extends Fragment implements MainFragmentCallback{

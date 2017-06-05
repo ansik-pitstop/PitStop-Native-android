@@ -153,7 +153,6 @@ public class HistoryServiceFragment extends Fragment {
         });
     }
 
-
     private void initUI(){
         addedIssues = new ArrayList<>();
         headers = new ArrayList<>();

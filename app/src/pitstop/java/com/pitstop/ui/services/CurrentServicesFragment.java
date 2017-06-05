@@ -22,6 +22,7 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
@@ -81,7 +82,8 @@ public class CurrentServicesFragment extends Fragment{
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList, activity);
+                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList, getContext()
+                        ,(MainActivityCallback)activity);
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
                 updateUI();

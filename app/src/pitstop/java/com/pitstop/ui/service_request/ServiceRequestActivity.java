@@ -37,7 +37,7 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.ILoadingActivity;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.view_fragment.AddCustomIssueDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedDatePickerDialog;
 import com.pitstop.ui.service_request.view_fragment.LimitedTimePickerDialog;

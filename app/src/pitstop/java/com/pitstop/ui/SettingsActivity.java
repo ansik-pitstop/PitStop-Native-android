@@ -43,6 +43,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -53,9 +54,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pitstop.ui.MainActivity.CAR_EXTRA;
-import static com.pitstop.ui.MainActivity.RC_ADD_CAR;
-import static com.pitstop.ui.MainActivity.REFRESH_FROM_SERVER;
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
+import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
+import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
 
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 
 /**
  * Created by David Liu on 11/30/2015.

@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.pitstop.R;
 
-import static com.pitstop.ui.MainActivity.RC_ADD_CAR;
+import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 public class PromptAddCarActivity extends AppCompatActivity {
 

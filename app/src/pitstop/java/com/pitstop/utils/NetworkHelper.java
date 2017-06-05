@@ -738,6 +738,9 @@ public class NetworkHelper {
                         e.printStackTrace();
                     }
                 }
+                else{
+                    callback.done(response,requestError);
+                }
             }
         });
     }

@@ -13,7 +13,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.CarHistoryActivity;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.MixpanelHelper;

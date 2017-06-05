@@ -1,4 +1,4 @@
-package com.pitstop.ui;
+package com.pitstop.ui.main_activity;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -68,8 +68,13 @@ import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.CarHistoryActivity;
+import com.pitstop.ui.DealershipActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
@@ -107,7 +112,8 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener {
+public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener
+        , MainActivityCallback {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -1464,6 +1470,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
      * <li>String unit</li>
      * </ul>
      */
+
     public void prepareAndStartTutorialSequence() {
         if (!checkDealership()) return;
 
@@ -1508,6 +1515,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
         });
+    }
+
+    @Override
+    public void startDisplayIssueActivity(Car dashboardCar, CarIssue issue) {
+        Intent intent = new Intent(this, IssueDetailsActivity.class);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+        startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
     }
 
     /**

@@ -21,14 +21,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.utils.MixpanelHelper;
-
-import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;

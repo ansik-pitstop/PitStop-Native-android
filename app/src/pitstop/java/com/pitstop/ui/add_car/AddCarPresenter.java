@@ -33,7 +33,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
