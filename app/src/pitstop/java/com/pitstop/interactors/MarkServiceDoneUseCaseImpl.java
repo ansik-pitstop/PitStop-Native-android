@@ -14,9 +14,11 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
+    private Handler handler;
 
-    public MarkServiceDoneUseCaseImpl(CarIssueRepository carIssueRepository){
+    public MarkServiceDoneUseCaseImpl(CarIssueRepository carIssueRepository, Handler handler){
         this.carIssueRepository = carIssueRepository;
+        this.handler = handler;
     }
 
     @Override
@@ -39,6 +41,6 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     public void execute(CarIssue carIssue, Callback callback) {
         this.carIssue = carIssue;
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 }

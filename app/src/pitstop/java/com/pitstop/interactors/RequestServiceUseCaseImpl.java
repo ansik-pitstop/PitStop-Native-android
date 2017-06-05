@@ -14,9 +14,11 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
+    private Handler handler;
 
-    public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository) {
+    public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository, Handler handler) {
         this.carIssueRepository = carIssueRepository;
+        this.handler = handler;
     }
 
     @Override
@@ -39,6 +41,6 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     public void execute(CarIssue carIssue, Callback callback) {
         this.callback = callback;
         this.carIssue = carIssue;
-        new Handler().post(this);
+        handler.post(this);
     }
 }

@@ -17,17 +17,19 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
+    private Handler handler;
 
     public GetDoneServicesUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository) {
+            , CarIssueRepository carIssueRepository, Handler handler) {
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override

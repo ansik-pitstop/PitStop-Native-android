@@ -14,16 +14,18 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private CarRepository carRepository;
     private Car car;
     private Callback callback;
+    private Handler handler;
 
-    public RemoveCarUseCaseImpl(CarRepository carRepository){
+    public RemoveCarUseCaseImpl(CarRepository carRepository, Handler handler){
         this.carRepository = carRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override

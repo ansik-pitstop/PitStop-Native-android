@@ -12,18 +12,20 @@ import com.pitstop.repositories.CarRepository;
 public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private CarRepository carRepository;
+    private Handler handler;
     private Car car;
     private Callback callback;
 
-    public AddCarUseCaseImpl(CarRepository carRepository){
+    public AddCarUseCaseImpl(CarRepository carRepository, Handler handler){
         this.carRepository = carRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override

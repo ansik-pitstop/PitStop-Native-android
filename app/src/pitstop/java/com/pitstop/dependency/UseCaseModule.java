@@ -1,5 +1,7 @@
 package com.pitstop.dependency;
 
+import android.os.Handler;
+
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
@@ -27,51 +29,54 @@ import dagger.Provides;
  * Created by Karol Zdebel on 6/5/2017.
  */
 
-@Module(includes = RepositoryModule.class)
+@Module(includes = {RepositoryModule.class, HandlerModule.class} )
 public class UseCaseModule {
 
     @Provides
-    AddCarUseCase addCarUseCase(CarRepository carRepository){
-        return new AddCarUseCaseImpl(carRepository);
+    AddCarUseCase addCarUseCase(CarRepository carRepository, Handler handler){
+        return new AddCarUseCaseImpl(carRepository, handler);
     }
 
     @Provides
     GetCurrentServicesUseCase getCurrentServicesUseCase(UserRepository userRepository
-            , CarIssueRepository carIssueRepository){
+            , CarIssueRepository carIssueRepository, Handler handler){
 
-        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository);
+        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository, handler);
     }
 
     @Provides
     GetDoneServicesUseCase getDoneServicesUseCase(UserRepository userRepository
-            , CarIssueRepository carIssueRepository){
+            , CarIssueRepository carIssueRepository, Handler handler){
 
-        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository);
+        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository, handler);
     }
 
     @Provides
-    GetUserCarUseCase getUserCarUseCase(UserRepository userRepository){
-        return new GetUserCarUseCaseImpl(userRepository);
+    GetUserCarUseCase getUserCarUseCase(UserRepository userRepository, Handler handler){
+        return new GetUserCarUseCaseImpl(userRepository, handler);
     }
 
     @Provides
-    MarkServiceDoneUseCase markServiceDoneUseCase(CarIssueRepository carIssueRepository){
-        return new MarkServiceDoneUseCaseImpl(carIssueRepository);
+    MarkServiceDoneUseCase markServiceDoneUseCase(CarIssueRepository carIssueRepository
+            , Handler handler){
+
+        return new MarkServiceDoneUseCaseImpl(carIssueRepository, handler);
     }
 
     @Provides
-    RemoveCarUseCase removeCarUseCase(CarRepository carRepository){
-        return new RemoveCarUseCaseImpl(carRepository);
+    RemoveCarUseCase removeCarUseCase(CarRepository carRepository, Handler handler){
+        return new RemoveCarUseCaseImpl(carRepository,handler);
     }
 
     @Provides
-    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository){
-        return new RequestServiceUseCaseImpl(carIssueRepository);
+    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
+            , Handler handler){
+        return new RequestServiceUseCaseImpl(carIssueRepository, handler);
     }
 
     @Provides
-    SetUserCarUseCase setUseCarUseCase(UserRepository userRepository){
-        return new SetUserCarUseCaseImpl(userRepository);
+    SetUserCarUseCase setUseCarUseCase(UserRepository userRepository, Handler handler){
+        return new SetUserCarUseCaseImpl(userRepository, handler);
     }
 
 }
