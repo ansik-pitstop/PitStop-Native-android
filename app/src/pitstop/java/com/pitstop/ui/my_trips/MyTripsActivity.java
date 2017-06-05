@@ -699,9 +699,6 @@ public class MyTripsActivity extends AppCompatActivity{
                     Toast.makeText(application, "Unable to share trip", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
