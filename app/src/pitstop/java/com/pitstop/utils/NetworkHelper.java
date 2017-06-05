@@ -865,7 +865,7 @@ public class NetworkHelper {
     public void getRandomVin(RequestCallback callback) {
         getWithCustomUrl("http://randomvin.com", "/getvin.php?type=valid", callback);
     }
-    public void postTripStep1(Trip trip,String vin,RequestCallback callback){//still need to add post statement
+    public void postTripStep1(Trip trip,String vin,RequestCallback callback){
         JSONObject body = new JSONObject();
         try {
             body.put("vin", vin);
@@ -877,12 +877,11 @@ public class NetworkHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println("testing "+body);
         post("scan/trip",callback,body);
 
     }
 
-    public void postTripStep2(Trip trip,RequestCallback callback){//still need to add post
+    public void postTripStep2(Trip trip,RequestCallback callback){
         JSONObject body = new JSONObject();
         JSONArray pidArray = new JSONArray();
         try {
@@ -897,7 +896,6 @@ public class NetworkHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println("Testing "+body);
         post("scan/pids",callback,body);
     }
 

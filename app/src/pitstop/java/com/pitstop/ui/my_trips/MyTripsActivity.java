@@ -2,11 +2,10 @@ package com.pitstop.ui.my_trips;
 
 
 
+import android.Manifest;
+import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +29,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -57,7 +57,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -82,8 +81,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -110,7 +109,6 @@ public class MyTripsActivity extends AppCompatActivity{
 
     private boolean tripStarted = false;
     private Car dashboardCar;
-    private MenuItem endTripButton;
     private MenuItem shareTripButton;
     private Location lastKnownLocation;
     private double totalDistance;
@@ -120,6 +118,7 @@ public class MyTripsActivity extends AppCompatActivity{
     private BroadcastReceiver broadcastReceiver;
     private LocalTripAdapter localTripAdapter;
 
+    private Gson gson = new Gson();
 
 
     private static final long MIN_TIME = 1000;
@@ -130,7 +129,8 @@ public class MyTripsActivity extends AppCompatActivity{
     private int lineColor;
     private boolean isMerc;
     public ProgressDialog loading;
-    boolean isTaskRunning;
+    private boolean isTaskRunning;
+    private boolean activityActive;
 
 
     private static final double KMH_FACTOR = 3600/1000;
@@ -165,27 +165,25 @@ public class MyTripsActivity extends AppCompatActivity{
         localTripAdapter = new LocalTripAdapter(this);
         locallyStoredTrips = localTripAdapter.getAllTrips();
 
-        //localTripAdapter = new LocalTripAdapter(this);
-        //localTripAdapter.getAllTrips();
-
-
         networkHelper = new NetworkHelper(application);
         geocoder = new Geocoder(application);
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         tripStarted = false;
 
-        if(dashboardCar.getDealership() != null) {
-            if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4 || dashboardCar.getDealership().getId() == 18)) {
-                setMerc();
-            } else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
-                setMerc();
-            } else {
-                TypedValue defaultColor = new TypedValue();
-                getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
-                startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
-                endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
-                lineColor = defaultColor.data;
-                isMerc = false;
+        if(dashboardCar != null) {
+            if(dashboardCar.getDealership() != null){
+                if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4 || dashboardCar.getDealership().getId() == 18)) {
+                    setMerc();
+                } else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+                    setMerc();
+                } else {
+                    TypedValue defaultColor = new TypedValue();
+                    getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
+                    startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
+                    endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
+                    lineColor = defaultColor.data;
+                    isMerc = false;
+                }
             }
         }else{
             TypedValue defaultColor = new TypedValue();
@@ -224,12 +222,9 @@ public class MyTripsActivity extends AppCompatActivity{
         broadcastReceiver = new BroadcastReceiver() {//come out of background
             @Override
             public void onReceive(Context context, Intent intent) {
-                Gson gson = new Gson();
-                Type locListType = new TypeToken<List<TripLocation>>(){}.getType();
-                List<Location> locations = gson.fromJson(intent.getStringExtra("Location"),locListType);
-                if(locations != null && locations.size()>0) {
-                    updateFromBackground(locations);
-                    zoomLocation(locations.get(locations.size()-1));
+               Trip serviceTrip = gson.fromJson(intent.getStringExtra("Trip"),Trip.class);
+                if(serviceTrip != null && serviceTrip.getPath().size()>0) {
+                    updateFromBackground(serviceTrip);
                 }
             }
         };
@@ -248,39 +243,52 @@ public class MyTripsActivity extends AppCompatActivity{
         loading = new ProgressDialog(MyTripsActivity.this);
         loading.setMessage("loading");
         loading.hide();
-
+        boolean isServiceRunning = isMyServiceRunning(TripService.class);
         supMapFragment = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
                 googleMap = map;
-                setViewTripHistory();
+                if(isServiceRunning) {
+                    Intent intent = new Intent(getApplicationContext(), TripService.class);
+                    stopService(intent);
+                }else{
+                    setViewTripHistory();
+                }
             }
         });
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+        activityActive = true;
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        activityActive = false;
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(tripStarted){//start service
-            Intent notificationIntent = new Intent(getApplicationContext(), MyTripsActivity.class);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-            Notification.Builder builder = new Notification.Builder(getApplicationContext());
-            builder.setContentTitle("Pitstop Trip Tracking");
-            builder.setContentText("Your trip is still being tracked");
-            builder.setTicker("Fancy Notification");
-            builder.setContentIntent(intent);
-            builder.setSmallIcon(R.drawable.ic_directions_car_white_24dp);
-            builder.setOngoing(true);
-            builder.setAutoCancel(true);
-            Notification notification = builder.build();
-            NotificationManager notificationManger =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManger.notify(154, notification);
-            Intent serviceIntent = new Intent(getApplicationContext(),TripService.class);
-            startService(serviceIntent);
-        }
+        backGroundTrip();
     }
     @Override
     protected void onRestart() {//get data from service
@@ -289,9 +297,7 @@ public class MyTripsActivity extends AppCompatActivity{
             Intent intent = new Intent(getApplicationContext(), TripService.class);
             stopService(intent);
         }
-        NotificationManager notificationManger =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManger.cancel(154);
+
     }
 
 
@@ -348,7 +354,7 @@ public class MyTripsActivity extends AppCompatActivity{
         List<Address> addresses = null;
         try{
             addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
-            if(addresses.get(0) != null){
+            if(addresses.size()>0){
                 return addresses.get(0).getAddressLine(0)+" "+addresses.get(0).getAddressLine(1)+" "+addresses.get(0).getAddressLine(2);
             }
         } catch (IOException e){
@@ -375,9 +381,6 @@ public class MyTripsActivity extends AppCompatActivity{
     }
 
     public void leaveMap(){
-        if(endTripButton != null ){
-            endTripButton.setVisible(false);
-        }
         if(supMapFragment.getView() != null){
             getSupportFragmentManager().beginTransaction().hide(supMapFragment).commit();
         }
@@ -387,6 +390,7 @@ public class MyTripsActivity extends AppCompatActivity{
         if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
            googleMap.setMyLocationEnabled(false);
         }
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.home_as_upindicator);
         tripStarted = false;
     }
 
@@ -423,16 +427,31 @@ public class MyTripsActivity extends AppCompatActivity{
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
     }
 
-     private void updateFromBackground(List<Location> locations){
+
+
+     private void updateFromBackground(Trip serviceTrip){//everything you need to do when you resume a trip
+         if(!activityActive){
+             return;
+         }
+         getInitialLocation();
+         trip = serviceTrip;
+         tripStarted = true;
+         tripView.setAddress(trip.getStartAddress());
+         tripView.setStartTime(trip.getStart().getTime());
+         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
+         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
+         fragmentTransaction.replace(R.id.trip_view_holder, tripView);
+         fragmentTransaction.commit();
+         getSupportActionBar().setTitle("Trip View");
          PolylineOptions prevPath = new PolylineOptions();
          prevPath.color(lineColor);
-         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-         for (Location loc : locations) {
-             trip.addPoint(new TripLocation(loc));
+         for (TripLocation loc : trip.getPath()) {
              LatLng latlng = new LatLng(loc.getLatitude(), loc.getLongitude());
              prevPath.add(latlng);
-             builder.include(latlng);
          }
+         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.activity_bottom_down_in,R.anim.activity_bottom_down_out).show(supMapFragment).commit();
+         googleMap.clear();
          googleMap.addPolyline(prevPath);
      }
 
@@ -519,6 +538,8 @@ public class MyTripsActivity extends AppCompatActivity{
         tripView.setAddress(getAddress(lastKnownLocation));
         trip.setStartAddress(getAddress(lastKnownLocation));
         trip.setStart(new TripLocation(lastKnownLocation));
+        trip.getStart().setTime(System.currentTimeMillis());
+        tripView.setStartTime(trip.getStart().getTime());
         trip.addPoint(tripLoc);
         networkHelper.postTripStep1(trip,dashboardCar.getVin(),new RequestCallback() {
             @Override
@@ -533,7 +554,7 @@ public class MyTripsActivity extends AppCompatActivity{
                         fragmentTransaction.replace(R.id.trip_view_holder, tripView);
                         fragmentTransaction.commit();
                         getSupportActionBar().setTitle("Trip View");
-                        endTripButton.setVisible(true);
+                        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
                         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.activity_bottom_down_in,R.anim.activity_bottom_down_out).show(supMapFragment).commit();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -588,23 +609,47 @@ public class MyTripsActivity extends AppCompatActivity{
             } else if (addTrip.isVisible()) {
                 setViewTripHistory();
             } else if (tripView.isVisible()) {
-                setViewAddTrip();
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyTripsActivity.this);
+                alertDialogBuilder.setTitle("Cancel your trip");
+                alertDialogBuilder
+                        .setMessage("Are you sure you want to cancel your trip? Your Trip data will be lost.")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                               setViewTripHistory();
+                            }
+                        })
+                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             } else if (prevTripView.isVisible()) {
                 shareTripButton.setVisible(false);
                 setViewTripHistory();
             }
-        } else if (id == R.id.end_trip) {//end trip
-            endTrip();
         } else if (id == R.id.share_trip) {
-            GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
-                @Override
-                public void onSnapshotReady(Bitmap snapshot) {
-                    if(prevTripView.isVisible()){
-                        shareTrip(snapshot);
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        179);
+            }else{
+                GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+                    @Override
+                    public void onSnapshotReady(Bitmap snapshot) {
+                        if(prevTripView.isVisible()){
+                            Random r = new Random();
+                            shareTrip(snapshot,Integer.toString(r.nextInt(1000000)));
+                        }
                     }
-                }
-            };
-            googleMap.snapshot(callback);
+                };
+                googleMap.snapshot(callback);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -630,26 +675,55 @@ public class MyTripsActivity extends AppCompatActivity{
         shareTripButton.setVisible(false);
     }
 
-    private void shareTrip(Bitmap bitmapMap){
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 179: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+                        @Override
+                        public void onSnapshotReady(Bitmap snapshot) {
+                            if(prevTripView.isVisible()){
+                                Random r = new Random();
+                                shareTrip(snapshot,Integer.toString(r.nextInt(1000000)));
+                            }
+                        }
+                    };
+                    googleMap.snapshot(callback);
+                } else {
+                    Toast.makeText(application, "Unable to share trip", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    void shareTrip(Bitmap bitmapMap, String fileName){
         View v1 = prevTripView.getView();
         v1.setDrawingCacheEnabled(true);
         Bitmap bitmapAll = Bitmap.createBitmap(v1.getDrawingCache());
         v1.setDrawingCacheEnabled(false);
-
         Bitmap bitmap = combineImages(bitmapAll,bitmapMap);
 
-        File imagePath = new File(Environment.getExternalStorageDirectory() + "/trip.jpg");
+        final String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Pitstop";
+        File dir = new File(dirPath);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        File file = new File(dirPath, fileName+".jpg");
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(imagePath);
+            fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Uri uri = Uri.fromFile(imagePath);
+        Uri uri = Uri.fromFile(file);
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("image/*");
         String shareBody = prevTripView.getAddresses();
@@ -662,9 +736,15 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_trip_navbar, menu);
-        endTripButton = menu.findItem(R.id.end_trip);
         shareTripButton = menu.findItem(R.id.share_trip);
         return true;
+    }
+    private void backGroundTrip(){
+        if(tripStarted){
+            Intent serviceIntent = new Intent(getApplicationContext(),TripService.class);
+            serviceIntent.putExtra("Trip",gson.toJson(trip));
+            startService(serviceIntent);
+        }
     }
 
     @Override
@@ -674,7 +754,8 @@ public class MyTripsActivity extends AppCompatActivity{
         } else if(addTrip.isVisible()){
             setViewTripHistory();
         } else if(tripView.isVisible()){
-            setViewAddTrip();
+            backGroundTrip();
+            super.onBackPressed();
         }else if(prevTripView.isVisible()){
             setViewTripHistory();
             shareTripButton.setVisible(false);

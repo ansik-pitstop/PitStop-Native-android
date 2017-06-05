@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -26,6 +27,8 @@ public class TripView extends Fragment {
     private DecimalFormat decimalFormat;
     private TextView currentDistanceTextView;
     private TextView currentSpeedTextView;
+    private Long startTime;
+    private Button saveTrip;
 
     private TextView startTitle;
     private TextView currentTitle;
@@ -37,6 +40,10 @@ public class TripView extends Fragment {
 
     public void setAddress(String address){
         initialAddress = address;
+    }
+    public void setStartTime(Long time){
+        startTime = time;
+
     }
     public void setSpeed(double speed){
         if(getView() != null){
@@ -60,19 +67,29 @@ public class TripView extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         decimalFormat = new DecimalFormat("0.00");
-        Date startTime  = new Date(System.currentTimeMillis());
-
         color = ((MyTripsActivity)getActivity()).getLineColor();
+        saveTrip = (Button) getView().findViewById(R.id.save_trip);
         startTitle = (TextView) getView().findViewById(R.id.starting_point_title);
         currentTitle = (TextView) getView().findViewById(R.id.current_stats_title);
+        saveTrip.setBackgroundColor(color);
         startTitle.setTextColor(color);
         currentTitle.setTextColor(color);
+        saveTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MyTripsActivity)getActivity()).endTrip();
+            }
+        });
 
         TextView startTimeTextView = (TextView) getView().findViewById(R.id.starting_time);
-        startTimeTextView.setText(dateFormat(startTime.toString()));
+        startTimeTextView.setText(dateFormat(startTime));
         TextView addressTextView = (TextView) getView().findViewById(R.id.starting_point_address);
         addressTextView.setText(initialAddress);
         super.onActivityCreated(savedInstanceState);
+    }
+    private String dateFormat(Long date) {
+        SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
+        return newFormat.format(date);
     }
 
     private String dateFormat(String date){
