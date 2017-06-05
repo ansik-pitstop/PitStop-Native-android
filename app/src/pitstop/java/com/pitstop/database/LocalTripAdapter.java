@@ -80,6 +80,7 @@ public class LocalTripAdapter {
             }
         }
         db.close();
+        c.close();
         return trips;
     }
 
@@ -98,6 +99,7 @@ public class LocalTripAdapter {
             trip = cursorToTripWithPath(c);
         }
         db.close();
+        c.close();
         return trip;
     }
 
