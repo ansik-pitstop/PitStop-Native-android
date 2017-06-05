@@ -54,8 +54,10 @@ public class AddTrip extends Fragment {
         isMerc = ((MyTripsActivity)getActivity()).getMerc();
         color = ((MyTripsActivity)getActivity()).getLineColor();
         TextView carTextView = (TextView)getView().findViewById(R.id.car_for_trip);
-        carTextView.setText(dashCar.getYear()+" "+dashCar.getModel());
 
+        if(dashCar != null){
+            carTextView.setText(dashCar.getYear()+" "+dashCar.getModel());
+        }
         decimalFormat = new DecimalFormat("0.00");
 
         backCard = (CardView) getView().findViewById(R.id.back_ground_card);
@@ -93,6 +95,7 @@ public class AddTrip extends Fragment {
         startTrip.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 ((MyTripsActivity)getActivity()).setViewTripView();
+                startTrip.setClickable(false);
             }
         });
     }

@@ -28,4 +28,8 @@ public class TripLocation {
     public long getTime(){
         return time;
     }
+
+    public void setTime(Long time){
+        this.time = time;
+    }
 }
