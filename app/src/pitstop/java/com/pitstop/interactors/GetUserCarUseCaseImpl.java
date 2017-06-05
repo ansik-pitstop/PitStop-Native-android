@@ -2,10 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -13,13 +11,11 @@ import com.pitstop.utils.NetworkHelper;
 
 public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
+    private UserRepository userRepository;
     private Callback callback;
 
-    public GetUserCarUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
-        this.userAdapter = userAdapter;
-        this.networkHelper = networkHelper;
+    public GetUserCarUseCaseImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -30,8 +26,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     @Override
     public void run() {
-        UserRepository.getInstance(userAdapter,networkHelper)
-                .getUserCar(new UserRepository.UserGetCarCallback(){
+        userRepository.getUserCar(new UserRepository.UserGetCarCallback(){
 
             @Override
             public void onGotCar(Car car){

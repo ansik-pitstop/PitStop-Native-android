@@ -2,10 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -13,20 +11,17 @@ import com.pitstop.utils.NetworkHelper;
 
 public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
-    private LocalCarIssueAdapter localCarIssueAdapter;
-    private NetworkHelper networkHelper;
+    private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
 
-    public RequestServiceUseCaseImpl(LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper) {
-        this.localCarIssueAdapter = localCarIssueAdapter;
-        this.networkHelper = networkHelper;
+    public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository) {
+        this.carIssueRepository = carIssueRepository;
     }
 
     @Override
     public void run() {
-        CarIssueRepository.getInstance(localCarIssueAdapter,networkHelper)
-            .insert(carIssue,new CarIssueRepository.CarIssueInsertCallback(){
+        carIssueRepository.insert(carIssue,new CarIssueRepository.CarIssueInsertCallback(){
 
                 @Override
                 public void onCarIssueAdded() {
