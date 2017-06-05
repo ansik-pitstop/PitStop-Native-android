@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -78,7 +77,6 @@ public class ServiceRequestActivity extends AppCompatActivity
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
-    private UserAdapter userAdapter;
 
     private Car dashboardCar;
     private Calendar mCalendar;
@@ -109,13 +107,14 @@ public class ServiceRequestActivity extends AppCompatActivity
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
 
         application = (GlobalApplication) getApplicationContext();
+        networkHelper = new NetworkHelper(getApplicationContext());
         mixpanelHelper = new MixpanelHelper(application);
 
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(this))
+                .contextModule(new ContextModule(getApplicationContext()))
                 .build();
 
         component.injectUseCases(this);
