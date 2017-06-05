@@ -703,7 +703,7 @@ public class NetworkHelper {
         getUserSettingsById(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if (requestError != null){
+                if (requestError == null){
                     try{
                         JSONObject options = new JSONObject(response);
                         int mainCarId = options.getJSONObject("user").getInt("mainCar");
