@@ -13,15 +13,17 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     private UserRepository userRepository;
     private Callback callback;
+    private Handler handler;
 
-    public GetUserCarUseCaseImpl(UserRepository userRepository) {
+    public GetUserCarUseCaseImpl(UserRepository userRepository, Handler handler) {
         this.userRepository = userRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override
