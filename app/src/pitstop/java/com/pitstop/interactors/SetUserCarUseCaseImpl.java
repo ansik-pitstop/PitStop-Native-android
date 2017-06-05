@@ -2,9 +2,7 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -12,21 +10,18 @@ import com.pitstop.utils.NetworkHelper;
 
 public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
+    private UserRepository userRepository;
     private int carId;
     int userId;
     private Callback callback;
 
-    public SetUserCarUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
-        this.userAdapter = userAdapter;
-        this.networkHelper = networkHelper;
+    public SetUserCarUseCaseImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public void run() {
-        UserRepository.getInstance(userAdapter,networkHelper)
-                .setUserCar(userId, carId, new UserRepository.UserSetCarCallback() {
+        userRepository.setUserCar(userId, carId, new UserRepository.UserSetCarCallback() {
             @Override
             public void onSetCar() {
                 callback.onUserCarSet();

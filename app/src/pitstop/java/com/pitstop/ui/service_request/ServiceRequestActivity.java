@@ -36,6 +36,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.view_fragment.AddCustomIssueDialog;
@@ -112,7 +113,8 @@ public class ServiceRequestActivity extends AppCompatActivity
         setupStaticUI();
         showLoading(getString(R.string.loading));
 
-        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userAdapter,networkHelper);
+        UserRepository userRepository = UserRepository.getInstance(userAdapter,networkHelper);
+        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userRepository);
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
@@ -125,7 +127,6 @@ public class ServiceRequestActivity extends AppCompatActivity
             public void onError() {
             }
         });
-
 
     }
 

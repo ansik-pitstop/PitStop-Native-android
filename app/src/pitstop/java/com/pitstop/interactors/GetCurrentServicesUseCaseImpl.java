@@ -2,16 +2,10 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerRepositoryComponent;
-import com.pitstop.dependency.RepositoryComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 
@@ -20,16 +14,15 @@ import java.util.List;
  */
 
 public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase {
-    private LocalCarIssueAdapter localCarIssueAdapter;
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
+    private UserRepository userRepository;
+    private CarIssueRepository carIssueRepository;
     private Callback callback;
 
-    public GetCurrentServicesUseCaseImpl(UserAdapter userAdapter
-            , LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper) {
-        this.userAdapter = userAdapter;
-        this.localCarIssueAdapter = localCarIssueAdapter;
-        this.networkHelper = networkHelper;
+    public GetCurrentServicesUseCaseImpl(UserRepository userRepository
+            , CarIssueRepository carIssueRepository) {
+
+        this.userRepository = userRepository;
+        this.carIssueRepository = carIssueRepository;
     }
 
     @Override
@@ -42,12 +35,11 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     public void run() {
 
         //Get current users car
-        UserRepository.getInstance(userAdapter,networkHelper).getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
             @Override
             public void onGotCar(Car car) {
                 //Use the current users car to get all the current issues
-                CarIssueRepository.getInstance(localCarIssueAdapter,networkHelper)
-                        .getCurrentCarIssues(car.getId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
+                        carIssueRepository.getCurrentCarIssues(car.getId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
                             @Override
                             public void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent) {
                                 callback.onGotCurrentServices(carIssueCurrent);

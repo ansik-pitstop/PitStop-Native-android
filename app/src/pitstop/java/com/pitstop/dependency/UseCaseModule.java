@@ -1,6 +1,5 @@
 package com.pitstop.dependency;
 
-import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
@@ -19,53 +18,63 @@ import com.pitstop.interactors.RequestServiceUseCase;
 import com.pitstop.interactors.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCaseImpl;
+import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
+
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * Created by Karol Zdebel on 6/5/2017.
  */
 
+@Module(includes = RepositoryModule.class)
 public class UseCaseModule {
 
-    AddCarUseCase addCarUseCase(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        return new AddCarUseCaseImpl(localCarAdapter, networkHelper);
+    @Provides
+    AddCarUseCase addCarUseCase(CarRepository carRepository){
+        return new AddCarUseCaseImpl(carRepository);
     }
 
-    GetCurrentServicesUseCase getCurrentServicesUseCase(UserAdapter userAdapter
-            , LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
+    @Provides
+    GetCurrentServicesUseCase getCurrentServicesUseCase(UserRepository userRepository
+            , CarIssueRepository carIssueRepository){
 
-        return new GetCurrentServicesUseCaseImpl(userAdapter, localCarIssueAdapter, networkHelper);
+        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository);
     }
 
+    @Provides
     GetDoneServicesUseCase getDoneServicesUseCase(UserAdapter userAdapter
             , LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
 
         return new GetDoneServicesUseCaseImpl(userAdapter,localCarIssueAdapter,networkHelper);
     }
 
-    GetUserCarUseCase getUserCarUseCase(UserAdapter userAdapter, NetworkHelper networkHelper){
-
-        return new GetUserCarUseCaseImpl(userAdapter, networkHelper);
+    @Provides
+    GetUserCarUseCase getUserCarUseCase(UserRepository userRepository){
+        return new GetUserCarUseCaseImpl(userRepository);
     }
 
-    MarkServiceDoneUseCase markServiceDoneUseCase(LocalCarIssueAdapter localCarIssueAdapter
-            , NetworkHelper networkHelper){
-
-        return new MarkServiceDoneUseCaseImpl(localCarIssueAdapter, networkHelper);
+    @Provides
+    MarkServiceDoneUseCase markServiceDoneUseCase(CarIssueRepository carIssueRepository){
+        return new MarkServiceDoneUseCaseImpl(carIssueRepository);
     }
 
-    RemoveCarUseCase removeCarUseCase(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        return new RemoveCarUseCaseImpl(localCarAdapter,networkHelper);
+    @Provides
+    RemoveCarUseCase removeCarUseCase(CarRepository carRepository){
+        return new RemoveCarUseCaseImpl(carRepository);
     }
 
-    RequestServiceUseCase requestServiceUseCase(LocalCarIssueAdapter localCarIssueAdapter
-            , NetworkHelper networkHelper){
-
-        return new RequestServiceUseCaseImpl(localCarIssueAdapter, networkHelper);
+    @Provides
+    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository){
+        return new RequestServiceUseCaseImpl(carIssueRepository);
     }
 
-    SetUserCarUseCase setUseCarUseCase(UserAdapter userAdapter, NetworkHelper networkHelper){
-        return new SetUserCarUseCaseImpl(userAdapter, networkHelper);
+    @Provides
+    SetUserCarUseCase setUseCarUseCase(UserRepository userRepository){
+        return new SetUserCarUseCaseImpl(userRepository);
     }
 
 }

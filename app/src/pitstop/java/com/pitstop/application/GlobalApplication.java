@@ -30,8 +30,6 @@ import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerRepositoryComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
