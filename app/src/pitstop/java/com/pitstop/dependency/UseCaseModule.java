@@ -1,7 +1,5 @@
 package com.pitstop.dependency;
 
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
@@ -21,7 +19,6 @@ import com.pitstop.interactors.SetUserCarUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 import dagger.Module;
 import dagger.Provides;
@@ -46,10 +43,10 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetDoneServicesUseCase getDoneServicesUseCase(UserAdapter userAdapter
-            , LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
+    GetDoneServicesUseCase getDoneServicesUseCase(UserRepository userRepository
+            , CarIssueRepository carIssueRepository){
 
-        return new GetDoneServicesUseCaseImpl(userAdapter,localCarIssueAdapter,networkHelper);
+        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository);
     }
 
     @Provides

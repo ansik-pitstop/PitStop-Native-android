@@ -1,6 +1,8 @@
 package com.pitstop.dependency;
 
+import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.ui.services.CurrentServicesFragment;
+import com.pitstop.ui.services.HistoryServiceFragment;
 
 import dagger.Component;
 
@@ -13,5 +15,9 @@ import dagger.Component;
 public interface UseCaseComponent {
 
     void injectUseCases(CurrentServicesFragment fragment);
+
+    void injectUseCases(CurrentServicesAdapter fragment);
+
+    void injectUseCases(HistoryServiceFragment fragment);
 
 }
