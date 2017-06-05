@@ -37,6 +37,9 @@ import dagger.Module;
 import dagger.Provides;
 import com.pitstop.utils.NetworkHelper;
 
+import dagger.Module;
+import dagger.Provides;
+
 /**
  * Created by Karol Zdebel on 6/5/2017.
  */
