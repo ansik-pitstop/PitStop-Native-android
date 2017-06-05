@@ -30,13 +30,14 @@ import android.widget.Toast;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.view_fragment.AddCustomIssueDialog;
@@ -55,6 +56,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import io.smooch.core.Smooch;
 
@@ -95,6 +98,9 @@ public class ServiceRequestActivity extends AppCompatActivity
     private boolean shouldRefresh = false;
     private boolean shouldRemoveTutorial = false;
 
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,18 +109,20 @@ public class ServiceRequestActivity extends AppCompatActivity
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
 
         application = (GlobalApplication) getApplicationContext();
-        userAdapter = new UserAdapter(application);
-        networkHelper = new NetworkHelper(application);
         mixpanelHelper = new MixpanelHelper(application);
 
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
 
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
+        component.injectUseCases(this);
+
         setupStaticUI();
         showLoading(getString(R.string.loading));
 
-        UserRepository userRepository = UserRepository.getInstance(userAdapter,networkHelper);
-        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userRepository);
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {

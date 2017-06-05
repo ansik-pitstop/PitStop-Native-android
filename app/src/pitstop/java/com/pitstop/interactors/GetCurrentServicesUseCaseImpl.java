@@ -17,10 +17,12 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
+    private Handler handler;
 
     public GetCurrentServicesUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository) {
+            , CarIssueRepository carIssueRepository, Handler handler) {
 
+        this.handler = handler;
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
     }
@@ -28,7 +30,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override

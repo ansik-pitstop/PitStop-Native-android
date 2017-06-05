@@ -1,6 +1,7 @@
 package com.pitstop.dependency;
 
 import com.pitstop.adapters.CurrentServicesAdapter;
+import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
 import com.pitstop.ui.services.HistoryServiceFragment;
 
@@ -20,4 +21,5 @@ public interface UseCaseComponent {
 
     void injectUseCases(HistoryServiceFragment fragment);
 
+    void injectUseCases(ServiceRequestActivity serviceRequestActivity);
 }

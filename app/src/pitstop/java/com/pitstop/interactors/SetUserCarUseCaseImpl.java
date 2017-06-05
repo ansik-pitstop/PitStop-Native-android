@@ -12,11 +12,13 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     private UserRepository userRepository;
     private int carId;
-    int userId;
+    private int userId;
     private Callback callback;
+    private Handler handler;
 
-    public SetUserCarUseCaseImpl(UserRepository userRepository) {
+    public SetUserCarUseCaseImpl(UserRepository userRepository, Handler handler) {
         this.userRepository = userRepository;
+        this.handler = handler;
     }
 
     @Override
@@ -39,6 +41,6 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
         this.callback = callback;
         this.userId = userId;
         this.carId = carId;
-        new Handler().post(this);
+        handler.post(this);
     }
 }
