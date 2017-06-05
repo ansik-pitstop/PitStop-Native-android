@@ -541,6 +541,10 @@ public class MyTripsActivity extends AppCompatActivity{
         trip.getStart().setTime(System.currentTimeMillis());
         tripView.setStartTime(trip.getStart().getTime());
         trip.addPoint(tripLoc);
+        if(dashboardCar == null){
+            Toast.makeText(application, "Unable to get VIN", Toast.LENGTH_SHORT).show();
+            finish();
+        }
         networkHelper.postTripStep1(trip,dashboardCar.getVin(),new RequestCallback() {
             @Override
             public void done(String response, final RequestError requestError) {
