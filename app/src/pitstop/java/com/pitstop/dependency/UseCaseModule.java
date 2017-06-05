@@ -2,6 +2,9 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
@@ -32,6 +35,7 @@ import com.pitstop.repositories.UserRepository;
 
 import dagger.Module;
 import dagger.Provides;
+import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 6/5/2017.
