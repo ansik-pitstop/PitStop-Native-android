@@ -15,18 +15,22 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
-import com.pitstop.interactors.MarkServiceDoneUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
+import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.Calendar;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Created by Karol Zdebel on 5/31/2017.
@@ -45,8 +49,19 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             ,MainActivityCallback tutorialCallback) {
 
         this.mainActivityCallback = tutorialCallback;
+    @Inject
+    MarkServiceDoneUseCase markServiceDoneUseCase;
+
+    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
+        activityReference = new WeakReference<>(activity);
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(activity.getApplicationContext()))
+                .build();
+
+        component.injectUseCases(this);
         this.context = context;
     }
 
