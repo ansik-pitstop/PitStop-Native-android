@@ -1,6 +1,5 @@
 package com.pitstop.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,14 +23,13 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
     private ArrayList<String> headers;
     private LayoutInflater inflater;
-    private Activity activity;
+    private Context context;
 
-
-    public HistoryIssueGroupAdapter(Activity activity, LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues, ArrayList<String> headers) {
-        this.activity = activity;
+    public HistoryIssueGroupAdapter(Context context, LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues, ArrayList<String> headers) {
+        this.context = context;
         this.sortedIssues = sortedIssues;
         this.headers = headers;
-        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -106,13 +104,13 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         }
 
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
-            imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
+            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
         } else if (issue.getIssueType().equals(CarIssue.DTC)) {
-            imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.car_engine_red));
+            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.car_engine_red));
         } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-            imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.car_engine_yellow));
+            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.car_engine_yellow));
         } else {
-            imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
+            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
         }
 
         title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
