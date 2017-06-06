@@ -23,6 +23,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.DataPackageInfo;
@@ -33,6 +34,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -55,6 +57,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.LogUtils;
+import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -80,6 +83,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
     private static String DEVICE_IDS = "deviceIds";
+
+    public static final String LAST_RTC = "last_rtc-{car_vin}";
+    public static final String LAST_MILEAGE = "mileage-{car_vin}";
 
     private final IBinder mBinder = new BluetoothBinder();
     private BluetoothDeviceManager deviceManager;
@@ -404,9 +410,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
+            Log.d(TAG, "parameterData: " + parameterPackage.toString());
             Log.i(TAG, "Supported pids returned");
             String[] pids = parameterPackage.value.split(","); // pids returned separated by commas
             HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
@@ -429,6 +437,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 supportedPids = DEFAULT_PIDS;
             }
             deviceManager.setPidsToSend(supportedPids);
+        }
+
+
+        if (parameterPackage instanceof MultiParameterPackage && deviceManager.isConnectedTo215()){
+            MultiParameterPackage multiParameterPackage = (MultiParameterPackage) parameterPackage;
+            Log.d(TAG, "MultiparameterData: " + multiParameterPackage.toString());
+            if (carAdapter.getDashboardCar() != null || carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null)) != null){
+                Car dashboardCar;
+                if (carAdapter.getDashboardCar() != null)
+                    dashboardCar = carAdapter.getDashboardCar();
+                else
+                    dashboardCar = carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null));
+
+                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE) != null)
+                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE)).commit();
+
+                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME) != null)
+                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME)).commit();
+            }
         }
 
         if(callbacks != null) {
@@ -598,6 +625,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                 });
                                     }
                                 }
+                                carAdapter.updateCar(car);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -854,6 +882,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogI(TAG, "getting pids", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getPids(pids);
     }
+
+
+    public void get215RtcAndMileage(){
+        Log.i(TAG, "getting RTC and Mileage - ONLY if connected to 215");
+        deviceManager.getRtcAndMileage();
+    }
+
+//    public void clearDTCs() {
+//        Log.i(TAG, "Clearing DTCs");
+//        deviceManager.obdSetCtrl(ObdManager.TYPE_DTC);
+//    }
+
+    //public void getFreeze(String tag) {
+    //    Log.i(TAG, "getParameter with tag: " + tag);
+    //    deviceManager.obdGetParameter(tag);
+    //}
+
+    //public void writeLoginInstruction() {
+    //    String instruction = sharedPreferences.getString("loginInstruction", null);
+    //    if(instruction == null) {
+    //        Log.w(TAG, "No saved login instruction");
+    //    } else {
+    //        deviceManager.writeRawInstruction(instruction);
+    //    }
+    //}
 
     /**
      * Process result 4 data returned from OBD device for trip mileage
@@ -1439,6 +1492,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
         }
+    }
+
+    //Null means not connected
+    public Boolean isConnectedTo215(){
+        if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
+            return deviceManager.isConnectedTo215();
+        else
+            return null;
     }
 
 }

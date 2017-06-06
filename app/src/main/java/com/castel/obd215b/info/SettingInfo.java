@@ -11,7 +11,7 @@ public class SettingInfo implements Serializable {
 	public String theengineEmission = "";
 	public String vehicleVINCode = null;
 	public String licensePlateNumber = "";
-	public String totalMileage = "";
+	public String totalMileage = null;
 	public String totalFuelConsumption = "";
 	public String engineFlameOurDelayTime = "";
 	public String swVersion = "";
