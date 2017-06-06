@@ -66,7 +66,8 @@ import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.MainActivity;
+
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.PrevTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;

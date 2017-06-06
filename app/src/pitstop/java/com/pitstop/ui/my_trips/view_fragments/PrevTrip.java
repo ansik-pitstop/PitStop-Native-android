@@ -21,7 +21,7 @@ import com.pitstop.R;
 import com.pitstop.database.LocalTripAdapter;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
-import com.pitstop.ui.MainActivity;
+
 import com.pitstop.ui.my_trips.MyTripsActivity;
 
 import java.text.DecimalFormat;
