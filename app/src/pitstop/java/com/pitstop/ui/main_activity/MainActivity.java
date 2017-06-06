@@ -252,6 +252,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
 
+
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
         rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
