@@ -46,21 +46,19 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     @Inject
     MarkServiceDoneUseCase markServiceDoneUseCase;
 
-    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
     public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Context context
             ,MainActivityCallback tutorialCallback) {
 
         this.mainActivityCallback = tutorialCallback;
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
-        activityReference = new WeakReference<>(activity);
+        this.context = context;
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(activity.getApplicationContext()))
+                .contextModule(new ContextModule(context.getApplicationContext()))
                 .build();
 
         component.injectUseCases(this);
-        this.context = context;
     }
 
 
@@ -155,9 +153,6 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                             carIssue.setDay(day);
 
                             //When the date is set, update issue to done on that date
-                            MarkServiceDoneUseCase markServiceDoneUseCase
-                                    = new MarkServiceDoneUseCaseImpl(new LocalCarIssueAdapter(context)
-                                    ,new NetworkHelper(context.getApplicationContext()));
                             markServiceDoneUseCase.execute(carIssue, new MarkServiceDoneUseCase.Callback() {
                                 @Override
                                 public void onServiceMarkedAsDone() {
