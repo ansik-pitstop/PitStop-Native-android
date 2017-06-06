@@ -36,6 +36,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
@@ -44,9 +45,9 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -67,7 +68,6 @@ import butterknife.OnClick;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
 
-public class MainDashboardFragment extends Fragment implements MainActivity.MainDashboardCallback {
 public class MainDashboardFragment extends Fragment implements MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
@@ -589,9 +589,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     }
 
     @Override
-    public void onDashboardCarUpdated() {
-
-    @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
             final double newTotalMileage;
@@ -629,6 +626,11 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                 }
             });
         }
+    }
+
+    @Override
+    public void onDashboardCarUpdated() {
+
     }
 
     /**
