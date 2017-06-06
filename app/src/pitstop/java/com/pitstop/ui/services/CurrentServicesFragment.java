@@ -69,11 +69,12 @@ public class CurrentServicesFragment extends Fragment{
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
-        initUI();
+        if (getActivity() != null){
+            initUI();
+        }
 
         return view;
     }
-
 
     //Call whenever you want to completely new UI objects
     private void initUI(){

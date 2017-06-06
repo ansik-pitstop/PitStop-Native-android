@@ -61,6 +61,7 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -79,6 +80,7 @@ import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
+import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -251,6 +253,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
 
+        //Logout if user is not connected to the internet
+        if (!NetworkHelper.isConnected(this)){
+            application.logOutUser();
+            Toast.makeText(application, "Please connect to the internet.",Toast.LENGTH_LONG);
+            finish();
+        }
+
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
         rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
@@ -294,8 +303,21 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         logAuthInfo();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
 
-        setTabUI();
+
+        storeUserFromPreferences();//setTabUI();
         setFabUI();
+    }
+
+    private void storeUserFromPreferences(){
+        networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                UserAdapter userAdapter = new UserAdapter(application);
+                userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
+                setTabUI();
+
+            }
+        });
     }
 
     public void changeTheme(boolean darkTheme) {
@@ -594,7 +616,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             }
 
             broadCastCarDataToFragments();
-            mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+            if(mainDashboardCallback != null){
+                mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+            }
             loadDealershipCustomDesign();
 
         }
@@ -1302,7 +1326,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (!checkDealership()) return;
         mixpanelHelper.trackButtonTapped("My Appointments","Dashboard");
         final Intent intent = new Intent(this, MyAppointmentActivity.class);
-        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+        startActivity(intent);
+    }
+
+    public void myTrips(){
+        final Intent intent = new Intent(this, MyTripsActivity.class);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         startActivity(intent);
     }
 
