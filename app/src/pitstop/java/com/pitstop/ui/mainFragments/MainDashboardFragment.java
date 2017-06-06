@@ -633,6 +633,46 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
     }
 
+    @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage;
+            if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
+                if (tripInfoPackage.rtcTime >= Long.valueOf(sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null)))
+                    newTotalMileage = (dashboardCar.getTotalMileage() + tripInfoPackage.mileage) - Double.valueOf(sharedPreferences.getString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), null));
+                else
+                    return;
+            else
+                newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
+
+            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                carLocalStore.updateCar(dashboardCar);
+            }
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                    mMileageText.setText(String.valueOf(newTotalMileage));
+                }
+            });
+
+        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
+            dashboardCar = carLocalStore.getCar(dashboardCar.getId());
+            final double newBaseMileage = dashboardCar.getTotalMileage();
+            //mCallback.onTripMileageUpdated(newBaseMileage);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                    mMileageText.setText(String.valueOf(newBaseMileage));
+                }
+            });
+        }
+    }
+
     /**
      * Issues list view
      */
