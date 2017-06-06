@@ -33,7 +33,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -612,7 +612,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void getBluetoothState(int state) {
-        Log.i(TAG, "Bluetooth state update");
+        Log.i(TAG, "Bluetooth state updateCarIssue");
         switch (state) {
             case BluetoothCommunicator.CONNECTED:
                 // Successfully connected to OBD device

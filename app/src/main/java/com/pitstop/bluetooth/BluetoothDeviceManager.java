@@ -27,7 +27,7 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;

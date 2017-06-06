@@ -20,9 +20,8 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +36,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
-    //private CustomAdapter customAdapter;
+    //private CurrentServicesAdapter customAdapter;
     private RecyclerView issuesList;
     private CardView messageCard;
     private ExpandableListView issueGroup;

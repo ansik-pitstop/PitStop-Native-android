@@ -19,12 +19,23 @@
         android:background="@drawable/cardview_background_white"
         android:padding="10dp">
 
+        <ImageView
+            android:id="@+id/image_done_issue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_issue_close"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            />
+
         <RelativeLayout
             android:id="@+id/issue_info_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/issue_image_layout"
-            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/issue_image_layout"
             android:orientation ="horizontal">
 
             <TextView
@@ -63,8 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentStart="true">
 
             <ImageView
                 android:id="@+id/image_icon"

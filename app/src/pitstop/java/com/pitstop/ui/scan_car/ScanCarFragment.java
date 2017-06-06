@@ -39,7 +39,7 @@ import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.utils.AnimatedDialogBuilder;

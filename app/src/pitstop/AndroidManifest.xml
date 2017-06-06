@@ -95,7 +95,7 @@
             android:resource="@xml/android_auto" /-->
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.main_activity.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
@@ -135,49 +135,39 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main_activity.MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.main_activity.MainActivity" />
         </activity>
 
         <activity
             android:name=".ui.add_car.AddCarActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main_activity.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustResize"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.main_activity.MainActivity" />
         </activity>
 
         <activity
             android:name=".ui.CarHistoryActivity"
             android:label="History"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main_activity.MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.main_activity.MainActivity" />
         </activity>
         <activity
             android:name=".ui.SelectDealershipActivity"
             android:label="Select Dealership"
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
-        <activity
-            android:name=".ui.scan_car.ScanCarFragment"
-            android:label="@string/title_activity_car_scan"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
-        </activity>
 
         <activity
             android:name=".ui.service_request.ServiceRequestActivity"
@@ -254,37 +244,23 @@
             android:label="@string/app_name" />
 
         <activity
-            android:name=".ui.NotificationsActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/notifications"
-            android:parentActivityName=".ui.MainActivity"/>
-
-        <activity
             android:name=".ui.add_car.PromptAddCarActivity"
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/notifications"
-            android:parentActivityName=".ui.MainActivity"/>
+            android:parentActivityName=".ui.main_activity.MainActivity"/>
 
         <activity
             android:name=".ui.upcoming_timeline.TimelineActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="Upcoming Services"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main_activity.MainActivity"
             />
-
-        <activity
-            android:name=".ui.services.ServicesActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/services_nav_text"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
 
         <activity android:name=".ui.DealershipActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="Dealership"
-            android:parentActivityName=".ui.MainActivity"
+            android:parentActivityName=".ui.main_activity.MainActivity"
             android:screenOrientation="portrait"/>
     </application>
 
