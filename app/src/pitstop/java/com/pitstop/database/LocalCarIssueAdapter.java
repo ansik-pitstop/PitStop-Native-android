@@ -67,6 +67,79 @@ public class LocalCarIssueAdapter {
         return rows;
     }
 
+    public CarIssue getCarIssue(int issueId){
+
+        CarIssue carIssue = null;
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
+                TABLES.COMMON.KEY_ID+"=?",new String[]{String.valueOf(issueId)},null,null,null);
+
+        if(c.moveToFirst()) {
+            carIssue = cursorToCarIssue(c);
+        }
+        c.close();
+        db.close();
+
+        return carIssue;
+    }
+
+    public List<CarIssue> getAllUpcomingCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_NEW},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+        c.close();
+        db.close();
+        return carIssues;
+    }
+
+    public List<CarIssue> getAllDoneCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_DONE},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+
+        c.close();
+        db.close();
+        return carIssues;
+    }
+
+    public List<CarIssue> getAllCurrentCarIssues() {
+        List<CarIssue> carIssues = new ArrayList<>();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                ,TABLES.CAR_ISSUES.KEY_ISSUE_TYPE+"=?",new String[]{CarIssue.ISSUE_PENDING},null,null,null);
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
+                carIssues.add(cursorToCarIssue(c));
+                c.moveToNext();
+            }
+        }
+
+        c.close();
+        db.close();
+        return carIssues;
+    }
+
     public ArrayList<CarIssue> getAllCarIssues(int carId) {
 
         ArrayList<CarIssue> carIssues = new ArrayList<>();
@@ -82,6 +155,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
+        c.close();
         db.close();
         return carIssues;
     }
@@ -99,6 +173,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
+        c.close();
         db.close();
         return carIssues;
     }
@@ -137,6 +212,7 @@ public class LocalCarIssueAdapter {
         carIssue.setSymptoms(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS)));
         carIssue.setCauses(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES)));
 
+        c.close();
         return carIssue;
     }
 

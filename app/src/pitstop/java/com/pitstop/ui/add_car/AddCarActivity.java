@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.models.Car;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;

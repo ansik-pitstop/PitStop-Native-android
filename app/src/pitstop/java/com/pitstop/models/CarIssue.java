@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Paul Soladoye on 3/18/2016.
@@ -34,6 +36,10 @@ public class CarIssue implements Parcelable {
     @Expose(serialize = false, deserialize = false)
     private int id;
     private int carId;
+    private int year;
+    private int month;
+    private int day;
+    private int doneMileage;
     private String status;
     private String doneAt;
     private int priority;
@@ -46,12 +52,56 @@ public class CarIssue implements Parcelable {
 
     public CarIssue() {}
 
+    public int getDaysAgo(){
+        Calendar doneAt = Calendar.getInstance();
+        doneAt.set(year,month,day);
+        int daysToday = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
+        int doneDay = (int)TimeUnit.MILLISECONDS.toDays(doneAt.getTimeInMillis());
+        return daysToday-doneDay;
+    }
+
+    public boolean isDone() {
+        return doneAt != null;
+    }
+
     public int getId() {
         return id;
     }
 
+    public int getDoneMileage() {
+        return doneMileage;
+    }
+
+    public void setDoneMileage(int doneMileage) {
+        this.doneMileage = doneMileage;
+    }
+
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
     }
 
     public int getCarId() {
@@ -132,6 +182,14 @@ public class CarIssue implements Parcelable {
 
     public void setCauses(String causes) {
         this.causes = causes;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CarIssue)){ return false; }
+
+        CarIssue carIssue = (CarIssue)obj;
+        return carIssue.getId() == getId();
     }
 
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {

@@ -19,6 +19,7 @@ public class User implements Parcelable {
     private String email;
     private String userName;
     private String password;
+    private Car currentCar;
     //authData
     private boolean activated;
     private String phone;
@@ -33,6 +34,14 @@ public class User implements Parcelable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Car getCurrentCar() {
+        return currentCar;
+    }
+
+    public void setCurrentCar(Car currentCar) {
+        this.currentCar = currentCar;
     }
 
     public String getFirstName() {

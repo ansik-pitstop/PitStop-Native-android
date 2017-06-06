@@ -43,6 +43,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -53,9 +54,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pitstop.ui.MainActivity.CAR_EXTRA;
-import static com.pitstop.ui.MainActivity.RC_ADD_CAR;
-import static com.pitstop.ui.MainActivity.REFRESH_FROM_SERVER;
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
+import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
+import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
 
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
@@ -398,7 +399,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     recentCar.setCurrentCar(true);
                     localCarAdapter.updateCar(recentCar);
 
-                    //Send update to network
+                    //Send updateCarIssue to network
                     networkHelper.setMainCar(currentUser.getId(), car.getId(), null);
                     listener.localUpdatePerformed();
 
@@ -459,7 +460,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     listener.localUpdatePerformed();
                                                 } else {
                                                     loadingCallback.hideLoading("An error occurred, please try again.");
-                                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
                                                 }
                                             }
                                         });

@@ -52,7 +52,7 @@ import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;

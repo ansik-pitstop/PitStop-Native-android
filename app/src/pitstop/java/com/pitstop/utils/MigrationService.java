@@ -12,7 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.parse.ParseUser;
-import com.pitstop.ui.MainActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;

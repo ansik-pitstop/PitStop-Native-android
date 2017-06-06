@@ -20,12 +20,24 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
+        <ImageView
+            android:id="@+id/image_done_issue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_issue_close"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            />
+
         <RelativeLayout
             android:id="@+id/issue_info_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/issue_image_layout"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/issue_image_layout"
+            android:layout_toLeftOf="@id/image_done_issue"
             android:orientation="horizontal">
 
             <TextView
@@ -65,8 +77,7 @@
             android:id="@+id/issue_image_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true">
 
             <ImageView

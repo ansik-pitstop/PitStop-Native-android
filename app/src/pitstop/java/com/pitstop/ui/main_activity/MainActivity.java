@@ -1,4 +1,4 @@
-package com.pitstop.ui;
+package com.pitstop.ui.main_activity;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -68,8 +68,13 @@ import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.CarHistoryActivity;
+import com.pitstop.ui.DealershipActivity;
+import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
@@ -107,7 +112,8 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener {
+public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener
+        , MainActivityCallback {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -647,11 +653,16 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (data != null) {
             boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
 
+            //Returned from car being added
             if (requestCode == RC_ADD_CAR) {
+
+                //If a car was added then updateCarIssue the current car that is being displayed inside all the fragments
                 if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                     Car addedCar = data.getParcelableExtra(CAR_EXTRA);
                     Log.d("OnActivityResult", "CarList: " + carList.size());
-                    if (carList.size() == 0) { // first car
+
+                    //Check whether the first car was just added if so set it to dashboard car
+                    if (carList.size() == 0) {
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
@@ -672,6 +683,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         customProperties.put("Car Year", addedCar.getYear());
                         Log.d(TAG, String.valueOf(addedCar.getYear()));
 
+                        //Add custom user properties
                         if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             customProperties.put("Email", addedCar.getDealership().getEmail());
                             Log.d(TAG, addedCar.getDealership().getEmail());
@@ -685,6 +697,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         User.getCurrentUser().addProperties(customProperties);
 
+                        //Send welcoming message since the first car was added
                         if (user != null) {
                             Log.d("MainActivity Smooch", "Sending message");
                             Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
@@ -694,39 +707,55 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         Smooch.track("User Logged In");
 
+                        //Start tutorial sequence since the first car was added
                         if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
                             prepareAndStartTutorialSequence();
                         }
                     }
+
+                    //Refresh from server if the resulting activity thought so
                     if (shouldRefreshFromServer) {
                         refreshFromServer();
                     }
+
                 } else {
                     mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
                 }
+
+            //If a scan completed check whether to refresh data
             } else if (requestCode == RC_SCAN_CAR && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If settings completed check whether to refresh data
             } else if (requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+                //Update dashboard UI since the dealership may have changed
                 mainDashboardCallback.setCarDetailsUI();
                 loadDealershipCustomDesign();
 
+            //If display issues completed check whether refresh is required
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If custom issue completed check whether refresh is required
             } else if (requestCode == RC_ADD_CUSTOM_ISSUE && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If paired with car after adding car then check whether to refresh
             } else if (resultCode == AddCarActivity.PAIR_CAR_SUCCESS) {
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
+
+            //If request service completed check whether to refresh
             } else if (requestCode == RC_REQUEST_SERVICE){
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
@@ -736,6 +765,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                     removeTutorial();
                 }
             }
+
+            //Pass the data over to MainDashboardFragment
             mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -1439,6 +1470,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
      * <li>String unit</li>
      * </ul>
      */
+
     public void prepareAndStartTutorialSequence() {
         if (!checkDealership()) return;
 
@@ -1483,6 +1515,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
         });
+    }
+
+    @Override
+    public void startDisplayIssueActivity(Car dashboardCar, CarIssue issue) {
+        Intent intent = new Intent(this, IssueDetailsActivity.class);
+        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
+        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+        startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
     }
 
     /**
@@ -1613,7 +1653,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                     refreshFromLocal();
                                     resetMenus(false);
                                 } else {
-                                    Log.e(TAG, "Dealership update error: " + requestError.getError());
+                                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
                                     Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }

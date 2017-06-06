@@ -19,6 +19,50 @@ public class DateTimeFormatUtil {
         return format.format(calendar.getTime());
     }
 
+    public static String formatDateToHistoryFormat(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"
+        String[] splittedDate = rawDate.split("-");
+        String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return months[Integer.parseInt(splittedDate[1])] + ". " + splittedDate[2] + ", " + splittedDate[0];
+    }
+
+    public static int getHistoryDateToCompare(String rawDate) {
+        if(rawDate == null || rawDate.isEmpty() || rawDate.equals("null")) {
+            return 0;
+        }
+
+        String[] splittedDate = rawDate.split("-");
+        splittedDate[2] = splittedDate[2].substring(0, 2);
+
+        return Integer.parseInt(splittedDate[2])
+                + Integer.parseInt(splittedDate[1]) * 30
+                + Integer.parseInt(splittedDate[0]) * 365;
+    }
+
+    public static double historyFormatToDouble(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"
+        String[] splittedDate = rawDate.split(" ");
+        String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+        int monthNum = 0;
+        int counter = 0;
+        for (String m: months){
+            if (m.equals(splittedDate[0])){
+                monthNum = counter;
+                break;
+            }
+            counter++;
+        }
+
+        int yearNum = Integer.valueOf(splittedDate[1]);
+
+
+        return yearNum + monthNum/12;
+    }
+
     public static String formatToISO8601(Calendar calendar){
         if (calendar == null) return null;
         return ISO8601_FORMAT.format(calendar.getTime());

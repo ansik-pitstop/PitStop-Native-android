@@ -195,6 +195,21 @@ public class NetworkHelper {
         get("car/" + carId, callback);
     }
 
+    public void updateCar(int carId, double mileage, int shopId, RequestCallback callback){
+        LOGI(TAG, "updateCar: carId: " + carId + ", mileage: " + mileage +"shopId: "+shopId);
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("carId", carId);
+            body.put("totalMileage", mileage);
+            body.put("shopId", shopId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        put("car", callback, body);
+    }
+
     public void updateCarMileage(int carId, double mileage, RequestCallback callback) {
         LOGI(TAG, "updateCarShop: carId: " + carId + ", mileage: " + mileage);
         JSONObject body = new JSONObject();
@@ -436,6 +451,7 @@ public class NetworkHelper {
                 if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)) {
                     data.put(new JSONObject()
                             .put("type", issue.getIssueType())
+                            .put("status", issue.getStatus())
                             .put("id", issue.getId()));
                 } else {
                     data.put(new JSONObject()
@@ -464,8 +480,8 @@ public class NetworkHelper {
         get("car/" + carId + "/service", callback);
     }
 
-    public void serviceDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
-        LOGI(TAG, String.format("serviceDone: carId: %s, issueId: %s," +
+    public void setIssueDone(int carId, int issueId, int daysAgo, double mileage, RequestCallback callback) {
+        LOGI(TAG, String.format("setIssueDone: carId: %s, issueId: %s," +
                 " daysAgo: %s, mileage: %s", carId, issueId, daysAgo, mileage));
 
         JSONObject body = new JSONObject();
@@ -483,8 +499,8 @@ public class NetworkHelper {
         put("issue", callback, body);
     }
 
-    public void servicePending(int carId, int issueId, RequestCallback callback) {
-        LOGI(TAG, String.format("servicePending: carId: %s, issueId: %s,", carId, issueId));
+    public void setIssuePending(int carId, int issueId, RequestCallback callback) {
+        LOGI(TAG, String.format("setIssuePending: carId: %s, issueId: %s,", carId, issueId));
 
         JSONObject body = new JSONObject();
 
@@ -683,6 +699,29 @@ public class NetworkHelper {
         }
     }
 
+    public void getMainCar(final int userId, final RequestCallback callback){
+        getUserSettingsById(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        JSONObject options = new JSONObject(response);
+                        int mainCarId = options.getJSONObject("user").getInt("mainCar");
+                        getCarsById(mainCarId,callback);
+                    }
+                    catch(JSONException e){
+                        Log.d("TAG","JSONException Caught!");
+                    }
+                }
+                else{
+                    callback.done(response,requestError);
+                }
+
+
+            }
+        });
+    }
+
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
@@ -698,6 +737,9 @@ public class NetworkHelper {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                }
+                else{
+                    callback.done(response,requestError);
                 }
             }
         });
@@ -782,8 +824,16 @@ public class NetworkHelper {
         get("scanner/?scannerId=" + scannerId + "&active=true", callback);
     }
 
-    public void getCarTimeline(String carId, RequestCallback callback){
-        get(String.format("car/%s/issues?type=upcoming", carId), callback);
+    public void getCurrentCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=active", String.valueOf(carId)), callback);
+    }
+
+    public void getDoneCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=history", String.valueOf(carId)), callback);
+    }
+
+    public void getUpcomingCarIssues(int carId, RequestCallback callback){
+        get(String.format("car/%s/issues?type=upcoming", String.valueOf(carId)), callback);
     }
 
     public void getUserInstallationId(int userId, final RequestCallback callback){
