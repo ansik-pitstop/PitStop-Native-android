@@ -46,7 +46,7 @@
     <string name="barcode_failure">No barcode captured</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
-    <string name="location_request_rationale">Access to device location is needed for bluetooth feature</string>
+    <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
     
     <string name="appversion">app_version</string>
     <string name="title_activity_select_dealership">Select Dealership</string>
@@ -184,7 +184,7 @@
 
     <!--Dashboard-->
     <string name="mileage_title">Mileage</string>
-    <string name="mileage_subtitle">Tap here to manually update you mileage</string>
+    <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
     <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
     <string name="highway_title">Highway</string>
@@ -192,6 +192,21 @@
     <string name="tools_header">TOOLS</string>
     <string name="past_appts_title">My Appointments</string>
     <string name="request_appts_title">Request Service Appointment</string>
+
+    <!--MyTrips-->
+    <string name="first_card_text">Starting Point</string>
+    <string name="second_card_text">Current Stats</string>
+
+    <string name="add_trip_previous">Previous Trip</string>
+
+    <string name="prev_trip_start">Start</string>
+
+    <string name="prev_trip_end">Destination</string>
+
+    <string name="share_trip_intent_title">Share trip via</string>
+
+
+
 
     <!--Services-->
     <string name="services_nav_text">Services</string>
