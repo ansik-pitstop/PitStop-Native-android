@@ -2,10 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -13,26 +11,26 @@ import com.pitstop.utils.NetworkHelper;
 
 public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
-    private LocalCarAdapter localCarAdapter;
-    private NetworkHelper networkHelper;
+    private CarRepository carRepository;
     private Car car;
     private Callback callback;
+    private Handler handler;
 
-    public RemoveCarUseCaseImpl(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        this.localCarAdapter = localCarAdapter;
-        this.networkHelper = networkHelper;
+    public RemoveCarUseCaseImpl(CarRepository carRepository, Handler handler){
+        this.carRepository = carRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override
     public void run() {
-        CarRepository.getInstance(localCarAdapter,networkHelper).delete(car, new CarRepository.CarDeleteCallback() {
+        carRepository.delete(car, new CarRepository.CarDeleteCallback() {
             @Override
             public void onCarDeleted() {
                 callback.onCarRemoved();
