@@ -450,6 +450,8 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
                 || bluetoothServiceActivity.autoConnectService.isCommunicatingWithDevice()) {
             updatedMileageOrDtcsFound = true;
             carMileage.setText(String.format("%.2f", updatedMileage));
+            Log.i(TAG, "Asking for RTC and Mileage, if connected to 215");
+            getAutoConnectService().get215RtcAndMileage();
             startCarScan();
         } else {
             numberOfIssues = 0;

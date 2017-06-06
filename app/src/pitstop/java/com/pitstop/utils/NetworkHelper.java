@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -550,7 +551,13 @@ public class NetworkHelper {
         postNoAuth("scan/freezeData", callback, body);
     }
 
+
+
     public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, RequestCallback callback) {
+        sendTripStart(scannerId, rtcTime, tripIdRaw, null, callback);
+    }
+
+    public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, @Nullable String mileage, RequestCallback callback) {
         LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
@@ -559,12 +566,15 @@ public class NetworkHelper {
             body.put("scannerId", scannerId);
             body.put("rtcTimeStart", Long.parseLong(rtcTime));
             body.put("tripIdRaw", tripIdRaw);
+            if (mileage != null)
+                body.put("mileageStart", mileage);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         postNoAuth("scan/trip", callback, body);
     }
+
 
     public void saveTripMileage(int tripId, String mileage, String rtcTime, RequestCallback callback) {
         LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
