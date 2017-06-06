@@ -161,6 +161,26 @@ public class LocalCarAdapter {
         db.close();
     }
 
+    /**
+     * Get Dashboard Car
+     */
+
+    public Car getDashboardCar() {
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor c = db.query(TABLES.CAR.TABLE_NAME,null,
+                TABLES.CAR.KEY_IS_DASHBOARD_CAR +"=?", new String[] {"1"},null,null,null);
+        Car car = null;
+        if(c.moveToFirst()) {
+            car = cursorToCar(c);
+        }
+
+        db.close();
+        return car;
+    }
+
+
     private Car cursorToCar(Cursor c) {
         Car car = new Car();
         car.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));

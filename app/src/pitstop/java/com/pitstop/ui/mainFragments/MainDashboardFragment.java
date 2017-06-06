@@ -24,6 +24,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
@@ -43,9 +45,9 @@ import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -62,6 +64,9 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
+import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
 
 public class MainDashboardFragment extends Fragment implements MainDashboardCallback {
 
@@ -418,6 +423,11 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
                             }
                         }
+                        try {
+                            carLocalStore.updateCar(Car.createCar(response));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         Log.e(TAG, "Load issues error: " + requestError.getMessage());
                         if (getActivity() != null) {
@@ -584,10 +594,50 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     }
 
     @Override
+    public void tripData(TripInfoPackage tripInfoPackage) {
+        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
+            final double newTotalMileage;
+            if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
+                if (tripInfoPackage.rtcTime >= Long.valueOf(sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null)))
+                    newTotalMileage = (dashboardCar.getTotalMileage() + tripInfoPackage.mileage) - Double.valueOf(sharedPreferences.getString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), null));
+                else
+                    return;
+            else
+                newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
+
+            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
+
+            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
+                dashboardCar.setDisplayedMileage(newTotalMileage);
+                carLocalStore.updateCar(dashboardCar);
+            }
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                    mMileageText.setText(String.valueOf(newTotalMileage));
+                }
+            });
+
+        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
+            dashboardCar = carLocalStore.getCar(dashboardCar.getId());
+            final double newBaseMileage = dashboardCar.getTotalMileage();
+            //mCallback.onTripMileageUpdated(newBaseMileage);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                    mMileageText.setText(String.valueOf(newBaseMileage));
+                }
+            });
+        }
+    }
+
+    @Override
     public void onDashboardCarUpdated() {
 
     }
-
+    
     /**
      * Issues list view
      */
@@ -696,6 +746,32 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                 return 1;
             }
             return carIssues.size();
+        }
+
+        public void removeTutorial() {
+            if (activityReference.get() == null) return;
+            GlobalApplication application = (GlobalApplication) activityReference.get().getApplicationContext();
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            Set<String> carsAwaitTutorial = preferences.getStringSet(application.getString(R.string.pfAwaitTutorial), new HashSet<String>());
+            Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
+            for (String item : carsAwaitTutorial) {
+                if (!item.equals(String.valueOf(dashboardCar.getId()))) {
+                    copy.add(item);
+                }
+            }
+            Log.d(TAG, String.valueOf(dashboardCar.getId()));
+            Log.d(TAG, String.valueOf(copy.size()));
+            preferences.edit().putStringSet(application.getString(R.string.pfAwaitTutorial), copy).apply();
+
+            for (int index = 0; index < carIssues.size(); index++) {
+                CarIssue issue = carIssues.get(index);
+                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
+                    carIssues.remove(index);
+                    new LocalCarIssueAdapter(application).deleteCarIssue(issue);
+                    notifyDataSetChanged();
+                }
+            }
         }
 
         private void addTutorial() {
@@ -848,7 +924,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
                                             mMileageText.setText(String.format("%.2f", mileage));
-                                            ((MainActivity)getActivity()).getBluetoothConnectService();
+                                            ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
                                                     ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice())
@@ -856,7 +932,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         }
                                     }
                                 });
-
                             }
                         }
                     });

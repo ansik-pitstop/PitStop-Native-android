@@ -162,6 +162,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                     }
                     mCallback.onServicesRetrieved(services);
                     mCallback.onRecallRetrieved(recalls);
+                    localCarAdapter.updateCar(Car.createCar(response));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
