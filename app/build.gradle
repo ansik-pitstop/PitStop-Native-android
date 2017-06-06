@@ -49,8 +49,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
-        versionCode 142
-        versionName "3.0.0"
+        versionCode 145
+        versionName "3.0.3"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
@@ -81,6 +81,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+
         }
     }
     compileOptions {
@@ -148,6 +149,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

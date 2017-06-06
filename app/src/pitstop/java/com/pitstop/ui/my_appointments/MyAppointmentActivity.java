@@ -17,6 +17,7 @@ import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -34,8 +35,6 @@ import java.util.List;
  */
 
 public class MyAppointmentActivity extends AppCompatActivity {
-
-    public static final String EXTRA_CAR = "extra_car";
 
     private RecyclerView mApptsList;
     private AppointmentsAdapter mAppointmentAdapter;
@@ -62,7 +61,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = new NetworkHelper(application);
         localAppointmentAdapter = new LocalAppointmentAdapter(application);
-        dashboardCar = getIntent().getParcelableExtra(EXTRA_CAR);
+        dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
         mAppts = new ArrayList<Appointment>();
         fetchAppointments();
@@ -88,6 +87,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
                         JSONObject jAppoiontment = responseArray.getJSONObject(i);
                         Appointment addAppt = new Appointment();
                         addAppt.setDate(jAppoiontment.getString("appointmentDate"));
+                        System.out.println("Testing date "+addAppt.getDate());
                         addAppt.setComments(jAppoiontment.getString("comments"));
                         addAppt.setState(jAppoiontment.getString("state"));
                         mAppts.add(addAppt);
