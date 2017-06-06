@@ -61,6 +61,7 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -302,8 +303,21 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         logAuthInfo();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
 
-        setTabUI();
+
+        storeUserFromPreferences();//setTabUI();
         setFabUI();
+    }
+
+    private void storeUserFromPreferences(){
+        networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                UserAdapter userAdapter = new UserAdapter(application);
+                userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
+                setTabUI();
+
+            }
+        });
     }
 
     public void changeTheme(boolean darkTheme) {
