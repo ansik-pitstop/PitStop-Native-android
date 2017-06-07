@@ -4,9 +4,13 @@ import android.os.Handler;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.UpcomingIssue;
+import com.pitstop.models.service.UpcomingService;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -46,7 +50,9 @@ public class GetUpcomingServicesUseCaseImpl implements GetUpcomingServicesUseCas
 
                             @Override
                             public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
-                                callback.onGotUpcomingServices(carIssueUpcoming);
+                                //Return ordered upcoming services through parameter to callback
+                                callback.onGotUpcomingServices(
+                                        getUpcomingServicesOrdered(carIssueUpcoming));
                             }
 
                             @Override
@@ -62,5 +68,23 @@ public class GetUpcomingServicesUseCaseImpl implements GetUpcomingServicesUseCas
             }
         });
 
+    }
+
+    private List<UpcomingService> getUpcomingServicesOrdered(List<UpcomingIssue> carIssueUpcoming){
+
+        List<UpcomingService> upcomingServices = new ArrayList<>();
+
+        for (UpcomingIssue i: carIssueUpcoming){
+            upcomingServices.add(new UpcomingService(i));
+        }
+
+        Collections.sort(upcomingServices, new Comparator<UpcomingService>() {
+            @Override
+            public int compare(UpcomingService leftService, UpcomingService rightService) {
+                return rightService.getMileage() - leftService.getMileage();
+            }
+        });
+
+        return upcomingServices;
     }
 }
