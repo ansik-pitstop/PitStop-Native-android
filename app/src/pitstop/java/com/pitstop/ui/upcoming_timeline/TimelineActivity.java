@@ -23,7 +23,7 @@ import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
-import com.pitstop.models.Issue;
+import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.Timeline;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -85,9 +85,9 @@ public class TimelineActivity extends AppCompatActivity {
     MixpanelHelper mMixPanelHelper;
     Car mCar;
     Timeline mTimelineData;
-    Map<String, List<Issue>> mTimeLineMap; //Kilometer Section - List of  items in the section
+    Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
-    List<Issue> mIssueList;
+    List<UpcomingIssue> mIssueList;
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
@@ -113,7 +113,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void done(String response, RequestError requestError) {
                 if (response != null && requestError == null) {
                     mTimelineData = new Gson().fromJson(response, Timeline.class);
-                    mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
+                    mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getUpcomingIssues();
                     if (mIssueList != null && mIssueList.size() != 0)
                         populateList();
                     else
@@ -151,16 +151,16 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void prepareMap() {
-        List<Issue> newIssueList;
-        for (Issue issue : mIssueList){
-            if (mTimeLineMap.containsKey(issue.getIntervalMileage())) {
-                newIssueList = mTimeLineMap.get(issue.getIntervalMileage());
+        List<UpcomingIssue> newIssueList;
+        for (UpcomingIssue upcomingIssue : mIssueList){
+            if (mTimeLineMap.containsKey(upcomingIssue.getIntervalMileage())) {
+                newIssueList = mTimeLineMap.get(upcomingIssue.getIntervalMileage());
             }
             else {
                 newIssueList = new ArrayList<>();
             }
-            newIssueList.add(issue);
-            mTimeLineMap.put(issue.getIntervalMileage(), newIssueList);
+            newIssueList.add(upcomingIssue);
+            mTimeLineMap.put(upcomingIssue.getIntervalMileage(), newIssueList);
         }
     }
 
@@ -201,14 +201,14 @@ public class TimelineActivity extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
     }
 
-    private void showIssueDetails(Issue issue) {
+    private void showIssueDetails(UpcomingIssue upcomingIssue) {
         if (mIssueDetailsViewVisible || mIssueDetailsViewAnimating) return;
-        mIssueTitle.setText(issue.getIssueDetail().getAction() + " " + issue.getIssueDetail().getItem());
-        if (!TextUtils.isEmpty(issue.getIssueDetail().getDescription())) {
+        mIssueTitle.setText(upcomingIssue.getIssueDetail().getAction() + " " + upcomingIssue.getIssueDetail().getItem());
+        if (!TextUtils.isEmpty(upcomingIssue.getIssueDetail().getDescription())) {
             mIssueDescriptionContainer.setVisibility(View.VISIBLE);
-            mIssueDescription.setText(issue.getIssueDetail().getDescription());
+            mIssueDescription.setText(upcomingIssue.getIssueDetail().getDescription());
         }
-        switch (issue.getPriority()) {
+        switch (upcomingIssue.getPriority()) {
             case 1:
                 mIssueSeverityContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_low_indicator));
                 mIssueSeverityText.setText(this.getResources().getStringArray(R.array.severity_indicators)[0]);
@@ -309,7 +309,7 @@ public class TimelineActivity extends AppCompatActivity {
             if (holder instanceof MileageViewHolder){
                 ((MileageViewHolder) holder).bind((String)mTimelineDisplayList.get(position));
             } else if (holder instanceof IssueViewHolder){
-                ((IssueViewHolder) holder).bind((Issue)mTimelineDisplayList.get(position));
+                ((IssueViewHolder) holder).bind((UpcomingIssue)mTimelineDisplayList.get(position));
             }
         }
 
@@ -345,7 +345,7 @@ public class TimelineActivity extends AppCompatActivity {
     class IssueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView mTitleTextView;
-        Issue issue;
+        UpcomingIssue upcomingIssue;
 
         public IssueViewHolder(View itemView) {
             super(itemView);
@@ -353,14 +353,14 @@ public class TimelineActivity extends AppCompatActivity {
             mTitleTextView = (TextView) itemView.findViewById(R.id.title);
         }
 
-        public void bind(Issue issue) {
-            this.issue = issue;
-            mTitleTextView.setText(issue.getIssueDetail().getAction() + " " +issue.getIssueDetail().getItem());
+        public void bind(UpcomingIssue upcomingIssue) {
+            this.upcomingIssue = upcomingIssue;
+            mTitleTextView.setText(upcomingIssue.getIssueDetail().getAction() + " " + upcomingIssue.getIssueDetail().getItem());
         }
 
         @Override
         public void onClick(View view) {
-            showIssueDetails(issue);
+            showIssueDetails(upcomingIssue);
         }
     }
 

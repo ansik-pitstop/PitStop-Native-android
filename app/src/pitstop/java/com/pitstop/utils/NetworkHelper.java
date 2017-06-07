@@ -1,7 +1,6 @@
 package com.pitstop.utils;
 
 import android.content.Context;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
@@ -11,7 +10,7 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.network.HttpRequest;

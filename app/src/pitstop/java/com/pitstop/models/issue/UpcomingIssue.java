@@ -1,4 +1,4 @@
-package com.pitstop.models;
+package com.pitstop.models.issue;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by zohaibhussain on 2017-01-11.
  */
 
-public class Issue {
+public class UpcomingIssue implements Issue{
     @SerializedName("id")
     @Expose
     private Integer id;
@@ -70,8 +70,29 @@ public class Issue {
         this.fixedMonth = fixedMonth;
     }
 
-    public Integer getPriority() {
+    @Override
+    public int getIssueId(){
+        return id.intValue();
+    }
+
+    @Override
+    public int getPriority() {
         return priority;
+    }
+
+    @Override
+    public String getDescription() {
+        return issueDetail.getDescription();
+    }
+
+    @Override
+    public String getItem() {
+        return issueDetail.getItem();
+    }
+
+    @Override
+    public String getAction() {
+        return issueDetail.getAction();
     }
 
     public void setPriority(Integer priority) {

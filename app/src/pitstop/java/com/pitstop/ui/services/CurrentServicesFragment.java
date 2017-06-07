@@ -21,7 +21,7 @@ import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 
 import java.util.ArrayList;

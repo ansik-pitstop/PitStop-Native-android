@@ -2,7 +2,7 @@ package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;

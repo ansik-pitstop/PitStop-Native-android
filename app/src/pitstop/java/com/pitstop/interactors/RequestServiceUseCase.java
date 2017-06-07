@@ -1,6 +1,6 @@
 package com.pitstop.interactors;
 
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.

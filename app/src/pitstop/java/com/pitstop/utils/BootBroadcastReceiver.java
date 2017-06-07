@@ -15,9 +15,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     static final String ACTION = "android.intent.action.BOOT_COMPLETED";
     @Override
     public void onReceive(Context context, Intent intent) {
-        // BOOT_COMPLETED start Service
+        // BOOT_COMPLETED start CarService
         if (intent.getAction().equals(ACTION)) {
-            //Service
+            //CarService
             Log.i(MainActivity.TAG,"Starting auto connect service from boot broadcast receiver");
             Intent serviceIntent = new Intent(context, BluetoothAutoConnectService.class);
             context.startService(serviceIntent);
