@@ -22,8 +22,13 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUpcomingServicesUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.Timeline;
+import com.pitstop.models.service.UpcomingService;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
@@ -36,6 +41,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,6 +97,9 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
 
+    @Inject
+    GetUpcomingServicesUseCase getUpcomingServicesUseCase;
+
     public static UpcomingServicesFragment newInstance(){
         UpcomingServicesFragment fragment = new UpcomingServicesFragment();
         return fragment;
@@ -107,6 +117,12 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getContext().getApplicationContext()))
+                .build();
+        component.injectUseCases(this);
+
     }
 
     @Override
@@ -130,6 +146,17 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     }
 
     private void fetchData() {
+        getUpcomingServicesUseCase.execute(new GetUpcomingServicesUseCase.Callback() {
+            @Override
+            public void onGotUpcomingServices(List<UpcomingService> doneServices) {
+
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
         Log.d("TAG","UpcomingServicesFragment, fetchData()");
         mLoadingSpinner.setVisibility(View.VISIBLE);
         mNetworkHelper.getUpcomingCarIssues(dashboardCar.getId(), new RequestCallback() {
