@@ -11,19 +11,21 @@ import com.pitstop.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 5/31/2017.
  */
 
-public class GetUpcomingServicesUseCaseImpl implements GetUpcomingServicesUseCase {
+public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMapUseCase {
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private Handler handler;
 
-    public GetUpcomingServicesUseCaseImpl(UserRepository userRepository
+    public GetUpcomingServicesMapUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository, Handler handler) {
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
@@ -50,15 +52,18 @@ public class GetUpcomingServicesUseCaseImpl implements GetUpcomingServicesUseCas
 
                             @Override
                             public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
+
                                 //Return ordered upcoming services through parameter to callback
-                                callback.onGotUpcomingServices(
-                                        getUpcomingServicesOrdered(carIssueUpcoming));
+                                List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
+                                Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
+                                callback.onGotUpcomingServicesMap(map);
                             }
 
                             @Override
                             public void onError() {
                                 callback.onError();
                             }
+
                         });
             }
 
@@ -81,10 +86,32 @@ public class GetUpcomingServicesUseCaseImpl implements GetUpcomingServicesUseCas
         Collections.sort(upcomingServices, new Comparator<UpcomingService>() {
             @Override
             public int compare(UpcomingService leftService, UpcomingService rightService) {
-                return rightService.getMileage() - leftService.getMileage();
+                return leftService.getMileage() - rightService.getMileage();
             }
         });
 
         return upcomingServices;
+    }
+
+    private Map<Integer,List<UpcomingService>> getUpcomingServiceMileageMap(
+            List<UpcomingService> upcomingServices){
+
+        Map<Integer,List<UpcomingService>> map = new LinkedHashMap<>();
+
+        List<UpcomingService> services;
+
+        for (UpcomingService u: upcomingServices){
+            if (map.containsKey(u.getMileage())){
+                services = map.get(u.getMileage());
+            }
+            else{
+                services = new ArrayList<>();
+            }
+
+            services.add(u);
+            map.put(u.getMileage(),services);
+        }
+
+        return map;
     }
 }
