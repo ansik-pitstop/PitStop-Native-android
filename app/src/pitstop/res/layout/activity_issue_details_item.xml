@@ -106,7 +106,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="This is a potential engine upcomingIssue which you don't have to worry about at the moment."
+                        android:text="This is a potential engine issue which you don't have to worry about at the moment."
                         android:textSize="16sp"
                         android:textStyle="italic"
                         android:visibility="gone"/>
