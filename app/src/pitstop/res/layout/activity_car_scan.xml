@@ -231,7 +231,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="8dp"
                             android:layout_toRightOf="@+id/car_engine_image"
-                            android:text="Engine issues"/>
+                            android:text="Engine upcomingIssues"/>
 
                         <include
                             android:id="@+id/loading_engine_issues"
