@@ -235,7 +235,7 @@
     <!--android:onClick="postIssueAndRequestService"-->
     <!--android:paddingLeft="16dp"-->
     <!--android:paddingRight="16dp"-->
-    <!--android:text="Request CarService Right Now"-->
+    <!--android:text="Request Service Right Now"-->
     <!--android:textColor="#fff"/>-->
 
 </LinearLayout>
