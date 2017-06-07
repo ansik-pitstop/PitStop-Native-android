@@ -1,6 +1,6 @@
 package com.pitstop.interactors;
 
-import com.pitstop.models.issue.UpcomingIssue;
+import com.pitstop.models.service.UpcomingService;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface GetUpcomingServicesUseCase extends Interactor {
     interface Callback{
-        void onGotUpcomingServices(List<UpcomingIssue> doneServices);
+        void onGotUpcomingServices(List<UpcomingService> doneServices);
         void onError();
     }
 
