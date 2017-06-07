@@ -139,11 +139,11 @@ public class CarIssueRepository {
     }
 
     public synchronized List<CarIssue> getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
-        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(carId,callback));
+        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
         return carIssueAdapter.getAllUpcomingCarIssues();
     }
 
-    private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(final int carId, CarIssueGetUpcomingCallback callback){
+    private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
