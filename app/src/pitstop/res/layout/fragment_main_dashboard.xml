@@ -768,7 +768,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:text="Request Service"
+            android:text="Request CarService"
             android:visibility="invisible"/>-->
 
     </RelativeLayout>
