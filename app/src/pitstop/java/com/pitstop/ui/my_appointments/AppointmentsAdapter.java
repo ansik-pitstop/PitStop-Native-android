@@ -88,18 +88,8 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
     }
 
     private String dateFormat(String date){
-        SimpleDateFormat sdf;
-        final String DEVICE_STRING_PRIM = "yyyy-MM-dd'T'HH:mm:ssXXX";
-        final String NEW_DEVICE_STRING_ALT = "yyyy-MM-dd'T'HH:mm:ss";
-
-        //Try to use the better date format which works on some devices
-        try{
-            sdf = new SimpleDateFormat(DEVICE_STRING_PRIM);
-        }
-        //Use alternate date format which works on all devices
-        catch(IllegalArgumentException e){
-            sdf = new SimpleDateFormat(NEW_DEVICE_STRING_ALT);
-        }
+        date = date.substring(0,22) + date.substring(23);// remove the ":" in the timezone that the backend gives
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
         newFormat.setTimeZone(TimeZone.getTimeZone("America/Toronto"));
         try {
