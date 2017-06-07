@@ -102,7 +102,7 @@
     <!--android:layout_height="wrap_content"-->
     <!--android:layout_alignParentStart="true"-->
     <!--android:layout_margin="4dp"-->
-    <!--android:text="Service"-->
+    <!--android:text="CarService"-->
     <!--android:textColor="@color/text_secondary"-->
     <!--android:textSize="16sp"/>-->
 
@@ -235,7 +235,7 @@
     <!--android:onClick="postIssueAndRequestService"-->
     <!--android:paddingLeft="16dp"-->
     <!--android:paddingRight="16dp"-->
-    <!--android:text="Request Service Right Now"-->
+    <!--android:text="Request CarService Right Now"-->
     <!--android:textColor="#fff"/>-->
 
 </LinearLayout>
