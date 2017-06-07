@@ -102,7 +102,7 @@
     <!--android:layout_height="wrap_content"-->
     <!--android:layout_alignParentStart="true"-->
     <!--android:layout_margin="4dp"-->
-    <!--android:text="CarService"-->
+    <!--android:text="Service"-->
     <!--android:textColor="@color/text_secondary"-->
     <!--android:textSize="16sp"/>-->
 
