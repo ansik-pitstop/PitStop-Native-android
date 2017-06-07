@@ -69,7 +69,7 @@
     <!-- UartService -->
     <string name="report_data">Terminal upload data:</string>
 
-    <!-- CarService request dialog-->
+    <!-- service request dialog-->
     <string name="service_request_dialog_pick_date_hint">Tap to pick a date</string>
     <string name="service_request_dialog_pick_time_hint">Tap to pick a time</string>
     <string name="service_request_dialog_additional_comments_hint_comments">Additional comments</string>
@@ -93,7 +93,7 @@
     <!--for views-->
     <string name="service_request_button">Request Service</string>
 
-    <!--preset upcomingIssue descriptions-->
+    <!--preset issue descriptions-->
     <string name="flat_tire_description">The tires on your vehicle are what keep it rolling. They take a beating from sharp turns, rocks, potholes, changes in temperature and the wear from friction on the road. It\'s time for you to inspect tire pressure and wear. Tires in poor condition can cause other mechanical parts to wear out faster.</string>
     <string name="engine_oil_filter_description">Change engine oil and replace engine filter to remove contaminants and prolong the life of your motor.</string>
     <string name="wipers_fluids_description">Visibility is a critical part of safety while driving. Making sure your fluids are topped up and windshield wipers are intact is an important way to make sure your car is safe to drive.</string>
@@ -111,7 +111,7 @@
     <string name="preset_issue_item_shuttle_service">Shuttle Service</string>
     <string name="add_preset_issue_dialog_prompt_message">Do you want to add more services in addition to the services already in your dashboard?</string>
 
-    <!--clear upcomingIssue dialog-->
+    <!--clear issue dialog-->
     <string name="dialog_clear_issue_title">When was this service completed?</string>
 
     <string name="start_dialog_setup_title">Setup</string>
@@ -141,7 +141,7 @@
     <!--        Login Activity    -->
     <string name="feature_bluetooth">Pitstop uses a device that is installed into the diagnostic port of your vehicle which transmits the vehicle\'s engine and sensor data to your phone over bluetooth.</string>
     <string name="feature_cloud">"Pitstop is thoroughly compiling data sources from manufacturers, dealerships, and other vehicles to consistently provide with you with the most accurate information about your vehicle.</string>
-    <string name="feature_notification">Pitstop alerts you when your vehicle is due for service, when there\'s a manufacturing recall, and when there is an upcomingIssue with your engine.</string>
+    <string name="feature_notification">Pitstop alerts you when your vehicle is due for service, when there\'s a manufacturing recall, and when there is an issue with your engine.</string>
     <string name="debug_toast_message">This is a debug build - </string>
     <string name="logging_in_message">Logging in...</string>
     <string name="sign_up_fb">Sign up with facebook</string>
