@@ -69,7 +69,7 @@
     <!-- UartService -->
     <string name="report_data">Terminal upload data:</string>
 
-    <!-- service request dialog-->
+    <!-- Service request dialog-->
     <string name="service_request_dialog_pick_date_hint">Tap to pick a date</string>
     <string name="service_request_dialog_pick_time_hint">Tap to pick a time</string>
     <string name="service_request_dialog_additional_comments_hint_comments">Additional comments</string>
