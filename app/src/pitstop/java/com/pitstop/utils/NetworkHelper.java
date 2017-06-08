@@ -1,7 +1,6 @@
 package com.pitstop.utils;
 
 import android.content.Context;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
@@ -93,7 +92,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void get(String uri, RequestCallback callback) {
+    public void get(String uri, RequestCallback callback) {
         if (!isConnected(context)) {
             Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
@@ -108,7 +107,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void put(String uri, RequestCallback callback, JSONObject body) {
+    public void put(String uri, RequestCallback callback, JSONObject body) {
         if (!isConnected(context)) {
             Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;

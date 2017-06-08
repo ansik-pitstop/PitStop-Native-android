@@ -9,6 +9,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * User repository, use this class to modify, retrieve, and delete user data.
@@ -25,6 +26,11 @@ public class UserRepository {
 
     public interface UserSetCarCallback {
         void onSetCar();
+        void onError();
+    }
+
+    public interface UserSetSmoochMessageSentCallback{
+        void onSmoochMessageSentSet();
         void onError();
     }
 
@@ -210,6 +216,49 @@ public class UserRepository {
         return requestCallback;
     }
 
+    public void setUserSmoochMessageSent(final boolean sent,final int userId
+            , final UserSetSmoochMessageSentCallback callback){
 
+        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        JSONObject options = new JSONObject(response);
+                        options.put("initialSmoochMessageSentOnce",sent);
+                        RequestCallback requestCallback = getSetUserSentSmoochMessageCallback(callback);
+                        networkHelper.put("user/" + userId + "/settings", requestCallback, options);
+                    }
+                    catch(JSONException e){}
+
+                }
+                else{
+                    callback.onError();
+                }
+            }
+        });
+    }
+
+    private RequestCallback getSetUserSentSmoochMessageCallback(UserSetSmoochMessageSentCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onSmoochMessageSentSet();
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JsonIOException e){
+                    callback.onError();
+                }
+            }
+        };
+
+        return requestCallback;
+    }
 
 }
