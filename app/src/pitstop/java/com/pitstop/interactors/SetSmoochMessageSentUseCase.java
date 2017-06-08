@@ -10,5 +10,5 @@ public interface SetSmoochMessageSentUseCase extends Runnable {
         void onError();
     }
 
-    void execute(boolean sent, int userId, Callback callback);
+    void execute(boolean sent, Callback callback);
 }

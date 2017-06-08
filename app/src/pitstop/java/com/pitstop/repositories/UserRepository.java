@@ -221,8 +221,10 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public void setUserSmoochMessageSent(final boolean sent,final int userId
+    public void setUserSmoochMessageSent(final boolean sent
             , final UserSetSmoochMessageSentCallback callback){
+
+        final int userId = userAdapter.getUser().getId();
 
         networkHelper.getUserSettingsById(userId, new RequestCallback() {
             @Override
@@ -266,10 +268,9 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public void isSmoochMessageSent(final int userId
-            , final IsSmoochMessageSentCallback callback){
+    public void isSmoochMessageSent(final IsSmoochMessageSentCallback callback){
 
-        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){

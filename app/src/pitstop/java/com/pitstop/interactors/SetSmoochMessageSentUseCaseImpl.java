@@ -3,6 +3,7 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.database.UserAdapter;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 /**
@@ -14,7 +15,6 @@ public class SetSmoochMessageSentUseCaseImpl implements SetSmoochMessageSentUseC
     private NetworkHelper networkHelper;
     private UserAdapter userAdapter;
     private Callback callback;
-    private int userId;
     private boolean sent;
 
     public SetSmoochMessageSentUseCaseImpl(NetworkHelper networkHelper, UserAdapter userAdapter) {
@@ -23,15 +23,26 @@ public class SetSmoochMessageSentUseCaseImpl implements SetSmoochMessageSentUseC
     }
 
     @Override
-    public void execute(boolean sent, int userId, Callback callback) {
+    public void execute(boolean sent, Callback callback) {
         this.sent = sent;
-        this.userId = userId;
         this.callback = callback;
         new Handler().post(this);
     }
 
     @Override
     public void run() {
-        
+        UserRepository.getInstance(userAdapter,networkHelper).setUserSmoochMessageSent(sent
+                , new UserRepository.UserSetSmoochMessageSentCallback() {
+
+            @Override
+            public void onSmoochMessageSentSet() {
+                callback.onUserSmoochMessageVarSet();
+            }
+
+            @Override
+            public void onError() {
+                callback.onError();
+            }
+        });
     }
 }
