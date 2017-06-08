@@ -14,7 +14,6 @@ import dagger.Provides;
 @Module(includes = ContextModule.class)
 public class NetworkModule {
 
-    @ApplicationScope
     @Provides
     public NetworkHelper networkHelper(Context context){
         return new NetworkHelper(context);

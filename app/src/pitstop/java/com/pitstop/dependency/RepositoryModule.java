@@ -8,6 +8,8 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -19,21 +21,21 @@ import dagger.Provides;
 public class RepositoryModule {
 
     @Provides
-    @ApplicationScope
+    @Singleton
     public UserRepository getUserRepository(UserAdapter userAdapter
             , NetworkHelper networkHelper){
         return new UserRepository(userAdapter,networkHelper);
     }
 
     @Provides
-    @ApplicationScope
+    @Singleton
     public CarRepository getCarRepository(LocalCarAdapter localCarAdapter
             , NetworkHelper networkHelper){
         return new CarRepository(localCarAdapter,networkHelper);
     }
 
     @Provides
-    @ApplicationScope
+    @Singleton
     public CarIssueRepository getCarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter
             , NetworkHelper networkHelper){
         return new CarIssueRepository(localCarIssueAdapter,networkHelper);

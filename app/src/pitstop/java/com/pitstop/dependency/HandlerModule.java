@@ -12,7 +12,6 @@ import dagger.Provides;
 @Module
 public class HandlerModule {
 
-    @ApplicationScope
     @Provides
     Handler handler(){
         return new Handler();
