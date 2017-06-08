@@ -16,10 +16,11 @@ import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
-import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
@@ -27,6 +28,8 @@ import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +51,12 @@ public class CurrentServicesFragment extends Fragment{
     private List<CarIssue> carIssueList = new ArrayList<>();
     private boolean start = true;
 
+    @Inject
+    GetUserCarUseCase getUserCar;
+
+    @Inject
+    GetCurrentServicesUseCase getCurrentServices;
+
     public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
         return fragment;
@@ -62,6 +71,13 @@ public class CurrentServicesFragment extends Fragment{
         networkHelper = new NetworkHelper(getActivity().getApplicationContext());
         carIssueLocalStore = new LocalCarIssueAdapter(getActivity().getApplicationContext());
         userAdapter = new UserAdapter(getActivity().getApplicationContext());
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getContext().getApplicationContext()))
+                .build();
+
+        component.injectUseCases(this);
+
     }
 
     @Override
@@ -79,12 +95,11 @@ public class CurrentServicesFragment extends Fragment{
     //Call whenever you want to completely new UI objects
     private void initUI(){
         final Activity activity = this.getActivity();
-        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userAdapter, networkHelper);
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        getUserCar.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList, getContext()
-                        ,(MainActivityCallback)activity);
+                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
+                        ,(MainActivityCallback)activity, getContext());
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
                 updateUI();
@@ -110,9 +125,6 @@ public class CurrentServicesFragment extends Fragment{
 
     //Call whenever you want the most recent data from the backend
     private void updateUI(){
-        GetCurrentServicesUseCase getCurrentServices
-                = new GetCurrentServicesUseCaseImpl(userAdapter,carIssueLocalStore,networkHelper);
-
         getCurrentServices.execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {

@@ -21,8 +21,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
-import com.pitstop.ui.MainActivity;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;
@@ -45,24 +43,20 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Context context
-            ,MainActivityCallback tutorialCallback) {
-
-        this.mainActivityCallback = tutorialCallback;
     @Inject
     MarkServiceDoneUseCase markServiceDoneUseCase;
 
-    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues, Activity activity) {
+    public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues
+                , MainActivityCallback tutorialCallback,Context context) {
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
-        activityReference = new WeakReference<>(activity);
-
+        this.context = context;
         UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(activity.getApplicationContext()))
+                .contextModule(new ContextModule(context.getApplicationContext()))
                 .build();
 
         component.injectUseCases(this);
-        this.context = context;
+        this.mainActivityCallback = tutorialCallback;
     }
 
 
@@ -157,9 +151,6 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                             carIssue.setDay(day);
 
                             //When the date is set, update issue to done on that date
-                            MarkServiceDoneUseCase markServiceDoneUseCase
-                                    = new MarkServiceDoneUseCaseImpl(new LocalCarIssueAdapter(context)
-                                    ,new NetworkHelper(context.getApplicationContext()));
                             markServiceDoneUseCase.execute(carIssue, new MarkServiceDoneUseCase.Callback() {
                                 @Override
                                 public void onServiceMarkedAsDone() {
