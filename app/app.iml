@@ -50,6 +50,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/assets" type="java-test-resource" />
@@ -58,13 +65,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/assets" type="java-resource" />
@@ -73,14 +73,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/assets" type="java-test-resource" />
@@ -89,6 +81,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -229,6 +229,7 @@
     <orderEntry type="library" exported="" name="core-4.6.1" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-25.1.0" level="project" />
     <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
-    <orderEntry type="library" exported="" name="android-android-24" level="project" />
+    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
+    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
   </component>
 </module>
