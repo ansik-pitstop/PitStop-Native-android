@@ -1,6 +1,7 @@
 package com.pitstop.ui.main_activity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -566,6 +567,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             }
         });
 
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if (fragment instanceof MainDashboardCallback){
+            mainDashboardCallback = (MainDashboardCallback)fragment;
+        }
     }
 
     @Override

@@ -198,12 +198,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         }
     };
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        MainActivity.mainDashboardCallback = this;
-    }
-
     public static MainDashboardFragment newInstance() {
         MainDashboardFragment fragment = new MainDashboardFragment();
         return fragment;
