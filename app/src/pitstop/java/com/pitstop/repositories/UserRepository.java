@@ -34,6 +34,11 @@ public class UserRepository {
         void onError();
     }
 
+    public interface IsSmoochMessageSentCallback{
+        void onIsSmoochSentRetrieved(boolean sent);
+        void onError();
+    }
+
     public interface UserGetCallback {
         void onGotUser(User user);
         void onError();
@@ -259,6 +264,30 @@ public class UserRepository {
         };
 
         return requestCallback;
+    }
+
+    public void isSmoochMessageSent(final int userId
+            , final IsSmoochMessageSentCallback callback){
+
+        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        JSONObject options = new JSONObject(response);
+                        boolean sent = options.getBoolean("initialSmoochMessageSentOnce");
+                        callback.onIsSmoochSentRetrieved(sent);
+                    }
+                    catch(JSONException e){
+                        callback.onError();
+                    }
+
+                }
+                else{
+                    callback.onError();
+                }
+            }
+        });
     }
 
 }
