@@ -233,7 +233,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
 
-    private boolean isRefreshingFromServer = false;
     private boolean isFabOpen = false;
 
     public static MainDashboardCallback mainDashboardCallback;
@@ -620,14 +619,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void broadCastCarDataToFragments(){
-        //MainDashboardFragment.setDashboardCar(getCurrentCar());
-
-        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
-//        if (mainDashboardCallback != null){
-//            mainDashboardCallback.onDashboardCarUpdated();
-//        }
 
         MainServicesFragment.setDashboardCar(getCurrentCar());
+
         //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
         if (servicesCallback != null){
             servicesCallback.onDashboardCarUpdated();
@@ -1039,7 +1033,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         }
 
                                         broadCastCarDataToFragments();
-                                        //mainDashboardCallback.setCarDetailsUI();
                                         loadDealershipCustomDesign();
 
                                         carLocalStore.deleteAllCars();
