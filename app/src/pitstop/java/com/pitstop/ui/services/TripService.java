@@ -14,17 +14,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.ui.my_trips.MyTripsActivity;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +36,7 @@ public class TripService extends Service {
     private Criteria criteria;
     private String provider;
     private List<Location> locations;
-    private final int MIN_TIME = 1000;
+    private final int MIN_TIME = 2000;
     private final int MIN_DISTANCE = 100;
     private Trip trip;
     private String stringTrip;
@@ -91,12 +86,7 @@ public class TripService extends Service {
 
             }
         };
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        criteria = new Criteria();
-        provider = locationManager.getBestProvider(criteria,true);
-        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
-            locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
-        }
+        registerLocationListener();
         locations = new ArrayList<>();
 
         return START_STICKY;
@@ -106,8 +96,22 @@ public class TripService extends Service {
         trip.addPoint(new TripLocation(location));
     }
 
+    public void unregisterLocationListener(){
+        locationManager.removeUpdates(locationListener);
+        locationManager = null;
+    }
+    public void registerLocationListener(){
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria,true);
+        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
+        }
+    }
+
     @Override
     public void onDestroy() {
+        unregisterLocationListener();
         Intent intent = new Intent("com.pitstop.TRIP_BROADCAST");
         String jsonData;
         jsonData = gson.toJson(trip);

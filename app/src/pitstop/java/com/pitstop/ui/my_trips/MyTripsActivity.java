@@ -122,7 +122,7 @@ public class MyTripsActivity extends AppCompatActivity{
     private Gson gson = new Gson();
 
 
-    private static final long MIN_TIME = 1000;
+    private static final long MIN_TIME = 2000;
     private static final float MIN_DISTANCE = 10;
 
     private BitmapDescriptor startIcon;
@@ -214,12 +214,7 @@ public class MyTripsActivity extends AppCompatActivity{
                 }
             }
         };
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        criteria = new Criteria();
-        provider = locationManager.getBestProvider(criteria,true);
-        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
-            locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
-        }
+        registerLocationListener();
         broadcastReceiver = new BroadcastReceiver() {//come out of background
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -271,10 +266,6 @@ public class MyTripsActivity extends AppCompatActivity{
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
-    }
-    @Override
     public void onStart(){
         super.onStart();
         activityActive = true;
@@ -289,11 +280,29 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     public void onStop() {
         super.onStop();
+        System.out.println("Testing onStop");
+        unregisterLocationListener();
         backGroundTrip();
     }
+
+    public void unregisterLocationListener(){
+        locationManager.removeUpdates(locationListener);
+        locationManager = null;
+    }
+    public void registerLocationListener(){
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria,true);
+        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
+        }
+    }
+
     @Override
     protected void onRestart() {//get data from service
         super.onRestart();
+        System.out.println("Testing on onRestart");
+        registerLocationListener();
         if(tripStarted) {
             Intent intent = new Intent(getApplicationContext(), TripService.class);
             stopService(intent);
