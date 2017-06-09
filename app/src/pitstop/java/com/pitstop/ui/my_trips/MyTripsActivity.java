@@ -777,10 +777,5 @@ public class MyTripsActivity extends AppCompatActivity{
             shareTripButton.setVisible(false);
         }
     }
-
-
-    @Override
-    public void finish() {
-        super.finish();
-    }
+    
 }
