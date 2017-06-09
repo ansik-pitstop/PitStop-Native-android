@@ -3,15 +3,18 @@ package com.pitstop.ui.my_trips;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -27,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import android.support.v4.app.ActivityCompat;
@@ -112,7 +116,6 @@ public class MyTripsActivity extends AppCompatActivity{
     private Car dashboardCar;
     private MenuItem shareTripButton;
     private Location lastKnownLocation;
-    private double totalDistance;
     private NetworkHelper networkHelper;
     private Trip trip;
     private List<Trip> locallyStoredTrips;
@@ -214,7 +217,7 @@ public class MyTripsActivity extends AppCompatActivity{
                 }
             }
         };
-        registerLocationListener();
+        //registerLocationListener();
         broadcastReceiver = new BroadcastReceiver() {//come out of background
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -240,6 +243,7 @@ public class MyTripsActivity extends AppCompatActivity{
         loading.setMessage("loading");
         loading.hide();
         boolean isServiceRunning = isMyServiceRunning(TripService.class);
+
         supMapFragment = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -280,9 +284,16 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     public void onStop() {
         super.onStop();
-        System.out.println("Testing onStop");
         unregisterLocationListener();
-        backGroundTrip();
+        if(tripStarted){
+            backGroundTrip();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerLocationListener();
     }
 
     public void unregisterLocationListener(){
@@ -301,13 +312,8 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     protected void onRestart() {//get data from service
         super.onRestart();
-        System.out.println("Testing on onRestart");
-        registerLocationListener();
-        if(tripStarted) {
-            Intent intent = new Intent(getApplicationContext(), TripService.class);
-            stopService(intent);
-        }
-
+        Intent intent = new Intent(getApplicationContext(), TripService.class);
+        stopService(intent);
     }
 
 
@@ -328,7 +334,7 @@ public class MyTripsActivity extends AppCompatActivity{
         trip.addPoint(tripLoc);
         accumulateDistance(lastKnownLocation,location);
         tripView.setSpeed(location.getSpeed()*KMH_FACTOR);
-        tripView.setDistance(totalDistance);
+        tripView.setDistance(trip.getTotalDistance());
         lastKnownLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
     }
 
@@ -374,7 +380,7 @@ public class MyTripsActivity extends AppCompatActivity{
     }
 
     private void accumulateDistance(Location start, Location end){
-        totalDistance += start.distanceTo(end);
+        trip.addDist(start.distanceTo(end));
     }
 
     public void snapCamera(Location location){
@@ -443,6 +449,7 @@ public class MyTripsActivity extends AppCompatActivity{
          if(!activityActive){
              return;
          }
+         //registerLocationListener();
          getInitialLocation();
          trip = serviceTrip;
          tripStarted = true;
@@ -606,7 +613,6 @@ public class MyTripsActivity extends AppCompatActivity{
     public void endTrip(){
         trip.setEnd(new TripLocation(lastKnownLocation));
         trip.setEndAddress(getAddress(lastKnownLocation));
-        trip.setTotalDistance(totalDistance);
         locallyStoredTrips.add(trip);
         localTripAdapter.storeTripData(trip);
         setViewTripHistory();
@@ -761,21 +767,20 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
         if(tripHistory.isVisible()){
-            super.onBackPressed();
+            finish();
         } else if(addTrip.isVisible()){
             setViewTripHistory();
         } else if(tripView.isVisible()){
-            backGroundTrip();
-            super.onBackPressed();
+            finish();
         }else if(prevTripView.isVisible()){
             setViewTripHistory();
             shareTripButton.setVisible(false);
         }
     }
 
+
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_bottom_down_in, R.anim.activity_bottom_down_out);
     }
 }
