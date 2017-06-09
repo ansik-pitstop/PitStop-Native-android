@@ -46,7 +46,7 @@ public class CurrentServicesFragment extends Fragment{
     private LocalCarIssueAdapter carIssueLocalStore;
     private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
-    private boolean start = true;
+    private boolean uiInitialized = false;
 
     public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
@@ -88,6 +88,7 @@ public class CurrentServicesFragment extends Fragment{
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
                 updateUI();
+                uiInitialized = true;
             }
 
             @Override
@@ -102,9 +103,11 @@ public class CurrentServicesFragment extends Fragment{
         super.onResume();
 
         //Update UI any time another activity(non-tab) is finished
-        if (start){ start = false; }
-        else{
+        if (uiInitialized){
             updateUI();
+        }
+        else{
+            initUI();
         }
     }
 
