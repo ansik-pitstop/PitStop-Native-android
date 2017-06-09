@@ -10,14 +10,14 @@ import com.pitstop.utils.NetworkHelper;
  * Created by Karol Zdebel on 6/8/2017.
  */
 
-public class CheckSmoochMessageSentUseCaseImpl implements CheckSmoochMessageSentUseCase {
+public class CheckGreetingsSentUseCaseImpl implements CheckGreetingsSentUseCase {
 
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
     private Callback callback;
 
 
-    public CheckSmoochMessageSentUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
+    public CheckGreetingsSentUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
         this.userAdapter = userAdapter;
         this.networkHelper = networkHelper;
     }

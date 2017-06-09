@@ -231,10 +231,16 @@ public class UserRepository {
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     try{
+                        //Get settings and add boolean
                         JSONObject options = new JSONObject(response);
                         options.put("initialSmoochMessageSentOnce",sent);
                         RequestCallback requestCallback = getSetUserSentSmoochMessageCallback(callback);
-                        networkHelper.put("user/" + userId + "/settings", requestCallback, options);
+
+                        //Create settings JSONObject that back-end understands
+                        JSONObject putSettings = new JSONObject();
+                        putSettings.put("settings",options);
+
+                        networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
                     }
                     catch(JSONException e){}
 

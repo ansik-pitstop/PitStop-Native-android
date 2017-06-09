@@ -62,6 +62,8 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.SetGreetingsSentUseCase;
+import com.pitstop.interactors.SetGreetingsSentUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -72,6 +74,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.DealershipActivity;
 import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
@@ -232,9 +235,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
+    private UserAdapter userAdapter;
 
     private boolean isRefreshingFromServer = false;
     private boolean isFabOpen = false;
+    private boolean userSignedUp;
 
     public static MainDashboardCallback mainDashboardCallback;
     public static MainFragmentCallback servicesCallback;
@@ -249,9 +254,17 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        userSignedUp = getIntent().getBooleanExtra(LoginActivity.USER_SIGNED_UP,false);
+
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
+        userAdapter = new UserAdapter(getApplicationContext());
+
+        //If user just signed up then store the user has not sent its initial smooch message
+        if (userSignedUp){
+            setGreetingsNotSent();
+        }
 
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){
@@ -308,11 +321,25 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         setFabUI();
     }
 
+    private void setGreetingsNotSent(){
+        SetGreetingsSentUseCase setGreetingsSentUseCase = new SetGreetingsSentUseCaseImpl(networkHelper,userAdapter);
+        setGreetingsSentUseCase.execute(false, new SetGreetingsSentUseCase.Callback() {
+            @Override
+            public void onUserSmoochMessageVarSet() {
+                //Do nothing
+            }
+
+            @Override
+            public void onError() {
+                //Error logic here
+            }
+        });
+    }
+
     private void storeUserFromPreferences(){
         networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                UserAdapter userAdapter = new UserAdapter(application);
                 userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
                 setTabUI();
 
@@ -722,6 +749,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         User.getCurrentUser().addProperties(customProperties);
 
                         //Send welcoming message since the first car was added
+                        // 6/9/2018 -> Only add if it hasn't been added yet
                         if (user != null) {
                             Log.d("MainActivity Smooch", "Sending message");
                             Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
