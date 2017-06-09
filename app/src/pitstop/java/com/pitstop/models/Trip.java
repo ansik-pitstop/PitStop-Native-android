@@ -17,7 +17,7 @@ public class Trip  {
     private TripLocation end;
     private String startAddress;
     private String endAddress;
-    private double totalDistance;
+    private double totalDistance = 0;
     private int tripId;
     private List<TripLocation> path = new ArrayList<>();
 
@@ -66,6 +66,10 @@ public class Trip  {
     public double getTotalDistance(){return totalDistance;}
 
     public int getId(){return tripId;}
+
+    public void addDist(double dist){
+        totalDistance += dist;
+    }
 
     public void reset(){
         start = null;
