@@ -738,19 +738,19 @@ public class NetworkHelper {
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
-        getUser(userId, new RequestCallback() {
+        getUserSettingsById(userId, new RequestCallback() {
             // need to add option instead of replace
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null) {
                     try {
-                        JSONObject options = new JSONObject(response).getJSONObject("settings");
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
                         options.put("mainCar",carId);
 
-                        JSONObject putSettings = new JSONObject();
-                        putSettings.put("settings",options);
+                        JSONObject putOptions = new JSONObject();
+                        putOptions.put("settings",options);
 
-                        put("user/" + userId + "/settings", callback, options);
+                        put("user/" + userId + "/settings", callback, putOptions);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

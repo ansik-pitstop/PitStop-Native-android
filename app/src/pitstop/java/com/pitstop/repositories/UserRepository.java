@@ -232,13 +232,13 @@ public class UserRepository {
                 if (requestError == null){
                     try{
                         //Get settings and add boolean
-                        JSONObject options = new JSONObject(response);
-                        options.put("initialSmoochMessageSentOnce",sent);
-                        RequestCallback requestCallback = getSetUserSentSmoochMessageCallback(callback);
+                        JSONObject settings = new JSONObject(response).getJSONObject("user");
+                        settings.put("initialSmoochMessageSentOnce",sent);
 
-                        //Create settings JSONObject that back-end understands
                         JSONObject putSettings = new JSONObject();
-                        putSettings.put("settings",options);
+                        putSettings.put("settings",settings);
+
+                        RequestCallback requestCallback = getSetUserSentSmoochMessageCallback(callback);
 
                         networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
                     }
@@ -281,13 +281,16 @@ public class UserRepository {
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     try{
-                        JSONObject options = new JSONObject(response);
-                        //Users that have registered prior to this patch will not send greeting messages
-                        boolean sent = true;
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        boolean sent;
                         if (options.has("initialSmoochMessageSentOnce")){
                             //New users will have this property
                             sent = options.getBoolean("initialSmoochMessageSentOnce");
+                        }else{
+                            //Users that have registered prior to this patch will not send greeting messages
+                            sent = false;
                         }
+
                         callback.onIsSmoochSentRetrieved(sent);
                     }
                     catch(JSONException e){
