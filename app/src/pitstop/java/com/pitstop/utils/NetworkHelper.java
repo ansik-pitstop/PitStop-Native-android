@@ -734,6 +734,7 @@ public class NetworkHelper {
         });
     }
 
+    // 6/9/2017 -->> Restructured this method so that it doesn't override other settings
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
@@ -744,7 +745,11 @@ public class NetworkHelper {
                 if (requestError == null) {
                     try {
                         JSONObject options = new JSONObject(response).getJSONObject("settings");
-                        options.put("settings", new JSONObject().put("mainCar", carId));
+                        options.put("mainCar",carId);
+
+                        JSONObject putSettings = new JSONObject();
+                        putSettings.put("settings",options);
+
                         put("user/" + userId + "/settings", callback, options);
                     } catch (JSONException e) {
                         e.printStackTrace();

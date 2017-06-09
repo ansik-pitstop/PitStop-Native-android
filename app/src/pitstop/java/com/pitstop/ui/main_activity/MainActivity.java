@@ -62,6 +62,8 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.CheckGreetingsSentUseCase;
+import com.pitstop.interactors.CheckGreetingsSentUseCaseImpl;
 import com.pitstop.interactors.SetGreetingsSentUseCase;
 import com.pitstop.interactors.SetGreetingsSentUseCaseImpl;
 import com.pitstop.models.Car;
@@ -750,12 +752,25 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         //Send welcoming message since the first car was added
                         // 6/9/2018 -> Only add if it hasn't been added yet
-                        if (user != null) {
-                            Log.d("MainActivity Smooch", "Sending message");
-                            Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
-                                    (user.getLastName() == null || user.getLastName().equals("null") ?
-                                            "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                        }
+
+                        CheckGreetingsSentUseCase checkGreetingsSentUseCase
+                                = new CheckGreetingsSentUseCaseImpl(userAdapter,networkHelper);
+                        checkGreetingsSentUseCase.execute(new CheckGreetingsSentUseCase.Callback() {
+                            @Override
+                            public void onGotWhetherSmoochSent(boolean sent) {
+                                if (user != null && !sent) {
+                                    Log.d("MainActivity Smooch", "Sending message");
+                                    Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
+                                            (user.getLastName() == null || user.getLastName().equals("null") ?
+                                                    "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+                                }
+                            }
+
+                            @Override
+                            public void onError() {
+                                //Error logic here
+                            }
+                        });
 
                         Smooch.track("User Logged In");
 

@@ -282,7 +282,12 @@ public class UserRepository {
                 if (requestError == null){
                     try{
                         JSONObject options = new JSONObject(response);
-                        boolean sent = options.getBoolean("initialSmoochMessageSentOnce");
+                        //Users that have registered prior to this patch will not send greeting messages
+                        boolean sent = true;
+                        if (options.has("initialSmoochMessageSentOnce")){
+                            //New users will have this property
+                            sent = options.getBoolean("initialSmoochMessageSentOnce");
+                        }
                         callback.onIsSmoochSentRetrieved(sent);
                     }
                     catch(JSONException e){
