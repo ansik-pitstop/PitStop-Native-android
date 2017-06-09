@@ -386,6 +386,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
 
+
                     mixpanelHelper.trackButtonTapped("CurrentCarButton",MixpanelHelper.SETTINGS_VIEW);
 
                     //Check if the vehicle preference is already a current, if so return
