@@ -42,10 +42,11 @@ public class TripService extends Service {
     private String provider;
     private List<Location> locations;
     private final int MIN_TIME = 1000;
-    private final int MIN_DISTANCE = 100;
+    private final int MIN_DISTANCE = 10;
     private Trip trip;
     private String stringTrip;
     private Gson gson = new Gson();
+    private Location lastKnownLocation;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -96,18 +97,24 @@ public class TripService extends Service {
         provider = locationManager.getBestProvider(criteria,true);
         if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
             locationManager.requestLocationUpdates(provider,MIN_TIME,MIN_DISTANCE,locationListener);
+            lastKnownLocation = locationManager.getLastKnownLocation(provider);
         }
         locations = new ArrayList<>();
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void locationChanged(Location location){
         trip.addPoint(new TripLocation(location));
+        trip.addDist(lastKnownLocation.distanceTo(location));
+        lastKnownLocation = location;
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+        locationManager.removeUpdates(locationListener);
+        locationManager = null;
         Intent intent = new Intent("com.pitstop.TRIP_BROADCAST");
         String jsonData;
         jsonData = gson.toJson(trip);
@@ -116,7 +123,6 @@ public class TripService extends Service {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManger.cancel(154);
         sendBroadcast(intent);
-
     }
     @Override
     public IBinder onBind(Intent arg0) {
