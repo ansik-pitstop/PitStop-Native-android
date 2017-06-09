@@ -11,6 +11,23 @@
         android:orientation="horizontal"
         android:visibility="visible" />
 
+    <android.support.v7.widget.CardView
+        android:id="@+id/add_own_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:layout_margin="10dp"
+            android:text="I'll add my own"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+    </android.support.v7.widget.CardView>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

@@ -16,4 +16,8 @@ public class ShopSearchPresenter {
     public void focusSearch(){
         shopSearch.focusSearch();
     }
+    public void setViewShopForm(){
+        System.out.println("Testing presenter setView");
+        switcher.setViewShopForm();
+    }
 }

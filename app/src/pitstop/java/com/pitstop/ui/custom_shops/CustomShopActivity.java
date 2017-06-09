@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragment;
+import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
 
@@ -20,6 +21,7 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
     private ShopTypeFragment shopTypeFragment;
     private ShopSearchFragment shopSearchFragment;
     private PitstopShopsFragment pitstopShopsFragment;
+    private ShopFormFragment shopFormFragment;
     private CustomShopPresenter presenter;
     private FragmentManager fragmentManager;
 
@@ -31,9 +33,12 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
         shopSearchFragment = new ShopSearchFragment();
         shopTypeFragment = new ShopTypeFragment();
         pitstopShopsFragment = new PitstopShopsFragment();
+        shopFormFragment = new ShopFormFragment();
         shopSearchFragment.setSwitcher(this);
         shopTypeFragment.setSwitcher(this);
         pitstopShopsFragment.setSwitcher(this);
+        shopFormFragment.setSwitcher(this);
+
         presenter = new CustomShopPresenter();
         presenter.subscribe(this,this);
         presenter.setViewCustomShop();
@@ -65,6 +70,14 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.custom_shop_fragment_holder, pitstopShopsFragment);
         fragmentTransaction.addToBackStack("pitstop_shops");
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void setViewShopForm() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.custom_shop_fragment_holder, shopFormFragment);
+        fragmentTransaction.addToBackStack("shop_form");
         fragmentTransaction.commit();
     }
 
