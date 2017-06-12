@@ -1,6 +1,6 @@
 package com.pitstop.interactors;
 
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 
 import java.util.List;
 

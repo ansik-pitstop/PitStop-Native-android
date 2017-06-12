@@ -19,23 +19,25 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Issue;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.Timeline;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
+import com.pitstop.models.issue.UpcomingIssue;
+import com.pitstop.models.service.UpcomingService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,11 +86,14 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     NetworkHelper mNetworkHelper;
     MixpanelHelper mMixPanelHelper;
     Timeline mTimelineData;
-    Map<String, List<Issue>> mTimeLineMap; //Kilometer Section - List of  items in the section
+    Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
-    List<Issue> mIssueList;
+    List<UpcomingIssue> mIssueList;
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
+
+    @Inject
+    GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
 
     public static UpcomingServicesFragment newInstance(){
         UpcomingServicesFragment fragment = new UpcomingServicesFragment();
@@ -107,6 +112,12 @@ public class UpcomingServicesFragment extends SubServiceFragment{
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getContext().getApplicationContext()))
+                .build();
+        component.injectUseCases(this);
+
     }
 
     @Override
@@ -130,67 +141,32 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     }
 
     private void fetchData() {
-        Log.d("TAG","UpcomingServicesFragment, fetchData()");
-        mLoadingSpinner.setVisibility(View.VISIBLE);
-        mNetworkHelper.getUpcomingCarIssues(dashboardCar.getId(), new RequestCallback() {
+        getUpcomingServicesUseCase.execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
-            public void done(String response, RequestError requestError) {
-                if (response != null && requestError == null) {
-                    mTimelineData = new Gson().fromJson(response, Timeline.class);
-                    mIssueList = mTimelineData.getResults().get(DEALERSHIP_ISSUES).getIssues();
-                    if (mIssueList != null && mIssueList.size() != 0){
-                        mTimeLineRecyclerView.setVisibility(View.VISIBLE);
-                        mErrorViewContainer.setVisibility(View.INVISIBLE);
-                        populateList();
-                    }
-                    else{
-                        Log.d("TAG","UpcomingServicesFragment, showNoData()");
-                        showNoData();
-                    }
+            public void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> map) {
+                if (!map.isEmpty()) {
+                    mTimeLineRecyclerView.setVisibility(View.VISIBLE);
+                    mErrorViewContainer.setVisibility(View.INVISIBLE);
                 }
-                else
-                    showError();
-                mLoadingSpinner.setVisibility(View.GONE);
+                else{
+                    Log.d("TAG","UpcomingServicesFragment, showNoData()");
+                    showNoData();
+                }
+
+                for (Integer mileage : map.keySet()){
+                    mTimelineDisplayList.add(String.valueOf(mileage));
+                    mTimelineDisplayList.addAll(map.get(mileage));
+                }
+
+                mTimeLineRecyclerView.setAdapter(new TimelineAdapter());
             }
-        });
-    }
 
-    private void populateList() {
-        prepareMap();
-        prepareList();
-        mTimeLineRecyclerView.setAdapter(new TimelineAdapter());
-
-    }
-
-    private void prepareList() {
-        List<String> mileageKeys = new ArrayList<>(mTimeLineMap.keySet());
-        Collections.sort(mileageKeys, new Comparator<String>() {
             @Override
-            public int compare(String s, String s2) {
-                int numb1 = Integer.valueOf(s);
-                int numb2 = Integer.valueOf(s2);
-                return numb1 > numb2 ? 1 : -1 ;
+            public void onError() {
+
             }
         });
 
-        for (String mileage : mileageKeys){
-            mTimelineDisplayList.add(mileage);
-            mTimelineDisplayList.addAll(mTimeLineMap.get(mileage));
-        }
-    }
-
-    private void prepareMap() {
-        List<Issue> newIssueList;
-        for (Issue issue : mIssueList){
-            if (mTimeLineMap.containsKey(issue.getIntervalMileage())) {
-                newIssueList = mTimeLineMap.get(issue.getIntervalMileage());
-            }
-            else {
-                newIssueList = new ArrayList<>();
-            }
-            newIssueList.add(issue);
-            mTimeLineMap.put(issue.getIntervalMileage(), newIssueList);
-        }
     }
 
     private void showError() {
@@ -223,14 +199,14 @@ public class UpcomingServicesFragment extends SubServiceFragment{
             return super.onOptionsItemSelected(item);
     }
 
-    private void showIssueDetails(Issue issue) {
+    private void showIssueDetails(UpcomingService upcomingService) {
         if (mIssueDetailsViewVisible || mIssueDetailsViewAnimating) return;
-        mIssueTitle.setText(issue.getIssueDetail().getAction() + " " + issue.getIssueDetail().getItem());
-        if (!TextUtils.isEmpty(issue.getIssueDetail().getDescription())) {
+        mIssueTitle.setText(upcomingService.getAction() + " " + upcomingService.getItem());
+        if (!TextUtils.isEmpty(upcomingService.getDescription())) {
             mIssueDescriptionContainer.setVisibility(View.VISIBLE);
-            mIssueDescription.setText(issue.getIssueDetail().getDescription());
+            mIssueDescription.setText(upcomingService.getDescription());
         }
-        switch (issue.getPriority()) {
+        switch (upcomingService.getPriority()) {
             case 1:
                 mIssueSeverityContainer.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.severity_low_indicator));
                 mIssueSeverityText.setText(this.getResources().getStringArray(R.array.severity_indicators)[0]);
@@ -331,7 +307,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
             if (holder instanceof MileageViewHolder){
                 ((MileageViewHolder) holder).bind((String)mTimelineDisplayList.get(position));
             } else if (holder instanceof IssueViewHolder){
-                ((IssueViewHolder) holder).bind((Issue)mTimelineDisplayList.get(position));
+                ((IssueViewHolder) holder).bind((UpcomingService)mTimelineDisplayList.get(position));
             }
         }
 
@@ -367,7 +343,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     class IssueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView mTitleTextView;
-        Issue issue;
+        UpcomingService upcomingService;
 
         public IssueViewHolder(View itemView) {
             super(itemView);
@@ -375,14 +351,14 @@ public class UpcomingServicesFragment extends SubServiceFragment{
             mTitleTextView = (TextView) itemView.findViewById(R.id.title);
         }
 
-        public void bind(Issue issue) {
-            this.issue = issue;
-            mTitleTextView.setText(issue.getIssueDetail().getAction() + " " +issue.getIssueDetail().getItem());
+        public void bind(UpcomingService upcomingService) {
+            this.upcomingService = upcomingService;
+            mTitleTextView.setText(upcomingService.getAction() + " " + upcomingService.getItem());
         }
 
         @Override
         public void onClick(View view) {
-            showIssueDetails(issue);
+            showIssueDetails(upcomingService);
         }
     }
 }

@@ -44,7 +44,7 @@ import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.ObdScanner;
