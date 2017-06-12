@@ -9,6 +9,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * User repository, use this class to modify, retrieve, and delete user data.
@@ -25,6 +26,16 @@ public class UserRepository {
 
     public interface UserSetCarCallback {
         void onSetCar();
+        void onError();
+    }
+
+    public interface UserFirstCarAddedSetCallback {
+        void onFirstCarAddedSet();
+        void onError();
+    }
+
+    public interface CheckFirstCarAddedCallback {
+        void onFirstCarAddedChecked(boolean added);
         void onError();
     }
 
@@ -210,6 +221,88 @@ public class UserRepository {
         return requestCallback;
     }
 
+    public void setFirstCarAdded(final boolean added
+            , final UserFirstCarAddedSetCallback callback){
 
+        final int userId = userAdapter.getUser().getId();
+
+        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        //Get settings and add boolean
+                        JSONObject settings = new JSONObject(response).getJSONObject("user");
+                        settings.put("isFirstCarAdded", added);
+
+                        JSONObject putSettings = new JSONObject();
+                        putSettings.put("settings",settings);
+
+                        RequestCallback requestCallback = getSetFirstCarAddedCallback(callback);
+
+                        networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
+                    }
+                    catch(JSONException e){}
+
+                }
+                else{
+                    callback.onError();
+                }
+            }
+        });
+    }
+
+    private RequestCallback getSetFirstCarAddedCallback(UserFirstCarAddedSetCallback callback){
+        //Create corresponding request callback
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onFirstCarAddedSet();
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JsonIOException e){
+                    callback.onError();
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+    public void checkFirstCarAdded(final CheckFirstCarAddedCallback callback){
+
+        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        boolean added;
+                        if (options.has("isFirstCarAdded")){
+                            //New users will have this property
+                            added = options.getBoolean("isFirstCarAdded");
+                        }else{
+                            //Users that have registered prior to this patch will not send greeting messages
+                            added = false;
+                        }
+
+                        callback.onFirstCarAddedChecked(added);
+                    }
+                    catch(JSONException e){
+                        callback.onError();
+                    }
+
+                }
+                else{
+                    callback.onError();
+                }
+            }
+        });
+    }
 
 }

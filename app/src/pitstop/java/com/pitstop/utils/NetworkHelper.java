@@ -1,7 +1,6 @@
 package com.pitstop.utils;
 
 import android.content.Context;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
@@ -93,7 +92,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void get(String uri, RequestCallback callback) {
+    public void get(String uri, RequestCallback callback) {
         if (!isConnected(context)) {
             Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
@@ -108,7 +107,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void put(String uri, RequestCallback callback, JSONObject body) {
+    public void put(String uri, RequestCallback callback, JSONObject body) {
         if (!isConnected(context)) {
             Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
@@ -735,18 +734,23 @@ public class NetworkHelper {
         });
     }
 
+    // 6/9/2017 -->> Restructured this method so that it doesn't override other settings
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
         LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
-        getUser(userId, new RequestCallback() {
+        getUserSettingsById(userId, new RequestCallback() {
             // need to add option instead of replace
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null) {
                     try {
-                        JSONObject options = new JSONObject(response).getJSONObject("settings");
-                        options.put("settings", new JSONObject().put("mainCar", carId));
-                        put("user/" + userId + "/settings", callback, options);
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        options.put("mainCar",carId);
+
+                        JSONObject putOptions = new JSONObject();
+                        putOptions.put("settings",options);
+
+                        put("user/" + userId + "/settings", callback, putOptions);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
