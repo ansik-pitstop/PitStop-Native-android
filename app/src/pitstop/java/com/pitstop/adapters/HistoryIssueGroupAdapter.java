@@ -25,6 +25,7 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
     private LayoutInflater inflater;
     private Context context;
 
+
     public HistoryIssueGroupAdapter(Context context, LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues, ArrayList<String> headers) {
         this.context = context;
         this.sortedIssues = sortedIssues;
