@@ -14,8 +14,6 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -24,7 +22,6 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +42,11 @@ public class CurrentServicesFragment extends Fragment{
     protected RecyclerView carIssueListView;
     private CurrentServicesAdapter carIssuesAdapter;
 
-    private UserAdapter userAdapter;
-    private LocalCarIssueAdapter carIssueLocalStore;
-    private NetworkHelper networkHelper;
     private List<CarIssue> carIssueList = new ArrayList<>();
     private boolean start = true;
 
     @Inject
-    GetUserCarUseCase getUserCar;
+    GetUserCarUseCase getUserCarUseCase;
 
     @Inject
     GetCurrentServicesUseCase getCurrentServices;
@@ -68,9 +62,6 @@ public class CurrentServicesFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        networkHelper = new NetworkHelper(getActivity().getApplicationContext());
-        carIssueLocalStore = new LocalCarIssueAdapter(getActivity().getApplicationContext());
-        userAdapter = new UserAdapter(getActivity().getApplicationContext());
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
@@ -95,7 +86,7 @@ public class CurrentServicesFragment extends Fragment{
     //Call whenever you want to completely new UI objects
     private void initUI(){
         final Activity activity = this.getActivity();
-        getUserCar.execute(new GetUserCarUseCase.Callback() {
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
