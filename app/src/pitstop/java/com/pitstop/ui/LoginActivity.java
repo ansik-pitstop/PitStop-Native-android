@@ -75,6 +75,7 @@ import butterknife.ButterKnife;
 
 public class LoginActivity extends DebugDrawerActivity {
 
+    public static final String USER_SIGNED_UP = "signed_up";
     public static String ACTIVITY_NAME = "splash_screen";
     public static String LOGIN_REFRESH = "login_refresh";
 
@@ -657,6 +658,7 @@ public class LoginActivity extends DebugDrawerActivity {
                             }
                         });
             }
+
         } else {
             // Login
             Log.d(MIXPANEL_TAG, "Login with email");
@@ -823,6 +825,7 @@ public class LoginActivity extends DebugDrawerActivity {
     private void goToMainActivity(boolean refresh) {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(USER_SIGNED_UP,signup);
         intent.putExtra(LOGIN_REFRESH, refresh);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
 
@@ -886,6 +889,7 @@ public class LoginActivity extends DebugDrawerActivity {
 
     private void startMainActivity(boolean update) {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra(USER_SIGNED_UP,signup);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(LOGIN_REFRESH, update);
         intent.putExtra(MainActivity.FROM_ACTIVITY, ACTIVITY_NAME);
