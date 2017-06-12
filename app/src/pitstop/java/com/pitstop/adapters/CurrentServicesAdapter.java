@@ -42,20 +42,18 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     private List<CarIssue> carIssues;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
-
-    @Inject
-    MarkServiceDoneUseCase markServiceDoneUseCase;
+    private MarkServiceDoneUseCase markServiceDoneUseCase;
 
     public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues
-                , MainActivityCallback tutorialCallback,Context context) {
+                , MainActivityCallback tutorialCallback,Context context, MarkServiceDoneUseCase markServiceDoneUseCase) {
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
         this.context = context;
+        this.markServiceDoneUseCase = markServiceDoneUseCase;
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context.getApplicationContext()))
                 .build();
 
-        component.injectUseCases(this);
         this.mainActivityCallback = tutorialCallback;
     }
 

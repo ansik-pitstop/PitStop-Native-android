@@ -19,8 +19,6 @@ public interface UseCaseComponent {
 
     void injectUseCases(CurrentServicesFragment fragment);
 
-    void injectUseCases(CurrentServicesAdapter fragment);
-
     void injectUseCases(HistoryServiceFragment fragment);
 
     void injectUseCases(ServiceRequestActivity serviceRequestActivity);

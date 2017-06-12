@@ -19,6 +19,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
@@ -50,6 +51,9 @@ public class CurrentServicesFragment extends Fragment{
 
     @Inject
     GetCurrentServicesUseCase getCurrentServices;
+
+    @Inject
+    MarkServiceDoneUseCase markServiceDoneUseCase;
 
     public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
@@ -90,7 +94,7 @@ public class CurrentServicesFragment extends Fragment{
             @Override
             public void onCarRetrieved(Car car) {
                 carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
-                        ,(MainActivityCallback)activity, getContext());
+                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase);
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
                 updateUI();
