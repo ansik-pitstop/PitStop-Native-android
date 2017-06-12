@@ -15,7 +15,6 @@ import dagger.Provides;
 public class HandlerModule {
 
     @Provides
-    @Singleton
     Handler handler(){
         return new Handler();
     }
