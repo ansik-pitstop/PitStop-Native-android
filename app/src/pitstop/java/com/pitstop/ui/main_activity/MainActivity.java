@@ -62,6 +62,10 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -72,6 +76,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.DealershipActivity;
 import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
@@ -232,8 +237,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
+    private UserAdapter userAdapter;
 
     private boolean isFabOpen = false;
+    private boolean userSignedUp;
 
     public static MainDashboardCallback mainDashboardCallback;
     public static MainFragmentCallback servicesCallback;
@@ -245,9 +252,17 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        userSignedUp = getIntent().getBooleanExtra(LoginActivity.USER_SIGNED_UP,false);
+
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         networkHelper = new NetworkHelper(getApplicationContext());
+        userAdapter = new UserAdapter(getApplicationContext());
+
+        //If user just signed up then store the user has not sent its initial smooch message
+        if (userSignedUp){
+            setGreetingsNotSent();
+        }
 
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){
@@ -302,11 +317,25 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         setFabUI();
     }
 
+    private void setGreetingsNotSent(){
+        SetFirstCarAddedUseCase setFirstCarAddedUseCase = new SetFirstCarAddedUseCaseImpl(networkHelper,userAdapter);
+        setFirstCarAddedUseCase.execute(false, new SetFirstCarAddedUseCase.Callback() {
+            @Override
+            public void onFirstCarAddedSet() {
+                //Do nothing
+            }
+
+            @Override
+            public void onError() {
+                //Error logic here
+            }
+        });
+    }
+
     private void storeUserFromPreferences(){
         networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                UserAdapter userAdapter = new UserAdapter(application);
                 userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
                 setTabUI();
 
@@ -710,20 +739,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                         User.getCurrentUser().addProperties(customProperties);
 
-                        //Send welcoming message since the first car was added
-                        if (user != null) {
-                            Log.d("MainActivity Smooch", "Sending message");
-                            Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
-                                    (user.getLastName() == null || user.getLastName().equals("null") ?
-                                            "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-                        }
+                        // 6/9/2018 -> Only add if it hasn't been added yet
+                        sendGreetingsMessageIfNeeded(user);
+                        beginTutorialSequenceIfNeeded(user);
 
                         Smooch.track("User Logged In");
 
-                        //Start tutorial sequence since the first car was added
-                        if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                            prepareAndStartTutorialSequence();
-                        }
                     }
 
                     //Refresh from server if the resulting activity thought so
@@ -789,6 +810,62 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     public BluetoothAutoConnectService getBluetoothConnectService() {
         return autoConnectService;
+    }
+
+    private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
+
+        //Interactor not good for this use case, but it has the same logic.
+        //Maybe consider renaming backend variable or abstract it away on the presenter side
+        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
+                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
+        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
+            @Override
+            public void onFirstCarAddedChecked(boolean added) {
+                if (user != null && !added) {
+                    prepareAndStartTutorialSequence();
+                }
+            }
+
+            @Override
+            public void onError() {
+                //Error logic here
+            }
+        });
+    }
+
+    private void sendGreetingsMessageIfNeeded(com.pitstop.models.User user){
+        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
+                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
+        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
+            @Override
+            public void onFirstCarAddedChecked(boolean added) {
+                if (user != null && !added) {
+                    Log.d("MainActivity Smooch", "Sending message");
+                    Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
+                            (user.getLastName() == null || user.getLastName().equals("null") ?
+                                    "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+
+                    SetFirstCarAddedUseCase setFirstCarAddedUseCase
+                            = new SetFirstCarAddedUseCaseImpl(networkHelper,userAdapter);
+                    setFirstCarAddedUseCase.execute(true, new SetFirstCarAddedUseCase.Callback() {
+                        @Override
+                        public void onFirstCarAddedSet() {
+                            //Variable has been set
+                        }
+
+                        @Override
+                        public void onError() {
+                            //Networking error logic here
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError() {
+                //Error logic here
+            }
+        });
     }
 
     @Override
