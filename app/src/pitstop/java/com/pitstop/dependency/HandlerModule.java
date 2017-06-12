@@ -16,6 +16,7 @@ public class HandlerModule {
 
     @Singleton
     @Provides
+    @Singleton
     Handler handler(){
         return new Handler();
     }
