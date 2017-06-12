@@ -62,10 +62,10 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
-import com.pitstop.interactors.CheckGreetingsSentUseCase;
-import com.pitstop.interactors.CheckGreetingsSentUseCaseImpl;
-import com.pitstop.interactors.SetGreetingsSentUseCase;
-import com.pitstop.interactors.SetGreetingsSentUseCaseImpl;
+import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -324,10 +324,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void setGreetingsNotSent(){
-        SetGreetingsSentUseCase setGreetingsSentUseCase = new SetGreetingsSentUseCaseImpl(networkHelper,userAdapter);
-        setGreetingsSentUseCase.execute(false, new SetGreetingsSentUseCase.Callback() {
+        SetFirstCarAddedUseCase setFirstCarAddedUseCase = new SetFirstCarAddedUseCaseImpl(networkHelper,userAdapter);
+        setFirstCarAddedUseCase.execute(false, new SetFirstCarAddedUseCase.Callback() {
             @Override
-            public void onUserSmoochMessageVarSet() {
+            public void onFirstCarAddedSet() {
                 //Do nothing
             }
 
@@ -826,12 +826,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         //Interactor not good for this use case, but it has the same logic.
         //Maybe consider renaming backend variable or abstract it away on the presenter side
-        CheckGreetingsSentUseCase checkGreetingsSentUseCase
-                = new CheckGreetingsSentUseCaseImpl(userAdapter,networkHelper);
-        checkGreetingsSentUseCase.execute(new CheckGreetingsSentUseCase.Callback() {
+        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
+                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
+        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
-            public void onGotWhetherSmoochSent(boolean sent) {
-                if (user != null && !sent) {
+            public void onFirstCarAddedChecked(boolean added) {
+                if (user != null && !added) {
                     prepareAndStartTutorialSequence();
                 }
             }
@@ -844,22 +844,22 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void sendGreetingsMessageIfNeeded(com.pitstop.models.User user){
-        CheckGreetingsSentUseCase checkGreetingsSentUseCase
-                = new CheckGreetingsSentUseCaseImpl(userAdapter,networkHelper);
-        checkGreetingsSentUseCase.execute(new CheckGreetingsSentUseCase.Callback() {
+        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
+                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
+        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
-            public void onGotWhetherSmoochSent(boolean sent) {
-                if (user != null && !sent) {
+            public void onFirstCarAddedChecked(boolean added) {
+                if (user != null && !added) {
                     Log.d("MainActivity Smooch", "Sending message");
                     Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
                             (user.getLastName() == null || user.getLastName().equals("null") ?
                                     "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
 
-                    SetGreetingsSentUseCase setGreetingsSentUseCase
-                            = new SetGreetingsSentUseCaseImpl(networkHelper,userAdapter);
-                    setGreetingsSentUseCase.execute(true, new SetGreetingsSentUseCase.Callback() {
+                    SetFirstCarAddedUseCase setFirstCarAddedUseCase
+                            = new SetFirstCarAddedUseCaseImpl(networkHelper,userAdapter);
+                    setFirstCarAddedUseCase.execute(true, new SetFirstCarAddedUseCase.Callback() {
                         @Override
-                        public void onUserSmoochMessageVarSet() {
+                        public void onFirstCarAddedSet() {
                             //Variable has been set
                         }
 

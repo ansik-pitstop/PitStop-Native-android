@@ -29,13 +29,13 @@ public class UserRepository {
         void onError();
     }
 
-    public interface UserSetSmoochMessageSentCallback{
-        void onSmoochMessageSentSet();
+    public interface UserFirstCarAddedSetCallback {
+        void onFirstCarAddedSet();
         void onError();
     }
 
-    public interface IsSmoochMessageSentCallback{
-        void onIsSmoochSentRetrieved(boolean sent);
+    public interface CheckFirstCarAddedCallback {
+        void onFirstCarAddedChecked(boolean added);
         void onError();
     }
 
@@ -221,8 +221,8 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public void setUserSmoochMessageSent(final boolean sent
-            , final UserSetSmoochMessageSentCallback callback){
+    public void setFirstCarAdded(final boolean added
+            , final UserFirstCarAddedSetCallback callback){
 
         final int userId = userAdapter.getUser().getId();
 
@@ -233,12 +233,12 @@ public class UserRepository {
                     try{
                         //Get settings and add boolean
                         JSONObject settings = new JSONObject(response).getJSONObject("user");
-                        settings.put("initialSmoochMessageSentOnce",sent);
+                        settings.put("isFirstCarAdded", added);
 
                         JSONObject putSettings = new JSONObject();
                         putSettings.put("settings",settings);
 
-                        RequestCallback requestCallback = getSetUserSentSmoochMessageCallback(callback);
+                        RequestCallback requestCallback = getSetFirstCarAddedCallback(callback);
 
                         networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
                     }
@@ -252,14 +252,14 @@ public class UserRepository {
         });
     }
 
-    private RequestCallback getSetUserSentSmoochMessageCallback(UserSetSmoochMessageSentCallback callback){
+    private RequestCallback getSetFirstCarAddedCallback(UserFirstCarAddedSetCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onSmoochMessageSentSet();
+                        callback.onFirstCarAddedSet();
                     }
                     else{
                         callback.onError();
@@ -274,7 +274,7 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public void isSmoochMessageSent(final IsSmoochMessageSentCallback callback){
+    public void checkFirstCarAdded(final CheckFirstCarAddedCallback callback){
 
         networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
             @Override
@@ -282,16 +282,16 @@ public class UserRepository {
                 if (requestError == null){
                     try{
                         JSONObject options = new JSONObject(response).getJSONObject("user");
-                        boolean sent;
-                        if (options.has("initialSmoochMessageSentOnce")){
+                        boolean added;
+                        if (options.has("isFirstCarAdded")){
                             //New users will have this property
-                            sent = options.getBoolean("initialSmoochMessageSentOnce");
+                            added = options.getBoolean("isFirstCarAdded");
                         }else{
                             //Users that have registered prior to this patch will not send greeting messages
-                            sent = false;
+                            added = false;
                         }
 
-                        callback.onIsSmoochSentRetrieved(sent);
+                        callback.onFirstCarAddedChecked(added);
                     }
                     catch(JSONException e){
                         callback.onError();

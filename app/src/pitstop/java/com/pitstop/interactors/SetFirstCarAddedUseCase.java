@@ -4,9 +4,9 @@ package com.pitstop.interactors;
  * Created by Karol Zdebel on 6/8/2017.
  */
 
-public interface SetGreetingsSentUseCase extends Runnable {
+public interface SetFirstCarAddedUseCase extends Runnable {
     interface Callback{
-        void onUserSmoochMessageVarSet();
+        void onFirstCarAddedSet();
         void onError();
     }
 
