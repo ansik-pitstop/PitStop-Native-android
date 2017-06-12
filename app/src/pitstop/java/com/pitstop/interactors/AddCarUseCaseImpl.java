@@ -2,10 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -13,26 +11,26 @@ import com.pitstop.utils.NetworkHelper;
 
 public class AddCarUseCaseImpl implements AddCarUseCase {
 
-    private LocalCarAdapter localCarAdapter;
-    private NetworkHelper networkHelper;
+    private CarRepository carRepository;
+    private Handler handler;
     private Car car;
     private Callback callback;
 
-    public AddCarUseCaseImpl(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        this.localCarAdapter = localCarAdapter;
-        this.networkHelper = networkHelper;
+    public AddCarUseCaseImpl(CarRepository carRepository, Handler handler){
+        this.carRepository = carRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Car car, Callback callback) {
         this.car = car;
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override
     public void run() {
-        CarRepository.getInstance(localCarAdapter,networkHelper).insert(car, new CarRepository.CarInsertCallback() {
+        carRepository.insert(car, new CarRepository.CarInsertCallback() {
             @Override
             public void onCarAdded() {
                 callback.onCarAdded();
