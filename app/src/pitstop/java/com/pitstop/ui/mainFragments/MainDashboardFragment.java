@@ -42,8 +42,10 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
@@ -56,13 +58,14 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -132,7 +135,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
 
     ProgressDialog progressDialog;
 
@@ -227,6 +231,11 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         shopLocalStore = new LocalShopAdapter(context);
         userAdapter = new UserAdapter(context);
 
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(this);
+
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
 
@@ -246,7 +255,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     private void updateUI(){
         showLoading("Loading...");
 
-        GetUserCarUseCase getUserCarUseCase = new GetUserCarUseCaseImpl(userAdapter,networkHelper);
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
@@ -306,7 +314,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
             @Override
             public void onError() {
-
+                Toast.makeText(getActivity(),
+                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -468,89 +477,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         } else{
             return R.drawable.no_dealership_background;
         }
-
-    }
-
-    private void populateCarIssuesAdapter() {
-        // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
-        if(carIssueLocalStore == null) {
-            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
-        }
-        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
-        if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
-                || dashboardCar.getNumberOfRecalls() > 0)) {
-            Log.i(TAG, "No car issues in local store");
-
-            networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        try {
-                            dashboardCar.setIssues(CarIssue.createCarIssues(
-                                    new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
-                            carIssueList.clear();
-                            carIssueList.addAll(dashboardCar.getActiveIssues());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            if (getActivity() != null) {
-                                Toast.makeText(getActivity(),
-                                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        try {
-                            carLocalStore.updateCar(Car.createCar(response));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "Load issues error: " + requestError.getMessage());
-                        if (getActivity() != null) {
-                            Toast.makeText(getActivity(),
-                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
-        } else {
-            Log.i(TAG, "Trying local store for carIssues");
-            Log.i(TAG, "Number of active issues: " + dashboardCar.getActiveIssues().size());
-            dashboardCar.setIssues(carIssues);
-            carIssueList.clear();
-            carIssueList.addAll(dashboardCar.getActiveIssues());
-            //carIssuesAdapter.notifyDataSetChanged();
-        }
-        //carIssuesAdapter.updateTutorial();
-    }
-
-    /**
-     * Update ui with current car info
-     * And retrieve available car issues
-     */
-
-    public void setCarDetailsUI() {
-
-        Log.d("TAG","setCarDetailsUI()");
-
-        if (dashboardCar == null) {
-            return;
-        }
-        Log.d("TAG","car.id:"+ dashboardCar.getId());
-
-        setDealership();
-        //populateCarIssuesAdapter();
-
-        if (carName != null) {
-            carName.setText(dashboardCar.getYear() + " "
-                    + dashboardCar.getMake() + " "
-                    + dashboardCar.getModel());
-        }
-
-        mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
-        mEngineText.setText(dashboardCar.getEngine());
-        mHighwayText.setText(dashboardCar.getHighwayMileage());
-        mCityText.setText(dashboardCar.getCityMileage());
-        mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
 
     }
 
@@ -782,9 +708,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
                         Intent intent = new Intent(activity, IssueDetailsActivity.class);
                         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                        //intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
 
-                        //activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                     }
                 });
             }
