@@ -9,9 +9,6 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
  */
 
 public interface MainDashboardCallback extends MainFragmentCallback{
-    void activityResultCallback(int requestCode, int resultCode, Intent data);
-
-    void setCarDetailsUI();
 
     void tripData(TripInfoPackage tripInfoPackage);
 }
