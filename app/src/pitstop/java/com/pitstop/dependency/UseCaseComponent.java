@@ -1,6 +1,5 @@
 package com.pitstop.dependency;
 
-import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
 import com.pitstop.ui.services.HistoryServiceFragment;
