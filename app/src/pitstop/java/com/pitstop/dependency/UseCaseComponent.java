@@ -22,9 +22,8 @@ public interface UseCaseComponent {
 
     void injectUseCases(HistoryServiceFragment fragment);
 
-    void injectUseCases(ServiceRequestActivity serviceRequestActivity);
+    void injectUseCases(UpcomingServicesFragment fragment);
 
-    void injectUseCases(UpcomingServicesFragment upcomingServicesFragment);
     void injectUseCases(ServiceRequestActivity activity);
 
     void injectUseCases(MainDashboardFragment fragment);

@@ -2,6 +2,8 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,6 +14,7 @@ import dagger.Provides;
 @Module
 public class HandlerModule {
 
+    @Singleton
     @Provides
     Handler handler(){
         return new Handler();

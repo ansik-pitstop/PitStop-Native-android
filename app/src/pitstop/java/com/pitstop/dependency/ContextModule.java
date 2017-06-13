@@ -2,6 +2,8 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -18,7 +20,7 @@ public class ContextModule {
         this.context = context;
     }
 
-    @ApplicationScope
+    @Singleton
     @Provides
     public Context context(){
         return context;
