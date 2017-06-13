@@ -318,6 +318,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @Override
     public void onResume() {
         super.onResume();
+        updateUI();
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
