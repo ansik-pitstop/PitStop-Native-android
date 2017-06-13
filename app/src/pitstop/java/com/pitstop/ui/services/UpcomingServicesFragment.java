@@ -87,9 +87,9 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
     List<Object> mTimelineDisplayList;
     TimelineAdapter timelineAdapter;
     GlobalApplication application;
-    ProgressDialog progressDialog;
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
+    boolean mViewInit = false;
 
     @Inject
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
@@ -124,6 +124,7 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
         initUI();
+        mViewInit = true;
         return view;
     }
 
@@ -140,6 +141,7 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
     @Override
     public void updateUI() {
 
+        mLoadingSpinner.setVisibility(View.VISIBLE);
         mTimeLineMap.clear();
         mTimelineDisplayList.clear();
 
@@ -162,11 +164,13 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
 
                 timelineAdapter = new TimelineAdapter();
                 mTimeLineRecyclerView.setAdapter(timelineAdapter);
+
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onError() {
-                progressDialog.dismiss();
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
                 showError();
             }
         });
