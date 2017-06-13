@@ -67,7 +67,7 @@ import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
@@ -442,7 +442,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabRequestService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Request Service");
+                mixpanelHelper.trackFabClicked("Request CarService");
                 final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
                 intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
@@ -882,7 +882,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Cancel Service Request");
+                                properties.put("Button", "Cancel CarService Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -892,7 +892,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             tutorialSequence.dismissAllItems();
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm Service Request");
+                                properties.put("Button", "Confirm CarService Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -1495,7 +1495,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         final MaterialShowcaseView firstBookingDiscountShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.dashboard_request_service_btn))
-                .setTitleText("Request Service")
+                .setTitleText("Request CarService")
                 .setContentText(firstServicePromotion.toString())
                 .setDismissOnTouch(true)
                 .setDismissText("Get Started")

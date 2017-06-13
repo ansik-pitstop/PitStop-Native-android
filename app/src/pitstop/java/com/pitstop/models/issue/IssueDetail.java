@@ -1,4 +1,4 @@
-package com.pitstop.models;
+package com.pitstop.models.issue;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

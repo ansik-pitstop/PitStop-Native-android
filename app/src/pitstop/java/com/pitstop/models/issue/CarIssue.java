@@ -1,4 +1,4 @@
-package com.pitstop.models;
+package com.pitstop.models.issue;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Paul Soladoye on 3/18/2016.
  */
-public class CarIssue implements Parcelable {
+public class CarIssue implements Parcelable, Issue {
     public static final String DTC = "dtc"; // stored only
     public static final String PENDING_DTC = "pending_dtc";
     public static final String RECALL = "recall_recallmasters";
@@ -126,6 +126,11 @@ public class CarIssue implements Parcelable {
 
     public void setDoneAt(String doneAt) {
         this.doneAt = doneAt;
+    }
+
+    @Override
+    public int getIssueId() {
+        return getId();
     }
 
     public int getPriority() {

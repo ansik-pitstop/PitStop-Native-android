@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.pitstop.R;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.main_activity.MainActivity;

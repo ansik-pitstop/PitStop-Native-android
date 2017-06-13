@@ -2,7 +2,7 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 
 /**

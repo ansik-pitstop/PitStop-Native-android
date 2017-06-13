@@ -163,9 +163,9 @@ public class MixpanelHelper {
     public static final String ISSUE_DETAIL_VIEW = "Issue Detail";
 
     /**
-     * Service History
+     * CarService History
      */
-    public static final String SERVICE_HISTORY_VIEW = "Service History";
+    public static final String SERVICE_HISTORY_VIEW = "CarService History";
 
     /**
      * Settings Activity
@@ -187,9 +187,9 @@ public class MixpanelHelper {
     public static final String UNRECOGNIZED_MODULE_STATUS = "Status";
 
     /**
-     * Service request
+     * CarService request
      */
-    public static final String SERVICE_REQUEST_VIEW = "Service Request";
+    public static final String SERVICE_REQUEST_VIEW = "CarService Request";
 
     /**
      * Add preset issues

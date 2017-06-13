@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.castel.obd.util.JsonUtil;
+import com.pitstop.models.issue.CarIssue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
