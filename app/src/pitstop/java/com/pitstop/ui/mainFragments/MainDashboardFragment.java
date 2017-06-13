@@ -41,7 +41,6 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -147,9 +146,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
     // Database accesses
     private LocalCarAdapter carLocalStore;
-    private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
-    private UserAdapter userAdapter;
 
     private GlobalApplication application;
     private SharedPreferences sharedPreferences;
@@ -227,9 +224,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
         // Local db adapters
         carLocalStore = new LocalCarAdapter(context);
-        carIssueLocalStore = new LocalCarIssueAdapter(context);
         shopLocalStore = new LocalShopAdapter(context);
-        userAdapter = new UserAdapter(context);
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
