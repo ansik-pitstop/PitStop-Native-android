@@ -6,6 +6,8 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.UserAdapter;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -16,16 +18,19 @@ import dagger.Provides;
 @Module(includes = ContextModule.class)
 public class LocalStorageModule {
 
+    @Singleton
     @Provides
     public LocalCarAdapter localCarAdapter(Context context){
         return new LocalCarAdapter(context);
     }
 
+    @Singleton
     @Provides
     public LocalCarIssueAdapter localCarIssueAdapter(Context context){
         return new LocalCarIssueAdapter(context);
     }
 
+    @Singleton
     @Provides
     public UserAdapter userAdapter(Context context){
         return new UserAdapter(context);

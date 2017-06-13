@@ -1,8 +1,11 @@
 package com.pitstop.repositories;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.Timeline;
+import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
@@ -25,6 +28,8 @@ import java.util.List;
 
 public class CarIssueRepository {
 
+    public static final int DEALERSHIP_ISSUES = 0;
+
     private static CarIssueRepository INSTANCE;
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
@@ -40,7 +45,7 @@ public class CarIssueRepository {
     }
 
     public interface CarIssueGetUpcomingCallback{
-        void onCarIssueGotUpcoming(List<CarIssue> carIssueUpcoming);
+        void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming);
         void onError();
     }
 
@@ -134,30 +139,23 @@ public class CarIssueRepository {
     }
 
     public synchronized List<CarIssue> getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
-        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(carId,callback));
+        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
         return carIssueAdapter.getAllUpcomingCarIssues();
     }
 
-    private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(final int carId, CarIssueGetUpcomingCallback callback){
+    private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        ArrayList<CarIssue> carIssues = new ArrayList<>();
-                        JSONObject jsonObject = new JSONObject(response);
-                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-                        carIssues = CarIssue.createCarIssues(jsonArray,carId);
-
-                        callback.onCarIssueGotUpcoming(carIssues);
-                    }
-                    else{
-                        callback.onError();
-                    }
+                if (requestError == null){
+                    Timeline timelineData = new Gson().fromJson(response, Timeline.class);;
+                    List<UpcomingIssue> issues = timelineData.getResults().get(DEALERSHIP_ISSUES)
+                            .getUpcomingIssues();
+                    callback.onCarIssueGotUpcoming(issues);
                 }
-                catch(JSONException e){
-
+                else{
+                    callback.onError();
                 }
             }
         };

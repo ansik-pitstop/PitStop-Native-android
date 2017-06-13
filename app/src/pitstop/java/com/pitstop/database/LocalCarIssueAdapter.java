@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 
 import java.util.ArrayList;
 import java.util.List;
