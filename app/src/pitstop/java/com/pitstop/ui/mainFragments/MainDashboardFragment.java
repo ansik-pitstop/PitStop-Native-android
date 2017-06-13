@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.BuildConfig;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -46,8 +47,8 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
@@ -56,6 +57,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
@@ -889,6 +891,9 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                             hideLoading(requestError.getMessage());
                                             return;
                                         }
+
+                                        Log.d(TAG,"Sent message onto EventBus.");
+                                        EventBus.getDefault().post(new CarDataChangedEvent());
 
                                         /*
                                         * Ask Ben why this updateMileageStart is being called here
