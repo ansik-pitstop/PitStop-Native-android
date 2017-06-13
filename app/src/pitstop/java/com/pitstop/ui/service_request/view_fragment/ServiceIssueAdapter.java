@@ -12,9 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

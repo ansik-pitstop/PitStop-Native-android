@@ -4,6 +4,7 @@ import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
 import com.pitstop.ui.services.HistoryServiceFragment;
+import com.pitstop.ui.services.UpcomingServicesFragment;
 
 import javax.inject.Singleton;
 
@@ -20,6 +21,8 @@ public interface UseCaseComponent {
     void injectUseCases(CurrentServicesFragment fragment);
 
     void injectUseCases(HistoryServiceFragment fragment);
+
+    void injectUseCases(UpcomingServicesFragment fragment);
 
     void injectUseCases(ServiceRequestActivity activity);
 

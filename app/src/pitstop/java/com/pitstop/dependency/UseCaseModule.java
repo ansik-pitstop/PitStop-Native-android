@@ -8,6 +8,8 @@ import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.GetDoneServicesUseCase;
 import com.pitstop.interactors.GetDoneServicesUseCaseImpl;
+import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
+import com.pitstop.interactors.GetUpcomingServicesMapUseCaseImpl;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
@@ -49,6 +51,13 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, Handler handler){
 
         return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository, handler);
+    }
+
+    @Provides
+    GetUpcomingServicesMapUseCase getUpcomingServicesUseCase(UserRepository userRepository
+            , CarIssueRepository carIssueRepository, Handler handler){
+
+        return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository, handler);
     }
 
     @Provides

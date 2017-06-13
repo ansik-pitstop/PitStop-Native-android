@@ -1,6 +1,6 @@
 package com.pitstop.ui.services;
 
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 
 /**
  * Created by Work on 5/24/2017.

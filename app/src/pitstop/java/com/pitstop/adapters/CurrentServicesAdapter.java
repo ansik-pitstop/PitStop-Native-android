@@ -20,7 +20,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;

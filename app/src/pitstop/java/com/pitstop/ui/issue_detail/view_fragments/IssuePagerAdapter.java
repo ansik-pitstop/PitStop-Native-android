@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.utils.DateTimeFormatUtil;
 
 import java.lang.ref.WeakReference;

@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
-import com.pitstop.models.CarIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
