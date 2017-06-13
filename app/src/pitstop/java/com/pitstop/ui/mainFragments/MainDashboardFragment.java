@@ -1,3 +1,4 @@
+
 package com.pitstop.ui.mainFragments;
 
 import android.app.Activity;
@@ -40,12 +41,15 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
@@ -53,13 +57,14 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -129,18 +134,18 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
 
     ProgressDialog progressDialog;
 
     // Models
-    private static Car dashboardCar;
+    private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
 
 
     // Database accesses
     private LocalCarAdapter carLocalStore;
-    private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
 
     private GlobalApplication application;
@@ -150,11 +155,9 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
 
-    private boolean askForCar = true; // do not ask for car if user presses cancel
+    private Context context;
 
-    public static void setDashboardCar(Car c){
-        dashboardCar = c;
-    }
+    private boolean askForCar = true; // do not ask for car if user presses cancel
 
     /**
      * Monitor app connection to device, so that ui can be updated
@@ -196,6 +199,12 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         }
     };
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        MainActivity.mainDashboardCallback = this;
+    }
+
     public static MainDashboardFragment newInstance() {
         MainDashboardFragment fragment = new MainDashboardFragment();
         return fragment;
@@ -206,17 +215,110 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, rootview);
-        setUpUIReferences();
-        setCarDetailsUI();
-        //}
+
+        this.context = getContext().getApplicationContext();
+        application = (GlobalApplication)context;
+        networkHelper = new NetworkHelper(context);
+        mixpanelHelper = new MixpanelHelper((GlobalApplication)context);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        // Local db adapters
+        carLocalStore = new LocalCarAdapter(context);
+        shopLocalStore = new LocalShopAdapter(context);
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(this);
+
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
+
+        setStaticUI();
+        updateUI();
+
         return rootview;
+    }
+
+    private void setStaticUI(){
+        carName = (TextView) rootview.findViewById(R.id.car_name);
+        dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
+        dealershipAddress = (TextView) rootview.findViewById(R.id.dealership_address);
+        dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
+    }
+
+    private void updateUI(){
+        showLoading("Loading...");
+
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                dashboardCar = car;
+
+                //Setup dealership
+                Dealership shop = dashboardCar.getDealership();
+                if (shop == null) {
+                    shop = shopLocalStore.getDealership(dashboardCar.getShopId());
+                }
+                dashboardCar.setDealership(shop);
+                if (shop == null) {
+                    networkHelper.getShops(new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null) {
+                                try {
+                                    List<Dealership> dl = Dealership.createDealershipList(response);
+                                    shopLocalStore.deleteAllDealerships();
+                                    shopLocalStore.storeDealerships(dl);
+
+                                    Dealership d = shopLocalStore.getDealership(dashboardCar.getId());
+
+                                    dashboardCar.setDealership(d);
+                                    if (dashboardCar.getDealership() != null) {
+                                        bindDealerInfo(d);
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.e(TAG, "Get shops: " + requestError.getMessage());
+                            }
+                        }
+                    });
+                } else {
+                    if (dealershipName != null) {
+                        bindDealerInfo(shop);
+                    }
+                }
+
+                if (carName != null) {
+                    carName.setText(dashboardCar.getYear() + " "
+                            + dashboardCar.getMake() + " "
+                            + dashboardCar.getModel());
+                }
+
+                mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
+                mEngineText.setText(dashboardCar.getEngine());
+                mHighwayText.setText(dashboardCar.getHighwayMileage());
+                mCityText.setText(dashboardCar.getCityMileage());
+                mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
+
+                hideLoading(null);
+            }
+
+            @Override
+            public void onError() {
+                Toast.makeText(getActivity(),
+                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        updateUI();
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
@@ -227,31 +329,9 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         super.onPause();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        //Log.w(TAG, "onAttach");
-        super.onAttach(context);
-
-        MainActivity.mainDashboardCallback = this;
-
-        application = (GlobalApplication) getActivity().getApplicationContext();
-        networkHelper = new NetworkHelper(application);
-        mixpanelHelper = new MixpanelHelper(application);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        // Local db adapters
-        carLocalStore = new LocalCarAdapter(getActivity());
-        carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
-        shopLocalStore = new LocalShopAdapter(getActivity());
-
-    }
-
     private void setUpUIReferences() {
 
-        carName = (TextView) rootview.findViewById(R.id.car_name);
-        dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
-        dealershipAddress = (TextView) rootview.findViewById(R.id.dealership_address);
-        dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
+
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
@@ -393,105 +473,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         } else{
             return R.drawable.no_dealership_background;
         }
-        
-    }
-
-    private void populateCarIssuesAdapter() {
-        // Try local store
-        Log.i(TAG, "DashboardCar id: (Try local store) "+dashboardCar.getId());
-        if(carIssueLocalStore == null) {
-            carIssueLocalStore = new LocalCarIssueAdapter(getActivity());
-        }
-        List<CarIssue> carIssues = carIssueLocalStore.getAllCarIssues(dashboardCar.getId());
-        if (carIssues.isEmpty() && (dashboardCar.getNumberOfServices() > 0
-                || dashboardCar.getNumberOfRecalls() > 0)) {
-            Log.i(TAG, "No car issues in local store");
-
-            networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        try {
-                            dashboardCar.setIssues(CarIssue.createCarIssues(
-                                    new JSONObject(response).getJSONArray("issues"), dashboardCar.getId()));
-                            carIssueList.clear();
-                            carIssueList.addAll(dashboardCar.getActiveIssues());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            if (getActivity() != null) {
-                                Toast.makeText(getActivity(),
-                                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        try {
-                            carLocalStore.updateCar(Car.createCar(response));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "Load issues error: " + requestError.getMessage());
-                        if (getActivity() != null) {
-                            Toast.makeText(getActivity(),
-                                    "Error retrieving car details", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
-        } else {
-            Log.i(TAG, "Trying local store for carIssues");
-            Log.i(TAG, "Number of active issues: " + dashboardCar.getActiveIssues().size());
-            dashboardCar.setIssues(carIssues);
-            carIssueList.clear();
-            carIssueList.addAll(dashboardCar.getActiveIssues());
-            //carIssuesAdapter.notifyDataSetChanged();
-        }
-        //carIssuesAdapter.updateTutorial();
-    }
-
-    // From MainActivity.MainDashboardCallback
-
-    @Override
-    public void activityResultCallback(int requestCode, int resultCode, Intent data) {
-        boolean shouldRefreshFromServer = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER, false);
-
-        if (requestCode == MainActivity.RC_ADD_CAR && resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-
-            if (shouldRefreshFromServer) {
-                dashboardCar = data.getParcelableExtra(MainActivity.CAR_EXTRA);
-                sharedPreferences.edit().putInt(pfCurrentCar, dashboardCar.getId()).commit();
-            }
-        }
-
-    }
-
-    /**
-     * Update ui with current car info
-     * And retrieve available car issues
-     */
-    @Override
-    public void setCarDetailsUI() {
-
-        Log.d("TAG","setCarDetailsUI()");
-
-        if (dashboardCar == null) {
-            return;
-        }
-        Log.d("TAG","car.id:"+ dashboardCar.getId());
-
-        setDealership();
-        populateCarIssuesAdapter();
-
-        if (carName != null) {
-            carName.setText(dashboardCar.getYear() + " "
-                    + dashboardCar.getMake() + " "
-                    + dashboardCar.getModel());
-        }
-
-        mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
-        mEngineText.setText(dashboardCar.getEngine());
-        mHighwayText.setText(dashboardCar.getHighwayMileage());
-        mCityText.setText(dashboardCar.getCityMileage());
-        mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
 
     }
 
@@ -620,7 +601,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
             });
 
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            dashboardCar = carLocalStore.getCar(dashboardCar.getId());
+            //dashboardCar = carLocalStore.getCar(dashboardCar.getId());
             final double newBaseMileage = dashboardCar.getTotalMileage();
             //mCallback.onTripMileageUpdated(newBaseMileage);
             getActivity().runOnUiThread(new Runnable() {
@@ -633,11 +614,12 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         }
     }
 
+
     @Override
     public void onDashboardCarUpdated() {
-
+        updateUI();
     }
-    
+
     /**
      * Issues list view
      */
@@ -722,9 +704,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
                         Intent intent = new Intent(activity, IssueDetailsActivity.class);
                         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-                        //intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
 
-                        //activity.startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
                     }
                 });
             }

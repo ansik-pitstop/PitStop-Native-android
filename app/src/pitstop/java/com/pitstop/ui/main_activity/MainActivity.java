@@ -239,7 +239,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private NetworkHelper networkHelper;
     private UserAdapter userAdapter;
 
-    private boolean isRefreshingFromServer = false;
     private boolean isFabOpen = false;
     private boolean userSignedUp;
 
@@ -248,9 +247,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public static MainFragmentCallback scanCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
-
-    private int attachedFragmentCounter = 0;
-    private final int TOTAL_WORKING_FRAGMENT_NUM = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -316,8 +312,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         refreshFromServer();
 
         logAuthInfo();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_container, new MainDashboardFragment()).commit();
-
 
         storeUserFromPreferences();//setTabUI();
         setFabUI();
@@ -646,7 +640,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             broadCastCarDataToFragments();
             if(mainDashboardCallback != null){
-                mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
+              //  mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
             }
             loadDealershipCustomDesign();
 
@@ -654,14 +648,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void broadCastCarDataToFragments(){
-        MainDashboardFragment.setDashboardCar(getCurrentCar());
-
-        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
-        if (mainDashboardCallback != null){
-            mainDashboardCallback.onDashboardCarUpdated();
-        }
 
         MainServicesFragment.setDashboardCar(getCurrentCar());
+
         //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
         if (servicesCallback != null){
             servicesCallback.onDashboardCarUpdated();
@@ -776,10 +765,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             //If settings completed check whether to refresh data
             } else if (requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
+                    mainDashboardCallback.onDashboardCarUpdated();
                     refreshFromServer();
                 }
                 //Update dashboard UI since the dealership may have changed
-                mainDashboardCallback.setCarDetailsUI();
+                //mainDashboardCallback.setCarDetailsUI();
                 loadDealershipCustomDesign();
 
             //If display issues completed check whether refresh is required
@@ -812,7 +802,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             }
 
             //Pass the data over to MainDashboardFragment
-            mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
+           // mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -1120,7 +1110,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         }
 
                                         broadCastCarDataToFragments();
-                                        mainDashboardCallback.setCarDetailsUI();
                                         loadDealershipCustomDesign();
 
                                         carLocalStore.deleteAllCars();
