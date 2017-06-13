@@ -779,10 +779,12 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                         }
 
                                                         //Set MainCar to the following car in the list if it exists
-                                                        carList.remove(vehicle);
-                                                        if (!carList.isEmpty()){
-                                                            Car newMainCar = carList.get(0);
-                                                            networkHelper.setMainCar(currentUser.getId(),newMainCar.getId(),null);
+                                                        if (vehicle.isCurrentCar()){
+                                                            carList.remove(vehicle);
+                                                            if (!carList.isEmpty()){
+                                                                Car newMainCar = carList.get(0);
+                                                                networkHelper.setMainCar(currentUser.getId(),newMainCar.getId(),null);
+                                                            }
                                                         }
 
                                                     }
