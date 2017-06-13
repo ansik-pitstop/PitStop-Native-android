@@ -892,9 +892,6 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                             return;
                                         }
 
-                                        Log.d(TAG,"Sent message onto EventBus.");
-                                        EventBus.getDefault().post(new CarDataChangedEvent());
-
                                         /*
                                         * Ask Ben why this updateMileageStart is being called here
                                         * */
@@ -905,6 +902,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         dashboardCar.setDisplayedMileage(mileage);
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
+
+                                        EventBus.getDefault().post(new CarDataChangedEvent());
 
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {

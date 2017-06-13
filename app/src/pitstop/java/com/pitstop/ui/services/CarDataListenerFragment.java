@@ -1,7 +1,6 @@
 package com.pitstop.ui.services;
 
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 
