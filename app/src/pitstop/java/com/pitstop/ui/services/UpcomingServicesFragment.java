@@ -2,7 +2,6 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +27,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
 
@@ -43,7 +43,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends CarDataListenerFragment {
+public class UpcomingServicesFragment extends CarDataFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -134,7 +134,6 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
         mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-
         updateUI();
     }
 

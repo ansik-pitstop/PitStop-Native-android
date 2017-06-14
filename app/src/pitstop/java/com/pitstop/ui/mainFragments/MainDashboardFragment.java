@@ -15,7 +15,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -75,7 +74,7 @@ import butterknife.OnClick;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
 
-public class MainDashboardFragment extends Fragment implements MainDashboardCallback {
+public class MainDashboardFragment extends CarDataFragment implements MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
 
@@ -249,7 +248,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
     }
 
-    private void updateUI(){
+    @Override
+    public void updateUI(){
         showLoading("Loading...");
 
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
@@ -320,7 +320,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        //updateUI();
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 

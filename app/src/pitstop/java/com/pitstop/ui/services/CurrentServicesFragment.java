@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -22,6 +23,8 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 
 import java.util.ArrayList;
@@ -35,16 +38,19 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends Fragment{
+public class CurrentServicesFragment extends CarDataFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
 
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
+
+    @BindView(R.id.loading_spinner)
+    ProgressBar mLoadingSpinner;
+
     private CurrentServicesAdapter carIssuesAdapter;
 
     private List<CarIssue> carIssueList = new ArrayList<>();
-    private boolean uiInitialized = false;
 
     @Inject
     GetUserCarUseCase getUserCarUseCase;
@@ -80,62 +86,58 @@ public class CurrentServicesFragment extends Fragment{
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
-        if (getActivity() != null){
-            initUI();
-        }
+        initUI();
 
         return view;
     }
 
-    //Call whenever you want to completely new UI objects
-    private void initUI(){
-        final Activity activity = this.getActivity();
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
-                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase);
-                carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
-                carIssueListView.setAdapter(carIssuesAdapter);
-                updateUI();
-                uiInitialized = true;
-            }
-
-            @Override
-            public void onError() {
-            }
-        });
-
-    }
-
     @Override
-    public void onResume() {
-        super.onResume();
+    public void updateUI(){
+        mLoadingSpinner.setVisibility(View.VISIBLE);
+        carIssueListView.setVisibility(View.INVISIBLE);
 
-        //Update UI any time another activity(non-tab) is finished
-        if (uiInitialized){
-            updateUI();
-        }
-        else{
-            initUI();
-        }
-    }
-
-    //Call whenever you want the most recent data from the backend
-    private void updateUI(){
         getCurrentServices.execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {
                 carIssueList.clear();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
+
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                carIssueListView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onError() {
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                Toast.makeText(getActivity(),
+                        "Error retrieving information", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    //Call whenever you want to completely new UI objects
+    private void initUI(){
+        if (getActivity() == null){ return; }
+        final Activity activity = this.getActivity();
+        final CarDataChangedNotifier notifier = this;
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
+                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase
+                        ,notifier);
+                carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                carIssueListView.setAdapter(carIssuesAdapter);
+                updateUI();
             }
 
             @Override
             public void onError() {
                 Toast.makeText(getActivity(),
-                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                        "Error retrieving information", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 }

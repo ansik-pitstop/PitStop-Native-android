@@ -1,4 +1,4 @@
-package com.pitstop.ui.services;
+package com.pitstop.ui.mainFragments;
 
 import android.support.v4.app.Fragment;
 
@@ -15,9 +15,9 @@ import org.greenrobot.eventbus.ThreadMode;
  * Created by Karol Zdebel on 5/5/2017.
  */
 
-public abstract class CarDataListenerFragment extends Fragment {
+public abstract class CarDataFragment extends Fragment implements CarDataChangedNotifier {
 
-    final public static String TAG = CarDataListenerFragment.class.getSimpleName();
+    final public static String TAG = CarDataFragment.class.getSimpleName();
     private boolean uiSynced = false;
     private boolean running = false;
 
@@ -52,6 +52,7 @@ public abstract class CarDataListenerFragment extends Fragment {
         super.onResume();
         if (!uiSynced){
             updateUI();
+            uiSynced = true;
         }
     }
 
@@ -59,6 +60,11 @@ public abstract class CarDataListenerFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void notifyCarDataChanged(){
+        EventBus.getDefault().post(new CarDataChangedEvent());
     }
 
     public abstract void updateUI();

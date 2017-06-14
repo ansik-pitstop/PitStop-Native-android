@@ -15,20 +15,16 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerUseCaseComponent;
-import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.Calendar;
 import java.util.List;
-
-import javax.inject.Inject;
 
 /**
  * Created by Karol Zdebel on 5/31/2017.
@@ -43,17 +39,16 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
     private MarkServiceDoneUseCase markServiceDoneUseCase;
+    private CarDataChangedNotifier notifier;
 
     public CurrentServicesAdapter(Car dashboardCar, List<CarIssue> carIssues
-                , MainActivityCallback tutorialCallback,Context context, MarkServiceDoneUseCase markServiceDoneUseCase) {
+                , MainActivityCallback tutorialCallback,Context context
+            , MarkServiceDoneUseCase markServiceDoneUseCase, CarDataChangedNotifier notifier) {
         this.dashboardCar = dashboardCar;
         this.carIssues = carIssues;
         this.context = context;
+        this.notifier = notifier;
         this.markServiceDoneUseCase = markServiceDoneUseCase;
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(context.getApplicationContext()))
-                .build();
-
         this.mainActivityCallback = tutorialCallback;
     }
 
@@ -156,6 +151,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                                             ,Toast.LENGTH_LONG);
                                     carIssues.remove(carIssue);
                                     notifyDataSetChanged();
+                                    notifier.notifyCarDataChanged();
                                 }
 
                                 @Override

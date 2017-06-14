@@ -3,27 +3,25 @@ package com.pitstop.ui.services;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,11 +34,14 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends Fragment {
+public class HistoryServiceFragment extends CarDataFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
 
     private RecyclerView issuesList;
+
+    @BindView(R.id.loading_spinner)
+    ProgressBar mLoadingSpinner;
 
     @BindView(R.id.message_card)
     protected CardView messageCard;
@@ -50,9 +51,6 @@ public class HistoryServiceFragment extends Fragment {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
-    private LocalCarIssueAdapter localCarIssueAdapter;
     private List<CarIssue> addedIssues;
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
@@ -92,21 +90,6 @@ public class HistoryServiceFragment extends Fragment {
         ButterKnife.bind(this, view);
         initUI();
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        initUI();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser && getView() != null){
-            updateUI();
-        }
     }
 
     private void addIssue(CarIssue issue){
@@ -171,7 +154,10 @@ public class HistoryServiceFragment extends Fragment {
         updateUI();
     }
 
-    private void updateUI(){
+    @Override
+    public void updateUI(){
+
+        mLoadingSpinner.setVisibility(View.VISIBLE);
 
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -196,11 +182,13 @@ public class HistoryServiceFragment extends Fragment {
                     messageCard.setVisibility(View.INVISIBLE);
                 }
 
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
+
             }
 
             @Override
             public void onError() {
-
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
         });
 
