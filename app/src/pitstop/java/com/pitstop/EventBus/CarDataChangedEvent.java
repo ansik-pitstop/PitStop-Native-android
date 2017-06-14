@@ -12,7 +12,7 @@ public class CarDataChangedEvent implements EventTypes {
     private String eventType;
 
     public CarDataChangedEvent(String eventType){
-        if (!eventType.equals(EventTypes.EVENT_CAR_CHANGED)
+        if (!eventType.equals(EventTypes.EVENT_CAR_ID)
                 && !eventType.equals(EventTypes.EVENT_MILEAGE)
                 && !eventType.equals(EventTypes.EVENT_SERVICES_HISTORY)
                 && !eventType.equals(EventTypes.EVENT_SERVICES_NEW)){

@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -48,6 +49,7 @@ import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -197,6 +199,10 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 hideLoading("Success!");
                                 showSimpleMessage("We have saved issues you requested!", true);
                                 shouldRefresh = true;
+
+                                //Notify change
+                                EventBus.getDefault()
+                                        .post(new CarDataChangedEvent(CarDataChangedEvent.EVENT_SERVICES_NEW));
                             } else {
                                 hideLoading("Failed!");
                                 showSimpleMessage("Network error, please try again later.", false);
@@ -539,4 +545,5 @@ public class ServiceRequestActivity extends AppCompatActivity
                 .setPositiveButton("OK", null)
                 .show();
     }
+
 }

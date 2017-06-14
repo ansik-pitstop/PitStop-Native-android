@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventTypes;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarAdapter;
@@ -408,7 +409,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                             if (requestError == null){
                                 //Notify the car changed
                                 EventBus.getDefault().post(new
-                                        CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_CHANGED));
+                                        CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_ID));
                             }
                         }
                     });
@@ -469,6 +470,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     updatedCar.setShopId(shopId);
                                                     localCarAdapter.updateCar(updatedCar);
                                                     listener.localUpdatePerformed();
+                                                    EventBus.getDefault().post(
+                                                            new CarDataChangedEvent(EventTypes.EVENT_CAR_DEALERSHIP));
                                                 } else {
                                                     loadingCallback.hideLoading("An error occurred, please try again.");
                                                     Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
@@ -794,7 +797,15 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                             carList.remove(vehicle);
                                                             if (!carList.isEmpty()){
                                                                 Car newMainCar = carList.get(0);
-                                                                networkHelper.setMainCar(currentUser.getId(),newMainCar.getId(),null);
+                                                                networkHelper.setMainCar(currentUser.getId(), newMainCar.getId(), new RequestCallback() {
+                                                                    @Override
+                                                                    public void done(String response, RequestError requestError) {
+                                                                        if (requestError == null){
+                                                                            EventBus.getDefault().post(
+                                                                                    new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+                                                                        }
+                                                                    }
+                                                                });
                                                             }
                                                         }
 
