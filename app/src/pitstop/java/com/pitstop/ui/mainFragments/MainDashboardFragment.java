@@ -926,7 +926,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     }
 
     private void showLoading(String loadingMessage) {
-        if (progressDialog != null && isVisible()) {
+        if (progressDialog != null && getUserVisibleHint()) {
             if (loadingMessage != null)
                 progressDialog.setMessage(loadingMessage);
             progressDialog.show();
@@ -936,7 +936,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     private void hideLoading(String toastMessage) {
         if (progressDialog != null) {
             progressDialog.dismiss();
-            if (toastMessage != null && isVisible())
+            if (toastMessage != null && getUserVisibleHint())
                 Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
         }
     }
