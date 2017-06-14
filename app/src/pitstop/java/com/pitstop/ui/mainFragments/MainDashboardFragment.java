@@ -927,7 +927,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     }
 
     private void showLoading(String loadingMessage) {
-        if (progressDialog != null && getUserVisibleHint()) {
+        if (progressDialog != null && !progressDialog.isShowing() && getUserVisibleHint()) {
             if (loadingMessage != null)
                 progressDialog.setMessage(loadingMessage);
             progressDialog.show();

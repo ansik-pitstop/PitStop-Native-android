@@ -40,7 +40,7 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     }
 
     //These event types will not trigger an update in the UI
-    public void setNoUpdateOnEventTypes(List<String> eventTypes){
+    public void setNoUpdateOnEventTypes(String[] eventTypes){
         for (String s: eventTypes){
             if (!updateConstraints.contains(s)){
                 updateConstraints.add(s);

@@ -13,9 +13,9 @@ public class CarDataChangedEvent implements EventTypes {
 
     public CarDataChangedEvent(String eventType){
         if (!eventType.equals(EventTypes.EVENT_CAR_CHANGED)
-                || !eventType.equals(EventTypes.EVENT_MILEAGE)
-                || !eventType.equals(EventTypes.EVENT_SERVICES_HISTORY)
-                || !eventType.equals(EventTypes.EVENT_SERVICES_NEW)){
+                && !eventType.equals(EventTypes.EVENT_MILEAGE)
+                && !eventType.equals(EventTypes.EVENT_SERVICES_HISTORY)
+                && !eventType.equals(EventTypes.EVENT_SERVICES_NEW)){
 
             throw new IllegalArgumentException();
         }

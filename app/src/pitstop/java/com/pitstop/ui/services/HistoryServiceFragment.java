@@ -52,6 +52,7 @@ public class HistoryServiceFragment extends CarDataFragment {
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private List<CarIssue> addedIssues;
+    private final String[] ignoredEvents = {EVENT_MILEAGE};
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
@@ -88,6 +89,7 @@ public class HistoryServiceFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
+        setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
         return view;
     }

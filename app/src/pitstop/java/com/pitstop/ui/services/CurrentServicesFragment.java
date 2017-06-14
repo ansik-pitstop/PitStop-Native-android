@@ -53,6 +53,8 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     private List<CarIssue> carIssueList = new ArrayList<>();
 
+    private final String[] ignoredEvents = {EVENT_SERVICES_HISTORY,EVENT_MILEAGE};
+
     @Inject
     GetUserCarUseCase getUserCarUseCase;
 
@@ -92,6 +94,7 @@ public class CurrentServicesFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
+        setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
 
         return view;

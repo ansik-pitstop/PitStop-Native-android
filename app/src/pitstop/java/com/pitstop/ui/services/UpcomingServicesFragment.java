@@ -91,6 +91,8 @@ public class UpcomingServicesFragment extends CarDataFragment {
     boolean mIssueDetailsViewAnimating = false;
     boolean mViewInit = false;
 
+    private final String[] ignoredEvents = {EVENT_SERVICES_HISTORY};
+
     @Inject
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
 
@@ -123,6 +125,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
 
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
+        setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
         mViewInit = true;
         return view;
