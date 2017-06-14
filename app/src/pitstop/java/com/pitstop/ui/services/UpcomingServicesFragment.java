@@ -2,6 +2,7 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -25,11 +26,9 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
-import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.UiUtils;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends SubServiceFragment{
+public class UpcomingServicesFragment extends CarDataListenerFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
 
@@ -83,14 +82,14 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     @BindView(R.id.severity_text)
     TextView mIssueSeverityText;
 
-    NetworkHelper mNetworkHelper;
     MixpanelHelper mMixPanelHelper;
-    Timeline mTimelineData;
     Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
-    List<UpcomingIssue> mIssueList;
+    TimelineAdapter timelineAdapter;
+    GlobalApplication application;
     boolean mIssueDetailsViewVisible = false;
     boolean mIssueDetailsViewAnimating = false;
+    boolean mViewInit = false;
 
     @Inject
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
@@ -108,13 +107,11 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mNetworkHelper = new NetworkHelper(getContext().getApplicationContext());
-        mMixPanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
-        mTimeLineMap = new HashMap<>();
-        mTimelineDisplayList = new ArrayList<>();
+        application = (GlobalApplication)getContext().getApplicationContext();
+        mMixPanelHelper = new MixpanelHelper(application);
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getContext().getApplicationContext()))
+                .contextModule(new ContextModule(application))
                 .build();
         component.injectUseCases(this);
 
@@ -126,21 +123,28 @@ public class UpcomingServicesFragment extends SubServiceFragment{
 
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
-
-        //This must be called so that UI elements are set for SubService
-        super.onCreateView(inflater,container,savedInstanceState);
-
+        initUI();
+        mViewInit = true;
         return view;
     }
 
-    @Override
-    public void setUI() {
+    public void initUI() {
+
+        mTimeLineMap = new HashMap<>();
+        mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-        fetchData();
+
+        updateUI();
     }
 
-    private void fetchData() {
+    @Override
+    public void updateUI() {
+
+        mLoadingSpinner.setVisibility(View.VISIBLE);
+        mTimeLineMap.clear();
+        mTimelineDisplayList.clear();
+
         getUpcomingServicesUseCase.execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> map) {
@@ -158,12 +162,16 @@ public class UpcomingServicesFragment extends SubServiceFragment{
                     mTimelineDisplayList.addAll(map.get(mileage));
                 }
 
-                mTimeLineRecyclerView.setAdapter(new TimelineAdapter());
+                timelineAdapter = new TimelineAdapter();
+                mTimeLineRecyclerView.setAdapter(timelineAdapter);
+
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onError() {
-
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                showError();
             }
         });
 
@@ -186,7 +194,7 @@ public class UpcomingServicesFragment extends SubServiceFragment{
     protected void onTryAgainClicked(){
         if (mTryAgain.getVisibility() != View.VISIBLE) return;
         mErrorViewContainer.setVisibility(View.GONE);
-        fetchData();
+        updateUI();
     }
 
     @Override

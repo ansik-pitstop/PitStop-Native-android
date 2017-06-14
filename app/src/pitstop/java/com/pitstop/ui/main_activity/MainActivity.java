@@ -993,7 +993,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
      * Get list of cars associated with current user
      */
     private void getCarDetails() {
-        showLoading("Retrieving car details");
+        //showLoading("Retrieving car details");
 
         // Try local store
         List<Car> localCars = carLocalStore.getAllCars();
