@@ -51,7 +51,7 @@ import io.smooch.core.Smooch;
 /**
  * Created by Ansik on 12/28/15.
  */
-public class GlobalApplication extends Application implements LogOutable {
+public class GlobalApplication extends Application {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 

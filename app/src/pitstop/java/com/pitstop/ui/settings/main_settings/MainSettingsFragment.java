@@ -1,6 +1,11 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -8,13 +13,22 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.ui.LoginActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
-import com.pitstop.ui.settings.ContextRelated;
+import com.pitstop.ui.settings.PrefMaker;
+
+import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 
 /**
@@ -26,14 +40,18 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private final String PHONE_PREF_KEY = "pref_phone_number_key";
     private final String APP_INFO_KEY = "AppInfo";
 
+    private GlobalApplication application;
+    private Context context;
+
     private MainSettingsPresenter presenter;
     private FragmentSwitcher switcher;
-    private ContextRelated launcher;
+    private PrefMaker prefMaker;
 
     private Preference infoPreference;
     private EditTextPreference namePreference;
     private EditTextPreference phonePreference;
     private PreferenceCategory vehicleCatagory;
+    private boolean prefsCreated = false;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
@@ -41,25 +59,35 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
-    public void setLauncher(ContextRelated launcher) {
-        this.launcher = launcher;
+    public void setPrefMaker(PrefMaker prefMaker) {
+        this.prefMaker = prefMaker;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        context = getActivity().getApplicationContext();
+        application = (GlobalApplication) context;
+
+        if(!prefsCreated){// might cause problems
+            addPreferencesFromResource(R.xml.preferences);
+            prefsCreated = true;
+        }
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
         namePreference = (EditTextPreference) findPreference(NAME_PREF_KEY);
         phonePreference = (EditTextPreference) findPreference(PHONE_PREF_KEY);
         infoPreference = (Preference) findPreference(APP_INFO_KEY);
         vehicleCatagory = (PreferenceCategory) findPreference(getString(R.string.pref_vehicles));
 
         presenter = new MainSettingsPresenter();
-        presenter.subscribe(this,switcher,launcher);
-        presenter.setVersion();
+        presenter.subscribe(this,switcher,prefMaker);
 
-        //presenter.setupPrefs();
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(presenter);
+
+        presenter.setVersion();
+        presenter.getCars();
         return view;
     }
 
@@ -85,17 +113,78 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         infoPreference.setTitle(version);
     }
 
-
-    public void addCar(Preference carPref) {
-        vehicleCatagory.addPreference(carPref);
+    @Override
+    public void addCar(Preference preference) {
+        vehicleCatagory.addPreference(preference);
     }
 
+    @Override
+    public void resetCars() {
+        vehicleCatagory.removeAll();
+    }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if(key.equals(NAME_PREF_KEY) || key.equals(PHONE_PREF_KEY)){
             presenter.preferenceInput(sharedPreferences.getString(key,""),key);
         }
+    }
+    @Override
+    public void startAddCar() {
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent,RC_ADD_CAR);
+    }
+    @Override
+    public String getBuildNumber() {
+        try{
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        }catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+
+    @Override
+    public void startPriv() {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/PrivacyPolicy.pdf")));
+    }
+
+    @Override
+    public void startTerms() {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/AppAgreement.pdf")));
+    }
+    @Override
+    public void showLogOut() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
+        alertDialogBuilder.setTitle("Log Out");
+        alertDialogBuilder
+                .setMessage("Are you sure you want to logout?")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.dismiss();
+                        presenter.logout();
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+    public void logout(){
+        application.logOutUser();
+    }
+
+    @Override
+    public void gotoLogin() {
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
 
