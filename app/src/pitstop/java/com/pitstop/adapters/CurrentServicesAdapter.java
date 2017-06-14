@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
@@ -151,7 +152,8 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                                             ,Toast.LENGTH_LONG);
                                     carIssues.remove(carIssue);
                                     notifyDataSetChanged();
-                                    notifier.notifyCarDataChanged();
+                                    notifier.notifyCarDataChanged(CarDataChangedEvent
+                                            .EVENT_SERVICES_HISTORY);
                                 }
 
                                 @Override

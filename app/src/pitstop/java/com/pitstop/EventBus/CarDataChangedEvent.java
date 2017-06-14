@@ -7,28 +7,23 @@ package com.pitstop.EventBus;
  * Created by Karol Zdebel on 6/13/2017.
  */
 
-public class CarDataChangedEvent {
+public class CarDataChangedEvent implements EventTypes {
 
-    private boolean mileageChanged;
+    private String eventType;
 
-    private boolean servicesChanged;
-    private boolean carIdChanged;
+    public CarDataChangedEvent(String eventType){
+        if (!eventType.equals(EventTypes.EVENT_CAR_CHANGED)
+                || !eventType.equals(EventTypes.EVENT_MILEAGE)
+                || !eventType.equals(EventTypes.EVENT_SERVICES_HISTORY)
+                || !eventType.equals(EventTypes.EVENT_SERVICES_NEW)){
 
-    public CarDataChangedEvent(boolean mileageChanged, boolean servicesChanged, boolean carIdChanged) {
-        this.mileageChanged = mileageChanged;
-        this.servicesChanged = servicesChanged;
-        this.carIdChanged = carIdChanged;
+            throw new IllegalArgumentException();
+        }
+
+        this.eventType = eventType;
     }
 
-    public boolean isMileageChanged() {
-        return mileageChanged;
-    }
-
-    public boolean isServicesChanged() {
-        return servicesChanged;
-    }
-
-    public boolean isCarIdChanged() {
-        return carIdChanged;
+    public String getEventType(){
+        return eventType;
     }
 }

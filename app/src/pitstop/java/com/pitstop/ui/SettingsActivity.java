@@ -407,7 +407,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         public void done(String response, RequestError requestError) {
                             if (requestError == null){
                                 //Notify the car changed
-                                EventBus.getDefault().post(new CarDataChangedEvent());
+                                EventBus.getDefault().post(new
+                                        CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_CHANGED));
                             }
                         }
                     });

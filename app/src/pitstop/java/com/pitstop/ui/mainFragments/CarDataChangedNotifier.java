@@ -5,5 +5,5 @@ package com.pitstop.ui.mainFragments;
  */
 
 public interface CarDataChangedNotifier {
-    void notifyCarDataChanged();
+    void notifyCarDataChanged(String eventType);
 }

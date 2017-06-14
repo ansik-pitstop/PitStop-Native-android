@@ -104,7 +104,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                 localCarAdapter.updateCar(dashboardCar);
                 mCallback.onInputtedMileageUpdated(input);
 
-                EventBus.getDefault().post(new CarDataChangedEvent());
+                EventBus.getDefault().post(new CarDataChangedEvent(CarDataChangedEvent.EVENT_MILEAGE));
             }
         });
     }

@@ -903,7 +903,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 
-                                        EventBus.getDefault().post(new CarDataChangedEvent());
+                                        EventBus.getDefault().post(new CarDataChangedEvent(
+                                                CarDataChangedEvent.EVENT_MILEAGE));
 
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
