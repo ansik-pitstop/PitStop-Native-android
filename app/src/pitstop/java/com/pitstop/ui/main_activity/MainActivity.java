@@ -714,7 +714,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
      */
     public void settingsClicked(View view) {
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Intent intent = new Intent(this, com.pitstop.ui.settings.SettingsActivity.class);
+        startActivity(intent);
+
+        /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
         final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -736,7 +739,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
-        }
+        }*/
     }
 
     /**

@@ -460,6 +460,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     if (result != 0) {
                         // Car shop was updated
                         listener.localUpdatePerformed();
+                        listener.localUpdatePerformed();
                     }
 
                     showLoading("Updating");

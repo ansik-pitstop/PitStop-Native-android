@@ -2,12 +2,15 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.database.LocalCarAdapter;
+
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.NetworkHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,64 +18,35 @@ import java.util.List;
  */
 
 public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
-    private Handler handler;
-    private CarRepository carRepository;
-    private UserRepository userRepository;
-
+    private LocalCarAdapter localCarAdapter;
+    private UserAdapter userAdapter;
+    private NetworkHelper networkHelper;
     private GetCarsByUserIdUseCase.Callback callback;
 
 
-    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository, Handler handler) {
-        this.userRepository = userRepository;
-        this.handler = handler;
-        this.carRepository = carRepository;
-
+    public GetCarsByUserIdUseCaseImpl(UserAdapter userAdapter, LocalCarAdapter localCarAdapter, NetworkHelper networkHelper) {
+        this.userAdapter = userAdapter;
+        this.localCarAdapter = localCarAdapter;
+        this.networkHelper = networkHelper;
     }
 
     @Override
     public void execute(GetCarsByUserIdUseCase.Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        new Handler().post(this);
     }
 
     @Override
     public void run() {
 
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
-
+        UserRepository.getInstance(userAdapter,networkHelper).getCurrentUser(new UserRepository.UserGetCallback(){
             @Override
-            public void onGotCar(Car car) {
-
-                final Car userCar = car;
-
-                userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
-
+            public void onGotUser(User user) {
+                CarRepository.getInstance(localCarAdapter,networkHelper).getCarByUserId(user.getId(),new CarRepository.CarsGetCallback() {
                     @Override
-                    public void onGotUser(User user) {
-
-                        carRepository.getCarByUserId(user.getId(),new CarRepository.CarsGetCallback() {
-
-                            @Override
-                            public void onCarsGot(List<Car> cars) {
-
-                                for (Car c: cars){
-                                    if (c.getId() == userCar.getId()){
-                                        c.setCurrentCar(true);
-                                    }
-                                    else{
-                                        c.setCurrentCar(false);
-                                    }
-                                }
-                                callback.onCarsRetrieved(cars);
-                            }
-
-                            @Override
-                            public void onError() {
-                                callback.onError();
-                            }
-                        });
+                    public void onCarsGot(List<Car> cars) {
+                        callback.onCarsRetrieved(cars);
                     }
-
                     @Override
                     public void onError() {
                         callback.onError();
@@ -81,16 +55,13 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-                ArrayList<Car> cars = new ArrayList<>();
-                callback.onCarsRetrieved(cars);
-            }
-
-            @Override
             public void onError() {
                 callback.onError();
             }
         });
-    }
 
+
+
+
+    }
 }
