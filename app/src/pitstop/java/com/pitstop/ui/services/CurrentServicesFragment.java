@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.dependency.ContextModule;
@@ -70,11 +69,6 @@ public class CurrentServicesFragment extends CarDataFragment {
     }
 
     public CurrentServicesFragment() {
-    }
-
-    @Override
-    public void onCarDataChangedEvent(CarDataChangedEvent event){
-
     }
 
     @Override
