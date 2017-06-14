@@ -152,17 +152,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
             didLoadCustomDesign = false;
         }
 
-        //Send car data to upcoming services fragment
-        UpcomingServicesFragment.setDashboardCar(dashboardCar);
-        if (upcomingServicesFragment != null){
-            upcomingServicesFragment.onDashboardCarUpdated();
-        }
-
-        //Send car data to current services fragment
-//        CurrentServicesFragment.setDashboardCar(dashboardCar);
-//        if (currentServicesFragment != null){
-//            currentServicesFragment.onDashboardCarUpdated();
-//        }
     }
 
     @Override

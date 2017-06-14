@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarAdapter;
@@ -48,6 +49,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -400,7 +402,15 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     localCarAdapter.updateCar(recentCar);
 
                     //Send updateCarIssue to network
-                    networkHelper.setMainCar(currentUser.getId(), car.getId(), null);
+                    networkHelper.setMainCar(currentUser.getId(), car.getId(), new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if (requestError == null){
+                                //Notify the car changed
+                                EventBus.getDefault().post(new CarDataChangedEvent());
+                            }
+                        }
+                    });
                     listener.localUpdatePerformed();
 
                     //Update shared preferences
