@@ -8,6 +8,7 @@ import android.util.Log;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
@@ -28,6 +29,7 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -101,6 +103,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                 dashboardCar.setTotalMileage(input);
                 localCarAdapter.updateCar(dashboardCar);
                 mCallback.onInputtedMileageUpdated(input);
+
+                EventBus.getDefault().post(new CarDataChangedEvent());
             }
         });
     }
