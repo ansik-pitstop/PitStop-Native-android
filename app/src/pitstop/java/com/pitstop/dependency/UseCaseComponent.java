@@ -27,7 +27,7 @@ public interface UseCaseComponent {
 
     void injectUseCases(ServiceRequestActivity activity);
 
-    void injectUseCases(SettingsActivity activity);
+    void injectUseCases(SettingsActivity.SettingsFragment fragment);
 
     void injectUseCases(MainDashboardFragment fragment);
 }

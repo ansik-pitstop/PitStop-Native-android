@@ -37,14 +37,41 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     @Override
     public void run() {
 
-       userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
+        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+
             @Override
-            public void onGotUser(User user) {
-               carRepository.getCarByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+            public void onGotCar(Car car) {
+
+                final Car userCar = car;
+
+                userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
+
                     @Override
-                    public void onCarsGot(List<Car> cars) {
-                        callback.onCarsRetrieved(cars);
+                    public void onGotUser(User user) {
+
+                        carRepository.getCarByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+
+                            @Override
+                            public void onCarsGot(List<Car> cars) {
+
+                                for (Car c: cars){
+                                    if (c.getId() == userCar.getId()){
+                                        c.setCurrentCar(true);
+                                    }
+                                    else{
+                                        c.setCurrentCar(false);
+                                    }
+                                }
+                                callback.onCarsRetrieved(cars);
+                            }
+
+                            @Override
+                            public void onError() {
+                                callback.onError();
+                            }
+                        });
                     }
+
                     @Override
                     public void onError() {
                         callback.onError();
@@ -57,9 +84,6 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                 callback.onError();
             }
         });
-
-
-
-
     }
+
 }

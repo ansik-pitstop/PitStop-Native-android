@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +43,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -63,12 +62,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
-import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
 
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
@@ -77,70 +71,26 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     private MixpanelHelper mixpanelHelper;
     private boolean localUpdatePerformed = false;
 
-    @BindView(R.id.progress_bar)
-    ProgressBar progressBar;
-
-    @Inject
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(getLayoutInflater().inflate(R.layout.activity_settings,null));
-        ButterKnife.bind(this);
-
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getApplicationContext()))
-                .build();
-        component.injectUseCases(this);
-
-        showLoading("Loading data...");
-
-        final SettingsActivity thisInstance = this;
-        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+        SettingsFragment settingsFragment = new SettingsFragment();
+        settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
             @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                boolean currentCarExists = false;
-                for (Car c: cars){
-                    if (c.isCurrentCar()){
-                        currentCarExists = true;
-                    }
-                }
-
-                //Set first car to current car if none are set
-                if (!currentCarExists){
-                    cars.get(0).setCurrentCar(true);
-                }
-
-                SettingsFragment settingsFragment = new SettingsFragment();
-                settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
-                    @Override
-                    public void localUpdatePerformed() {
-                        localUpdatePerformed = true;
-                    }
-                });
-                settingsFragment.setLoadingCallback(thisInstance);
-
-                Bundle bundle = new Bundle();
-
-                IntentProxyObject intentProxyObject = new IntentProxyObject();
-                intentProxyObject.setCarList(cars);
-                bundle.putParcelable("carList", intentProxyObject);
-
-                settingsFragment.setArguments(bundle);
-                getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
-
-                hideLoading("Successfully loaded data.");
-            }
-
-            @Override
-            public void onError() {
-                hideLoading(null);
+            public void localUpdatePerformed() {
+                localUpdatePerformed = true;
             }
         });
+        settingsFragment.setLoadingCallback(this);
+        getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -173,7 +123,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(REFRESH_FROM_SERVER, localUpdatePerformed);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
     }
@@ -191,7 +141,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     @Override
     public void hideLoading(@Nullable String string) {
-        progressBar.setVisibility(View.INVISIBLE);
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
         if (string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
@@ -199,7 +151,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     @Override
     public void showLoading(@NonNull String string) {
-        progressBar.setVisibility(View.VISIBLE);
+        progressDialog.setMessage(string);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
     }
 
     public static class SettingsFragment extends PreferenceFragment {
@@ -210,9 +165,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         private OnInfoUpdated listener;
         private ILoadingActivity loadingCallback;
-        private ArrayList<ListPreference> preferenceList;
-
-        private List<Car> carList;
 
         private GlobalApplication application;
         private LocalCarAdapter localCarAdapter;
@@ -222,10 +174,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private User currentUser;
 
         private MixpanelHelper mixpanelHelper;
-
+        List<Car> carList;
         private NetworkHelper networkHelper;
 
         private VehiclePreference currentCarVehiclePreference;
+
+        @Inject
+        GetCarsByUserIdUseCase getCarsByUserIdUseCase;
 
         public SettingsFragment() {}
 
@@ -252,69 +207,59 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             shopAdapter = new LocalShopAdapter(getActivity());
             localScannerAdapter = new LocalScannerAdapter(getActivity());
 
-            Bundle bundle = getArguments();
-            IntentProxyObject listObject = bundle.getParcelable("carList");
-            if (listObject != null) {
-                carList = listObject.getCarList();
-                Log.d(TAG,"listObject != null");
-                Log.d(TAG,"carList.size(): "+carList.size());
-            } else {
-                Log.d(TAG,"listObject == null");
-                carList = localCarAdapter.getAllCars();
-            }
+            UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getActivity().getApplicationContext()))
+                    .build();
+            component.injectUseCases(this);
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
-            populateCarListPreference();
+            loadingCallback.showLoading("Loading...");
+            getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+                @Override
+                public void onCarsRetrieved(List<Car> cars) {
+                    carList = cars;
+                    populateCarListPreference(cars);
+                    loadingCallback.hideLoading("Finished");
+                }
+
+                @Override
+                public void onError() {
+                    loadingCallback.hideLoading(null);
+                }
+            });
+
         }
 
-        private void populateCarListPreference() {
-            final List<Dealership> dealerships = shopAdapter.getAllDealerships();
+        private void populateCarListPreference(List<Car> cars) {
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
 
-            // Try local store for dealerships
-            if (dealerships.isEmpty()) {
-                Log.i(TAG, "Local store has no dealerships");
-                loadingCallback.showLoading("Retrieving store information..");
-                networkHelper.getShops(new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            try {
-                                List<Dealership> dealers = Dealership.createDealershipList(response);
-                                shopAdapter.deleteAllDealerships();
-                                shopAdapter.storeDealerships(dealers);
+            networkHelper.getShops(new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null) {
+                        try {
+                            List<Dealership> dealers = Dealership.createDealershipList(response);
+                            shopAdapter.deleteAllDealerships();
+                            shopAdapter.storeDealerships(dealers);
 
-                                for (Dealership dealership : dealers) {
-                                    shops.add(dealership.getName());
-                                    shopIds.add(String.valueOf(dealership.getId()));
-                                }
-                                for (int i = 0; i < carList.size(); i++) {
-                                    setUpCarPreference(shops,shopIds,carList.get(i));
-                                }
-
-                                loadingCallback.hideLoading(null);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                loadingCallback.hideLoading("An error occurred, please try again");
+                            for (Dealership dealership : dealers) {
+                                shops.add(dealership.getName());
+                                shopIds.add(String.valueOf(dealership.getId()));
                             }
-                        } else {
-                            Log.e(TAG, "Get shops: " + requestError.getMessage());
-                            loadingCallback.hideLoading("An error occurred, please try again");
-                        }
-                    }
-                });
-            } else {
-                for (Dealership shop : dealerships) {
-                    shops.add(shop.getName());
-                    shopIds.add(String.valueOf(shop.getId()));
-                }
+                            for (int i = 0; i < cars.size(); i++) {
+                                setUpCarPreference(shops,shopIds,cars.get(i));
+                            }
 
-                for (int i = 0; i < carList.size(); i++) {
-                    setUpCarPreference(shops,shopIds,carList.get(i));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.e(TAG, "Get shops: " + requestError.getMessage());
+                    }
                 }
-            }
+            });
         }
 
         //Begin AddCarActivity if add car button is pressed
@@ -326,7 +271,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     mixpanelHelper.trackButtonTapped("Add Car",MixpanelHelper.SETTINGS_VIEW);
                     Intent intent = new Intent(getActivity(), AddCarActivity.class);
                     //Don't allow user to come back to tabs without first setting a car
-                    startActivityForResult(intent, RC_ADD_CAR);
+                    startActivityForResult(intent, MainActivity.RC_ADD_CAR);
                     return false;
                 }
             });
@@ -339,11 +284,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             //Check for Add car finished, and whether it happened successfully, if so updated preferences view
             if (data != null) {
 
-                if (requestCode == RC_ADD_CAR) {
+                if (requestCode == MainActivity.RC_ADD_CAR) {
                     if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                         listener.localUpdatePerformed();
 
-                        Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                        Car addedCar = data.getParcelableExtra(MainActivity.CAR_EXTRA);
 
                         //Update current car to the one that was clicked
                         for (Car c: localCarAdapter.getAllCars()){
