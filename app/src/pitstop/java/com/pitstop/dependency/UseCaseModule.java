@@ -35,6 +35,16 @@ import dagger.Provides;
 public class UseCaseModule {
 
     @Provides
+    GetCurrentUserUseCase getCurrentUserUseCase(UserRepository userRepository, Handler handler){
+        return new GetCurrentUserUseCaseImpl(userRepository, handler);
+    }
+
+    @Provides
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository,CarRepository carRepository, Handler handler){
+        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,handler);
+    }
+
+    @Provides
     AddCarUseCase addCarUseCase(CarRepository carRepository, Handler handler){
         return new AddCarUseCaseImpl(carRepository, handler);
     }

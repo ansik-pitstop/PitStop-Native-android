@@ -9,6 +9,8 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 
+import java.util.List;
+
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
  * Updates data both remotely and locally.
@@ -34,6 +36,10 @@ public class CarRepository {
 
     public interface CarGetCallback{
         void onCarGot(Car car);
+        void onError();
+    }
+    public interface CarsGetCallback{
+        void onCarsGot(List<Car> cars);
         void onError();
     }
 
@@ -124,6 +130,30 @@ public class CarRepository {
                 }
                 catch(JsonIOException e){
 
+                }
+            }
+        };
+
+        return requestCallback;
+    }
+
+    public List<Car> getCarByUserId(int userId, CarsGetCallback callback ){
+        networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback));
+        return localCarAdapter.getCarsByUserId(userId);
+    }
+    private RequestCallback getCarsRequestCallback(CarsGetCallback callback){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        callback.onCarsGot(Car.createCarsList(response));
+                    }
+                    else{
+                        callback.onError();
+                    }
+                }
+                catch(JSONException e){
                 }
             }
         };
