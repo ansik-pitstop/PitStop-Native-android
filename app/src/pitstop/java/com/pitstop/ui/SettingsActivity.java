@@ -62,8 +62,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
@@ -220,7 +218,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 public void onCarsRetrieved(List<Car> cars) {
                     carList = cars;
                     populateCarListPreference(cars);
-                    loadingCallback.hideLoading("Finished");
                 }
 
                 @Override
@@ -235,6 +232,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
 
+            loadingCallback.showLoading("Loading...");
             networkHelper.getShops(new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
@@ -252,10 +250,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 setUpCarPreference(shops,shopIds,cars.get(i));
                             }
 
+                            loadingCallback.hideLoading(null);
                         } catch (JSONException e) {
+                            loadingCallback.hideLoading("Error");
                             e.printStackTrace();
                         }
                     } else {
+                        loadingCallback.hideLoading("Error");
                         Log.e(TAG, "Get shops: " + requestError.getMessage());
                     }
                 }
@@ -350,15 +351,17 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                     mixpanelHelper.trackButtonTapped("CurrentCarButton",MixpanelHelper.SETTINGS_VIEW);
 
-                    //Get most recent version of car, since the parameter may be outdated
-                    Car recentCar = localCarAdapter.getCar(car.getId());
-
                     //Check if the vehicle preference is already a current, if so return
                     if (car.getId() == PreferenceManager.getDefaultSharedPreferences(application)
                             .getInt(MainDashboardFragment.pfCurrentCar,-1)){
 
                         return false;
                     }
+
+                    loadingCallback.showLoading("Updating...");
+
+                    //Get most recent version of car, since the parameter may be outdated
+                    Car recentCar = localCarAdapter.getCar(car.getId());
 
                     //Update current car to the one that was clicked
                     for (Car c: localCarAdapter.getAllCars()){
@@ -376,6 +379,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 //Notify the car changed
                                 EventBus.getDefault().post(new
                                         CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_ID));
+                                loadingCallback.hideLoading("Changed Car");
                             }
                         }
                     });
