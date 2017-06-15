@@ -270,7 +270,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Cancel CarService Request");
+                                properties.put("Button", "Cancel Service Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -335,7 +335,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         dateDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mixpanelHelper.trackButtonTapped("Cancel Request CarService", MixpanelHelper.SERVICE_REQUEST_VIEW);
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -373,7 +373,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         timePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mixpanelHelper.trackButtonTapped("Cancel Request CarService", MixpanelHelper.SERVICE_REQUEST_VIEW);
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -387,7 +387,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         AddCustomIssueDialog presetPicker = AddCustomIssueDialog.newInstance(this, pickedCustomIssues);
         presetPicker.setCallback(this);
-        presetPicker.show(fm, "Add Custom CarService");
+        presetPicker.show(fm, "Add Custom Service");
     }
 
     @Override
@@ -415,7 +415,7 @@ public class ServiceRequestActivity extends AppCompatActivity
     }
 
     private void sendRequestWithState(final String state, final String timestamp, final String comments) {
-        Log.d("CarService Request", "Timestamp: " + timestamp);
+        Log.d("Service Request", "Timestamp: " + timestamp);
         networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
                 state, timestamp, comments, new RequestCallback() {
                     @Override
@@ -424,7 +424,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                             shouldRefresh = true;
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm CarService Request");
+                                properties.put("Button", "Confirm Service Request");
                                 properties.put("View", MixpanelHelper.SERVICE_REQUEST_VIEW);
                                 properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
                                 properties.put(isFirstBooking ? "Salesperson" : "Comments", comments);
@@ -434,8 +434,8 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 e.printStackTrace();
                             }
 
-                            Toast.makeText(application, "CarService request sent", Toast.LENGTH_SHORT).show();
-                            Smooch.track("User Requested CarService");
+                            Toast.makeText(application, "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
                             for (CarIssue issue : dashboardCar.getActiveIssues()) {
                                 if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
                                     networkHelper.setIssuePending(dashboardCar.getId(), issue.getId(), null);
