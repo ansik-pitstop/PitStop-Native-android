@@ -1,5 +1,6 @@
 package com.pitstop.dependency;
 
+import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
@@ -25,6 +26,8 @@ public interface UseCaseComponent {
     void injectUseCases(UpcomingServicesFragment fragment);
 
     void injectUseCases(ServiceRequestActivity activity);
+
+    void injectUseCases(SettingsActivity activity);
 
     void injectUseCases(MainDashboardFragment fragment);
 }

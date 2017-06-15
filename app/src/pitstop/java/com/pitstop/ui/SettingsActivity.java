@@ -37,6 +37,10 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
@@ -57,6 +61,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
@@ -67,12 +73,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     private MixpanelHelper mixpanelHelper;
 
-    private Car dashboardCar;
     private boolean localUpdatePerformed = false;
-    private LocalCarAdapter localCarAdapter;
     private List<Car> carList = new ArrayList<>();
 
     private ProgressDialog progressDialog;
+
+    @Inject
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +87,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
-        localCarAdapter = new LocalCarAdapter(this);
-        carList = localCarAdapter.getAllCars();
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+        component.injectUseCases(this);
 
         boolean currentCarExists = false;
         for (Car c: carList){
