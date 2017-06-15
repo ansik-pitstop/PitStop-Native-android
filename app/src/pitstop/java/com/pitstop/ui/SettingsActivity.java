@@ -773,6 +773,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                         if (requestError == null){
                                                                             EventBus.getDefault().post(
                                                                                     new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+                                                                            setCurrentCarPreference(true);
                                                                         }
                                                                     }
                                                                 });
