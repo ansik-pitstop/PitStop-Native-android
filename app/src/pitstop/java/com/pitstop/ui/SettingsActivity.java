@@ -1,7 +1,6 @@
 package com.pitstop.ui;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +63,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
@@ -72,11 +75,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     public static final String TAG = SettingsActivity.class.getSimpleName();
 
     private MixpanelHelper mixpanelHelper;
-
     private boolean localUpdatePerformed = false;
-    private List<Car> carList = new ArrayList<>();
 
-    private ProgressDialog progressDialog;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @Inject
     GetCarsByUserIdUseCase getCarsByUserIdUseCase;
@@ -85,6 +87,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(getLayoutInflater().inflate(R.layout.activity_settings,null));
+        ButterKnife.bind(this);
+
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
@@ -92,38 +97,50 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 .build();
         component.injectUseCases(this);
 
-        boolean currentCarExists = false;
-        for (Car c: carList){
-            if (c.isCurrentCar()){
-                currentCarExists = true;
-            }
-        }
+        showLoading("Loading data...");
 
-        //Set first car to current car if none are set
-        if (!currentCarExists){
-            carList.get(0).setCurrentCar(true);
-        }
-
-        SettingsFragment settingsFragment = new SettingsFragment();
-        settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
+        final SettingsActivity thisInstance = this;
+        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
             @Override
-            public void localUpdatePerformed() {
-                localUpdatePerformed = true;
+            public void onCarsRetrieved(List<Car> cars) {
+                boolean currentCarExists = false;
+                for (Car c: cars){
+                    if (c.isCurrentCar()){
+                        currentCarExists = true;
+                    }
+                }
+
+                //Set first car to current car if none are set
+                if (!currentCarExists){
+                    cars.get(0).setCurrentCar(true);
+                }
+
+                SettingsFragment settingsFragment = new SettingsFragment();
+                settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
+                    @Override
+                    public void localUpdatePerformed() {
+                        localUpdatePerformed = true;
+                    }
+                });
+                settingsFragment.setLoadingCallback(thisInstance);
+
+                Bundle bundle = new Bundle();
+
+                IntentProxyObject intentProxyObject = new IntentProxyObject();
+                intentProxyObject.setCarList(cars);
+                bundle.putParcelable("carList", intentProxyObject);
+
+                settingsFragment.setArguments(bundle);
+                getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
+
+                hideLoading("Successfully loaded data.");
+            }
+
+            @Override
+            public void onError() {
+                hideLoading(null);
             }
         });
-        settingsFragment.setLoadingCallback(this);
-
-        Bundle bundle = new Bundle();
-
-        IntentProxyObject intentProxyObject = new IntentProxyObject();
-        intentProxyObject.setCarList(carList);
-        bundle.putParcelable("carList", intentProxyObject);
-
-        settingsFragment.setArguments(bundle);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -174,9 +191,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     @Override
     public void hideLoading(@Nullable String string) {
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
+        progressBar.setVisibility(View.INVISIBLE);
         if (string != null) {
             Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
         }
@@ -184,10 +199,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
     @Override
     public void showLoading(@NonNull String string) {
-        progressDialog.setMessage(string);
-        if (!progressDialog.isShowing()) {
-            progressDialog.show();
-        }
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     public static class SettingsFragment extends PreferenceFragment {
