@@ -25,7 +25,7 @@ import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,9 +55,6 @@ public class HistoryServiceFragment extends CarDataFragment {
     private final String[] ignoredEvents = {EVENT_MILEAGE};
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
-
-    private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
-    ArrayList<String> headers;
 
     @Inject
     GetDoneServicesUseCase getDoneServicesUseCase;
@@ -97,7 +94,8 @@ public class HistoryServiceFragment extends CarDataFragment {
         return view;
     }
 
-    private void addIssue(CarIssue issue){
+    private void addIssue(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
+            ,List<String> headers, CarIssue issue){
 
         String dateHeader;
         if(issue.getDoneAt() == null || issue.getDoneAt().equals("")) {
@@ -124,8 +122,9 @@ public class HistoryServiceFragment extends CarDataFragment {
                     issues.add(i, issue);
                     break;
                 }
-                else if (i == issueSize -1){
+                if (i == issueSize -1){
                     issues.add(issue);
+                    break;
                 }
             }
         }
@@ -133,28 +132,9 @@ public class HistoryServiceFragment extends CarDataFragment {
         sortedIssues.put(dateHeader, issues);
     }
 
-    private void sortHeaders() {
-        Collections.sort(headers, new Comparator<String>() {
-            @Override
-            public int compare(String left, String right) {
-                Double leftYearPrecise = DateTimeFormatUtil.historyFormatToDouble(left);
-                Double rightYearPrecise = DateTimeFormatUtil.historyFormatToDouble(right);
-                if (rightYearPrecise < leftYearPrecise){
-                    return -1;
-                }
-                else{
-                    return 1;
-                }
-            }
-        });
-    }
-
     @Override
     public void updateUI(){
         mLoadingSpinner.setVisibility(View.VISIBLE);
-
-        headers = new ArrayList<>();
-        sortedIssues = new LinkedHashMap<>();
 
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -162,9 +142,22 @@ public class HistoryServiceFragment extends CarDataFragment {
                 if(doneServices.isEmpty()) {
                     messageCard.setVisibility(View.VISIBLE);
                 }
-                for (CarIssue issue: doneServices){
-                    addIssue(issue);
-                    sortHeaders();
+
+                LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
+                ArrayList<String> headers = new ArrayList<>();
+
+                CarIssue[] doneServicesOrdered = new CarIssue[doneServices.size()];
+                doneServices.toArray(doneServicesOrdered);
+                Arrays.sort(doneServicesOrdered, new Comparator<CarIssue>() {
+                    @Override
+                    public int compare(CarIssue lhs, CarIssue rhs) {
+                        return DateTimeFormatUtil.getHistoryDateToCompare(rhs.getDoneAt())
+                                - DateTimeFormatUtil.getHistoryDateToCompare(lhs.getDoneAt());
+                    }
+                });
+
+                for (CarIssue issue: doneServicesOrdered){
+                    addIssue(sortedIssues,headers,issue);
                 }
 
                 if(messageCard.getVisibility() == View.VISIBLE && !doneServices.isEmpty()) {
