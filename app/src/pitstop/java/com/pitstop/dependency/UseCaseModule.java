@@ -4,6 +4,8 @@ import android.os.Handler;
 
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.GetCarsByUserIdUseCaseImpl;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.GetDoneServicesUseCase;
@@ -35,12 +37,7 @@ import dagger.Provides;
 public class UseCaseModule {
 
     @Provides
-    GetCurrentUserUseCase getCurrentUserUseCase(UserRepository userRepository, Handler handler){
-        return new GetCurrentUserUseCaseImpl(userRepository, handler);
-    }
-
-    @Provides
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository,CarRepository carRepository, Handler handler){
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository, CarRepository carRepository, Handler handler){
         return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,handler);
     }
 
