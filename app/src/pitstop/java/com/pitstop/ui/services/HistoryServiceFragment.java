@@ -18,6 +18,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetDoneServicesUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
@@ -51,7 +52,6 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private List<CarIssue> addedIssues;
     private final String[] ignoredEvents = {EVENT_MILEAGE};
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
@@ -61,6 +61,9 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     @Inject
     GetDoneServicesUseCase getDoneServicesUseCase;
+
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
 
     public HistoryServiceFragment() {
         // Required empty public constructor
@@ -90,7 +93,7 @@ public class HistoryServiceFragment extends CarDataFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
         setNoUpdateOnEventTypes(ignoredEvents);
-        initUI();
+        updateUI();
         return view;
     }
 
@@ -117,11 +120,11 @@ public class HistoryServiceFragment extends CarDataFragment {
             int issueSize = issues.size();
             for (int i = 0; i < issueSize; i++) {
                 if (!(DateTimeFormatUtil.getHistoryDateToCompare(issues.get(i).getDoneAt())
-                        - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) <= 0)) {
+                        - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) >= 0)) {
                     issues.add(i, issue);
                     break;
                 }
-                if (i == issueSize -1){
+                else if (i == issueSize -1){
                     issues.add(issue);
                 }
             }
@@ -146,20 +149,12 @@ public class HistoryServiceFragment extends CarDataFragment {
         });
     }
 
-    private void initUI(){
-        addedIssues = new ArrayList<>();
-        headers = new ArrayList<>();
-        sortedIssues = new LinkedHashMap<>();
-        issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
-        issueGroup.setAdapter(issueGroupAdapter);
-
-        updateUI();
-    }
-
     @Override
     public void updateUI(){
-
         mLoadingSpinner.setVisibility(View.VISIBLE);
+
+        headers = new ArrayList<>();
+        sortedIssues = new LinkedHashMap<>();
 
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -167,22 +162,17 @@ public class HistoryServiceFragment extends CarDataFragment {
                 if(doneServices.isEmpty()) {
                     messageCard.setVisibility(View.VISIBLE);
                 }
-                List<CarIssue> toAdd = new ArrayList<CarIssue>();
                 for (CarIssue issue: doneServices){
-                    if (addedIssues.indexOf(issue) < 0){
-                        toAdd.add(issue);
-                        addIssue(issue);
-                    }
-                }
-                if (!toAdd.isEmpty()){
-                    addedIssues.addAll(toAdd);
+                    addIssue(issue);
                     sortHeaders();
-                    issueGroupAdapter.notifyDataSetChanged();
                 }
 
-                if(messageCard.getVisibility() == View.VISIBLE && !addedIssues.isEmpty()) {
+                if(messageCard.getVisibility() == View.VISIBLE && !doneServices.isEmpty()) {
                     messageCard.setVisibility(View.INVISIBLE);
                 }
+
+                issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
+                issueGroup.setAdapter(issueGroupAdapter);
 
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
 
