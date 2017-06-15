@@ -358,8 +358,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         return false;
                     }
 
-                    loadingCallback.showLoading("Updating...");
-
                     //Get most recent version of car, since the parameter may be outdated
                     Car recentCar = localCarAdapter.getCar(car.getId());
 
@@ -379,7 +377,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 //Notify the car changed
                                 EventBus.getDefault().post(new
                                         CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_ID));
-                                loadingCallback.hideLoading("Changed Car");
                             }
                         }
                     });
@@ -773,7 +770,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                         if (requestError == null){
                                                                             EventBus.getDefault().post(
                                                                                     new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
-                                                                            setCurrentCarPreference(true);
                                                                         }
                                                                     }
                                                                 });
