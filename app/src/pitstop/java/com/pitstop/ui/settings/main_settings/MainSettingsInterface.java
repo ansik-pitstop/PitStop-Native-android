@@ -22,6 +22,7 @@ public interface MainSettingsInterface {
     void addCar(Preference preference);
     void logout();
     void showName(String name);
+    void showEmail(String email);
     void showPhone(String phone);
     void showVersion(String version);
     String getBuildNumber();

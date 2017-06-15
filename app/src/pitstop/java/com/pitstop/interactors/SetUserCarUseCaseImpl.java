@@ -2,6 +2,7 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.models.User;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -12,7 +13,6 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     private UserRepository userRepository;
     private int carId;
-    private int userId;
     private Callback callback;
     private Handler handler;
 
@@ -23,10 +23,20 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     @Override
     public void run() {
-        userRepository.setUserCar(userId, carId, new UserRepository.UserSetCarCallback() {
+        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
-            public void onSetCar() {
-                callback.onUserCarSet();
+            public void onGotUser(User user) {
+                userRepository.setUserCar(user.getId(), carId, new UserRepository.UserSetCarCallback() {
+                    @Override
+                    public void onSetCar() {
+                        callback.onUserCarSet();
+                    }
+
+                    @Override
+                    public void onError() {
+                        callback.onError();
+                    }
+                });
             }
 
             @Override
@@ -34,12 +44,12 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
                 callback.onError();
             }
         });
+
     }
 
     @Override
-    public void execute(int userId, int carId, Callback callback) {
+    public void execute(int carId, Callback callback) {
         this.callback = callback;
-        this.userId = userId;
         this.carId = carId;
         handler.post(this);
     }

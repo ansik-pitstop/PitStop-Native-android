@@ -9,5 +9,5 @@ import com.pitstop.models.Car;
  */
 
 public interface PrefMaker {
-    Preference carToPref(Car car);
+    Preference carToPref(Car car, boolean currentCar);
 }

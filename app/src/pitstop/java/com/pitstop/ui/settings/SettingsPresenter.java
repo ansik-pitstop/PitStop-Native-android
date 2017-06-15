@@ -29,6 +29,7 @@ public class SettingsPresenter {
     public void carAdded(Intent intent){//do something here
         Car car = intent.getParcelableExtra(CAR_EXTRA);
 
+
     }
     public void setViewCarSettings(){
         switcher.setViewCarSettings();

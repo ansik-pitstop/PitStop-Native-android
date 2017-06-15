@@ -11,9 +11,9 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.pitstop.R;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
@@ -42,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);//will probably need to move these to the activity
         sharedPrefs.registerOnSharedPreferenceChangeListener(mainSettings);
         mainSettings.setSwitcher(this);
+        carSettings.setSwitcher(this);
         mainSettings.setPrefMaker(this);
 
         presenter = new SettingsPresenter();
@@ -60,7 +61,6 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     public void setViewCarSettings() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.settings_fragment_holder,carSettings);
-        fragmentTransaction.addToBackStack("car_settings");
         fragmentTransaction.commit();
     }
 
@@ -78,12 +78,12 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     }
 
     @Override
-    public Preference carToPref(Car car){// this is a tough one to decouple
+    public Preference carToPref(Car car, boolean currentCar){// this is a tough one to decouple
         Preference carPref = new Preference(context);
-        if(car.isCurrentCar()){
-            carPref.setIcon(R.drawable.ic_check_circle_green_400_36dp);
-            System.out.println("Testing isCurrent "+car);
+        if(currentCar){
+            carPref.setWidgetLayoutResource(R.layout.vehicle_pref_icon);
         }
+
         carPref.setTitle(car.getMake() + " " +car.getModel());
         carPref.setSummary(car.getDealership().getName());
         carPref.setKey("car_item");
@@ -98,10 +98,21 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         return carPref;
     }
 
+    @Override
+    public void onBackPressed() {
+       if(carSettings.isVisible()){
+           presenter.setViewMainSettings();
+       }else{
+         finish();
+       }
+    }
 
-
-
-
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == android.R.id.home) {
+          this.onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

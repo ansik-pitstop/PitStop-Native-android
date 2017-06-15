@@ -39,6 +39,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private final String NAME_PREF_KEY = "pref_username_key";
     private final String PHONE_PREF_KEY = "pref_phone_number_key";
     private final String APP_INFO_KEY = "AppInfo";
+    private final String EMAIL_PREF_KEY = "pref_email_key";
 
     private GlobalApplication application;
     private Context context;
@@ -48,6 +49,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private PrefMaker prefMaker;
 
     private Preference infoPreference;
+    private Preference emailPreference;
     private EditTextPreference namePreference;
     private EditTextPreference phonePreference;
     private PreferenceCategory vehicleCatagory;
@@ -68,14 +70,14 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         context = getActivity().getApplicationContext();
         application = (GlobalApplication) context;
 
-        if(!prefsCreated){// might cause problems
-            addPreferencesFromResource(R.xml.preferences);
-            prefsCreated = true;
-        }
+
+        addPreferencesFromResource(R.xml.preferences);
+
         View view = super.onCreateView(inflater, container, savedInstanceState);
         namePreference = (EditTextPreference) findPreference(NAME_PREF_KEY);
         phonePreference = (EditTextPreference) findPreference(PHONE_PREF_KEY);
         infoPreference = (Preference) findPreference(APP_INFO_KEY);
+        emailPreference = (Preference) findPreference(EMAIL_PREF_KEY);
         vehicleCatagory = (PreferenceCategory) findPreference(getString(R.string.pref_vehicles));
 
         presenter = new MainSettingsPresenter();
@@ -88,6 +90,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
         presenter.setVersion();
         presenter.getCars();
+        presenter.getUser();
         return view;
     }
 
@@ -101,6 +104,11 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     @Override
     public void showName(String name) {
         namePreference.setTitle(name);
+    }
+
+    @Override
+    public void showEmail(String email) {
+        emailPreference.setTitle(email);
     }
 
     @Override

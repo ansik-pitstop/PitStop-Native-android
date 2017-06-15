@@ -16,7 +16,7 @@
 
         <EditTextPreference android:title="Your Phone Number"
             android:key="@string/pref_phone_number_key"
-            android:summary="This is your phone number">
+            android:summary="Tap to change your phone number">
         </EditTextPreference>
     </PreferenceCategory>
 

@@ -1,7 +1,11 @@
 package com.pitstop.ui.settings.main_settings;
 
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.GetCurrentUserUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.User;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
 
@@ -29,6 +33,12 @@ public class MainSettingsPresenter {
     @Inject
     GetCarsByUserIdUseCase getCarsByUserIdUseCase;
 
+    @Inject
+    GetCurrentUserUseCase getCurrentUserUseCase;
+
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
+
     void subscribe(MainSettingsInterface mainSettings, FragmentSwitcher switcher, PrefMaker prefMaker){
         this.mainSettings = mainSettings;
         this.switcher = switcher;
@@ -50,20 +60,49 @@ public class MainSettingsPresenter {
         }
     }
     public void getCars(){
-        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback(){
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                mainSettings.resetCars();
-                for(Car car:cars){
-                    mainSettings.addCar(prefMaker.carToPref(car));
-                }
-                System.out.println("Testing "+ cars);
+            public void onCarRetrieved(Car car) {
+                getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback(){
+                    @Override
+                    public void onCarsRetrieved(List<Car> cars) {
+                        mainSettings.resetCars();
+                        for(Car c:cars) {
+                            mainSettings.addCar(prefMaker.carToPref(c, (c.getId() == car.getId())));
+                        }
+                        System.out.println("Testing "+ cars);
+                    }
+                    @Override
+                    public void onError() {
+                        System.out.println("Testing error");
+                    }
+                });
             }
+
             @Override
             public void onError() {
-                System.out.println("Testing error");
+
             }
         });
+
+    }
+    public void getUser(){
+        getCurrentUserUseCase.execute(new GetCurrentUserUseCase.Callback() {
+            @Override
+            public void onUserRetrieved(User user) {
+                mainSettings.showName(user.getFirstName() + " " + user.getLastName());
+                mainSettings.showPhone(formatPhone(user.getPhone()));
+                mainSettings.showEmail(user.getEmail());
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+    }
+    private String formatPhone(String phone){// might be a bad idea
+        return "(" + phone.substring(0,3) + ") " + phone.substring(3,6) + "-" + phone.substring(6);
     }
 
     public void preferenceInput(String text, String key){
@@ -77,8 +116,4 @@ public class MainSettingsPresenter {
         mainSettings.logout();
         mainSettings.gotoLogin();
     }
-    void addCar(){
-
-    }
-
 }
