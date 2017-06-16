@@ -336,9 +336,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
-                setTabUI();
+                if (requestError == null){
+                    userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
+                    setTabUI();
+                }else{
 
+                }
             }
         });
     }

@@ -288,7 +288,7 @@ public class UserRepository {
                             added = options.getBoolean("isFirstCarAdded");
                         }else{
                             //Users that have registered prior to this patch will not send greeting messages
-                            added = false;
+                            added = true;
                         }
 
                         callback.onFirstCarAddedChecked(added);

@@ -86,7 +86,7 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
             updateUI();
             uiSynced = true;
         }
-        wasStopped = true;
+        wasStopped = false;
         wasPaused = false;
     }
 
