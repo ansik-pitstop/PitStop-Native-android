@@ -559,10 +559,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 public void done(String response, RequestError requestError) {
                     if (requestError == null){
                         EventBus.getDefault().post(new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+                        mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });
-            mCallback.onPostCarSucceeded(createdCar);
+            //mCallback.onPostCarSucceeded(createdCar);
         }
     }
 

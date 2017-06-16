@@ -310,6 +310,11 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
             }
 
             @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
             public void onError() {
                 Toast.makeText(getActivity(),
                         "Error retrieving car details", Toast.LENGTH_SHORT).show();

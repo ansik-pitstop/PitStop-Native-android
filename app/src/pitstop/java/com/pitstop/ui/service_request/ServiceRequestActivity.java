@@ -133,6 +133,11 @@ public class ServiceRequestActivity extends AppCompatActivity
             }
 
             @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
             public void onError() {
             }
         });

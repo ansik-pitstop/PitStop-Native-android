@@ -67,14 +67,14 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.CarHistoryActivity;
@@ -256,7 +256,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private MaterialShowcaseSequence tutorialSequence;
 
     @Inject
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase;
+    GetUserCarUseCase getUserCarUseCase;
 
     @Inject
     CheckFirstCarAddedUseCase checkFirstCarAddedUseCase;
@@ -332,7 +332,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         logAuthInfo();
 
-        promptAddCarIfNeeded();
         setTabUI();
         tryShowTabUI();
         setFabUI();
@@ -492,20 +491,24 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void showTabUI(){
         Log.d(TAG,"Show tab ui!");
+        if (tabsShowing){
+            return;
+        }
         mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(mTabViewPagerAdapter);
         tabsShowing = true;
     }
 
     private void tryShowTabUI(){
-        if (tabsShowing){ return; }
-
-        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                if (!cars.isEmpty()){
-                    showTabUI();
-                }
+            public void onCarRetrieved(Car car) {
+                showTabUI();
+            }
+
+            @Override
+            public void onNoCarSet() {
+
             }
 
             @Override
@@ -771,9 +774,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         User.getCurrentUser().addProperties(customProperties);
 
                         // 6/9/2018 -> Only add if it hasn't been added yet
-                        if (!tabsShowing){
-                            showTabUI();
-                        }
+                        showTabUI();
                         sendGreetingsMessageIfNeeded(user);
                         beginTutorialSequenceIfNeeded(user);
 
@@ -1085,16 +1086,21 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void promptAddCarIfNeeded(){
         Log.d(TAG,"promptAddCarIfNeeded()");
-        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                if (cars.isEmpty()){
-                    startPromptAddCarActivity();
-                }
+            public void onCarRetrieved(Car car) {
+
+            }
+
+            @Override
+            public void onNoCarSet() {
+                startPromptAddCarActivity();
             }
 
             @Override
             public void onError() {
+
             }
         });
     }

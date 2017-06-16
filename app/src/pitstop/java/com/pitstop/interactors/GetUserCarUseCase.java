@@ -13,6 +13,7 @@ import com.pitstop.models.Car;
 public interface GetUserCarUseCase extends Interactor{
     interface Callback{
         void onCarRetrieved(Car car);
+        void onNoCarSet();
         void onError();
     }
 

@@ -140,6 +140,10 @@ public class CurrentServicesFragment extends CarDataFragment {
             }
 
             @Override
+            public void onNoCarSet() {
+            }
+
+            @Override
             public void onError() {
                 Toast.makeText(getActivity(),
                         "Error retrieving information", Toast.LENGTH_SHORT).show();
