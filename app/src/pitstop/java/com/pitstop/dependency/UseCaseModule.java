@@ -2,8 +2,11 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
+import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetCarsByUserIdUseCaseImpl;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
@@ -25,6 +28,7 @@ import com.pitstop.interactors.SetUserCarUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.NetworkHelper;
 
 import dagger.Module;
 import dagger.Provides;
@@ -37,8 +41,15 @@ import dagger.Provides;
 public class UseCaseModule {
 
     @Provides
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository, CarRepository carRepository, Handler handler){
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository
+            , CarRepository carRepository, Handler handler){
         return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,handler);
+    }
+
+    @Provides
+    CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserAdapter userAdapter
+            , NetworkHelper networkHelper){
+        return new CheckFirstCarAddedUseCaseImpl(userAdapter, networkHelper);
     }
 
     @Provides
