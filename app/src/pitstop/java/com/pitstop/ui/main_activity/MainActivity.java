@@ -500,6 +500,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void tryShowTabUI(){
+        Log.d(TAG,"tryShowTabUI");
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {

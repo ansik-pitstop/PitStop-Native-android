@@ -183,7 +183,7 @@ public class UserRepository {
                     if (requestError == null && response != null){
                         callback.onGotCar(Car.createCar(response));
                     }
-                    else if (response == null){
+                    else if (requestError == null && response == null){
                         callback.onNoCarSet();
                     }
                     else{
