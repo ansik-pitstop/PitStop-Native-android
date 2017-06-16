@@ -31,6 +31,7 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     private boolean running = false;    //not running
     private boolean wasPaused = false;  //pause never occured yet
     private boolean wasStopped = true;  //start in a stopped state
+    private boolean firstStart = true; //whether its the first time onStart() called
     private List<String> updateConstraints = new ArrayList<>();
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -58,11 +59,20 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     @Override
     public void onStart() {
         super.onStart();
-        running = true;
+
+        //Update UI on every onStart() other than the first one
+        //since the UI will be initialized in the onCreate() in that case
+        if (!firstStart && !uiSynced){
+            updateUI();
+            uiSynced = true;
+        }
+
         if (!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
         }
-    }
+
+        firstStart = false;
+        running = true;}
 
     @Override
     public void onStop() {

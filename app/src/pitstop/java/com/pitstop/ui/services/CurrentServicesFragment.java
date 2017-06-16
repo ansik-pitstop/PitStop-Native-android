@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +97,8 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @Override
     public void updateUI(){
+        Log.d(TAG,"updateUI() called.");
+
         mLoadingSpinner.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
 
