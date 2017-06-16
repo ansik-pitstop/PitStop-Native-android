@@ -326,11 +326,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         shopLocalStore = new LocalShopAdapter(application);
         scannerLocalStore = new LocalScannerAdapter(application);
 
+
         refreshFromServer();
 
         logAuthInfo();
-
-        promptAddCarIfNeeded();
 
         setTabUI();
         setFabUI();

@@ -300,7 +300,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                             + dashboardCar.getModel());
                 }
 
-                mMileageText.setText(String.format("%f.2d km",dashboardCar.getBaseMileage()));
+                mMileageText.setText(String.format("%.2f km",dashboardCar.getBaseMileage()));
                 mEngineText.setText(dashboardCar.getEngine());
                 mHighwayText.setText(dashboardCar.getHighwayMileage());
                 mCityText.setText(dashboardCar.getCityMileage());
@@ -601,7 +601,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 @Override
                 public void run() {
                     mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newTotalMileage));
+                    mMileageText.setText(String.format("%.2f km", newTotalMileage));
                 }
             });
 
@@ -613,7 +613,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 @Override
                 public void run() {
                     mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newBaseMileage));
+                    mMileageText.setText(String.format("%.2f km", newBaseMileage));
                 }
             });
         }
@@ -911,7 +911,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
 
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
-                                            mMileageText.setText(String.format("%.2f", mileage));
+                                            mMileageText.setText(String.format("%.2f km", mileage));
                                             ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
