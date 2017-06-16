@@ -17,10 +17,12 @@ import android.view.ViewGroup;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.models.Car;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainFragmentCallback;
+import com.pitstop.ui.main_activity.MainActivity;
 
 public class MainServicesFragment extends Fragment implements MainFragmentCallback{
+
+    private final String TAG = MainServicesFragment.class.getSimpleName();
 
     //Fragments being navigated
     private UpcomingServicesFragment upcomingServicesFragment;
@@ -109,6 +111,13 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         }
 
         return rootview;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mServicesPager.setCurrentItem(0);
+        tabLayout.getTabAt(0).select();
     }
 
     private void loadDealershipCustomDesign(){
