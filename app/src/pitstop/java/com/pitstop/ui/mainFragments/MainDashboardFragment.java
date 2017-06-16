@@ -300,7 +300,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                             + dashboardCar.getModel());
                 }
 
-                mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
+                mMileageText.setText(String.format("%f.2d km",dashboardCar.getBaseMileage()));
                 mEngineText.setText(dashboardCar.getEngine());
                 mHighwayText.setText(dashboardCar.getHighwayMileage());
                 mCityText.setText(dashboardCar.getCityMileage());
@@ -337,11 +337,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         application.getMixpanelAPI().flush();
         hideLoading(null);
         super.onPause();
-    }
-
-    private void setUpUIReferences() {
-
-
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
