@@ -138,6 +138,9 @@ public class CarRepository {
     }
 
     public List<Car> getCarByUserId(int userId, CarsGetCallback callback ){
+        if(!networkHelper.isConnected()){
+            callback.onError();
+        }
         networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback));
         return localCarAdapter.getCarsByUserId(userId);
     }

@@ -59,6 +59,12 @@ public class NetworkHelper {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+    public boolean isConnected(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     private void getWithCustomUrl(String url, String uri, RequestCallback callback) {
         new HttpRequest.Builder()
@@ -741,8 +747,6 @@ public class NetworkHelper {
                 else{
                     callback.done(response,requestError);
                 }
-
-
             }
         });
     }

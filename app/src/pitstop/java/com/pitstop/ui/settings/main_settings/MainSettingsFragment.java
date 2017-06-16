@@ -11,6 +11,7 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +28,7 @@ import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
+import com.pitstop.utils.NetworkHelper;
 
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
@@ -48,12 +50,13 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private FragmentSwitcher switcher;
     private PrefMaker prefMaker;
 
+    private SharedPreferences sharedPrefs;
+
     private Preference infoPreference;
     private Preference emailPreference;
     private EditTextPreference namePreference;
     private EditTextPreference phonePreference;
     private PreferenceCategory vehicleCatagory;
-    private boolean prefsCreated = false;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
@@ -74,6 +77,10 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         addPreferencesFromResource(R.xml.preferences);
 
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+
         namePreference = (EditTextPreference) findPreference(NAME_PREF_KEY);
         phonePreference = (EditTextPreference) findPreference(PHONE_PREF_KEY);
         infoPreference = (Preference) findPreference(APP_INFO_KEY);
@@ -89,17 +96,25 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         component.injectUseCases(presenter);
 
         presenter.setVersion();
-        presenter.getCars();
-        presenter.getUser();
+        presenter.update();
         return view;
     }
 
     @Override
+    public void setPrefs(String name, String phone) {//these are the same as the last user so they need to be updated here
+        sharedPrefs.edit().putString(NAME_PREF_KEY,name).commit();
+        sharedPrefs.edit().putString(PHONE_PREF_KEY,phone).commit();
+    }
+
+    @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        System.out.println("Testing "+preference.getKey());
         presenter.preferenceClicked(preference.getKey());
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
+    public void update(){//this is a hack
+        presenter.update();
+    }
+
 
     @Override
     public void showName(String name) {
@@ -137,11 +152,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
             presenter.preferenceInput(sharedPreferences.getString(key,""),key);
         }
     }
-    @Override
-    public void startAddCar() {
-        Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent,RC_ADD_CAR);
-    }
+
     @Override
     public String getBuildNumber() {
         try{

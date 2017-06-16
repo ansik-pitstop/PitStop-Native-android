@@ -11,13 +11,17 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
@@ -31,16 +35,20 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     private MainSettingsFragment mainSettings;
     private CarSettingsFragment carSettings;
     private Context context;
+
+
+    @BindView(R.id.settings_progress)
+    ProgressBar loadingSpinner;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
         setContentView(R.layout.activity_settings);
+        ButterKnife.bind(this);
         fragmentManager = getFragmentManager();
         mainSettings = new MainSettingsFragment();
         carSettings = new CarSettingsFragment();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);//will probably need to move these to the activity
-        sharedPrefs.registerOnSharedPreferenceChangeListener(mainSettings);
         mainSettings.setSwitcher(this);
         carSettings.setSwitcher(this);
         mainSettings.setPrefMaker(this);
@@ -64,16 +72,33 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         fragmentTransaction.commit();
     }
 
+    @Override
+    public void startAddCar() {//onActivityResult doesn't work if I do this in the fragment
+        Intent intent = new Intent(this,AddCarActivity.class);
+        startActivityForResult(intent,RC_ADD_CAR);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(data != null){
-            if(requestCode == RC_ADD_CAR){
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) { // probably wrong but dont know how to do otherwise
-                    presenter.carAdded(data);
+        //Check for Add car finished, and whether it happened successfully, if so updated preferences view
+        if (data != null) {
+            if (requestCode == RC_ADD_CAR) {
+                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                    mainSettings.update();//This is where the hack gets called
+                    //might be a good place to use the event bus
                 }
             }
+        }
+    }
+
+
+    @Override
+    public void loading(boolean show) {
+        if(show){
+            loadingSpinner.setVisibility(View.VISIBLE);
+        }else{
+            loadingSpinner.setVisibility(View.GONE);
         }
     }
 
@@ -83,9 +108,8 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         if(currentCar){
             carPref.setWidgetLayoutResource(R.layout.vehicle_pref_icon);
         }
-
         carPref.setTitle(car.getMake() + " " +car.getModel());
-        carPref.setSummary(car.getDealership().getName());
+        carPref.setSummary("Tap to manage");
         carPref.setKey("car_item");
         carPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -103,16 +127,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
        if(carSettings.isVisible()){
            presenter.setViewMainSettings();
        }else{
-         finish();
+           finish();
        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == android.R.id.home) {
-          this.onBackPressed();
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

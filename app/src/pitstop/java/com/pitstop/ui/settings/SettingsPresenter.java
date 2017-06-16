@@ -16,7 +16,6 @@ public class SettingsPresenter {
 
 
     public void subscribe(SettingsInterface settings, FragmentSwitcher switcher){
-       // getCarsByUserIdUseCase = new GetCarsByUserIdUseCaseImpl(new UserAdapter(context),new LocalCarAdapter(context),new NetworkHelper(context));
         this.settings = settings;
         this.switcher = switcher;
     }
@@ -26,11 +25,6 @@ public class SettingsPresenter {
 
 
 
-    public void carAdded(Intent intent){//do something here
-        Car car = intent.getParcelableExtra(CAR_EXTRA);
-
-
-    }
     public void setViewCarSettings(){
         switcher.setViewCarSettings();
     }

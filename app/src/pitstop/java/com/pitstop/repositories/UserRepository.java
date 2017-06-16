@@ -60,6 +60,14 @@ public class UserRepository {
         void onError();
     }
 
+    public static synchronized UserRepository getInstance(UserAdapter userAdapter
+            , NetworkHelper networkHelper) {
+        if (INSTANCE == null) {
+            INSTANCE = new UserRepository(userAdapter, networkHelper);
+        }
+        return INSTANCE;
+    }
+
     public UserRepository(UserAdapter userAdapter, NetworkHelper networkHelper){
         this.userAdapter = userAdapter;
         this.networkHelper = networkHelper;
@@ -124,6 +132,9 @@ public class UserRepository {
     }
 
     public void getCurrentUser(UserGetCallback callback){
+        if(!networkHelper.isConnected()){
+            callback.onError();
+        }
         networkHelper.getUser(userAdapter.getUser()
                 .getId(),getUserGetRequestCallback(callback));
     }
@@ -163,6 +174,9 @@ public class UserRepository {
     }
 
     public void getUserCar(UserGetCarCallback callback){
+        if(!networkHelper.isConnected()){
+            callback.onError();
+        }
         if (userAdapter.getUser() == null){
             callback.onError();
             return;

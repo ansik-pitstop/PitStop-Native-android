@@ -3,7 +3,6 @@
     <PreferenceCategory android:title="Car"
         android:key="pref_car_tile">
         <Preference android:title="Select as current"
-            android:summary="Set this car as the active car"
             android:key="pref_set_active">
         </Preference>
 
@@ -13,8 +12,7 @@
         </Preference>
 
         <Preference android:title="Delete Car"
-            android:key="pre_delete_car"
-            android:summary="Delete this car">
+            android:key="pre_delete_car">
         </Preference>
 
     </PreferenceCategory>

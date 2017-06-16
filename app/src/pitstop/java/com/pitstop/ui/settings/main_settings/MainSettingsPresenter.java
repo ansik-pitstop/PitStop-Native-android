@@ -3,12 +3,16 @@ package com.pitstop.ui.settings.main_settings;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetCurrentUserUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.UpdateUserNameUseCase;
+import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
+import com.pitstop.utils.NetworkHelper;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,6 +33,8 @@ public class MainSettingsPresenter {
     private FragmentSwitcher switcher;
     private PrefMaker prefMaker;
 
+    private int processesFinished;
+
 
     @Inject
     GetCarsByUserIdUseCase getCarsByUserIdUseCase;
@@ -39,10 +45,17 @@ public class MainSettingsPresenter {
     @Inject
     GetUserCarUseCase getUserCarUseCase;
 
+    @Inject
+    UpdateUserNameUseCase updateUserNameUseCase;
+
+    @Inject
+    UpdateUserPhoneUseCase updateUserPhoneUseCase;
+
     void subscribe(MainSettingsInterface mainSettings, FragmentSwitcher switcher, PrefMaker prefMaker){
         this.mainSettings = mainSettings;
         this.switcher = switcher;
         this.prefMaker = prefMaker;
+        switcher.loading(true);
     }
     void setVersion(){
         mainSettings.showVersion(mainSettings.getBuildNumber());
@@ -50,7 +63,7 @@ public class MainSettingsPresenter {
 
     void preferenceClicked(String prefKey){
         if(prefKey.equals(ADD_CAR_KEY)){
-            mainSettings.startAddCar();
+            switcher.startAddCar();
         }else if(prefKey.equals(PRIV_KEY)){
             mainSettings.startPriv();
         }else if(prefKey.equals(TERMS_KEY)){
@@ -59,6 +72,15 @@ public class MainSettingsPresenter {
             mainSettings.showLogOut();
         }
     }
+
+    public void update(){
+        switcher.loading(true);
+        processesFinished = 0;
+        getUser();
+        getCars();
+    }
+
+
     public void getCars(){
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -67,21 +89,22 @@ public class MainSettingsPresenter {
                     @Override
                     public void onCarsRetrieved(List<Car> cars) {
                         mainSettings.resetCars();
+                        Collections.reverse(cars);
                         for(Car c:cars) {
                             mainSettings.addCar(prefMaker.carToPref(c, (c.getId() == car.getId())));
                         }
-                        System.out.println("Testing "+ cars);
+                        checkDone();
                     }
                     @Override
                     public void onError() {
-                        System.out.println("Testing error");
+                        checkDone();
                     }
                 });
             }
 
             @Override
             public void onError() {
-
+                checkDone();
             }
         });
 
@@ -90,26 +113,55 @@ public class MainSettingsPresenter {
         getCurrentUserUseCase.execute(new GetCurrentUserUseCase.Callback() {
             @Override
             public void onUserRetrieved(User user) {
-                mainSettings.showName(user.getFirstName() + " " + user.getLastName());
-                mainSettings.showPhone(formatPhone(user.getPhone()));
+                String username = user.getFirstName() + " " + user.getLastName();
+                String phone = user.getPhone();
+                mainSettings.showName(username);
+                mainSettings.showPhone(phone);
                 mainSettings.showEmail(user.getEmail());
+                mainSettings.setPrefs(username,phone);
+                checkDone();
             }
 
             @Override
             public void onError() {
-
+                checkDone();
             }
         });
     }
-    private String formatPhone(String phone){// might be a bad idea
-        return "(" + phone.substring(0,3) + ") " + phone.substring(3,6) + "-" + phone.substring(6);
+
+    private void checkDone(){
+        processesFinished++;
+        if(processesFinished == 2){
+            switcher.loading(false);
+        }
     }
 
     public void preferenceInput(String text, String key){
         if(key.equals(NAME_PREF_KEY)){
             mainSettings.showName(text);
+            updateUserNameUseCase.execute(text, new UpdateUserNameUseCase.Callback() {
+                @Override
+                public void onUserNameUpdated() {
+                }
+
+                @Override
+                public void onError() {
+                }
+            });
         }else if(key.equals(PHONE_PREF_KEY)){
             mainSettings.showPhone(text);
+            updateUserPhoneUseCase.execute(text, new UpdateUserPhoneUseCase.Callback() {
+                @Override
+                public void onUserPhoneUpdated() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+
         }
     }
     public void logout(){

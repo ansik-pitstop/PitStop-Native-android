@@ -7,4 +7,6 @@ package com.pitstop.ui.settings;
 public interface FragmentSwitcher {
     void setViewMainSettings();
     void setViewCarSettings();
+    void loading(boolean show);
+    void startAddCar();
 }
