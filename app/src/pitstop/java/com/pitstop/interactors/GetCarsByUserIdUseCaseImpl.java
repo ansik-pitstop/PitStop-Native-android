@@ -7,6 +7,7 @@ import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,6 +78,12 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                         callback.onError();
                     }
                 });
+            }
+
+            @Override
+            public void onNoCarSet() {
+                ArrayList<Car> cars = new ArrayList<>();
+                callback.onCarsRetrieved(cars);
             }
 
             @Override

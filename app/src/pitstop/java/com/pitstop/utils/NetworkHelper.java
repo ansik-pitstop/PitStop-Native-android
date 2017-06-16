@@ -718,10 +718,17 @@ public class NetworkHelper {
                 if (requestError == null){
                     try{
                         JSONObject options = new JSONObject(response);
-                        int mainCarId = options.getJSONObject("user").getInt("mainCar");
-                        getCarsById(mainCarId,callback);
+                        if (options.getJSONObject("user").has("mainCar")){
+                            int mainCarId = options.getJSONObject("user").getInt("mainCar");
+                            getCarsById(mainCarId,callback);
+                        }
+                        else{
+                            callback.done(null,requestError);
+                        }
+
                     }
                     catch(JSONException e){
+                        callback.done(response,requestError);
                         Log.d("TAG","JSONException Caught!");
                     }
                 }

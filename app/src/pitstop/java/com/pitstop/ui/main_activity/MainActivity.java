@@ -150,6 +150,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private boolean serviceIsBound;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
+    private boolean tabsShowing = false;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -331,7 +332,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         logAuthInfo();
 
+        promptAddCarIfNeeded();
         setTabUI();
+        tryShowTabUI();
         setFabUI();
     }
 
@@ -487,13 +490,36 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         });
     }
 
+    private void showTabUI(){
+        Log.d(TAG,"Show tab ui!");
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(mTabViewPagerAdapter);
+        tabsShowing = true;
+    }
+
+    private void tryShowTabUI(){
+        if (tabsShowing){ return; }
+
+        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+            @Override
+            public void onCarsRetrieved(List<Car> cars) {
+                if (!cars.isEmpty()){
+                    showTabUI();
+                }
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+    }
+
     private void setTabUI(){
 
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -544,8 +570,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             }
         });
-
-        viewPager.setAdapter(mTabViewPagerAdapter);
 
         //Populate tabs with icons
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
@@ -747,8 +771,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         User.getCurrentUser().addProperties(customProperties);
 
                         // 6/9/2018 -> Only add if it hasn't been added yet
-//                        sendGreetingsMessageIfNeeded(user);
-//                        beginTutorialSequenceIfNeeded(user);
+                        if (!tabsShowing){
+                            showTabUI();
+                        }
+                        sendGreetingsMessageIfNeeded(user);
+                        beginTutorialSequenceIfNeeded(user);
 
                         Smooch.track("User Logged In");
 
@@ -1057,6 +1084,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void promptAddCarIfNeeded(){
+        Log.d(TAG,"promptAddCarIfNeeded()");
         getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
             @Override
             public void onCarsRetrieved(List<Car> cars) {
@@ -1628,13 +1656,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        sendGreetingsMessageIfNeeded(application.getCurrentUser());
-        beginTutorialSequenceIfNeeded(application.getCurrentUser());
     }
 
     @Override

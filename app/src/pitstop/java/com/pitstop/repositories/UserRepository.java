@@ -56,6 +56,7 @@ public class UserRepository {
 
     public interface UserGetCarCallback {
         void onGotCar(Car car);
+        void onNoCarSet();
         void onError();
     }
 
@@ -179,15 +180,18 @@ public class UserRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null){
+                    if (requestError == null && response != null){
                         callback.onGotCar(Car.createCar(response));
+                    }
+                    else if (response == null){
+                        callback.onNoCarSet();
                     }
                     else{
                         callback.onError();
                     }
                 }
                 catch(JSONException e){
-
+                    callback.onError();
                 }
             }
         };
