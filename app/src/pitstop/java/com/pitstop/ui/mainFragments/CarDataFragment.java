@@ -72,7 +72,8 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
         }
 
         firstStart = false;
-        running = true;}
+        running = true;
+    }
 
     @Override
     public void onStop() {

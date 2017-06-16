@@ -257,6 +257,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Inject
     GetCarsByUserIdUseCase getCarsByUserIdUseCase;
 
+    @Inject
+    CheckFirstCarAddedUseCase checkFirstCarAddedUseCase;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -284,8 +287,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (userSignedUp){
             setGreetingsNotSent();
         }
-
-        startPromptAddCarActivity();
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -329,7 +330,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         logAuthInfo();
 
-        storeUserFromPreferences();//setTabUI();
+        promptAddCarIfNeeded();
+
+        setTabUI();
         setFabUI();
     }
 
@@ -344,20 +347,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             @Override
             public void onError() {
                 //Error logic here
-            }
-        });
-    }
-
-    private void storeUserFromPreferences(){
-        networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
-                    setTabUI();
-                }else{
-
-                }
             }
         });
     }
@@ -831,8 +820,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
 
-        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
-                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
         checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
             public void onFirstCarAddedChecked(boolean added) {

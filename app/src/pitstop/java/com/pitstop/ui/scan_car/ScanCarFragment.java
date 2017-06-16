@@ -256,6 +256,22 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
 //        super.onPause();
 //    }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!uiUpdated){
+            updateUi();
+            uiUpdated = true;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        uiUpdated = false;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
