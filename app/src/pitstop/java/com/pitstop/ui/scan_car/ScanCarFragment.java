@@ -223,7 +223,7 @@ public class ScanCarFragment extends Fragment implements ScanCarContract.View, M
         super.setUserVisibleHint(isVisibleToUser);
 
         //Record that view has been opened
-        if (isVisibleToUser && getView() != null ) {
+        if (isVisibleToUser && getView() != null && dashboardCar != null) {
             try {
                 JSONObject properties = new JSONObject();
                 properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);

@@ -8,10 +8,8 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
-import com.castel.obd215b.util.LogUtil;
 import com.castel.obd215b.util.Utils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +58,10 @@ public class WriteCommand {
             BluetoothGattCharacteristic obdReadCharacteristic =
                     mainObdGattService.getCharacteristic(readChar);
 
+            if (obdReadCharacteristic == null){
+                Log.i("WriteCommandDebug", "obdReadCharacteristic is null");
+                return;
+            }
             Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 
             // Enable local notification

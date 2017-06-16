@@ -313,8 +313,15 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
             public void onError() {
                 Toast.makeText(getActivity(),
                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                hideLoading(null);
             }
         });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        hideLoading(null);
     }
 
     @Override
@@ -328,6 +335,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     public void onPause() {
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
+        hideLoading(null);
         super.onPause();
     }
 
