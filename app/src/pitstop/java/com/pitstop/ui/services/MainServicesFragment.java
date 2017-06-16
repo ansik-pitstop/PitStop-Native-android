@@ -113,13 +113,6 @@ public class MainServicesFragment extends Fragment implements MainFragmentCallba
         return rootview;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mServicesPager.setCurrentItem(0);
-        tabLayout.getTabAt(0).select();
-    }
-
     private void loadDealershipCustomDesign(){
         //Update tab design to the current dealerships custom design if applicable
         if (dashboardCar.getDealership() != null){
