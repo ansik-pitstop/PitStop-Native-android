@@ -124,6 +124,7 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     //Call whenever you want to completely new UI objects
     private void initUI(){
+        Log.d(TAG,"initUI() called. Activity null? "+(getActivity() == null));
         if (getActivity() == null){ return; }
         final Activity activity = this.getActivity();
         final CarDataChangedNotifier notifier = this;

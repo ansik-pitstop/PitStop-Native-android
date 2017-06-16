@@ -62,8 +62,12 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
@@ -104,6 +108,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -248,6 +254,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private MaterialShowcaseSequence tutorialSequence;
 
+    @Inject
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -259,17 +268,24 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         networkHelper = new NetworkHelper(getApplicationContext());
         userAdapter = new UserAdapter(getApplicationContext());
 
-        //If user just signed up then store the user has not sent its initial smooch message
-        if (userSignedUp){
-            setGreetingsNotSent();
-        }
-
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){
             application.logOutUser();
             Toast.makeText(application, "Please connect to the internet.",Toast.LENGTH_LONG);
             finish();
         }
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+        component.injectUseCases(this);
+
+        //If user just signed up then store the user has not sent its initial smooch message
+        if (userSignedUp){
+            setGreetingsNotSent();
+        }
+
+        startPromptAddCarActivity();
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
 
@@ -606,7 +622,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Log.d(TAG, "onResume");
 
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
-
+        promptAddCarIfNeeded();
         resetMenus(false);
     }
 
@@ -1054,6 +1070,21 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
 
+    private void promptAddCarIfNeeded(){
+        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+            @Override
+            public void onCarsRetrieved(List<Car> cars) {
+                if (cars.isEmpty()){
+                    startPromptAddCarActivity();
+                }
+            }
+
+            @Override
+            public void onError() {
+            }
+        });
+    }
+
     /**
      * Call function to retrieve live data from parse
      *
@@ -1093,7 +1124,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                     carList = Car.createCarsList(response);
 
                                     if (carList.isEmpty()) { // show add first car text
-                                        startPromptAddCarActivity();
+                                       // startPromptAddCarActivity();
 
                                     } else {
                                         if (mainCarIdCopy != -1) {
