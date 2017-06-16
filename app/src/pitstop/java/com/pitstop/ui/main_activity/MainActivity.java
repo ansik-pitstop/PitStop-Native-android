@@ -740,8 +740,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         User.getCurrentUser().addProperties(customProperties);
 
                         // 6/9/2018 -> Only add if it hasn't been added yet
-                        sendGreetingsMessageIfNeeded(user);
-                        beginTutorialSequenceIfNeeded(user);
+//                        sendGreetingsMessageIfNeeded(user);
+//                        beginTutorialSequenceIfNeeded(user);
 
                         Smooch.track("User Logged In");
 
@@ -801,8 +801,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
 
-            //Pass the data over to MainDashboardFragment
-           // mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -814,8 +812,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
 
-        //Interactor not good for this use case, but it has the same logic.
-        //Maybe consider renaming backend variable or abstract it away on the presenter side
         CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
                 = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
         checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
@@ -1612,6 +1608,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        sendGreetingsMessageIfNeeded(application.getCurrentUser());
+        beginTutorialSequenceIfNeeded(application.getCurrentUser());
     }
 
     @Override
