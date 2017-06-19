@@ -786,24 +786,25 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     }
                                                                 });
                                                             }
-                                                        }
-                                                        else{
-                                                            networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
-                                                                @Override
-                                                                public void done(String response, RequestError requestError) {
-                                                                    if (requestError == null){
-                                                                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                                        EventBus.getDefault()
-                                                                                .post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                                                                        loadingCallback.hideLoading("Delete succeeded!");
+                                                            else{
+                                                                networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
+                                                                    @Override
+                                                                    public void done(String response, RequestError requestError) {
+                                                                        if (requestError == null){
+                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                            EventBus.getDefault()
+                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                            loadingCallback.hideLoading("Delete succeeded!");
 
+                                                                        }
+                                                                        else{
+                                                                            loadingCallback.hideLoading("Delete failed!");
+                                                                        }
                                                                     }
-                                                                    else{
-                                                                        loadingCallback.hideLoading("Delete failed!");
-                                                                    }
-                                                                }
-                                                            });
+                                                                });
+                                                            }
                                                         }
+
                                                     }
                                                 });
                                             }

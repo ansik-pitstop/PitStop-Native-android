@@ -770,7 +770,7 @@ public class NetworkHelper {
     }
 
     public void setNoMainCar(final int userId, final RequestCallback callback) {
-        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId));
+        LOGI(TAG, String.format("setNoMainCar: userId: %s", userId));
 
         getUserSettingsById(userId, new RequestCallback() {
             // need to add option instead of replace
