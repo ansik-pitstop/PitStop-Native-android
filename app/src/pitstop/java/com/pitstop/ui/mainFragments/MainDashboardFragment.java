@@ -636,12 +636,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         }
     }
 
-
-    @Override
-    public void onDashboardCarUpdated() {
-        updateUI();
-    }
-
     /**
      * Issues list view
      */
