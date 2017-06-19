@@ -41,7 +41,7 @@
 
     <color name="darkBlueTrans">#ea031223</color>
 
-    <color name="black">#000</color>
+    <color name="black">#000000</color>
     <color name="black50">#80000000</color>
 
     <color name="message_failure">#F44336</color>

@@ -8,10 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.pitstop.R;
+import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
+import com.pitstop.ui.main_activity.MainActivity;
+
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**
  * Created by matt on 2017-06-07.
@@ -25,9 +30,13 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
     private CustomShopPresenter presenter;
     private FragmentManager fragmentManager;
 
+    private Car car;
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_shop);
+
+        car = getIntent().getParcelableExtra(CAR_EXTRA);
 
         fragmentManager = getFragmentManager();
         shopSearchFragment = new ShopSearchFragment();
@@ -74,7 +83,8 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
     }
 
     @Override
-    public void setViewShopForm() {
+    public void setViewShopForm(Dealership dealership) {
+        shopFormFragment.setDealership(dealership);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.custom_shop_fragment_holder, shopFormFragment);
         fragmentTransaction.addToBackStack("shop_form");

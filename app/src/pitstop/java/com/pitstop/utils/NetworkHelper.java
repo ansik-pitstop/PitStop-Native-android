@@ -681,6 +681,10 @@ public class NetworkHelper {
         get("user/" + userId, callback);
     }
 
+    public void getPitStopShops(RequestCallback callback){
+        get("shop?shopType=partner",callback);
+    }
+
     public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
         LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
 

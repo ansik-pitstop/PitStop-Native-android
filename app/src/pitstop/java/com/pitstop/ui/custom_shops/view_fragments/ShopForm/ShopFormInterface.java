@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 
 /**
@@ -8,4 +9,5 @@ import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 
 public interface ShopFormInterface {
     void setSwitcher(FragmentSwitcherInterface switcher);
+    void setDealership(Dealership dealership);
 }

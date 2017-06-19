@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 
 /**
@@ -16,6 +17,13 @@ import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 public class ShopFormFragment extends Fragment implements ShopFormInterface {
     private ShopFormPresenter presenter;
     private FragmentSwitcherInterface switcher;
+
+    private Dealership dealership;
+
+    @Override
+    public void setDealership(Dealership dealership) {
+        this.dealership = dealership;
+    }
 
     @Override
     public void setSwitcher(FragmentSwitcherInterface switcher) {
