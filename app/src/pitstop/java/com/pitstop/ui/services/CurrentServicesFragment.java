@@ -14,6 +14,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.dependency.ContextModule;
@@ -36,12 +40,17 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.pitstop.EventBus.EventType.EVENT_MILEAGE;
+import static com.pitstop.EventBus.EventType.EVENT_SERVICES_HISTORY;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class CurrentServicesFragment extends CarDataFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
@@ -53,7 +62,12 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     private List<CarIssue> carIssueList = new ArrayList<>();
 
-    private final String[] ignoredEvents = {EVENT_SERVICES_HISTORY,EVENT_MILEAGE};
+    private final EventType[] ignoredEvents = {
+            new EventTypeImpl(EVENT_SERVICES_HISTORY),
+            new EventTypeImpl(EVENT_MILEAGE)
+    };
+
+    private boolean uiInitialized = false;
 
     @Inject
     GetUserCarUseCase getUserCarUseCase;
@@ -97,7 +111,13 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @Override
     public void updateUI(){
-        Log.d(TAG,"updateUI() called.");
+        Log.d(TAG,"Update UI Called()");
+
+        //Create ui from scratch
+        if (!uiInitialized){
+            initUI();
+            return;
+        }
 
         mLoadingSpinner.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
@@ -122,10 +142,14 @@ public class CurrentServicesFragment extends CarDataFragment {
         });
     }
 
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
+    }
+
     //Call whenever you want to completely new UI objects
     private void initUI(){
-        Log.d(TAG,"initUI() called. Activity null? "+(getActivity() == null));
-        if (getActivity() == null){ return; }
+        Log.d(TAG,"initUI() called.");
         final Activity activity = this.getActivity();
         final CarDataChangedNotifier notifier = this;
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
@@ -136,15 +160,18 @@ public class CurrentServicesFragment extends CarDataFragment {
                         ,notifier);
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
+                uiInitialized = true;
                 updateUI();
             }
 
             @Override
             public void onNoCarSet() {
+                uiInitialized = false;
             }
 
             @Override
             public void onError() {
+                uiInitialized = false;
                 Toast.makeText(getActivity(),
                         "Error retrieving information", Toast.LENGTH_SHORT).show();
             }

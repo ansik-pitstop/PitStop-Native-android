@@ -28,6 +28,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -75,6 +79,9 @@ public class ServiceRequestActivity extends AppCompatActivity
     public static final String EXTRA_FIRST_BOOKING = "is_first_booking";
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
+
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_REQUEST_SERVICE);
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -206,8 +213,9 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 shouldRefresh = true;
 
                                 //Notify change
+                                EventType type = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                                 EventBus.getDefault()
-                                        .post(new CarDataChangedEvent(CarDataChangedEvent.EVENT_SERVICES_NEW));
+                                        .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                             } else {
                                 hideLoading("Failed!");
                                 showSimpleMessage("Network error, please try again later.", false);

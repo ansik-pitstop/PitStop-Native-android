@@ -19,6 +19,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -46,7 +50,8 @@ import butterknife.OnClick;
 public class UpcomingServicesFragment extends CarDataFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
-
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_UPCOMING);
     public static final int DEALERSHIP_ISSUES = 0;
 
     @BindView(R.id.timeline_recyclerview)
@@ -91,7 +96,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
     boolean mIssueDetailsViewAnimating = false;
     boolean mViewInit = false;
 
-    private final String[] ignoredEvents = {EVENT_SERVICES_HISTORY};
+    private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)};
 
     @Inject
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
@@ -177,6 +182,11 @@ public class UpcomingServicesFragment extends CarDataFragment {
             }
         });
 
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     private void showError() {

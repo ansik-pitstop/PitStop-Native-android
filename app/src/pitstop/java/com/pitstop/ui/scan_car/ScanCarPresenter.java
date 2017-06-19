@@ -9,6 +9,10 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
@@ -43,6 +47,8 @@ import java.util.Set;
 public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     private static final String TAG = ScanCarPresenter.class.getSimpleName();
+
+    public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
     private ScanCarContract.View mCallback;
     private MixpanelHelper mixpanelHelper;
@@ -104,7 +110,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                 localCarAdapter.updateCar(dashboardCar);
                 mCallback.onInputtedMileageUpdated(input);
 
-                EventBus.getDefault().post(new CarDataChangedEvent(CarDataChangedEvent.EVENT_MILEAGE));
+                EventType type = new EventTypeImpl(EventType.EVENT_MILEAGE);
+                EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
             }
         });
     }

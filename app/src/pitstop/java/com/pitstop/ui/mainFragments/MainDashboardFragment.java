@@ -34,6 +34,10 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -77,6 +81,7 @@ import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
 public class MainDashboardFragment extends CarDataFragment implements MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
 
     public final static String pfName = "com.pitstop.login.name";
     public final static String pfCurrentCar = "ccom.pitstop.currentcar";
@@ -295,23 +300,25 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 }
 
                 if (carName != null) {
-                    carName.setText(dashboardCar.getYear() + " "
-                            + dashboardCar.getMake() + " "
-                            + dashboardCar.getModel());
+                    carName.setText(car.getYear() + " "
+                            + car.getMake() + " "
+                            + car.getModel());
                 }
 
-                mMileageText.setText(String.format("%.2f km",dashboardCar.getBaseMileage()));
-                mEngineText.setText(dashboardCar.getEngine());
-                mHighwayText.setText(dashboardCar.getHighwayMileage());
-                mCityText.setText(dashboardCar.getCityMileage());
-                mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
+                mMileageText.setText(String.format("%.2f km",car.getBaseMileage()));
+                mEngineText.setText(car.getEngine());
+                mHighwayText.setText(car.getHighwayMileage());
+                mCityText.setText(car.getCityMileage());
+                mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
 
                 hideLoading(null);
             }
 
             @Override
             public void onNoCarSet() {
-
+                Toast.makeText(getActivity(),
+                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                hideLoading(null);
             }
 
             @Override
@@ -321,6 +328,11 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 hideLoading(null);
             }
         });
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     @Override
@@ -889,7 +901,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                                 showLoading("Updating Mileage...");
 
                                 //Update mileage in the GUI so it doesn't have to be loaded from network
-                                mMileageText.setText(String.valueOf(mileage));
+                                mMileageText.setText(String.format("%.2f km", mileage));
 
                                 networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                     @Override
@@ -911,8 +923,9 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 
-                                        EventBus.getDefault().post(new CarDataChangedEvent(
-                                                CarDataChangedEvent.EVENT_MILEAGE));
+                                        EventType eventType = new EventTypeImpl(EventType.EVENT_MILEAGE);
+                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                ,EVENT_SOURCE));
 
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {

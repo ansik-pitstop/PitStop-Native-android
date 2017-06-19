@@ -31,7 +31,10 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
-import com.pitstop.EventBus.EventTypes;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarAdapter;
@@ -65,6 +68,8 @@ import javax.inject.Inject;
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SETTINGS);
 
     private MixpanelHelper mixpanelHelper;
     private boolean localUpdatePerformed = false;
@@ -375,8 +380,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         public void done(String response, RequestError requestError) {
                             if (requestError == null){
                                 //Notify the car changed
-                                EventBus.getDefault().post(new
-                                        CarDataChangedEvent(CarDataChangedEvent.EVENT_CAR_ID));
+                                EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                EventBus.getDefault()
+                                        .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                             }
                         }
                     });
@@ -437,8 +443,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     updatedCar.setShopId(shopId);
                                                     localCarAdapter.updateCar(updatedCar);
                                                     listener.localUpdatePerformed();
-                                                    EventBus.getDefault().post(
-                                                            new CarDataChangedEvent(EventTypes.EVENT_CAR_DEALERSHIP));
+
+                                                    EventType type = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+                                                    EventBus.getDefault()
+                                                            .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                                                 } else {
                                                     loadingCallback.hideLoading("An error occurred, please try again.");
                                                     Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
@@ -768,8 +776,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     @Override
                                                                     public void done(String response, RequestError requestError) {
                                                                         if (requestError == null){
-                                                                            EventBus.getDefault().post(
-                                                                                    new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+
+                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                            EventBus.getDefault()
+                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                                                                         }
                                                                     }
                                                                 });

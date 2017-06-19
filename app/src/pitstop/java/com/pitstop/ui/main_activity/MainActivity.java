@@ -333,7 +333,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         logAuthInfo();
 
         setTabUI();
-        tryShowTabUI();
         setFabUI();
     }
 
@@ -489,42 +488,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         });
     }
 
-    private void showTabUI(){
-        Log.d(TAG,"Show tab ui!");
-        if (tabsShowing){
-            return;
-        }
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(mTabViewPagerAdapter);
-        tabsShowing = true;
-    }
-
-    private void tryShowTabUI(){
-        Log.d(TAG,"tryShowTabUI");
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                showTabUI();
-            }
-
-            @Override
-            public void onNoCarSet() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
-    }
-
     private void setTabUI(){
 
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
 
         viewPager = (ViewPager) findViewById(R.id.main_container);
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(mTabViewPagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -775,7 +746,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         User.getCurrentUser().addProperties(customProperties);
 
                         // 6/9/2018 -> Only add if it hasn't been added yet
-                        showTabUI();
                         sendGreetingsMessageIfNeeded(user);
                         beginTutorialSequenceIfNeeded(user);
 

@@ -1,9 +1,13 @@
 package com.pitstop.ui.mainFragments;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
-import com.pitstop.EventBus.EventTypes;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventType;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,19 +28,23 @@ import java.util.List;
  * Created by Karol Zdebel on 5/5/2017.
  */
 
-public abstract class CarDataFragment extends Fragment implements CarDataChangedNotifier, EventTypes {
+public abstract class CarDataFragment extends Fragment implements CarDataChangedNotifier {
 
     final public static String TAG = CarDataFragment.class.getSimpleName();
     private boolean uiSynced = false;   //ui is not set yet
-    private boolean running = false;    //not running
+    private boolean running = false;    //not running2
     private boolean wasPaused = false;  //pause never occured yet
     private boolean wasStopped = true;  //start in a stopped state
     private boolean firstStart = true; //whether its the first time onStart() called
-    private List<String> updateConstraints = new ArrayList<>();
+    private List<EventType> updateConstraints = new ArrayList<>();
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarDataChangedEvent(CarDataChangedEvent event){
-        if (!updateConstraints.contains(event.getEventType())){
+
+        /*Respond to event only if its EventType isn't being ignored
+        * AND if it wasn't sent by this fragment*/
+        if (!updateConstraints.contains(event.getEventType())
+                && !event.getEventSource().equals(getSourceType())){
             if (running){
                 updateUI();
                 uiSynced = true;
@@ -48,10 +56,10 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     }
 
     //These event types will not trigger an update in the UI
-    public void setNoUpdateOnEventTypes(String[] eventTypes){
-        for (String s: eventTypes){
-            if (!updateConstraints.contains(s)){
-                updateConstraints.add(s);
+    public void setNoUpdateOnEventTypes(EventType[] eventTypes){
+        for (EventType e: eventTypes){
+            if (!updateConstraints.contains(e)){
+                updateConstraints.add(e);
             }
         }
     }
@@ -76,6 +84,14 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         wasStopped = true;
@@ -91,7 +107,7 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     @Override
     public void onResume() {
         super.onResume();
-        
+
         //Only update UI if onStart() hasn't
         if (!uiSynced && wasPaused && !wasStopped){
             updateUI();
@@ -108,9 +124,11 @@ public abstract class CarDataFragment extends Fragment implements CarDataChanged
     }
 
     @Override
-    public void notifyCarDataChanged(String eventType){
-        EventBus.getDefault().post(new CarDataChangedEvent(eventType));
+    public void notifyCarDataChanged(EventType eventType ,EventSource eventSource){
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType, eventSource));
     }
 
     public abstract void updateUI();
+
+    public abstract EventSource getSourceType();
 }

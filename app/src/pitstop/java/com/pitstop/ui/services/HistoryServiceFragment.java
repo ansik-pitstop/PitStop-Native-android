@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -38,6 +42,8 @@ import butterknife.ButterKnife;
 public class HistoryServiceFragment extends CarDataFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
 
     private RecyclerView issuesList;
 
@@ -52,7 +58,7 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private final String[] ignoredEvents = {EVENT_MILEAGE};
+    private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_MILEAGE)};
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
@@ -177,6 +183,11 @@ public class HistoryServiceFragment extends CarDataFragment {
             }
         });
 
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     @Override

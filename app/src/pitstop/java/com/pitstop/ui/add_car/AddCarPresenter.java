@@ -15,7 +15,10 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.CarDataChangedEvent;
-import com.pitstop.EventBus.EventTypes;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -69,6 +72,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
+
+    public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
     private final boolean isPairingUnrecognizedDevice;
 
@@ -558,7 +563,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null){
-                        EventBus.getDefault().post(new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
                         mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
@@ -811,11 +818,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null){
-                        EventBus.getDefault().post(new CarDataChangedEvent(EventTypes.EVENT_CAR_ID));
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post( new CarDataChangedEvent(type,EVENT_SOURCE));
+                        mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });
-            mCallback.onPostCarSucceeded(createdCar);
         }
     }
 
@@ -970,11 +979,14 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null){
-                        EventBus.getDefault().post(EventTypes.EVENT_CAR_ID);
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post(
+                                new CarDataChangedEvent(type,EVENT_SOURCE));
+                        mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });
-            mCallback.onPostCarSucceeded(createdCar);
         }
     };
 

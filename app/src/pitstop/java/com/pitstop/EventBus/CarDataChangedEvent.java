@@ -7,24 +7,21 @@ package com.pitstop.EventBus;
  * Created by Karol Zdebel on 6/13/2017.
  */
 
-public class CarDataChangedEvent implements EventTypes {
+public class CarDataChangedEvent{
 
-    private String eventType;
+    private EventType eventType;
+    private EventSource eventSource;
 
-    public CarDataChangedEvent(String eventType){
-        if (!eventType.equals(EventTypes.EVENT_CAR_ID)
-                && !eventType.equals(EventTypes.EVENT_MILEAGE)
-                && !eventType.equals(EventTypes.EVENT_SERVICES_HISTORY)
-                && !eventType.equals(EventTypes.EVENT_SERVICES_NEW)
-                && !eventType.equals(EventTypes.EVENT_CAR_DEALERSHIP)){
-
-            throw new IllegalArgumentException();
-        }
-
+    public CarDataChangedEvent(EventType eventType, EventSource eventSource){
         this.eventType = eventType;
+        this.eventSource = eventSource;
     }
 
-    public String getEventType(){
+    public EventType getEventType(){
         return eventType;
+    }
+
+    public EventSource getEventSource() {
+        return eventSource;
     }
 }
