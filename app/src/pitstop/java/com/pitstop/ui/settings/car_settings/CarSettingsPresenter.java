@@ -34,7 +34,7 @@ public class CarSettingsPresenter {
     }
     public void preferenceClicked(String key){
         if(key.equals(CHANGE_SHOP)){
-
+            carSettings.startCustomShops();
         }else if(key.equals(DELETE_KEY)){
             carSettings.showDelete();
         }else if(key.equals(SET_CURRENT_KEY)){

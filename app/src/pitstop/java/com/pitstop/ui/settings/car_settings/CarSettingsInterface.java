@@ -12,4 +12,5 @@ public interface CarSettingsInterface {
     void setSwitcher(FragmentSwitcher switcher);
     Car getCar();
     void showDelete();
+    void startCustomShops();
 }
