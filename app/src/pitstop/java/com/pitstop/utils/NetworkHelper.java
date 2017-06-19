@@ -769,6 +769,35 @@ public class NetworkHelper {
         });
     }
 
+    public void setNoMainCar(final int userId, final RequestCallback callback) {
+        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId));
+
+        getUserSettingsById(userId, new RequestCallback() {
+            // need to add option instead of replace
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null) {
+                    try {
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        if (options.has("mainCar")){
+                            options.remove("mainCar");
+                        }
+
+                        JSONObject putOptions = new JSONObject();
+                        putOptions.put("settings",options);
+
+                        put("user/" + userId + "/settings", callback, putOptions);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else{
+                    callback.done(response,requestError);
+                }
+            }
+        });
+    }
+
     public void getLatestTrip(String scannerId, RequestCallback callback) {
         LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
 

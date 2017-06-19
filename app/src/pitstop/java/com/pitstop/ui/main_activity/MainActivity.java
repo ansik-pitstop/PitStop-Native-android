@@ -1019,6 +1019,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void loadDealershipCustomDesign(){
         Car myCar = getCurrentCar();
+        if (myCar == null) return;
         //Update tab design to the current dealerships custom design if applicable
         if (myCar.getDealership() != null){
             if (BuildConfig.DEBUG && (myCar.getDealership().getId() == 4
@@ -1060,7 +1061,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-
+                
             }
 
             @Override
@@ -1186,6 +1187,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        Log.d(TAG,"tripData() called");
         if (mainDashboardCallback != null)
             mainDashboardCallback.tripData(tripInfoPackage);
     }

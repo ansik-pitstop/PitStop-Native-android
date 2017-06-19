@@ -598,6 +598,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        Log.d(TAG,"Got trip data.");
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
             final double newTotalMileage;
             if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )

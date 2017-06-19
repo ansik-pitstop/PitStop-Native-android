@@ -754,7 +754,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
                                                         if (requestError == null) {
-                                                            loadingCallback.hideLoading("Delete succeeded!");
                                                             listener.localUpdatePerformed();
                                                             localCarAdapter.deleteCar(vehicle);
                                                             localScannerAdapter.deleteCar(vehicle);
@@ -776,16 +775,35 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     @Override
                                                                     public void done(String response, RequestError requestError) {
                                                                         if (requestError == null){
-
+                                                                            loadingCallback.hideLoading("Delete succeeded!");
                                                                             EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                             EventBus.getDefault()
                                                                                     .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                        }
+                                                                        else{
+                                                                            loadingCallback.hideLoading("Delete failed!");
                                                                         }
                                                                     }
                                                                 });
                                                             }
                                                         }
+                                                        else{
+                                                            networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
+                                                                @Override
+                                                                public void done(String response, RequestError requestError) {
+                                                                    if (requestError == null){
+                                                                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                        EventBus.getDefault()
+                                                                                .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                        loadingCallback.hideLoading("Delete succeeded!");
 
+                                                                    }
+                                                                    else{
+                                                                        loadingCallback.hideLoading("Delete failed!");
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
                                                     }
                                                 });
                                             }
