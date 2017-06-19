@@ -305,7 +305,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                             + car.getModel());
                 }
 
-                mMileageText.setText(String.format("%.2f km",car.getBaseMileage()));
+                mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
                 mEngineText.setText(car.getEngine());
                 mHighwayText.setText(car.getHighwayMileage());
                 mCityText.setText(car.getCityMileage());

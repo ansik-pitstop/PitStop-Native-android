@@ -771,7 +771,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             //If settings completed check whether to refresh data
             } else if (requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
-                    mainDashboardCallback.onDashboardCarUpdated();
                     refreshFromServer();
                 }
                 //Update dashboard UI since the dealership may have changed
