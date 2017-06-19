@@ -136,8 +136,6 @@ public class CurrentServicesFragment extends CarDataFragment {
             @Override
             public void onError() {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
-                Toast.makeText(getActivity(),
-                        "Error retrieving information", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -172,8 +170,6 @@ public class CurrentServicesFragment extends CarDataFragment {
             @Override
             public void onError() {
                 uiInitialized = false;
-                Toast.makeText(getActivity(),
-                        "Error retrieving information", Toast.LENGTH_SHORT).show();
             }
         });
 
