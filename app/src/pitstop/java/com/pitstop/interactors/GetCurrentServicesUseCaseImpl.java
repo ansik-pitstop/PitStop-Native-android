@@ -7,6 +7,7 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +53,11 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                                 callback.onError();
                             }
                         });
+            }
+
+            @Override
+            public void onNoCarSet() {
+                callback.onGotCurrentServices(new ArrayList<>());
             }
 
             @Override

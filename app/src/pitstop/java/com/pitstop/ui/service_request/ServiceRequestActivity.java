@@ -27,6 +27,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -48,6 +53,7 @@ import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,6 +79,9 @@ public class ServiceRequestActivity extends AppCompatActivity
     public static final String EXTRA_FIRST_BOOKING = "is_first_booking";
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
+
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_REQUEST_SERVICE);
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -128,6 +137,11 @@ public class ServiceRequestActivity extends AppCompatActivity
                 dashboardCar = car;
                 populateUI();
                 hideLoading(null);
+            }
+
+            @Override
+            public void onNoCarSet() {
+
             }
 
             @Override
@@ -197,6 +211,11 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 hideLoading("Success!");
                                 showSimpleMessage("We have saved issues you requested!", true);
                                 shouldRefresh = true;
+
+                                //Notify change
+                                EventType type = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                                EventBus.getDefault()
+                                        .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                             } else {
                                 hideLoading("Failed!");
                                 showSimpleMessage("Network error, please try again later.", false);
@@ -264,7 +283,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Cancel CarService Request");
+                                properties.put("Button", "Cancel Service Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -329,7 +348,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         dateDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mixpanelHelper.trackButtonTapped("Cancel Request CarService", MixpanelHelper.SERVICE_REQUEST_VIEW);
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -367,7 +386,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         timePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                mixpanelHelper.trackButtonTapped("Cancel Request CarService", MixpanelHelper.SERVICE_REQUEST_VIEW);
+                mixpanelHelper.trackButtonTapped("Cancel Request Service", MixpanelHelper.SERVICE_REQUEST_VIEW);
             }
         });
 
@@ -381,7 +400,7 @@ public class ServiceRequestActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         AddCustomIssueDialog presetPicker = AddCustomIssueDialog.newInstance(this, pickedCustomIssues);
         presetPicker.setCallback(this);
-        presetPicker.show(fm, "Add Custom CarService");
+        presetPicker.show(fm, "Add Custom Service");
     }
 
     @Override
@@ -409,7 +428,7 @@ public class ServiceRequestActivity extends AppCompatActivity
     }
 
     private void sendRequestWithState(final String state, final String timestamp, final String comments) {
-        Log.d("CarService Request", "Timestamp: " + timestamp);
+        Log.d("Service Request", "Timestamp: " + timestamp);
         networkHelper.requestService(application.getCurrentUserId(), dashboardCar.getId(), dashboardCar.getShopId(),
                 state, timestamp, comments, new RequestCallback() {
                     @Override
@@ -418,7 +437,7 @@ public class ServiceRequestActivity extends AppCompatActivity
                             shouldRefresh = true;
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm CarService Request");
+                                properties.put("Button", "Confirm Service Request");
                                 properties.put("View", MixpanelHelper.SERVICE_REQUEST_VIEW);
                                 properties.put("State", isFirstBooking ? "Tentative" : "Requested"); // changes
                                 properties.put(isFirstBooking ? "Salesperson" : "Comments", comments);
@@ -428,8 +447,8 @@ public class ServiceRequestActivity extends AppCompatActivity
                                 e.printStackTrace();
                             }
 
-                            Toast.makeText(application, "CarService request sent", Toast.LENGTH_SHORT).show();
-                            Smooch.track("User Requested CarService");
+                            Toast.makeText(application, "Service request sent", Toast.LENGTH_SHORT).show();
+                            Smooch.track("User Requested Service");
                             for (CarIssue issue : dashboardCar.getActiveIssues()) {
                                 if (issue.getStatus().equals(CarIssue.ISSUE_NEW)) {
                                     networkHelper.setIssuePending(dashboardCar.getId(), issue.getId(), null);
@@ -539,4 +558,5 @@ public class ServiceRequestActivity extends AppCompatActivity
                 .setPositiveButton("OK", null)
                 .show();
     }
+
 }

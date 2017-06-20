@@ -56,6 +56,7 @@ public class UserRepository {
 
     public interface UserGetCarCallback {
         void onGotCar(Car car);
+        void onNoCarSet();
         void onError();
     }
 
@@ -179,15 +180,18 @@ public class UserRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null){
+                    if (requestError == null && response != null){
                         callback.onGotCar(Car.createCar(response));
+                    }
+                    else if (requestError == null && response == null){
+                        callback.onNoCarSet();
                     }
                     else{
                         callback.onError();
                     }
                 }
                 catch(JSONException e){
-
+                    callback.onError();
                 }
             }
         };
@@ -288,7 +292,7 @@ public class UserRepository {
                             added = options.getBoolean("isFirstCarAdded");
                         }else{
                             //Users that have registered prior to this patch will not send greeting messages
-                            added = false;
+                            added = true;
                         }
 
                         callback.onFirstCarAddedChecked(added);

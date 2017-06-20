@@ -2,7 +2,6 @@ package com.pitstop.ui.services;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +19,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -28,6 +31,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
 
@@ -43,10 +47,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class UpcomingServicesFragment extends CarDataListenerFragment {
+public class UpcomingServicesFragment extends CarDataFragment {
 
     public static final String CAR_BUNDLE_KEY = "car";
-
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_UPCOMING);
     public static final int DEALERSHIP_ISSUES = 0;
 
     @BindView(R.id.timeline_recyclerview)
@@ -91,6 +96,8 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
     boolean mIssueDetailsViewAnimating = false;
     boolean mViewInit = false;
 
+    private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)};
+
     @Inject
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
 
@@ -123,6 +130,7 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
 
         View view = inflater.inflate(R.layout.fragment_upcoming_services, container, false);
         ButterKnife.bind(this, view);
+        setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
         mViewInit = true;
         return view;
@@ -134,7 +142,6 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
         mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
-
         updateUI();
     }
 
@@ -175,6 +182,11 @@ public class UpcomingServicesFragment extends CarDataListenerFragment {
             }
         });
 
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     private void showError() {

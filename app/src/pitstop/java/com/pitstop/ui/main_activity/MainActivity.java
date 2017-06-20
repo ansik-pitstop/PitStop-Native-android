@@ -62,15 +62,19 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.CarHistoryActivity;
@@ -104,6 +108,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -144,6 +150,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private boolean serviceIsBound;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
+    private boolean tabsShowing = false;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -248,6 +255,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private MaterialShowcaseSequence tutorialSequence;
 
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
+
+    @Inject
+    CheckFirstCarAddedUseCase checkFirstCarAddedUseCase;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -259,16 +272,21 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         networkHelper = new NetworkHelper(getApplicationContext());
         userAdapter = new UserAdapter(getApplicationContext());
 
-        //If user just signed up then store the user has not sent its initial smooch message
-        if (userSignedUp){
-            setGreetingsNotSent();
-        }
-
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){
             application.logOutUser();
             Toast.makeText(application, "Please connect to the internet.",Toast.LENGTH_LONG);
             finish();
+        }
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+        component.injectUseCases(this);
+
+        //If user just signed up then store the user has not sent its initial smooch message
+        if (userSignedUp){
+            setGreetingsNotSent();
         }
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(MigrationService.notificationId);
@@ -309,11 +327,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         shopLocalStore = new LocalShopAdapter(application);
         scannerLocalStore = new LocalScannerAdapter(application);
 
+
         refreshFromServer();
 
         logAuthInfo();
 
-        storeUserFromPreferences();//setTabUI();
+        setTabUI();
         setFabUI();
     }
 
@@ -328,17 +347,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             @Override
             public void onError() {
                 //Error logic here
-            }
-        });
-    }
-
-    private void storeUserFromPreferences(){
-        networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                userAdapter.storeUserData(com.pitstop.models.User.jsonToUserObject(response));
-                setTabUI();
-
             }
         });
     }
@@ -442,7 +450,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         fabRequestService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Request CarService");
+                mixpanelHelper.trackFabClicked("Request Service");
                 final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
                 intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
@@ -484,10 +492,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         //Initialize tab navigation
         //View pager adapter that returns the corresponding fragment for each page
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.main_container);
+        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(mTabViewPagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -537,8 +545,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             }
         });
-
-        viewPager.setAdapter(mTabViewPagerAdapter);
 
         //Populate tabs with icons
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
@@ -603,7 +609,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Log.d(TAG, "onResume");
 
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
-
+        promptAddCarIfNeeded();
+        loadDealershipCustomDesign();
         resetMenus(false);
     }
 
@@ -642,7 +649,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             if(mainDashboardCallback != null){
               //  mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
             }
-            loadDealershipCustomDesign();
 
         }
     }
@@ -765,12 +771,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             //If settings completed check whether to refresh data
             } else if (requestCode == RC_SETTINGS && resultCode == RESULT_OK) {
                 if (shouldRefreshFromServer) {
-                    mainDashboardCallback.onDashboardCarUpdated();
                     refreshFromServer();
                 }
-                //Update dashboard UI since the dealership may have changed
-                //mainDashboardCallback.setCarDetailsUI();
-                loadDealershipCustomDesign();
 
             //If display issues completed check whether refresh is required
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
@@ -801,8 +803,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 }
             }
 
-            //Pass the data over to MainDashboardFragment
-           // mainDashboardCallback.activityResultCallback(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -814,10 +814,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
 
-        //Interactor not good for this use case, but it has the same logic.
-        //Maybe consider renaming backend variable or abstract it away on the presenter side
-        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
-                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
         checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
             public void onFirstCarAddedChecked(boolean added) {
@@ -882,7 +878,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Cancel CarService Request");
+                                properties.put("Button", "Cancel Service Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -892,7 +888,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             tutorialSequence.dismissAllItems();
                             try {
                                 JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm CarService Request");
+                                properties.put("Button", "Confirm Service Request");
                                 properties.put("State", "Tentative");
                                 properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
                                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
@@ -1019,20 +1015,39 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void loadDealershipCustomDesign(){
-        Car myCar = getCurrentCar();
-        //Update tab design to the current dealerships custom design if applicable
-        if (myCar.getDealership() != null){
-            if (BuildConfig.DEBUG && (myCar.getDealership().getId() == 4
-                    || myCar.getDealership().getId() == 18)){
+        showLoading("Loading...");
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                Log.d(TAG,"retrieved car, getDealership = null? "+(car.getDealership() == null));
+                //Update tab design to the current dealerships custom design if applicable
+                if (car.getDealership() != null){
+                    if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
+                            || car.getDealership().getId() == 18)){
 
-                bindMercedesDealerUI();
-            }else if (!BuildConfig.DEBUG && myCar.getDealership().getId() == 14) {
-                bindMercedesDealerUI();
+                        bindMercedesDealerUI();
+                    }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
+                        bindMercedesDealerUI();
+                    }
+                    else{
+                        bindDefaultDealerUI();
+                    }
+                    hideLoading();
+                }
             }
-            else{
-                bindDefaultDealerUI();
+
+            @Override
+            public void onNoCarSet() {
+                Log.d(TAG,"No car set.");
+                hideLoading();
             }
-        }
+
+            @Override
+            public void onError() {
+                Log.d(TAG,"Error.");
+                hideLoading();
+            }
+        });
     }
 
     private void bindMercedesDealerUI(){
@@ -1040,9 +1055,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         tabLayout.setBackgroundColor(Color.BLACK);
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         appBarLayout.setBackgroundColor(Color.DKGRAY);
+        changeTheme(true);
     }
 
     private void bindDefaultDealerUI(){
+        Log.d(TAG,"Binding deafult dealer UI.");
         //Change theme elements back to default
         changeTheme(false);
 
@@ -1053,6 +1070,27 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         //Set other changed UI elements back to original color
         ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
         ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
+    }
+
+    private void promptAddCarIfNeeded(){
+        Log.d(TAG,"promptAddCarIfNeeded()");
+
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                
+            }
+
+            @Override
+            public void onNoCarSet() {
+                startPromptAddCarActivity();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     /**
@@ -1094,7 +1132,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                     carList = Car.createCarsList(response);
 
                                     if (carList.isEmpty()) { // show add first car text
-                                        startPromptAddCarActivity();
+                                       // startPromptAddCarActivity();
 
                                     } else {
                                         if (mainCarIdCopy != -1) {
@@ -1110,7 +1148,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         }
 
                                         broadCastCarDataToFragments();
-                                        loadDealershipCustomDesign();
 
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
@@ -1166,6 +1203,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        Log.d(TAG,"tripData() called");
         if (mainDashboardCallback != null)
             mainDashboardCallback.tripData(tripInfoPackage);
     }
@@ -1495,7 +1533,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         final MaterialShowcaseView firstBookingDiscountShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.dashboard_request_service_btn))
-                .setTitleText("Request CarService")
+                .setTitleText("Request Service")
                 .setContentText(firstServicePromotion.toString())
                 .setDismissOnTouch(true)
                 .setDismissText("Get Started")

@@ -8,10 +8,8 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 import android.util.Log;
 
-import com.castel.obd215b.util.LogUtil;
 import com.castel.obd215b.util.Utils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 

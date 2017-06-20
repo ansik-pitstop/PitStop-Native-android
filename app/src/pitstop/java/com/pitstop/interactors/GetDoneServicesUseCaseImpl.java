@@ -7,6 +7,7 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,6 +55,11 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
                                 callback.onError();
                             }
                         });
+            }
+
+            @Override
+            public void onNoCarSet() {
+                callback.onGotDoneServices(new ArrayList<CarIssue>());
             }
 
             @Override

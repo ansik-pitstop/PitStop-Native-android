@@ -165,7 +165,7 @@ public class MixpanelHelper {
     /**
      * CarService History
      */
-    public static final String SERVICE_HISTORY_VIEW = "CarService History";
+    public static final String SERVICE_HISTORY_VIEW = "Service History";
 
     /**
      * Settings Activity
@@ -189,7 +189,7 @@ public class MixpanelHelper {
     /**
      * CarService request
      */
-    public static final String SERVICE_REQUEST_VIEW = "CarService Request";
+    public static final String SERVICE_REQUEST_VIEW = "Service Request";
 
     /**
      * Add preset issues

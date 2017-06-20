@@ -7,11 +7,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.dependency.ContextModule;
@@ -22,6 +28,8 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 
 import java.util.ArrayList;
@@ -32,18 +40,33 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.pitstop.EventBus.EventType.EVENT_MILEAGE;
+import static com.pitstop.EventBus.EventType.EVENT_SERVICES_HISTORY;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends Fragment{
+public class CurrentServicesFragment extends CarDataFragment {
 
     public static final String TAG = CurrentServicesFragment.class.getSimpleName();
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
+
+    @BindView(R.id.loading_spinner)
+    ProgressBar mLoadingSpinner;
+
     private CurrentServicesAdapter carIssuesAdapter;
 
     private List<CarIssue> carIssueList = new ArrayList<>();
+
+    private final EventType[] ignoredEvents = {
+            new EventTypeImpl(EVENT_SERVICES_HISTORY),
+            new EventTypeImpl(EVENT_MILEAGE)
+    };
+
     private boolean uiInitialized = false;
 
     @Inject
@@ -80,62 +103,75 @@ public class CurrentServicesFragment extends Fragment{
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
-        if (getActivity() != null){
-            initUI();
-        }
+        setNoUpdateOnEventTypes(ignoredEvents);
+        initUI();
 
         return view;
     }
 
-    //Call whenever you want to completely new UI objects
-    private void initUI(){
-        final Activity activity = this.getActivity();
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
-                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase);
-                carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
-                carIssueListView.setAdapter(carIssuesAdapter);
-                updateUI();
-                uiInitialized = true;
-            }
-
-            @Override
-            public void onError() {
-            }
-        });
-
-    }
-
     @Override
-    public void onResume() {
-        super.onResume();
+    public void updateUI(){
+        Log.d(TAG,"Update UI Called()");
 
-        //Update UI any time another activity(non-tab) is finished
-        if (uiInitialized){
-            updateUI();
-        }
-        else{
+        //Create ui from scratch
+        if (!uiInitialized){
             initUI();
+            return;
         }
-    }
 
-    //Call whenever you want the most recent data from the backend
-    private void updateUI(){
+        mLoadingSpinner.setVisibility(View.VISIBLE);
+        carIssueListView.setVisibility(View.INVISIBLE);
+
         getCurrentServices.execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {
                 carIssueList.clear();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
+
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                carIssueListView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError() {
-                Toast.makeText(getActivity(),
-                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
+    }
+
+    //Call whenever you want to completely new UI objects
+    private void initUI(){
+        Log.d(TAG,"initUI() called.");
+        final Activity activity = this.getActivity();
+        final CarDataChangedNotifier notifier = this;
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
+                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase
+                        ,notifier);
+                carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                carIssueListView.setAdapter(carIssuesAdapter);
+                uiInitialized = true;
+                updateUI();
+            }
+
+            @Override
+            public void onNoCarSet() {
+                uiInitialized = false;
+            }
+
+            @Override
+            public void onError() {
+                uiInitialized = false;
+            }
+        });
+
     }
 }
