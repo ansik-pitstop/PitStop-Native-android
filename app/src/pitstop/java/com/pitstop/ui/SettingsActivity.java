@@ -380,6 +380,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         public void done(String response, RequestError requestError) {
                             if (requestError == null){
                                 //Notify the car changed
+                                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit()
+                                        .putInt(MainDashboardFragment.pfCurrentCar,car.getId());
                                 EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                 EventBus.getDefault()
                                         .post(new CarDataChangedEvent(type,EVENT_SOURCE));
@@ -711,9 +713,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             private View root;
             private TextView vehicleName;
             private boolean viewCreated = false;
+            private Context context;
 
             public VehiclePreference(Context context, Car vehicle) {
                 super(context);
+                this.context = context;
                 this.vehicle = vehicle;
                 setLayoutResource(R.layout.preference_vehicle_item);
             }
@@ -775,6 +779,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     @Override
                                                                     public void done(String response, RequestError requestError) {
                                                                         if (requestError == null){
+
                                                                             loadingCallback.hideLoading("Delete succeeded!");
                                                                             EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                             EventBus.getDefault()

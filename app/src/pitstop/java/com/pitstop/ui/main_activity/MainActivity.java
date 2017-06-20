@@ -610,6 +610,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
         promptAddCarIfNeeded();
+        loadDealershipCustomDesign();
         resetMenus(false);
     }
 
@@ -648,7 +649,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             if(mainDashboardCallback != null){
               //  mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
             }
-            loadDealershipCustomDesign();
 
         }
     }
@@ -773,9 +773,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 if (shouldRefreshFromServer) {
                     refreshFromServer();
                 }
-                //Update dashboard UI since the dealership may have changed
-                //mainDashboardCallback.setCarDetailsUI();
-                loadDealershipCustomDesign();
 
             //If display issues completed check whether refresh is required
             } else if (requestCode == RC_DISPLAY_ISSUE && resultCode == RESULT_OK) {
@@ -1018,21 +1015,39 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void loadDealershipCustomDesign(){
-        Car myCar = getCurrentCar();
-        if (myCar == null) return;
-        //Update tab design to the current dealerships custom design if applicable
-        if (myCar.getDealership() != null){
-            if (BuildConfig.DEBUG && (myCar.getDealership().getId() == 4
-                    || myCar.getDealership().getId() == 18)){
+        showLoading("Loading...");
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                Log.d(TAG,"retrieved car, getDealership = null? "+(car.getDealership() == null));
+                //Update tab design to the current dealerships custom design if applicable
+                if (car.getDealership() != null){
+                    if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
+                            || car.getDealership().getId() == 18)){
 
-                bindMercedesDealerUI();
-            }else if (!BuildConfig.DEBUG && myCar.getDealership().getId() == 14) {
-                bindMercedesDealerUI();
+                        bindMercedesDealerUI();
+                    }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
+                        bindMercedesDealerUI();
+                    }
+                    else{
+                        bindDefaultDealerUI();
+                    }
+                    hideLoading();
+                }
             }
-            else{
-                bindDefaultDealerUI();
+
+            @Override
+            public void onNoCarSet() {
+                Log.d(TAG,"No car set.");
+                hideLoading();
             }
-        }
+
+            @Override
+            public void onError() {
+                Log.d(TAG,"Error.");
+                hideLoading();
+            }
+        });
     }
 
     private void bindMercedesDealerUI(){
@@ -1040,9 +1055,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         tabLayout.setBackgroundColor(Color.BLACK);
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         appBarLayout.setBackgroundColor(Color.DKGRAY);
+        changeTheme(true);
     }
 
     private void bindDefaultDealerUI(){
+        Log.d(TAG,"Binding deafult dealer UI.");
         //Change theme elements back to default
         changeTheme(false);
 
@@ -1131,7 +1148,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                         }
 
                                         broadCastCarDataToFragments();
-                                        loadDealershipCustomDesign();
 
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
