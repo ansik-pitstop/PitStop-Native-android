@@ -36,6 +36,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
             }
 
             @Override
+            public void onNoCarSet() {
+                callback.onNoCarSet();
+            }
+
+            @Override
             public void onError(){
                 callback.onError();
             }

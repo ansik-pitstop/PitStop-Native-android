@@ -14,6 +14,11 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -33,12 +38,13 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,6 +72,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
+
+    public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
     private final boolean isPairingUnrecognizedDevice;
 
@@ -551,8 +559,18 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             // If bluetooth connection state is not connected, then just ignore getting DTCs
             PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
                     .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).apply();
-            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), null);
-            mCallback.onPostCarSucceeded(createdCar);
+            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null){
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                        mCallback.onPostCarSucceeded(createdCar);
+                    }
+                }
+            });
+            //mCallback.onPostCarSucceeded(createdCar);
         }
     }
 
@@ -796,8 +814,17 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
             PreferenceManager.getDefaultSharedPreferences(mApplication).edit().putInt(MainDashboardFragment.pfCurrentCar,
                     createdCar.getId()).apply();
-            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), null);
-            mCallback.onPostCarSucceeded(createdCar);
+            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null){
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post( new CarDataChangedEvent(type,EVENT_SOURCE));
+                        mCallback.onPostCarSucceeded(createdCar);
+                    }
+                }
+            });
         }
     }
 
@@ -948,8 +975,18 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             // If getting DTCs timeout, for the sake of keeping good UX, we skip it
             PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
                     .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).apply();
-            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), null);
-            mCallback.onPostCarSucceeded(createdCar);
+            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null){
+
+                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                        EventBus.getDefault().post(
+                                new CarDataChangedEvent(type,EVENT_SOURCE));
+                        mCallback.onPostCarSucceeded(createdCar);
+                    }
+                }
+            });
         }
     };
 

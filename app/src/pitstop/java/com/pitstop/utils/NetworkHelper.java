@@ -718,10 +718,17 @@ public class NetworkHelper {
                 if (requestError == null){
                     try{
                         JSONObject options = new JSONObject(response);
-                        int mainCarId = options.getJSONObject("user").getInt("mainCar");
-                        getCarsById(mainCarId,callback);
+                        if (options.getJSONObject("user").has("mainCar")){
+                            int mainCarId = options.getJSONObject("user").getInt("mainCar");
+                            getCarsById(mainCarId,callback);
+                        }
+                        else{
+                            callback.done(null,requestError);
+                        }
+
                     }
                     catch(JSONException e){
+                        callback.done(response,requestError);
                         Log.d("TAG","JSONException Caught!");
                     }
                 }
@@ -746,6 +753,35 @@ public class NetworkHelper {
                     try {
                         JSONObject options = new JSONObject(response).getJSONObject("user");
                         options.put("mainCar",carId);
+
+                        JSONObject putOptions = new JSONObject();
+                        putOptions.put("settings",options);
+
+                        put("user/" + userId + "/settings", callback, putOptions);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else{
+                    callback.done(response,requestError);
+                }
+            }
+        });
+    }
+
+    public void setNoMainCar(final int userId, final RequestCallback callback) {
+        LOGI(TAG, String.format("setNoMainCar: userId: %s", userId));
+
+        getUserSettingsById(userId, new RequestCallback() {
+            // need to add option instead of replace
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null) {
+                    try {
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        if (options.has("mainCar")){
+                            options.remove("mainCar");
+                        }
 
                         JSONObject putOptions = new JSONObject();
                         putOptions.put("settings",options);

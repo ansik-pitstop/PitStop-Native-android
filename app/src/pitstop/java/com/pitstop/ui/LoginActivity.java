@@ -208,11 +208,14 @@ public class LoginActivity extends DebugDrawerActivity {
             showLoading(getString(R.string.logging_in_message));
             loginParse(currentUser.getObjectId(), currentUser.getSessionToken());
         } else if (!application.isLoggedIn()
-                || application.getAccessToken() == null || application.getRefreshToken() == null) {
+                || application.getAccessToken() == null
+                || application.getRefreshToken() == null
+                || application.getCurrentUser() == null) {
             Log.i(TAG, "Not logged in");
         } else if (AccessToken.getCurrentAccessToken() != null) {
             startMainActivity(false);
-        } else {
+        }
+        else {
             showLoading(getString(R.string.logging_in_message));
             startMainActivity(false);
         }

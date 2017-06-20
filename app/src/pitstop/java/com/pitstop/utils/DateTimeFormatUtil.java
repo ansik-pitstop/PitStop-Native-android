@@ -43,21 +43,21 @@ public class DateTimeFormatUtil {
     }
 
     public static double historyFormatToDouble(String rawDate) { // parse date that looks like "2009-07-28T20:12:29.533Z" to "Jul. 28, 2009"
-        String[] splittedDate = rawDate.split(" ");
+        String[] splitDate = rawDate.split(" ");
         String[] months = new String[] {"null", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         int monthNum = 0;
         int counter = 0;
         for (String m: months){
-            if (m.equals(splittedDate[0])){
+            if (m.equals(splitDate[0])){
                 monthNum = counter;
                 break;
             }
             counter++;
         }
 
-        int yearNum = Integer.valueOf(splittedDate[1]);
+        int yearNum = Integer.valueOf(splitDate[1]);
 
 
         return yearNum + monthNum/12;

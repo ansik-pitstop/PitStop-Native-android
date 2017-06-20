@@ -68,6 +68,12 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             }
 
             @Override
+            public void onNoCarSet() {
+                Map<Integer,List<UpcomingService>> map = new LinkedHashMap<Integer, List<UpcomingService>>();
+                callback.onGotUpcomingServicesMap(map);
+            }
+
+            @Override
             public void onError() {
                 callback.onError();
             }

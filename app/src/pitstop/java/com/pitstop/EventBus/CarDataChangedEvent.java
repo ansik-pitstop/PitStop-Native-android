@@ -7,5 +7,21 @@ package com.pitstop.EventBus;
  * Created by Karol Zdebel on 6/13/2017.
  */
 
-public class CarDataChangedEvent {
+public class CarDataChangedEvent{
+
+    private EventType eventType;
+    private EventSource eventSource;
+
+    public CarDataChangedEvent(EventType eventType, EventSource eventSource){
+        this.eventType = eventType;
+        this.eventSource = eventSource;
+    }
+
+    public EventType getEventType(){
+        return eventType;
+    }
+
+    public EventSource getEventSource() {
+        return eventSource;
+    }
 }

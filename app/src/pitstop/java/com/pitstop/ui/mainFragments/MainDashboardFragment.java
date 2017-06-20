@@ -15,7 +15,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +34,10 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -75,9 +78,10 @@ import butterknife.OnClick;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
 import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
 
-public class MainDashboardFragment extends Fragment implements MainDashboardCallback {
+public class MainDashboardFragment extends CarDataFragment implements MainDashboardCallback {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
 
     public final static String pfName = "com.pitstop.login.name";
     public final static String pfCurrentCar = "ccom.pitstop.currentcar";
@@ -249,7 +253,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
         dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
     }
 
-    private void updateUI(){
+    @Override
+    public void updateUI(){
         showLoading("Loading...");
 
         getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
@@ -295,17 +300,24 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                 }
 
                 if (carName != null) {
-                    carName.setText(dashboardCar.getYear() + " "
-                            + dashboardCar.getMake() + " "
-                            + dashboardCar.getModel());
+                    carName.setText(car.getYear() + " "
+                            + car.getMake() + " "
+                            + car.getModel());
                 }
 
-                mMileageText.setText(String.valueOf(dashboardCar.getDisplayedMileage()) + " km");
-                mEngineText.setText(dashboardCar.getEngine());
-                mHighwayText.setText(dashboardCar.getHighwayMileage());
-                mCityText.setText(dashboardCar.getCityMileage());
-                mCarLogoImage.setImageResource(getCarSpecificLogo(dashboardCar.getMake()));
+                mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
+                mEngineText.setText(car.getEngine());
+                mHighwayText.setText(car.getHighwayMileage());
+                mCityText.setText(car.getCityMileage());
+                mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
 
+                hideLoading(null);
+            }
+
+            @Override
+            public void onNoCarSet() {
+                Toast.makeText(getActivity(),
+                        "Error retrieving car details", Toast.LENGTH_SHORT).show();
                 hideLoading(null);
             }
 
@@ -313,14 +325,26 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
             public void onError() {
                 Toast.makeText(getActivity(),
                         "Error retrieving car details", Toast.LENGTH_SHORT).show();
+                hideLoading(null);
             }
         });
     }
 
     @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        hideLoading(null);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        //updateUI();
         handler.postDelayed(carConnectedRunnable, 1000);
     }
 
@@ -328,12 +352,8 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     public void onPause() {
         handler.removeCallbacks(carConnectedRunnable);
         application.getMixpanelAPI().flush();
+        hideLoading(null);
         super.onPause();
-    }
-
-    private void setUpUIReferences() {
-
-
     }
 
     private void updateConnectedCarIndicator(boolean isConnected) {
@@ -578,6 +598,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        Log.d(TAG,"Got trip data.");
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
             final double newTotalMileage;
             if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
@@ -598,7 +619,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                 @Override
                 public void run() {
                     mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newTotalMileage));
+                    mMileageText.setText(String.format("%.2f km", newTotalMileage));
                 }
             });
 
@@ -610,16 +631,10 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                 @Override
                 public void run() {
                     mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.valueOf(newBaseMileage));
+                    mMileageText.setText(String.format("%.2f km", newBaseMileage));
                 }
             });
         }
-    }
-
-
-    @Override
-    public void onDashboardCarUpdated() {
-        updateUI();
     }
 
     /**
@@ -881,7 +896,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                 showLoading("Updating Mileage...");
 
                                 //Update mileage in the GUI so it doesn't have to be loaded from network
-                                mMileageText.setText(String.valueOf(mileage));
+                                mMileageText.setText(String.format("%.2f km", mileage));
 
                                 networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
                                     @Override
@@ -903,11 +918,13 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 
-                                        EventBus.getDefault().post(new CarDataChangedEvent());
+                                        EventType eventType = new EventTypeImpl(EventType.EVENT_MILEAGE);
+                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                ,EVENT_SOURCE));
 
                                         if (IBluetoothCommunicator.CONNECTED == ((MainActivity)getActivity()).getBluetoothConnectService().getState()
                                                 || ((MainActivity)getActivity()).getBluetoothConnectService().isCommunicatingWithDevice()) {
-                                            mMileageText.setText(String.format("%.2f", mileage));
+                                            mMileageText.setText(String.format("%.2f km", mileage));
                                             ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getState() == IBluetoothCommunicator.CONNECTED||
@@ -926,7 +943,7 @@ public class MainDashboardFragment extends Fragment implements MainDashboardCall
     }
 
     private void showLoading(String loadingMessage) {
-        if (progressDialog != null && getUserVisibleHint()) {
+        if (progressDialog != null && !progressDialog.isShowing() && getUserVisibleHint()) {
             if (loadingMessage != null)
                 progressDialog.setMessage(loadingMessage);
             progressDialog.show();
