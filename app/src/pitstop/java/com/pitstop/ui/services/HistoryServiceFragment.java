@@ -3,30 +3,33 @@ package com.pitstop.ui.services;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.ProgressBar;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetDoneServicesUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,11 +39,16 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HistoryServiceFragment extends Fragment {
+public class HistoryServiceFragment extends CarDataFragment {
 
     public static final String ISSUE_FROM_HISTORY = "IssueFromHistory";
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
 
     private RecyclerView issuesList;
+
+    @BindView(R.id.loading_spinner)
+    ProgressBar mLoadingSpinner;
 
     @BindView(R.id.message_card)
     protected CardView messageCard;
@@ -50,18 +58,15 @@ public class HistoryServiceFragment extends Fragment {
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
-    private LocalCarIssueAdapter localCarIssueAdapter;
-    private List<CarIssue> addedIssues;
+    private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_MILEAGE)};
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
-    private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
-    ArrayList<String> headers;
-
     @Inject
     GetDoneServicesUseCase getDoneServicesUseCase;
+
+    @Inject
+    GetUserCarUseCase getUserCarUseCase;
 
     public HistoryServiceFragment() {
         // Required empty public constructor
@@ -90,26 +95,13 @@ public class HistoryServiceFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
-        initUI();
+        setNoUpdateOnEventTypes(ignoredEvents);
+        updateUI();
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        initUI();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser && getView() != null){
-            updateUI();
-        }
-    }
-
-    private void addIssue(CarIssue issue){
+    private void addIssue(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
+            ,List<String> headers, CarIssue issue){
 
         String dateHeader;
         if(issue.getDoneAt() == null || issue.getDoneAt().equals("")) {
@@ -132,12 +124,13 @@ public class HistoryServiceFragment extends Fragment {
             int issueSize = issues.size();
             for (int i = 0; i < issueSize; i++) {
                 if (!(DateTimeFormatUtil.getHistoryDateToCompare(issues.get(i).getDoneAt())
-                        - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) <= 0)) {
+                        - DateTimeFormatUtil.getHistoryDateToCompare(issue.getDoneAt()) >= 0)) {
                     issues.add(i, issue);
                     break;
                 }
                 if (i == issueSize -1){
                     issues.add(issue);
+                    break;
                 }
             }
         }
@@ -145,33 +138,9 @@ public class HistoryServiceFragment extends Fragment {
         sortedIssues.put(dateHeader, issues);
     }
 
-    private void sortHeaders() {
-        Collections.sort(headers, new Comparator<String>() {
-            @Override
-            public int compare(String left, String right) {
-                Double leftYearPrecise = DateTimeFormatUtil.historyFormatToDouble(left);
-                Double rightYearPrecise = DateTimeFormatUtil.historyFormatToDouble(right);
-                if (rightYearPrecise < leftYearPrecise){
-                    return -1;
-                }
-                else{
-                    return 1;
-                }
-            }
-        });
-    }
-
-    private void initUI(){
-        addedIssues = new ArrayList<>();
-        headers = new ArrayList<>();
-        sortedIssues = new LinkedHashMap<>();
-        issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
-        issueGroup.setAdapter(issueGroupAdapter);
-
-        updateUI();
-    }
-
-    private void updateUI(){
+    @Override
+    public void updateUI(){
+        mLoadingSpinner.setVisibility(View.VISIBLE);
 
         getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -179,31 +148,46 @@ public class HistoryServiceFragment extends Fragment {
                 if(doneServices.isEmpty()) {
                     messageCard.setVisibility(View.VISIBLE);
                 }
-                List<CarIssue> toAdd = new ArrayList<CarIssue>();
-                for (CarIssue issue: doneServices){
-                    if (addedIssues.indexOf(issue) < 0){
-                        toAdd.add(issue);
-                        addIssue(issue);
+
+                LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues = new LinkedHashMap<>();
+                ArrayList<String> headers = new ArrayList<>();
+
+                CarIssue[] doneServicesOrdered = new CarIssue[doneServices.size()];
+                doneServices.toArray(doneServicesOrdered);
+                Arrays.sort(doneServicesOrdered, new Comparator<CarIssue>() {
+                    @Override
+                    public int compare(CarIssue lhs, CarIssue rhs) {
+                        return DateTimeFormatUtil.getHistoryDateToCompare(rhs.getDoneAt())
+                                - DateTimeFormatUtil.getHistoryDateToCompare(lhs.getDoneAt());
                     }
-                }
-                if (!toAdd.isEmpty()){
-                    addedIssues.addAll(toAdd);
-                    sortHeaders();
-                    issueGroupAdapter.notifyDataSetChanged();
+                });
+
+                for (CarIssue issue: doneServicesOrdered){
+                    addIssue(sortedIssues,headers,issue);
                 }
 
-                if(messageCard.getVisibility() == View.VISIBLE && !addedIssues.isEmpty()) {
+                if(messageCard.getVisibility() == View.VISIBLE && !doneServices.isEmpty()) {
                     messageCard.setVisibility(View.INVISIBLE);
                 }
+
+                issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
+                issueGroup.setAdapter(issueGroupAdapter);
+
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
 
             }
 
             @Override
             public void onError() {
-
+                mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
         });
 
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     @Override

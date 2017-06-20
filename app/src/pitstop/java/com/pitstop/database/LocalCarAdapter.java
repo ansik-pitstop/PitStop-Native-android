@@ -116,6 +116,27 @@ public class LocalCarAdapter {
         return car;
     }
 
+
+
+    public List<Car> getCarsByUserId(int userId){
+        List<Car> cars = new ArrayList<>();
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor c = db.query(TABLES.CAR.TABLE_NAME, null,null,null,null,null,null);
+
+        if(c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                if(cursorToCar(c).getUserId() == userId){
+                    cars.add(cursorToCar(c));
+                }
+                c.moveToNext();
+            }
+        }
+        db.close();
+        c.close();
+        return cars;
+
+    }
+
     /**
      * Get car by scanner (assumes one car per scanner)
      */

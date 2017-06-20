@@ -31,14 +31,21 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -56,20 +63,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
-import static com.pitstop.ui.main_activity.MainActivity.REFRESH_FROM_SERVER;
+import javax.inject.Inject;
 
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
+    public static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SETTINGS);
 
     private MixpanelHelper mixpanelHelper;
-
-    private Car dashboardCar;
     private boolean localUpdatePerformed = false;
-    private LocalCarAdapter localCarAdapter;
-    private List<Car> carList = new ArrayList<>();
 
     private ProgressDialog progressDialog;
 
@@ -79,21 +82,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
-        localCarAdapter = new LocalCarAdapter(this);
-        carList = localCarAdapter.getAllCars();
-
-        boolean currentCarExists = false;
-        for (Car c: carList){
-            if (c.isCurrentCar()){
-                currentCarExists = true;
-            }
-        }
-
-        //Set first car to current car if none are set
-        if (!currentCarExists){
-            carList.get(0).setCurrentCar(true);
-        }
-
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
             @Override
@@ -102,14 +90,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             }
         });
         settingsFragment.setLoadingCallback(this);
-
-        Bundle bundle = new Bundle();
-
-        IntentProxyObject intentProxyObject = new IntentProxyObject();
-        intentProxyObject.setCarList(carList);
-        bundle.putParcelable("carList", intentProxyObject);
-
-        settingsFragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
 
         progressDialog = new ProgressDialog(this);
@@ -146,7 +126,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(REFRESH_FROM_SERVER, localUpdatePerformed);
+        intent.putExtra(MainActivity.REFRESH_FROM_SERVER, localUpdatePerformed);
         setResult(MainActivity.RESULT_OK, intent);
         super.finish();
     }
@@ -188,9 +168,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         private OnInfoUpdated listener;
         private ILoadingActivity loadingCallback;
-        private ArrayList<ListPreference> preferenceList;
-
-        private List<Car> carList;
 
         private GlobalApplication application;
         private LocalCarAdapter localCarAdapter;
@@ -200,10 +177,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private User currentUser;
 
         private MixpanelHelper mixpanelHelper;
-
+        List<Car> carList;
         private NetworkHelper networkHelper;
 
         private VehiclePreference currentCarVehiclePreference;
+
+        @Inject
+        GetCarsByUserIdUseCase getCarsByUserIdUseCase;
 
         public SettingsFragment() {}
 
@@ -230,69 +210,62 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             shopAdapter = new LocalShopAdapter(getActivity());
             localScannerAdapter = new LocalScannerAdapter(getActivity());
 
-            Bundle bundle = getArguments();
-            IntentProxyObject listObject = bundle.getParcelable("carList");
-            if (listObject != null) {
-                carList = listObject.getCarList();
-                Log.d(TAG,"listObject != null");
-                Log.d(TAG,"carList.size(): "+carList.size());
-            } else {
-                Log.d(TAG,"listObject == null");
-                carList = localCarAdapter.getAllCars();
-            }
+            UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getActivity().getApplicationContext()))
+                    .build();
+            component.injectUseCases(this);
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
-            populateCarListPreference();
+            loadingCallback.showLoading("Loading...");
+            getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+                @Override
+                public void onCarsRetrieved(List<Car> cars) {
+                    carList = cars;
+                    populateCarListPreference(cars);
+                }
+
+                @Override
+                public void onError() {
+                    loadingCallback.hideLoading(null);
+                }
+            });
+
         }
 
-        private void populateCarListPreference() {
-            final List<Dealership> dealerships = shopAdapter.getAllDealerships();
+        private void populateCarListPreference(List<Car> cars) {
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
 
-            // Try local store for dealerships
-            if (dealerships.isEmpty()) {
-                Log.i(TAG, "Local store has no dealerships");
-                loadingCallback.showLoading("Retrieving store information..");
-                networkHelper.getShops(new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            try {
-                                List<Dealership> dealers = Dealership.createDealershipList(response);
-                                shopAdapter.deleteAllDealerships();
-                                shopAdapter.storeDealerships(dealers);
+            loadingCallback.showLoading("Loading...");
+            networkHelper.getShops(new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                    if (requestError == null) {
+                        try {
+                            List<Dealership> dealers = Dealership.createDealershipList(response);
+                            shopAdapter.deleteAllDealerships();
+                            shopAdapter.storeDealerships(dealers);
 
-                                for (Dealership dealership : dealers) {
-                                    shops.add(dealership.getName());
-                                    shopIds.add(String.valueOf(dealership.getId()));
-                                }
-                                for (int i = 0; i < carList.size(); i++) {
-                                    setUpCarPreference(shops,shopIds,carList.get(i));
-                                }
-
-                                loadingCallback.hideLoading(null);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                loadingCallback.hideLoading("An error occurred, please try again");
+                            for (Dealership dealership : dealers) {
+                                shops.add(dealership.getName());
+                                shopIds.add(String.valueOf(dealership.getId()));
                             }
-                        } else {
-                            Log.e(TAG, "Get shops: " + requestError.getMessage());
-                            loadingCallback.hideLoading("An error occurred, please try again");
-                        }
-                    }
-                });
-            } else {
-                for (Dealership shop : dealerships) {
-                    shops.add(shop.getName());
-                    shopIds.add(String.valueOf(shop.getId()));
-                }
+                            for (int i = 0; i < cars.size(); i++) {
+                                setUpCarPreference(shops,shopIds,cars.get(i));
+                            }
 
-                for (int i = 0; i < carList.size(); i++) {
-                    setUpCarPreference(shops,shopIds,carList.get(i));
+                            loadingCallback.hideLoading(null);
+                        } catch (JSONException e) {
+                            loadingCallback.hideLoading("Error");
+                            e.printStackTrace();
+                        }
+                    } else {
+                        loadingCallback.hideLoading("Error");
+                        Log.e(TAG, "Get shops: " + requestError.getMessage());
+                    }
                 }
-            }
+            });
         }
 
         //Begin AddCarActivity if add car button is pressed
@@ -304,7 +277,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                     mixpanelHelper.trackButtonTapped("Add Car",MixpanelHelper.SETTINGS_VIEW);
                     Intent intent = new Intent(getActivity(), AddCarActivity.class);
                     //Don't allow user to come back to tabs without first setting a car
-                    startActivityForResult(intent, RC_ADD_CAR);
+                    startActivityForResult(intent, MainActivity.RC_ADD_CAR);
                     return false;
                 }
             });
@@ -317,11 +290,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             //Check for Add car finished, and whether it happened successfully, if so updated preferences view
             if (data != null) {
 
-                if (requestCode == RC_ADD_CAR) {
+                if (requestCode == MainActivity.RC_ADD_CAR) {
                     if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
                         listener.localUpdatePerformed();
 
-                        Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                        Car addedCar = data.getParcelableExtra(MainActivity.CAR_EXTRA);
 
                         //Update current car to the one that was clicked
                         for (Car c: localCarAdapter.getAllCars()){
@@ -383,15 +356,15 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                     mixpanelHelper.trackButtonTapped("CurrentCarButton",MixpanelHelper.SETTINGS_VIEW);
 
-                    //Get most recent version of car, since the parameter may be outdated
-                    Car recentCar = localCarAdapter.getCar(car.getId());
-
                     //Check if the vehicle preference is already a current, if so return
                     if (car.getId() == PreferenceManager.getDefaultSharedPreferences(application)
                             .getInt(MainDashboardFragment.pfCurrentCar,-1)){
 
                         return false;
                     }
+
+                    //Get most recent version of car, since the parameter may be outdated
+                    Car recentCar = localCarAdapter.getCar(car.getId());
 
                     //Update current car to the one that was clicked
                     for (Car c: localCarAdapter.getAllCars()){
@@ -407,7 +380,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         public void done(String response, RequestError requestError) {
                             if (requestError == null){
                                 //Notify the car changed
-                                EventBus.getDefault().post(new CarDataChangedEvent());
+                                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit()
+                                        .putInt(MainDashboardFragment.pfCurrentCar,car.getId());
+                                EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                EventBus.getDefault()
+                                        .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                             }
                         }
                     });
@@ -468,6 +445,10 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     updatedCar.setShopId(shopId);
                                                     localCarAdapter.updateCar(updatedCar);
                                                     listener.localUpdatePerformed();
+
+                                                    EventType type = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+                                                    EventBus.getDefault()
+                                                            .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                                                 } else {
                                                     loadingCallback.hideLoading("An error occurred, please try again.");
                                                     Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
@@ -732,9 +713,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             private View root;
             private TextView vehicleName;
             private boolean viewCreated = false;
+            private Context context;
 
             public VehiclePreference(Context context, Car vehicle) {
                 super(context);
+                this.context = context;
                 this.vehicle = vehicle;
                 setLayoutResource(R.layout.preference_vehicle_item);
             }
@@ -775,7 +758,6 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
                                                         if (requestError == null) {
-                                                            loadingCallback.hideLoading("Delete succeeded!");
                                                             listener.localUpdatePerformed();
                                                             localCarAdapter.deleteCar(vehicle);
                                                             localScannerAdapter.deleteCar(vehicle);
@@ -793,7 +775,38 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                             carList.remove(vehicle);
                                                             if (!carList.isEmpty()){
                                                                 Car newMainCar = carList.get(0);
-                                                                networkHelper.setMainCar(currentUser.getId(),newMainCar.getId(),null);
+                                                                networkHelper.setMainCar(currentUser.getId(), newMainCar.getId(), new RequestCallback() {
+                                                                    @Override
+                                                                    public void done(String response, RequestError requestError) {
+                                                                        if (requestError == null){
+
+                                                                            loadingCallback.hideLoading("Delete succeeded!");
+                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                            EventBus.getDefault()
+                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                        }
+                                                                        else{
+                                                                            loadingCallback.hideLoading("Delete failed!");
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }
+                                                            else{
+                                                                networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
+                                                                    @Override
+                                                                    public void done(String response, RequestError requestError) {
+                                                                        if (requestError == null){
+                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                            EventBus.getDefault()
+                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                            loadingCallback.hideLoading("Delete succeeded!");
+
+                                                                        }
+                                                                        else{
+                                                                            loadingCallback.hideLoading("Delete failed!");
+                                                                        }
+                                                                    }
+                                                                });
                                                             }
                                                         }
 
