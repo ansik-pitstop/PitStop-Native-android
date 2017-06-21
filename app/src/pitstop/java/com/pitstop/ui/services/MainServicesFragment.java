@@ -24,15 +24,10 @@ import javax.inject.Inject;
 
 public class MainServicesFragment extends Fragment{
 
-    private final int DESIGN_MERC = 1;
-    private final int DESIGN_DEF = 2;
     private final String TAG = MainServicesFragment.class.getSimpleName();
 
     private SubServiceViewPager mServicesPager;
     private TabLayout tabLayout;
-
-    private boolean didLoadCustomDesign = false;
-    private int currentDesign = 0;
 
     @Inject
     GetUserCarUseCase getUserCarUseCase;
@@ -96,18 +91,19 @@ public class MainServicesFragment extends Fragment{
 
                 //Update tab design to the current dealerships custom design if applicable
                 if (car.getDealership() != null){
-                    if (currentDesign != DESIGN_MERC && BuildConfig.DEBUG
+                    if (BuildConfig.DEBUG
                             && (car.getDealership().getId() == 4
                             || car.getDealership().getId() == 18)){
-                        currentDesign = DESIGN_MERC;
+
                         bindMercedesDealerUI();
-                    }else if (currentDesign != DESIGN_MERC && !BuildConfig.DEBUG
+
+                    }else if (!BuildConfig.DEBUG
                             && car.getDealership().getId() == 14) {
-                        currentDesign = DESIGN_MERC;
+
                         bindMercedesDealerUI();
+
                     }
-                    else if(currentDesign != DESIGN_DEF){
-                        currentDesign = DESIGN_DEF;
+                    else{
                         bindDefaultDealerUI();
                     }
                 }
