@@ -780,7 +780,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     public void done(String response, RequestError requestError) {
                                                                         if (requestError == null){
 
-                                                                            loadingCallback.hideLoading("Delete succeeded!");
+                                                                            loadingCallback.hideLoading("Car deleted!");
                                                                             EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                             EventBus.getDefault()
                                                                                     .post(new CarDataChangedEvent(type,EVENT_SOURCE));
@@ -799,7 +799,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                             EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                             EventBus.getDefault()
                                                                                     .post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                                                                            loadingCallback.hideLoading("Delete succeeded!");
+                                                                            loadingCallback.hideLoading("Car deleted!");
 
                                                                         }
                                                                         else{
@@ -808,6 +808,9 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                     }
                                                                 });
                                                             }
+                                                        }
+                                                        else{
+                                                            loadingCallback.hideLoading("Car deleted!");
                                                         }
 
                                                     }
