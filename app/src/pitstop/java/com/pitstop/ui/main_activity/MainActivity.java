@@ -68,6 +68,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.models.Car;
@@ -78,7 +79,6 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.CarHistoryActivity;
-import com.pitstop.ui.DealershipActivity;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.SettingsActivity;
@@ -148,7 +148,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private boolean serviceIsBound;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
-    private boolean tabsShowing = false;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -187,12 +186,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     // Model
     public static List<Car> carList = new ArrayList<>();
-    //private List<CarIssue> carIssueList = new ArrayList<>();
-    private Car dashboardCar;
 
     // Database accesses
     private LocalCarAdapter carLocalStore;
-    //private LocalCarIssueAdapter carIssueLocalStore;
     private LocalShopAdapter shopLocalStore;
     private LocalScannerAdapter scannerLocalStore;
 
@@ -358,7 +354,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     //Set up fab, and fab menu click listener and the animations that will be taking place
-    private void setFabUI(){
+    private void setFabUI(Car car){
 
         final ArrayList<Animation> open_anims = new ArrayList<>();
         final ArrayList<Animation> close_anims = new ArrayList<>();
@@ -426,12 +422,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             public void onClick(View view) {
                 mixpanelHelper.trackFabClicked("Message");
                 final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", dashboardCar.getVin());
-                customProperties.put("Car Make", dashboardCar.getMake());
-                customProperties.put("Car Model", dashboardCar.getModel());
-                customProperties.put("Car Year", dashboardCar.getYear());
-                Log.i(TAG, dashboardCar.getDealership().getEmail());
-                customProperties.put("Email", dashboardCar.getDealership().getEmail());
+                customProperties.put("VIN", car.getVin());
+                customProperties.put("Car Make", car.getMake());
+                customProperties.put("Car Model", car.getModel());
+                customProperties.put("Car Year", car.getYear());
+                Log.i(TAG, car.getDealership().getEmail());
+                customProperties.put("Email", car.getDealership().getEmail());
                 User.getCurrentUser().addProperties(customProperties);
                 if (application.getCurrentUser() != null) {
                     customProperties.put("Phone", application.getCurrentUser().getPhone());
@@ -448,7 +444,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             public void onClick(View view) {
                 mixpanelHelper.trackFabClicked("Request Service");
                 final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
-                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
+                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, car);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
                 startActivityForResult(intent, RC_REQUEST_SERVICE);
             }
@@ -459,10 +455,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             @Override
             public void onClick(View view) {
                 mixpanelHelper.trackFabClicked("Call");
-                mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
+                mixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                        dashboardCar.getDealership().getPhone()));
+                        car.getDealership().getPhone()));
                 startActivity(intent);
             }
         });
@@ -472,12 +468,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             @Override
             public void onClick(View view) {
                 mixpanelHelper.trackFabClicked("Directions");
-                mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
+                mixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
 
                 String uri = String.format(Locale.ENGLISH,
                         "http://maps.google.com/maps?daddr=%s",
-                        dashboardCar.getDealership().getAddress());
+                        car.getDealership().getAddress());
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 startActivity(intent);
             }
@@ -655,25 +651,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             Log.d(TAG, "Refresh from server");
             refreshFromServer();
         }
-
-        int id = PreferenceManager.getDefaultSharedPreferences(this).getInt(MainDashboardFragment.pfCurrentCar, 0);
-        Log.d(TAG, "Current car id: " + id);
-        dashboardCar = null;
-        if (carList.size() > 0) {
-            for (Car car : carList) {
-                if (car.getId() == id) {
-                    Log.d(TAG, "Set to id: " + id);
-                    dashboardCar = car;
-                    car.setCurrentCar(true);
-                }
-            }
-            if (dashboardCar == null) {
-                Log.d(TAG, "Set to first Car");
-                carList.get(0).setCurrentCar(true);
-                dashboardCar = carList.get(0);
-            }
-
-        }
     }
 
     @Override
@@ -683,22 +660,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
-    }
-
-    private Car getCurrentCar(){
-        if (carList == null){
-            return null;
-        }
-        if (carList.size() == 0){
-            return null;
-        }
-
-        for (Car c: carList){
-            if (c.isCurrentCar()){
-                return c;
-            }
-        }
-        return carList.get(0);
     }
 
     @Override
@@ -718,12 +679,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                     //Check whether the first car was just added if so set it to dashboard car
                     if (carList.size() == 0) {
-                        dashboardCar = addedCar;
-                        carList.add(dashboardCar);
-                        dashboardCar.setCurrentCar(true);
-
-                        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                                .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
 
                         com.pitstop.models.User user = application.getCurrentUser();
 
@@ -938,26 +893,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
-
-    /**
-     * Onclick method for service history button
-     *
-     * @param view
-     */
-    public void clickServiceHistory(View view) {
-        mixpanelHelper.trackButtonTapped("History", MixpanelHelper.TOOLS_VIEW);
-        Intent intent = new Intent(MainActivity.this, CarHistoryActivity.class);
-        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-        startActivity(intent);
-    }
-
-    public void upcomingServiceClicked(View view){
-        mixpanelHelper.trackButtonTapped("Upcoming", MixpanelHelper.TOOLS_VIEW);
-        Intent carTimelineIntent = new Intent(this, TimelineActivity.class);
-        carTimelineIntent.putExtra(TimelineActivity.CAR_BUNDLE_KEY, dashboardCar);
-        startActivity(carTimelineIntent);
-    }
-
     /**
      * Retrieve a list of cars associated with current user
      */
@@ -1041,93 +976,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
 
-    /**
-     * Call function to retrieve live data from parse
-     *
-     * @see #getCarDetails()
-     */
-    private void loadCarDetailsFromServer() {
-        final int userId = application.getCurrentUserId();
 
-        networkHelper.getUser(userId, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (response != null && response.equals("{}")) {
-                    application.logOutUser();
-                    Toast.makeText(application, "Your session has expired.  Please login again.", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else if (response == null || response.isEmpty() || requestError != null) { // couldn't get cars from server, show try again
-
-                    application.logOutUser();
-                    Toast.makeText(application, "Networking error, please check internet connection.", Toast.LENGTH_LONG).show();
-                    finish();
-
-                } else {
-                    int mainCarId = -1;
-                    try {
-                        mainCarId = new JSONObject(response).getJSONObject("settings").getInt("mainCar");
-                    } catch (JSONException e) {
-
-                    }
-
-                    final int mainCarIdCopy = mainCarId;
-
-                    networkHelper.getCarsByUserId(userId, new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            if (requestError == null) {
-                                try {
-                                    carList = Car.createCarsList(response);
-
-                                    if (carList.isEmpty()) { // show add first car text
-                                       // startPromptAddCarActivity();
-
-                                    } else {
-                                        if (mainCarIdCopy != -1) {
-                                            for (Car car : carList) {
-                                                if (car.getId() == mainCarIdCopy) {
-                                                    car.setCurrentCar(true);
-                                                    dashboardCar = car;
-                                                }
-                                            }
-                                        } else {
-                                            dashboardCar = carList.get(0);
-                                            carList.get(0).setCurrentCar(true);
-                                        }
-
-                                        carLocalStore.deleteAllCars();
-                                        carLocalStore.storeCars(carList);
-
-                                        // Populate the scanner table
-                                        for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
-                                            if (!scannerLocalStore.isCarExist(car.getId())) {
-                                                scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
-                                                Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
-                                            }
-                                        }
-                                        Log.d(TAG, "Size of the scanner table: " + scannerLocalStore.getTableSize());
-
-                                    }
-
-                                    resetMenus(false);
-                                    hideLoading();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(MainActivity.this,
-                                            "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
-                                    hideLoading();
-                                }
-                            } else {
-                                hideLoading();
-                                Log.e(TAG, "Load cars error: " + requestError.getMessage());
-                                Toast.makeText(MainActivity.this,
-                                        "Error retrieving car details.  Please check your internet connection.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
+    private void updateScannerLocalStore(List<Car> carList){
+        for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
+            if (!scannerLocalStore.isCarExist(car.getId())) {
+                scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
             }
-        });
+        }
     }
 
     @Override
@@ -1335,9 +1191,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         IntentProxyObject proxyObject = new IntentProxyObject();
 
-        proxyObject.setCarList(carList);
-        intent.putExtra(CAR_LIST_EXTRA, proxyObject);
-
         application = ((GlobalApplication) getApplication());
         if (application.getCurrentUser() == null) {
             networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
@@ -1387,13 +1240,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         startActivity(intent);
     }
 
-
-
-    public void dealerNavClicked(View view){
-        Intent intent = new Intent(MainActivity.this, DealershipActivity.class);
-        intent.putExtra("dashboardCar", dashboardCar);
-        startActivity(intent);
-    }
     /**
      * Onclick method for Messaging button
      *
