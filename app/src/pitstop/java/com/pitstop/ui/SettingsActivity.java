@@ -177,7 +177,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private User currentUser;
 
         private MixpanelHelper mixpanelHelper;
-        List<Car> carList;
+        private List<Car> carList;
         private NetworkHelper networkHelper;
 
         private VehiclePreference currentCarVehiclePreference;
@@ -771,45 +771,51 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                         }
 
                                                         //Set MainCar to the following car in the list if it exists
-                                                        if (vehicle.isCurrentCar()){
-                                                            carList.remove(vehicle);
-                                                            if (!carList.isEmpty()){
-                                                                Car newMainCar = carList.get(0);
-                                                                networkHelper.setMainCar(currentUser.getId(), newMainCar.getId(), new RequestCallback() {
-                                                                    @Override
-                                                                    public void done(String response, RequestError requestError) {
-                                                                        if (requestError == null){
-
-                                                                            loadingCallback.hideLoading("Delete succeeded!");
-                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                                            EventBus.getDefault()
-                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                                                                        }
-                                                                        else{
-                                                                            loadingCallback.hideLoading("Delete failed!");
-                                                                        }
-                                                                    }
-                                                                });
-                                                            }
-                                                            else{
-                                                                networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
-                                                                    @Override
-                                                                    public void done(String response, RequestError requestError) {
-                                                                        if (requestError == null){
-                                                                            EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                                            EventBus.getDefault()
-                                                                                    .post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                                                                            loadingCallback.hideLoading("Delete succeeded!");
-
-                                                                        }
-                                                                        else{
-                                                                            loadingCallback.hideLoading("Delete failed!");
-                                                                        }
-                                                                    }
-                                                                });
+                                                        for (Car c: carList){
+                                                            if (c.getId() == vehicle.getId()){
+                                                                carList.remove(c);
+                                                                break;
                                                             }
                                                         }
+                                                        //Check whether new main car needs to be set
+                                                        if (vehicle.isCurrentCar() && !carList.isEmpty()){
+                                                            Car newMainCar = carList.get(0);
+                                                            networkHelper.setMainCar(currentUser.getId(), newMainCar.getId(), new RequestCallback() {
+                                                                @Override
+                                                                public void done(String response, RequestError requestError) {
+                                                                    if (requestError == null){
 
+                                                                        loadingCallback.hideLoading("Car deleted");
+                                                                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                        EventBus.getDefault()
+                                                                                .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                    }
+                                                                    else{
+                                                                        loadingCallback.hideLoading("Delete failed!");
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                        else if (carList.isEmpty()){
+                                                            networkHelper.setNoMainCar(currentUser.getId(), new RequestCallback() {
+                                                                @Override
+                                                                public void done(String response, RequestError requestError) {
+                                                                    if (requestError == null){
+                                                                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                        EventBus.getDefault()
+                                                                                .post(new CarDataChangedEvent(type,EVENT_SOURCE));
+                                                                        loadingCallback.hideLoading("Car deleted");
+
+                                                                    }
+                                                                    else{
+                                                                        loadingCallback.hideLoading("Delete failed!");
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                        else{
+                                                            loadingCallback.hideLoading("Car deleted");
+                                                        }
                                                     }
                                                 });
                                             }
