@@ -14,5 +14,4 @@ package com.pitstop.interactors;
 
 public interface Interactor extends Runnable{
     void run();
-
 }

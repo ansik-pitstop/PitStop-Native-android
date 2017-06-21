@@ -3,9 +3,11 @@ package com.pitstop.dependency;
 import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.ui.services.CurrentServicesFragment;
 import com.pitstop.ui.services.HistoryServiceFragment;
+import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.UpcomingServicesFragment;
 
 import javax.inject.Singleton;
@@ -32,5 +34,10 @@ public interface UseCaseComponent {
 
     void injectUseCases(MainDashboardFragment fragment);
 
+    void injectUseCases(ScanCarFragment fragment);
+
+    void injectUseCases(MainServicesFragment fragment);
+
     void injectUseCases(MainActivity activity);
+
 }
