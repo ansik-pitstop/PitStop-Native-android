@@ -1021,7 +1021,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
                             Log.i(TAG, "trip data sent: " + ((TripEnd) nextAction).getMileage());
-                            Toast.makeText(BluetoothAutoConnectService.this, "Trip data saved", Toast.LENGTH_LONG).show();
                         }
                         tripRequestQueue.pop();
                         isSendingTripRequest = false;
