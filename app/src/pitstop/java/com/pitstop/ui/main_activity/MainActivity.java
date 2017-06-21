@@ -602,6 +602,23 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
+    private void loadDealerDesign(Car car){
+        //Update tab design to the current dealerships custom design if applicable
+        if (car.getDealership() != null){
+            if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
+                    || car.getDealership().getId() == 18)){
+
+                bindMercedesDealerUI();
+            }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
+                bindMercedesDealerUI();
+            }
+            else{
+                bindDefaultDealerUI();
+            }
+            hideLoading();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -609,8 +626,23 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         Log.d(TAG, "onResume");
 
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
-        promptAddCarIfNeeded();
-        loadDealershipCustomDesign();
+
+        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                loadDealerDesign(car);
+            }
+
+            @Override
+            public void onNoCarSet() {
+                startPromptAddCarActivity();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
         resetMenus(false);
     }
 
@@ -646,9 +678,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             }
 
             broadCastCarDataToFragments();
-            if(mainDashboardCallback != null){
-              //  mainDashboardCallback.setCarDetailsUI(); //Keep this here for now, needs to be moved later
-            }
 
         }
     }
@@ -1014,42 +1043,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         startActivityForResult(intent, RC_ADD_CAR);
     }
 
-    private void loadDealershipCustomDesign(){
-        showLoading("Loading...");
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                Log.d(TAG,"retrieved car, getDealership = null? "+(car.getDealership() == null));
-                //Update tab design to the current dealerships custom design if applicable
-                if (car.getDealership() != null){
-                    if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
-                            || car.getDealership().getId() == 18)){
-
-                        bindMercedesDealerUI();
-                    }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
-                        bindMercedesDealerUI();
-                    }
-                    else{
-                        bindDefaultDealerUI();
-                    }
-                    hideLoading();
-                }
-            }
-
-            @Override
-            public void onNoCarSet() {
-                Log.d(TAG,"No car set.");
-                hideLoading();
-            }
-
-            @Override
-            public void onError() {
-                Log.d(TAG,"Error.");
-                hideLoading();
-            }
-        });
-    }
-
     private void bindMercedesDealerUI(){
         TabLayout tabLayout = (TabLayout)findViewById(R.id.main_tablayout);
         tabLayout.setBackgroundColor(Color.BLACK);
@@ -1070,27 +1063,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         //Set other changed UI elements back to original color
         ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
         ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
-    }
-
-    private void promptAddCarIfNeeded(){
-        Log.d(TAG,"promptAddCarIfNeeded()");
-
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                
-            }
-
-            @Override
-            public void onNoCarSet() {
-                startPromptAddCarActivity();
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
     }
 
     /**
