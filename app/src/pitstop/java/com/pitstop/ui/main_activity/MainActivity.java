@@ -87,12 +87,10 @@ import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.mainFragments.MainFragmentCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
-import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.upcoming_timeline.TimelineActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MigrationService;
@@ -250,8 +248,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private boolean userSignedUp;
 
     public static MainDashboardCallback mainDashboardCallback;
-    public static MainFragmentCallback servicesCallback;
-    public static MainFragmentCallback scanCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
 
@@ -677,24 +673,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 dashboardCar = carList.get(0);
             }
 
-            broadCastCarDataToFragments();
-
-        }
-    }
-
-    private void broadCastCarDataToFragments(){
-
-        MainServicesFragment.setDashboardCar(getCurrentCar());
-
-        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
-        if (servicesCallback != null){
-            servicesCallback.onDashboardCarUpdated();
-        }
-
-        ScanCarFragment.setDashboardCar(getCurrentCar());
-        //Check whether fragment has been instantiated, if not then it'll grab dashboard car from onCreateView()
-        if (scanCallback != null){
-            scanCallback.onDashboardCarUpdated();
         }
     }
 
@@ -743,7 +721,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         dashboardCar = addedCar;
                         carList.add(dashboardCar);
                         dashboardCar.setCurrentCar(true);
-                        broadCastCarDataToFragments();
 
                         PreferenceManager.getDefaultSharedPreferences(this).edit()
                                 .putInt(MainDashboardFragment.pfCurrentCar, dashboardCar.getId()).apply();
@@ -1028,7 +1005,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         } else {
             Log.i(TAG, "Trying local store for cars");
             MainActivity.carList = localCars;
-            broadCastCarDataToFragments();
 
             hideLoading();
         }
@@ -1118,8 +1094,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                             dashboardCar = carList.get(0);
                                             carList.get(0).setCurrentCar(true);
                                         }
-
-                                        broadCastCarDataToFragments();
 
                                         carLocalStore.deleteAllCars();
                                         carLocalStore.storeCars(carList);
