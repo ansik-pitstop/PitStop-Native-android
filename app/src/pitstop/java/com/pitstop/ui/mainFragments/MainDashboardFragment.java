@@ -46,7 +46,9 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -219,9 +221,13 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, rootview);
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+
         this.context = getContext().getApplicationContext();
         application = (GlobalApplication)context;
-        networkHelper = new NetworkHelper(context);
+        networkHelper = tempNetworkComponent.networkHelper();
         mixpanelHelper = new MixpanelHelper((GlobalApplication)context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 

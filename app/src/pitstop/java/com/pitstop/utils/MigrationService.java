@@ -12,13 +12,16 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.parse.ParseUser;
-import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.R;
 import com.pitstop.ui.LoginActivity;
-import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.main_activity.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,9 +55,13 @@ public class MigrationService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        application = (GlobalApplication) getApplicationContext();
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
 
-        networkHelper = new NetworkHelper(getApplicationContext());
+        networkHelper = tempNetworkComponent.networkHelper();
+
+        application = (GlobalApplication) getApplicationContext();
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 

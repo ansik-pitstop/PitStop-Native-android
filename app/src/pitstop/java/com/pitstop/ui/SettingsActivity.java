@@ -41,7 +41,9 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.models.Car;
@@ -196,7 +198,11 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            networkHelper = new NetworkHelper(getActivity().getApplicationContext());
+            TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                    .contextModule(new ContextModule(getActivity()))
+                    .build();
+
+            networkHelper = tempNetworkComponent.networkHelper();
 
             mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
