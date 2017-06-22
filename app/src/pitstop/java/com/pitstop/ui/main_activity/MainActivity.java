@@ -67,6 +67,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
@@ -310,6 +311,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         logAuthInfo();
 
         setTabUI();
+        updateScannerLocalStore();
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -862,13 +864,26 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
 
-    private void updateScannerLocalStore(List<Car> carList){
-        for (Car car : carList) { // populate scanner table with scanner ids associated with the cars
-            if (!scannerLocalStore.isCarExist(car.getId())) {
-                scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
-                Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
+    private void updateScannerLocalStore(){
+        useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
+            @Override
+            public void onCarsRetrieved(List<Car> cars) {
+                for (Car car : cars) { // populate scanner table with scanner ids associated with the cars
+                    if (!scannerLocalStore.isCarExist(car.getId())) {
+                        carLocalStore.deleteAllCars();
+                        carLocalStore.storeCars(cars);
+                        scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+                        Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
+                    }
+                }
             }
-        }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+
     }
 
     @Override

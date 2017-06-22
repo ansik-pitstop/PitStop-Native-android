@@ -302,6 +302,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+
         if (dtcPackage.dtcs != null && isAskingForDtcs) {
             retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
         }

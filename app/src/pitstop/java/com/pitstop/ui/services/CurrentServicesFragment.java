@@ -112,7 +112,7 @@ public class CurrentServicesFragment extends CarDataFragment {
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {
-                carIssueList.clear();
+                carIssueList = new ArrayList<CarIssue>();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
 

@@ -29,6 +29,11 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
@@ -63,6 +68,7 @@ import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,6 +87,8 @@ import java.util.Map;
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener {
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
+    private static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT);
 
     private static String SYNCED_DEVICE = "SYNCED_DEVICE";
     private static String DEVICE_ID = "deviceId";
@@ -619,17 +627,36 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     dtcNames.add(issue.getItem());
                                 }
 
-                                for (final String dtc : dtcPackage.dtcs) {
-                                    if (!dtcNames.contains(dtc)) {
-                                        networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                                dtcPackage.rtcTime, dtc, dtcPackage.isPending,
-                                                new RequestCallback() {
-                                                    @Override
-                                                    public void done(String response, RequestError requestError) {
-                                                        Log.i(TAG, "DTC added: " + dtc);
-                                                    }
-                                                });
+                                List<String> dtcList = Arrays.asList(dtcPackage.dtcs);
+                                List<String> toRemove = new ArrayList<String>();
+                                for (String dtc: dtcList){
+                                    if (!dtcNames.contains(dtc)){
+                                        toRemove.add(dtc);
                                     }
+                                }
+                                dtcList.removeAll(toRemove);
+
+                                for (final String dtc: dtcList) {
+                                    final int dtcListSize = dtcList.size();
+                                    final List<String> dtcListReference = dtcList;
+
+                                    networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
+                                            dtcPackage.rtcTime, dtc, dtcPackage.isPending,
+                                            new RequestCallback() {
+                                                @Override
+                                                public void done(String response, RequestError requestError) {
+                                                    Log.i(TAG, "DTC added: " + dtc);
+
+                                                    //INCLUDE THIS INSIDE USE CASE WHEN REFACTORING
+                                                    //Notify that dtcs have been updated once
+                                                    // the last one has been sent successfully
+                                                    if (dtcListReference.indexOf(dtc)
+                                                            == dtcListReference.size()-1){
+
+                                                        notifyDtcAddedToEventBus();
+                                                    }
+                                                }
+                                            });
                                 }
                                 carAdapter.updateCar(car);
                             } catch (JSONException e) {
@@ -646,6 +673,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         dtc, dtcPackage.isPending));
             }
         }
+    }
+
+    private void notifyDtcAddedToEventBus(){
+        EventType eventType
+                = new EventTypeImpl(EventType.EVENT_DTC_NEW);
+        CarDataChangedEvent carDataChangedEvent
+                = new CarDataChangedEvent(eventType,EVENT_SOURCE);
+        EventBus.getDefault().post(carDataChangedEvent);
     }
 
     private void saveFreezeFrame(FreezeFramePackage ffPackage){
@@ -1491,6 +1526,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     @Override
                                     public void done(String response, RequestError requestError) {
                                         Log.i(TAG, "DTC added: " + dtc);
+
+                                        //INCLUDE THIS IN USE CASE IN LATER REFACTOR
+                                        //Send notification that dtcs have been updated
+                                        // after last one has been sent
+                                        if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
+                                            notifyDtcAddedToEventBus();
+                                        }
                                     }
                                 });
                     }
