@@ -69,8 +69,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -140,9 +138,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
-
     ProgressDialog progressDialog;
 
     // Models
@@ -162,6 +157,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     private MixpanelHelper mixpanelHelper;
 
     private Context context;
+
+    private UseCaseComponent useCaseComponent;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
 
@@ -232,10 +229,9 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         carLocalStore = new LocalCarAdapter(context);
         shopLocalStore = new LocalShopAdapter(context);
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(this);
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
@@ -257,7 +253,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     public void updateUI(){
         showLoading("Loading...");
 
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 dashboardCar = car;

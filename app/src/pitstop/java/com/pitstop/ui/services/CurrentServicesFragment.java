@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -25,7 +24,6 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
@@ -34,8 +32,6 @@ import com.pitstop.ui.main_activity.MainActivityCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,14 +65,7 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     private boolean uiInitialized = false;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
-
-    @Inject
-    GetCurrentServicesUseCase getCurrentServices;
-
-    @Inject
-    MarkServiceDoneUseCase markServiceDoneUseCase;
+    private UseCaseComponent useCaseComponent;
 
     public static CurrentServicesFragment newInstance(){
         CurrentServicesFragment fragment = new CurrentServicesFragment();
@@ -90,11 +79,9 @@ public class CurrentServicesFragment extends CarDataFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
-
-        component.injectUseCases(this);
 
     }
 
@@ -122,7 +109,7 @@ public class CurrentServicesFragment extends CarDataFragment {
         mLoadingSpinner.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
 
-        getCurrentServices.execute(new GetCurrentServicesUseCase.Callback() {
+        useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {
                 carIssueList.clear();
@@ -150,11 +137,11 @@ public class CurrentServicesFragment extends CarDataFragment {
         Log.d(TAG,"initUI() called.");
         final Activity activity = this.getActivity();
         final CarDataChangedNotifier notifier = this;
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
-                        ,(MainActivityCallback)activity, getContext(),markServiceDoneUseCase
+                        ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
                         ,notifier);
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
