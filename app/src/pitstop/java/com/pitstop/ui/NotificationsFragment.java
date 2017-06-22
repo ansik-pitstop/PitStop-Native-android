@@ -19,6 +19,9 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Notification;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -74,9 +77,13 @@ public class NotificationsFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.activity_notifications,null);
         ButterKnife.bind(this,rootview);
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         mNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mNetworkHelper = new NetworkHelper(getApplicationContext());
+        mNetworkHelper = tempNetworkComponent.networkHelper();
 
         fetchNotifications();
         return rootview;

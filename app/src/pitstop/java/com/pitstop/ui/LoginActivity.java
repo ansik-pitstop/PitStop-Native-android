@@ -53,6 +53,9 @@ import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -190,7 +193,11 @@ public class LoginActivity extends DebugDrawerActivity {
             setupEndpointSelector();
         }
 
-        networkHelper = new NetworkHelper(getApplicationContext());
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
+        networkHelper = tempNetworkComponent.networkHelper();
 
         application = (GlobalApplication) getApplicationContext();
 
@@ -464,7 +471,10 @@ public class LoginActivity extends DebugDrawerActivity {
                                     mPreferences.edit()
                                             .putString(PreferenceKeys.KEY_ENDPOINT, endpointList.get(i)).apply();
                                     mEndpointChooser.setText(endpointList.get(i));
-                                    networkHelper = new NetworkHelper(getApplicationContext());
+                                    TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                                            .contextModule(new ContextModule(this))
+                                            .build();
+                                    networkHelper = tempNetworkComponent.networkHelper();
                                 })
                         .show()
         );
