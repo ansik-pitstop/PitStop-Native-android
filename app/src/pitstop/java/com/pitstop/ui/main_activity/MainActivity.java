@@ -63,7 +63,9 @@ import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
@@ -258,8 +260,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        networkHelper = new NetworkHelper(getApplicationContext());
         userAdapter = new UserAdapter(getApplicationContext());
+
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+        networkHelper = tempNetworkComponent.networkHelper();
 
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){

@@ -13,6 +13,9 @@ import android.widget.ProgressBar;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalAppointmentAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
@@ -57,9 +60,13 @@ public class MyAppointmentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_appointments);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-        networkHelper = new NetworkHelper(application);
+        networkHelper = tempNetworkComponent.networkHelper();
         localAppointmentAdapter = new LocalAppointmentAdapter(application);
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
