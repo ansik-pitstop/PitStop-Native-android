@@ -184,9 +184,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         }
     };
 
-    // Model
-    public static List<Car> carList = new ArrayList<>();
-
     // Database accesses
     private LocalCarAdapter carLocalStore;
     private LocalShopAdapter shopLocalStore;
@@ -240,18 +237,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private NetworkHelper networkHelper;
     private UserAdapter userAdapter;
 
+    private Car dashboardCar = null; //temporary
+    private List<Car> carList = new ArrayList<>(); //temporary
+
     private boolean isFabOpen = false;
     private boolean userSignedUp;
 
     public static MainDashboardCallback mainDashboardCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
-
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
-
-    @Inject
-    CheckFirstCarAddedUseCase checkFirstCarAddedUseCase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -319,13 +313,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         shopLocalStore = new LocalShopAdapter(application);
         scannerLocalStore = new LocalScannerAdapter(application);
 
-
-        refreshFromServer();
-
         logAuthInfo();
 
         setTabUI();
-        setFabUI();
+        setFabUI(null);
     }
 
     private void setGreetingsNotSent(){
@@ -918,36 +909,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         }
     }
 
-    public void refreshFromLocal() {
-        //carIssueList.clear();
-        getCarDetails();
-        if (isLoading) {
-            hideLoading();
-        }
-    }
-
-    /**
-     * Get list of cars associated with current user
-     */
-    private void getCarDetails() {
-        //showLoading("Retrieving car details");
-
-        // Try local store
-        List<Car> localCars = carLocalStore.getAllCars();
-
-        if (localCars.isEmpty()) {
-            loadCarDetailsFromServer();
-        } else {
-            Log.i(TAG, "Trying local store for cars");
-            MainActivity.carList = localCars;
-
-            hideLoading();
-        }
-
-        //After loading car details
-
-    }
-
     private void startPromptAddCarActivity() {
         Intent intent = new Intent(MainActivity.this, PromptAddCarActivity.class);
         //Don't allow user to come back to tabs without first setting a car
@@ -1046,15 +1007,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             }
                         }
                     }
-
-                    if(newDtcFound) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshFromServer();
-                            }
-                        }, 1111);
-                    }
                 }
             });
         }
@@ -1150,21 +1102,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     /**
-     * Onclick method for Scan the Vehicle button
-     *
-     * @param view
-     */
-    public void scanClicked(View view) {
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.edit().putBoolean(MainActivity.REFRESH_FROM_SERVER, true).apply();
-
-        Intent intent = new Intent(this, ScanCarFragment.class);
-        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-        startActivityForResult(intent, MainActivity.RC_SCAN_CAR);
-    }
-
-    /**
      * Onclick method for Refresh button
      *
      * @param view
@@ -1237,64 +1174,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public void myTrips(){
         final Intent intent = new Intent(this, MyTripsActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-        startActivity(intent);
-    }
-
-    /**
-     * Onclick method for Messaging button
-     *
-     * @param view
-     */
-    public void startChat(View view) {
-        if (!checkDealership()) return;
-
-        final HashMap<String, Object> customProperties = new HashMap<>();
-        customProperties.put("VIN", dashboardCar.getVin());
-        customProperties.put("Car Make", dashboardCar.getMake());
-        customProperties.put("Car Model", dashboardCar.getModel());
-        customProperties.put("Car Year", dashboardCar.getYear());
-        Log.i(TAG, dashboardCar.getDealership().getEmail());
-        customProperties.put("Email", dashboardCar.getDealership().getEmail());
-        User.getCurrentUser().addProperties(customProperties);
-        if (application.getCurrentUser() != null) {
-            customProperties.put("Phone", application.getCurrentUser().getPhone());
-            User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
-            User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
-        }
-        ConversationActivity.show(this);
-    }
-
-    /**
-     * Onclick method for Navigating button in tools
-     *
-     * @param view
-     */
-    public void navigateToDealer(View view) {
-        if (!checkDealership()) return;
-
-        mixpanelHelper.trackButtonTapped("Directions to " + dashboardCar.getDealership().getName(),
-                MixpanelHelper.TOOLS_VIEW);
-
-        String uri = String.format(Locale.ENGLISH,
-                "http://maps.google.com/maps?daddr=%s",
-                dashboardCar.getDealership().getAddress());
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        startActivity(intent);
-    }
-
-    /**
-     * Onclick method for Calling Dealer button in tools
-     *
-     * @param view
-     */
-    public void callDealer(View view) {
-        if (!checkDealership()) return;
-
-        mixpanelHelper.trackButtonTapped("Confirm call to " + dashboardCar.getDealership().getName(),
-                MixpanelHelper.TOOLS_VIEW);
-
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                dashboardCar.getDealership().getPhone()));
         startActivity(intent);
     }
 
