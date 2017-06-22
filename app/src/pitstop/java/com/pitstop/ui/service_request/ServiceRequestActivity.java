@@ -62,8 +62,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import io.smooch.core.Smooch;
 
 /**
@@ -105,8 +103,7 @@ public class ServiceRequestActivity extends AppCompatActivity
     private boolean shouldRefresh = false;
     private boolean shouldRemoveTutorial = false;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
+    private UseCaseComponent useCaseComponent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,16 +119,14 @@ public class ServiceRequestActivity extends AppCompatActivity
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getApplicationContext()))
                 .build();
-
-        component.injectUseCases(this);
 
         setupStaticUI();
         showLoading(getString(R.string.loading));
 
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 dashboardCar = car;
