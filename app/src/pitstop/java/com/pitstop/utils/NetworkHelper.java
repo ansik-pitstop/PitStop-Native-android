@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
@@ -8,11 +9,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.ParseInstallation;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -41,10 +41,16 @@ public class NetworkHelper {
     private static final String INSTALLATION_ID_KEY = "installationId";
 
     private Context context;
+    private SharedPreferences sharedPreferences;
 
-    public NetworkHelper(Context context) {
+    public NetworkHelper(Context context, SharedPreferences sharedPreferences) {
         this.context = context;
+        this.sharedPreferences = sharedPreferences;
         CLIENT_ID = SecretUtils.getClientId(context);
+    }
+
+    private String getAccessToken() {
+        return sharedPreferences.getString(PreferenceKeys.KEY_ACCESS_TOKEN, "");
     }
 
     public static boolean isConnected(Context context) {
@@ -83,7 +89,7 @@ public class NetworkHelper {
         }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
-                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
+                .header("Authorization", "Bearer " + getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
@@ -99,7 +105,7 @@ public class NetworkHelper {
         }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
-                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
+                .header("Authorization", "Bearer " + getAccessToken())
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .context(context)
@@ -114,7 +120,7 @@ public class NetworkHelper {
         }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
-                .header("Authorization", "Bearer " + ((GlobalApplication) context).getAccessToken())
+                .header("Authorization", "Bearer " + getAccessToken())
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)

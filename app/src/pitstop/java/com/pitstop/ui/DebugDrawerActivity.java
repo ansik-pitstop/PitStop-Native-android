@@ -19,6 +19,9 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.LogUtils;
@@ -84,7 +87,11 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
             return;
         }
 
-        mNetworkHelper = new NetworkHelper(getApplicationContext());
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
+        mNetworkHelper = tempNetworkComponent.networkHelper();
 
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);

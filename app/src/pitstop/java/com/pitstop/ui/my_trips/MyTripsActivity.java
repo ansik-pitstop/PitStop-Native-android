@@ -1,20 +1,16 @@
 package com.pitstop.ui.my_trips;
 
 
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -24,15 +20,14 @@ import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
-
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -40,9 +35,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-
-
-import android.location.LocationListener;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -56,7 +48,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -65,12 +56,14 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalTripAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.PrevTrip;
@@ -81,7 +74,6 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -169,7 +161,11 @@ public class MyTripsActivity extends AppCompatActivity{
         localTripAdapter = new LocalTripAdapter(this);
         locallyStoredTrips = localTripAdapter.getAllTrips();
 
-        networkHelper = new NetworkHelper(application);
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
+        networkHelper = tempNetworkComponent.networkHelper();
         geocoder = new Geocoder(application);
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         tripStarted = false;

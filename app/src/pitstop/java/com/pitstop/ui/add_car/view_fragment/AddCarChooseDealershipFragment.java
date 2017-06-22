@@ -13,14 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.pitstop.R;
+import com.pitstop.adapters.DealershipSelectAdapter;
 import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.R;
-import com.pitstop.adapters.DealershipSelectAdapter;
-import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.ILoadingActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -62,11 +65,15 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_add_car_dealership_xml, container, false);
 
         localStore = new LocalShopAdapter(getContext());
-        networkHelper = new NetworkHelper(getActivity().getApplicationContext());
+        networkHelper = tempNetworkComponent.networkHelper();
 
         setup();
 
