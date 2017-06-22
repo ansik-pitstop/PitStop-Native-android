@@ -35,7 +35,9 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -61,8 +63,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
-import javax.inject.Inject;
 
 import io.smooch.core.Smooch;
 
@@ -105,8 +105,7 @@ public class ServiceRequestActivity extends AppCompatActivity
     private boolean shouldRefresh = false;
     private boolean shouldRemoveTutorial = false;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
+    private UseCaseComponent useCaseComponent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,23 +114,25 @@ public class ServiceRequestActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24dp);
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
         application = (GlobalApplication) getApplicationContext();
-        networkHelper = new NetworkHelper(getApplicationContext());
+        networkHelper = tempNetworkComponent.networkHelper();
         mixpanelHelper = new MixpanelHelper(application);
 
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
         mCalendar = Calendar.getInstance();
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getApplicationContext()))
                 .build();
-
-        component.injectUseCases(this);
 
         setupStaticUI();
         showLoading(getString(R.string.loading));
 
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 dashboardCar = car;

@@ -46,7 +46,9 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -68,8 +70,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -140,9 +140,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
-
     ProgressDialog progressDialog;
 
     // Models
@@ -162,6 +159,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     private MixpanelHelper mixpanelHelper;
 
     private Context context;
+
+    private UseCaseComponent useCaseComponent;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
 
@@ -222,9 +221,13 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, rootview);
 
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+
         this.context = getContext().getApplicationContext();
         application = (GlobalApplication)context;
-        networkHelper = new NetworkHelper(context);
+        networkHelper = tempNetworkComponent.networkHelper();
         mixpanelHelper = new MixpanelHelper((GlobalApplication)context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -232,10 +235,9 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         carLocalStore = new LocalCarAdapter(context);
         shopLocalStore = new LocalShopAdapter(context);
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(this);
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
@@ -257,7 +259,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     public void updateUI(){
         showLoading("Loading...");
 
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 dashboardCar = car;

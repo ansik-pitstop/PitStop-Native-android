@@ -22,6 +22,9 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -63,11 +66,16 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private double baseMileage;
 
     public ScanCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, Car dashboardCar) {
+
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(activity))
+                .build();
+
         this.dashboardCar = dashboardCar;
         this.application = application;
         baseMileage = dashboardCar.getTotalMileage();
         mixpanelHelper = new MixpanelHelper(application);
-        networkHelper = new NetworkHelper(application);
+        networkHelper = tempNetworkComponent.networkHelper();
         localCarAdapter = new LocalCarAdapter(application);
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
     }

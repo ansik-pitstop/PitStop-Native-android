@@ -30,6 +30,9 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
@@ -78,9 +81,14 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private final boolean isPairingUnrecognizedDevice;
 
     public AddCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, boolean isPairingUnrecognizedDevice) {
+
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(activity))
+                .build();
+
         pendingCar = new Car();
         mApplication = application;
-        mNetworkHelper = new NetworkHelper(application);
+        mNetworkHelper = tempNetworkComponent.networkHelper();
         mMixpanelHelper = new MixpanelHelper(application);
         mLocalScannerAdapter = new LocalScannerAdapter(application);
         mLocalCarAdapter = new LocalCarAdapter(application);

@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -43,8 +42,10 @@ import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.ObdScanner;
@@ -52,12 +53,13 @@ import com.pitstop.models.Pid;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -163,7 +165,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         application = (GlobalApplication) getApplicationContext();
 
-        networkHelper = new NetworkHelper(getApplicationContext());
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+        networkHelper = tempNetworkComponent.networkHelper();
+
         mixpanelHelper = new MixpanelHelper(application);
 
         if (BluetoothAdapter.getDefaultAdapter() != null) {

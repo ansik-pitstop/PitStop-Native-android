@@ -63,10 +63,11 @@ import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
-import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
@@ -106,8 +107,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -247,6 +246,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private MaterialShowcaseSequence tutorialSequence;
 
+    private UseCaseComponent useCaseComponent;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -255,8 +256,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        networkHelper = new NetworkHelper(getApplicationContext());
         userAdapter = new UserAdapter(getApplicationContext());
+
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+        networkHelper = tempNetworkComponent.networkHelper();
 
         //Logout if user is not connected to the internet
         if (!NetworkHelper.isConnected(this)){
@@ -265,10 +270,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             finish();
         }
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getApplicationContext()))
                 .build();
-        component.injectUseCases(this);
 
         //If user just signed up then store the user has not sent its initial smooch message
         if (userSignedUp){
@@ -610,7 +614,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         if (autoConnectService != null) autoConnectService.setCallbacks(this);
 
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 loadDealerDesign(car);
@@ -766,7 +770,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
 
-        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
+        useCaseComponent.checkFirstCarAddedUseCase().execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
             public void onFirstCarAddedChecked(boolean added) {
                 if (user != null && !added) {
@@ -782,9 +786,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private void sendGreetingsMessageIfNeeded(com.pitstop.models.User user){
-        CheckFirstCarAddedUseCase checkFirstCarAddedUseCase
-                = new CheckFirstCarAddedUseCaseImpl(userAdapter,networkHelper);
-        checkFirstCarAddedUseCase.execute(new CheckFirstCarAddedUseCase.Callback() {
+        useCaseComponent
+                .checkFirstCarAddedUseCase()
+                .execute(new CheckFirstCarAddedUseCase.Callback() {
             @Override
             public void onFirstCarAddedChecked(boolean added) {
                 if (user != null && !added) {

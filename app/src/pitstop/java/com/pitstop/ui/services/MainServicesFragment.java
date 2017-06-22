@@ -20,8 +20,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 
-import javax.inject.Inject;
-
 public class MainServicesFragment extends Fragment{
 
     private final String TAG = MainServicesFragment.class.getSimpleName();
@@ -29,8 +27,7 @@ public class MainServicesFragment extends Fragment{
     private SubServiceViewPager mServicesPager;
     private TabLayout tabLayout;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
+    private UseCaseComponent useCaseComponent;
 
     public static MainServicesFragment newInstance() {
         MainServicesFragment fragment = new MainServicesFragment();
@@ -74,17 +71,17 @@ public class MainServicesFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View rootview = inflater.inflate(R.layout.activity_services,null);
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
-        component.injectUseCases(this);
 
         loadDealershipCustomDesign();
         return rootview;
     }
 
     private void loadDealershipCustomDesign(){
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
 
             @Override
             public void onCarRetrieved(Car car) {

@@ -2,10 +2,10 @@ package com.pitstop.ui.upcoming_timeline;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -22,9 +22,12 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
-import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.Timeline;
+import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
@@ -96,7 +99,12 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
         ButterKnife.bind(this);
-        mNetworkHelper = new NetworkHelper(getApplicationContext());
+
+        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
+        mNetworkHelper = tempNetworkComponent.networkHelper();
         mMixPanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
