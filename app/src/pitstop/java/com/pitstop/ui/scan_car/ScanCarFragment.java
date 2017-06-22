@@ -55,8 +55,6 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -121,8 +119,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private IssuePagerAdapter pagerAdapter;
     private IBluetoothServiceActivity bluetoothServiceActivity;
 
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
+    private UseCaseComponent useCaseComponent;
 
     public static ScanCarFragment newInstance(){
         return new ScanCarFragment();
@@ -136,10 +133,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         ButterKnife.bind(this,rootview);
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
-        component.injectUseCases(this);
 
         setStaticUI();
         updateUI();
@@ -226,7 +222,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void updateUI() {
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
                 dashboardCar = car;

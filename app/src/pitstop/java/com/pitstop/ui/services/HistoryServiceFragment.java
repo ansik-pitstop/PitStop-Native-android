@@ -22,7 +22,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetDoneServicesUseCase;
-import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
@@ -33,8 +32,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,11 +59,7 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
-    @Inject
-    GetDoneServicesUseCase getDoneServicesUseCase;
-
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
+    private UseCaseComponent useCaseComponent;
 
     public HistoryServiceFragment() {
         // Required empty public constructor
@@ -83,10 +76,9 @@ public class HistoryServiceFragment extends CarDataFragment {
         application = (GlobalApplication) getActivity().getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getActivity().getApplicationContext());
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(this);
     }
 
     @Nullable
@@ -142,7 +134,7 @@ public class HistoryServiceFragment extends CarDataFragment {
     public void updateUI(){
         mLoadingSpinner.setVisibility(View.VISIBLE);
 
-        getDoneServicesUseCase.execute(new GetDoneServicesUseCase.Callback() {
+        useCaseComponent.getDoneServicesUseCase().execute(new GetDoneServicesUseCase.Callback() {
             @Override
             public void onGotDoneServices(List<CarIssue> doneServices) {
                 if(doneServices.isEmpty()) {
