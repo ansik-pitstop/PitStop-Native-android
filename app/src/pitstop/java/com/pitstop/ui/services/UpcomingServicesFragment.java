@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -98,8 +96,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
 
     private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)};
 
-    @Inject
-    GetUpcomingServicesMapUseCase getUpcomingServicesUseCase;
+    private UseCaseComponent useCaseComponent;
 
     public static UpcomingServicesFragment newInstance(){
         UpcomingServicesFragment fragment = new UpcomingServicesFragment();
@@ -117,11 +114,9 @@ public class UpcomingServicesFragment extends CarDataFragment {
         application = (GlobalApplication)getContext().getApplicationContext();
         mMixPanelHelper = new MixpanelHelper(application);
 
-        UseCaseComponent component = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(this);
-
     }
 
     @Override
@@ -152,7 +147,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
         mTimeLineMap.clear();
         mTimelineDisplayList.clear();
 
-        getUpcomingServicesUseCase.execute(new GetUpcomingServicesMapUseCase.Callback() {
+        useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> map) {
                 if (!map.isEmpty()) {

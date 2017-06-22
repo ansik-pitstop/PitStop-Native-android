@@ -63,8 +63,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 public class SettingsActivity extends AppCompatActivity implements ILoadingActivity {
 
     public static final String TAG = SettingsActivity.class.getSimpleName();
@@ -182,8 +180,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         private VehiclePreference currentCarVehiclePreference;
 
-        @Inject
-        GetCarsByUserIdUseCase getCarsByUserIdUseCase;
+        private UseCaseComponent useCaseComponent;
 
         public SettingsFragment() {}
 
@@ -210,15 +207,14 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             shopAdapter = new LocalShopAdapter(getActivity());
             localScannerAdapter = new LocalScannerAdapter(getActivity());
 
-            UseCaseComponent component = DaggerUseCaseComponent.builder()
+            useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getActivity().getApplicationContext()))
                     .build();
-            component.injectUseCases(this);
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
             loadingCallback.showLoading("Loading...");
-            getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback() {
+            useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
                     carList = cars;

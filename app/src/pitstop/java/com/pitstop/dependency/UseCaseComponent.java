@@ -1,20 +1,25 @@
 package com.pitstop.dependency;
 
-import com.pitstop.ui.SettingsActivity;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.scan_car.ScanCarFragment;
-import com.pitstop.ui.service_request.ServiceRequestActivity;
-import com.pitstop.ui.services.CurrentServicesFragment;
-import com.pitstop.ui.services.HistoryServiceFragment;
-import com.pitstop.ui.services.MainServicesFragment;
-import com.pitstop.ui.services.UpcomingServicesFragment;
+import com.pitstop.interactors.AddCarUseCase;
+import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.GetCurrentServicesUseCase;
+import com.pitstop.interactors.GetDoneServicesUseCase;
+import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.MarkServiceDoneUseCase;
+import com.pitstop.interactors.RemoveCarUseCase;
+import com.pitstop.interactors.RequestServiceUseCase;
+import com.pitstop.interactors.SetUserCarUseCase;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
 
 /**
+ * Use this for the retrieval of UseCase instances, each method call results in a
+ * NEW instance of that use case.
+ *
  * Created by Karol Zdebel on 6/5/2017.
  */
 
@@ -22,22 +27,26 @@ import dagger.Component;
 @Component(modules = UseCaseModule.class)
 public interface UseCaseComponent {
 
-    void injectUseCases(CurrentServicesFragment fragment);
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase();
 
-    void injectUseCases(HistoryServiceFragment fragment);
+    CheckFirstCarAddedUseCase checkFirstCarAddedUseCase();
 
-    void injectUseCases(UpcomingServicesFragment fragment);
+    AddCarUseCase addCarUseCase();
 
-    void injectUseCases(ServiceRequestActivity activity);
+    GetCurrentServicesUseCase getCurrentServicesUseCase();
 
-    void injectUseCases(SettingsActivity.SettingsFragment fragment);
+    GetDoneServicesUseCase getDoneServicesUseCase();
 
-    void injectUseCases(MainDashboardFragment fragment);
+    GetUpcomingServicesMapUseCase getUpcomingServicesUseCase();
 
-    void injectUseCases(ScanCarFragment fragment);
+    GetUserCarUseCase getUserCarUseCase();
 
-    void injectUseCases(MainServicesFragment fragment);
+    MarkServiceDoneUseCase markServiceDoneUseCase();
 
-    void injectUseCases(MainActivity activity);
+    RemoveCarUseCase removeCarUseCase();
+
+    RequestServiceUseCase requestServiceUseCase();
+
+    SetUserCarUseCase setUseCarUseCase();
 
 }
