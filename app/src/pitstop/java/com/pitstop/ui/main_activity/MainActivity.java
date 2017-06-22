@@ -639,8 +639,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        hideLoading();
+        super.onStop();
     }
 
     @Override
@@ -1050,9 +1051,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 intent.putExtra(ServiceRequestActivity.EXTRA_CAR, car);
                 intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
                 isFirstAppointment = false;
-
-                hideLoading();
                 startActivityForResult(intent, RC_REQUEST_SERVICE);
+                hideLoading();
             }
 
             @Override
@@ -1085,9 +1085,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
                 final Intent intent = new Intent(thisInstance, MyAppointmentActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
-
-                hideLoading();
                 startActivity(intent);
+                hideLoading();
             }
 
             @Override
@@ -1114,9 +1113,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             public void onCarRetrieved(Car car) {
                 final Intent intent = new Intent(thisInstance, MyTripsActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
-
-                hideLoading();
                 startActivity(intent);
+                hideLoading();
             }
 
             @Override
