@@ -224,6 +224,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
                     carList = cars;
+                    localCarAdapter.deleteAllCars();
+                    localCarAdapter.storeCars(cars);
                     populateCarListPreference(cars);
                 }
 
