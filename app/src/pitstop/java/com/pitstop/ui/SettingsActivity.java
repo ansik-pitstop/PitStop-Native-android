@@ -232,6 +232,8 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 @Override
                 public void onError() {
                     loadingCallback.hideLoading(null);
+                    Toast.makeText(getActivity().getApplicationContext()
+                            ,"Error loading cars from network",Toast.LENGTH_LONG);
                 }
             });
 
