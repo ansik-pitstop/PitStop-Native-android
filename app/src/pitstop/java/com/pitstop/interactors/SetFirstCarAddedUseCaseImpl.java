@@ -2,9 +2,7 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 6/8/2017.
@@ -12,14 +10,12 @@ import com.pitstop.utils.NetworkHelper;
 
 public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
-    private NetworkHelper networkHelper;
-    private UserAdapter userAdapter;
+    private UserRepository userRepository;
     private Callback callback;
     private boolean sent;
 
-    public SetFirstCarAddedUseCaseImpl(NetworkHelper networkHelper, UserAdapter userAdapter) {
-        this.networkHelper = networkHelper;
-        this.userAdapter = userAdapter;
+    public SetFirstCarAddedUseCaseImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -31,7 +27,7 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
     @Override
     public void run() {
-        UserRepository.getInstance(userAdapter,networkHelper).setFirstCarAdded(sent
+        userRepository.setFirstCarAdded(sent
                 , new UserRepository.UserFirstCarAddedSetCallback() {
 
             @Override

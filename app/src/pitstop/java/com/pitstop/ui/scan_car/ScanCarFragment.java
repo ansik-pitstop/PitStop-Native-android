@@ -201,15 +201,31 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         //Record that view has been opened
         if (isVisibleToUser && getView() != null) {
-            try {
-                JSONObject properties = new JSONObject();
-                properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
-                properties.put("Car Make", dashboardCar.getMake());
-                properties.put("Car Model", dashboardCar.getModel());
-                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car) {
+                    try {
+                        JSONObject properties = new JSONObject();
+                        properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
+                        properties.put("Car Make", car.getMake());
+                        properties.put("Car Model", car.getModel());
+                        mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onNoCarSet() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         }
     }
 

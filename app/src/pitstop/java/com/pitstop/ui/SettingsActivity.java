@@ -224,12 +224,16 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
                     carList = cars;
+                    localCarAdapter.deleteAllCars();
+                    localCarAdapter.storeCars(cars);
                     populateCarListPreference(cars);
                 }
 
                 @Override
                 public void onError() {
                     loadingCallback.hideLoading(null);
+                    Toast.makeText(getActivity().getApplicationContext()
+                            ,"Error loading cars from network",Toast.LENGTH_LONG);
                 }
             });
 
