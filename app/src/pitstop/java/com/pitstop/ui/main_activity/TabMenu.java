@@ -12,8 +12,6 @@ import com.pitstop.utils.MixpanelHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.pitstop.ui.main_activity.MainActivity.TAB_NAMES;
-
 /**
  * Created by Karol Zdebel on 6/23/2017.
  */
@@ -24,6 +22,8 @@ public class TabMenu {
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
     public static final int TAB_NOTIF = 3;
+
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
 
     @BindView(R.id.main_tablayout)
     TabLayout mTabLayout;

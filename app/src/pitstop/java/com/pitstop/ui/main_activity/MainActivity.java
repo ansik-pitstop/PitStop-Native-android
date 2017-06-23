@@ -23,7 +23,6 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -45,7 +44,6 @@ import com.parse.ParseInstallation;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
@@ -56,7 +54,6 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -158,15 +155,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private LocalShopAdapter shopLocalStore;
     private LocalScannerAdapter scannerLocalStore;
 
-    //tabs
-
-    public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
-
-    public static final int TAB_DASHBOARD = 0;
-    public static final int TAB_SERVICES = 1;
-    public static final int TAB_SCAN = 2;
-    public static final int TAB_NOTIF = 3;
-
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
     public static final int RC_SETTINGS = 52;
@@ -193,18 +181,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private View rootView;
     private Toolbar toolbar;
 
-    private ViewPager viewPager;
-    private TabViewPagerAdapter mTabViewPagerAdapter;
-
     private ProgressDialog progressDialog;
     private boolean isLoading = false;
 
     // Utils / Helper
     private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
-    private UserAdapter userAdapter;
 
-    private boolean isFabOpen = false;
     private boolean userSignedUp;
 
     public static MainDashboardCallback mainDashboardCallback;
@@ -221,7 +204,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        userAdapter = new UserAdapter(getApplicationContext());
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))
