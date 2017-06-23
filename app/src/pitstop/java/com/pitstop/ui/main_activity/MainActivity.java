@@ -112,7 +112,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         , MainActivityCallback {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-    private final int FAB_DELAY = 50;
 
     private GlobalApplication application;
     private boolean serviceIsBound;
