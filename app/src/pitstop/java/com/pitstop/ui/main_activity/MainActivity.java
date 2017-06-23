@@ -13,14 +13,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -35,8 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -99,14 +95,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
-import io.smooch.ui.ConversationActivity;
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
@@ -120,22 +112,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         , MainActivityCallback {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
-    //Bind floating action buttons
-    @BindView(R.id.fab_main)
-    FloatingActionButton fabMain;
-
-    @BindView(R.id.fab_call)
-    FloatingActionButton fabCall;
-
-    @BindView(R.id.fab_find_directions)
-    FloatingActionButton fabDirections;
-
-    @BindView(R.id.fab_menu_request_service)
-    FloatingActionButton fabRequestService;
-
-    @BindView(R.id.fab_menu_message)
-    FloatingActionButton fabMessage;
+    private final int FAB_DELAY = 50;
 
     private GlobalApplication application;
     private boolean serviceIsBound;
@@ -209,8 +186,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public static final String FROM_ACTIVITY = "from_activity";
     public static final String REMOVE_TUTORIAL_EXTRA = "remove_tutorial";
 
-    private final int FAB_DELAY = 50;
-
     public static final int RC_LOCATION_PERM = 101;
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -274,7 +249,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(rootView);
-        ButterKnife.bind(this);
         ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
         acl.setPublicWriteAccess(true);
@@ -310,25 +284,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         logAuthInfo();
 
-        setTabUI();
         updateScannerLocalStore();
 
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                setFabUI(car);
-            }
+        TabMenu tabMenu = new TabMenu(this,mixpanelHelper);
+        tabMenu.createTabs();
 
-            @Override
-            public void onNoCarSet() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+        FabMenu fabMenu = new FabMenu(application,this,useCaseComponent
+                ,mixpanelHelper);
+        fabMenu.createMenu();
 
     }
 
@@ -354,247 +317,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(this , darkTheme ? R.color.black : R.color.primary_dark));
         }
-    }
-
-    //Set up fab, and fab menu click listener and the animations that will be taking place
-    private void setFabUI(Car car){
-
-        final ArrayList<Animation> open_anims = new ArrayList<>();
-        final ArrayList<Animation> close_anims = new ArrayList<>();
-
-        //Add delay between animations of each FAB to avoid performance decrease
-        for (int i=0;i<4;i++){
-            Animation fab_open = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_open);
-            fab_open.setStartOffset((4-i)*FAB_DELAY);
-            open_anims.add(fab_open);
-
-            Animation fab_close = AnimationUtils.loadAnimation(getApplication(), R.anim.fab_close);
-            fab_close.setStartOffset(i*FAB_DELAY);
-            close_anims.add(fab_close);
-        }
-
-        final Animation rotate_forward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_forward);
-        final Animation rotate_backward = AnimationUtils.loadAnimation(getApplication(),R.anim.rotate_backward);
-
-        fabMain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Main");
-                if(isFabOpen){
-
-                    fabMain.startAnimation(rotate_backward);
-                    //Begin closing animation
-                    fabDirections.startAnimation(close_anims.get(0));
-                    fabCall.startAnimation(close_anims.get(1));
-                    fabMessage.startAnimation(close_anims.get(2));
-                    fabRequestService.startAnimation(close_anims.get(3));
-
-                    //Don't let the user click
-                    fabCall.setClickable(false);
-                    fabRequestService.setClickable(false);
-                    fabDirections.setClickable(false);
-                    fabMessage.setClickable(false);
-
-                    isFabOpen = false;
-
-                } else {
-
-                    //Begin opening animation
-                    fabMain.startAnimation(rotate_forward);
-                    fabDirections.startAnimation(open_anims.get(0));
-                    fabCall.startAnimation(open_anims.get(1));
-                    fabMessage.startAnimation(open_anims.get(2));
-                    fabRequestService.startAnimation(open_anims.get(3));
-
-                    //Let the user click fab
-                    fabCall.setClickable(true);
-                    fabRequestService.setClickable(true);
-                    fabDirections.setClickable(true);
-                    fabMessage.setClickable(true);
-
-                    isFabOpen = true;
-
-                }
-            }
-        });
-
-        final Activity thisActivity = this;
-        //Begin message activity
-        fabMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Message");
-                final HashMap<String, Object> customProperties = new HashMap<>();
-                customProperties.put("VIN", car.getVin());
-                customProperties.put("Car Make", car.getMake());
-                customProperties.put("Car Model", car.getModel());
-                customProperties.put("Car Year", car.getYear());
-                Log.i(TAG, car.getDealership().getEmail());
-                customProperties.put("Email", car.getDealership().getEmail());
-                User.getCurrentUser().addProperties(customProperties);
-                if (application.getCurrentUser() != null) {
-                    customProperties.put("Phone", application.getCurrentUser().getPhone());
-                    User.getCurrentUser().setFirstName(application.getCurrentUser().getFirstName());
-                    User.getCurrentUser().setEmail(application.getCurrentUser().getEmail());
-                }
-                ConversationActivity.show(thisActivity);
-            }
-        });
-
-        //Begin request service activity
-        fabRequestService.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Request Service");
-                final Intent intent = new Intent(getBaseContext(), ServiceRequestActivity.class);
-                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, car);
-                intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
-                startActivityForResult(intent, RC_REQUEST_SERVICE);
-            }
-        });
-
-        //Begin call activity
-        fabCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Call");
-                mixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                        car.getDealership().getPhone()));
-                startActivity(intent);
-            }
-        });
-
-        //Begin directions activity
-        fabDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mixpanelHelper.trackFabClicked("Directions");
-                mixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
-
-                String uri = String.format(Locale.ENGLISH,
-                        "http://maps.google.com/maps?daddr=%s",
-                        car.getDealership().getAddress());
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                startActivity(intent);
-            }
-        });
-    }
-
-    private void setTabUI(){
-
-        //Initialize tab navigation
-        //View pager adapter that returns the corresponding fragment for each page
-
-        viewPager = (ViewPager) findViewById(R.id.main_container);
-        mTabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(mTabViewPagerAdapter);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                switch(position){
-                    case TAB_DASHBOARD:
-                        mixpanelHelper.trackSwitchedToTab("Dashboard");
-                        break;
-                    case TAB_SERVICES:
-                        mixpanelHelper.trackSwitchedToTab("Services");
-                        break;
-                    case TAB_SCAN:
-                        mixpanelHelper.trackSwitchedToTab("Scan");
-                        break;
-                    case TAB_NOTIF:
-                        mixpanelHelper.trackSwitchedToTab("Notifications");
-                        break;
-                }
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        //Set up actionbar
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                //Change actionbar title
-                getSupportActionBar().setTitle(TAB_NAMES[position]);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        //Populate tabs with icons
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
-        tabLayout.setupWithViewPager(viewPager);
-
-        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
-                ,R.drawable.scan_icon,R.drawable.ic_notifications_white_24dp};
-
-        for (int i=0;i<tabIcons.length;i++){
-            try{
-                tabLayout.getTabAt(i).setIcon(tabIcons[i]);
-            }catch(java.lang.NullPointerException e){
-
-            }
-        }
-
-        //Switch to selected fragment when tab is clicked
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                switch(tab.getPosition()){
-
-                    case TAB_DASHBOARD:
-                        //Go to dashboard fragment
-                        viewPager.setCurrentItem(TAB_DASHBOARD);
-                        break;
-
-                    case TAB_SERVICES:
-                        //Go to services fragment
-                        viewPager.setCurrentItem(TAB_SERVICES);
-                        break;
-
-                    case TAB_SCAN:
-                        //Go to scan fragment
-                        viewPager.setCurrentItem(TAB_SCAN);
-                        break;
-
-                    case TAB_NOTIF:
-                        //Go to notifications fragment
-                        viewPager.setCurrentItem(TAB_NOTIF);
-                        break;
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //do nothing
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
     }
 
     private void loadDealerDesign(Car car){
@@ -659,114 +381,89 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivityResult");
 
-        if (data != null) {
-            boolean shouldRefreshFromServer = data.getBooleanExtra(REFRESH_FROM_SERVER, false);
+        //Returned from car being added
+        if (data != null && requestCode == RC_ADD_CAR) {
 
-            //Returned from car being added
-            if (requestCode == RC_ADD_CAR) {
+            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+                Car addedCar = data.getParcelableExtra(CAR_EXTRA);
 
-                //If a car was added then updateCarIssue the current car that is being displayed inside all the fragments
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
-                    Car addedCar = data.getParcelableExtra(CAR_EXTRA);
+                updateSmoochUser(application.getCurrentUser(),addedCar);
 
-                    //Check whether the first car was just added if so set it to dashboard car
+                useCaseComponent
+                        .checkFirstCarAddedUseCase()
+                        .execute(new CheckFirstCarAddedUseCase.Callback() {
+                            @Override
+                            public void onFirstCarAddedChecked(boolean added) {
+                                if (!added) {
 
-                    com.pitstop.models.User user = application.getCurrentUser();
+                                    sendSignedUpSmoochMessage(application.getCurrentUser());
+                                    prepareAndStartTutorialSequence();
 
-                    final HashMap<String, Object> customProperties = new HashMap<>();
-                    customProperties.put("VIN", addedCar.getVin());
-                    Log.d(TAG, addedCar.getVin());
-                    customProperties.put("Car Make", addedCar.getMake());
-                    Log.d(TAG, addedCar.getMake());
-                    customProperties.put("Car Model", addedCar.getModel());
-                    Log.d(TAG, addedCar.getModel());
-                    customProperties.put("Car Year", addedCar.getYear());
-                    Log.d(TAG, String.valueOf(addedCar.getYear()));
+                                    useCaseComponent.setFirstCarAddedUseCase()
+                                            .execute(true, new SetFirstCarAddedUseCase.Callback() {
+                                                @Override
+                                                public void onFirstCarAddedSet() {
+                                                    //Variable has been set
+                                                }
 
-                    //Add custom user properties
-                    if (resultCode == AddCarActivity.ADD_CAR_SUCCESS) {
-                        customProperties.put("Email", addedCar.getDealership().getEmail());
-                        Log.d(TAG, addedCar.getDealership().getEmail());
-                    }
+                                                @Override
+                                                public void onError() {
+                                                    //Networking error logic here
+                                                }
+                                            });
+                                }
+                            }
 
-                    if (user != null) {
-                        customProperties.put("Phone", user.getPhone());
-                        User.getCurrentUser().setFirstName(user.getFirstName());
-                        User.getCurrentUser().setEmail(user.getEmail());
-                    }
+                            @Override
+                            public void onError() {
+                                //Error logic here
+                            }
+                        });
 
-                    User.getCurrentUser().addProperties(customProperties);
-
-                    // 6/9/2018 -> Only add if it hasn't been added yet
-                    sendGreetingsMessageIfNeeded(user);
-                    beginTutorialSequenceIfNeeded(user);
-
-                } else {
-                    mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
-                }
-
-            //If a scan completed check whether to refresh data
+            } else {
+                mixpanelHelper.trackButtonTapped("Cancel in Add Car", "Add Car");
             }
-            //If request service completed check whether to refresh
-            }
-        else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
+        else{
+            super.onActivityResult(requestCode,resultCode,data);
+        }
+    }
+
+    private void sendSignedUpSmoochMessage(com.pitstop.models.User user){
+        Log.d("MainActivity Smooch", "Sending message");
+        Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
+                (user.getLastName() == null || user.getLastName().equals("null") ?
+                        "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
+    }
+
+    private void updateSmoochUser(com.pitstop.models.User user, Car car){
+        final HashMap<String, Object> customProperties = new HashMap<>();
+        customProperties.put("VIN", car.getVin());
+        Log.d(TAG, car.getVin());
+        customProperties.put("Car Make", car.getMake());
+        Log.d(TAG, car.getMake());
+        customProperties.put("Car Model", car.getModel());
+        Log.d(TAG, car.getModel());
+        customProperties.put("Car Year", car.getYear());
+        Log.d(TAG, String.valueOf(car.getYear()));
+
+        //Add custom user properties
+        if (car.getDealership() != null) {
+            customProperties.put("Email", car.getDealership().getEmail());
+            Log.d(TAG, car.getDealership().getEmail());
+        }
+
+        if (user != null) {
+            customProperties.put("Phone", user.getPhone());
+            User.getCurrentUser().setFirstName(user.getFirstName());
+            User.getCurrentUser().setEmail(user.getEmail());
+        }
+
+        User.getCurrentUser().addProperties(customProperties);
     }
 
     public BluetoothAutoConnectService getBluetoothConnectService() {
         return autoConnectService;
-    }
-
-    private void beginTutorialSequenceIfNeeded(com.pitstop.models.User user){
-
-        useCaseComponent.checkFirstCarAddedUseCase().execute(new CheckFirstCarAddedUseCase.Callback() {
-            @Override
-            public void onFirstCarAddedChecked(boolean added) {
-                if (user != null && !added) {
-                    prepareAndStartTutorialSequence();
-                }
-            }
-
-            @Override
-            public void onError() {
-                //Error logic here
-            }
-        });
-    }
-
-    private void sendGreetingsMessageIfNeeded(com.pitstop.models.User user){
-        useCaseComponent
-                .checkFirstCarAddedUseCase()
-                .execute(new CheckFirstCarAddedUseCase.Callback() {
-            @Override
-            public void onFirstCarAddedChecked(boolean added) {
-                if (user != null && !added) {
-                    Log.d("MainActivity Smooch", "Sending message");
-                    Smooch.getConversation().sendMessage(new io.smooch.core.Message(user.getFirstName() +
-                            (user.getLastName() == null || user.getLastName().equals("null") ?
-                                    "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
-
-                    useCaseComponent.setFirstCarAddedUseCase()
-                            .execute(true, new SetFirstCarAddedUseCase.Callback() {
-                        @Override
-                        public void onFirstCarAddedSet() {
-                            //Variable has been set
-                        }
-
-                        @Override
-                        public void onError() {
-                            //Networking error logic here
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onError() {
-                //Error logic here
-            }
-        });
     }
 
     @Override

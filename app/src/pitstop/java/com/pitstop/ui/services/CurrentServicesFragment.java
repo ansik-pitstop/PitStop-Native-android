@@ -36,7 +36,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.pitstop.EventBus.EventType.EVENT_MILEAGE;
 import static com.pitstop.EventBus.EventType.EVENT_SERVICES_HISTORY;
 
 /**
@@ -60,7 +59,6 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     private final EventType[] ignoredEvents = {
             new EventTypeImpl(EVENT_SERVICES_HISTORY),
-            new EventTypeImpl(EVENT_MILEAGE)
     };
 
     private boolean uiInitialized = false;
@@ -112,7 +110,7 @@ public class CurrentServicesFragment extends CarDataFragment {
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices) {
-                carIssueList = new ArrayList<CarIssue>();
+                carIssueList.clear();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
 
