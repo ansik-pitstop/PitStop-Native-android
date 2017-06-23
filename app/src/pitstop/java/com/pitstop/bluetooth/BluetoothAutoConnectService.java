@@ -630,7 +630,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 List<String> dtcList = Arrays.asList(dtcPackage.dtcs);
                                 List<String> toRemove = new ArrayList<String>();
                                 for (String dtc: dtcList){
-                                    if (!dtcNames.contains(dtc)){
+                                    if (dtcNames.contains(dtc)){
                                         toRemove.add(dtc);
                                     }
                                 }
