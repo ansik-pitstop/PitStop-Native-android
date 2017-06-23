@@ -4,9 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.TabMenu;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 
@@ -29,16 +29,16 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
 
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
-            case MainActivity.TAB_DASHBOARD:
+            case TabMenu.TAB_DASHBOARD:
                 return MainDashboardFragment.newInstance();
 
-            case MainActivity.TAB_SERVICES:
+            case TabMenu.TAB_SERVICES:
                 return MainServicesFragment.newInstance();
 
-            case MainActivity.TAB_SCAN:
+            case TabMenu.TAB_SCAN:
                 return ScanCarFragment.newInstance();
 
-            case MainActivity.TAB_NOTIF:
+            case TabMenu.TAB_NOTIF:
                 return NotificationsFragment.newInstance();
         }
 
@@ -54,13 +54,13 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch(position){
-            case MainActivity.TAB_DASHBOARD:
+            case TabMenu.TAB_DASHBOARD:
                 return "Dashboard";
-            case MainActivity.TAB_NOTIF:
+            case TabMenu.TAB_NOTIF:
                 return "Notifications";
-            case MainActivity.TAB_SCAN:
+            case TabMenu.TAB_SCAN:
                 return "Scan";
-            case MainActivity.TAB_SERVICES:
+            case TabMenu.TAB_SERVICES:
                 return "Services";
         }
         return "";

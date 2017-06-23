@@ -23,7 +23,7 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
 
     @Override
     public void run() {
-        carIssue.setStatus(carIssue.ISSUE_DONE);
+        carIssue.setStatus(CarIssue.ISSUE_DONE);
         carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.CarIssueUpdateCallback() {
             @Override
             public void onCarIssueUpdated() {

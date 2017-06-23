@@ -10,6 +10,7 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.RequestServiceUseCase;
+import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetUserCarUseCase;
 
 import javax.inject.Singleton;
@@ -48,5 +49,7 @@ public interface UseCaseComponent {
     RequestServiceUseCase requestServiceUseCase();
 
     SetUserCarUseCase setUseCarUseCase();
+
+    SetFirstCarAddedUseCase setFirstCarAddedUseCase();
 
 }

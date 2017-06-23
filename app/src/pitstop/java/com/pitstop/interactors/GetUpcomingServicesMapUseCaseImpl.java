@@ -20,6 +20,9 @@ import java.util.Map;
  */
 
 public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMapUseCase {
+
+    private final int MAX_DEBUG_ISSUE_SIZE = 500;
+
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
@@ -52,7 +55,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                             @Override
                             public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
-
+                                
                                 //Return ordered upcoming services through parameter to callback
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
                                 Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);

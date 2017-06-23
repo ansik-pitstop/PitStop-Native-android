@@ -28,6 +28,7 @@ import java.util.List;
 
 public class CarIssueRepository {
 
+    private final int MAX_RESPONSE_LENGTH = 70000;
     public static final int DEALERSHIP_ISSUES = 0;
 
     private static CarIssueRepository INSTANCE;
@@ -138,9 +139,8 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized List<CarIssue> getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
+    public synchronized void getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
         networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
-        return carIssueAdapter.getAllUpcomingCarIssues();
     }
 
     private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
@@ -149,7 +149,7 @@ public class CarIssueRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
-                    Timeline timelineData = new Gson().fromJson(response, Timeline.class);;
+                    Timeline timelineData = new Gson().fromJson(response, Timeline.class);
                     List<UpcomingIssue> issues = timelineData.getResults().get(DEALERSHIP_ISSUES)
                             .getUpcomingIssues();
                     callback.onCarIssueGotUpcoming(issues);
@@ -163,9 +163,8 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized List<CarIssue> getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
+    public synchronized void getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
         networkHelper.getCurrentCarIssues(carId,getCurrentCarIssuesRequestCallback(carId,callback));
-        return carIssueAdapter.getAllCurrentCarIssues();
     }
 
     private synchronized RequestCallback getCurrentCarIssuesRequestCallback(final int carId, CarIssueGetCurrentCallback callback){
