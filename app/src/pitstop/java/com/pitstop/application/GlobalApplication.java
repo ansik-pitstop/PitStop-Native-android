@@ -29,12 +29,11 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.database.LocalTripAdapter;
+import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
@@ -296,7 +295,6 @@ public class GlobalApplication extends Application {
 
     public String getAccessToken() {
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
-        LogUtils.LOGD("AccessToken",settings.getString(PreferenceKeys.KEY_ACCESS_TOKEN, ""));
         return settings.getString(PreferenceKeys.KEY_ACCESS_TOKEN, "");
     }
 

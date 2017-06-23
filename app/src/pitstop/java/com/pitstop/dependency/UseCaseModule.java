@@ -23,6 +23,8 @@ import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.RequestServiceUseCase;
 import com.pitstop.interactors.RequestServiceUseCaseImpl;
+import com.pitstop.interactors.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
@@ -106,4 +108,8 @@ public class UseCaseModule {
         return new SetUserCarUseCaseImpl(userRepository, handler);
     }
 
+    @Provides
+    SetFirstCarAddedUseCase setFirstCarAddedUseCase(UserRepository userRepository){
+        return new SetFirstCarAddedUseCaseImpl(userRepository);
+    }
 }
