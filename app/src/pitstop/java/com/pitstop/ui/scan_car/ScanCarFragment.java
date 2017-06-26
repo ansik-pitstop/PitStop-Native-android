@@ -1,10 +1,8 @@
 package com.pitstop.ui.scan_car;
 
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -44,7 +42,6 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.mainFragments.CarDataFragment;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -130,8 +127,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
-
-        ScanCarFragment thisInstance = this;
 
         setStaticUI();
         presenter = new ScanCarPresenter(bluetoothServiceActivity, useCaseComponent);
@@ -253,11 +248,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     public void startCarScan(View view) {
         mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
 
-        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
-            return;
-        }
+//        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
+//            return;
+//        }
 
         updateMileage(null);
     }
