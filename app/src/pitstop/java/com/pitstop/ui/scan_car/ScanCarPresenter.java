@@ -68,7 +68,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         localCarAdapter = new LocalCarAdapter(activity.getApplicationContext());
         mAutoConnectService = activity.autoConnectService;
 
-
     }
 
     @Override
@@ -403,10 +402,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
         mCallback = (ScanCarContract.View) view;
+        mAutoConnectService.addCallback(this);
     }
 
     @Override
     public void unbind() {
         mCallback = null;
+        mAutoConnectService.removeCallback(this);
     }
 }
