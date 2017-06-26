@@ -116,6 +116,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         final double mileage = input
                 - (dashboardCar.getDisplayedMileage() - dashboardCar.getBaseMileage());
+        updateMileage(mileage);
 
     }
 
