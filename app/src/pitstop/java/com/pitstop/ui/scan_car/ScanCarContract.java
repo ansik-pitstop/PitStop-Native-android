@@ -21,6 +21,8 @@ public interface ScanCarContract {
 
     interface View extends BaseView<Presenter>, ILoadingActivity{
 
+        void onLoadedMileage(double mileage);
+
         /**
          * Invoked when the OBD device is connected
          */
@@ -89,7 +91,11 @@ public interface ScanCarContract {
 
         double getLatestMileage();
 
+        void update();
+
         void connectToDevice();
+
+        void updateMileageWithoutTrip(double input);
 
         /**
          * @param input validated mileage(non-negative, less than max value)

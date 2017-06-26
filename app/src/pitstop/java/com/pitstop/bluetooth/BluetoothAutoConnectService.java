@@ -99,7 +99,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private final IBinder mBinder = new BluetoothBinder();
     private BluetoothDeviceManager deviceManager;
-    private ObdManager.IBluetoothDataListener callbacks;
+    private List<ObdManager.IBluetoothDataListener> callbacks = new ArrayList<>();
 
     private GlobalApplication application;
 
@@ -330,7 +330,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (callbacks != null) {
             Log.i(TAG, "Calling service callbacks to getBluetooth State - auto connect service");
-            callbacks.getBluetoothState(state);
+            broadcastBluetoothState(state);
+        }
+    }
+
+    private void broadcastBluetoothState(int state){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.getBluetoothState(state);
         }
     }
 
@@ -338,7 +344,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
         if (callbacks != null) {
             Log.i(TAG, "Setting ctrl response on service callbacks - auto-connect service");
-            callbacks.setCtrlResponse(responsePackageInfo);
+            broadcastSetCtrlResponse(responsePackageInfo);
+        }
+    }
+
+    private void broadcastSetCtrlResponse(ResponsePackageInfo responsePackageInfo){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.setCtrlResponse(responsePackageInfo);
         }
     }
 
@@ -357,7 +369,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (callbacks != null) {
             Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
-            callbacks.setParameterResponse(responsePackageInfo);
+            broadcastSetParameterResponse(responsePackageInfo);
+        }
+    }
+
+    private void broadcastSetParameterResponse(ResponsePackageInfo responsePackageInfo){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.setCtrlResponse(responsePackageInfo);
         }
     }
 
@@ -414,7 +432,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(callbacks != null) {
-            callbacks.tripData(tripInfoPackage);
+            broadcastTripData(tripInfoPackage);
+        }
+    }
+
+    private void broadcastTripData(TripInfoPackage tripInfoPackage){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.tripData(tripInfoPackage);
         }
     }
 
@@ -473,7 +497,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(callbacks != null) {
-            callbacks.parameterData(parameterPackage);
+            broadcastParameterData(parameterPackage);
+        }
+    }
+
+    private void broadcastParameterData(ParameterPackage parameterPackage){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.parameterData(parameterPackage);
         }
     }
 
@@ -488,7 +518,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned");
             if(callbacks != null) {
-                callbacks.pidData(pidPackage);
+                broadcastPidData(pidPackage);
             }
             return;
         }
@@ -585,7 +615,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if(callbacks != null) {
-            callbacks.pidData(pidPackage);
+            broadcastPidData(pidPackage);
+        }
+    }
+
+    private void broadcastPidData(PidPackage pidPackage){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.pidData(pidPackage);
         }
     }
 
@@ -601,7 +637,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             getFreezeData();
         }
 
-        callbacks.dtcData(dtcPackage);
+        broadcastDtcData(dtcPackage);
+    }
+
+    private void broadcastDtcData(DtcPackage dtcPackage){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.dtcData(dtcPackage);
+        }
     }
 
     @Override
@@ -714,9 +756,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if (callbacks != null) {
-            callbacks.deviceLogin(loginPackageInfo);
+            broadcastDeviceLogin(loginPackageInfo);
         }
 
+    }
+
+    private void broadcastDeviceLogin(LoginPackageInfo loginPackageInfo){
+        for (ObdManager.IBluetoothDataListener c: callbacks){
+            c.deviceLogin(loginPackageInfo);
+        }
     }
 
     public void saveScannerOnResultPostCar(Car createdCar) {
@@ -765,8 +813,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    public void setCallbacks(ObdManager.IBluetoothDataListener callBacks) {
-        this.callbacks = callBacks;
+    public void addCallback(ObdManager.IBluetoothDataListener callback){
+        if (!callbacks.contains(callback)){
+            callbacks.add(callback);
+        }
+    }
+
+    public void removeCallback(ObdManager.IBluetoothDataListener callback){
+        callbacks.remove(callback);
     }
 
     public void startBluetoothSearch(int... source) {

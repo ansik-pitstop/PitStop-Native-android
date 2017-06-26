@@ -1,8 +1,5 @@
 package com.pitstop.ui.scan_car;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
@@ -13,9 +10,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
@@ -25,6 +20,8 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -58,32 +55,49 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private NetworkHelper networkHelper;
     private LocalCarAdapter localCarAdapter;
     private Car dashboardCar;
-
-    private GlobalApplication application;
     private BluetoothAutoConnectService mAutoConnectService;
-    private ServiceConnection mServiceConnection;
+    private UseCaseComponent useCaseComponent;
 
-    private double baseMileage;
-
-    public ScanCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, Car dashboardCar) {
+    public ScanCarPresenter(IBluetoothServiceActivity activity, UseCaseComponent useCaseComponent) {
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(activity))
                 .build();
-
-        this.dashboardCar = dashboardCar;
-        this.application = application;
-        baseMileage = dashboardCar.getTotalMileage();
-        mixpanelHelper = new MixpanelHelper(application);
         networkHelper = tempNetworkComponent.networkHelper();
-        localCarAdapter = new LocalCarAdapter(application);
-        mServiceConnection = new BluetoothServiceConnection(application, activity, this);
+        this.useCaseComponent = useCaseComponent;
+        localCarAdapter = new LocalCarAdapter(activity.getApplicationContext());
+        mAutoConnectService = activity.autoConnectService;
+
+
     }
 
     @Override
     public double getLatestMileage() {
+        if (dashboardCar == null) return 0;
+
         Car car = localCarAdapter.getCar(dashboardCar.getId());
         return car != null ? car.getDisplayedMileage() : 0;
+    }
+
+    @Override
+    public void update() {
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                mCallback.onLoadedMileage(car.getTotalMileage());
+                dashboardCar = car;
+            }
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     @Override
@@ -97,7 +111,18 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
+    public void updateMileageWithoutTrip(double input) {
+        if (dashboardCar == null) return;
+
+        final double mileage = input
+                - (dashboardCar.getDisplayedMileage() - dashboardCar.getBaseMileage());
+
+    }
+
+    @Override
     public void updateMileage(final double input) {
+        if (dashboardCar == null) return;
+
         mAutoConnectService.manuallyUpdateMileage = true;
         mCallback.showLoading("Updating mileage...");
         networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
@@ -146,6 +171,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void getServicesAndRecalls() {
         Log.d(TAG, "getServicesAndRecalls");
+
+        if (dashboardCar == null) return;
+
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -204,40 +232,27 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void onActivityFinish() {
-        unbindBluetoothService();
     }
 
     @Override
     public void bindBluetoothService() {
-        mCallback.getBluetoothActivity().bindService(
-                new Intent(application, BluetoothAutoConnectService.class),
-                mServiceConnection,
-                Context.BIND_AUTO_CREATE
-        );
+
     }
 
     @Override
     public void onServiceBound(BluetoothAutoConnectService service) {
-        mAutoConnectService = service;
-        mAutoConnectService.setCallbacks(this);
     }
 
     @Override
     public void unbindBluetoothService() {
-        mCallback.getBluetoothActivity().unbindService(mServiceConnection);
     }
 
     @Override
     public void onServiceUnbind() {
-        mAutoConnectService = null;
     }
 
     @Override
     public void checkBluetoothService() {
-        if (mAutoConnectService == null) {
-            mAutoConnectService = mCallback.getAutoConnectService();
-            mAutoConnectService.setCallbacks(this);
-        }
     }
 
     @Override
@@ -267,6 +282,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+
+        if (dashboardCar == null) return;
+
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage updateCarIssue
             final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
 

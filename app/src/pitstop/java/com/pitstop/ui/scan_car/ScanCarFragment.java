@@ -106,15 +106,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private AlertDialog connectTimeoutDialog;
 
     private int numberOfIssues = 0;
-    private Car dashboardCar;
-    private double baseMileage;
-    private boolean updatedMileageOrDtcsFound = false;
     private ProgressDialog progressDialog;
 
     private boolean isScanning = false;
-    private boolean destroyed = false;
-    private boolean viewShown = false;
-    private boolean uiUpdated = false;
 
     private IssuePagerAdapter pagerAdapter;
     private IBluetoothServiceActivity bluetoothServiceActivity;
@@ -137,8 +131,12 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
+        ScanCarFragment thisInstance = this;
+
         setStaticUI();
-        updateUI();
+        presenter = new ScanCarPresenter(bluetoothServiceActivity, useCaseComponent);
+        presenter.bind(this);
+        presenter.update();
 
         return rootview;
     }
@@ -146,6 +144,10 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private void setStaticUI(){
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
+
+        if (!BuildConfig.DEBUG) {
+            updateMileageButton.setVisibility(View.GONE);
+        }
 
         // Create background track
         arcView.addSeries(new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
@@ -230,45 +232,16 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        presenter.onActivityFinish();
-        presenter.unbind();
+    public void onDestroyView() {
+        if (presenter != null){
+            presenter.unbind();
+        }
+        super.onDestroyView();
     }
 
     @Override
     public void updateUI() {
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                dashboardCar = car;
-                carMileage.setText(String.format("%.2f", car.getDisplayedMileage()));
-                setPresenter(new ScanCarPresenter(bluetoothServiceActivity, (GlobalApplication) getApplicationContext(),car));
-                baseMileage = car.getTotalMileage();
-                if (!BuildConfig.DEBUG) {
-                    updateMileageButton.setVisibility(View.GONE);
-                }
-
-                //Update car health meter
-                if (numberOfIssues >= 3) {
-                    arcView.addEvent(new DecoEvent.Builder(30).setIndex(seriesIndex).build());
-                } else if (numberOfIssues < 3 && numberOfIssues > 0) {
-                    arcView.addEvent(new DecoEvent.Builder(65).setIndex(seriesIndex).build());
-                } else {
-                    arcView.addEvent(new DecoEvent.Builder(100).setIndex(seriesIndex).build());
-                }
-            }
-
-            @Override
-            public void onNoCarSet() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+        presenter.update();
     }
 
     @Override
@@ -321,11 +294,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                         public void onClick(View v) {
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
-                            final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - baseMileage);
+                            final double mileage = Double.parseDouble(input.getText().toString());
                             if (mileage > 20000000) {
                                 Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
-                                presenter.updateMileage(mileage);
+                                presenter.updateMileageWithoutTrip(mileage);
                                 d.dismiss();
                             }
                         }
@@ -376,6 +349,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     @Override
+    public void onLoadedMileage(double mileage) {
+        carMileage.setText(String.format("%.2f", mileage));
+    }
+
+    @Override
     public void onDeviceConnected() {
         if (connectTimeoutDialog != null && connectTimeoutDialog.isShowing()) connectTimeoutDialog.dismiss();
         hideLoading(null);
@@ -418,7 +396,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     public void onInputtedMileageUpdated(double updatedMileage) {
         if (IBluetoothCommunicator.CONNECTED == (bluetoothServiceActivity).autoConnectService.getState()
                 || bluetoothServiceActivity.autoConnectService.isCommunicatingWithDevice()) {
-            updatedMileageOrDtcsFound = true;
             carMileage.setText(String.format("%.2f", updatedMileage));
             Log.i(TAG, "Asking for RTC and Mileage, if connected to 215");
             getAutoConnectService().get215RtcAndMileage();
@@ -502,11 +479,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     public void onEngineCodesRetrieved(@Nullable Set<String> dtcCodes) {
         Log.d(TAG, "onEngineCodesRetrieved, num: " + (dtcCodes == null ? 0 : dtcCodes.size()));
         this.dtcCodes = dtcCodes == null ? new HashSet<String>() : dtcCodes;
-        updatedMileageOrDtcsFound = true;
         numberOfIssues += dtcCodes == null ? 0 : dtcCodes.size();
         updateCarHealthMeter();
-
-        if (numberOfIssues != 0) updatedMileageOrDtcsFound = true;
 
         loadingEngineIssues.setVisibility(View.GONE);
         if (this.dtcCodes.size() != 0) {
@@ -599,18 +573,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private void checkScanProgress() {
         isScanning = loadingEngineIssues.isShown() || loadingRecalls.isShown() || loadingServices.isShown();
         carScanButton.setEnabled(!isScanning);
-        if (!isScanning) {
-            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
-            // Finished car scan
-            try {
-                JSONObject properties = new JSONObject();
-                properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
-                properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
-                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (!isScanning) {
+//            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_SCAN_CAR);
+//            // Finished car scan
+//            try {
+//                JSONObject properties = new JSONObject();
+//                properties.put("View", MixpanelHelper.SCAN_CAR_VIEW);
+//                properties.put("Mileage Updated To", dashboardCar.getTotalMileage());
+//                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_SCAN_COMPLETE, properties);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     @Override

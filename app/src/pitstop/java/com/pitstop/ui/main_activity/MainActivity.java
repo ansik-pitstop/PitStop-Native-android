@@ -123,7 +123,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(MainActivity.this);
+            autoConnectService.addCallback(MainActivity.this);
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
@@ -323,7 +323,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onResume");
 
-        if (autoConnectService != null) autoConnectService.setCallbacks(this);
+        if (autoConnectService != null) autoConnectService.addCallback(this);
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
