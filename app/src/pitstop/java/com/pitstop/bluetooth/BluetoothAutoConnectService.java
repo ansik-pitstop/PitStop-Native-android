@@ -328,10 +328,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
 
-        if (callbacks != null) {
-            Log.i(TAG, "Calling service callbacks to getBluetooth State - auto connect service");
-            broadcastBluetoothState(state);
-        }
+        Log.i(TAG, "Calling service callbacks to getBluetooth State - auto connect service");
+        broadcastBluetoothState(state);
+
     }
 
     private void broadcastBluetoothState(int state){
@@ -342,10 +341,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-        if (callbacks != null) {
-            Log.i(TAG, "Setting ctrl response on service callbacks - auto-connect service");
-            broadcastSetCtrlResponse(responsePackageInfo);
-        }
+        Log.i(TAG, "Setting ctrl response on service callbacks - auto-connect service");
+        broadcastSetCtrlResponse(responsePackageInfo);
     }
 
     private void broadcastSetCtrlResponse(ResponsePackageInfo responsePackageInfo){
@@ -367,10 +364,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             saveSyncedDevice(responsePackageInfo.deviceId);
         }
 
-        if (callbacks != null) {
-            Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
-            broadcastSetParameterResponse(responsePackageInfo);
-        }
+        Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
+        broadcastSetParameterResponse(responsePackageInfo);
     }
 
     private void broadcastSetParameterResponse(ResponsePackageInfo responsePackageInfo){
@@ -431,9 +426,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
 
-        if(callbacks != null) {
-            broadcastTripData(tripInfoPackage);
-        }
+        broadcastTripData(tripInfoPackage);
     }
 
     private void broadcastTripData(TripInfoPackage tripInfoPackage){
@@ -496,9 +489,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
 
-        if(callbacks != null) {
-            broadcastParameterData(parameterPackage);
-        }
+        broadcastParameterData(parameterPackage);
     }
 
     private void broadcastParameterData(ParameterPackage parameterPackage){
@@ -517,9 +508,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned");
-            if(callbacks != null) {
-                broadcastPidData(pidPackage);
-            }
+            broadcastPidData(pidPackage);
             return;
         }
 
@@ -614,9 +603,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
         }
 
-        if(callbacks != null) {
-            broadcastPidData(pidPackage);
-        }
+        broadcastPidData(pidPackage);
     }
 
     private void broadcastPidData(PidPackage pidPackage){
@@ -755,9 +742,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = null;
         }
 
-        if (callbacks != null) {
-            broadcastDeviceLogin(loginPackageInfo);
-        }
+        broadcastDeviceLogin(loginPackageInfo);
 
     }
 
@@ -815,12 +800,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public void addCallback(ObdManager.IBluetoothDataListener callback){
         if (!callbacks.contains(callback)){
+            Log.d(TAG,"Adding new callback ");
             callbacks.add(callback);
         }
     }
 
     public void removeCallback(ObdManager.IBluetoothDataListener callback){
-        callbacks.remove(callback);
+        if (callbacks.contains(callback)){
+            Log.d(TAG,"Removing callback");
+            callbacks.remove(callback);
+        }
     }
 
     public void startBluetoothSearch(int... source) {

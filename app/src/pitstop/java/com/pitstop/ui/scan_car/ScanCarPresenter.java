@@ -82,10 +82,14 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void update() {
         if (mCallback == null) return;
 
+        mCallback.showLoading("Loading...");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                mCallback.onLoadedMileage(car.getTotalMileage());
+                if (mCallback != null){
+                    mCallback.hideLoading("Loading...");
+                    mCallback.onLoadedMileage(car.getTotalMileage());
+                }
                 dashboardCar = car;
             }
 
@@ -112,16 +116,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void updateMileageWithoutTrip(double input) {
-        if (dashboardCar == null) return;
-
-        final double mileage = input
-                - (dashboardCar.getDisplayedMileage() - dashboardCar.getBaseMileage());
-        updateMileage(mileage);
-
-    }
-
-    @Override
     public void updateMileage(final double input) {
         if (dashboardCar == null) return;
 
@@ -130,11 +124,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                mCallback.hideLoading("Mileage updated!");
                 if (requestError != null) {
                     mCallback.onNetworkError(requestError.getMessage());
                     return;
                 }
+
+                mCallback.hideLoading("Mileage updated!");
 
                 if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED && mAutoConnectService.getLastTripId() != -1){
                     networkHelper.updateMileageStart(input, mAutoConnectService.getLastTripId(), null);
@@ -409,6 +404,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void unbind() {
+        mCallback.hideLoading(null);
         mCallback = null;
         mAutoConnectService.removeCallback(this);
     }

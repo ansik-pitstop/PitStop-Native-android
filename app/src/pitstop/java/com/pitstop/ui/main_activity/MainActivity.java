@@ -111,7 +111,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private GlobalApplication application;
-    private boolean serviceIsBound;
+    private boolean serviceIsBound = false;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
@@ -320,7 +320,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onResume() {
         super.onResume();
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (!serviceIsBound){
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
         Log.d(TAG, "onResume");
 
         if (autoConnectService != null) autoConnectService.addCallback(this);

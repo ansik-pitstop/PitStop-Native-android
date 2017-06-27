@@ -1,6 +1,5 @@
 package com.pitstop.ui.scan_car;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -18,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +67,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private MixpanelHelper mixpanelHelper;
     private ScanCarContract.Presenter presenter;
 
+    @BindView(R.id.progress) LinearLayout loadingView;
+
     @BindView(R.id.loading_recalls) RelativeLayout loadingRecalls;
     @BindView(R.id.recalls_state_layout) RelativeLayout recallsStateLayout;
     @BindView(R.id.recalls_count_layout) RelativeLayout recallsCountLayout;
@@ -103,9 +105,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private AlertDialog connectTimeoutDialog;
 
     private int numberOfIssues = 0;
-    private ProgressDialog progressDialog;
 
     private boolean isScanning = false;
+    private boolean isLoading = false;
 
     private IssuePagerAdapter pagerAdapter;
     private IBluetoothServiceActivity bluetoothServiceActivity;
@@ -120,7 +122,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View rootview = inflater.inflate(R.layout.activity_car_scan,null);
+        View rootview = inflater.inflate(R.layout.fragment_car_scan,null);
         ButterKnife.bind(this,rootview);
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
@@ -137,8 +139,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     private void setStaticUI(){
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCanceledOnTouchOutside(false);
 
         if (!BuildConfig.DEBUG) {
             updateMileageButton.setVisibility(View.GONE);
@@ -293,7 +293,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                             if (mileage > 20000000) {
                                 Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
-                                presenter.updateMileageWithoutTrip(mileage);
+                                presenter.updateMileage(mileage);
                                 d.dismiss();
                             }
                         }
@@ -584,25 +584,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void hideLoading(String string) {
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-        if (string != null) {
-            Toast.makeText(getActivity(), string, Toast.LENGTH_SHORT).show();
+        if (isLoading){
+            loadingView.setVisibility(View.INVISIBLE);
+            isLoading = false;
         }
     }
 
     @Override
     public void showLoading(final String string) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressDialog.setMessage(string);
-                if (!progressDialog.isShowing()) {
-                    progressDialog.show();
-                }
-            }
-        });
+        if (!isLoading){
+            loadingView.setVisibility(View.VISIBLE);
+            isLoading = true;
+        }
     }
 
     @Override

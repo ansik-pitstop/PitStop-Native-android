@@ -95,8 +95,6 @@ public interface ScanCarContract {
 
         void connectToDevice();
 
-        void updateMileageWithoutTrip(double input);
-
         /**
          * @param input validated mileage(non-negative, less than max value)
          */

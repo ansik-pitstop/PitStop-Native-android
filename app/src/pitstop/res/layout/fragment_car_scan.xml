@@ -9,6 +9,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.scan_car.ScanCarFragment">
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:gravity="center"
+        android:visibility="gone"
+        android:id="@+id/progress">
+
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="visible"/>
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/scan_details_cards"
         android:layout_width="match_parent"
