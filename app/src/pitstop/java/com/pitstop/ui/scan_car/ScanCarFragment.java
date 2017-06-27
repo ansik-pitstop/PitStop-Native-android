@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -67,7 +68,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private MixpanelHelper mixpanelHelper;
     private ScanCarContract.Presenter presenter;
 
-    @BindView(R.id.progress) LinearLayout loadingView;
+    @BindView(R.id.progress) FrameLayout loadingView;
+    @BindView(R.id.scan_details_cards) LinearLayout scanDetailsLayout;
 
     @BindView(R.id.loading_recalls) RelativeLayout loadingRecalls;
     @BindView(R.id.recalls_state_layout) RelativeLayout recallsStateLayout;
@@ -585,7 +587,15 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void hideLoading(String string) {
         if (isLoading){
-            loadingView.setVisibility(View.INVISIBLE);
+
+            //Hard coded for now since view will be changed entirely
+            recallCard.setCardElevation(4);
+            dtcCard.setCardElevation(4);
+            serviceCard.setCardElevation(4);
+            dtcCard.setCardElevation(4);
+            carCard.setCardElevation(4);
+
+            loadingView.setVisibility(View.GONE);
             isLoading = false;
         }
     }
@@ -593,6 +603,15 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void showLoading(final String string) {
         if (!isLoading){
+
+            //Hard coded for now since view will be changed entirely
+            recallCard.setCardElevation(0);
+            dtcCard.setCardElevation(0);
+            serviceCard.setCardElevation(0);
+            dtcCard.setCardElevation(0);
+            carCard.setCardElevation(0);
+
+            loadingView.bringToFront();
             loadingView.setVisibility(View.VISIBLE);
             isLoading = true;
         }

@@ -9,9 +9,13 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.scan_car.ScanCarFragment">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <include layout="@layout/loading_layout"/>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
+        android:background="@color/grey"
+        android:alpha="0.4"
         android:clickable="true"
         android:gravity="center"
         android:visibility="gone"
@@ -24,7 +28,8 @@
             android:layout_gravity="center"
             android:indeterminate="true"
             android:visibility="visible"/>
-    </LinearLayout>
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/scan_details_cards"
