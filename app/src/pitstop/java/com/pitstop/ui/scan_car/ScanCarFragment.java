@@ -628,7 +628,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             dtcCard.setCardElevation(4);
             carCard.setCardElevation(4);
 
-            loadingView.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.GONE);
             isLoading = false;
         }
     }
@@ -645,7 +645,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             carCard.setCardElevation(0);
 
             loadingView.bringToFront();
-            loadingView.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
             isLoading = true;
         }
     }
