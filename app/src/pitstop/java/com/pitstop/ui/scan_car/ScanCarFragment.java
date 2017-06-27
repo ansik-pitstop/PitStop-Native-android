@@ -110,6 +110,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     private boolean isScanning = false;
     private boolean isLoading = false;
+    private boolean gotEngineCodes = false;
+    private boolean gotServices = false;
+    private boolean gotRecalls = false;
 
     private IssuePagerAdapter pagerAdapter;
     private IBluetoothServiceActivity bluetoothServiceActivity;
@@ -186,6 +189,19 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             public void onSeriesItemDisplayProgress(float percentComplete) {
             }
         });
+
+        if (gotEngineCodes){
+            displayEngineCodes();
+        }
+        if (gotRecalls){
+            displayRecalls();
+        }
+        if (gotServices){
+            displayServices();
+        }
+        if (gotEngineCodes || gotRecalls || gotServices){
+            updateCarHealthMeter();
+        }
     }
 
     @Override
@@ -249,14 +265,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @OnClick(R.id.dashboard_car_scan_btn)
     public void startCarScan(View view) {
         mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
-
-//        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            startActivityForResult(enableBtIntent, MainActivity.RC_ENABLE_BT);
-//            return;
-//        }
-
-        updateMileage(null);
+        startCarScan();
     }
 
     @OnClick(R.id.update_mileage)
@@ -420,9 +429,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void onRecallRetrieved(@Nullable Set<CarIssue> recalls) {
         Log.d(TAG, "onRecallRetrieved, num: " + (recalls == null ? 0 : recalls.size()));
+        gotRecalls = true;
         this.recalls = recalls == null ? new HashSet<CarIssue>() : recalls;
         numberOfIssues += (recalls == null ? 0 : recalls.size());
         updateCarHealthMeter();
+
+        displayRecalls();
+        checkScanProgress();
+    }
+
+    private void displayRecalls(){
+
+        if (recalls == null) return;
 
         loadingRecalls.setVisibility(View.GONE);
 
@@ -438,8 +456,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             recallsStateLayout.setVisibility(View.VISIBLE);
             recallsText.setText("No recalls");
         }
-
-        checkScanProgress();
     }
 
     private Set<CarIssue> services;
@@ -447,9 +463,17 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void onServicesRetrieved(@Nullable Set<CarIssue> services) {
         Log.d(TAG, "onServicesRetrieved, num: " + (services == null ? 0 : services.size()));
+        gotServices = true;
         this.services = services == null ? new HashSet<CarIssue>() : services;
         numberOfIssues += (services == null ? 0 : services.size());
         updateCarHealthMeter();
+        displayServices();
+        checkScanProgress();
+    }
+
+    private void displayServices(){
+
+        if (services == null) return;
 
         loadingServices.setVisibility(View.GONE);
 
@@ -466,8 +490,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             servicesStateLayout.setVisibility(View.VISIBLE);
             servicesText.setText("No services due");
         }
-
-        checkScanProgress();
     }
 
     private Set<String> dtcCodes = new HashSet<>();
@@ -475,9 +497,17 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void onEngineCodesRetrieved(@Nullable Set<String> dtcCodes) {
         Log.d(TAG, "onEngineCodesRetrieved, num: " + (dtcCodes == null ? 0 : dtcCodes.size()));
+        gotEngineCodes = true;
         this.dtcCodes = dtcCodes == null ? new HashSet<String>() : dtcCodes;
         numberOfIssues += dtcCodes == null ? 0 : dtcCodes.size();
         updateCarHealthMeter();
+        displayEngineCodes();
+        checkScanProgress();
+    }
+
+    private void displayEngineCodes(){
+
+        if (dtcCodes == null) return;
 
         loadingEngineIssues.setVisibility(View.GONE);
         if (this.dtcCodes.size() != 0) {
@@ -494,8 +524,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         Drawable background = engineIssuesCountLayout.getBackground();
         GradientDrawable gradientDrawable = (GradientDrawable) background;
         gradientDrawable.setColor(Color.rgb(203, 77, 69));
-
-        checkScanProgress();
     }
 
     /**

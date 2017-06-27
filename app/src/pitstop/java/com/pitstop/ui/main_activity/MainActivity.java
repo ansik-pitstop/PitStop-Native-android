@@ -320,11 +320,12 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onResume() {
         super.onResume();
+
+        Log.d(TAG, "onResume");
+
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
-        Log.d(TAG, "onResume");
-
         if (autoConnectService != null) autoConnectService.addCallback(this);
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
@@ -348,13 +349,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onStop() {
         hideLoading();
+        autoConnectService.removeCallback(this);
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy");
         super.onDestroy();
+
+        Log.i(TAG, "onDestroy");
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
