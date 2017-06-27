@@ -14,6 +14,9 @@ public class LocalDebugMessageAdapter implements TABLES.DEBUG_MESSAGES {
             + COLUMN_LEVEL + " INTEGER,"
             + KEY_CREATED_AT + " DATETIME" + ")";
 
+    private final static int MESSAGE_MAX_LENGTH = 5000;
+
+
     private LocalDatabaseHelper mDatabaseHelper;
 
     public LocalDebugMessageAdapter(Context context) {
@@ -21,6 +24,9 @@ public class LocalDebugMessageAdapter implements TABLES.DEBUG_MESSAGES {
     }
 
     public void addMessage(DebugMessage message) {
+        if (message.getMessage().length() > MESSAGE_MAX_LENGTH){
+            message.setMessage(message.getMessage().substring(0,MESSAGE_MAX_LENGTH)+"...");
+        }
         mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message));
     }
 
