@@ -411,6 +411,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void unbind() {
+        if (mCallback == null) return;
+
         mCallback.hideLoading(null);
         mCallback = null;
         mAutoConnectService.removeCallback(this);

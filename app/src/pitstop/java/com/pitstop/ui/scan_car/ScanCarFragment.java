@@ -635,6 +635,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void hideLoading(String string) {
+        Log.d(TAG,"hideLoading() called, isLoading? "+isLoading);
+
         if (isLoading){
 
             //Hard coded for now since view will be changed entirely
@@ -651,6 +653,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void showLoading(final String string) {
+        Log.d(TAG,"showLoading() called, isLoading? "+isLoading);
+
         if (!isLoading){
 
             //Hard coded for now since view will be changed entirely
