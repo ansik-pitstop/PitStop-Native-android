@@ -56,7 +56,7 @@ public class BluetoothDeviceRecognizer {
 
         logScannerTable();
 
-        if (AddCarActivity.addingCarWithDevice
+        if (true || AddCarActivity.addingCarWithDevice
                 || mLocalScannerStore.anyScannerLackName()
                 || mLocalScannerStore.deviceNameExists(scannerName)) {
             return RecognizeResult.CONNECT;

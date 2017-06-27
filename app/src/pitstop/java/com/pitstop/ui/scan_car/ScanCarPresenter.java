@@ -80,6 +80,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void update() {
+        if (mCallback == null) return;
+
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
