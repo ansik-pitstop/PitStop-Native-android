@@ -134,10 +134,10 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
+        setStaticUI();
         presenter = new ScanCarPresenter(bluetoothServiceActivity, useCaseComponent);
         presenter.bind(this);
         presenter.update();
-        setStaticUI();
 
         return rootview;
     }
@@ -183,18 +183,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                     seriesItem.setColor(Color.parseColor("#E53935"));
                 }
 
-                if (gotEngineCodes){
-                    displayEngineCodes();
-                }
-                if (gotRecalls){
-                    displayRecalls();
-                }
-                if (gotServices){
-                    displayServices();
-                }
-                if (gotEngineCodes || gotRecalls || gotServices){
-                    updateCarHealthMeter();
-                }
             }
 
             @Override
@@ -202,6 +190,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             }
         });
 
+        if (gotEngineCodes){
+            displayEngineCodes();
+        }
+        if (gotRecalls){
+            displayRecalls();
+        }
+        if (gotServices){
+            displayServices();
+        }
+        if (gotEngineCodes || gotRecalls || gotServices){
+            updateCarHealthMeter();
+        }
     }
 
     @Override
@@ -249,6 +249,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         if (presenter != null){
             presenter.unbind();
         }
+        hideLoading(null);
         super.onDestroyView();
     }
 
@@ -450,6 +451,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         if (this.recalls.size() > 0) {
             recallsCountLayout.setVisibility(View.VISIBLE);
+            recallsStateLayout.setVisibility(View.GONE);
             recallsCount.setText(String.valueOf(this.recalls.size()));
             recallsText.setText("Recalls");
 
@@ -458,6 +460,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             gradientDrawable.setColor(Color.rgb(203, 77, 69));
         } else {
             recallsStateLayout.setVisibility(View.VISIBLE);
+            recallsCountLayout.setVisibility(View.GONE);
             recallsText.setText("No recalls");
         }
     }
@@ -625,7 +628,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             dtcCard.setCardElevation(4);
             carCard.setCardElevation(4);
 
-            loadingView.setVisibility(View.GONE);
+            loadingView.setVisibility(View.INVISIBLE);
             isLoading = false;
         }
     }
@@ -642,7 +645,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             carCard.setCardElevation(0);
 
             loadingView.bringToFront();
-            loadingView.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.INVISIBLE);
             isLoading = true;
         }
     }

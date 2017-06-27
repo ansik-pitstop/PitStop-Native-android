@@ -110,7 +110,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (isConnectedToDevice()) {
             mCallback.onDeviceConnected();
         } else {
-            mCallback.showLoading("Connecting to car");
             connectToCarWithTimeout();
         }
     }
@@ -124,6 +123,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                if (mCallback == null) return;
+
                 if (requestError != null) {
                     mCallback.onNetworkError(requestError.getMessage());
                     return;
@@ -174,6 +175,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                if (mCallback == null) return;
+
                 if (requestError != null) {
                     Log.e(TAG, String.valueOf(requestError.getStatusCode()));
                     Log.e(TAG, requestError.getError());
@@ -220,6 +223,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void finishScan() {
+        if (mCallback == null) return;
         if (!mCallback.isScanning()) return;
         cancelAllTimers();
         mCallback.onRecallRetrieved(recalls);
@@ -255,6 +259,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void getBluetoothState(int state) {
         Log.i(TAG, "Bluetooth state updateCarIssue");
+
+        if (mCallback == null) return;
         switch (state) {
             case BluetoothCommunicator.CONNECTED:
                 mCallback.onDeviceConnected();
@@ -280,7 +286,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
 
-        if (dashboardCar == null) return;
+        if (dashboardCar == null || mCallback == null) return;
 
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage updateCarIssue
             final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
@@ -306,7 +312,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void pidData(PidPackage pidPackage) {
-        if (!realTimeDataRetrieved && pidPackage.realTime){
+        if (mCallback != null && !realTimeDataRetrieved && pidPackage.realTime){
             realTimeDataRetrieved = true;
             mCallback.onRealTimeDataRetrieved();
         }
@@ -357,7 +363,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (isConnectedToDevice() || mCallback == null) return;
+            if (mCallback == null || isConnectedToDevice() ) return;
             mCallback.onConnectingTimeout();
         }
     };
@@ -375,7 +381,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (!isAskingForDtcs) return;
+            if (mCallback == null || !isAskingForDtcs) return;
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
