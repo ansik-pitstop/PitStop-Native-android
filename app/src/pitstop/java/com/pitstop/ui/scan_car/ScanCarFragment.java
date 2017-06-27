@@ -145,13 +145,17 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void onStop() {
         super.onStop();
-        presenter.unbind();
+        if (presenter != null){
+            presenter.unbind();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        presenter.bind(this);
+        if (presenter != null){
+            presenter.bind(this);
+        }
     }
 
     private void setStaticUI(){
