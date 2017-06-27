@@ -73,8 +73,6 @@ public class LocalCarAdapter {
             }
         }
 
-        c.close();
-
         return cars;
     }
 
@@ -93,8 +91,6 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-        c.close();
-
         return car;
     }
 
@@ -112,8 +108,6 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
-
-        c.close();
 
         return car;
     }
@@ -134,7 +128,6 @@ public class LocalCarAdapter {
             }
         }
 
-        c.close();
         return cars;
 
     }
@@ -153,8 +146,6 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
-
-        c.close();
 
         return car;
     }
@@ -196,8 +187,6 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
-
-        c.close();
 
         return car;
     }
@@ -255,6 +244,11 @@ public class LocalCarAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[]{String.valueOf(car.getId())});
+    }
+
+    public void finalize(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.close();
     }
 
 }

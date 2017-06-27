@@ -390,6 +390,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
+            if (mCallback == null) return;
             if (realTimeDataRetrieved || !mCallback.isScanning()) return;
             mCallback.onGetRealTimeDataTimeout();
         }

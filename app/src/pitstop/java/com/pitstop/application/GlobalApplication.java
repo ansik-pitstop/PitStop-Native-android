@@ -95,6 +95,12 @@ public class GlobalApplication extends Application {
     }
 
     @Override
+    public void onTerminate() {
+        super.onTerminate();
+        mLocalCarAdapter.finalize();
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
 

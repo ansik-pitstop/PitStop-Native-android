@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -68,7 +67,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private MixpanelHelper mixpanelHelper;
     private ScanCarContract.Presenter presenter;
 
-    @BindView(R.id.progress) FrameLayout loadingView;
+    @BindView(R.id.progress) View loadingView;
     @BindView(R.id.scan_details_cards) LinearLayout scanDetailsLayout;
 
     @BindView(R.id.loading_recalls) RelativeLayout loadingRecalls;
@@ -135,10 +134,10 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
-        setStaticUI();
         presenter = new ScanCarPresenter(bluetoothServiceActivity, useCaseComponent);
         presenter.bind(this);
         presenter.update();
+        setStaticUI();
 
         return rootview;
     }
@@ -183,6 +182,19 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 } else {
                     seriesItem.setColor(Color.parseColor("#E53935"));
                 }
+
+                if (gotEngineCodes){
+                    displayEngineCodes();
+                }
+                if (gotRecalls){
+                    displayRecalls();
+                }
+                if (gotServices){
+                    displayServices();
+                }
+                if (gotEngineCodes || gotRecalls || gotServices){
+                    updateCarHealthMeter();
+                }
             }
 
             @Override
@@ -190,18 +202,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             }
         });
 
-        if (gotEngineCodes){
-            displayEngineCodes();
-        }
-        if (gotRecalls){
-            displayRecalls();
-        }
-        if (gotServices){
-            displayServices();
-        }
-        if (gotEngineCodes || gotRecalls || gotServices){
-            updateCarHealthMeter();
-        }
     }
 
     @Override
@@ -362,7 +362,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public void onDeviceConnected() {
         if (connectTimeoutDialog != null && connectTimeoutDialog.isShowing()) connectTimeoutDialog.dismiss();
-        hideLoading(null);
         if (isScanning) startCarScan();
     }
 
@@ -371,7 +370,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         if (isRemoving()) { // You don't want to add a dialog to a finished activity
             return;
         }
-        hideLoading(null);
         if (connectTimeoutDialog == null) {
             connectTimeoutDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -428,12 +426,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void onRecallRetrieved(@Nullable Set<CarIssue> recalls) {
-        Log.d(TAG, "onRecallRetrieved, num: " + (recalls == null ? 0 : recalls.size()));
-        gotRecalls = true;
-        this.recalls = recalls == null ? new HashSet<CarIssue>() : recalls;
-        numberOfIssues += (recalls == null ? 0 : recalls.size());
-        updateCarHealthMeter();
+        Log.d(TAG, "onRecallRetrieved, num: " + (recalls == null? 0: recalls.size()));
 
+        if (recalls == null){
+            this.recalls = new HashSet<>();
+        }
+        else{
+            this.recalls = recalls;
+        }
+
+        gotRecalls = true;
+        numberOfIssues += recalls.size();
+        updateCarHealthMeter();
         displayRecalls();
         checkScanProgress();
     }
@@ -567,9 +571,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
             return true;
         } else {
             if (errorToShow != null) {
-                hideLoading(errorToShow);
             } else {
-                hideLoading("No network connection! Please check your network connection and try again.");
+                //hideLoading("No network connection! Please check your network connection and try again.");
             }
             return false;
         }
@@ -577,7 +580,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     @Override
     public void onNetworkError(@NonNull String errorMessage) {
-        hideLoading(errorMessage);
     }
 
     @Override
