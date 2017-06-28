@@ -1169,16 +1169,27 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void notifyDeviceConnected() {
-        for (BluetoothObserver observer: observerList){
-            observer.onDeviceConnected(autoConnectService);
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (BluetoothObserver observer: observerList){
+                    observer.onDeviceConnected(autoConnectService);
+                }
+            }
+        });
     }
 
     @Override
     public void notifyDeviceDisconnected() {
-        for (BluetoothObserver observer: observerList){
-            observer.onDeviceDisconnected();
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (BluetoothObserver observer: observerList){
+                    observer.onDeviceDisconnected();
+                }
+            }
+        });
+
     }
 
     @Override
