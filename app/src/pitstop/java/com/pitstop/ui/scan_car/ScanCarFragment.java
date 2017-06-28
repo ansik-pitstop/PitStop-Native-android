@@ -608,6 +608,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         } else {
             servicesStateLayout.setVisibility(View.VISIBLE);
+            servicesCountLayout.setVisibility(View.GONE);
             servicesText.setText("No services due");
         }
     }
