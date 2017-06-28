@@ -1,6 +1,5 @@
 package com.pitstop.ui.scan_car;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -27,15 +26,16 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.observer.BluetoothObservable;
 import com.pitstop.observer.BluetoothObserver;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -54,7 +54,7 @@ import butterknife.OnClick;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class ScanCarFragment extends CarDataFragment implements ScanCarContract.View, BluetoothObserver {
+public class ScanCarFragment extends CarDataFragment implements ScanCarContract.View {
 
     private static String TAG = ScanCarFragment.class.getSimpleName();
     public static final EventSource EVENT_SOURCE
@@ -108,7 +108,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private boolean gotServices = false;
     private boolean gotRecalls = false;
 
-    private IBluetoothServiceActivity bluetoothServiceActivity;
+    private BluetoothObservable<BluetoothObserver> bluetoothObservable;
     private UseCaseComponent useCaseComponent;
 
     private Set<CarIssue> recalls;
@@ -128,14 +128,20 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         View rootview = inflater.inflate(R.layout.fragment_car_scan,null);
         ButterKnife.bind(this,rootview);
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
+        bluetoothObservable = (BluetoothObservable<BluetoothObserver>)getActivity();
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
+        TempNetworkComponent networkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+
         setStaticUI();
         loadPreviousState();
-        presenter = new ScanCarPresenter(bluetoothServiceActivity, useCaseComponent);
+        presenter = new ScanCarPresenter(bluetoothObservable, useCaseComponent
+                , networkComponent.networkHelper());
         presenter.bind(this);
         presenter.update();
 
@@ -151,12 +157,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         if (presenter != null){
             presenter.bind(this);
         }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        bluetoothServiceActivity = (IBluetoothServiceActivity) context;
     }
 
     @Override
@@ -366,16 +366,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public boolean isScanning() {
         return isScanning;
-    }
-
-    @Override
-    public BluetoothAutoConnectService getAutoConnectService() {
-        return bluetoothServiceActivity.autoConnectService;
-    }
-
-    @Override
-    public IBluetoothServiceActivity getBluetoothActivity() {
-        return bluetoothServiceActivity;
     }
 
     private void checkScanProgress() {
@@ -652,15 +642,5 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         } else {
             arcView.addEvent(new DecoEvent.Builder(100).setIndex(seriesIndex).build());
         }
-    }
-
-    @Override
-    public void onDeviceConnected(BluetoothAutoConnectService bluetoothAutoConnectService) {
-        presenter.onServiceBound(bluetoothAutoConnectService);
-    }
-
-    @Override
-    public void onDeviceDisconnected() {
-        presenter.onServiceUnbind();
     }
 }

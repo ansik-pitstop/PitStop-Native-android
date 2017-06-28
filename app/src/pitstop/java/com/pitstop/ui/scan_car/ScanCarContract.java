@@ -3,21 +3,19 @@ package com.pitstop.ui.scan_car;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.ui.BaseView;
-import com.pitstop.ui.BluetoothPresenter;
-import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.ILoadingActivity;
 import com.pitstop.observer.BluetoothObserver;
+import com.pitstop.ui.BasePresenter;
+import com.pitstop.ui.BaseView;
+import com.pitstop.ui.ILoadingActivity;
 
 import java.util.Set;
 
 
 public interface ScanCarContract {
 
-    interface View extends BaseView<Presenter>, ILoadingActivity
-            , BluetoothObserver {
+    interface View extends BaseView<Presenter>, ILoadingActivity{
 
         void resetUI();
 
@@ -69,12 +67,10 @@ public interface ScanCarContract {
 
         boolean isScanning();
 
-        BluetoothAutoConnectService getAutoConnectService();
-
-        IBluetoothServiceActivity getBluetoothActivity();
     }
 
-    interface Presenter extends BluetoothPresenter{
+    interface Presenter extends BasePresenter, ObdManager.IBluetoothDataListener
+            , BluetoothObserver{
 
         void startScan();
 
@@ -103,7 +99,6 @@ public interface ScanCarContract {
          */
         void finishScan();
 
-        void onActivityFinish();
     }
 
 }

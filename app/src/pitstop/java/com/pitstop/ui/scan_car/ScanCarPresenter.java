@@ -13,20 +13,16 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerTempNetworkComponent;
-import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothObservable;
+import com.pitstop.observer.BluetoothObserver;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
-import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
 
@@ -46,21 +42,18 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
     private ScanCarContract.View mCallback;
-    private MixpanelHelper mixpanelHelper;
     private NetworkHelper networkHelper;
-    private LocalCarAdapter localCarAdapter;
     private Car dashboardCar;
     private BluetoothAutoConnectService mAutoConnectService;
     private UseCaseComponent useCaseComponent;
+    private BluetoothObservable<BluetoothObserver> bluetoothObservable;
 
-    public ScanCarPresenter(IBluetoothServiceActivity activity, UseCaseComponent useCaseComponent) {
+    public ScanCarPresenter(BluetoothObservable<BluetoothObserver> observable
+            , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
 
-        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
-                .contextModule(new ContextModule(activity))
-                .build();
-        networkHelper = tempNetworkComponent.networkHelper();
+        bluetoothObservable = observable;
+        this.networkHelper = networkHelper;
         this.useCaseComponent = useCaseComponent;
-        localCarAdapter = new LocalCarAdapter(activity.getApplicationContext());
 
     }
 
@@ -174,7 +167,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                     }
                     mCallback.onServicesRetrieved(services);
                     mCallback.onRecallRetrieved(recalls);
-                    localCarAdapter.updateCar(Car.createCar(response));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -193,34 +185,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         cancelAllTimers();
         mCallback.onScanEnded();
-    }
-
-    @Override
-    public void onActivityFinish() {
-    }
-
-    @Override
-    public void bindBluetoothService() {
-
-    }
-
-    @Override
-    public void onServiceBound(BluetoothAutoConnectService service) {
-        mAutoConnectService = service;
-    }
-
-    @Override
-    public void unbindBluetoothService() {
-    }
-
-    @Override
-    public void onServiceUnbind() {
-        finishScan();
-        mAutoConnectService = null;
-    }
-
-    @Override
-    public void checkBluetoothService() {
     }
 
     @Override
@@ -328,6 +292,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         mCallback = (ScanCarContract.View) view;
 
+        bluetoothObservable.subscribe(this);
+        mAutoConnectService = bluetoothObservable.getBluetoothAutoConnectService();
+
         if (mAutoConnectService != null){
             mAutoConnectService.addCallback(this);
         }
@@ -336,7 +303,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void unbind() {
         Log.d(TAG,"unbind()");
+
         if (mCallback == null) return;
+
+        bluetoothObservable.unsubscribe(this);
 
         finishScan();
         mCallback.hideLoading(null);
@@ -344,5 +314,15 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (mAutoConnectService != null){
             mAutoConnectService.removeCallback(this);
         }
+    }
+
+    @Override
+    public void onDeviceConnected(BluetoothAutoConnectService bluetoothAutoConnectService) {
+        mAutoConnectService = bluetoothAutoConnectService;
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+        mAutoConnectService = null;
     }
 }

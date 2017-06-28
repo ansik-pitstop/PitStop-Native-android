@@ -200,9 +200,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private UseCaseComponent useCaseComponent;
 
-    //Bluetooth callbacks(Fragments)
-    private List<BluetoothObserver> bluetoothFragmentCallbacks = new ArrayList<>();
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -281,12 +278,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 ,mixpanelHelper);
         fabMenu.createMenu();
 
-    }
-
-    public void addBluetoothFragmentCallback(BluetoothObserver callback){
-        if (!bluetoothFragmentCallbacks.contains(callback)){
-            bluetoothFragmentCallbacks.add(callback);
-        }
     }
 
    // public void removeBluetoothFragmentCallback
@@ -1184,5 +1175,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         for (BluetoothObserver observer: observerList){
             observer.onDeviceDisconnected();
         }
+    }
+
+    @Override
+    public BluetoothAutoConnectService getBluetoothAutoConnectService(){
+        return autoConnectService;
     }
 }
