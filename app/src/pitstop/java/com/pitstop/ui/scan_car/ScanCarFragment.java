@@ -327,6 +327,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         updateCarHealthMeter();
         displayEngineCodes();
         checkScanProgress();
+        isScanning = false;
     }
 
     /**
