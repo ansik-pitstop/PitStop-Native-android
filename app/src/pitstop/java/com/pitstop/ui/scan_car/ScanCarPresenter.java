@@ -179,12 +179,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void finishScan() {
+    public void interruptScan() {
         if (mCallback == null) return;
         if (!mCallback.isScanning()) return;
 
         cancelAllTimers();
-        mCallback.onScanEnded();
+        mCallback.onScanInterrupted();
     }
 
     @Override
@@ -308,7 +308,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         bluetoothObservable.unsubscribe(this);
 
-        finishScan();
+        if (mCallback.isScanning()){
+            interruptScan();
+        }
+
         mCallback.hideLoading(null);
         mCallback = null;
         if (mAutoConnectService != null){
@@ -324,5 +327,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     @Override
     public void onDeviceDisconnected() {
         mAutoConnectService = null;
+        if (mCallback.isScanning()){
+            interruptScan();
+        }
     }
 }

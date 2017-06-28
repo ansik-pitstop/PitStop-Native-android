@@ -19,7 +19,7 @@ public interface ScanCarContract {
 
         void resetUI();
 
-        void onScanEnded();
+        void onScanInterrupted();
 
         void onScanStarted();
 
@@ -97,7 +97,7 @@ public interface ScanCarContract {
         /**
          * Do cleanup when scan is finished, e.g. cancel all timeoutTimers
          */
-        void finishScan();
+        void interruptScan();
 
     }
 

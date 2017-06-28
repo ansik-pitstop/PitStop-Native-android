@@ -332,7 +332,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
-        if (autoConnectService != null) autoConnectService.addCallback(this);
+        if (autoConnectService != null){
+            autoConnectService.addCallback(this);
+        }
+
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -578,6 +581,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.DISCONNECTED) {
+            notifyDeviceDisconnected();
             Log.i(TAG, "Bluetooth disconnected");
         }
     }

@@ -99,6 +99,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     private AlertDialog uploadHistoricalDialog;
     private AlertDialog noDeviceFoundDialog;
+    private AlertDialog scanInterruptedDialog;
 
     private int numberOfIssues = 0;
 
@@ -272,9 +273,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     @Override
-    public void onScanEnded(){
-        Log.d(TAG,"onScanEnded()");
+    public void onScanInterrupted(){
+        Log.d(TAG,"onScanInterrupted()");
         isScanning = false;
+        scanInterruptedDialog.show();
+        resetUI();
     }
 
     @Override
@@ -369,7 +372,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     private void checkScanProgress() {
-        isScanning = loadingEngineIssues.isShown() || loadingRecalls.isShown() || loadingServices.isShown();
         carScanButton.setEnabled(!isScanning);
     }
 
@@ -443,6 +445,21 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private void setStaticUI(){
 
         Log.d(TAG, "setStaticUI()");
+
+        if (scanInterruptedDialog == null){
+            scanInterruptedDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Device Disconnected")
+                    .setMessage("Your device disconnected during the scan. Please re-connect and try again.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
+                        }
+                    })
+                    .create();
+        }
 
         if (noDeviceFoundDialog == null) {
             noDeviceFoundDialog = new AnimatedDialogBuilder(getActivity())
