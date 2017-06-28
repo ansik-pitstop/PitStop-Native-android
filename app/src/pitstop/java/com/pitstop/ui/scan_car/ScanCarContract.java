@@ -15,35 +15,20 @@ import java.util.Set;
 
 public interface ScanCarContract {
 
-    public interface MainActivity {
-        public void onScanCarFinished(boolean updatedMileageOrDtcsFound);
-    }
-
     interface View extends BaseView<Presenter>, ILoadingActivity{
 
-        void onLoadedMileage(double mileage);
+        void resetUI();
 
-        /**
-         * Invoked when the OBD device is connected
-         */
-        void onDeviceConnected();
+        void onScanEnded();
+
+        void onScanStarted();
+
+        void onScanFailed();
 
         /**
          * Invoked when user started scan car process, but we cannot connect to the OBD device for too long
          */
         void onConnectingTimeout();
-
-        /**
-         * callback for updateMileage(String input);
-         * @param updatedMileage
-         */
-        void onInputtedMileageUpdated(double updatedMileage);
-
-        /**
-         * callback for live mileage updates (OBD trip data)
-         * @param updatedMileage
-         */
-        void onTripMileageUpdated(double updatedMileage);
 
         /**
          * callback for getServicesAndRecalls();
@@ -89,16 +74,9 @@ public interface ScanCarContract {
 
     interface Presenter extends BluetoothPresenter{
 
-        double getLatestMileage();
+        void startScan();
 
         void update();
-
-        void connectToDevice();
-
-        /**
-         * @param input validated mileage(non-negative, less than max value)
-         */
-        void updateMileage(double input);
 
         /**
          * Check if OBD device is uploading the real time data to the app <br>

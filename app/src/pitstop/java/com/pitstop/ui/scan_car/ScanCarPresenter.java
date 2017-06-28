@@ -5,11 +5,8 @@ import android.util.Log;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.EventBus.EventType;
-import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -33,7 +30,6 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.TimeoutTimer;
 
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +43,6 @@ import java.util.Set;
 public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     private static final String TAG = ScanCarPresenter.class.getSimpleName();
-
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
     private ScanCarContract.View mCallback;
@@ -71,11 +66,15 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public double getLatestMileage() {
-        if (dashboardCar == null) return 0;
-
-        Car car = localCarAdapter.getCar(dashboardCar.getId());
-        return car != null ? car.getDisplayedMileage() : 0;
+    public void startScan() {
+        if (isConnectedToDevice()){
+            mCallback.onScanStarted();
+            getServicesAndRecalls();
+            checkRealTime();
+        }
+        else{
+            mCallback.onScanFailed();
+        }
     }
 
     @Override
@@ -88,8 +87,15 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
             public void onCarRetrieved(Car car) {
                 if (mCallback != null){
                     mCallback.hideLoading("Loading...");
-                    mCallback.onLoadedMileage(car.getTotalMileage());
+
+                    //Check whether car change occurred
+                    if (dashboardCar != null){
+                        if (car.getId() != dashboardCar.getId()){
+                            mCallback.resetUI();
+                        }
+                    }
                 }
+
                 dashboardCar = car;
             }
 
@@ -101,48 +107,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
             @Override
             public void onError() {
 
-            }
-        });
-    }
-
-    @Override
-    public void connectToDevice() {
-        if (isConnectedToDevice()) {
-            mCallback.onDeviceConnected();
-        } else {
-            connectToCarWithTimeout();
-        }
-    }
-
-    @Override
-    public void updateMileage(final double input) {
-        if (dashboardCar == null) return;
-
-        mAutoConnectService.manuallyUpdateMileage = true;
-        mCallback.showLoading("Updating mileage...");
-        networkHelper.updateCarMileage(dashboardCar.getId(), input, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (mCallback == null) return;
-
-                if (requestError != null) {
-                    mCallback.onNetworkError(requestError.getMessage());
-                    return;
-                }
-
-                mCallback.hideLoading("Mileage updated!");
-
-                if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED && mAutoConnectService.getLastTripId() != -1){
-                    networkHelper.updateMileageStart(input, mAutoConnectService.getLastTripId(), null);
-                }
-
-                dashboardCar.setDisplayedMileage(input);
-                dashboardCar.setTotalMileage(input);
-                localCarAdapter.updateCar(dashboardCar);
-                mCallback.onInputtedMileageUpdated(input);
-
-                EventType type = new EventTypeImpl(EventType.EVENT_MILEAGE);
-                EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
             }
         });
     }
@@ -225,10 +189,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void finishScan() {
         if (mCallback == null) return;
         if (!mCallback.isScanning()) return;
+
         cancelAllTimers();
-        mCallback.onRecallRetrieved(recalls);
-        mCallback.onServicesRetrieved(services);
-        mCallback.onEngineCodesRetrieved(retrievedDtcs);
+        mCallback.onScanEnded();
     }
 
     @Override
@@ -258,14 +221,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getBluetoothState(int state) {
-        Log.i(TAG, "Bluetooth state updateCarIssue");
-
-        if (mCallback == null) return;
-        switch (state) {
-            case BluetoothCommunicator.CONNECTED:
-                mCallback.onDeviceConnected();
-                break;
-        }
     }
 
     @Override
@@ -285,24 +240,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-
-        if (dashboardCar == null || mCallback == null) return;
-
-        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage updateCarIssue
-            final double newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
-
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                localCarAdapter.updateCar(dashboardCar);
-            }
-            mCallback.onTripMileageUpdated(newTotalMileage);
-        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            dashboardCar = localCarAdapter.getCar(dashboardCar.getId());
-            final double newBaseMileage = dashboardCar.getTotalMileage();
-            mCallback.onTripMileageUpdated(newBaseMileage);
-        }
     }
 
     @Override
@@ -335,7 +272,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     private void cancelAllTimers() {
-        connectCarTimer.cancel();
         checkEngineIssuesTimer.cancel();
         checkRealTimeTimer.cancel();
     }
@@ -344,29 +280,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         return mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
                 && mAutoConnectService.isCommunicatingWithDevice();
     }
-
-    private void connectToCarWithTimeout() {
-        mAutoConnectService.startBluetoothSearch();
-        connectCarTimer.cancel();
-        connectCarTimer.start();
-    }
-
-    private final TimeoutTimer connectCarTimer = new TimeoutTimer(15, 3) {
-        @Override
-        public void onRetry() {
-            if (isConnectedToDevice()) {
-                this.cancel();
-                return;
-            }
-            mAutoConnectService.startBluetoothSearch();
-        }
-
-        @Override
-        public void onTimeout() {
-            if (mCallback == null || isConnectedToDevice() ) return;
-            mCallback.onConnectingTimeout();
-        }
-    };
 
     /**
      * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
@@ -405,14 +318,19 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
+        Log.d(TAG,"bind()");
+        if (mCallback != null) return;
+
         mCallback = (ScanCarContract.View) view;
         mAutoConnectService.addCallback(this);
     }
 
     @Override
     public void unbind() {
+        Log.d(TAG,"unbind()");
         if (mCallback == null) return;
 
+        finishScan();
         mCallback.hideLoading(null);
         mCallback = null;
         mAutoConnectService.removeCallback(this);

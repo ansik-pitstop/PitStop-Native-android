@@ -7,7 +7,7 @@ import com.pitstop.database.TABLES;
 
 public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
-    private final static int MESSAGE_MAX_LENGTH = 5000;
+    private final static int MESSAGE_MAX_LENGTH = 500;
 
     public static final int TYPE_NETWORK = 0;
     public static final int TYPE_BLUETOOTH = 1;

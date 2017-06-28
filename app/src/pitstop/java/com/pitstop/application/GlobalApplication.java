@@ -98,6 +98,7 @@ public class GlobalApplication extends Application {
     public void onTerminate() {
         super.onTerminate();
         mLocalCarAdapter.finalize();
+        mUserAdapter.finalze();
     }
 
     @Override

@@ -37,7 +37,6 @@ public class UserAdapter  {
 
         long result = db.insert(TABLES.USER.TABLE_NAME, null, values);
 
-        db.close();
     }
 
     public User getUser() {
@@ -49,8 +48,6 @@ public class UserAdapter  {
         if(c.moveToFirst()) {
             user = cursorToUser(c);
         }
-
-        db.close();
 
         return user;
     }
@@ -82,6 +79,11 @@ public class UserAdapter  {
 
         db.delete(TABLES.USER.TABLE_NAME, null, null);
 
-        db.close();
+    }
+
+    public void finalze(){
+        if (databaseHelper.getWritableDatabase().isOpen()){
+            databaseHelper.getWritableDatabase().close();
+        }
     }
 }
