@@ -3,11 +3,13 @@ package com.pitstop.repositories;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -190,8 +192,32 @@ public class UserRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null && response != null){
-                        callback.onGotCar(Car.createCar(response));
+                    if (requestError == null){
+                        Car car = Car.createCar(response);
+                        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(response != null){
+                                    try{
+                                        JSONObject responseJson = new JSONObject(response);
+                                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                                        for(int i = 0 ; i < customShops.length() ; i++){
+                                            JSONObject shop = customShops.getJSONObject(i);
+                                            if(car.getDealership().getId() == shop.getInt("id")){
+                                                Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                car.setDealership(dealership);
+                                            }
+                                        }
+                                        callback.onGotCar(car);
+                                    }catch (JSONException e){
+                                        callback.onError();
+                                        e.printStackTrace();
+                                    }
+                                }else{
+                                    callback.onError();
+                                }
+                            }
+                        });
                     }
                     else if (requestError == null && response == null){
                         callback.onNoCarSet();

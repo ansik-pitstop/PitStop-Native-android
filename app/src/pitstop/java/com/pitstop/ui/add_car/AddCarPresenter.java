@@ -239,6 +239,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                     Log.d(TAG, "Create car response: " + response);
                                     try {
                                         createdCar = Car.createCar(response);
+                                        mLocalCarAdapter.storeCarData(createdCar);// not correct,but I need the car to exist locally after its made
                                         List<Car> localCarList = mLocalCarAdapter.getAllCars();
 
                                         Log.d(TAG, "Current car list size: " + localCarList.size());

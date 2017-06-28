@@ -56,7 +56,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                 @Override
                                 public void onGotUser(User user) {
-                                    carRepository.getCarByUserId(user.getId(), new CarRepository.CarsGetCallback() {
+                                    carRepository.getCarsByUserId(user.getId(), new CarRepository.CarsGetCallback() {
 
                                         @Override
                                         public void onCarsGot(List<Car> cars) {

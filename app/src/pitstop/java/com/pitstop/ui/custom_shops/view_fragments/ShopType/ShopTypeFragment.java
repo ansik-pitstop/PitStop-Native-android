@@ -64,7 +64,6 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
         });
         presenter = new ShopTypePresenter();
         presenter.subscribe(this,switcher);
-        presenter.setupFragment();
         return view;
     }
 

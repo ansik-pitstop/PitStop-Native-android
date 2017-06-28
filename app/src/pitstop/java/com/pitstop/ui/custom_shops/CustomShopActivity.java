@@ -14,7 +14,6 @@ import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragm
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
-import com.pitstop.ui.main_activity.MainActivity;
 
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
@@ -46,6 +45,9 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
         shopSearchFragment.setSwitcher(this);
         shopTypeFragment.setSwitcher(this);
         pitstopShopsFragment.setSwitcher(this);
+        shopFormFragment.setCar(car);
+        shopFormFragment.setUpdate(false);
+        pitstopShopsFragment.setCar(car);
         shopFormFragment.setSwitcher(this);
 
         presenter = new CustomShopPresenter();
@@ -89,6 +91,11 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
         fragmentTransaction.replace(R.id.custom_shop_fragment_holder, shopFormFragment);
         fragmentTransaction.addToBackStack("shop_form");
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void endActivity() {
+        finish();
     }
 
     @Override

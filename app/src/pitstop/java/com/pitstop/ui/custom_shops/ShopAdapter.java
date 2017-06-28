@@ -2,6 +2,7 @@ package com.pitstop.ui.custom_shops;
 
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.add_car.AddCarContract;
 
 import java.util.List;
 
@@ -24,16 +24,18 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
 
     private final List<Dealership> dealerships;
 
-    private ShopTypePresnter shopTypePresnter;
+    private ShopPresnter shopPresnter;
 
-    public ShopAdapter(@NonNull List<Dealership> dealerships, ShopTypePresnter shopTypePresnter) {
+
+    public ShopAdapter(@NonNull List<Dealership> dealerships, ShopPresnter shopPresnter) {
         this.dealerships = dealerships;
-        this.shopTypePresnter = shopTypePresnter;
+        this.shopPresnter = shopPresnter;
     }
 
 
     @Override
     public ShopViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
 
         return new ShopViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false));
     }
@@ -42,18 +44,17 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public void onBindViewHolder(ShopViewHolder holder, final int position) {
         int viewType = getItemViewType(position);
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.name.setText("Name");
-            holder.address.setText("Address");
+            holder.name.setText("No Matching Shops");
+            holder.address.setText("");
         } else {
-            holder.setClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    shopTypePresnter.onShopClicked(dealerships.get(position));
-                }
-            });
-            holder.name.setText(dealerships.get(position).getName());
-            holder.address.setText(dealerships.get(position).getAddress());
-
+                holder.setClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        shopPresnter.onShopClicked(dealerships.get(position));
+                    }
+                });
+                holder.name.setText(dealerships.get(position).getName());
+                holder.address.setText(dealerships.get(position).getAddress());
         }
     }
 
@@ -76,8 +77,10 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public class ShopViewHolder extends RecyclerView.ViewHolder{
         TextView name;
         TextView address;
+        CardView item;
         public ShopViewHolder(View itemView) {
             super(itemView);
+            item = (CardView) itemView.findViewById(R.id.trip_card);
             name = (TextView) itemView.findViewById(R.id.trip_date);
             address = (TextView) itemView.findViewById(R.id.trip_details);
         }

@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import com.parse.ParseInstallation;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.models.Dealership;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.models.issue.CarIssue;
@@ -833,6 +835,23 @@ public class NetworkHelper {
         putNoAuth("scan/trip", callback, body);
     }
 
+
+
+    public void postShop(Dealership dealership, RequestCallback callback){
+        JSONObject body = new JSONObject();
+        try {
+            body.put("name",dealership.getName());
+            body.put("email",dealership.getEmail());
+            body.put("phone",dealership.getPhone());
+            body.put("address",dealership.getAddress());
+            body.put("googlePlacesId","");// to be added
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        System.out.println("Testing trying to post this "+body);
+        post("shop",callback,body);
+    }
+
     /**
      * Get the aggregated settings
      *
@@ -843,6 +862,10 @@ public class NetworkHelper {
         //GET /settings?userId=
         LOGI(TAG, "getUserSettingsById: " + userId);
         get("settings/?userId=" + userId, callback);
+    }
+
+    public void putUserSettingsById(int userId, JSONObject body, RequestCallback callback){
+        put("user/"+userId+"/settings",callback,body);
     }
 
     /**

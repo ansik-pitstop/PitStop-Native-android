@@ -2,9 +2,6 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarAdapter;
-
-import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
@@ -20,13 +17,15 @@ import java.util.List;
 public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     private Handler handler;
     private CarRepository carRepository;
+    private NetworkHelper networkHelper;
     private UserRepository userRepository;
 
     private GetCarsByUserIdUseCase.Callback callback;
 
 
-    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository, Handler handler) {
+    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository, NetworkHelper networkHelper,CarRepository carRepository, Handler handler) {
         this.userRepository = userRepository;
+        this.networkHelper = networkHelper;
         this.handler = handler;
         this.carRepository = carRepository;
 
@@ -40,11 +39,63 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void run() {
+       /* userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+            @Override
+            public void onGotUser(User user) {
+               carRepository.getCarsByUserId(user.getId(), new CarRepository.CarsGetCallback() {
+                   @Override
+                   public void onCarsGot(List<Car> cars) {
+                       networkHelper.getUserSettingsById(user.getId(), new RequestCallback() {
+                           @Override
+                           public void done(String response, RequestError requestError) {
+                               if(response != null){
+                                   try{
+                                       JSONObject responseJson = new JSONObject(response);
+                                       JSONObject userJson = responseJson.getJSONObject("user");
+                                       int mainCarId = userJson.getInt("mainCar");
+                                       JSONArray customShops = userJson.getJSONArray("customShops");
+                                       for(Car c:cars){
+                                           if(c.getId() == mainCarId) {
+                                               c.setCurrentCar(true);
+                                           }
+                                           for( int i = 0 ; i < customShops.length() ; i++){
+                                               JSONObject shop = customShops.getJSONObject(i);
+                                               if(c.getDealership().getId() == shop.getInt("id")){
+                                                   c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
+                                               }
+                                           }
+                                       }
+                                       callback.onCarsRetrieved(cars);
+                                   }catch(JSONException e){
+                                       e.printStackTrace();
+                                       callback.onError();
+                                   }
+                               }else{
+                                   callback.onError();
+                               }
+
+                           }
+                       });
+                   }
+                   @Override
+                   public void onError() {
+                        callback.onError();
+                   }
+               });
+            }
+
+            @Override
+            public void onError() {
+                callback.onError();
+            }
+        });*/
+
+
 
        userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
             @Override
             public void onGotUser(User user) {
-               carRepository.getCarByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+               carRepository.getCarsByUserId(user.getId(),new CarRepository.CarsGetCallback() {
                     @Override
                     public void onCarsGot(List<Car> cars) {
                         callback.onCarsRetrieved(cars);

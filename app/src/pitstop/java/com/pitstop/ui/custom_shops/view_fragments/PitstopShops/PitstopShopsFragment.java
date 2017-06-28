@@ -2,7 +2,10 @@ package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,11 +18,16 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 import com.pitstop.ui.custom_shops.ShopAdapter;
+import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.settings.SettingsActivity;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,9 +45,13 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
     private Context context;
     private GlobalApplication application;
 
+    private Car car;
+
     private ShopAdapter shopAdapter;
 
-    private RecyclerView shopList;
+
+    @BindView(R.id.pitstop_shop_list)
+    RecyclerView shopList;
 
 
     @BindView(R.id.search_pitstop)
@@ -53,6 +65,15 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
         this.switcher = switcher;
     }
 
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
+    @Override
+    public Car getCar() {
+        return car;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
@@ -60,9 +81,6 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
 
         View view = inflater.inflate(R.layout.fragment_pitstop_shops, container, false);
         ButterKnife.bind(this,view);
-
-        shopList = (RecyclerView) view.findViewById(R.id.pitstop_shop_list);
-
         presenter = new PitstopShopsPresenter();
         presenter.subscribe(this,switcher);
 
@@ -71,9 +89,49 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
                 .build();
         component.injectUseCases(presenter);
 
-        presenter.focusSearch();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                presenter.filterShops(newText);
+                return false;
+            }
+        });
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.focusSearch();
+            }
+        });
         presenter.getShops();
         return view;
+    }
+
+    @Override
+    public void showConfirmation(Dealership dealership) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
+        alertDialogBuilder.setTitle("Set shop to "+dealership.getName());
+        alertDialogBuilder
+                .setMessage("Change the shop of this car")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+                        presenter.changeShop(dealership);
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     @Override
@@ -81,10 +139,10 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         shopAdapter = new ShopAdapter(dealerships,presenter);
-
         shopList.setAdapter(shopAdapter);
         shopList.setLayoutManager(linearLayoutManager);
     }
+
 
     @Override
     public void focusSearch() {

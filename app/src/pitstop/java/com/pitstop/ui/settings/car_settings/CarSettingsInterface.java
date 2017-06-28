@@ -10,7 +10,8 @@ import com.pitstop.ui.settings.FragmentSwitcher;
 public interface CarSettingsInterface {
     void setCar(Car car);
     void setSwitcher(FragmentSwitcher switcher);
+    void showCarText(String name, String shop);
+    void update();
     Car getCar();
     void showDelete();
-    void startCustomShops();
 }

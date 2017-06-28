@@ -13,5 +13,6 @@ public interface FragmentSwitcherInterface {
     void setViewSearchShop();
     void setViewPitstopShops();
     void setViewShopForm(Dealership dealership);
+    void endActivity();
 
 }

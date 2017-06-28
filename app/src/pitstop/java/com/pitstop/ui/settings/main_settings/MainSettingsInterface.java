@@ -14,12 +14,14 @@ public interface MainSettingsInterface {
     void setSwitcher(FragmentSwitcher switcher);
     void startPriv();
     void resetCars();
+    void resetShops();
     void startTerms();
     void showLogOut();
     void gotoLogin();
     void setPrefs(String name, String phone);
     void setPrefMaker(PrefMaker prefMaker);
     void addCar(Preference preference);
+    void addShop(Preference preference);
     void logout();
     void showName(String name);
     void showEmail(String email);

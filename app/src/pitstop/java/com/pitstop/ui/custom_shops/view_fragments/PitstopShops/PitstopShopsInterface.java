@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
 
@@ -13,4 +14,6 @@ public interface PitstopShopsInterface {
     void setSwitcher(FragmentSwitcherInterface switcher);
     void focusSearch();
     void setupList(List<Dealership> dealerships);
+    void showConfirmation(Dealership dealership);
+    Car getCar();
 }

@@ -11,29 +11,38 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
+import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
  * Created by Matt on 2017-06-12.
  */
 
-public class SettingsActivity extends AppCompatActivity implements SettingsInterface,FragmentSwitcher,PrefMaker {
+public class SettingsActivity extends AppCompatActivity implements SettingsInterface,FragmentSwitcher, PrefMaker {
     private SettingsPresenter presenter;
     private FragmentManager fragmentManager;
     private MainSettingsFragment mainSettings;
     private CarSettingsFragment carSettings;
+    private ShopSettingsFragment shopSettings;
+    private ShopFormFragment shopForm;
     private Context context;
 
 
@@ -47,15 +56,28 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
         fragmentManager = getFragmentManager();
+
         mainSettings = new MainSettingsFragment();
         carSettings = new CarSettingsFragment();
+        shopSettings = new ShopSettingsFragment();
+        shopForm = new ShopFormFragment();
+
         mainSettings.setSwitcher(this);
         carSettings.setSwitcher(this);
         mainSettings.setPrefMaker(this);
-
+        shopSettings.setSwitcher(this);
+        shopForm.setSwitcher(this);
+        shopForm.setUpdate(true);
         presenter = new SettingsPresenter();
         presenter.subscribe(this,this);
         presenter.setViewMainSettings();
+    }
+    @Override
+    public void setViewShopForm(Dealership dealership){//here
+        shopForm.setDealership(dealership);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.settings_fragment_holder,shopForm);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -73,25 +95,32 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     }
 
     @Override
+    public void setViewShopSettings() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.settings_fragment_holder,shopSettings);
+        fragmentTransaction.commit();
+    }
+
+    @Override
     public void startAddCar() {//onActivityResult doesn't work if I do this in the fragment
         Intent intent = new Intent(this,AddCarActivity.class);
         startActivityForResult(intent,RC_ADD_CAR);
     }
 
     @Override
+    public void startCustomShops(Car car) {
+        Intent intent = new Intent(context, CustomShopActivity.class);
+        intent.putExtra(CAR_EXTRA,car);
+        startActivityForResult(intent,347);//change this
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //Check for Add car finished, and whether it happened successfully, if so updated preferences view
-        if (data != null) {
-            if (requestCode == RC_ADD_CAR) {
-                if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
-                    mainSettings.update();//This is where the hack gets called
-                    //might be a good place to use the event bus
-                }
-            }
-        }
+        mainSettings.update();
+        carSettings.update();
     }
-
 
     @Override
     public void loading(boolean show) {
@@ -123,11 +152,44 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     }
 
     @Override
+    public Preference shopToPref(Dealership dealership) {
+        Preference shopPref = new Preference(context);
+        shopPref.setTitle(dealership.getName());
+        shopPref.setKey("shop_item");
+        shopPref.setSummary(dealership.getAddress());
+        shopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                shopSettings.setDealership(dealership);
+                presenter.setViewShopSettings();
+                return false;
+            }
+        });
+        return shopPref;
+    }
+
+    @Override
     public void onBackPressed() {
-       if(carSettings.isVisible()){
+        if(shopForm.isVisible()){
+            presenter.setViewShopSettings();
+        }
+        else if(carSettings.isVisible()||shopSettings.isVisible()){
            presenter.setViewMainSettings();
        }else{
            finish();
        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(shopForm.isVisible()){
+            presenter.setViewShopSettings();
+        }
+        else if(carSettings.isVisible()||shopSettings.isVisible()){
+            presenter.setViewMainSettings();
+        }else{
+            finish();
+        }
+        return true;
     }
 }

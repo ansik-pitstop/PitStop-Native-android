@@ -3,9 +3,11 @@ package com.pitstop.ui.settings.main_settings;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetCurrentUserUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.GetUserShopsUseCase;
 import com.pitstop.interactors.UpdateUserNameUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.settings.FragmentSwitcher;
@@ -51,6 +53,9 @@ public class MainSettingsPresenter {
     @Inject
     UpdateUserPhoneUseCase updateUserPhoneUseCase;
 
+    @Inject
+    GetUserShopsUseCase getUserShopsUseCase;
+
     void subscribe(MainSettingsInterface mainSettings, FragmentSwitcher switcher, PrefMaker prefMaker){
         this.mainSettings = mainSettings;
         this.switcher = switcher;
@@ -78,36 +83,26 @@ public class MainSettingsPresenter {
         processesFinished = 0;
         getUser();
         getCars();
+        getShops();
     }
 
 
-    public void getCars(){
-        getUserCarUseCase.execute(new GetUserCarUseCase.Callback() {
+    public void getCars(){// this needs to be changed
+        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback(){
             @Override
-            public void onCarRetrieved(Car car) {
-                getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback(){
-                    @Override
-                    public void onCarsRetrieved(List<Car> cars) {
-                        mainSettings.resetCars();
-                        Collections.reverse(cars);
-                        for(Car c:cars) {
-                            mainSettings.addCar(prefMaker.carToPref(c, (c.getId() == car.getId())));
-                        }
-                        checkDone();
-                    }
-                    @Override
-                    public void onError() {
-                        checkDone();
-                    }
-                });
+            public void onCarsRetrieved(List<Car> cars) {
+                mainSettings.resetCars();
+                Collections.reverse(cars);
+                for(Car c:cars) {
+                    mainSettings.addCar(prefMaker.carToPref(c,c.isCurrentCar()));
+                }
+                checkDone();
             }
-
             @Override
             public void onError() {
                 checkDone();
             }
         });
-
     }
     public void getUser(){
         getCurrentUserUseCase.execute(new GetCurrentUserUseCase.Callback() {
@@ -129,9 +124,28 @@ public class MainSettingsPresenter {
         });
     }
 
+    public void getShops(){
+        getUserShopsUseCase.execute(new GetUserShopsUseCase.Callback() {
+            @Override
+            public void onShopGot(List<Dealership> dealerships) {
+                mainSettings.resetShops();
+                for(Dealership d : dealerships){
+                    mainSettings.addShop(prefMaker.shopToPref(d));
+                }
+                checkDone();
+            }
+
+            @Override
+            public void onError() {
+                checkDone();
+            }
+        });
+
+    }
+
     private void checkDone(){
         processesFinished++;
-        if(processesFinished == 2){
+        if(processesFinished == 3){
             switcher.loading(false);
         }
     }

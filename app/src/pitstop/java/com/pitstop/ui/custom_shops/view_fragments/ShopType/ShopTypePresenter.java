@@ -13,9 +13,6 @@ public class ShopTypePresenter {
         this.shopTypeFragment = shopTypeInterface;
         this.switcher = switcher;
     }
-    public void setupFragment(){
-
-    }
     public void setViewShopSearch(){
         switcher.setViewSearchShop();
     }

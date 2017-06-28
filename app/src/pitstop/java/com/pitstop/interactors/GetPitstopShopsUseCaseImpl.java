@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.ShopRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -22,11 +23,13 @@ import java.util.List;
  */
 
 public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
+    private ShopRepository shopRepository;
     private NetworkHelper networkHelper;
     private GetPitstopShopsUseCase.Callback callback;
     private Handler handler;
 
-    public GetPitstopShopsUseCaseImpl(NetworkHelper networkHelper, Handler handler){
+    public GetPitstopShopsUseCaseImpl(ShopRepository shopRepository, NetworkHelper networkHelper, Handler handler){
+        this.shopRepository = shopRepository;
         this.networkHelper = networkHelper;
         this.handler = handler;
     }
@@ -36,24 +39,17 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        networkHelper.getPitStopShops(new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if(response != null){
-                        System.out.println("Testing Shops "+response);
-                        try{
-                            List<Dealership> list = Dealership.createDealershipList(response);
-                            callback.onShopsGot(list);
-                        }catch (JSONException e){
-                            callback.onError();
-                            e.printStackTrace();
-                        }
-                    }else if(requestError != null){
-                        callback.onError();
-                    }
-                }
+        shopRepository.getPitstopShops(new ShopRepository.GetPitstopShopsCallback() {
+            @Override
+            public void onShopsGot(List<Dealership> dealershipList) {
+                callback.onShopsGot(dealershipList);
             }
-        );
+
+            @Override
+            public void onError() {
+                callback.onError();
+            }
+        });
     }
 
     @Override

@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="20dp">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="20dp">
 
     <TextView
         android:id="@+id/textView9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Shop Name" />
+        android:text="Shop Name"/>
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/shop_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -24,7 +31,7 @@
         android:text="Phone Number" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/phone_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -37,7 +44,7 @@
         android:text="Email Address" />
 
     <EditText
-        android:id="@+id/editText3"
+        android:id="@+id/enter_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -51,7 +58,7 @@
         android:text="Street Address" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/street_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -76,7 +83,7 @@
                 android:text="City" />
 
             <EditText
-                android:id="@+id/editText7"
+                android:id="@+id/enter_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -97,7 +104,7 @@
                 android:text="Province/State" />
 
             <EditText
-                android:id="@+id/editText8"
+                android:id="@+id/enter_province"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -125,7 +132,7 @@
                 android:text="Postal Code" />
 
             <EditText
-                android:id="@+id/editText9"
+                android:id="@+id/postal_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -145,7 +152,7 @@
                 android:text="Country" />
 
             <EditText
-                android:id="@+id/editText10"
+                android:id="@+id/enter_country"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -154,11 +161,11 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/submit_shop_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Shop" />
+        android:text="Submit" />
 
     <TextView
         android:id="@+id/textView18"
@@ -174,4 +181,6 @@
         android:text="request service for your vehicle"
         android:layout_gravity="center_horizontal"/>
 
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

@@ -25,8 +25,22 @@ public class Dealership implements Parcelable {
     private String longitude;
     private String latitude;
 
+    private boolean custom;
+
 
     public Dealership(){}
+
+    public void setCustom(int custom){
+        if(custom ==1){
+            this.custom = true;
+        }else{
+            this.custom = false;
+        }
+    }
+
+    public Boolean isCustom(){
+        return custom;
+    }
 
     public int getId() {
         return id;

@@ -83,9 +83,21 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
 
         carCatagory = (PreferenceCategory) findPreference(CAR_TITLE);
         changeDealer = (Preference) findPreference(CHANGE_SHOP);
-        carCatagory.setTitle(car.getMake()+" "+car.getModel());
-        changeDealer.setTitle(car.getDealership().getName());
+        if(car != null){
+            carCatagory.setTitle(car.getMake()+" "+car.getModel());
+            if(car.getDealership() == null){
+                changeDealer.setTitle("No Dealership");
+            }else{
+                changeDealer.setTitle(car.getDealership().getName());
+            }
+        }
         return view;
+    }
+
+    @Override
+    public void showCarText(String name, String shop) {
+        carCatagory.setTitle(name);
+        changeDealer.setTitle(shop);
     }
 
     @Override
@@ -110,13 +122,15 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
         alertDialog.show();
     }
 
-    @Override
-    public void startCustomShops() {
-        Intent intent = new Intent(context, CustomShopActivity.class);
-        intent.putExtra(CAR_EXTRA,car);
-        startActivity(intent);
-    }
 
+
+    @Override
+    public void update() {
+        if(car == null){
+            return;
+        }
+        presenter.updateCar(car.getId());
+    }
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {

@@ -3,11 +3,14 @@ package com.pitstop.repositories;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -107,7 +110,6 @@ public class CarRepository {
         if (localCarAdapter.updateCar(model) == 0){
             return false;
         }
-
         //Update backend
         networkHelper.updateCar(model.getId(),model.getTotalMileage()
                 ,model.getShopId(),getUpdateCarRequestCallback(callback));
@@ -137,26 +139,56 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public List<Car> getCarByUserId(int userId, CarsGetCallback callback ){
+    public List<Car> getCarsByUserId(int userId, CarsGetCallback callback ){
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback));
+        networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback, userId));
         return localCarAdapter.getCarsByUserId(userId);
     }
-    private RequestCallback getCarsRequestCallback(CarsGetCallback callback){
+    private RequestCallback getCarsRequestCallback(CarsGetCallback callback, int userId){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarsGot(Car.createCarsList(response));
+                        List<Car> cars = Car.createCarsList(response);
+                        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(response != null){
+                                    try{
+                                        JSONObject responseJson = new JSONObject(response);
+                                        JSONObject userJson = responseJson.getJSONObject("user");
+                                        int mainCarId = userJson.getInt("mainCar");
+                                        JSONArray customShops = userJson.getJSONArray("customShops");
+                                        for(Car c:cars){
+                                            if(c.getId() == mainCarId) {
+                                                c.setCurrentCar(true);
+                                            }
+                                            for( int i = 0 ; i < customShops.length() ; i++){
+                                                JSONObject shop = customShops.getJSONObject(i);
+                                                if(c.getDealership().getId() == shop.getInt("id")){
+                                                    c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
+                                                }
+                                            }
+                                        }
+                                        callback.onCarsGot(cars);
+                                    }catch (JSONException e){
+                                        callback.onError();
+                                    }
+                                }else{
+                                    callback.onError();
+                                }
+                            }
+                        });
                     }
                     else{
                         callback.onError();
                     }
                 }
                 catch(JSONException e){
+                    callback.onError();
                 }
             }
         };
@@ -164,19 +196,45 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public Car get(int id, CarGetCallback callback) {
-        networkHelper.getCarsById(id,getGetCarRequestCallback(callback));
+    public Car get(int id,int userId, CarGetCallback callback) {
+        networkHelper.getCarsById(id,getGetCarRequestCallback(callback,userId));
         return localCarAdapter.getCar(id);
     }
 
-    private RequestCallback getGetCarRequestCallback(CarGetCallback callback){
+    private RequestCallback getGetCarRequestCallback(CarGetCallback callback, int userId){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarGot(Car.createCar(response));
+                        Car car = Car.createCar(response);
+                        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+                            @Override
+                            public void done(String response, RequestError requestError) {
+                                if(response != null){
+                                    try{
+                                        JSONObject responseJson = new JSONObject(response);
+                                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                                        for(int i = 0 ; i < customShops.length() ; i++){
+                                            JSONObject shop = customShops.getJSONObject(i);
+                                            if(car.getDealership().getId() == shop.getInt("id")){
+                                                Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                car.setDealership(dealership);
+                                            }
+                                        }
+                                        callback.onCarGot(car);
+                                    }catch (JSONException e){
+                                        callback.onError();
+                                        e.printStackTrace();
+                                    }
+                                }else{
+                                    callback.onError();
+                                }
+                            }
+                        });
+
+
                     }
                     else{
                         callback.onError();
@@ -192,7 +250,6 @@ public class CarRepository {
     }
 
     public boolean delete(Car model, CarDeleteCallback callback) {
-
         //Check if car exists before deleting
         if (localCarAdapter.getCar(model.getId()) == null)
             return false;

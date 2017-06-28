@@ -29,5 +29,9 @@ public class SettingsPresenter {
         switcher.setViewCarSettings();
     }
 
+    public void setViewShopSettings(){
+        switcher.setViewShopSettings();
+    }
+
 
 }

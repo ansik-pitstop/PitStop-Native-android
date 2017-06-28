@@ -1,6 +1,6 @@
 package com.pitstop.ui.settings.car_settings;
 
-import com.pitstop.interactors.GetCurrentUserUseCase;
+import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -27,6 +27,9 @@ public class CarSettingsPresenter {
     @Inject
     SetUserCarUseCase setUserCarUseCase;
 
+    @Inject
+    GetCarByCarIdUseCase getCarByCarIdUseCase;
+
 
     public void subscribe(CarSettingsInterface carSettings, FragmentSwitcher switcher){
         this.switcher = switcher;
@@ -34,7 +37,7 @@ public class CarSettingsPresenter {
     }
     public void preferenceClicked(String key){
         if(key.equals(CHANGE_SHOP)){
-            carSettings.startCustomShops();
+            switcher.startCustomShops(carSettings.getCar());
         }else if(key.equals(DELETE_KEY)){
             carSettings.showDelete();
         }else if(key.equals(SET_CURRENT_KEY)){
@@ -52,6 +55,22 @@ public class CarSettingsPresenter {
 
 
         }
+    }
+    void updateCar(int carId){
+        getCarByCarIdUseCase.execute(carId, new GetCarByCarIdUseCase.Callback() {
+            @Override
+            public void onCarGot(Car car) {
+                carSettings.setCar(car);
+                carSettings.showCarText(car.getMake()+ " "+car.getModel(),car.getDealership().getName());
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+
+
     }
 
     void deleteCar(Car car){

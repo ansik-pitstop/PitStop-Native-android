@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -42,6 +43,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private final String PHONE_PREF_KEY = "pref_phone_number_key";
     private final String APP_INFO_KEY = "AppInfo";
     private final String EMAIL_PREF_KEY = "pref_email_key";
+    private final String SHOP_PREF_KEY = "pref_shops";
 
     private GlobalApplication application;
     private Context context;
@@ -57,6 +59,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private EditTextPreference namePreference;
     private EditTextPreference phonePreference;
     private PreferenceCategory vehicleCatagory;
+    private PreferenceCategory shopCatagory;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
@@ -86,6 +89,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         infoPreference = (Preference) findPreference(APP_INFO_KEY);
         emailPreference = (Preference) findPreference(EMAIL_PREF_KEY);
         vehicleCatagory = (PreferenceCategory) findPreference(getString(R.string.pref_vehicles));
+        shopCatagory = (PreferenceCategory) findPreference(SHOP_PREF_KEY);
 
         presenter = new MainSettingsPresenter();
         presenter.subscribe(this,switcher,prefMaker);
@@ -101,7 +105,13 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
-    public void setPrefs(String name, String phone) {//these are the same as the last user so they need to be updated here
+    public void onResume() {
+        super.onResume();
+        presenter.update();
+    }
+
+    @Override
+    public void setPrefs(String name, String phone){//these are the same as the last user so they need to be updated here
         sharedPrefs.edit().putString(NAME_PREF_KEY,name).commit();
         sharedPrefs.edit().putString(PHONE_PREF_KEY,phone).commit();
     }
@@ -142,8 +152,18 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
+    public void addShop(Preference preference) {
+        shopCatagory.addPreference(preference);
+    }
+
+    @Override
     public void resetCars() {
         vehicleCatagory.removeAll();
+    }
+
+    @Override
+    public void resetShops() {
+        shopCatagory.removeAll();
     }
 
     @Override
@@ -194,6 +214,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
+    @Override
     public void logout(){
         application.logOutUser();
     }
