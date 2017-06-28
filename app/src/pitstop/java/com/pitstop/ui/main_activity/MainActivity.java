@@ -76,7 +76,7 @@ import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.ui.mainFragments.BluetoothFragmentCallback;
+import com.pitstop.ui.mainFragments.BluetoothFragmentObservable;
 import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
@@ -198,7 +198,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private UseCaseComponent useCaseComponent;
 
     //Bluetooth callbacks(Fragments)
-    private List<BluetoothFragmentCallback> bluetoothFragmentCallbacks = new ArrayList<>();
+    private List<BluetoothFragmentObservable> bluetoothFragmentCallbacks = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -280,7 +280,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
-    public void addBluetoothFragmentCallback(BluetoothFragmentCallback callback){
+    public void addBluetoothFragmentCallback(BluetoothFragmentObservable callback){
         if (!bluetoothFragmentCallbacks.contains(callback)){
             bluetoothFragmentCallbacks.add(callback);
         }
