@@ -61,7 +61,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         networkHelper = tempNetworkComponent.networkHelper();
         this.useCaseComponent = useCaseComponent;
         localCarAdapter = new LocalCarAdapter(activity.getApplicationContext());
-        mAutoConnectService = activity.autoConnectService;
 
     }
 
@@ -120,6 +119,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getEngineCodes() {
+        if (!isConnectedToDevice()) return;
+
         retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
         mAutoConnectService.getDTCs();
@@ -205,6 +206,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void onServiceBound(BluetoothAutoConnectService service) {
+        mAutoConnectService = service;
     }
 
     @Override
@@ -213,6 +215,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void onServiceUnbind() {
+        finishScan();
+        mAutoConnectService = null;
     }
 
     @Override
@@ -277,7 +281,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     private boolean isConnectedToDevice() {
-        return mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
+        return mAutoConnectService != null
+                && mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
                 && mAutoConnectService.isCommunicatingWithDevice();
     }
 
@@ -322,7 +327,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (mCallback != null) return;
 
         mCallback = (ScanCarContract.View) view;
-        mAutoConnectService.addCallback(this);
+
+        if (mAutoConnectService != null){
+            mAutoConnectService.addCallback(this);
+        }
     }
 
     @Override
@@ -333,6 +341,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         finishScan();
         mCallback.hideLoading(null);
         mCallback = null;
-        mAutoConnectService.removeCallback(this);
+        if (mAutoConnectService != null){
+            mAutoConnectService.removeCallback(this);
+        }
     }
 }

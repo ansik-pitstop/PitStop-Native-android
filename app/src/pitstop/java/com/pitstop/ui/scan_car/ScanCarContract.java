@@ -9,13 +9,15 @@ import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.ILoadingActivity;
+import com.pitstop.ui.mainFragments.BluetoothFragmentCallback;
 
 import java.util.Set;
 
 
 public interface ScanCarContract {
 
-    interface View extends BaseView<Presenter>, ILoadingActivity{
+    interface View extends BaseView<Presenter>, ILoadingActivity
+            , BluetoothFragmentCallback {
 
         void resetUI();
 

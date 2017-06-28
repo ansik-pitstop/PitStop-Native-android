@@ -8,7 +8,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -47,6 +46,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
+import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -94,6 +94,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @BindView(R.id.services_scan_details) CardView serviceCard;
     @BindView(R.id.engine_scan_details) CardView dtcCard;
 
+    @BindColor(R.color.scan_element_background) int scanResultBackgroundColor;
+
     private AlertDialog uploadHistoricalDialog;
     private AlertDialog noDeviceFoundDialog;
 
@@ -119,6 +121,8 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        Log.d(TAG, "onCreateView()");
 
         View rootview = inflater.inflate(R.layout.fragment_car_scan,null);
         ButterKnife.bind(this,rootview);
@@ -263,12 +267,12 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         resetRecalls();
         resetEngineIssues();
         resetServices();
+        updateCarHealthMeter();
     }
 
     @Override
     public void onScanEnded(){
         Log.d(TAG,"onScanEnded()");
-
         isScanning = false;
     }
 
@@ -417,8 +421,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     private void resetRecalls(){
         recallsCount.setText("--");
-        recallsCountLayout.setBackground(ContextCompat
-                .getDrawable(getContext(),R.drawable.grey_circular_background));
+        Drawable background = recallsCountLayout.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) background;
+        gradientDrawable.setColor(scanResultBackgroundColor);
         recallsCountLayout.setVisibility(View.VISIBLE);
         recallsStateLayout.setVisibility(View.GONE);
         loadingRecalls.setVisibility(View.GONE);
@@ -426,8 +431,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     private void resetServices(){
         servicesCount.setText("--");
-        servicesCountLayout.setBackground(ContextCompat
-                .getDrawable(getContext(),R.drawable.grey_circular_background));
+        Drawable background = servicesCountLayout.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) background;
+        gradientDrawable.setColor(scanResultBackgroundColor);
         servicesCountLayout.setVisibility(View.VISIBLE);
         servicesStateLayout.setVisibility(View.GONE);
         loadingServices.setVisibility(View.GONE);
@@ -435,14 +441,17 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
     private void resetEngineIssues(){
         engineIssuesCount.setText("--");
-        engineIssuesCountLayout.setBackground(ContextCompat
-                .getDrawable(getContext(),R.drawable.grey_circular_background));
+        Drawable background = engineIssuesCountLayout.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) background;
+        gradientDrawable.setColor(scanResultBackgroundColor);
         engineIssuesCountLayout.setVisibility(View.VISIBLE);
         engineIssuesStateLayout.setVisibility(View.GONE);
         loadingEngineIssues.setVisibility(View.GONE);
     }
 
     private void setStaticUI(){
+
+        Log.d(TAG, "setStaticUI()");
 
         if (noDeviceFoundDialog == null) {
             noDeviceFoundDialog = new AnimatedDialogBuilder(getActivity())
@@ -519,6 +528,9 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     private void loadPreviousState(){
+
+        Log.d(TAG,"loadPreviousState() gotEngineCodes?"
+                +gotEngineCodes+" gotRecalls?"+gotRecalls+" gotServices?"+gotServices);
 
         if (gotEngineCodes){
             displayEngineCodes();
@@ -641,4 +653,13 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         }
     }
 
+    @Override
+    public void onDeviceConnected(BluetoothAutoConnectService bluetoothAutoConnectService) {
+        presenter.onServiceBound(bluetoothAutoConnectService);
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+        presenter.onServiceUnbind();
+    }
 }
