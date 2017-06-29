@@ -35,7 +35,6 @@ public class LocalScannerAdapter {
 
         db.insert(TABLES.SCANNER.TABLE_NAME, null, values);
 
-        db.close();
     }
 
     public List<ObdScanner> getAllScanners() {
@@ -51,7 +50,6 @@ public class LocalScannerAdapter {
             }
         }
 
-        db.close();
         return scanners;
     }
 
@@ -80,7 +78,6 @@ public class LocalScannerAdapter {
         int rows = db.update(TABLES.SCANNER.TABLE_NAME, values, TABLES.SCANNER.KEY_SCANNER_ID + "=?",
                 new String[]{String.valueOf(scanner.getScannerId())});
 
-        db.close();
 
         return rows;
     }
@@ -93,7 +90,6 @@ public class LocalScannerAdapter {
         int rows = db.update(TABLES.SCANNER.TABLE_NAME, values, TABLES.SCANNER.KEY_CAR_ID + "=?",
                 new String[]{String.valueOf(scanner.getCarId())});
 
-        db.close();
 
         return rows;
     }
@@ -110,7 +106,6 @@ public class LocalScannerAdapter {
             scanner = cursorToScanner(c);
         }
 
-        db.close();
         return scanner;
     }
 
@@ -130,7 +125,6 @@ public class LocalScannerAdapter {
             if (c != null) c.close();
             if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
 
         return scanner;
     }
@@ -151,7 +145,6 @@ public class LocalScannerAdapter {
             if (c != null) c.close();
             if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
 
         return scanner;
     }
@@ -195,10 +188,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
         return numberOfCars != numberOfScanners;
     }
 
@@ -216,10 +206,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
         return false;
     }
 
@@ -237,10 +224,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
         return false;
     }
 
@@ -256,14 +240,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) {
-                c.close();
-            }
-            if (db.isOpen()) {
-                db.close();
-            }
         }
-        if (db.isOpen()) db.close();
         return size;
     }
 
@@ -285,14 +262,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) {
-                c.close();
-            }
-            if (db.isOpen()) {
-                db.close();
-            }
         }
-        if (db.isOpen()) db.close();
         return result;
     }
 
@@ -320,10 +290,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
         return numberOfDeviceNames != numberOfScanners;
     }
 
@@ -350,10 +317,7 @@ public class LocalScannerAdapter {
                 }
             }
         } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
         }
-        if (db.isOpen()) db.close();
         return false;
     }
 
@@ -361,7 +325,6 @@ public class LocalScannerAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.SCANNER.TABLE_NAME, TABLES.SCANNER.KEY_CAR_ID + "=?",
                 new String[]{String.valueOf(car.getId())});
-        db.close();
     }
 
 
@@ -370,6 +333,11 @@ public class LocalScannerAdapter {
 
         db.delete(TABLES.SCANNER.TABLE_NAME, null, null);
 
-        db.close();
+    }
+
+    public void finalize(){
+        if (databaseHelper.getWritableDatabase().isOpen()){
+            databaseHelper.getWritableDatabase().close();
+        }
     }
 }

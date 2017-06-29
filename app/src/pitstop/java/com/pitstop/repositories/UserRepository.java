@@ -60,14 +60,6 @@ public class UserRepository {
         void onError();
     }
 
-    public static synchronized UserRepository getInstance(UserAdapter userAdapter
-            , NetworkHelper networkHelper) {
-        if (INSTANCE == null) {
-            INSTANCE = new UserRepository(userAdapter, networkHelper);
-        }
-        return INSTANCE;
-    }
-
     public UserRepository(UserAdapter userAdapter, NetworkHelper networkHelper){
         this.userAdapter = userAdapter;
         this.networkHelper = networkHelper;

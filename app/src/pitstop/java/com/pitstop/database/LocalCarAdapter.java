@@ -49,8 +49,6 @@ public class LocalCarAdapter {
         ContentValues values = carObjectToContentValues(car);
 
         long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
-
-        db.close();
     }
 
     public void storeCars(List<Car> carList) {
@@ -74,7 +72,7 @@ public class LocalCarAdapter {
                 c.moveToNext();
             }
         }
-        db.close();
+
         return cars;
     }
 
@@ -93,7 +91,6 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-        db.close();
         return car;
     }
 
@@ -112,7 +109,6 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-        db.close();
         return car;
     }
 
@@ -131,8 +127,7 @@ public class LocalCarAdapter {
                 c.moveToNext();
             }
         }
-        db.close();
-        c.close();
+
         return cars;
 
     }
@@ -152,7 +147,6 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-        db.close();
         return car;
     }
 
@@ -168,8 +162,6 @@ public class LocalCarAdapter {
         int rows = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(car.getId()) });
 
-        db.close();
-
         return rows;
     }
 
@@ -179,7 +171,6 @@ public class LocalCarAdapter {
 
         db.delete(TABLES.CAR.TABLE_NAME, null, null);
 
-        db.close();
     }
 
     /**
@@ -197,7 +188,6 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-        db.close();
         return car;
     }
 
@@ -248,13 +238,16 @@ public class LocalCarAdapter {
 
         db.delete(TABLES.CAR.TABLE_NAME, null, null);
 
-        db.close();
     }
 
     public void deleteCar(Car car){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[]{String.valueOf(car.getId())});
+    }
+
+    public void finalize(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.close();
     }
 

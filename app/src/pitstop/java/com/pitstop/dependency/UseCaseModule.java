@@ -2,7 +2,6 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
@@ -30,7 +29,6 @@ import com.pitstop.interactors.SetUserCarUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 import dagger.Module;
 import dagger.Provides;
@@ -49,9 +47,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserAdapter userAdapter
-            , NetworkHelper networkHelper){
-        return new CheckFirstCarAddedUseCaseImpl(userAdapter, networkHelper);
+    CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserRepository userRepository
+            , Handler handler){
+        return new CheckFirstCarAddedUseCaseImpl(userRepository, handler);
     }
 
     @Provides
