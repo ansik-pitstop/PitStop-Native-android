@@ -2,9 +2,7 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 /**
  * Created by Karol Zdebel on 6/8/2017.
@@ -12,26 +10,25 @@ import com.pitstop.utils.NetworkHelper;
 
 public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase {
 
-    private UserAdapter userAdapter;
-    private NetworkHelper networkHelper;
+    private UserRepository userRepository;
+    private Handler handler;
     private Callback callback;
 
 
-    public CheckFirstCarAddedUseCaseImpl(UserAdapter userAdapter, NetworkHelper networkHelper) {
-        this.userAdapter = userAdapter;
-        this.networkHelper = networkHelper;
+    public CheckFirstCarAddedUseCaseImpl(UserRepository userRepository, Handler handler) {
+        this.userRepository = userRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        new Handler().post(this);
+        handler.post(this);
     }
 
     @Override
     public void run() {
-        UserRepository.getInstance(userAdapter,networkHelper)
-                .checkFirstCarAdded(new UserRepository.CheckFirstCarAddedCallback() {
+        userRepository.checkFirstCarAdded(new UserRepository.CheckFirstCarAddedCallback() {
                     @Override
                     public void onFirstCarAddedChecked(boolean added) {
                         callback.onFirstCarAddedChecked(added);

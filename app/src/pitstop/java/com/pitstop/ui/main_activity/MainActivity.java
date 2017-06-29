@@ -70,6 +70,8 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothObservable;
+import com.pitstop.observer.BluetoothObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.SettingsActivity;
@@ -106,12 +108,12 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
  * Created by David on 6/8/2016.
  */
 public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener
-        , MainActivityCallback {
+        , MainActivityCallback, BluetoothObservable<BluetoothObserver> {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private GlobalApplication application;
-    private boolean serviceIsBound;
+    private boolean serviceIsBound = false;
     private boolean isFirstAppointment = false;
     private Intent serviceIntent;
     protected ServiceConnection serviceConnection = new ServiceConnection() {
@@ -123,7 +125,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.setCallbacks(MainActivity.this);
+            autoConnectService.addCallback(MainActivity.this);
+
+            notifyDeviceConnected();
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
@@ -143,10 +147,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-
             Log.i(TAG, "Disconnecting: onServiceConnection");
             serviceIsBound = false;
             autoConnectService = null;
+            notifyDeviceDisconnected();
         }
     };
 
@@ -276,6 +280,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
+   // public void removeBluetoothFragmentCallback
+
     private void setGreetingsNotSent(){
         useCaseComponent.setFirstCarAddedUseCase().execute(false, new SetFirstCarAddedUseCase.Callback() {
             @Override
@@ -320,10 +326,16 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onResume() {
         super.onResume();
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
         Log.d(TAG, "onResume");
 
-        if (autoConnectService != null) autoConnectService.setCallbacks(this);
+        if (!serviceIsBound){
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+        if (autoConnectService != null){
+            autoConnectService.addCallback(this);
+        }
+
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -346,13 +358,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onStop() {
         hideLoading();
+        autoConnectService.removeCallback(this);
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy");
         super.onDestroy();
+
+        Log.i(TAG, "onDestroy");
         if (serviceIsBound) {
             unbindService(serviceConnection);
         }
@@ -567,6 +581,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.DISCONNECTED) {
+            notifyDeviceDisconnected();
             Log.i(TAG, "Bluetooth disconnected");
         }
     }
@@ -1136,4 +1151,49 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
 
+    private List<BluetoothObserver> observerList = new ArrayList<>();
+
+    @Override
+    public void subscribe(BluetoothObserver observer) {
+        if (!observerList.contains(observer)){
+            observerList.add(observer);
+        }
+    }
+
+    @Override
+    public void unsubscribe(BluetoothObserver observer) {
+        if (observerList.contains(observer)){
+            observerList.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyDeviceConnected() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (BluetoothObserver observer: observerList){
+                    observer.onDeviceConnected(autoConnectService);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void notifyDeviceDisconnected() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (BluetoothObserver observer: observerList){
+                    observer.onDeviceDisconnected();
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public BluetoothAutoConnectService getBluetoothAutoConnectService(){
+        return autoConnectService;
+    }
 }

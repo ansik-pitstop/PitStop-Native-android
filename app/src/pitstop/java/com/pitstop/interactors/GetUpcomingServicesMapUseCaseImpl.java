@@ -59,6 +59,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                                 //Return ordered upcoming services through parameter to callback
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
                                 Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
+
                                 callback.onGotUpcomingServicesMap(map);
                             }
 

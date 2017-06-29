@@ -617,8 +617,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onServiceBound(BluetoothAutoConnectService service) {
-        mAutoConnectService = service;
-        mAutoConnectService.setCallbacks(this);
     }
 
     @Override
@@ -629,14 +627,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onServiceUnbind() {
-        mAutoConnectService = null;
     }
 
     @Override
     public void checkBluetoothService() {
         if (mAutoConnectService == null) {
             mAutoConnectService = mCallback.getAutoConnectService();
-            mAutoConnectService.setCallbacks(this);
+            mAutoConnectService.addCallback(this);
         }
     }
 
@@ -1000,11 +997,19 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
+        if (mAutoConnectService != null){
+            mAutoConnectService.addCallback(this);
+        }
+
         this.mCallback = (AddCarContract.View)view;
     }
 
     @Override
     public void unbind() {
+        if (mAutoConnectService != null){
+            mAutoConnectService.removeCallback(this);
+        }
+
         this.mCallback = null;
     }
 }
