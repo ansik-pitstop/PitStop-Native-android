@@ -119,7 +119,9 @@ public class LocalShopAdapter {
     }
 
     public void finalize(){
-        databaseHelper.getWritableDatabase().close();
+        if (databaseHelper.getWritableDatabase().isOpen()){
+            databaseHelper.getWritableDatabase().close();
+        }
     }
 
 }

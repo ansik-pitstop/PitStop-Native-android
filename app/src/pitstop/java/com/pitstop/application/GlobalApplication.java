@@ -100,6 +100,7 @@ public class GlobalApplication extends Application {
         mLocalCarAdapter.finalize();
         mUserAdapter.finalze();
         mLocalShopAdapter.finalize();
+        mLocalScannerAdapter.finalize();
     }
 
     @Override
