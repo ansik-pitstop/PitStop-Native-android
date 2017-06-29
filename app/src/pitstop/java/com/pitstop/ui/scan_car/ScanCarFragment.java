@@ -411,7 +411,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         Log.d(TAG,"showLoading() called, isLoading? "+isLoading);
 
         if (!isLoading){
-
+            isLoading = true;
             //Hard coded for now since view will be changed entirely
             recallCard.setCardElevation(0);
             dtcCard.setCardElevation(0);
@@ -421,7 +421,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
             loadingView.bringToFront();
             loadingView.setVisibility(View.VISIBLE);
-            isLoading = true;
         }
     }
 

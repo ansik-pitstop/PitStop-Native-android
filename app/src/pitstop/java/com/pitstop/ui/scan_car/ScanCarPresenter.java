@@ -41,8 +41,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private static final String TAG = ScanCarPresenter.class.getSimpleName();
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
-    private boolean scanInterrupted = false;
-
     private ScanCarContract.View mCallback;
     private NetworkHelper networkHelper;
     private Car dashboardCar;
@@ -63,7 +61,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void startScan() {
         if (isConnectedToDevice()){
             mCallback.onScanStarted();
-            scanInterrupted = false;
             getServicesAndRecalls();
             checkRealTime();
         }
@@ -89,7 +86,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
                             //show prompt if scanning and car change occurred
                             if (mCallback.isScanning()){
-                                mCallback.onScanInterrupted(ERR_INTERRUPT_GEN);
+                                interruptScan(ERR_INTERRUPT_GEN);
                             }
                             else{
                                 mCallback.resetUI();
@@ -194,7 +191,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (!mCallback.isScanning()) return;
 
         cancelAllTimers();
-        scanInterrupted = true;
         mCallback.onScanInterrupted(errorMessage);
     }
 
@@ -274,7 +270,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
         @Override
         public void onTimeout() {
-            if (mCallback == null || !isAskingForDtcs) return;
+            if (mCallback == null || !isAskingForDtcs ) return;
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
