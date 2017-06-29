@@ -41,6 +41,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private static final String TAG = ScanCarPresenter.class.getSimpleName();
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
+    private boolean scanInterrupted = false;
+
     private ScanCarContract.View mCallback;
     private NetworkHelper networkHelper;
     private Car dashboardCar;
@@ -61,11 +63,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void startScan() {
         if (isConnectedToDevice()){
             mCallback.onScanStarted();
+            scanInterrupted = false;
             getServicesAndRecalls();
             checkRealTime();
         }
         else{
-            mCallback.onScanFailed();
+            mCallback.onStartScanFailed(ERR_START_DC);
         }
     }
 
@@ -83,7 +86,14 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
                     //Check whether car change occurred
                     if (dashboardCar != null){
                         if (car.getId() != dashboardCar.getId()){
-                            mCallback.resetUI();
+
+                            //show prompt if scanning and car change occurred
+                            if (mCallback.isScanning()){
+                                mCallback.onScanInterrupted(ERR_INTERRUPT_GEN);
+                            }
+                            else{
+                                mCallback.resetUI();
+                            }
                         }
                     }
                 }
@@ -179,12 +189,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void interruptScan() {
+    public void interruptScan(String errorMessage) {
         if (mCallback == null) return;
         if (!mCallback.isScanning()) return;
 
         cancelAllTimers();
-        mCallback.onScanInterrupted();
+        scanInterrupted = true;
+        mCallback.onScanInterrupted(errorMessage);
     }
 
     @Override
@@ -307,9 +318,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (mCallback == null) return;
 
         bluetoothObservable.unsubscribe(this);
-
+        
         if (mCallback.isScanning()){
-            interruptScan();
+            interruptScan(ERR_INTERRUPT_GEN);
         }
 
         mCallback.hideLoading(null);
@@ -328,7 +339,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void onDeviceDisconnected() {
         mAutoConnectService = null;
         if (mCallback.isScanning()){
-            interruptScan();
+            interruptScan(ERR_INTERRUPT_DC);
         }
     }
 }

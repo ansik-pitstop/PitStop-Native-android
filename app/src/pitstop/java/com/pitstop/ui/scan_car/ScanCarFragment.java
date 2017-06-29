@@ -128,6 +128,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         View rootview = inflater.inflate(R.layout.fragment_car_scan,null);
         ButterKnife.bind(this,rootview);
+
+        TempNetworkComponent networkComponent = DaggerTempNetworkComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         bluetoothObservable = (BluetoothObservable<BluetoothObserver>)getActivity();
 
@@ -135,14 +140,13 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
-        TempNetworkComponent networkComponent = DaggerTempNetworkComponent.builder()
-                .contextModule(new ContextModule(getApplicationContext()))
-                .build();
-
         setStaticUI();
         loadPreviousState();
-        presenter = new ScanCarPresenter(bluetoothObservable, useCaseComponent
-                , networkComponent.networkHelper());
+
+        if (presenter == null){
+            presenter = new ScanCarPresenter(bluetoothObservable, useCaseComponent
+                    , networkComponent.networkHelper());
+        }
         presenter.bind(this);
         presenter.update();
 
@@ -199,9 +203,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         Log.d(TAG,"onDestroyView()");
 
         super.onDestroyView();
-        if (presenter != null){
-            presenter.unbind();
-        }
+        presenter.unbind();
         hideLoading(null);
     }
 
@@ -231,8 +233,10 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @OnClick(R.id.dashboard_car_scan_btn)
     public void startCarScan(View view) {
         Log.d(TAG,"@OnClick startCarScan()");
-
         mixpanelHelper.trackButtonTapped("Start car scan", MixpanelHelper.SCAN_CAR_VIEW);
+
+        if (isScanning() || isLoading) return;
+
         presenter.startScan();
     }
 
@@ -252,14 +256,18 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     @Override
-    public void onScanFailed(){
+    public void onStartScanFailed(String errorMessage){
         isScanning = false;
+
+        noDeviceFoundDialog.setMessage(errorMessage);
         noDeviceFoundDialog.show();
     }
 
     @Override
     public void resetUI() {
         Log.d(TAG,"resetUI()");
+
+        if (getView() == null) return;
 
         gotEngineCodes = false;
         gotRecalls = false;
@@ -273,9 +281,10 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     }
 
     @Override
-    public void onScanInterrupted(){
+    public void onScanInterrupted(String errorMessage){
         Log.d(TAG,"onScanInterrupted()");
         isScanning = false;
+        scanInterruptedDialog.setMessage(errorMessage);
         scanInterruptedDialog.show();
         resetUI();
     }
@@ -302,9 +311,12 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         gotRecalls = true;
         numberOfIssues += recalls.size();
-        updateCarHealthMeter();
-        displayRecalls();
-        checkScanProgress();
+
+        if (getView() != null){
+            updateCarHealthMeter();
+            displayRecalls();
+        }
+
     }
 
     @Override
@@ -313,21 +325,25 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         gotServices = true;
         this.services = services == null ? new HashSet<CarIssue>() : services;
         numberOfIssues += (services == null ? 0 : services.size());
-        updateCarHealthMeter();
-        displayServices();
-        checkScanProgress();
+
+        if (getView() != null){
+            updateCarHealthMeter();
+            displayServices();
+        }
     }
 
     @Override
     public void onEngineCodesRetrieved(@Nullable Set<String> dtcCodes) {
         Log.d(TAG, "onEngineCodesRetrieved, num: " + (dtcCodes == null ? 0 : dtcCodes.size()));
+        isScanning = false;
         gotEngineCodes = true;
         this.dtcCodes = dtcCodes == null ? new HashSet<String>() : dtcCodes;
         numberOfIssues += dtcCodes == null ? 0 : dtcCodes.size();
-        updateCarHealthMeter();
-        displayEngineCodes();
-        checkScanProgress();
-        isScanning = false;
+
+        if (getView() != null){
+            updateCarHealthMeter();
+            displayEngineCodes();
+        }
     }
 
     /**
@@ -370,10 +386,6 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     @Override
     public boolean isScanning() {
         return isScanning;
-    }
-
-    private void checkScanProgress() {
-        carScanButton.setEnabled(!isScanning);
     }
 
     @Override
@@ -450,7 +462,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         if (scanInterruptedDialog == null){
             scanInterruptedDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Device Disconnected")
+                    .setTitle("Scan Interrupted")
                     .setMessage("Your device disconnected during the scan. Please re-connect and try again.")
                     .setCancelable(false)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -465,7 +477,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         if (noDeviceFoundDialog == null) {
             noDeviceFoundDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Device not connected")
+                    .setTitle("Cannot Scan")
                     .setMessage("Make sure your vehicle engine is on and " +
                             "OBD device is properly plugged in.")
                     .setCancelable(false)

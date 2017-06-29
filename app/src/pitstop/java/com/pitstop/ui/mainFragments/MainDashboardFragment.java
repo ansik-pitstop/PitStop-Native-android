@@ -165,42 +165,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
      * Monitor app connection to device, so that ui can be updated
      * appropriately.
      */
-//    public Runnable carConnectedRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            handler.sendEmptyMessage(MSG_UPDATE_CONNECTED_CAR);
-//        }
-//    };
-//
-//    public Handler handler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            if (getActivity() == null) {
-//                return;
-//            }
-//            final BluetoothAutoConnectService autoConnectService = ((MainActivity) getActivity()).getBluetoothConnectService();
-//
-//            switch (msg.what) {
-//                case MSG_UPDATE_CONNECTED_CAR:
-//                    if (autoConnectService != null
-//                            && autoConnectService.getState() == IBluetoothCommunicator.CONNECTED
-//                            && dashboardCar != null
-//                            && dashboardCar.getScannerId() != null
-//                            && dashboardCar.getScannerId()
-//                            .equals(autoConnectService.getCurrentDeviceId())) {
-//
-//                        updateConnectedCarIndicator(true);
-//                    } else {
-//                        updateConnectedCarIndicator(false);
-//                    }
-//                    // See if we are connected every 2 seconds
-//                    handler.postDelayed(carConnectedRunnable, 2000);
-//                    break;
-//            }
-//
-//        }
-//    };
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

@@ -19,11 +19,11 @@ public interface ScanCarContract {
 
         void resetUI();
 
-        void onScanInterrupted();
+        void onScanInterrupted(String errorMessage);
 
         void onScanStarted();
 
-        void onScanFailed();
+        void onStartScanFailed(String errorMessage);
 
         /**
          * Invoked when user started scan car process, but we cannot connect to the OBD device for too long
@@ -72,6 +72,12 @@ public interface ScanCarContract {
     interface Presenter extends BasePresenter, ObdManager.IBluetoothDataListener
             , BluetoothObserver{
 
+        String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
+        String ERR_INTERRUPT_DC = "Your device disconnected during the scan"
+                +", please reconnect and try again.";
+        String ERR_START_DC = "No device connected, please connect to your " +
+                "vehicle device to begin scan.";
+
         void startScan();
 
         void update();
@@ -97,7 +103,7 @@ public interface ScanCarContract {
         /**
          * Do cleanup when scan is finished, e.g. cancel all timeoutTimers
          */
-        void interruptScan();
+        void interruptScan(String errorMessage);
 
     }
 

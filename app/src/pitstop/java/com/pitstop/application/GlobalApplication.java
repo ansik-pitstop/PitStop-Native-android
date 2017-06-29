@@ -99,6 +99,7 @@ public class GlobalApplication extends Application {
         super.onTerminate();
         mLocalCarAdapter.finalize();
         mUserAdapter.finalze();
+        mLocalShopAdapter.finalize();
     }
 
     @Override

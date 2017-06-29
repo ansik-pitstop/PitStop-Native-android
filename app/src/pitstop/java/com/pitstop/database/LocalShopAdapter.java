@@ -45,7 +45,6 @@ public class LocalShopAdapter {
         values.put(TABLES.SHOP.KEY_EMAIL, dealership.getEmail());
 
         db.insert(TABLES.SHOP.TABLE_NAME, null, values);
-        db.close();
     }
 
     public void storeDealerships(List<Dealership> dealerships) {
@@ -65,7 +64,6 @@ public class LocalShopAdapter {
 
         c.moveToFirst();
         Dealership dealership = cursorToDealership(c);
-        db.close();
 
         return dealership;
     }
@@ -83,7 +81,6 @@ public class LocalShopAdapter {
             }
         }
 
-        db.close();
         return dealerships;
     }
 
@@ -100,7 +97,6 @@ public class LocalShopAdapter {
                     new String[] { String.valueOf(dealership.getId()) });
         }
 
-        db.close();
     }
 
     private Dealership cursorToDealership(Cursor c) {
@@ -120,7 +116,10 @@ public class LocalShopAdapter {
 
         db.delete(TABLES.SHOP.TABLE_NAME, null, null);
 
-        db.close();
+    }
+
+    public void finalize(){
+        databaseHelper.getWritableDatabase().close();
     }
 
 }
