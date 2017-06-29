@@ -43,7 +43,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = ((BluetoothAutoConnectService.BluetoothBinder) service1).getService();
-            service.setCallbacks(ReceiveDebugActivity.this); // register
+            service.addCallback(ReceiveDebugActivity.this); // register
         }
 
         @Override

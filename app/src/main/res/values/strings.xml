@@ -205,8 +205,12 @@
 
     <string name="share_trip_intent_title">Share trip via</string>
 
-
-
+    <!--Scan-->
+    <string name="scan_failed_disconnected">Please connect to your vehicle device to scan</string>
+    <string name="scan">Scan</string>
+    <string name="scan_historical_message">We have found a lot of historical car data.
+        Engine issues may take longer than usual to load.</string>
+    <string name="scan_historical_title">Loading Data</string>
 
     <!--Services-->
     <string name="services_nav_text">Services</string>

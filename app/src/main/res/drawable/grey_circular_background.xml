@@ -4,7 +4,7 @@
     android:shape="oval"   >
 
     <solid
-        android:color="#EEEEEE" >
+        android:color="@color/scan_element_background" >
     </solid>
 
 </shape>

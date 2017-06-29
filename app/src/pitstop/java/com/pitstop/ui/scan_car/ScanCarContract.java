@@ -3,11 +3,11 @@ package com.pitstop.ui.scan_car;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.observer.BluetoothObserver;
+import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
-import com.pitstop.ui.BluetoothPresenter;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.ILoadingActivity;
 
 import java.util.Set;
@@ -15,33 +15,20 @@ import java.util.Set;
 
 public interface ScanCarContract {
 
-    public interface MainActivity {
-        public void onScanCarFinished(boolean updatedMileageOrDtcsFound);
-    }
-
     interface View extends BaseView<Presenter>, ILoadingActivity{
 
-        /**
-         * Invoked when the OBD device is connected
-         */
-        void onDeviceConnected();
+        void resetUI();
+
+        void onScanInterrupted(String errorMessage);
+
+        void onScanStarted();
+
+        void onStartScanFailed(String errorMessage);
 
         /**
          * Invoked when user started scan car process, but we cannot connect to the OBD device for too long
          */
         void onConnectingTimeout();
-
-        /**
-         * callback for updateMileage(String input);
-         * @param updatedMileage
-         */
-        void onInputtedMileageUpdated(double updatedMileage);
-
-        /**
-         * callback for live mileage updates (OBD trip data)
-         * @param updatedMileage
-         */
-        void onTripMileageUpdated(double updatedMileage);
 
         /**
          * callback for getServicesAndRecalls();
@@ -80,21 +67,20 @@ public interface ScanCarContract {
 
         boolean isScanning();
 
-        BluetoothAutoConnectService getAutoConnectService();
-
-        IBluetoothServiceActivity getBluetoothActivity();
     }
 
-    interface Presenter extends BluetoothPresenter{
+    interface Presenter extends BasePresenter, ObdManager.IBluetoothDataListener
+            , BluetoothObserver{
 
-        double getLatestMileage();
+        String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
+        String ERR_INTERRUPT_DC = "Your device disconnected during the scan"
+                +", please reconnect and try again.";
+        String ERR_START_DC = "No device connected, please connect to your " +
+                "vehicle device to begin scan.";
 
-        void connectToDevice();
+        void startScan();
 
-        /**
-         * @param input validated mileage(non-negative, less than max value)
-         */
-        void updateMileage(double input);
+        void update();
 
         /**
          * Check if OBD device is uploading the real time data to the app <br>
@@ -117,9 +103,8 @@ public interface ScanCarContract {
         /**
          * Do cleanup when scan is finished, e.g. cancel all timeoutTimers
          */
-        void finishScan();
+        void interruptScan(String errorMessage);
 
-        void onActivityFinish();
     }
 
 }

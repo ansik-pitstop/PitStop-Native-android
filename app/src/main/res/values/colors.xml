@@ -50,6 +50,9 @@
     <color name="text_secondary">#42A5F5</color>
     <color name="text_hint">#757575</color>
 
+    <!-- SCAN -->
+    <color name="scan_element_background">#EEEEEE</color>
+
     <!--<color name="indicator_critical">#ED5565</color>-->
     <color name="indicator_critical">#ff0000</color>
     <!--<color name="indicator_high">#FF6F00</color>-->
