@@ -557,6 +557,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
+        if (dashboardCar == null) return;
+
         Log.d(TAG,"Got trip data.");
         if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
             final double newTotalMileage;
