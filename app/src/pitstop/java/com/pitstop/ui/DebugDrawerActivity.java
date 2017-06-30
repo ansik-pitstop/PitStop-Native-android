@@ -107,7 +107,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
             LocalDatabaseHelper databaseHelper = LocalDatabaseHelper.getInstance(this);
             SQLiteDatabase db = databaseHelper.getWritableDatabase();
             databaseHelper.onUpgrade(db, 0, 0);
-            db.close();
             Toast.makeText(this, "Database Cleared", Toast.LENGTH_SHORT).show();
         });
 
