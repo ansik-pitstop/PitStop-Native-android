@@ -163,6 +163,7 @@ public class UserRepository {
     }
 
     public void getUserCar(UserGetCarCallback callback){
+        if (userAdapter.getUser() == null) callback.onError();
         networkHelper.getMainCar(userAdapter.getUser().getId(),getUserGetCarRequestCallback(callback));
     }
 
