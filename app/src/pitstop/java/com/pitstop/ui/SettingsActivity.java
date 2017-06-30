@@ -75,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     private boolean localUpdatePerformed = false;
 
     private ProgressDialog progressDialog;
+    SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
 
-        SettingsFragment settingsFragment = new SettingsFragment();
+        settingsFragment = new SettingsFragment();
         settingsFragment.setOnInfoUpdatedListener(new SettingsFragment.OnInfoUpdated() {
             @Override
             public void localUpdatePerformed() {
@@ -115,6 +116,18 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        settingsFragment.setLoadingCallback(null);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        settingsFragment.setLoadingCallback(this);
     }
 
     @Override
@@ -219,7 +232,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
             (getPreferenceManager().findPreference("AppInfo")).setTitle(BuildConfig.VERSION_NAME);
 
-            loadingCallback.showLoading("Loading...");
+            showLoading("Loading...");
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
@@ -231,7 +244,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                 @Override
                 public void onError() {
-                    loadingCallback.hideLoading(null);
+                    hideLoading(null);
                     Toast.makeText(getActivity().getApplicationContext()
                             ,"Error loading cars from network",Toast.LENGTH_LONG);
                 }
@@ -243,7 +256,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
             final List<String> shops = new ArrayList<>();
             final List<String> shopIds = new ArrayList<>();
 
-            loadingCallback.showLoading("Loading...");
+            showLoading("Loading...");
             networkHelper.getShops(new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
@@ -261,13 +274,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                 setUpCarPreference(shops,shopIds,cars.get(i));
                             }
 
-                            loadingCallback.hideLoading(null);
+                            hideLoading(null);
                         } catch (JSONException e) {
-                            loadingCallback.hideLoading("Error");
+                            hideLoading("Error");
                             e.printStackTrace();
                         }
                     } else {
-                        loadingCallback.hideLoading("Error");
+                        hideLoading("Error");
                         Log.e(TAG, "Get shops: " + requestError.getMessage());
                     }
                 }
@@ -328,6 +341,18 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
                 }
 
+            }
+        }
+
+        private void showLoading(String message){
+            if (loadingCallback != null){
+                loadingCallback.showLoading(message);
+            }
+        }
+
+        private void hideLoading(String message){
+            if (loadingCallback != null){
+                loadingCallback.hideLoading(message);
             }
         }
 
@@ -435,7 +460,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                         listener.localUpdatePerformed();
                     }
 
-                    loadingCallback.showLoading("Updating");
+                    showLoading("Updating");
                     networkHelper.getCarsByUserId(currentUser.getId(), new RequestCallback() {
                         @Override
                         public void done(String response, RequestError requestError) {
@@ -445,7 +470,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                             @Override
                                             public void done(String response, RequestError requestError) {
                                                 if (requestError == null) {
-                                                    loadingCallback.hideLoading("Car dealership updated");
+                                                    hideLoading("Car dealership updated");
                                                     Log.i(TAG, "Dealership updated - carId: " + itemCar.getId() + ", dealerId: " + shopId);
                                                     Car updatedCar = localCarAdapter.getCar(itemCar.getId());
                                                     updatedCar.setShopId(shopId);
@@ -456,13 +481,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                     EventBus.getDefault()
                                                             .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                                                 } else {
-                                                    loadingCallback.hideLoading("An error occurred, please try again.");
+                                                    hideLoading("An error occurred, please try again.");
                                                     Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
                                                 }
                                             }
                                         });
                             } else {
-                                loadingCallback.hideLoading("An error occurred, please try again.");
+                                hideLoading("An error occurred, please try again.");
                                 Log.e(TAG, "Get shops: " + requestError.getMessage());
                             }
                         }
@@ -670,21 +695,21 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
         private void updateUserName(final String firstName, final String lastName, final Preference namePreference) {
             mixpanelHelper.trackButtonTapped("First Name", MixpanelHelper.SETTINGS_VIEW);
             mixpanelHelper.trackButtonTapped("Last Name", MixpanelHelper.SETTINGS_VIEW);
-            loadingCallback.showLoading("Updating..");
+            showLoading("Updating..");
             networkHelper.updateFirstName(application.getCurrentUserId(), firstName, lastName, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         namePreference.setTitle(String.format("%s %s", firstName, lastName));
 
-                        loadingCallback.hideLoading("Name successfully updated");
+                        hideLoading("Name successfully updated");
 
                         currentUser.setFirstName(firstName);
                         currentUser.setLastName(lastName);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$name", firstName + (lastName == null ? "" : " " + lastName));
                     } else {
-                        loadingCallback.hideLoading("An error occurred, please try again");
+                        hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -692,19 +717,19 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
 
         private void updateUserPhone(final String phoneNumber, final Preference phonePreference) {
             mixpanelHelper.trackButtonTapped("Phone", MixpanelHelper.SETTINGS_VIEW);
-            loadingCallback.showLoading("Updating");
+            showLoading("Updating");
             networkHelper.updateUserPhone(application.getCurrentUserId(), phoneNumber, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null) {
                         phonePreference.setTitle(phoneNumber);
-                        loadingCallback.hideLoading("Phone successfully updated");
+                        hideLoading("Phone successfully updated");
 
                         currentUser.setPhone(phoneNumber);
                         application.setCurrentUser(currentUser);
                         application.modifyMixpanelSettings("$phone", phoneNumber);
                     } else {
-                        loadingCallback.hideLoading("An error occurred, please try again");
+                        hideLoading("An error occurred, please try again");
                     }
                 }
             });
@@ -759,7 +784,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_CONFIRM, MixpanelHelper.SETTINGS_VIEW);
-                                                loadingCallback.showLoading("Deleting");
+                                                showLoading("Deleting");
                                                 networkHelper.deleteUserCar(vehicle.getId(), new RequestCallback() {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
@@ -773,7 +798,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                         } else {
                                                             mixpanelHelper.trackButtonTapped(MixpanelHelper.DELETE_CAR_ERROR, MixpanelHelper.SETTINGS_VIEW);
                                                             Log.e(TAG, requestError.getMessage());
-                                                            loadingCallback.hideLoading("Delete failed!");
+                                                            hideLoading("Delete failed!");
                                                         }
 
                                                         //Set MainCar to the following car in the list if it exists
@@ -791,13 +816,13 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                 public void done(String response, RequestError requestError) {
                                                                     if (requestError == null){
 
-                                                                        loadingCallback.hideLoading("Car deleted");
+                                                                        hideLoading("Car deleted");
                                                                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                         EventBus.getDefault()
                                                                                 .post(new CarDataChangedEvent(type,EVENT_SOURCE));
                                                                     }
                                                                     else{
-                                                                        loadingCallback.hideLoading("Delete failed!");
+                                                                        hideLoading("Delete failed!");
                                                                     }
                                                                 }
                                                             });
@@ -810,17 +835,17 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
                                                                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                                         EventBus.getDefault()
                                                                                 .post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                                                                        loadingCallback.hideLoading("Car deleted");
+                                                                        hideLoading("Car deleted");
 
                                                                     }
                                                                     else{
-                                                                        loadingCallback.hideLoading("Delete failed!");
+                                                                        hideLoading("Delete failed!");
                                                                     }
                                                                 }
                                                             });
                                                         }
                                                         else{
-                                                            loadingCallback.hideLoading("Car deleted");
+                                                            hideLoading("Car deleted");
                                                         }
                                                     }
                                                 });
