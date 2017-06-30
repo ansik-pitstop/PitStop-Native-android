@@ -899,6 +899,10 @@ public class NetworkHelper {
         getUser(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                if (response == null || requestError != null){
+                    callback.done(null,requestError);
+                    return;
+                }
                 JSONObject jObject  = null;
                 String installationIDResponse = "";
                 try {
