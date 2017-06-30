@@ -101,7 +101,7 @@ public class NotificationsFragment extends Fragment {
 
     private void fetchNotifications() {
         if(!mNetworkHelper.isConnected(getActivity())
-                && ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
+                || ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
             notificationsLoaded = false;
             return;
