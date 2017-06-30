@@ -90,10 +90,12 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void fetchNotifications() {
-        if(!mNetworkHelper.isConnected(getActivity())) {
+        if(!mNetworkHelper.isConnected(getActivity())
+                && ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
             return;
         }
+
         mLoadingSpinner.setVisibility(View.VISIBLE);
         mNetworkHelper.getUserInstallationId(((GlobalApplication) getApplicationContext()).getCurrentUserId(), new RequestCallback() {
             @Override
