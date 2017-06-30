@@ -122,6 +122,7 @@ public class SettingsActivity extends AppCompatActivity implements ILoadingActiv
     protected void onStop() {
         super.onStop();
         settingsFragment.setLoadingCallback(null);
+        hideLoading(null);
     }
 
     @Override
