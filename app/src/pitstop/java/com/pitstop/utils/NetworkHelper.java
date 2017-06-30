@@ -907,9 +907,6 @@ public class NetworkHelper {
                 String installationIDResponse = "";
                 try {
                     jObject = new JSONObject(response);
-                    if (!jObject.has(INSTALLATION_ID_KEY)){
-                        return;
-                    }
                     JSONArray data = jObject.getJSONArray(INSTALLATION_ID_KEY);
                     installationIDResponse = data.toString();
                 } catch (JSONException e) {
