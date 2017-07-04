@@ -6,6 +6,9 @@
                 android:layout_height="match_parent"
                 android:background="#f6f6f6">
 
+    <include layout="@layout/layout_load"
+        android:id="@+id/loading" />
+
     <RelativeLayout
         android:id="@+id/no_connect_text"
         android:layout_width="match_parent"

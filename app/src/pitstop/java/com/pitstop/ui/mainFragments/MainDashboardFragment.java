@@ -2,7 +2,6 @@
 package com.pitstop.ui.mainFragments;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -139,7 +138,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-    ProgressDialog progressDialog;
+    @BindView(R.id.loading)
+    View loading;
 
     // Models
     private Car dashboardCar;
@@ -202,9 +202,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 .contextModule(new ContextModule(application))
                 .build();
 
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCanceledOnTouchOutside(false);
-
         setStaticUI();
         updateUI();
 
@@ -220,7 +217,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
 
     @Override
     public void updateUI(){
-        showLoading("Loading...");
+        showLoading();
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -856,7 +853,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                             } else {
                                 d.dismiss();
                                 ((MainActivity)getActivity()).getBluetoothConnectService().manuallyUpdateMileage = true;
-                                showLoading("Updating Mileage...");
+                                showLoading();
 
                                 //Update mileage in the GUI so it doesn't have to be loaded from network
                                 mMileageText.setText(String.format("%.2f km", mileage));
@@ -905,19 +902,14 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         updateMileageDialog.show();
     }
 
-    private void showLoading(String loadingMessage) {
-        if (progressDialog != null && !progressDialog.isShowing() && getUserVisibleHint()) {
-            if (loadingMessage != null)
-                progressDialog.setMessage(loadingMessage);
-            progressDialog.show();
-        }
+    private void showLoading() {
+        loading.setVisibility(View.VISIBLE);
     }
 
     private void hideLoading(String toastMessage) {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-            if (toastMessage != null && getUserVisibleHint())
-                Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+        loading.setVisibility(View.GONE);
+        if (getUserVisibleHint() && toastMessage != null){
+            Toast.makeText(getContext(),toastMessage,Toast.LENGTH_LONG).show();
         }
     }
 }
