@@ -2,7 +2,6 @@
 package com.pitstop.ui.mainFragments;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -140,8 +139,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     @BindView(R.id.loading)
     View loading;
 
-    ProgressDialog progressDialog;
-
     // Models
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -202,9 +199,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCanceledOnTouchOutside(false);
 
         setStaticUI();
         updateUI();
