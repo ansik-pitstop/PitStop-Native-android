@@ -203,9 +203,17 @@ public class UserRepository {
                                         JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
                                         for(int i = 0 ; i < customShops.length() ; i++){
                                             JSONObject shop = customShops.getJSONObject(i);
-                                            if(car.getDealership().getId() == shop.getInt("id")){
-                                                Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                car.setDealership(dealership);
+                                            if(car.getDealership() != null){
+                                                if(car.getDealership().getId() == shop.getInt("id")){
+                                                    Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                    car.setDealership(dealership);
+                                                }
+                                            }else{
+                                                Dealership noDealer = new Dealership();
+                                                noDealer.setName("No Dealership");
+                                                noDealer.setId(19);
+                                                noDealer.setEmail("info@getpitstop.io");
+                                                car.setDealership(noDealer);
                                             }
                                         }
                                         callback.onGotCar(car);

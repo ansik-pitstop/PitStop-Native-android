@@ -166,11 +166,19 @@ public class CarRepository {
                                             if(c.getId() == mainCarId) {
                                                 c.setCurrentCar(true);
                                             }
-                                            for( int i = 0 ; i < customShops.length() ; i++){
-                                                JSONObject shop = customShops.getJSONObject(i);
-                                                if(c.getDealership().getId() == shop.getInt("id")){
-                                                    c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
+                                            if(c.getDealership() != null){//stops crash for cars with no shop
+                                                for( int i = 0 ; i < customShops.length() ; i++){
+                                                    JSONObject shop = customShops.getJSONObject(i);
+                                                    if(c.getDealership().getId() == shop.getInt("id")){
+                                                        c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
+                                                    }
                                                 }
+                                            }else{
+                                                Dealership noDealer = new Dealership();
+                                                noDealer.setName("No Dealership");
+                                                noDealer.setId(19);
+                                                noDealer.setEmail("info@getpitstop.io");
+                                                c.setDealership(noDealer);
                                             }
                                         }
                                         callback.onCarsGot(cars);
@@ -218,9 +226,17 @@ public class CarRepository {
                                         JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
                                         for(int i = 0 ; i < customShops.length() ; i++){
                                             JSONObject shop = customShops.getJSONObject(i);
-                                            if(car.getDealership().getId() == shop.getInt("id")){
-                                                Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                car.setDealership(dealership);
+                                            if(car.getDealership() != null){
+                                                if(car.getDealership().getId() == shop.getInt("id")){
+                                                    Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                    car.setDealership(dealership);
+                                                }
+                                            }else{
+                                                Dealership noDealer = new Dealership();
+                                                noDealer.setName("No Dealership");
+                                                noDealer.setId(19);
+                                                noDealer.setEmail("info@getpitstop.io");
+                                                car.setDealership(noDealer);
                                             }
                                         }
                                         callback.onCarGot(car);

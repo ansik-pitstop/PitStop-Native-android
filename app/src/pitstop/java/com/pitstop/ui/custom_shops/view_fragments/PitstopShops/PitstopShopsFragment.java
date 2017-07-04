@@ -3,7 +3,6 @@ package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -20,26 +21,22 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopAdapter;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.settings.SettingsActivity;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by xirax on 2017-06-08.
+ * Created by Matt on 2017-06-08.
  */
 
 public class PitstopShopsFragment extends Fragment implements PitstopShopsInterface {
 
 
-    private FragmentSwitcherInterface switcher;
+    private CustomShopActivityCallback switcher;
     private PitstopShopsPresenter presenter;
 
     private Context context;
@@ -53,6 +50,9 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
     @BindView(R.id.pitstop_shop_list)
     RecyclerView shopList;
 
+    @BindView(R.id.pitstopshops_progress)
+    ProgressBar progressBar;
+
 
     @BindView(R.id.search_pitstop)
     SearchView searchView;
@@ -61,7 +61,7 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
 
 
     @Override
-    public void setSwitcher(FragmentSwitcherInterface switcher) {
+    public void setSwitcher(CustomShopActivityCallback switcher) {
         this.switcher = switcher;
     }
 
@@ -132,6 +132,20 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void loading(boolean show) {
+        if(show){
+            progressBar.setVisibility(View.VISIBLE);
+        }else{
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override

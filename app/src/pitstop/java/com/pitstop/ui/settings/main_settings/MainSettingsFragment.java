@@ -111,6 +111,11 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+    }
+
+    @Override
     public void setPrefs(String name, String phone){//these are the same as the last user so they need to be updated here
         sharedPrefs.edit().putString(NAME_PREF_KEY,name).commit();
         sharedPrefs.edit().putString(PHONE_PREF_KEY,phone).commit();

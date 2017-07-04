@@ -1,9 +1,8 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopType;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -12,9 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
-import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
-import com.pitstop.ui.my_trips.MyTripsActivity;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,7 +27,12 @@ import butterknife.ButterKnife;
 
 public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
     private ShopTypePresenter presenter;
-    private FragmentSwitcherInterface switcher;
+    private CustomShopActivityCallback switcher;
+
+    private Context context;
+    private GlobalApplication application;
+
+    private Car car;
 
     @BindView(R.id.pitstop_shop_button)
     CardView selectPitstopShop;
@@ -36,12 +43,19 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
     @BindView(R.id.no_shop_button)
     CardView selectNoShop;
 
+    public void setCar(Car car){
+        this.car = car;
+    }
+
     @Override
-    public void setSwitcher(FragmentSwitcherInterface switcher){
+    public void setSwitcher(CustomShopActivityCallback switcher){
         this.switcher = switcher;
     }
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
+        context = getActivity().getApplicationContext();
+        application = (GlobalApplication) context;
+
         View view = inflater.inflate(R.layout.fragment_shop_type, container, false);
         ButterKnife.bind(this,view);
         selectPitstopShop.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +78,10 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
         });
         presenter = new ShopTypePresenter();
         presenter.subscribe(this,switcher);
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(presenter);
         return view;
     }
 
@@ -76,6 +94,8 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
                 .setCancelable(false)
                 .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
+                        presenter.setCarNoDealer(car);
+                        dialog.cancel();
 
                     }
                 })
@@ -83,6 +103,7 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                     }
+
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();

@@ -5,7 +5,7 @@ import com.pitstop.models.User;
 
 
 /**
- * Created by xirax on 2017-06-14.
+ * Created by Matt on 2017-06-14.
  */
 
 public interface GetCurrentUserUseCase extends Interactor {

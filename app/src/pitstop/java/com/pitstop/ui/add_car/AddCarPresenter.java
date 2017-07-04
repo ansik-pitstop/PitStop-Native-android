@@ -265,7 +265,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                         if (createdCar.getShopId() == 0) { // no default shop
                                             mCallback.hideLoading("Great! We have added this car to your account, now please pick the dealership for your car.");
-                                            mCallback.askForDealership();
+                                            mCallback.askForDealership(createdCar);
                                         } else { // has default shop selected in the backend
                                             onCarSuccessfullyPosted();
                                         }
@@ -371,7 +371,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                 if (createdCar.getShopId() == 0) { // no default shop or previous shop
                                     mCallback.hideLoading("Great! We have added this car to your account, now please pick the dealership for your car.");
-                                    mCallback.askForDealership();
+                                    mCallback.askForDealership(createdCar);
                                 } else { // has shop selected in the backend
                                     onCarSuccessfullyPosted();
                                 }

@@ -2,7 +2,6 @@ package com.pitstop.ui.settings.car_settings;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -20,13 +19,11 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
-import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**
- * Created by xirax on 2017-06-13.
+ * Created by Matthew on 2017-06-13.
  */
 
 public class CarSettingsFragment extends PreferenceFragment implements CarSettingsInterface {
@@ -43,7 +40,6 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     private PreferenceCategory carCatagory;
     private Preference changeDealer;
     private CarSettingsPresenter presenter;
-    private boolean prefsCreated = false;
 
     private Car car;
 
@@ -121,8 +117,6 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
-
-
 
     @Override
     public void update() {

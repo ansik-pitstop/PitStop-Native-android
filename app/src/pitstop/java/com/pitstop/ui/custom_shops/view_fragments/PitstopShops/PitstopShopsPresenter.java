@@ -1,12 +1,10 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
-import android.widget.Toast;
-
 import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopPresnter;
 
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 /**
- * Created by xirax on 2017-06-08.
+ * Created by Matt on 2017-06-08.
  */
 
 public class PitstopShopsPresenter implements ShopPresnter {
@@ -28,10 +26,10 @@ public class PitstopShopsPresenter implements ShopPresnter {
     UpdateCarDealershipUseCase updateCarDealershipUseCase;
 
     private PitstopShopsInterface pitstopShops;
-    private FragmentSwitcherInterface switcher;
+    private CustomShopActivityCallback switcher;
     private List<Dealership> localDealerships;
 
-    public void subscribe(PitstopShopsInterface pitstopShops, FragmentSwitcherInterface switcher){
+    public void subscribe(PitstopShopsInterface pitstopShops, CustomShopActivityCallback switcher){
         this.pitstopShops = pitstopShops;
         this.switcher = switcher;
     }
@@ -40,17 +38,20 @@ public class PitstopShopsPresenter implements ShopPresnter {
     }
 
     public void getShops(){
+        pitstopShops.loading(true);
         getPitstopShopsUseCase.execute(new GetPitstopShopsUseCase.Callback() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 List<Dealership> sortedDealers = sortShops(dealerships);
                 pitstopShops.setupList(sortedDealers);
                 localDealerships = sortedDealers;
+                pitstopShops.loading(false);
             }
 
             @Override
             public void onError() {
-
+                pitstopShops.loading(false);
+                pitstopShops.toast("There was an error loading the Pitstop shops");
             }
         });
 
@@ -71,15 +72,16 @@ public class PitstopShopsPresenter implements ShopPresnter {
 
     public void changeShop(Dealership dealership){
         Car car = pitstopShops.getCar();
+
         updateCarDealershipUseCase.execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
-               switcher.endActivity();
+
+                switcher.endActivity();
             }
 
             @Override
             public void onError() {
-                
 
             }
         });

@@ -28,4 +28,5 @@ public interface MainSettingsInterface {
     void showPhone(String phone);
     void showVersion(String version);
     String getBuildNumber();
+    void toast(String message);
 }

@@ -6,7 +6,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 
 /**
- * Created by xirax on 2017-06-14.
+ * Created by Matthew on 2017-06-14.
  */
 
 public interface PrefMaker {

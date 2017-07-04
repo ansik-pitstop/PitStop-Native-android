@@ -231,6 +231,7 @@ public class ShopRepository {
                          dealership.setAddress(shop.getString("address"));
                          dealership.setEmail(shop.getString("email"));
                          dealership.setPhoneNumber(shop.getString("phone_number"));
+                         dealership.setCustom(true);
                          dealershipArray.add(dealership);
                          localShopAdapter.removeById(dealership.getId());
                          localShopAdapter.storeCustom(dealership);
@@ -250,7 +251,6 @@ public class ShopRepository {
 
     public boolean update(Dealership dealership,int userId, ShopUpdateCallback callback ){
         if(localShopAdapter.getDealership(dealership.getId()) == null){
-            System.out.println("Testing here");
             return false;
         }
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
@@ -285,13 +285,9 @@ public class ShopRepository {
                         userJson.put("customShops",shopsToSend);
                         JSONObject userSettings = new JSONObject();
                         userSettings.put("settings",userJson);
-
-                        System.out.println("Testing trying to put "+userSettings);
-
                         networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                System.out.println("Testing "+response);
                                 if(response != null){
                                     callback.onShopUpdated();
                                     localShopAdapter.removeById(dealership.getId());
@@ -383,6 +379,7 @@ public class ShopRepository {
                                 dealership.setAddress(shop.getString("address"));
                                 dealership.setEmail(shop.getString("email"));
                                 dealership.setPhoneNumber(shop.getString("phone_number"));
+                                dealership.setCustom(true);
                                 localShopAdapter.removeById(dealership.getId());
                                 localShopAdapter.storeCustom(dealership);
                                 callback.onShopGot(dealership);

@@ -1,7 +1,7 @@
 package com.pitstop.interactors;
 
 /**
- * Created by xirax on 2017-06-15.
+ * Created by Matt on 2017-06-15.
  */
 
 public interface UpdateUserNameUseCase extends Interactor {

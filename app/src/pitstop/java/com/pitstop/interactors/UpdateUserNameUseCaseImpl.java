@@ -6,7 +6,7 @@ import com.pitstop.models.User;
 import com.pitstop.repositories.UserRepository;
 
 /**
- * Created by xirax on 2017-06-15.
+ * Created by Matt on 2017-06-15.
  */
 
 public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {

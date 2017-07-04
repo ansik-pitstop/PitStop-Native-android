@@ -18,16 +18,14 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
-
-import org.acra.util.ToastSender;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by xirax on 2017-06-09.
+ * Created by Matt on 2017-06-09.
  */
 
 public class ShopFormFragment extends Fragment implements ShopFormInterface {
@@ -35,7 +33,7 @@ public class ShopFormFragment extends Fragment implements ShopFormInterface {
     private GlobalApplication application;
 
     private ShopFormPresenter presenter;
-    private FragmentSwitcherInterface switcher1;
+    private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
 
     private boolean update = false;
@@ -95,7 +93,7 @@ public class ShopFormFragment extends Fragment implements ShopFormInterface {
     }
 
     @Override
-    public void setSwitcher(FragmentSwitcherInterface switcher) {
+    public void setSwitcher(CustomShopActivityCallback switcher) {
         this.switcher1 = switcher;
     }
 
@@ -138,6 +136,11 @@ public class ShopFormFragment extends Fragment implements ShopFormInterface {
                 .setTitle("Field Missing");
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT);
     }
 
     @Override

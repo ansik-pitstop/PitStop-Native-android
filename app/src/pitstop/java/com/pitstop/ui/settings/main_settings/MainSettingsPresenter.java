@@ -100,6 +100,7 @@ public class MainSettingsPresenter {
             }
             @Override
             public void onError() {
+                mainSettings.toast("There was an error loading your cars");
                 checkDone();
             }
         });
@@ -119,6 +120,7 @@ public class MainSettingsPresenter {
 
             @Override
             public void onError() {
+                mainSettings.toast("There was an error loading your details");
                 checkDone();
             }
         });
@@ -137,6 +139,7 @@ public class MainSettingsPresenter {
 
             @Override
             public void onError() {
+                mainSettings.toast("There was an error loading your shops");
                 checkDone();
             }
         });

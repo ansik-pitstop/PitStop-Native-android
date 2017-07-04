@@ -2,15 +2,15 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
 /**
- * Created by xirax on 2017-06-09.
+ * Created by Matt on 2017-06-09.
  */
 
 public interface ShopFormInterface {
-    void setSwitcher(FragmentSwitcherInterface switcher);
+    void setSwitcher(CustomShopActivityCallback switcher);
     void setSwitcher(FragmentSwitcher switcher);
     void setDealership(Dealership dealership);
     void showName(String name);
@@ -34,4 +34,5 @@ public interface ShopFormInterface {
     String getProvince();
     String getPostal();
     String getCountry();
+    void toast(String message);
 }

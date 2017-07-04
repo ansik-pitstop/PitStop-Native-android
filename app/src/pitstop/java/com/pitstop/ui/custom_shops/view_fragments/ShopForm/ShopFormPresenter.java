@@ -4,13 +4,13 @@ import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.UpdateShopUseCase;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
 import javax.inject.Inject;
 
 /**
- * Created by xirax on 2017-06-09.
+ * Created by Matt on 2017-06-09.
  */
 
 public class ShopFormPresenter {
@@ -25,9 +25,9 @@ public class ShopFormPresenter {
     UpdateShopUseCase updateShopUseCase;
 
     private ShopFormInterface shopForm;
-    private FragmentSwitcherInterface switcher1;
+    private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
-    public void subscribe(ShopFormInterface shopForm, FragmentSwitcherInterface switcher1, FragmentSwitcher switcher2){
+    public void subscribe(ShopFormInterface shopForm, CustomShopActivityCallback switcher1, FragmentSwitcher switcher2){
         this.shopForm = shopForm;
         this.switcher1 = switcher1;
         this.switcher2 = switcher2;
@@ -49,11 +49,11 @@ public class ShopFormPresenter {
         String shopName = shopForm.getName();
         String shopPhone = shopForm.getPhone();
         String shopEmail = shopForm.getEmail();
-        String shopAddress = shopForm.getAddress().replaceAll("\\s+","");;
-        String shopCity = shopForm.getCity().replaceAll("\\s+","");;
-        String shopProvince = shopForm.getProvince().replaceAll("\\s+","");;
-        String shopCountry = shopForm.getCountry().replaceAll("\\s+","");;
-        String shopPostal = shopForm.getPostal().replaceAll("\\s+","");;
+        String shopAddress = shopForm.getAddress();
+        String shopCity = shopForm.getCity();
+        String shopProvince =shopForm.getProvince();
+        String shopCountry = shopForm.getCountry();
+        String shopPostal = shopForm.getPostal();
 
         if(shopName.isEmpty()){
             shopForm.showReminder("Please enter the shop name");
@@ -82,10 +82,12 @@ public class ShopFormPresenter {
                 }
                 @Override
                 public void onError() {
+                    shopForm.toast("There was an error updating your shops details");
                 }
             });
 
         }else{
+
             addShopUseCase.execute(dealership, new AddShopUseCase.Callback() {
                 @Override
                 public void onShopAdded() {
@@ -98,14 +100,14 @@ public class ShopFormPresenter {
 
                             @Override
                             public void onError() {
-
+                                shopForm.toast("There was an error adding your shop");
                             }
                         });
                     }
                 }
                 @Override
                 public void onError() {
-
+                    shopForm.toast("There was an error adding your shop");
                 }
             });
         }

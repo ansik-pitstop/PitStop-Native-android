@@ -2,19 +2,29 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Toast;
 
+
+import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.custom_shops.FragmentSwitcherInterface;
+import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopAdapter;
 
 import java.util.List;
@@ -29,12 +39,21 @@ import butterknife.ButterKnife;
 
 public class ShopSearchFragment extends Fragment implements ShopSearchInterface {
     private ShopSearchPresenter presenter;
-    private FragmentSwitcherInterface switcher;
+    private CustomShopActivityCallback switcher;
 
     private Context context;
     private GlobalApplication application;
 
     private ShopAdapter shopAdapter;
+
+    private Car car;
+
+    private LatLng location;
+
+    @BindView(R.id.shop_search_progress)
+    ProgressBar shopSearchProgress;
+    @BindView(R.id.myshop_search_progress)
+    ProgressBar myShopSearchProgress;
 
     @BindView(R.id.my_shops_list)
     RecyclerView myShopsList;
@@ -42,6 +61,13 @@ public class ShopSearchFragment extends Fragment implements ShopSearchInterface 
     RecyclerView pitstopShops;
     @BindView(R.id.search_results_list)
     RecyclerView searchResults;
+
+    @BindView(R.id.my_shops_category)
+    CardView shopCategory;
+    @BindView(R.id.pitstop_category)
+    CardView pitstopCategory;
+    @BindView(R.id.search_results_category)
+    CardView searchCategory;
 
 
     @BindView(R.id.search_bar)
@@ -51,8 +77,25 @@ public class ShopSearchFragment extends Fragment implements ShopSearchInterface 
     CardView addOwnButton;
 
     @Override
-    public void setSwitcher(FragmentSwitcherInterface switcher) {
+    public void setSwitcher(CustomShopActivityCallback switcher) {
         this.switcher = switcher;
+    }
+
+    public void setCar(Car car){
+        this.car = car;
+    }
+    public void setLocation(LatLng location){
+        this.location = location;
+    }
+
+    @Override
+    public LatLng getLocation() {
+        return location;
+    }
+
+    @Override
+    public Car getCar() {
+        return car;
     }
 
     @Override
@@ -68,16 +111,115 @@ public class ShopSearchFragment extends Fragment implements ShopSearchInterface 
                 presenter.setViewShopForm(null);
             }
         });
+        searchBar.setFocusableInTouchMode(true);
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                presenter.filterLists(newText);
+                return false;
+            }
+        });
+
+
+
+        pitstopShops.setNestedScrollingEnabled(false);
+        myShopsList.setNestedScrollingEnabled(false);
+        searchResults.setNestedScrollingEnabled(false);
+
         presenter = new ShopSearchPresenter();
         presenter.subscribe(this,switcher);
-        presenter.focusSearch();
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        component.injectUseCases(presenter);
+
+        searchBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.focusSearch();
+            }
+        });
         presenter.getMyShops();
+        presenter.getPitstopShops();
         return view;
+    }
+
+    @Override
+    public void loadingMyShops(boolean show) {
+        if(show){
+            myShopSearchProgress.setVisibility(View.VISIBLE);
+        }else{
+            myShopSearchProgress.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void loadingGoogle(boolean show) {
+        if(show){
+            shopSearchProgress.setVisibility(View.VISIBLE);
+        }else{
+            shopSearchProgress.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        searchBar.setQuery("",true);
     }
 
     @Override
     public void focusSearch() {
         searchBar.onActionViewExpanded();
+    }
+
+    @Override
+    public void unFocusSearch() {
+        searchBar.onActionViewCollapsed();
+    }
+
+    @Override
+    public void showPitstopCategory(boolean show) {
+        if(show){
+            pitstopCategory.setVisibility(View.VISIBLE);
+            pitstopShops.setVisibility(View.VISIBLE);
+            return;
+        }
+        pitstopShops.setVisibility(View.GONE);
+        pitstopCategory.setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void showSearchCategory(boolean show) {
+        if(show){
+            searchCategory.setVisibility(View.VISIBLE);
+            searchResults.setVisibility(View.VISIBLE);
+            return;
+        }
+        searchCategory.setVisibility(View.GONE);
+        searchResults.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showShopCategory(boolean show) {
+        if(show){
+            shopCategory.setVisibility(View.VISIBLE);
+            return;
+        }
+        shopCategory.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -88,6 +230,28 @@ public class ShopSearchFragment extends Fragment implements ShopSearchInterface 
         myShopsList.setAdapter(shopAdapter);
         myShopsList.setLayoutManager(linearLayoutManager);
 
+    }
+    @Override
+    public void showConfirmation(Dealership dealership) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
+        alertDialogBuilder.setTitle("Set shop to "+dealership.getName());
+        alertDialogBuilder
+                .setMessage("Change the shop of this car")
+                .setCancelable(false)
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+                        presenter.changeShop(dealership);
+                    }
+                })
+                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     @Override

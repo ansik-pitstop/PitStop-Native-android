@@ -28,6 +28,10 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric.sdk.android.services.network.DefaultHttpRequestFactory;
+import io.fabric.sdk.android.services.network.HttpRequestFactory;
+import okhttp3.OkHttpClient;
+
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
 
@@ -68,8 +72,9 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void getWithCustomUrl(String url, String uri, RequestCallback callback) {
-        new HttpRequest.Builder()
+
+    public void getWithCustomUrl(String url, String uri, RequestCallback callback) {
+         new HttpRequest.Builder()
                 .url(url)
                 .uri(uri)
                 .requestCallBack(callback)
@@ -848,7 +853,6 @@ public class NetworkHelper {
         }catch (JSONException e){
             e.printStackTrace();
         }
-        System.out.println("Testing trying to post this "+body);
         post("shop",callback,body);
     }
 

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.models.Car;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
@@ -47,6 +48,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
+
 /**
  * Created by David on 7/20/2016.
  */
@@ -63,6 +66,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public static final int PAIR_CAR_SUCCESS = 52;
     public static final int ADD_CAR_NO_DEALER_SUCCESS = 53;
     private static final int RC_PENDING_ADD_CAR = 1043;
+    private static final int DEALER_CHOSEN = 4785;
+
 
     // views
     private AddCarViewPager mPager;
@@ -446,7 +451,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
             presenter.startAddingNewCar();
-        } else {
+        }else if(requestCode == DEALER_CHOSEN){
+            finish();
+        }else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -590,7 +597,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     @Override
     public void onPostCarSucceeded(Car createdCar) {
         if (!addingCar) return;
-
         carSuccessfullyAdded = true; // At this point car is successfully added
 
         Intent data = new Intent();
@@ -609,6 +615,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 finish();
             }
         }.start();
+
     }
 
     @Override
@@ -630,16 +637,21 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void askForDealership() {
+    public void askForDealership(Car createdCar) {
         if (!addingCar) return;
 
-        mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
+
+        Intent intent = new Intent(this, CustomShopActivity.class);
+        intent.putExtra(CAR_EXTRA,createdCar);
+        startActivityForResult(intent,DEALER_CHOSEN);
+
+        /*mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(2);
 
         // Go to the selectDealership fragment
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);*/
     }
 
     /**

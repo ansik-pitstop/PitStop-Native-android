@@ -24,6 +24,8 @@ public class Dealership implements Parcelable {
     private String email;
     private String longitude;
     private String latitude;
+    private String googlePlaceId;
+    private double googlePlaceRating = 0;
 
     private boolean custom;
 
@@ -36,6 +38,25 @@ public class Dealership implements Parcelable {
         }else{
             this.custom = false;
         }
+    }
+    public void setRating(double rating){
+        this.googlePlaceRating = rating;
+    }
+
+    public double getRating(){
+        return googlePlaceRating;
+    }
+
+    public void setCustom(boolean custom){
+        this.custom = custom;
+    }
+
+    public void setGooglePlaceId(String googlePlaceId){
+        this.googlePlaceId = googlePlaceId;
+    }
+
+    public String getGooglePlaceId(){
+        return googlePlaceId;
     }
 
     public Boolean isCustom(){

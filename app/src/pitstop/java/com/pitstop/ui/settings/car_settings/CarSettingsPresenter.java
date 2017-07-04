@@ -9,7 +9,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
 import javax.inject.Inject;
 
 /**
- * Created by xirax on 2017-06-13.
+ * Created by Matthew on 2017-06-13.
  */
 
 public class CarSettingsPresenter {
@@ -61,7 +61,9 @@ public class CarSettingsPresenter {
             @Override
             public void onCarGot(Car car) {
                 carSettings.setCar(car);
-                carSettings.showCarText(car.getMake()+ " "+car.getModel(),car.getDealership().getName());
+                if(car.getDealership() != null) {
+                    carSettings.showCarText(car.getMake() + " " + car.getModel(), car.getDealership().getName());
+                }
             }
 
             @Override

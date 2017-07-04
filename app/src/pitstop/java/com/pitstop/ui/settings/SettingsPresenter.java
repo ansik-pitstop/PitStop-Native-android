@@ -1,10 +1,5 @@
 package com.pitstop.ui.settings;
 
-import android.content.Intent;
-
-import com.pitstop.models.Car;
-
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**
  * Created by Matt on 2017-06-12.

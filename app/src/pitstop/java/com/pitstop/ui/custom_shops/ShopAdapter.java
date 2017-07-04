@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -37,7 +38,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public ShopViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
 
-        return new ShopViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false));
+        return new ShopViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_shop, parent, false));
     }
 
     @Override
@@ -47,14 +48,22 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             holder.name.setText("No Matching Shops");
             holder.address.setText("");
         } else {
+            Dealership dealership = dealerships.get(position);
                 holder.setClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        shopPresnter.onShopClicked(dealerships.get(position));
+                        shopPresnter.onShopClicked(dealership);
                     }
                 });
-                holder.name.setText(dealerships.get(position).getName());
-                holder.address.setText(dealerships.get(position).getAddress());
+                holder.name.setText(dealership.getName());
+                holder.address.setText(dealership.getAddress());
+                if(dealership.getRating()==0){
+                    holder.rating.setVisibility(View.GONE);
+                    holder.ratingBar.setVisibility(View.GONE);
+                }else{
+                    holder.rating.setText(Double.toString(dealership.getRating()));
+                    holder.ratingBar.setRating((float)dealership.getRating());
+                }
         }
     }
 
@@ -77,12 +86,16 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public class ShopViewHolder extends RecyclerView.ViewHolder{
         TextView name;
         TextView address;
+        TextView rating;
+        RatingBar ratingBar;
         CardView item;
         public ShopViewHolder(View itemView) {
             super(itemView);
-            item = (CardView) itemView.findViewById(R.id.trip_card);
-            name = (TextView) itemView.findViewById(R.id.trip_date);
-            address = (TextView) itemView.findViewById(R.id.trip_details);
+            rating = (TextView) itemView.findViewById(R.id.rating_number);
+            ratingBar = (RatingBar) itemView.findViewById(R.id.rating_bar);
+            item = (CardView) itemView.findViewById(R.id.shop_card);
+            name = (TextView) itemView.findViewById(R.id.shop_date);
+            address = (TextView) itemView.findViewById(R.id.shop_details);
         }
 
         public void setClickListener(final View.OnClickListener clickListener){

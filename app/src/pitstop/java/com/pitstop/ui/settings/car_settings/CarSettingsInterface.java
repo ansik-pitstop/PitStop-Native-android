@@ -4,7 +4,7 @@ import com.pitstop.models.Car;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
 /**
- * Created by xirax on 2017-06-13.
+ * Created by Matthew on 2017-06-13.
  */
 
 public interface CarSettingsInterface {
