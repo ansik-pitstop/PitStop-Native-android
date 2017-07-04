@@ -48,6 +48,8 @@ public class NotificationsFragment extends Fragment {
     private static final int NETWORK_ERROR = 1;
     public static final int NO_NETWORK = 2;
 
+    private boolean notificationsLoaded;
+
     @BindView(R.id.notifications_recyclerview)
     RecyclerView mNotificationsRecyclerView;
 
@@ -89,11 +91,24 @@ public class NotificationsFragment extends Fragment {
         return rootview;
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && getView() != null && !notificationsLoaded){
+            fetchNotifications();
+        }
+    }
+
     private void fetchNotifications() {
-        if(!mNetworkHelper.isConnected(getActivity())) {
+        if(!mNetworkHelper.isConnected(getActivity())
+                || ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
+            notificationsLoaded = false;
             return;
         }
+
+        notificationsLoaded = true;
+
         mLoadingSpinner.setVisibility(View.VISIBLE);
         mNetworkHelper.getUserInstallationId(((GlobalApplication) getApplicationContext()).getCurrentUserId(), new RequestCallback() {
             @Override
