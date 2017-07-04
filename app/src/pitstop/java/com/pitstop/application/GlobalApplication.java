@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -45,6 +46,7 @@ import org.acra.config.ConfigurationBuilder;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.fabric.sdk.android.services.common.Crash;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -112,6 +114,12 @@ public class GlobalApplication extends Application {
         Stetho.initializeWithDefaults(this);
 
         //Begin Crashlytics
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            Crashlytics.setString(BuildConfig.VERSION_NAME,"Release");
+        }
+        else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            Crashlytics.setString(BuildConfig.VERSION_NAME,"Beta");
+        }
         Fabric.with(this, new Crashlytics());
 
         MultiDex.install(this);
