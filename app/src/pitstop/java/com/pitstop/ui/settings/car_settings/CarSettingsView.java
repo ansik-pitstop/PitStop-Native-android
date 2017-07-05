@@ -7,7 +7,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  * Created by Matthew on 2017-06-13.
  */
 
-public interface CarSettingsInterface {
+public interface CarSettingsView {
     void setCar(Car car);
     void setSwitcher(FragmentSwitcher switcher);
     void showCarText(String name, String shop);

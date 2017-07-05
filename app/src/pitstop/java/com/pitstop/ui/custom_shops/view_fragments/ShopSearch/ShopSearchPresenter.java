@@ -21,7 +21,7 @@ import java.util.List;
  */
 
 public class ShopSearchPresenter implements ShopPresnter {
-    private ShopSearchInterface shopSearch;
+    private ShopSearchView shopSearch;
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
 
@@ -37,7 +37,7 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     }
 
-    public void subscribe(ShopSearchInterface shopSearch){
+    public void subscribe(ShopSearchView shopSearch){
         this.shopSearch = shopSearch;
     }
     public void focusSearch(){

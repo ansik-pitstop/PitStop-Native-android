@@ -13,15 +13,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-
 /**
  * Created by Matt on 2017-06-08.
  */
 
 public class PitstopShopsPresenter implements ShopPresnter {
 
-    private PitstopShopsInterface pitstopShops;
+    private PitstopShopsView pitstopShops;
     private CustomShopActivityCallback switcher;
     private List<Dealership> localDealerships;
     private UseCaseComponent component;
@@ -32,7 +30,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
         this.component = component;
     }
 
-    public void subscribe(PitstopShopsInterface pitstopShops){
+    public void subscribe(PitstopShopsView pitstopShops){
         this.pitstopShops = pitstopShops;
 
     }

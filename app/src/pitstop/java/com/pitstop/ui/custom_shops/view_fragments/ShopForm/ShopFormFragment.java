@@ -28,7 +28,7 @@ import butterknife.ButterKnife;
  * Created by Matt on 2017-06-09.
  */
 
-public class ShopFormFragment extends Fragment implements ShopFormInterface {
+public class ShopFormFragment extends Fragment implements ShopFormView {
     private Context context;
     private GlobalApplication application;
 

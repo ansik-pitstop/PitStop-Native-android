@@ -37,7 +37,7 @@ import butterknife.ButterKnife;
  * Created by matt on 2017-06-08.
  */
 
-public class ShopSearchFragment extends Fragment implements ShopSearchInterface {
+public class ShopSearchFragment extends Fragment implements ShopSearchView {
     private ShopSearchPresenter presenter;
     private CustomShopActivityCallback switcher;
 

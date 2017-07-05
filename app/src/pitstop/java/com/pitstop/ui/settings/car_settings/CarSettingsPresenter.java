@@ -18,7 +18,7 @@ public class CarSettingsPresenter {
     private final String DELETE_KEY = "pre_delete_car";
     private final String SET_CURRENT_KEY = "pref_set_active";
 
-    private CarSettingsInterface carSettings;
+    private CarSettingsView carSettings;
     private FragmentSwitcher switcher;
     private UseCaseComponent component;
 
@@ -31,7 +31,7 @@ public class CarSettingsPresenter {
     }
 
 
-    public void subscribe(CarSettingsInterface carSettings){
+    public void subscribe(CarSettingsView carSettings){
         this.carSettings = carSettings;
     }
     public void preferenceClicked(String key){

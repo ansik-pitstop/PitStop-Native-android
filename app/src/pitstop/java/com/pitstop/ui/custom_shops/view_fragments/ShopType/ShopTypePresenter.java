@@ -14,7 +14,7 @@ import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 
 public class ShopTypePresenter {
 
-    private ShopTypeInterface shopTypeFragment;
+    private ShopTypeView shopTypeFragment;
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
 
@@ -23,8 +23,8 @@ public class ShopTypePresenter {
         this.component = component;
     }
 
-    public void subscribe(ShopTypeInterface shopTypeInterface){
-        this.shopTypeFragment = shopTypeInterface;
+    public void subscribe(ShopTypeView shopTypeView){
+        this.shopTypeFragment = shopTypeView;
 
     }
     public void setViewShopSearch(){

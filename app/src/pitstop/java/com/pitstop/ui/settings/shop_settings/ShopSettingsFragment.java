@@ -25,7 +25,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  * Created by Matthew on 2017-06-26.
  */
 
-public class ShopSettingsFragment extends PreferenceFragment implements ShopSettingsInterface {
+public class ShopSettingsFragment extends PreferenceFragment implements ShopSettingsView {
     private final String SHOP_TITLE_KEY = "pref_Shop_title";
     private final String EDIT_SHOP_KEY = "pref_edit_shop";
     private final String DELETE_SHOP_KEY = "pref_delete_shop";

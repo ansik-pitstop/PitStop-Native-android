@@ -10,7 +10,7 @@ import java.util.List;
  * Created by Matt on 2017-06-08.
  */
 
-public interface PitstopShopsInterface {
+public interface PitstopShopsView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void focusSearch();
     void setupList(List<Dealership> dealerships);

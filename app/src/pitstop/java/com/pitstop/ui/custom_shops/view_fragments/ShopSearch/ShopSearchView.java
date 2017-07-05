@@ -11,7 +11,7 @@ import java.util.List;
  * Created by matt on 2017-06-08.
  */
 
-public interface ShopSearchInterface {
+public interface ShopSearchView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void focusSearch();
     void unFocusSearch();

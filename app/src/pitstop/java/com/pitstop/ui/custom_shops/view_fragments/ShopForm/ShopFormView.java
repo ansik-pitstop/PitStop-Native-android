@@ -9,7 +9,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  * Created by Matt on 2017-06-09.
  */
 
-public interface ShopFormInterface {
+public interface ShopFormView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void setSwitcher(FragmentSwitcher switcher);
     void setDealership(Dealership dealership);

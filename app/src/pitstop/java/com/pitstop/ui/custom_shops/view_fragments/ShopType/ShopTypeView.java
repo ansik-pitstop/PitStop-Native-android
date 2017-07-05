@@ -6,7 +6,7 @@ import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
  * Created by matt on 2017-06-07.
  */
 
-public interface ShopTypeInterface {
+public interface ShopTypeView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void noShopWarning();
 }

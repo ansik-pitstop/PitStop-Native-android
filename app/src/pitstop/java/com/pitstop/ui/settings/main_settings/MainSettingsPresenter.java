@@ -28,7 +28,7 @@ public class MainSettingsPresenter {
     private  final String TERMS_KEY = "pref_term_of_use";
     private final String LOG_OUT_KEY = "pref_logout";
 
-    private MainSettingsInterface mainSettings;
+    private MainSettingsView mainSettings;
     private FragmentSwitcher switcher;
     private PrefMaker prefMaker;
     private UseCaseComponent component;
@@ -43,7 +43,7 @@ public class MainSettingsPresenter {
 
     }
 
-    void subscribe(MainSettingsInterface mainSettings ){
+    void subscribe(MainSettingsView mainSettings ){
         this.mainSettings = mainSettings;
         switcher.loading(true);
     }

@@ -25,7 +25,7 @@ import butterknife.ButterKnife;
  * Created by matt on 2017-06-07.
  */
 
-public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
+public class ShopTypeFragment extends Fragment implements ShopTypeView {
     private ShopTypePresenter presenter;
     private CustomShopActivityCallback switcher;
 

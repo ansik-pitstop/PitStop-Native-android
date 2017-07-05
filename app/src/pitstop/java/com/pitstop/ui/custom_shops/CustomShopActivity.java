@@ -33,7 +33,7 @@ import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
  * Created by matt on 2017-06-07.
  */
 
-public class CustomShopActivity extends AppCompatActivity implements CustomShopInterface,CustomShopActivityCallback{
+public class CustomShopActivity extends AppCompatActivity implements CustomShopView,CustomShopActivityCallback{
     private ShopTypeFragment shopTypeFragment;
     private ShopSearchFragment shopSearchFragment;
     private PitstopShopsFragment pitstopShopsFragment;
@@ -99,8 +99,8 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopI
         pitstopShopsFragment.setCar(car);
         shopFormFragment.setSwitcher(this);
 
-        presenter = new CustomShopPresenter();
-        presenter.subscribe(this,this);
+        presenter = new CustomShopPresenter(this);
+        presenter.subscribe(this);
         presenter.setViewCustomShop();
         presenter.setUpNavBar();
     }

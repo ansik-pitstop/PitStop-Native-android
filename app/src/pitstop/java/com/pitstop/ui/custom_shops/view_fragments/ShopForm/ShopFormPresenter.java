@@ -8,8 +8,6 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
-import javax.inject.Inject;
-
 /**
  * Created by Matt on 2017-06-09.
  */
@@ -18,7 +16,7 @@ public class ShopFormPresenter {
 
 
 
-    private ShopFormInterface shopForm;
+    private ShopFormView shopForm;
     private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
     private UseCaseComponent component;
@@ -29,7 +27,7 @@ public class ShopFormPresenter {
         this.component = component;
     }
 
-    public void subscribe(ShopFormInterface shopForm ){
+    public void subscribe(ShopFormView shopForm ){
         this.shopForm = shopForm;
 
     }

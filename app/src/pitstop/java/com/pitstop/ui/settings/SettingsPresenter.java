@@ -6,13 +6,15 @@ package com.pitstop.ui.settings;
  */
 
 public class SettingsPresenter {
-    private SettingsInterface settings;
+    private SettingsView settings;
     private FragmentSwitcher switcher;
 
-
-    public void subscribe(SettingsInterface settings, FragmentSwitcher switcher){
-        this.settings = settings;
+    public SettingsPresenter( FragmentSwitcher switcher){
         this.switcher = switcher;
+    }
+
+    public void subscribe(SettingsView settings){
+        this.settings = settings;
     }
     public void setViewMainSettings(){
         switcher.setViewMainSettings();

@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
  * Created by Matt on 2017-06-08.
  */
 
-public class PitstopShopsFragment extends Fragment implements PitstopShopsInterface {
+public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
 
 
     private CustomShopActivityCallback switcher;

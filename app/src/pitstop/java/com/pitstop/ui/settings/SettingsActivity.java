@@ -36,7 +36,7 @@ import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
  * Created by Matt on 2017-06-12.
  */
 
-public class SettingsActivity extends AppCompatActivity implements SettingsInterface,FragmentSwitcher, PrefMaker {
+public class SettingsActivity extends AppCompatActivity implements SettingsView,FragmentSwitcher, PrefMaker {
     private SettingsPresenter presenter;
     private FragmentManager fragmentManager;
     private MainSettingsFragment mainSettings;
@@ -72,10 +72,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
         shopSettings.setSwitcher(this);
         shopForm.setSwitcher(this);
         shopForm.setUpdate(true);
-        presenter = new SettingsPresenter();
-        presenter.subscribe(this,this);
+        presenter = new SettingsPresenter(this);
+        presenter.subscribe(this);
         presenter.setViewMainSettings();
     }
+
     @Override
     public void setViewShopForm(Dealership dealership){//here
         shopForm.setDealership(dealership);

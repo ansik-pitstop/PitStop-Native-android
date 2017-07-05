@@ -11,7 +11,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  */
 
 public class ShopSettingsPresenter {
-    private ShopSettingsInterface shopSettings;
+    private ShopSettingsView shopSettings;
     private FragmentSwitcher switcher;
     private UseCaseComponent component;
 
@@ -22,7 +22,7 @@ public class ShopSettingsPresenter {
         this.component = component;
     }
 
-    public void subscribe(ShopSettingsInterface shopSettings){
+    public void subscribe(ShopSettingsView shopSettings){
         this.shopSettings = shopSettings;
     }
 

@@ -5,13 +5,15 @@ package com.pitstop.ui.custom_shops;
  */
 
 public class CustomShopPresenter {
-    private CustomShopInterface customShop;
+    private CustomShopView customShop;
     private CustomShopActivityCallback fragmentSwitcher;
 
-    public void subscribe(CustomShopActivityCallback fragmentSwitcher, CustomShopInterface customShop){
-        this.customShop = customShop;
+    public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher){
         this.fragmentSwitcher = fragmentSwitcher;
+    }
 
+    public void subscribe(CustomShopView customShop){
+        this.customShop = customShop;
     }
     public void setViewCustomShop(){
         fragmentSwitcher.setViewShopType();

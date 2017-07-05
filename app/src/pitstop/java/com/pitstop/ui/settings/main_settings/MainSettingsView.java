@@ -10,7 +10,7 @@ import com.pitstop.ui.settings.PrefMaker;
  * Created by Matt on 2017-06-12.
  */
 
-public interface MainSettingsInterface {
+public interface MainSettingsView {
     void setSwitcher(FragmentSwitcher switcher);
     void startPriv();
     void resetCars();

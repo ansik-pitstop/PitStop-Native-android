@@ -27,7 +27,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  * Created by Matthew on 2017-06-13.
  */
 
-public class CarSettingsFragment extends PreferenceFragment implements CarSettingsInterface {
+public class CarSettingsFragment extends PreferenceFragment implements CarSettingsView {
     private final String CAR_TITLE = "pref_car_tile";
     private final String CHANGE_SHOP = "pref_change_shop";
     private final String DELETE_KEY = "pre_delete_car";

@@ -26,19 +26,15 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.ui.LoginActivity;
-import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
-import com.pitstop.utils.NetworkHelper;
-
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 
 /**
  * Created by Matt on 2017-06-12.
  */
 
-public class MainSettingsFragment extends PreferenceFragment implements MainSettingsInterface, SharedPreferences.OnSharedPreferenceChangeListener  {
+public class MainSettingsFragment extends PreferenceFragment implements MainSettingsView, SharedPreferences.OnSharedPreferenceChangeListener  {
     private final String NAME_PREF_KEY = "pref_username_key";
     private final String PHONE_PREF_KEY = "pref_phone_number_key";
     private final String APP_INFO_KEY = "AppInfo";
