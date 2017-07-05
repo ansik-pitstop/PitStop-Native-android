@@ -42,7 +42,6 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     @Override
     public void run() {
 
-
         userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
 
             @Override
@@ -102,6 +101,10 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                 });
             }
 
+            @Override
+            public void onNoCarSet() {
+
+            }
             @Override
             public void onError() {
                 callback.onError();

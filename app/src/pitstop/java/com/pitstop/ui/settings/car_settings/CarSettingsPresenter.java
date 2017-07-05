@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.car_settings;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCase;
@@ -20,19 +21,18 @@ public class CarSettingsPresenter {
 
     private CarSettingsInterface carSettings;
     private FragmentSwitcher switcher;
-
-    @Inject
-    RemoveCarUseCase removeCarUseCase;
-
-    @Inject
-    SetUserCarUseCase setUserCarUseCase;
-
-    @Inject
-    GetCarByCarIdUseCase getCarByCarIdUseCase;
+    private UseCaseComponent component;
 
 
-    public void subscribe(CarSettingsInterface carSettings, FragmentSwitcher switcher){
+
+
+    public CarSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component){
         this.switcher = switcher;
+        this.component = component;
+    }
+
+
+    public void subscribe(CarSettingsInterface carSettings){
         this.carSettings = carSettings;
     }
     public void preferenceClicked(String key){
@@ -41,7 +41,7 @@ public class CarSettingsPresenter {
         }else if(key.equals(DELETE_KEY)){
             carSettings.showDelete();
         }else if(key.equals(SET_CURRENT_KEY)){
-            setUserCarUseCase.execute(carSettings.getCar().getId(), new SetUserCarUseCase.Callback() {
+            component.setUseCarUseCase().execute(carSettings.getCar().getId(), new SetUserCarUseCase.Callback() {
                 @Override
                 public void onUserCarSet() {
                     switcher.setViewMainSettings();
@@ -57,7 +57,7 @@ public class CarSettingsPresenter {
         }
     }
     void updateCar(int carId){
-        getCarByCarIdUseCase.execute(carId, new GetCarByCarIdUseCase.Callback() {
+        component.getGetCarByCarIdUseCase().execute(carId, new GetCarByCarIdUseCase.Callback() {
             @Override
             public void onCarGot(Car car) {
                 carSettings.setCar(car);
@@ -76,7 +76,7 @@ public class CarSettingsPresenter {
     }
 
     void deleteCar(Car car){
-        removeCarUseCase.execute(car, new RemoveCarUseCase.Callback() {
+        component.removeCarUseCase().execute(car, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
                 switcher.setViewMainSettings();

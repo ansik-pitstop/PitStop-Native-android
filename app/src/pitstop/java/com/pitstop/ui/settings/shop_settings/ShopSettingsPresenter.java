@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.shop_settings;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
@@ -13,13 +14,17 @@ import javax.inject.Inject;
 public class ShopSettingsPresenter {
     private ShopSettingsInterface shopSettings;
     private FragmentSwitcher switcher;
+    private UseCaseComponent component;
 
-    @Inject
-    RemoveShopUseCase removeShopUseCase;
 
-    public void subscribe(ShopSettingsInterface shopSettings, FragmentSwitcher switcher){
-        this.shopSettings = shopSettings;
+
+    public ShopSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component){
         this.switcher = switcher;
+        this.component = component;
+    }
+
+    public void subscribe(ShopSettingsInterface shopSettings){
+        this.shopSettings = shopSettings;
     }
 
     public void deleteClicked(){
@@ -27,7 +32,7 @@ public class ShopSettingsPresenter {
     }
 
     public void removeShop(Dealership dealership){
-        removeShopUseCase.execute(dealership, new RemoveShopUseCase.Callback() {
+        component.getRemoveShopUseCase().execute(dealership, new RemoveShopUseCase.Callback() {
             @Override
             public void onShopRemoved() {
                 switcher.setViewMainSettings();
@@ -47,12 +52,5 @@ public class ShopSettingsPresenter {
     public void showForm(Dealership dealership){
         switcher.setViewShopForm(dealership);
     }
-
-    public void editClicked(){
-
-    }
-
-
-
 
 }

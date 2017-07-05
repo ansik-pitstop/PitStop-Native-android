@@ -1,23 +1,20 @@
 package com.pitstop.ui.settings.main_settings;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetCurrentUserUseCase;
-import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserShopsUseCase;
 import com.pitstop.interactors.UpdateUserNameUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
-import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
 
 /**
  * Created by Matt on 2017-06-12.
@@ -34,32 +31,20 @@ public class MainSettingsPresenter {
     private MainSettingsInterface mainSettings;
     private FragmentSwitcher switcher;
     private PrefMaker prefMaker;
+    private UseCaseComponent component;
 
     private int processesFinished;
 
 
-    @Inject
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase;
-
-    @Inject
-    GetCurrentUserUseCase getCurrentUserUseCase;
-
-    @Inject
-    GetUserCarUseCase getUserCarUseCase;
-
-    @Inject
-    UpdateUserNameUseCase updateUserNameUseCase;
-
-    @Inject
-    UpdateUserPhoneUseCase updateUserPhoneUseCase;
-
-    @Inject
-    GetUserShopsUseCase getUserShopsUseCase;
-
-    void subscribe(MainSettingsInterface mainSettings, FragmentSwitcher switcher, PrefMaker prefMaker){
-        this.mainSettings = mainSettings;
+    public MainSettingsPresenter(FragmentSwitcher switcher, PrefMaker prefMaker, UseCaseComponent component){
         this.switcher = switcher;
         this.prefMaker = prefMaker;
+        this.component = component;
+
+    }
+
+    void subscribe(MainSettingsInterface mainSettings ){
+        this.mainSettings = mainSettings;
         switcher.loading(true);
     }
     void setVersion(){
@@ -88,7 +73,7 @@ public class MainSettingsPresenter {
 
 
     public void getCars(){// this needs to be changed
-        getCarsByUserIdUseCase.execute(new GetCarsByUserIdUseCase.Callback(){
+        component.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback(){
             @Override
             public void onCarsRetrieved(List<Car> cars) {
                 mainSettings.resetCars();
@@ -106,7 +91,7 @@ public class MainSettingsPresenter {
         });
     }
     public void getUser(){
-        getCurrentUserUseCase.execute(new GetCurrentUserUseCase.Callback() {
+        component.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
             @Override
             public void onUserRetrieved(User user) {
                 String username = user.getFirstName() + " " + user.getLastName();
@@ -127,7 +112,7 @@ public class MainSettingsPresenter {
     }
 
     public void getShops(){
-        getUserShopsUseCase.execute(new GetUserShopsUseCase.Callback() {
+        component.getGetUserShopsUseCase().execute(new GetUserShopsUseCase.Callback() {
             @Override
             public void onShopGot(List<Dealership> dealerships) {
                 mainSettings.resetShops();
@@ -156,7 +141,7 @@ public class MainSettingsPresenter {
     public void preferenceInput(String text, String key){
         if(key.equals(NAME_PREF_KEY)){
             mainSettings.showName(text);
-            updateUserNameUseCase.execute(text, new UpdateUserNameUseCase.Callback() {
+            component.getUpdateUserNameUseCase().execute(text, new UpdateUserNameUseCase.Callback() {
                 @Override
                 public void onUserNameUpdated() {
                 }
@@ -167,7 +152,7 @@ public class MainSettingsPresenter {
             });
         }else if(key.equals(PHONE_PREF_KEY)){
             mainSettings.showPhone(text);
-            updateUserPhoneUseCase.execute(text, new UpdateUserPhoneUseCase.Callback() {
+            component.getUpdateUserPhoneUseCase().execute(text, new UpdateUserPhoneUseCase.Callback() {
                 @Override
                 public void onUserPhoneUpdated() {
 

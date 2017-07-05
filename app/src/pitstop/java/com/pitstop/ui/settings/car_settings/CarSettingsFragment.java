@@ -69,13 +69,14 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
         addPreferencesFromResource(R.xml.car_preferences);
 
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        presenter = new CarSettingsPresenter();
-        presenter.subscribe(this,switcher);
-
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+        presenter = new CarSettingsPresenter(switcher,component);
+        presenter.subscribe(this);
+
+
 
         carCatagory = (PreferenceCategory) findPreference(CAR_TITLE);
         changeDealer = (Preference) findPreference(CHANGE_SHOP);

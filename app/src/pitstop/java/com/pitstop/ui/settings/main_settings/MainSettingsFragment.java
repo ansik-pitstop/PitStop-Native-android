@@ -91,13 +91,14 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         vehicleCatagory = (PreferenceCategory) findPreference(getString(R.string.pref_vehicles));
         shopCatagory = (PreferenceCategory) findPreference(SHOP_PREF_KEY);
 
-        presenter = new MainSettingsPresenter();
-        presenter.subscribe(this,switcher,prefMaker);
-
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+        presenter = new MainSettingsPresenter(switcher,prefMaker,component);
+        presenter.subscribe(this);
+
+
 
         presenter.setVersion();
         presenter.update();

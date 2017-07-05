@@ -109,12 +109,13 @@ public class ShopFormFragment extends Fragment implements ShopFormInterface {
 
         View view = inflater.inflate(R.layout.fragment_shop_form, container, false);
         ButterKnife.bind(this,view);
-        presenter = new ShopFormPresenter();
-        presenter.subscribe(this,switcher1,switcher2);
+
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+        presenter = new ShopFormPresenter(switcher1,switcher2,component);
+        presenter.subscribe(this);
 
         submitShop.setOnClickListener(new View.OnClickListener() {
             @Override

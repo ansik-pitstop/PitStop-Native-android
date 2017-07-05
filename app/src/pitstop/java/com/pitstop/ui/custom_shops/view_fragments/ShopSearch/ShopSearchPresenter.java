@@ -1,6 +1,7 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.GetPlaceDetailsUseCase;
@@ -14,7 +15,6 @@ import com.pitstop.ui.custom_shops.ShopPresnter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
 
 /**
  * Created by matt on 2017-06-08.
@@ -23,6 +23,7 @@ import javax.inject.Inject;
 public class ShopSearchPresenter implements ShopPresnter {
     private ShopSearchInterface shopSearch;
     private CustomShopActivityCallback switcher;
+    private UseCaseComponent component;
 
     private List<Dealership> pitstopShops;
 
@@ -30,25 +31,14 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     private int loadingCounter = 0;
 
-
-    @Inject
-    GetUserShopsUseCase getUserShopsUseCase;
-
-    @Inject
-    GetPitstopShopsUseCase getPitstopShopsUseCase;
-
-    @Inject
-    UpdateCarDealershipUseCase updateCarDealershipUseCase;
-
-    @Inject
-    GetGooglePlacesShopsUseCase getGooglePlacesShopsUseCase;
-
-    @Inject
-    GetPlaceDetailsUseCase getPlaceDetailsUseCase;
-
-    public void subscribe(ShopSearchInterface shopSearch, CustomShopActivityCallback switcher){
-        this.shopSearch = shopSearch;
+    public ShopSearchPresenter(CustomShopActivityCallback switcher, UseCaseComponent component){
         this.switcher = switcher;
+        this.component = component;
+
+    }
+
+    public void subscribe(ShopSearchInterface shopSearch){
+        this.shopSearch = shopSearch;
     }
     public void focusSearch(){
         shopSearch.focusSearch();
@@ -62,7 +52,7 @@ public class ShopSearchPresenter implements ShopPresnter {
     public void onShopClicked(Dealership dealership) {
         if(dealership.isCustom()){
             if(dealership.getGooglePlaceId()!= null){
-                getPlaceDetailsUseCase.execute(dealership, new GetPlaceDetailsUseCase.Callback() {
+                component.getGetPlaceDetailsUseCase().execute(dealership, new GetPlaceDetailsUseCase.Callback() {
                     @Override
                     public void onDetailsGot(Dealership dealership) {
                         switcher.setViewShopForm(dealership);
@@ -83,7 +73,7 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     public void changeShop(Dealership dealership){
         Car car = shopSearch.getCar();
-        updateCarDealershipUseCase.execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
                 switcher.endActivity();
@@ -123,7 +113,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         LatLng location = shopSearch.getLocation();
         shopSearch.loadingGoogle(true);
         loadingCounter+=1;
-        getGooglePlacesShopsUseCase.execute(location.latitude,location.longitude, filter, new GetGooglePlacesShopsUseCase.CallbackShops() {
+        component.getGetGooglePlacesShopsUseCase().execute(location.latitude,location.longitude, filter, new GetGooglePlacesShopsUseCase.CallbackShops() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 shopSearch.showSearchCategory(dealerships.size()>0 && !emptySearch);
@@ -145,7 +135,7 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     public void getMyShops(){
         shopSearch.loadingMyShops(true);
-        getUserShopsUseCase.execute(new GetUserShopsUseCase.Callback() {
+        component.getGetUserShopsUseCase().execute(new GetUserShopsUseCase.Callback() {
             @Override
             public void onShopGot(List<Dealership> dealerships) {
                 shopSearch.showShopCategory(dealerships.size()>0);
@@ -160,7 +150,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         });
     }
     public void getPitstopShops(){
-        getPitstopShopsUseCase.execute(new GetPitstopShopsUseCase.Callback() {
+        component.getGetPitstopShopsUseCase().execute(new GetPitstopShopsUseCase.Callback() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 pitstopShops = dealerships;

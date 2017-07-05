@@ -1,12 +1,12 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopType;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 
-import javax.inject.Inject;
 
 /**
  * Created by matt on 2017-06-07.
@@ -14,13 +14,18 @@ import javax.inject.Inject;
 
 public class ShopTypePresenter {
 
-    @Inject
-    UpdateCarDealershipUseCase updateCarDealershipUseCase;
     private ShopTypeInterface shopTypeFragment;
     private CustomShopActivityCallback switcher;
-    public void subscribe(ShopTypeInterface shopTypeInterface, CustomShopActivityCallback switcher){
-        this.shopTypeFragment = shopTypeInterface;
+    private UseCaseComponent component;
+
+    public ShopTypePresenter(CustomShopActivityCallback switcher, UseCaseComponent component){
         this.switcher = switcher;
+        this.component = component;
+    }
+
+    public void subscribe(ShopTypeInterface shopTypeInterface){
+        this.shopTypeFragment = shopTypeInterface;
+
     }
     public void setViewShopSearch(){
         switcher.setViewSearchShop();
@@ -43,7 +48,7 @@ public class ShopTypePresenter {
         }else {
             noDealer.setId(19);
         }
-        updateCarDealershipUseCase.execute(car.getId(), noDealer, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), noDealer, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
                 switcher.endActivity();

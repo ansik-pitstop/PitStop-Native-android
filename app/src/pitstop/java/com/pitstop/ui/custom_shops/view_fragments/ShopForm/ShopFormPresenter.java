@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.UpdateShopUseCase;
@@ -15,22 +16,21 @@ import javax.inject.Inject;
 
 public class ShopFormPresenter {
 
-    @Inject
-    AddShopUseCase addShopUseCase;
 
-    @Inject
-    UpdateCarDealershipUseCase updateCarDealershipUseCase;
-
-    @Inject
-    UpdateShopUseCase updateShopUseCase;
 
     private ShopFormInterface shopForm;
     private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
-    public void subscribe(ShopFormInterface shopForm, CustomShopActivityCallback switcher1, FragmentSwitcher switcher2){
-        this.shopForm = shopForm;
+    private UseCaseComponent component;
+
+    public ShopFormPresenter(CustomShopActivityCallback switcher1, FragmentSwitcher switcher2, UseCaseComponent component){
         this.switcher1 = switcher1;
         this.switcher2 = switcher2;
+        this.component = component;
+    }
+
+    public void subscribe(ShopFormInterface shopForm ){
+        this.shopForm = shopForm;
 
     }
 
@@ -75,7 +75,7 @@ public class ShopFormPresenter {
 
         if(update){
           dealership.setId(shopForm.getDealership().getId());
-            updateShopUseCase.execute(dealership, new UpdateShopUseCase.Callback() {
+            component.getUpdateShopUseCase().execute(dealership, new UpdateShopUseCase.Callback() {
                 @Override
                 public void onShopUpdated() {
                     switcher2.setViewMainSettings();
@@ -88,11 +88,11 @@ public class ShopFormPresenter {
 
         }else{
 
-            addShopUseCase.execute(dealership, new AddShopUseCase.Callback() {
+            component.getAddShopUseCase().execute(dealership, new AddShopUseCase.Callback() {
                 @Override
                 public void onShopAdded() {
                     if(shopForm.getCar() != null){
-                        updateCarDealershipUseCase.execute(shopForm.getCar().getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+                        component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
                                 switcher1.endActivity();

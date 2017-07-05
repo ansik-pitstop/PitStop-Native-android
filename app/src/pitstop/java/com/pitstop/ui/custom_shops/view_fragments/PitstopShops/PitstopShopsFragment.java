@@ -81,13 +81,16 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsInterf
 
         View view = inflater.inflate(R.layout.fragment_pitstop_shops, container, false);
         ButterKnife.bind(this,view);
-        presenter = new PitstopShopsPresenter();
-        presenter.subscribe(this,switcher);
+
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+        presenter = new PitstopShopsPresenter(switcher,component);
+        presenter.subscribe(this);
+
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

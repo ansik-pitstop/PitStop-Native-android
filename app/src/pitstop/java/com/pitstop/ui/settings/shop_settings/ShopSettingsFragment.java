@@ -61,13 +61,14 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
         shopTitle = (PreferenceCategory) findPreference(SHOP_TITLE_KEY);
         editButton = findPreference(EDIT_SHOP_KEY);
         deleteButton = findPreference(DELETE_SHOP_KEY);
-
-        presenter = new ShopSettingsPresenter();
-        presenter.subscribe(this,switcher);
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+        presenter = new ShopSettingsPresenter(switcher,component);
+        presenter.subscribe(this);
+
+
 
         shopTitle.setTitle(dealership.getName());
 

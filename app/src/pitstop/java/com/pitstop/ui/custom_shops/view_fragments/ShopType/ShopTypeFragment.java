@@ -76,12 +76,13 @@ public class ShopTypeFragment extends Fragment implements ShopTypeInterface {
                presenter.showNoShopWarning();
             }
         });
-        presenter = new ShopTypePresenter();
-        presenter.subscribe(this,switcher);
+
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+        presenter = new ShopTypePresenter(switcher,component);
+        presenter.subscribe(this);
+
         return view;
     }
 

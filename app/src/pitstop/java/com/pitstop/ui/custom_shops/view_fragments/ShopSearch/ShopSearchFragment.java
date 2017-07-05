@@ -131,13 +131,15 @@ public class ShopSearchFragment extends Fragment implements ShopSearchInterface 
         myShopsList.setNestedScrollingEnabled(false);
         searchResults.setNestedScrollingEnabled(false);
 
-        presenter = new ShopSearchPresenter();
-        presenter.subscribe(this,switcher);
-
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        component.injectUseCases(presenter);
+
+
+        presenter = new ShopSearchPresenter(switcher,component);
+        presenter.subscribe(this);
+
+
 
         searchBar.setOnClickListener(new View.OnClickListener() {
             @Override

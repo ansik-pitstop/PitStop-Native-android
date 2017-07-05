@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
@@ -19,19 +20,21 @@ import javax.inject.Inject;
  */
 
 public class PitstopShopsPresenter implements ShopPresnter {
-    @Inject
-    GetPitstopShopsUseCase getPitstopShopsUseCase;
-
-    @Inject
-    UpdateCarDealershipUseCase updateCarDealershipUseCase;
 
     private PitstopShopsInterface pitstopShops;
     private CustomShopActivityCallback switcher;
     private List<Dealership> localDealerships;
+    private UseCaseComponent component;
 
-    public void subscribe(PitstopShopsInterface pitstopShops, CustomShopActivityCallback switcher){
-        this.pitstopShops = pitstopShops;
+
+    public PitstopShopsPresenter(CustomShopActivityCallback switcher, UseCaseComponent component){
         this.switcher = switcher;
+        this.component = component;
+    }
+
+    public void subscribe(PitstopShopsInterface pitstopShops){
+        this.pitstopShops = pitstopShops;
+
     }
     public void focusSearch(){
         pitstopShops.focusSearch();
@@ -39,7 +42,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
 
     public void getShops(){
         pitstopShops.loading(true);
-        getPitstopShopsUseCase.execute(new GetPitstopShopsUseCase.Callback() {
+        component.getGetPitstopShopsUseCase().execute(new GetPitstopShopsUseCase.Callback() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 List<Dealership> sortedDealers = sortShops(dealerships);
@@ -73,7 +76,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
     public void changeShop(Dealership dealership){
         Car car = pitstopShops.getCar();
 
-        updateCarDealershipUseCase.execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
 
