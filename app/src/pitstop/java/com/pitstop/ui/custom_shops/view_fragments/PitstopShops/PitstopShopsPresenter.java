@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
@@ -74,7 +75,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
     public void changeShop(Dealership dealership){
         Car car = pitstopShops.getCar();
 
-        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
 

@@ -2,11 +2,18 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Matthew on 2017-06-20.
@@ -17,6 +24,8 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
     private CarRepository carRepository;
     private UserRepository userRepository;
     private UpdateCarDealershipUseCase.Callback callback;
+
+    private EventSource eventSource;
 
     private int carId;
     private Dealership dealership;
@@ -30,7 +39,8 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
     }
 
     @Override
-    public void execute(int carId, Dealership dealership, UpdateCarDealershipUseCase.Callback callback) {
+    public void execute(int carId, Dealership dealership, String eventSource, UpdateCarDealershipUseCase.Callback callback) {
+        this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carId = carId;
         this.dealership = dealership;
@@ -49,6 +59,9 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                         carRepository.update(car, new CarRepository.CarUpdateCallback() {
                             @Override
                             public void onCarUpdated() {
+                                EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+                                EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                        ,eventSource));
                                 callback.onCarDealerUpdated();
                             }
 

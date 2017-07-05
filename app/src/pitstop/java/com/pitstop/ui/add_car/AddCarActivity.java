@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -651,7 +652,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         AddCarActivity thisActivity = this;
 
-        component.setUseCarUseCase().execute(createdCar.getId(), new SetUserCarUseCase.Callback() {
+        component.setUseCarUseCase().execute(createdCar.getId(), EventSource.SOURCE_ADD_CAR, new SetUserCarUseCase.Callback() {
             @Override
             public void onUserCarSet() {
                 Intent intent = new Intent(thisActivity, CustomShopActivity.class);

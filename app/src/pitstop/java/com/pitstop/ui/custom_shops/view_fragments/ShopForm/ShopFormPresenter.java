@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
@@ -74,7 +75,7 @@ public class ShopFormPresenter {
 
         if(update){
           dealership.setId(shopForm.getDealership().getId());
-            component.getUpdateShopUseCase().execute(dealership, new UpdateShopUseCase.Callback() {
+            component.getUpdateShopUseCase().execute(dealership, EventSource.SOURCE_SETTINGS, new UpdateShopUseCase.Callback() {
                 @Override
                 public void onShopUpdated() {
                     switcher2.setViewMainSettings();
@@ -91,7 +92,7 @@ public class ShopFormPresenter {
                 @Override
                 public void onShopAdded() {
                     if(shopForm.getCar() != null){
-                        component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+                        component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership,EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
                                 switcher1.endCustomShops();

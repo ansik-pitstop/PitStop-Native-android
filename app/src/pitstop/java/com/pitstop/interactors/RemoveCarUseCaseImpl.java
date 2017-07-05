@@ -2,6 +2,11 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
@@ -9,6 +14,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -30,6 +37,8 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private Handler handler;
     private NetworkHelper networkHelper;
 
+    private EventSource eventSource;
+
     public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, NetworkHelper networkHelper, Handler handler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
@@ -38,7 +47,8 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     }
 
     @Override
-    public void execute(int carToDeleteId, Callback callback) {
+    public void execute(int carToDeleteId,String eventSource, Callback callback) {
+        this.eventSource = new EventSourceImpl(eventSource);
         this.carToDeleteId = carToDeleteId;
         this.callback = callback;
         handler.post(this);
@@ -69,6 +79,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                                     @Override
                                                     public void onSetCar() {
+                                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                                ,eventSource));
                                                         callback.onCarRemoved();
                                                     }
 
@@ -82,6 +95,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
                                                         if(response != null && requestError ==null){
+                                                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                                    ,eventSource));
                                                             callback.onCarRemoved();
                                                         }else{
                                                             callback.onError();

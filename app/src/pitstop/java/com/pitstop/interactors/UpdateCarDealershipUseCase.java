@@ -14,5 +14,5 @@ public interface UpdateCarDealershipUseCase extends Interactor{
     }
 
     //Executes the use case
-    void execute(int carId, Dealership dealership, Callback callback);
+    void execute(int carId, Dealership dealership,String eventSource, Callback callback);
 }

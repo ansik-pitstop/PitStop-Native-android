@@ -152,7 +152,7 @@ public class CarRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null){
+                    if (requestError == null && response != null){
                         List<Car> cars = Car.createCarsList(response);
                         networkHelper.getUserSettingsById(userId, new RequestCallback() {
                             @Override

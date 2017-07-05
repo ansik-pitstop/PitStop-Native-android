@@ -2,12 +2,19 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -22,6 +29,8 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     private CarRepository carRepository;
     private UpdateShopUseCase.Callback callback;
 
+    private EventSource eventSource;
+
     private Dealership dealership;
 
 
@@ -33,7 +42,8 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     }
 
     @Override
-    public void execute(Dealership dealership, UpdateShopUseCase.Callback callback) {
+    public void execute(Dealership dealership,String eventSource, UpdateShopUseCase.Callback callback) {
+        this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.dealership = dealership;
         handler.post(this);
@@ -47,6 +57,9 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
               shopRepository.update(dealership, user.getId(), new ShopRepository.ShopUpdateCallback() {
                   @Override
                   public void onShopUpdated() {
+                      EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+                      EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                              ,eventSource));
                       callback.onShopUpdated();
                   }
 

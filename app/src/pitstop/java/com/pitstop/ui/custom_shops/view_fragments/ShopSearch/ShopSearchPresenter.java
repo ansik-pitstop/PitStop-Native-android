@@ -1,6 +1,7 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.GetPitstopShopsUseCase;
@@ -73,7 +74,7 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     public void changeShop(Dealership dealership){
         Car car = shopSearch.getCar();
-        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
                 switcher.endCustomShops();

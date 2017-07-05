@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.car_settings;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.RemoveCarUseCase;
@@ -40,7 +41,7 @@ public class CarSettingsPresenter {
         }else if(key.equals(DELETE_KEY)){
             carSettings.showDelete();
         }else if(key.equals(SET_CURRENT_KEY)){
-            component.setUseCarUseCase().execute(carSettings.getCar().getId(), new SetUserCarUseCase.Callback() {
+            component.setUseCarUseCase().execute(carSettings.getCar().getId(), EventSource.SOURCE_SETTINGS, new SetUserCarUseCase.Callback() {
                 @Override
                 public void onUserCarSet() {
                     switcher.setViewMainSettings();
@@ -76,7 +77,7 @@ public class CarSettingsPresenter {
     }
 
     void deleteCar(Car car){
-        component.removeCarUseCase().execute(car.getId(), new RemoveCarUseCase.Callback() {
+        component.removeCarUseCase().execute(car.getId(),EventSource.SOURCE_SETTINGS, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
                 switcher.setViewMainSettings();
