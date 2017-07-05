@@ -192,7 +192,7 @@ public class UserRepository {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null){
+                    if (requestError == null && response != null){
                         Car car = Car.createCar(response);
                         networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
                             @Override

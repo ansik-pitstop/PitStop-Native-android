@@ -43,6 +43,7 @@ public class CarRepository {
     }
     public interface CarsGetCallback{
         void onCarsGot(List<Car> cars);
+        void onNoCarsGot(List<Car> cars);
         void onError();
     }
 
@@ -156,6 +157,7 @@ public class CarRepository {
                         networkHelper.getUserSettingsById(userId, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
+                                System.out.println("Testing "+response);
                                 if(response != null){
                                     try{
                                         JSONObject responseJson = new JSONObject(response);

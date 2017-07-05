@@ -67,6 +67,11 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                     public void onError() {
                         callback.onError();
                     }
+
+                    @Override
+                    public void onNoCarsGot(List<Car> cars) {
+                        callback.onError();
+                    }
                 });
             }
             @Override

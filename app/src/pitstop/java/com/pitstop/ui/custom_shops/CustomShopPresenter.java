@@ -7,6 +7,7 @@ package com.pitstop.ui.custom_shops;
 public class CustomShopPresenter {
     private CustomShopInterface customShop;
     private CustomShopActivityCallback fragmentSwitcher;
+
     public void subscribe(CustomShopActivityCallback fragmentSwitcher, CustomShopInterface customShop){
         this.customShop = customShop;
         this.fragmentSwitcher = fragmentSwitcher;

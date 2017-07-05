@@ -5,7 +5,6 @@ import com.pitstop.interactors.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
-import javax.inject.Inject;
 
 /**
  * Created by Matthew on 2017-06-26.
@@ -45,6 +44,7 @@ public class ShopSettingsPresenter {
 
             @Override
             public void onError() {
+                shopSettings.toast("There was an error removing this shop");
             }
         });
     }

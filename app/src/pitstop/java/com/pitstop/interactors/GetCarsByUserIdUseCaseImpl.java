@@ -8,6 +8,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,72 +40,41 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void run() {
-       /* userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
             @Override
-            public void onGotUser(User user) {
-               carRepository.getCarsByUserId(user.getId(), new CarRepository.CarsGetCallback() {
-                   @Override
-                   public void onCarsGot(List<Car> cars) {
-                       networkHelper.getUserSettingsById(user.getId(), new RequestCallback() {
-                           @Override
-                           public void done(String response, RequestError requestError) {
-                               if(response != null){
-                                   try{
-                                       JSONObject responseJson = new JSONObject(response);
-                                       JSONObject userJson = responseJson.getJSONObject("user");
-                                       int mainCarId = userJson.getInt("mainCar");
-                                       JSONArray customShops = userJson.getJSONArray("customShops");
-                                       for(Car c:cars){
-                                           if(c.getId() == mainCarId) {
-                                               c.setCurrentCar(true);
-                                           }
-                                           for( int i = 0 ; i < customShops.length() ; i++){
-                                               JSONObject shop = customShops.getJSONObject(i);
-                                               if(c.getDealership().getId() == shop.getInt("id")){
-                                                   c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
-                                               }
-                                           }
-                                       }
-                                       callback.onCarsRetrieved(cars);
-                                   }catch(JSONException e){
-                                       e.printStackTrace();
-                                       callback.onError();
-                                   }
-                               }else{
-                                   callback.onError();
-                               }
-
-                           }
-                       });
-                   }
-                   @Override
-                   public void onError() {
-                        callback.onError();
-                   }
-               });
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });*/
-
-
-
-       userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
-            @Override
-            public void onGotUser(User user) {
-               carRepository.getCarsByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+            public void onGotCar(Car car) {
+                userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
                     @Override
-                    public void onCarsGot(List<Car> cars) {
-                        callback.onCarsRetrieved(cars);
+                    public void onGotUser(User user) {
+                        carRepository.getCarsByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+                            @Override
+                            public void onCarsGot(List<Car> cars) {
+                                callback.onCarsRetrieved(cars);
+                            }
+
+                            @Override
+                            public void onNoCarsGot(List<Car> cars) {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                callback.onError();
+                            }
+                        });
                     }
+
                     @Override
                     public void onError() {
                         callback.onError();
                     }
                 });
+
+            }
+
+            @Override
+            public void onNoCarSet() {
+                callback.onCarsRetrieved(new ArrayList<Car>());
             }
 
             @Override

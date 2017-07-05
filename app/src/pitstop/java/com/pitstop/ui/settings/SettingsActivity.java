@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -22,6 +24,7 @@ import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
 import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,6 +44,10 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     private ShopSettingsFragment shopSettings;
     private ShopFormFragment shopForm;
     private Context context;
+
+    private final int START_CUSTOM = 347;
+
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
 
 
     @BindView(R.id.settings_progress)
@@ -108,7 +115,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
     public void startCustomShops(Car car) {
         Intent intent = new Intent(context, CustomShopActivity.class);
         intent.putExtra(CAR_EXTRA,car);
-        startActivityForResult(intent,347);//change this
+        startActivityForResult(intent,START_CUSTOM);
     }
 
     @Override
@@ -176,6 +183,17 @@ public class SettingsActivity extends AppCompatActivity implements SettingsInter
            finish();
        }
     }
+
+    /*@Override
+    public void finish() {
+        super.finish();
+        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                ,EVENT_SOURCE));
+        EventType eventType2 = new EventTypeImpl(EventType.EVENT_CAR_ID);
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType2
+                ,EVENT_SOURCE));
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

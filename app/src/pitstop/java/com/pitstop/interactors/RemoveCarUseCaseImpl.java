@@ -4,8 +4,11 @@ import android.os.Handler;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 
@@ -25,11 +28,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private Car carToDelete;
     private Callback callback;
     private Handler handler;
+    private NetworkHelper networkHelper;
 
-    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, Handler handler){
+    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, NetworkHelper networkHelper, Handler handler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.handler = handler;
+        this.networkHelper = networkHelper;
     }
 
     @Override
@@ -73,12 +78,26 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     }
                                                 });
                                             }else{//user doesn't have another car
-                                                callback.onCarRemoved();
+                                                networkHelper.setNoMainCar(user.getId(), new RequestCallback() {
+                                                    @Override
+                                                    public void done(String response, RequestError requestError) {
+                                                        if(response != null && requestError ==null){
+                                                            callback.onCarRemoved();
+                                                        }else{
+                                                            callback.onError();
+                                                        }
+                                                    }
+                                                });
                                             }
                                         }
 
                                         @Override
                                         public void onError() {
+                                            callback.onError();
+                                        }
+
+                                        @Override
+                                        public void onNoCarsGot(List<Car> cars) {
                                             callback.onError();
                                         }
                                     });

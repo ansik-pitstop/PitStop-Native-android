@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -87,6 +88,11 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
             }
         });
         return view;
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT);
     }
 
     @Override

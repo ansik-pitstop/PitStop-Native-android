@@ -7,7 +7,7 @@ import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
-import javax.inject.Inject;
+
 
 /**
  * Created by Matthew on 2017-06-13.
@@ -17,7 +17,6 @@ public class CarSettingsPresenter {
     private final String CHANGE_SHOP = "pref_change_shop";
     private final String DELETE_KEY = "pre_delete_car";
     private final String SET_CURRENT_KEY = "pref_set_active";
-
 
     private CarSettingsInterface carSettings;
     private FragmentSwitcher switcher;
@@ -49,7 +48,7 @@ public class CarSettingsPresenter {
 
                 @Override
                 public void onError() {
-
+                    carSettings.toast("An error occurred while updating your car");
                 }
             });
 
@@ -68,6 +67,7 @@ public class CarSettingsPresenter {
 
             @Override
             public void onError() {
+                carSettings.toast("There was an error loading your car details");
 
             }
         });
@@ -83,6 +83,7 @@ public class CarSettingsPresenter {
             }
             @Override
             public void onError() {
+                carSettings.toast("There was an error removing your car");
 
             }
         });

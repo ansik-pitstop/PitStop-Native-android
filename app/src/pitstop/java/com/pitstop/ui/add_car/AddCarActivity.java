@@ -25,6 +25,10 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -73,6 +77,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     private AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
+
+    private UseCaseComponent component;
 
     private MixpanelHelper mixpanelHelper;
     private AddCarContract.Presenter presenter;
@@ -145,7 +151,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice));
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-
+        component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule((GlobalApplication)getApplicationContext()))
+                .build();
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
         mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(), this);
@@ -452,6 +460,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             showLoading("Adding car");
             presenter.startAddingNewCar();
         }else if(requestCode == DEALER_CHOSEN){
+
             finish();
         }else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -640,11 +649,21 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public void askForDealership(Car createdCar) {
         if (!addingCar) return;
 
+        AddCarActivity thisActivity = this;
 
-        Intent intent = new Intent(this, CustomShopActivity.class);
-        intent.putExtra(CAR_EXTRA,createdCar);
-        startActivityForResult(intent,DEALER_CHOSEN);
+        component.setUseCarUseCase().execute(createdCar.getId(), new SetUserCarUseCase.Callback() {
+            @Override
+            public void onUserCarSet() {
+                Intent intent = new Intent(thisActivity, CustomShopActivity.class);
+                intent.putExtra(CAR_EXTRA,createdCar);
+                startActivityForResult(intent,DEALER_CHOSEN);
+            }
 
+            @Override
+            public void onError() {// really need this to work
+               askForDealership(createdCar);
+            }
+        });
         /*mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
         mPagerAdapter.notifyDataSetChanged();

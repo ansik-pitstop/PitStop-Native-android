@@ -101,7 +101,6 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
                         callback.onError();
                     }
                 }
-
             }
         });
     }

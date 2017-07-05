@@ -7,4 +7,5 @@ package com.pitstop.ui.settings.shop_settings;
 public interface ShopSettingsInterface {
     void showDeleteWarning();
     void showCantDelete();
+    void toast(String message);
 }

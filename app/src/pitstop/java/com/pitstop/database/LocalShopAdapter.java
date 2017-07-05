@@ -61,6 +61,7 @@ public class LocalShopAdapter {
         values.put(TABLES.SHOP.KEY_EMAIL, dealership.getEmail());
         values.put(TABLES.SHOP.KEY_IS_CUSTOM,1);
         db.insert(TABLES.SHOP.TABLE_NAME, null, values);
+        db.close();
     }
 
     public void storeDealerships(List<Dealership> dealerships) {
@@ -112,6 +113,7 @@ public class LocalShopAdapter {
             db.delete(TABLES.SHOP.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                     new String[] { String.valueOf(dealership.getId()) });
         }
+        db.close();
 
     }
     public void removeById(int Id){
@@ -140,6 +142,7 @@ public class LocalShopAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.SHOP.TABLE_NAME, null, null);
+        db.close();
 
     }
 

@@ -14,4 +14,5 @@ public interface CarSettingsInterface {
     void update();
     Car getCar();
     void showDelete();
+    void toast(String message);
 }
