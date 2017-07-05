@@ -44,7 +44,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 List<Dealership> sortedDealers = sortShops(dealerships);
-                pitstopShops.setupList(sortedDealers);
+                pitstopShops.showDealershipList(sortedDealers);
                 localDealerships = sortedDealers;
                 pitstopShops.loading(false);
             }
@@ -78,7 +78,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
             @Override
             public void onCarDealerUpdated() {
 
-                switcher.endActivity();
+                switcher.endCustomShops();
             }
 
             @Override
@@ -101,7 +101,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
                 dealerships.add(d);
             }
         }
-        pitstopShops.setupList(dealerships);
+        pitstopShops.showDealershipList(dealerships);
     }
 
     @Override

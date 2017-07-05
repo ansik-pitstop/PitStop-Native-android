@@ -11,5 +11,5 @@ public interface CustomShopActivityCallback {
     void setViewSearchShop();
     void setViewPitstopShops();
     void setViewShopForm(Dealership dealership);
-    void endActivity();
+    void endCustomShops();
 }

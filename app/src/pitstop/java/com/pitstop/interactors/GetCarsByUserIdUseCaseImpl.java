@@ -18,15 +18,13 @@ import java.util.List;
 public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     private Handler handler;
     private CarRepository carRepository;
-    private NetworkHelper networkHelper;
     private UserRepository userRepository;
 
     private GetCarsByUserIdUseCase.Callback callback;
 
 
-    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository, NetworkHelper networkHelper,CarRepository carRepository, Handler handler) {
+    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository, Handler handler) {
         this.userRepository = userRepository;
-        this.networkHelper = networkHelper;
         this.handler = handler;
         this.carRepository = carRepository;
 

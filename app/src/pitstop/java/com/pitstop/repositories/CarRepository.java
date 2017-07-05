@@ -158,7 +158,7 @@ public class CarRepository {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 System.out.println("Testing "+response);
-                                if(response != null){
+                                if(response != null && requestError == null){
                                     try{
                                         JSONObject responseJson = new JSONObject(response);
                                         JSONObject userJson = responseJson.getJSONObject("user");
@@ -267,13 +267,13 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public boolean delete(Car model, CarDeleteCallback callback) {
+    public boolean delete(int carId, CarDeleteCallback callback) {
         //Check if car exists before deleting
-        if (localCarAdapter.getCar(model.getId()) == null)
+        if (localCarAdapter.getCar(carId) == null)
             return false;
 
-        localCarAdapter.deleteCar(model);
-        networkHelper.deleteUserCar(model.getId(),getDeleteCarRequestCallback(callback));
+        localCarAdapter.deleteCar(carId);
+        networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback));
 
         return true;
     }

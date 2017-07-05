@@ -13,7 +13,7 @@ import java.util.List;
 public interface PitstopShopsView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void focusSearch();
-    void setupList(List<Dealership> dealerships);
+    void showDealershipList(List<Dealership> dealerships);
     void showConfirmation(Dealership dealership);
     Car getCar();
     void loading(boolean show);

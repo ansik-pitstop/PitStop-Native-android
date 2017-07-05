@@ -25,7 +25,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private CarRepository carRepository;
     private UserRepository userRepository;
-    private Car carToDelete;
+    private int carToDeleteId;
     private Callback callback;
     private Handler handler;
     private NetworkHelper networkHelper;
@@ -38,8 +38,8 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     }
 
     @Override
-    public void execute(Car carToDelete, Callback callback) {
-        this.carToDelete = carToDelete;
+    public void execute(int carToDeleteId, Callback callback) {
+        this.carToDeleteId = carToDeleteId;
         this.callback = callback;
         handler.post(this);
     }
@@ -51,11 +51,11 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
             @Override
             public void onGotCar(Car car) {
-                carRepository.delete(carToDelete, new CarRepository.CarDeleteCallback() {
+                carRepository.delete(carToDeleteId, new CarRepository.CarDeleteCallback() {
 
                     @Override
                     public void onCarDeleted() {
-                        if(car.getId() == carToDelete.getId()){// deleted the users current car
+                        if(car.getId() == carToDeleteId){// deleted the users current car
                             userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
 
                                 @Override

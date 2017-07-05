@@ -76,7 +76,7 @@ public class CarSettingsPresenter {
     }
 
     void deleteCar(Car car){
-        component.removeCarUseCase().execute(car, new RemoveCarUseCase.Callback() {
+        component.removeCarUseCase().execute(car.getId(), new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
                 switcher.setViewMainSettings();

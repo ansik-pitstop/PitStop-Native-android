@@ -143,7 +143,7 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
     }
 
     @Override
-    public void endActivity() {
+    public void endCustomShops() {
         finish();
     }
 

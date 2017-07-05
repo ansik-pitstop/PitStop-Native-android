@@ -4,6 +4,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.UpdateShopUseCase;
+import com.pitstop.models.Address;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
@@ -93,7 +94,7 @@ public class ShopFormPresenter {
                         component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
-                                switcher1.endActivity();
+                                switcher1.endCustomShops();
                             }
 
                             @Override
@@ -141,50 +142,6 @@ public class ShopFormPresenter {
             shopForm.showCountry(address.getCountry());
         }
     }
-    private class Address{
-        private String street;
-        private String city;
-        private String province;
-        private String country;
-        private String postal;
-        Address(String address){
-            String[] comaBreak = address.split(",");
-            if(comaBreak.length>0){
-                street = comaBreak[0];
-            }
-            if(comaBreak.length>1){
-                city = comaBreak[1];
-            }
-            if(comaBreak.length>2){
-                province = comaBreak[2];
-            }
-            if(comaBreak.length>3){
-                postal = comaBreak[3];
-            }
-            if(comaBreak.length>4){
-                country = comaBreak[4];
-            }
-        }
 
-        public String getStreet() {
-            return street;
-        }
-
-        public String getCity() {
-            return city;
-        }
-
-        public String getCountry() {
-            return country;
-        }
-
-        public String getPostal() {
-            return postal;
-        }
-
-        public String getProvince() {
-            return province;
-        }
-    }
 
 }

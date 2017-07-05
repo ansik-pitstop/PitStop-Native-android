@@ -18,6 +18,9 @@ public class ShopTypePresenter {
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
 
+    private static final int NO_SHOP_DEBUG = 1;
+    private static final int NO_SHOP_PROD = 19;
+
     public ShopTypePresenter(CustomShopActivityCallback switcher, UseCaseComponent component){
         this.switcher = switcher;
         this.component = component;
@@ -44,14 +47,14 @@ public class ShopTypePresenter {
         }
         Dealership noDealer = new Dealership();
         if(BuildConfig.DEBUG){
-            noDealer.setId(1);
+            noDealer.setId(NO_SHOP_DEBUG);
         }else {
-            noDealer.setId(19);
+            noDealer.setId(NO_SHOP_PROD);
         }
         component.getUpdateCarDealershipUseCase().execute(car.getId(), noDealer, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
-                switcher.endActivity();
+                switcher.endCustomShops();
             }
 
             @Override

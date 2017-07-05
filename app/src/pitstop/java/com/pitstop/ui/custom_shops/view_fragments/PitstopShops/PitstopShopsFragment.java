@@ -152,7 +152,7 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
     }
 
     @Override
-    public void setupList(List<Dealership> dealerships) {
+    public void showDealershipList(List<Dealership> dealerships) {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         shopAdapter = new ShopAdapter(dealerships,presenter);

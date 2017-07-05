@@ -33,6 +33,8 @@ public class HttpRequest {
     private static final String TAG = HttpRequest.class.getSimpleName();
     private static Webb webClient;
 
+    private static final int CONFLICT_CODE = 409;
+
     private final String BASE_ENDPOINT;
     private RequestCallback listener;
     private RequestType requestType;
@@ -175,7 +177,7 @@ public class HttpRequest {
         @Override
         protected void onPostExecute(Response<String> response) {
             if (response != null) {
-                if(response.getStatusCode()==409){// for shops
+                if(response.getStatusCode()== CONFLICT_CODE){// for shops
                     try{
                         JSONArray errorBody = new JSONArray(response.getErrorBody().toString());
                         listener.done(errorBody.get(0).toString(),null);//bear with me

@@ -76,7 +76,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
-                switcher.endActivity();
+                switcher.endCustomShops();
             }
 
             @Override

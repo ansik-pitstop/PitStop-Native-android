@@ -58,11 +58,16 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
             networkHelper.getWithCustomUrl(PLACES_DETAILS_URL, uri, new RequestCallback() {
                 @Override
                 public void done(String response, RequestError requestError) {
-                    try{
+                    try {
+                        if (response != null && requestError == null) {
                         JSONObject responseJson = new JSONObject(response);
                         JSONObject results = responseJson.getJSONObject("result");
                         dealership.setPhoneNumber(results.getString("formatted_phone_number"));
                         callback.onDetailsGot(dealership);
+                        }else{
+                            callback.onError();
+                        }
+
                     }catch(JSONException e){
                         callback.onError();
                     }

@@ -21,14 +21,13 @@ import org.json.JSONObject;
 
 public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     private CarRepository carRepository;
-    private NetworkHelper networkHelper;
+
     private UserRepository userRepository;
     private Callback callback;
     private Handler handler;
     private int carId;
 
-    public GetCarByCarIdUseCaseImpl(CarRepository carRepository, NetworkHelper networkHelper, UserRepository userRepository, Handler handler) {
-        this.networkHelper = networkHelper;
+    public GetCarByCarIdUseCaseImpl(CarRepository carRepository, UserRepository userRepository, Handler handler) {
         this.handler = handler;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
@@ -63,51 +62,5 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                 callback.onError();
             }
         });
-
-
-        /*carRepository.get(carId, new CarRepository.CarGetCallback() {
-            @Override
-            public void onCarGot(Car car) {
-                userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
-                    @Override
-                    public void onGotUser(User user) {
-                        networkHelper.getUserSettingsById(user.getId(), new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if(response != null){
-                                    try{
-                                        JSONObject responseJson = new JSONObject(response);
-                                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                                        for(int i = 0 ; i < customShops.length() ; i++){
-                                            JSONObject shop = customShops.getJSONObject(i);
-                                            if(car.getDealership().getId() == shop.getInt("id")){
-                                                Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                car.setDealership(dealership);
-                                            }
-                                        }
-                                        callback.onCarGot(car);
-                                    }catch (JSONException e){
-                                        callback.onError();
-                                        e.printStackTrace();
-                                    }
-                                }else{
-                                    callback.onError();
-                                }
-                            }
-                        });
-                    }
-                    @Override
-                    public void onError() {
-                        callback.onError();
-                    }
-                });
-
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });*/
     }
 }

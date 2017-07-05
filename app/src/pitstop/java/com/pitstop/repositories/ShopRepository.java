@@ -221,22 +221,26 @@ public class ShopRepository {
              if(response != null){
                  try{
                      JSONObject responseJson = new JSONObject(response);
-                     JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                     List<Dealership> dealershipArray  = new ArrayList<>();
-                     for(int i = 0; i<customShops.length();i++){
-                         Dealership dealership = new Dealership();
-                         JSONObject shop = customShops.getJSONObject(i);
-                         dealership.setId(shop.getInt("id"));
-                         dealership.setName(shop.getString("name"));
-                         dealership.setAddress(shop.getString("address"));
-                         dealership.setEmail(shop.getString("email"));
-                         dealership.setPhoneNumber(shop.getString("phone_number"));
-                         dealership.setCustom(true);
-                         dealershipArray.add(dealership);
-                         localShopAdapter.removeById(dealership.getId());
-                         localShopAdapter.storeCustom(dealership);
+                     if(!responseJson.getJSONObject("user").has("customShops")){
+                         callback.onShopsGot(new ArrayList<Dealership>());
+                     }else{
+                         JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                         List<Dealership> dealershipArray  = new ArrayList<>();
+                         for(int i = 0; i<customShops.length();i++){
+                             Dealership dealership = new Dealership();
+                             JSONObject shop = customShops.getJSONObject(i);
+                             dealership.setId(shop.getInt("id"));
+                             dealership.setName(shop.getString("name"));
+                             dealership.setAddress(shop.getString("address"));
+                             dealership.setEmail(shop.getString("email"));
+                             dealership.setPhoneNumber(shop.getString("phone_number"));
+                             dealership.setCustom(true);
+                             dealershipArray.add(dealership);
+                             localShopAdapter.removeById(dealership.getId());
+                             localShopAdapter.storeCustom(dealership);
+                         }
+                         callback.onShopsGot(dealershipArray);
                      }
-                     callback.onShopsGot(dealershipArray);
                  }catch (JSONException e){
                      callback.onError();
                      e.printStackTrace();

@@ -97,8 +97,8 @@ public class UseCaseModule {
 
 
     @Provides
-    GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository, NetworkHelper networkHelper, CarRepository carRepository, Handler handler){
-        return  new GetCarByCarIdUseCaseImpl(carRepository, networkHelper, userRepository, handler);
+    GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository, CarRepository carRepository, Handler handler){
+        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository, handler);
     }
 
     @Provides
@@ -138,9 +138,8 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository,
-            NetworkHelper networkHelper, CarRepository carRepository, Handler handler){
-        return new GetCarsByUserIdUseCaseImpl(userRepository,networkHelper , carRepository,handler);
+    GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository, CarRepository carRepository, Handler handler){
+        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,handler);
     }
 
     @Provides

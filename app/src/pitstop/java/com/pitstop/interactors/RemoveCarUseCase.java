@@ -17,6 +17,6 @@ public interface RemoveCarUseCase extends Interactor{
     }
 
     //Executes the use case
-    void execute(Car car, Callback callback);
+    void execute(int carId, Callback callback);
 
 }
