@@ -50,7 +50,7 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_CALCULATED_MILEAGE, pidData.getCalculatedMileage());
 
         db.insert(TABLES.PID.TABLE_NAME, null, values);
-        db.close();
+
     }
 
     /**
@@ -79,8 +79,7 @@ public class LocalPidAdapter {
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
         }
-        c.close();
-        db.close();
+
         return pidDataEntries;
     }
 
@@ -93,8 +92,7 @@ public class LocalPidAdapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         int count = c.getCount();
-        c.close();
-        db.close();
+
         return count;
     }
 
@@ -120,7 +118,7 @@ public class LocalPidAdapter {
 
         db.delete(TABLES.PID.TABLE_NAME, null, null);
 
-        db.close();
+
     }
 
 }
