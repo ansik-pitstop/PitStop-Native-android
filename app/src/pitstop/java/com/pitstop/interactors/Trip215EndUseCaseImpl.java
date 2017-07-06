@@ -16,6 +16,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     private Device215TripRepository device215TripRepository;
     private Handler handler;
     private TripInfoPackage tripInfoPackage;
+    private long terminalRTCTime;       //RTC time recorded upon connecting to device
     private Callback callback;
 
     public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository, Handler handler) {
@@ -24,9 +25,10 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     }
 
     @Override
-    public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
+    public void execute(TripInfoPackage tripInfoPackage, long terminalRTCTime, Callback callback) {
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
+        this.terminalRTCTime = terminalRTCTime;
 
         handler.post(this);
     }
@@ -45,7 +47,15 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                 device215TripRepository.storeTripEnd(tripEnd, new Repository.Callback() {
                     @Override
                     public void onSuccess(Object data) {
-                        callback.onTripEndSuccess();
+
+                        //Send notification if a real time update occurred
+                        if (tripInfoPackage.rtcTime > terminalRTCTime){
+                            callback.onRealTimeTripEndSuccess();
+
+                        }
+                        else{
+                            callback.onRealTimeTripEndSuccess();
+                        }
                     }
 
                     @Override

@@ -9,9 +9,10 @@ import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 public interface Trip215EndUseCase extends Interactor{
 
     interface Callback{
-        void onTripEndSuccess();
+        void onHistoricalTripEndSuccess();
+        void onRealTimeTripEndSuccess();
         void onError();
     }
 
-    void execute(TripInfoPackage tripInfoPackage, Callback callback);
+    void execute(TripInfoPackage tripInfoPackage, long terminalRTCTime, Callback callback);
 }
