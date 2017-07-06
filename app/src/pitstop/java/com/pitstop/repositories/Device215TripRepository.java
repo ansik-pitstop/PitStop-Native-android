@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 public class Device215TripRepository implements Repository{
 
+    private final String SCAN_END_POINT = "scan/trip";
     private NetworkHelper networkHelper;
 
     public Device215TripRepository(NetworkHelper networkHelper){
@@ -33,7 +34,7 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.postNoAuth("scan/trip", getStoreTripStartRequestCallback(callback), body);
+        networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(callback), body);
     }
 
     private RequestCallback getStoreTripStartRequestCallback(Callback callback){
@@ -49,7 +50,30 @@ public class Device215TripRepository implements Repository{
         return requestCallback;
     }
 
-    public void storeTripEnd(Trip215 tripEnd){
+    public void storeTripEnd(Trip215 tripEnd, Callback callback){
+        JSONObject body = new JSONObject();
 
+        try {
+            body.put("mileage", Double.parseDouble(mileage) / 1000);
+            body.put("tripId", tripId);
+            body.put("rtcTimeEnd", Long.parseLong(rtcTime));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripRequestCallback(callback), body);
+    }
+
+    private RequestCallback getStoreTripRequestCallback(Callback callback){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    callback.onSuccess(null);
+                }
+            }
+        };
+
+        return requestCallback;
     }
 }
