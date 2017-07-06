@@ -9,6 +9,7 @@ import com.pitstop.models.Address;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Matt on 2017-06-09.
@@ -23,18 +24,26 @@ public class ShopFormPresenter {
     private FragmentSwitcher switcher2;
     private UseCaseComponent component;
 
-    public ShopFormPresenter(CustomShopActivityCallback switcher1, FragmentSwitcher switcher2, UseCaseComponent component){
+    private MixpanelHelper mixpanelHelper;
+
+    public ShopFormPresenter(CustomShopActivityCallback switcher1, FragmentSwitcher switcher2, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher1 = switcher1;
         this.switcher2 = switcher2;
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     public void subscribe(ShopFormView shopForm ){
+        mixpanelHelper.trackViewAppeared("ShopForm");
         this.shopForm = shopForm;
+    }
 
+    public void unsubscribe() {
+        this.shopForm = null;
     }
 
     public void clearFields(){
+        if(shopForm == null){return;}
         shopForm.showName("");
         shopForm.showPhone("");
         shopForm.showEmail("");
@@ -46,6 +55,8 @@ public class ShopFormPresenter {
     }
 
     public void submitShop(Boolean update){
+         if(shopForm == null){return;}
+        mixpanelHelper.trackButtonTapped("Submit","ShopForm");
         String shopName = shopForm.getName();
         String shopPhone = shopForm.getPhone();
         String shopEmail = shopForm.getEmail();
@@ -78,16 +89,19 @@ public class ShopFormPresenter {
             component.getUpdateShopUseCase().execute(dealership, EventSource.SOURCE_SETTINGS, new UpdateShopUseCase.Callback() {
                 @Override
                 public void onShopUpdated() {
-                    switcher2.setViewMainSettings();
+                    if(shopForm != null){
+                        switcher2.setViewMainSettings();
+                    }
                 }
                 @Override
                 public void onError() {
-                    shopForm.toast("There was an error updating your shops details");
+                    if(shopForm != null){
+                        shopForm.toast("There was an error updating your shops details");
+                    }
                 }
             });
 
         }else{
-
             component.getAddShopUseCase().execute(dealership, new AddShopUseCase.Callback() {
                 @Override
                 public void onShopAdded() {
@@ -95,25 +109,32 @@ public class ShopFormPresenter {
                         component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership,EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
-                                switcher1.endCustomShops();
+                                if(shopForm != null){
+                                    switcher1.endCustomShops();
+                                }
                             }
 
                             @Override
                             public void onError() {
-                                shopForm.toast("There was an error adding your shop");
+                                if(shopForm != null){
+                                    shopForm.toast("There was an error adding your shop");
+                                }
                             }
                         });
                     }
                 }
                 @Override
                 public void onError() {
-                    shopForm.toast("There was an error adding your shop");
+                    if(shopForm != null){
+                        shopForm.toast("There was an error adding your shop");
+                    }
                 }
             });
         }
     }
 
     public void fillFields(Dealership dealership){
+        if(shopForm == null){return;}
         if(dealership == null){
             return;
         }

@@ -17,6 +17,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
+import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +34,8 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
     private GlobalApplication application;
 
     private Car car;
+
+    private MixpanelHelper mixpanelHelper;
 
     @BindView(R.id.pitstop_shop_button)
     CardView selectPitstopShop;
@@ -80,10 +83,19 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        presenter = new ShopTypePresenter(switcher,component);
+
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new ShopTypePresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override

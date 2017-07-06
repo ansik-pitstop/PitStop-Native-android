@@ -28,6 +28,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
+import com.pitstop.utils.MixpanelHelper;
 
 
 /**
@@ -56,6 +57,8 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private EditTextPreference phonePreference;
     private PreferenceCategory vehicleCatagory;
     private PreferenceCategory shopCatagory;
+
+    private MixpanelHelper mixpanelHelper;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
@@ -91,7 +94,9 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new MainSettingsPresenter(switcher,prefMaker,component);
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new MainSettingsPresenter(switcher,prefMaker,component,mixpanelHelper);
         presenter.subscribe(this);
 
 
@@ -99,6 +104,12 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         presenter.setVersion();
         presenter.update();
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override

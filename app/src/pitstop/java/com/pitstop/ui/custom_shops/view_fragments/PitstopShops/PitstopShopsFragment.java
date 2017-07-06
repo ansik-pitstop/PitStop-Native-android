@@ -23,6 +23,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopAdapter;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
 
@@ -45,6 +46,8 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
     private Car car;
 
     private ShopAdapter shopAdapter;
+
+    private MixpanelHelper mixpanelHelper;
 
 
     @BindView(R.id.pitstop_shop_list)
@@ -87,7 +90,9 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new PitstopShopsPresenter(switcher,component);
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new PitstopShopsPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
 
@@ -160,6 +165,11 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
         shopList.setLayoutManager(linearLayoutManager);
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
+    }
 
     @Override
     public void focusSearch() {

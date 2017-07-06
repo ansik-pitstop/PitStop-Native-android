@@ -7,7 +7,7 @@ import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.settings.FragmentSwitcher;
-
+import com.pitstop.utils.MixpanelHelper;
 
 
 /**
@@ -23,33 +23,50 @@ public class CarSettingsPresenter {
     private FragmentSwitcher switcher;
     private UseCaseComponent component;
 
+    private MixpanelHelper mixpanelHelper;
 
 
 
-    public CarSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component){
+
+    public CarSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
 
     public void subscribe(CarSettingsView carSettings){
+        mixpanelHelper.trackViewAppeared("CarSettings");
         this.carSettings = carSettings;
     }
+
+    public void unsubscribe(){
+        this.carSettings = null;
+    }
+
     public void preferenceClicked(String key){
+        if(carSettings == null){return;}
         if(key.equals(CHANGE_SHOP)){
+            mixpanelHelper.trackButtonTapped("ChangeShop","CarSettings");
             switcher.startCustomShops(carSettings.getCar());
         }else if(key.equals(DELETE_KEY)){
+            mixpanelHelper.trackButtonTapped("DeleteCar","CarSettings");
             carSettings.showDelete();
         }else if(key.equals(SET_CURRENT_KEY)){
+            mixpanelHelper.trackButtonTapped("SetAsCurrent","CarSettings");
             component.setUseCarUseCase().execute(carSettings.getCar().getId(), EventSource.SOURCE_SETTINGS, new SetUserCarUseCase.Callback() {
                 @Override
                 public void onUserCarSet() {
-                    switcher.setViewMainSettings();
+                    if(carSettings != null){
+                        switcher.setViewMainSettings();
+                    }
                 }
 
                 @Override
                 public void onError() {
-                    carSettings.toast("An error occurred while updating your car");
+                    if(carSettings != null){
+                        carSettings.toast("An error occurred while updating your car");
+                    }
                 }
             });
 
@@ -57,19 +74,23 @@ public class CarSettingsPresenter {
         }
     }
     void updateCar(int carId){
+        if(carSettings == null){return;}
         component.getGetCarByCarIdUseCase().execute(carId, new GetCarByCarIdUseCase.Callback() {
             @Override
             public void onCarGot(Car car) {
-                carSettings.setCar(car);
-                if(car.getDealership() != null) {
-                    carSettings.showCarText(car.getMake() + " " + car.getModel(), car.getDealership().getName());
+                if(carSettings != null){
+                    carSettings.setCar(car);
+                    if(car.getDealership() != null) {
+                        carSettings.showCarText(car.getMake() + " " + car.getModel(), car.getDealership().getName());
+                    }
                 }
             }
 
             @Override
             public void onError() {
-                carSettings.toast("There was an error loading your car details");
-
+                if(carSettings != null){
+                    carSettings.toast("There was an error loading your car details");
+                }
             }
         });
 
@@ -77,15 +98,19 @@ public class CarSettingsPresenter {
     }
 
     void deleteCar(Car car){
+        if(carSettings == null){return;}
         component.removeCarUseCase().execute(car.getId(),EventSource.SOURCE_SETTINGS, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
-                switcher.setViewMainSettings();
+                if(carSettings != null){
+                    switcher.setViewMainSettings();
+                }
             }
             @Override
             public void onError() {
-                carSettings.toast("There was an error removing your car");
-
+                if(carSettings != null){
+                    carSettings.toast("There was an error removing your car");
+                }
             }
         });
     }

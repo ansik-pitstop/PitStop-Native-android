@@ -26,6 +26,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopAdapter;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
 
@@ -49,6 +50,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     private Car car;
 
     private LatLng location;
+
+    private MixpanelHelper mixpanelHelper;
 
     @BindView(R.id.shop_search_progress)
     ProgressBar shopSearchProgress;
@@ -135,8 +138,9 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
                 .contextModule(new ContextModule(application))
                 .build();
 
+        mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ShopSearchPresenter(switcher,component);
+        presenter = new ShopSearchPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
 
@@ -173,6 +177,12 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @Override
     public void toast(String message) {
         Toast.makeText(context,message,Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -217,9 +227,11 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @Override
     public void showShopCategory(boolean show) {
         if(show){
+            myShopsList.setVisibility(View.VISIBLE);
             shopCategory.setVisibility(View.VISIBLE);
             return;
         }
+        myShopsList.setVisibility(View.GONE);
         shopCategory.setVisibility(View.GONE);
 
     }

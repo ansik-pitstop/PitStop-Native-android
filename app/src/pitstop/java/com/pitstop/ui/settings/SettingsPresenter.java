@@ -16,17 +16,24 @@ public class SettingsPresenter {
     public void subscribe(SettingsView settings){
         this.settings = settings;
     }
+
+    public void unsubscribe(){
+        this.settings = null;
+    }
     public void setViewMainSettings(){
+        if(settings == null){return;}
         switcher.setViewMainSettings();
     }
 
 
 
     public void setViewCarSettings(){
+        if(settings == null){return;}
         switcher.setViewCarSettings();
     }
 
     public void setViewShopSettings(){
+        if(settings == null){return;}
         switcher.setViewShopSettings();
     }
 

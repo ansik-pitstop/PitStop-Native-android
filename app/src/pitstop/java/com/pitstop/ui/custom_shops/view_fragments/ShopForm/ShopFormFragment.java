@@ -20,6 +20,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +36,8 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
     private ShopFormPresenter presenter;
     private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
+
+    MixpanelHelper mixpanelHelper;
 
     private boolean update = false;
 
@@ -114,7 +117,9 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new ShopFormPresenter(switcher1,switcher2,component);
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new ShopFormPresenter(switcher1,switcher2,component,mixpanelHelper);
         presenter.subscribe(this);
 
         submitShop.setOnClickListener(new View.OnClickListener() {
@@ -147,6 +152,12 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
     @Override
     public void showError() {
         Toast.makeText(context,"Unable to add shop please try again",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override

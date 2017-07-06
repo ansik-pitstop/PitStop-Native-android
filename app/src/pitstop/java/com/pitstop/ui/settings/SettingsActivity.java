@@ -78,6 +78,12 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
+    }
+
+    @Override
     public void setViewShopForm(Dealership dealership){//here
         shopForm.setDealership(dealership);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

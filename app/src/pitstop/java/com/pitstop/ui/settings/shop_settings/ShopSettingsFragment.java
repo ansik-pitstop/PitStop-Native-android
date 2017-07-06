@@ -20,6 +20,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Matthew on 2017-06-26.
@@ -42,6 +43,8 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
 
     private Context context;
     private GlobalApplication application;
+
+    private MixpanelHelper mixpanelHelper;
 
 
     public void setSwitcher(FragmentSwitcher switcher){
@@ -66,7 +69,9 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new ShopSettingsPresenter(switcher,component);
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new ShopSettingsPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
 

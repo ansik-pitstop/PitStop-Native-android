@@ -4,6 +4,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.utils.MixpanelHelper;
 
 
 /**
@@ -15,41 +16,60 @@ public class ShopSettingsPresenter {
     private FragmentSwitcher switcher;
     private UseCaseComponent component;
 
+    private MixpanelHelper mixpanelHelper;
 
 
-    public ShopSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component){
+
+    public ShopSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     public void subscribe(ShopSettingsView shopSettings){
+        mixpanelHelper.trackViewAppeared("ShopSettings");
         this.shopSettings = shopSettings;
     }
 
+    public void unsubscribe(){
+        this.shopSettings = null;
+    }
+
     public void deleteClicked(){
+        if(shopSettings == null){return;}
+        mixpanelHelper.trackButtonTapped("DeleteShop","ShopSettings");
         shopSettings.showDeleteWarning();
     }
 
     public void removeShop(Dealership dealership){
+        if(shopSettings == null){return;}
         component.getRemoveShopUseCase().execute(dealership, new RemoveShopUseCase.Callback() {
             @Override
             public void onShopRemoved() {
-                switcher.setViewMainSettings();
+                if(shopSettings != null){
+                    switcher.setViewMainSettings();
+                }
             }
 
             @Override
             public void onCantRemoveShop() {
-                shopSettings.showCantDelete();
+                if(shopSettings != null){
+                    shopSettings.showCantDelete();
+                }
             }
 
             @Override
             public void onError() {
-                shopSettings.toast("There was an error removing this shop");
+                if(shopSettings != null){
+                    shopSettings.toast("There was an error removing this shop");
+                }
             }
         });
     }
 
     public void showForm(Dealership dealership){
+        if(shopSettings == null){return;}
+        mixpanelHelper.trackButtonTapped("EditShop","ShopSettings");
         switcher.setViewShopForm(dealership);
     }
 

@@ -8,6 +8,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopPresnter;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,35 +26,47 @@ public class PitstopShopsPresenter implements ShopPresnter {
     private List<Dealership> localDealerships;
     private UseCaseComponent component;
 
+    private MixpanelHelper mixpanelHelper;
 
-    public PitstopShopsPresenter(CustomShopActivityCallback switcher, UseCaseComponent component){
+
+    public PitstopShopsPresenter(CustomShopActivityCallback switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     public void subscribe(PitstopShopsView pitstopShops){
+        mixpanelHelper.trackViewAppeared("PitstopShops");
         this.pitstopShops = pitstopShops;
-
+    }
+    public void unsubscribe(){
+        this.pitstopShops = null;
     }
     public void focusSearch(){
+        if(pitstopShops == null){return;};
         pitstopShops.focusSearch();
     }
 
     public void getShops(){
+        if(pitstopShops == null ){return;}
         pitstopShops.loading(true);
         component.getGetPitstopShopsUseCase().execute(new GetPitstopShopsUseCase.Callback() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
-                List<Dealership> sortedDealers = sortShops(dealerships);
-                pitstopShops.showDealershipList(sortedDealers);
-                localDealerships = sortedDealers;
-                pitstopShops.loading(false);
+                if(pitstopShops != null){
+                    List<Dealership> sortedDealers = sortShops(dealerships);
+                    pitstopShops.showDealershipList(sortedDealers);
+                    localDealerships = sortedDealers;
+                    pitstopShops.loading(false);
+                }
             }
 
             @Override
             public void onError() {
-                pitstopShops.loading(false);
-                pitstopShops.toast("There was an error loading the Pitstop shops");
+                if(pitstopShops != null){
+                    pitstopShops.loading(false);
+                    pitstopShops.toast("There was an error loading the Pitstop shops");
+                }
             }
         });
 
@@ -73,13 +86,15 @@ public class PitstopShopsPresenter implements ShopPresnter {
     }
 
     public void changeShop(Dealership dealership){
+        if(pitstopShops == null){return;}
         Car car = pitstopShops.getCar();
 
         component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
-
-                switcher.endCustomShops();
+                if(pitstopShops != null){
+                    switcher.endCustomShops();
+                }
             }
 
             @Override
@@ -90,6 +105,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
     }
 
     public void filterShops(String filter){
+        if(pitstopShops == null){return;}
         if(localDealerships == null){
             return;
         }
@@ -107,6 +123,8 @@ public class PitstopShopsPresenter implements ShopPresnter {
 
     @Override
     public void onShopClicked(Dealership dealership) {
-       pitstopShops.showConfirmation(dealership);
+        if(pitstopShops == null){return;}
+        mixpanelHelper.trackButtonTapped("PitstopShop","PitstopShops");
+        pitstopShops.showConfirmation(dealership);
     }
 }

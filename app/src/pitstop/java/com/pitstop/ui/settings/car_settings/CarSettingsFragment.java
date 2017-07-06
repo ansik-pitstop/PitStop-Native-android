@@ -21,6 +21,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.utils.MixpanelHelper;
 
 
 /**
@@ -43,6 +44,8 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     private CarSettingsPresenter presenter;
 
     private Car car;
+
+    MixpanelHelper mixpanelHelper;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
@@ -74,7 +77,9 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new CarSettingsPresenter(switcher,component);
+        mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new CarSettingsPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
 
@@ -96,6 +101,12 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     public void showCarText(String name, String shop) {
         carCatagory.setTitle(name);
         changeDealer.setTitle(shop);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override

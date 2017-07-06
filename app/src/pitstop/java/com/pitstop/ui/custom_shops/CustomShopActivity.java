@@ -18,13 +18,14 @@ import android.view.MenuItem;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
-
+import com.pitstop.utils.MixpanelHelper;
 
 
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
@@ -154,5 +155,11 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
             super.onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 }
