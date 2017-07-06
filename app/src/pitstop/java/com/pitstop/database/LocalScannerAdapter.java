@@ -121,11 +121,9 @@ public class LocalScannerAdapter {
             if (c.moveToFirst()) {
                 scanner = cursorToScanner(c);
             }
-        } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
-        }
+        }catch (Exception e){
 
+        }
         return scanner;
     }
 
@@ -141,11 +139,9 @@ public class LocalScannerAdapter {
             if (c.moveToFirst()) {
                 scanner = cursorToScanner(c);
             }
-        } finally {
-            if (c != null) c.close();
-            if (db.isOpen()) db.close();
-        }
+        }catch (Exception e){
 
+        }
         return scanner;
     }
 

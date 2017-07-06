@@ -78,6 +78,12 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.subscribe(this);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         presenter.unsubscribe();
@@ -190,17 +196,6 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
            finish();
        }
     }
-
-    /*@Override
-    public void finish() {
-        super.finish();
-        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
-        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                ,EVENT_SOURCE));
-        EventType eventType2 = new EventTypeImpl(EventType.EVENT_CAR_ID);
-        EventBus.getDefault().post(new CarDataChangedEvent(eventType2
-                ,EVENT_SOURCE));
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

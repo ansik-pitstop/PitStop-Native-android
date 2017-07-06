@@ -201,7 +201,7 @@
         <service android:name=".ui.services.TripService" android:process=":trip_tracking" />
 
         <activity android:name=".ui.custom_shops.CustomShopActivity"
-            android:label="Choose Shop Type"
+            android:label="Choose Shop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 

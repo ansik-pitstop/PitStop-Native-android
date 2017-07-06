@@ -105,10 +105,6 @@ public class LocalPidResult4Adapter {
             db.delete(TABLES.PID.TABLE_NAME_RESULT_4, null, null);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if(db != null && db.isOpen()) {
-                db.close();
-            }
         }
     }
 }

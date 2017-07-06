@@ -106,10 +106,6 @@ public class LocalPidAdapter {
             db.delete(TABLES.PID.TABLE_NAME, null, null);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if(db != null && db.isOpen()) {
-                db.close();
-            }
         }
     }
 

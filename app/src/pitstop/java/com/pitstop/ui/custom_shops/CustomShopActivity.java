@@ -107,6 +107,12 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.subscribe(this);
+    }
+
+    @Override
     public void setUpNavBar() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
