@@ -127,8 +127,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.addCallback(MainActivity.this);
 
-            notifyDeviceConnected();
-
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
                 final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
@@ -150,7 +148,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             Log.i(TAG, "Disconnecting: onServiceConnection");
             serviceIsBound = false;
             autoConnectService = null;
-            notifyDeviceDisconnected();
         }
     };
 
@@ -583,6 +580,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if (state == IBluetoothCommunicator.DISCONNECTED) {
             notifyDeviceDisconnected();
             Log.i(TAG, "Bluetooth disconnected");
+        }
+        else if (state == IBluetoothCommunicator.CONNECTED){
+            notifyDeviceConnected();
         }
     }
 
