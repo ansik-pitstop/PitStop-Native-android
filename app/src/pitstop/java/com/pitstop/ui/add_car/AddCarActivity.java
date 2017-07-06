@@ -337,6 +337,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         }
     }
 
+    @Override
+    public void onPostCarSucceeded(Car createdCar) {
+
+    }
+
     private boolean checkBackCamera() {
         final int CAMERA_FACING_BACK = 0;
         int cameraCount = Camera.getNumberOfCameras();
@@ -387,7 +392,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addingCar = true;
 
         // The result is by default cancelled
-        setResult(RESULT_CANCELED);
+        //setResult(RESULT_CANCELED);
 
         super.onResume();
     }
@@ -462,7 +467,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             presenter.startAddingNewCar();
         }else if(requestCode == DEALER_CHOSEN){
 
-            finish();
+            finishActivity(presenter.getCreatedCar());
         }else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -604,9 +609,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .show();
     }
 
-    @Override
-    public void onPostCarSucceeded(Car createdCar) {
-        if (!addingCar) return;
+
+    private void finishActivity(Car createdCar) {
         carSuccessfullyAdded = true; // At this point car is successfully added
 
         Intent data = new Intent();
@@ -614,9 +618,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
 
+
+
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override
             public void onTick(long millisUntilFinished) {
+                showLoading("Updating car");
             }
 
             @Override
@@ -652,12 +659,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         AddCarActivity thisActivity = this;
 
-        component.setUseCarUseCase().execute(createdCar.getId(), EventSource.SOURCE_ADD_CAR, new SetUserCarUseCase.Callback() {
+       component.setUseCarUseCase().execute(createdCar.getId(), EventSource.SOURCE_ADD_CAR, new SetUserCarUseCase.Callback() {
             @Override
             public void onUserCarSet() {
+
                 Intent intent = new Intent(thisActivity, CustomShopActivity.class);
                 intent.putExtra(CAR_EXTRA,createdCar);
                 startActivityForResult(intent,DEALER_CHOSEN);
+
             }
 
             @Override

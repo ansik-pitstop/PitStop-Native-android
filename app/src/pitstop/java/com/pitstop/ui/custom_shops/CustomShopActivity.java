@@ -164,8 +164,8 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 }

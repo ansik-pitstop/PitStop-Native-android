@@ -166,10 +166,11 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
+
 
     @Override
     public void focusSearch() {

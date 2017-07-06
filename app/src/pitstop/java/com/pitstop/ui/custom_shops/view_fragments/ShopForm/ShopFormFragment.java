@@ -155,10 +155,11 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
+
 
     @Override
     public void onResume() {

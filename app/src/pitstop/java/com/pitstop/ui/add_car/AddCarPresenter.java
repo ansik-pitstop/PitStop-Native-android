@@ -575,7 +575,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                        mCallback.onPostCarSucceeded(createdCar);
+                        //mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });
@@ -827,7 +827,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post( new CarDataChangedEvent(type,EVENT_SOURCE));
-                        mCallback.onPostCarSucceeded(createdCar);
+                        //mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });
@@ -989,7 +989,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(
                                 new CarDataChangedEvent(type,EVENT_SOURCE));
-                        mCallback.onPostCarSucceeded(createdCar);
+                        //mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });

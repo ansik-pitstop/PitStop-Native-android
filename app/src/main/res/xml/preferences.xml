@@ -29,7 +29,7 @@
         android:summary="Tap to add a new vehicle"/>
 
     <PreferenceCategory
-        android:title="My Shops"
+        android:title="My Created Shops"
         android:key="pref_shops"/>
 
     <PreferenceCategory android:title="App Info" android:key="@string/appinfo">

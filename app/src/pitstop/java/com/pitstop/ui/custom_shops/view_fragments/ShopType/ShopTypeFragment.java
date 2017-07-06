@@ -93,8 +93,8 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 

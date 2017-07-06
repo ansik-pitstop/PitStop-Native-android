@@ -96,6 +96,12 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.unsubscribe();
+    }
+
+    @Override
     public void toast(String message) {
         Toast.makeText(context,message,Toast.LENGTH_SHORT);
     }

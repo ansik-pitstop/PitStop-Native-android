@@ -179,9 +179,10 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
         Toast.makeText(context,message,Toast.LENGTH_SHORT);
     }
 
+
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 

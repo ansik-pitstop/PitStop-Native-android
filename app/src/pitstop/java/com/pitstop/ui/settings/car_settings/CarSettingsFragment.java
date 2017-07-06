@@ -104,8 +104,8 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 

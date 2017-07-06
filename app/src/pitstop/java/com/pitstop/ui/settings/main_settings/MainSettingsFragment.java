@@ -107,8 +107,8 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 

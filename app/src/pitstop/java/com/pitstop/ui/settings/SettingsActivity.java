@@ -84,8 +84,8 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         presenter.unsubscribe();
     }
 
@@ -155,7 +155,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
             carPref.setWidgetLayoutResource(R.layout.vehicle_pref_icon);
         }
         carPref.setTitle(car.getMake() + " " +car.getModel());
-        carPref.setSummary("Tap to manage");
+        carPref.setSummary(car.getDealership().getName());
         carPref.setKey("car_item");
         carPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
