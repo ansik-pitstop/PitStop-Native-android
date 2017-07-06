@@ -487,10 +487,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
 
-                useCaseComponent.trip215StartUseCase().execute(trip, new Trip215StartUseCase.Callback() {
+                useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
+                        , new Trip215StartUseCase.Callback() {
                     @Override
-                    public void onTripStartSuccess() {
-                        LogUtils.LOGD(TAG,"Trip start saved successfully for 215B device");
+                    public void onRealTimeTripStartSuccess() {
+                        LogUtils.LOGD(TAG,"Real time trip start saved successfully for 215B device");
+                    }
+
+                    @Override
+                    public void onHistoricalTripStartSuccess(){
+                        LogUtils.LOGD(TAG,"Historical trip start saved successfully for 215B device");
+
                     }
 
                     @Override

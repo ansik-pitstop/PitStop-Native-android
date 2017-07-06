@@ -17,17 +17,20 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
     private Device215TripRepository device215TripRepository;
     private Handler handler;
     private TripInfoPackage tripInfoPackage;
+    private long terminalRTCTime;
     private Callback callback;
 
 
     public Trip215StartUseCaseImpl(Device215TripRepository device215TripRepository, Handler handler){
+
         this.device215TripRepository = device215TripRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
+    public void execute(TripInfoPackage tripInfoPackage,long terminalRTCTime, Callback callback) {
         this.callback = callback;
+        this.terminalRTCTime = terminalRTCTime;
         this.tripInfoPackage = tripInfoPackage;
         handler.post(this);
     }
@@ -38,7 +41,12 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
         device215TripRepository.storeTripStart(tripStart, new Repository.Callback<TripStart>() {
             @Override
             public void onSuccess(TripStart data) {
-                callback.onTripStartSuccess();
+                if (tripStart.getRtcTime() > terminalRTCTime){
+                    callback.onRealTimeTripStartSuccess();
+                }
+                else{
+                    callback.onHistoricalTripStartSuccess();
+                }
             }
 
             @Override
