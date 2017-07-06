@@ -1,7 +1,6 @@
 package com.pitstop.repositories;
 
 import com.pitstop.models.Trip215;
-import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripStart;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -9,8 +8,6 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.pitstop.R.id.mileage;
 
 /**
  * Created by Karol Zdebel on 7/6/2017.
@@ -28,16 +25,15 @@ public class Device215TripRepository implements Repository{
 
         JSONObject body = new JSONObject();
         try {
-            body.put("scannerId", scannerId);
-            body.put("rtcTimeStart", Long.parseLong(rtcTime));
-            body.put("tripIdRaw", tripIdRaw);
-            if (mileage != null)
-                body.put("mileageStart", mileage);
+            body.put("vin", tripStart.getVin());
+            body.put("rtcTimeStart", tripStart.getRtcTime());
+            body.put("tripIdRaw", tripStart.getId());
+            body.put("mileageStart", tripStart.getMileage());
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        networkHelper.postNoAuth("scan/trip", callback, body);
+        networkHelper.postNoAuth("scan/trip", getStoreTripStartRequestCallback(callback), body);
     }
 
     private RequestCallback getStoreTripStartRequestCallback(Callback callback){
