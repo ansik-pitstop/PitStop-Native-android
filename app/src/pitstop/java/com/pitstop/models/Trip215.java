@@ -8,11 +8,11 @@ package com.pitstop.models;
 
 public class Trip215 {
     private int tripId;
-    private int mileage;
-    private int rtcTime;
+    private double mileage;
+    private long rtcTime;
     private String scannerName;
 
-    public Trip215(int id, int mileage, int rtcTime, String scannerName) {
+    public Trip215(int id, double mileage, long rtcTime, String scannerName) {
         this.tripId = id;
         this.mileage = mileage;
         this.rtcTime = rtcTime;
@@ -27,19 +27,19 @@ public class Trip215 {
         this.tripId = tripId;
     }
 
-    public int getMileage() {
+    public double getMileage() {
         return mileage;
     }
 
-    public void setMileage(int mileage) {
+    public void setMileage(double mileage) {
         this.mileage = mileage;
     }
 
-    public int getRtcTime() {
+    public long getRtcTime() {
         return rtcTime;
     }
 
-    public void setRtcTime(int rtcTime) {
+    public void setRtcTime(long rtcTime) {
         this.rtcTime = rtcTime;
     }
 
