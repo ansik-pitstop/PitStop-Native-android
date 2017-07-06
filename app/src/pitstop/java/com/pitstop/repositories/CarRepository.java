@@ -172,7 +172,9 @@ public class CarRepository {
                                                 for( int i = 0 ; i < customShops.length() ; i++){
                                                     JSONObject shop = customShops.getJSONObject(i);
                                                     if(c.getDealership().getId() == shop.getInt("id")){
-                                                        c.setDealership(Dealership.jsonToDealershipObject(shop.toString()));
+                                                        Dealership d = Dealership.jsonToDealershipObject(shop.toString());
+                                                        d.setCustom(true);
+                                                        c.setDealership(d);
                                                     }
                                                 }
                                             }else{
@@ -180,6 +182,7 @@ public class CarRepository {
                                                 noDealer.setName("No Dealership");
                                                 noDealer.setId(19);
                                                 noDealer.setEmail("info@getpitstop.io");
+                                                noDealer.setCustom(true);
                                                 c.setDealership(noDealer);
                                             }
                                         }
@@ -231,6 +234,7 @@ public class CarRepository {
                                             if(car.getDealership() != null){
                                                 if(car.getDealership().getId() == shop.getInt("id")){
                                                     Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                    dealership.setCustom(true);
                                                     car.setDealership(dealership);
                                                 }
                                             }else{
@@ -238,6 +242,7 @@ public class CarRepository {
                                                 noDealer.setName("No Dealership");
                                                 noDealer.setId(19);
                                                 noDealer.setEmail("info@getpitstop.io");
+                                                noDealer.setCustom(true);
                                                 car.setDealership(noDealer);
                                             }
                                         }

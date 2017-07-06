@@ -206,6 +206,7 @@ public class UserRepository {
                                             if(car.getDealership() != null){
                                                 if(car.getDealership().getId() == shop.getInt("id")){
                                                     Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                    dealership.setCustom(true);
                                                     car.setDealership(dealership);
                                                 }
                                             }else{
@@ -213,6 +214,7 @@ public class UserRepository {
                                                 noDealer.setName("No Dealership");
                                                 noDealer.setId(19);
                                                 noDealer.setEmail("info@getpitstop.io");
+                                                noDealer.setCustom(true);
                                                 car.setDealership(noDealer);
                                             }
                                         }
