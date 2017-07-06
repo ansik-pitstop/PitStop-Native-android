@@ -8,6 +8,7 @@ public interface Repository {
 
     interface Callback<T>{
         void onSuccess(T data);
+        void onError(int error);
         void onError(String error);
     }
 
