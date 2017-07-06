@@ -1,28 +1,30 @@
 package com.pitstop.models;
 
 /**
+ * Stores data for the 215 device trip, can be used for Trip Start and Trip End
+ *
  * Created by Karol Zdebel on 7/6/2017.
  */
 
 public class Trip215 {
-    private int id;
+    private int tripId;
     private int mileage;
     private int rtcTime;
-    private String vin;
+    private String scannerName;
 
-    public Trip215(int id, int mileage, int rtcTime, String vin) {
-        this.id = id;
+    public Trip215(int id, int mileage, int rtcTime, String scannerName) {
+        this.tripId = id;
         this.mileage = mileage;
         this.rtcTime = rtcTime;
-        this.vin = vin;
+        this.scannerName = scannerName;
     }
 
-    public int getId() {
-        return id;
+    public int getTripId() {
+        return tripId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
     }
 
     public int getMileage() {
@@ -41,11 +43,11 @@ public class Trip215 {
         this.rtcTime = rtcTime;
     }
 
-    public String getVin() {
-        return vin;
+    public String getScannerName() {
+        return scannerName;
     }
 
-    public void setVin(String vin) {
-        this.vin = vin;
+    public void setScannerName(String scannerName) {
+        this.scannerName = scannerName;
     }
 }

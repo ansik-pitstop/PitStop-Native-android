@@ -582,7 +582,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
             });
 
         } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            //dashboardCar = carLocalStore.getCar(dashboardCar.getId());
+            //dashboardCar = carLocalStore.getCar(dashboardCar.getTripId());
             final double newBaseMileage = dashboardCar.getTotalMileage();
             //mCallback.onTripMileageUpdated(newBaseMileage);
             getActivity().runOnUiThread(new Runnable() {
