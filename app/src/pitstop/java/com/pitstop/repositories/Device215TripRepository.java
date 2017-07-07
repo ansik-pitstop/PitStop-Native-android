@@ -1,7 +1,6 @@
 package com.pitstop.repositories;
 
 import com.pitstop.models.Trip215;
-import com.pitstop.models.TripStart;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
@@ -18,14 +17,14 @@ import org.json.JSONObject;
 public class Device215TripRepository implements Repository{
 
     private final String SCAN_END_POINT = "scan/trip";
-    private final String LATEST_TRIP_QUERY = "/?vin=%s&latest=true&active=true";
+    private final String LATEST_TRIP_QUERY = "/?scannerId=%s&latest=true&active=true";
     private NetworkHelper networkHelper;
 
     public Device215TripRepository(NetworkHelper networkHelper){
         this.networkHelper = networkHelper;
     }
 
-    public void storeTripStart(Trip215 tripStart, Callback<TripStart> callback){
+    public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
 
         JSONObject body = new JSONObject();
         try {
@@ -40,12 +39,15 @@ public class Device215TripRepository implements Repository{
         networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(callback), body);
     }
 
-    private RequestCallback getStoreTripStartRequestCallback(Callback callback){
+    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     callback.onSuccess(null);
+                }
+                else{
+                    callback.onError(0);
                 }
             }
         };
@@ -85,7 +87,7 @@ public class Device215TripRepository implements Repository{
                 ,getRetrieveLatestTripCallback(callback,scannerName));
     }
 
-    private RequestCallback getRetrieveLatestTripCallback(Callback callback, String scannerName){
+    private RequestCallback getRetrieveLatestTripCallback(Callback<Trip215> callback, String scannerName){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -93,14 +95,19 @@ public class Device215TripRepository implements Repository{
                     try{
                         JSONObject data = new JSONObject(response);
                         int id = data.getInt("id");
-                        int mileage = data.getInt("mileage");
+                        double mileage = data.getDouble("mileage");
                         int rtcTime = data.getInt("rtcTimeStart");
                         Trip215 trip = new Trip215(id,mileage,rtcTime,scannerName);
+                        callback.onSuccess(trip);
                     }
                     catch(JSONException e){
+                        callback.onError(0);
                         e.printStackTrace();
                     }
-                    callback.onSuccess(null);
+
+                }
+                else{
+                    callback.onError(0);
                 }
             }
         };

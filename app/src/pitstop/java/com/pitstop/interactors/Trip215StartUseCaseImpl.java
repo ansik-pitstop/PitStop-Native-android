@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Trip215;
-import com.pitstop.models.TripStart;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
 
@@ -38,9 +37,9 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
     @Override
     public void run() {
         Trip215 tripStart = convertToTrip215(tripInfoPackage);
-        device215TripRepository.storeTripStart(tripStart, new Repository.Callback<TripStart>() {
+        device215TripRepository.storeTripStart(tripStart, new Repository.Callback<Trip215>() {
             @Override
-            public void onSuccess(TripStart data) {
+            public void onSuccess(Trip215 data) {
                 if (tripStart.getRtcTime() > terminalRTCTime){
                     callback.onRealTimeTripStartSuccess();
                 }
