@@ -30,7 +30,7 @@ public class Device215TripRepository implements Repository{
         try {
             body.put("scannerId", tripStart.getScannerName());
             body.put("rtcTimeStart", tripStart.getRtcTime());
-            body.put("tripIdRaw", tripStart.getTripId());
+            body.put("tripIdRaw", String.valueOf(tripStart.getTripId()));
             body.put("mileageStart", tripStart.getMileage());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -95,7 +95,7 @@ public class Device215TripRepository implements Repository{
                     try{
                         JSONObject data = new JSONObject(response);
                         int id = data.getInt("id");
-                        double mileage = data.getDouble("mileage");
+                        double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");
                         Trip215 trip = new Trip215(id,mileage,rtcTime,scannerName);
                         callback.onSuccess(trip);
