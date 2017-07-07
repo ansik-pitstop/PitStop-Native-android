@@ -80,10 +80,4 @@ public class UserAdapter  {
         db.delete(TABLES.USER.TABLE_NAME, null, null);
 
     }
-
-    public void finalze(){
-        if (databaseHelper.getWritableDatabase().isOpen()){
-            databaseHelper.getWritableDatabase().close();
-        }
-    }
 }
