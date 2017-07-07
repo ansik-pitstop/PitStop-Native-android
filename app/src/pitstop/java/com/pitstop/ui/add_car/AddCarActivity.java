@@ -339,7 +339,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onPostCarSucceeded(Car createdCar) {
-
+        askForDealership(createdCar);
     }
 
     private boolean checkBackCamera() {

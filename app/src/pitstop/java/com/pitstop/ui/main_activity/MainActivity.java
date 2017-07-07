@@ -324,7 +324,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     protected void onResume() {
-        System.out.println("Testing on resume");
         super.onResume();
 
         Log.d(TAG, "onResume");

@@ -105,7 +105,6 @@ public class ShopFormPresenter {
             component.getAddShopUseCase().execute(dealership, new AddShopUseCase.Callback() {
                 @Override
                 public void onShopAdded() {
-                    if(shopForm.getCar() != null){
                         component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership,EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
@@ -121,7 +120,6 @@ public class ShopFormPresenter {
                                 }
                             }
                         });
-                    }
                 }
                 @Override
                 public void onError() {

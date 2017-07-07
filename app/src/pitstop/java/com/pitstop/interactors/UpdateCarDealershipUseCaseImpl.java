@@ -35,7 +35,6 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.handler = handler;
-
     }
 
     @Override
@@ -59,6 +58,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                         carRepository.update(car, new CarRepository.CarUpdateCallback() {
                             @Override
                             public void onCarUpdated() {
+
                                 EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
                                 EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                         ,eventSource));
