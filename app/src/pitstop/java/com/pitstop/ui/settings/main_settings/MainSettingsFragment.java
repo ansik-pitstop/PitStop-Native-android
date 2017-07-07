@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -199,12 +200,12 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
     @Override
     public void startPriv() {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/PrivacyPolicy.pdf")));
+        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/PrivacyPolicy.pdf")));
     }
 
     @Override
     public void startTerms() {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://getpitstop.io/privacypolicy/AppAgreement.pdf")));
+        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/AppAgreement.pdf")));
     }
     @Override
     public void showLogOut() {
