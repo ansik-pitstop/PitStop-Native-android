@@ -497,6 +497,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
+                registerDummyTripEnd = true;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
             //If created dummy start and end already, ignore the remaining update trips
