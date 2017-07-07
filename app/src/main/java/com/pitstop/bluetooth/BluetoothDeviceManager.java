@@ -378,8 +378,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void setDeviceNameAndId(String name){
         //Device name should never be set for 212
         if (isConnectedTo215()){
-            Log.d(TAG,"Setting device name and id to "+name);
             Device215B device215B = (Device215B)deviceInterface;
+            Log.d(TAG,"Setting device name and id to "+name+", command: "+device215B.setDeviceNameAndId(name));
             writeToObd(device215B.setDeviceNameAndId(name));
         }
     }

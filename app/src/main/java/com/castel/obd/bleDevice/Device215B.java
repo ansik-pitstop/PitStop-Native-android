@@ -103,8 +103,8 @@ public class Device215B implements AbstractDevice {
     }
 
     public String setDeviceNameAndId(String name){
-        return siMulti(name + "," + name
-                , BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM);
+        return siMulti(BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM
+                ,name + "," + name);
     }
 
     @Override

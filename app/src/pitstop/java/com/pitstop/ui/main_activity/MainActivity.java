@@ -649,7 +649,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 autoConnectService.setDeviceNameAndId(input.getText()
-                                        .toString().trim());
+                                        .toString().trim().toUpperCase());
                                 idInput = true;
                             }
                         })
