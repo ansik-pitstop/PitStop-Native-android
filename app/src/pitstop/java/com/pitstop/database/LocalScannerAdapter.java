@@ -343,10 +343,4 @@ public class LocalScannerAdapter {
         db.delete(TABLES.SCANNER.TABLE_NAME, null, null);
 
     }
-
-    public void finalize(){
-        if (databaseHelper.getWritableDatabase().isOpen()){
-            databaseHelper.getWritableDatabase().close();
-        }
-    }
 }

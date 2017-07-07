@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.models.Car;
-import com.pitstop.models.Trip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -251,11 +250,6 @@ public class LocalCarAdapter {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[]{String.valueOf(carId)});
-    }
-
-    public void finalize(){
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
     }
 
 }
