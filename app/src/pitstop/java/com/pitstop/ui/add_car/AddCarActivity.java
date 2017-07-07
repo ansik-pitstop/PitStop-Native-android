@@ -25,7 +25,13 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
@@ -47,6 +53,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
+
 /**
  * Created by David on 7/20/2016.
  */
@@ -63,11 +71,15 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public static final int PAIR_CAR_SUCCESS = 52;
     public static final int ADD_CAR_NO_DEALER_SUCCESS = 53;
     private static final int RC_PENDING_ADD_CAR = 1043;
+    private static final int DEALER_CHOSEN = 4785;
+
 
     // views
     private AddCarViewPager mPager;
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
+
+    private UseCaseComponent component;
 
     private MixpanelHelper mixpanelHelper;
     private AddCarContract.Presenter presenter;
@@ -140,7 +152,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice));
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-
+        component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule((GlobalApplication)getApplicationContext()))
+                .build();
         //setup view pager
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
         mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(), this);
@@ -323,6 +337,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         }
     }
 
+    @Override
+    public void onPostCarSucceeded(Car createdCar) {
+        askForDealership(createdCar);
+    }
+
     private boolean checkBackCamera() {
         final int CAMERA_FACING_BACK = 0;
         int cameraCount = Camera.getNumberOfCameras();
@@ -373,7 +392,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addingCar = true;
 
         // The result is by default cancelled
-        setResult(RESULT_CANCELED);
+        //setResult(RESULT_CANCELED);
 
         super.onResume();
     }
@@ -446,7 +465,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             Log.i(TAG, "Adding car from pending");
             showLoading("Adding car");
             presenter.startAddingNewCar();
-        } else {
+        }else if(requestCode == DEALER_CHOSEN){
+
+            finishActivity(presenter.getCreatedCar());
+        }else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -587,10 +609,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .show();
     }
 
-    @Override
-    public void onPostCarSucceeded(Car createdCar) {
-        if (!addingCar) return;
 
+    private void finishActivity(Car createdCar) {
         carSuccessfullyAdded = true; // At this point car is successfully added
 
         Intent data = new Intent();
@@ -598,9 +618,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
 
+        showLoading("Updating car");
+
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override
             public void onTick(long millisUntilFinished) {
+                showLoading("Updating car");
             }
 
             @Override
@@ -609,6 +632,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 finish();
             }
         }.start();
+
     }
 
     @Override
@@ -630,16 +654,33 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void askForDealership() {
+    public void askForDealership(Car createdCar) {
         if (!addingCar) return;
 
-        mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
+        AddCarActivity thisActivity = this;
+
+       component.setUseCarUseCase().execute(createdCar.getId(), EventSource.SOURCE_ADD_CAR, new SetUserCarUseCase.Callback() {
+            @Override
+            public void onUserCarSet() {
+
+                Intent intent = new Intent(thisActivity, CustomShopActivity.class);
+                intent.putExtra(CAR_EXTRA,createdCar);
+                startActivityForResult(intent,DEALER_CHOSEN);
+
+            }
+
+            @Override
+            public void onError() {// really need this to work
+               askForDealership(createdCar);
+            }
+        });
+        /*mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
         ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(2);
 
         // Go to the selectDealership fragment
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);*/
     }
 
     /**

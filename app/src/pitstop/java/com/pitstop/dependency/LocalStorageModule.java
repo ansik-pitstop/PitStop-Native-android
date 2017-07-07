@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
 
 import javax.inject.Singleton;
@@ -17,6 +18,12 @@ import dagger.Provides;
 
 @Module(includes = ContextModule.class)
 public class LocalStorageModule {
+
+    @Singleton
+    @Provides
+    public LocalShopAdapter localShopAdapter(Context context){
+        return new LocalShopAdapter(context);
+    }
 
     @Singleton
     @Provides

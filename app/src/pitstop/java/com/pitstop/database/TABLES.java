@@ -103,6 +103,7 @@ public final class TABLES {
         String KEY_PHONE = "phone";
         String KEY_EMAIL = "email";
         String KEY_SHOP_ID = "shopId";
+        String KEY_IS_CUSTOM = "isCustom";
     }
 
     public interface NOTIFICATION {

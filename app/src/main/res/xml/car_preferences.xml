@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Car"
+        android:key="pref_car_tile">
+        <Preference android:title="Select as current"
+            android:key="pref_set_active">
+        </Preference>
+
+        <Preference android:title="Change Dealership"
+            android:key="pref_change_shop"
+            android:summary="Change the shop of this car">
+        </Preference>
+
+        <Preference android:title="Delete Car"
+            android:key="pre_delete_car">
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

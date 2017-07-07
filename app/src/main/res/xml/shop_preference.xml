@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Shop"
+        android:key="pref_Shop_title">
+        <Preference android:title="Edit"
+            android:key="pref_edit_shop">
+        </Preference>
+
+        <Preference android:title="Delete"
+            android:key="pref_delete_shop">
+        </Preference>
+
+    </PreferenceCategory>
+</PreferenceScreen>

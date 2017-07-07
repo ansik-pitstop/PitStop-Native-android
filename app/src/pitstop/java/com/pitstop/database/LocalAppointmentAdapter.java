@@ -43,7 +43,7 @@ public class LocalAppointmentAdapter {
         long result = db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, values);
 
 
-        db.close();
+
     }
 
     public void storeAppointments(List<Appointment> appointmentList) {
@@ -67,7 +67,7 @@ public class LocalAppointmentAdapter {
                 c.moveToNext();
             }
         }
-        db.close();
+
         return appointments;
     }
 
@@ -86,7 +86,7 @@ public class LocalAppointmentAdapter {
             appointment = cursorToAppointment(c);
         }
 
-        db.close();
+
         return appointment;
     }
 
@@ -105,7 +105,7 @@ public class LocalAppointmentAdapter {
         int rows = db.update(TABLES.APPOINTMENT.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(appointment.getId()) });
 
-        db.close();
+
 
         return rows;
     }
@@ -116,7 +116,7 @@ public class LocalAppointmentAdapter {
 
         db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
 
-        db.close();
+
     }
 
     private Appointment cursorToAppointment(Cursor c) {
@@ -149,14 +149,13 @@ public class LocalAppointmentAdapter {
 
         db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
 
-        db.close();
     }
 
     public void deleteAppointment(Appointment appointment){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.APPOINTMENT.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[]{String.valueOf(appointment.getId())});
-        db.close();
+
     }
 
 

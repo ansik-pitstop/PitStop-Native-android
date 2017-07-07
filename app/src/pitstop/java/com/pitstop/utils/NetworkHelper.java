@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import com.parse.ParseInstallation;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.models.Dealership;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.models.issue.CarIssue;
@@ -25,6 +27,10 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
+
+import io.fabric.sdk.android.services.network.DefaultHttpRequestFactory;
+import io.fabric.sdk.android.services.network.HttpRequestFactory;
+import okhttp3.OkHttpClient;
 
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
@@ -59,9 +65,16 @@ public class NetworkHelper {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+    public boolean isConnected(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
-    private void getWithCustomUrl(String url, String uri, RequestCallback callback) {
-        new HttpRequest.Builder()
+
+    public void getWithCustomUrl(String url, String uri, RequestCallback callback) {
+         new HttpRequest.Builder()
                 .url(url)
                 .uri(uri)
                 .requestCallBack(callback)
@@ -675,6 +688,10 @@ public class NetworkHelper {
         get("user/" + userId, callback);
     }
 
+    public void getPitStopShops(RequestCallback callback){
+        get("shop?shopType=partner",callback);
+    }
+
     public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
         LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
 
@@ -741,8 +758,6 @@ public class NetworkHelper {
                 else{
                     callback.done(response,requestError);
                 }
-
-
             }
         });
     }
@@ -825,6 +840,22 @@ public class NetworkHelper {
         putNoAuth("scan/trip", callback, body);
     }
 
+
+
+    public void postShop(Dealership dealership, RequestCallback callback){
+        JSONObject body = new JSONObject();
+        try {
+            body.put("name",dealership.getName());
+            body.put("email",dealership.getEmail());
+            body.put("phone",dealership.getPhone());
+            body.put("address",dealership.getAddress());
+            body.put("googlePlacesId","");// to be added
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        post("shop",callback,body);
+    }
+
     /**
      * Get the aggregated settings
      *
@@ -835,6 +866,10 @@ public class NetworkHelper {
         //GET /settings?userId=
         LOGI(TAG, "getUserSettingsById: " + userId);
         get("settings/?userId=" + userId, callback);
+    }
+
+    public void putUserSettingsById(int userId, JSONObject body, RequestCallback callback){
+        put("user/"+userId+"/settings",callback,body);
     }
 
     /**

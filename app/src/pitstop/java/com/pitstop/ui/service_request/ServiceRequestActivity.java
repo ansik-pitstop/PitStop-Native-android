@@ -203,7 +203,10 @@ public class ServiceRequestActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.send:
-                if (pickedCustomIssues != null && !pickedCustomIssues.isEmpty()) {
+                if(dashboardCar.getDealership().getEmail().equals("") && dashboardCar.getDealership().isCustom()){
+                    Toast.makeText(getApplicationContext(),"Please add an email to this shop",Toast.LENGTH_SHORT).show();
+                }
+                else if (pickedCustomIssues != null && !pickedCustomIssues.isEmpty()) {
                     showLoading("Saving issue");
                     networkHelper.postMultiplePresetIssue(dashboardCar.getId(), pickedCustomIssues, new RequestCallback() {
                         @Override

@@ -17,5 +17,5 @@ public interface AddCarUseCase extends Interactor{
     }
 
     //Executes usecase
-    void execute(Car car, Callback callback);
+    void execute(Car car,String eventSource, Callback callback);
 }

@@ -56,7 +56,7 @@ public class LocalTripAdapter {
         long result = db.insert(TABLES.TRIP.TABLE_NAME, null, values);
 
 
-        db.close();
+
     }
 
     public void storeTrips(List<Trip> tripList) {
@@ -79,8 +79,7 @@ public class LocalTripAdapter {
                 c.moveToNext();
             }
         }
-        db.close();
-        c.close();
+
         return trips;
     }
 
@@ -98,8 +97,7 @@ public class LocalTripAdapter {
         if(c.moveToFirst()) {
             trip = cursorToTripWithPath(c);
         }
-        db.close();
-        c.close();
+
         return trip;
     }
 
@@ -118,7 +116,6 @@ public class LocalTripAdapter {
         int rows = db.update(TABLES.TRIP.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(trip.getId()) });
 
-        db.close();
         return rows;
     }
 
@@ -128,7 +125,7 @@ public class LocalTripAdapter {
 
         db.delete(TABLES.TRIP.TABLE_NAME, null, null);
 
-        db.close();
+
     }
 
 
@@ -183,14 +180,14 @@ public class LocalTripAdapter {
 
         db.delete(TABLES.TRIP.TABLE_NAME, null, null);
 
-        db.close();
+
     }
 
     public void deleteTrip(Trip trip){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.TRIP.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[]{String.valueOf(trip.getId())});
-        db.close();
+
     }
 
 
