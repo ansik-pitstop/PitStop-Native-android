@@ -609,17 +609,37 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     private boolean ignoreMissingDeviceName = false;
+    private AlertDialog alertInvalidDeviceNameDialog = null;
+    private boolean idInput = false;
 
     @Override
     public void pidData(PidPackage pidPackage) {
+
+        LogUtils.LOGD(TAG,"pidData(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
+                + " ignoreMissingDeviceName?"+ignoreMissingDeviceName);
+
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
         if (BuildConfig.DEBUG && !ignoreMissingDeviceName){
             if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()
                     && autoConnectService.getConnectedDeviceName().endsWith("XXX")){
 
-                final EditText input = new EditText(this);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                displayGetScannerIdDialog();
+
+            }
+        }
+    }
+
+    private void displayGetScannerIdDialog(){
+        if (idInput) return;
+        if (alertInvalidDeviceNameDialog != null)
+            if (alertInvalidDeviceNameDialog.isShowing()) return;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final EditText input = new EditText(MainActivity.this);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                 alertDialogBuilder.setTitle("Device Name Invalid");
                 alertDialogBuilder
                         .setView(input)
@@ -630,6 +650,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             public void onClick(DialogInterface dialog,int id) {
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim());
+                                idInput = true;
                             }
                         })
                         .setNegativeButton("Ignore",new DialogInterface.OnClickListener() {
@@ -638,11 +659,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                 ignoreMissingDeviceName = true;
                             }
                         });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-
+                alertInvalidDeviceNameDialog = alertDialogBuilder.create();
+                alertInvalidDeviceNameDialog.show();
             }
-        }
+        });
     }
 
     @Override
