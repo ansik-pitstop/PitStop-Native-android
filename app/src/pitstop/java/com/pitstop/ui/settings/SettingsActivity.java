@@ -155,7 +155,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
             carPref.setWidgetLayoutResource(R.layout.vehicle_pref_icon);
         }
         carPref.setTitle(car.getMake() + " " +car.getModel());
-        carPref.setSummary(car.getDealership().getName());
+        if(car.getDealership() != null){
+            carPref.setSummary(car.getDealership().getName());
+        }else{
+            carPref.setSummary("No Dealership");
+        }
         carPref.setKey("car_item");
         carPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

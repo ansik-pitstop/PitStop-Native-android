@@ -618,7 +618,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
         setResult(ADD_CAR_SUCCESS, data);
 
-
+        showLoading("Updating car");
 
         new CountDownTimer(2000, 2000) { // to let issues populate in server
             @Override

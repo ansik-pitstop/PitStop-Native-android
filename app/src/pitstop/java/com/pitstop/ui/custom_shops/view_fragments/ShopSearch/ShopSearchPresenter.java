@@ -134,6 +134,9 @@ public class ShopSearchPresenter implements ShopPresnter {
 
 
         LatLng location = shopSearch.getLocation();
+        if(location == null){
+            return;
+        }
         shopSearch.loadingGoogle(true);
         loadingCounter+=1;
         component.getGetGooglePlacesShopsUseCase().execute(location.latitude,location.longitude, filter, new GetGooglePlacesShopsUseCase.CallbackShops() {

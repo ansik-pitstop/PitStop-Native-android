@@ -6,4 +6,5 @@ package com.pitstop.ui.custom_shops;
 
 public interface CustomShopView {
     void setUpNavBar();
+    void back();
 }

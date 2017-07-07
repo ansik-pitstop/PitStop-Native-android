@@ -120,7 +120,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override

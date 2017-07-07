@@ -103,7 +103,7 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override

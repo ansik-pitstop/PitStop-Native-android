@@ -99,6 +99,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
 
             @Override
             public void onError() {
+                pitstopShops.toast("There was an error selecting this shop");
 
             }
         });

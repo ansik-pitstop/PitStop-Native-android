@@ -176,7 +176,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
 

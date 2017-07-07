@@ -133,7 +133,7 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override

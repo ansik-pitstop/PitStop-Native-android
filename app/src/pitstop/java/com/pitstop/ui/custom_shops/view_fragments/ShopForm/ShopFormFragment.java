@@ -146,7 +146,7 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override

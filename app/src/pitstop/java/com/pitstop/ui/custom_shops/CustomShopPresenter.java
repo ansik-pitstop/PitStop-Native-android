@@ -1,5 +1,11 @@
 package com.pitstop.ui.custom_shops;
 
+import com.pitstop.BuildConfig;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.UpdateCarDealershipUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -9,9 +15,39 @@ import com.pitstop.utils.MixpanelHelper;
 public class CustomShopPresenter {
     private CustomShopView customShop;
     private CustomShopActivityCallback fragmentSwitcher;
+    private UseCaseComponent component;
 
-    public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher){
+    private final static int DEBUG_NO_DEALER = 1;
+    private final static int PROD_NO_DEALER = 19;
+
+
+    public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher, UseCaseComponent component){
         this.fragmentSwitcher = fragmentSwitcher;
+        this.component = component;
+    }
+
+    public void setNoDealer(Car car){
+        if(customShop == null){return;}
+        Dealership dealership = new Dealership();
+        dealership.setName("No Dealership");
+        if(BuildConfig.DEBUG){
+            dealership.setId(DEBUG_NO_DEALER);
+        }else{
+            dealership.setId(PROD_NO_DEALER);
+        }
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
+            @Override
+            public void onCarDealerUpdated() {
+                if(customShop != null){
+                    customShop.back();
+                }
+            }
+
+            @Override
+            public void onError() {
+            }
+        });
+
     }
 
     public void subscribe(CustomShopView customShop){

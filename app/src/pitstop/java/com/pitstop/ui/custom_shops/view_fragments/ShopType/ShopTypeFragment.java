@@ -92,6 +92,7 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
         return view;
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();

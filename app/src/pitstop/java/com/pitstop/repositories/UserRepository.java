@@ -200,16 +200,29 @@ public class UserRepository {
                                 if(response != null){
                                     try{
                                         JSONObject responseJson = new JSONObject(response);
-                                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                                        for(int i = 0 ; i < customShops.length() ; i++){
-                                            JSONObject shop = customShops.getJSONObject(i);
-                                            if(car.getDealership() != null){
-                                                if(car.getDealership().getId() == shop.getInt("id")){
-                                                    Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                    dealership.setCustom(true);
-                                                    car.setDealership(dealership);
+                                        JSONArray customShops;
+                                        if( responseJson.getJSONObject("user").has("customShops")) {
+                                            customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+
+                                            for (int i = 0; i < customShops.length(); i++) {
+                                                JSONObject shop = customShops.getJSONObject(i);
+                                                if (car.getDealership() != null) {
+                                                    if (car.getDealership().getId() == shop.getInt("id")) {
+                                                        Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
+                                                        dealership.setCustom(true);
+                                                        car.setDealership(dealership);
+                                                    }
+                                                } else {
+                                                    Dealership noDealer = new Dealership();
+                                                    noDealer.setName("No Dealership");
+                                                    noDealer.setId(19);
+                                                    noDealer.setEmail("info@getpitstop.io");
+                                                    noDealer.setCustom(true);
+                                                    car.setDealership(noDealer);
                                                 }
-                                            }else{
+                                            }
+                                        }else{
+                                            if(car.getDealership() == null){
                                                 Dealership noDealer = new Dealership();
                                                 noDealer.setName("No Dealership");
                                                 noDealer.setId(19);

@@ -144,7 +144,7 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
 
     @Override
     public void toast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_SHORT);
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override

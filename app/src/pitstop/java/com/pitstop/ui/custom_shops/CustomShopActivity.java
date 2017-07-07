@@ -19,13 +19,15 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
-import com.pitstop.utils.MixpanelHelper;
 
 
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
@@ -76,10 +78,10 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
         String provider = locationManager.getBestProvider(criteria,true);
         if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
             locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
+            String locationProvider = LocationManager.NETWORK_PROVIDER;
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            if(lastKnownLocation != null){location = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());}
         }
-        String locationProvider = LocationManager.NETWORK_PROVIDER;
-        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-        if(lastKnownLocation != null){location = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());}
         locationManager.removeUpdates(locationListener);
         locationManager = null;
 
@@ -100,16 +102,33 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
         pitstopShopsFragment.setCar(car);
         shopFormFragment.setSwitcher(this);
 
-        presenter = new CustomShopPresenter(this);
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
+
+        presenter = new CustomShopPresenter(this,component);
         presenter.subscribe(this);
         presenter.setViewCustomShop();
         presenter.setUpNavBar();
     }
 
     @Override
+    public void back() {
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         presenter.subscribe(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(car.getDealership() == null){
+            presenter.setNoDealer(car);
+        }
+        super.onBackPressed();
     }
 
     @Override
