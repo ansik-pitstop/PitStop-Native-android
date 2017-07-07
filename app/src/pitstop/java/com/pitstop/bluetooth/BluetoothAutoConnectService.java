@@ -447,6 +447,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
     private boolean registerDummyTripStart = false;
     private boolean registerDummyTripEnd = false;
+    private int skipCounter = 0;
 
     /**
      * Handles trip data containing mileage
@@ -461,10 +462,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , true, DebugMessage.TYPE_BLUETOOTH
                 , getApplicationContext());
 
+        //UNCOMMENT THIS AFTER TESTING DONE
         //No longer handle trip updates
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            return;
-        }
+//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+//            return;
+//        }
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
@@ -478,15 +480,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //215 logic below
 
 
-        LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
-                    +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-
         /*********************************TEST CODE START*********************************/
 
         /*Create dummy start and end trip objects using the received update
         **objects since the simulator only sends update objects*/
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+
+            //We don't want to add to pending trip list if its an update
+            if (terminalRTCTime == -1) return;
+
             if (!registerDummyTripStart){
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                 tripInfoPackage.rtcTime += 100;
@@ -500,14 +502,29 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 registerDummyTripEnd = true;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
-            //If created dummy start and end already, ignore the remaining update trips
+            //Skip 4 trip updates before create dummy trip start and trip end again
             else{
+                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
+                if (skipCounter > 0){
+                    skipCounter--;
+                }
+                //go back into simulate trip start and trip end mode again
+                else{
+                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
+                    registerDummyTripStart = false;
+                    registerDummyTripEnd = false;
+                    skipCounter = 4;
+                }
                 return;
             }
         }
 
         /*********************************TEST CODE END**********************************/
 
+
+        LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
+                        +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
+                , getApplicationContext());
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
@@ -1059,6 +1076,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void syncObdDevice() {
         LogUtils.debugLogI(TAG, "Resetting RTC time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setRtc(System.currentTimeMillis());
+    }
+
+    public void setDeviceNameAndId(String name){
+        LogUtils.debugLogI(TAG, "Setting device name and id to "+name, true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        deviceManager.setDeviceNameAndId(name);
     }
 
     public void resetObdDeviceTime() {

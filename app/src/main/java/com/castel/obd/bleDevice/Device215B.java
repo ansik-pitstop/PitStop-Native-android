@@ -102,6 +102,11 @@ public class Device215B implements AbstractDevice {
         return qiSingle(VIN_PARAM);
     }
 
+    public String setDeviceNameAndId(String name){
+        return siMulti(name + "," + name
+                , BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM);
+    }
+
     @Override
     public String getRtc() {
         return qiSingle(RTC_TIME_PARAM);

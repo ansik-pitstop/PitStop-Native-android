@@ -375,6 +375,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.getRtc());
     }
 
+    public void setDeviceNameAndId(String name){
+        //Device name should never be set for 212
+        if (isConnectedTo215()){
+            Device215B device215B = (Device215B)deviceInterface;
+            device215B.setDeviceNameAndId(name);
+        }
+    }
+
     public void setRtc(long rtcTime) {
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;

@@ -57,17 +57,23 @@ public class BluetoothDeviceRecognizer {
         logScannerTable();
 
         //TEST REMOVE
-        if (true || AddCarActivity.addingCarWithDevice
-                || mLocalScannerStore.anyScannerLackName()
-                || mLocalScannerStore.deviceNameExists(scannerName)) {
+        if (scannerName.endsWith("XXX")){
             return RecognizeResult.CONNECT;
-        } else if (mLocalScannerStore.anyCarLackScanner()) {
-            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
-            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
-            return RecognizeResult.IGNORE;
-        } else { // this part should never be reached.... but whatever
+        }
+        else{
             return RecognizeResult.IGNORE;
         }
+//        if (scannerName.endsWith("XXX") || AddCarActivity.addingCarWithDevice
+//                || mLocalScannerStore.anyScannerLackName()
+//                || mLocalScannerStore.deviceNameExists(scannerName)) {
+//            return RecognizeResult.CONNECT;
+//        } else if (mLocalScannerStore.anyCarLackScanner()) {
+//            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
+//            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
+//            return RecognizeResult.IGNORE;
+//        } else { // this part should never be reached.... but whatever
+//            return RecognizeResult.IGNORE;
+//        }
     }
 
     public void onDeviceConnected(String scannerName, String scannerId){

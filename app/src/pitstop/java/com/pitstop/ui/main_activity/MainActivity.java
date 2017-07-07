@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -607,9 +608,41 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
+    private boolean ignoreMissingDeviceName = false;
+
     @Override
     public void pidData(PidPackage pidPackage) {
+        /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
+        **For 215 device only*/
+        if (BuildConfig.DEBUG && !ignoreMissingDeviceName){
+            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()
+                    && autoConnectService.getConnectedDeviceName().endsWith("XXX")){
 
+                final EditText input = new EditText(this);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setTitle("Device Name Invalid");
+                alertDialogBuilder
+                        .setView(input)
+                        .setMessage("Your OBD device has lost its ID or is invalid, please input " +
+                                "the ID displayed on the device")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                autoConnectService.setDeviceNameAndId(input.getText()
+                                        .toString().trim());
+                            }
+                        })
+                        .setNegativeButton("Ignore",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                                ignoreMissingDeviceName = true;
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+            }
+        }
     }
 
     @Override
