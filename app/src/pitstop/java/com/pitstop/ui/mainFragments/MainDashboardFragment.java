@@ -554,6 +554,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     public void tripData(TripInfoPackage tripInfoPackage) {
         if (dashboardCar == null) return;
 
+        Log.d(TAG,"tripData(), tripInfoPackage: "+tripInfoPackage);
+
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
 
             //Wait for 5 seconds before updating mileage
@@ -564,6 +566,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                         @Override
                         public void onCarRetrieved(Car car) {
                             displayMileage(car.getTotalMileage());
+                            Log.d(TAG,"Received car mileage 5 seconds after trip end "+car.getTotalMileage());
+
                         }
 
                         @Override
