@@ -268,8 +268,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.CONNECTED) {
 
+            LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
             //Get RTC and mileage once connected
-            get215RtcAndMileage();
+            getObdDeviceTime();
 
             //show a custom notification
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
@@ -314,6 +317,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
         } else {
+
+            LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
             /**
              * Set device connection state for connected car indicator,
              * once bluetooth connection is lost.
@@ -372,6 +379,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+        LogUtils.LOGD(TAG,"setParameterResponse(), "+responsePackageInfo.toString());
+
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             currentDeviceId = responsePackageInfo.deviceId;
@@ -443,10 +452,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
+
         LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString()
-                +", isConnected215?"+isConnectedTo215(), true, DebugMessage.TYPE_BLUETOOTH
+                        +", isConnected215?"+isConnectedTo215()
+                        +", terminalRTCTime: "+terminalRTCTime
+                , true, DebugMessage.TYPE_BLUETOOTH
                 , getApplicationContext());
 
+        //No longer handle trip updates
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)) return;
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
@@ -571,6 +585,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)
+                && terminalRTCTime == -1){
+            terminalRTCTime = Long.valueOf(parameterPackage.value);
+        }
+
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
             Log.d(TAG, "parameterData: " + parameterPackage.toString());
             Log.i(TAG, "Supported pids returned");
@@ -613,10 +632,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME) != null){
                     //Store terminal RTC time only at beginning
-                    if (terminalRTCTime == -1){
-                        terminalRTCTime = Long.valueOf(multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME));
-                    }
-
                     sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME)).commit();
                 }
 
