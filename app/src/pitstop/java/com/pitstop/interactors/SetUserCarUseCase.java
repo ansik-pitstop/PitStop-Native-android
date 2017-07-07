@@ -15,5 +15,5 @@ public interface SetUserCarUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(int userId,int carId, Callback callback);
+    void execute(int carId, String eventsource, Callback callback);
 }

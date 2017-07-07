@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Trip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class LocalCarAdapter {
         ContentValues values = carObjectToContentValues(car);
 
         long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
+
     }
 
     public void storeCars(List<Car> carList) {
@@ -72,7 +74,6 @@ public class LocalCarAdapter {
                 c.moveToNext();
             }
         }
-
         return cars;
     }
 
@@ -108,6 +109,7 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
+
 
         return car;
     }
@@ -147,6 +149,7 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
+
         return car;
     }
 
@@ -161,6 +164,7 @@ public class LocalCarAdapter {
 
         int rows = db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(car.getId()) });
+
 
         return rows;
     }
@@ -187,6 +191,7 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
+
 
         return car;
     }
@@ -238,17 +243,18 @@ public class LocalCarAdapter {
 
         db.delete(TABLES.CAR.TABLE_NAME, null, null);
 
+
     }
 
-    public void deleteCar(Car car){
+    public void deleteCar(int carId){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                new String[]{String.valueOf(car.getId())});
+                new String[]{String.valueOf(carId)});
     }
 
     public void finalize(){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        db.close();
+
     }
 
 }

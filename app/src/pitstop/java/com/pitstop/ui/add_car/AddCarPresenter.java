@@ -239,6 +239,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                     Log.d(TAG, "Create car response: " + response);
                                     try {
                                         createdCar = Car.createCar(response);
+                                        mLocalCarAdapter.storeCarData(createdCar);// not correct,but I need the car to exist locally after its made
                                         List<Car> localCarList = mLocalCarAdapter.getAllCars();
 
                                         Log.d(TAG, "Current car list size: " + localCarList.size());
@@ -264,7 +265,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                         if (createdCar.getShopId() == 0) { // no default shop
                                             mCallback.hideLoading("Great! We have added this car to your account, now please pick the dealership for your car.");
-                                            mCallback.askForDealership();
+                                            mCallback.askForDealership(createdCar);
                                         } else { // has default shop selected in the backend
                                             onCarSuccessfullyPosted();
                                         }
@@ -370,7 +371,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                                 if (createdCar.getShopId() == 0) { // no default shop or previous shop
                                     mCallback.hideLoading("Great! We have added this car to your account, now please pick the dealership for your car.");
-                                    mCallback.askForDealership();
+                                    mCallback.askForDealership(createdCar);
                                 } else { // has shop selected in the backend
                                     onCarSuccessfullyPosted();
                                 }
@@ -574,7 +575,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                        mCallback.onPostCarSucceeded(createdCar);
+                        //mCallback.onPostCarSucceeded(createdCar);
                     }
                 }
             });

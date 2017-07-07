@@ -94,4 +94,9 @@
         <item name="android:textSize">9sp</item>
     </style>
 
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/dark_grey</item>
+        <item name="colorControlActivated">@color/indicator_low</item>
+    </style>
+
 </resources>

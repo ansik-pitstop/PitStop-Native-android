@@ -88,7 +88,7 @@ public interface AddCarContract {
          * If user is adding a new car (with no previous dealership info), or <br>
          * the user is using a scanner that has not been associate with a dealership in the backend
          */
-        void askForDealership();
+        void askForDealership(Car car);
 
         /**
          * If during pairing unrecognized scanner, VIN is "not support" or has not been returned

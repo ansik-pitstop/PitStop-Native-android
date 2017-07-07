@@ -74,7 +74,6 @@ import com.pitstop.observer.BluetoothObservable;
 import com.pitstop.observer.BluetoothObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
-import com.pitstop.ui.SettingsActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
@@ -714,7 +713,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
      */
     public void settingsClicked(View view) {
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Intent intent = new Intent(this, com.pitstop.ui.settings.SettingsActivity.class);
+        startActivity(intent);
+
+        /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
 
         final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -736,7 +738,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             });
         } else {
             startActivityForResult(intent, RC_SETTINGS);
-        }
+        }*/
     }
 
     /**
