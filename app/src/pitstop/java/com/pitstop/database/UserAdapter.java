@@ -48,7 +48,7 @@ public class UserAdapter  {
         if(c.moveToFirst()) {
             user = cursorToUser(c);
         }
-
+        c.close();
         return user;
     }
 
