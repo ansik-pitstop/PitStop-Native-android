@@ -37,7 +37,7 @@ public class ParseNotificationStore {
         values.put(TABLES.COMMON.KEY_OBJECT_ID, parseNotification.getParsePushId());
 
         db.insert(TABLES.NOTIFICATION.TABLE_NAME, null, values);
-        db.close();
+
     }
 
     public List<ParseNotification> getAllNotifications() {
@@ -52,7 +52,7 @@ public class ParseNotificationStore {
                 c.moveToNext();
             }
         }
-        db.close();
+
         return parseNotifications;
     }
 
@@ -64,7 +64,7 @@ public class ParseNotificationStore {
             db.delete(TABLES.NOTIFICATION.TABLE_NAME, TABLES.COMMON.KEY_ID +"=?",
                     new String[] {String.valueOf(notification.getId())});
         }
-        db.close();
+
     }
 
     private ParseNotification cursorToParseNotification(Cursor c) {

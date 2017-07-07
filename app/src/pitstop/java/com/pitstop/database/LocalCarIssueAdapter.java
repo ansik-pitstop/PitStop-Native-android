@@ -44,7 +44,7 @@ public class LocalCarIssueAdapter {
         ContentValues values = carIssueObjectToContentValues(carIssue);
 
         db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values);
-        db.close();
+
     }
 
     public void storeCarIssues(List<Car> cars) {
@@ -63,7 +63,7 @@ public class LocalCarIssueAdapter {
         int rows = db.update(TABLES.CAR_ISSUES.TABLE_NAME, values,
                 TABLES.COMMON.KEY_OBJECT_ID+"=?",
                 new String[] {String.valueOf(carIssue.getId())});
-        db.close();
+
         return rows;
     }
 
@@ -78,8 +78,7 @@ public class LocalCarIssueAdapter {
         if(c.moveToFirst()) {
             carIssue = cursorToCarIssue(c);
         }
-        c.close();
-        db.close();
+
 
         return carIssue;
     }
@@ -97,8 +96,7 @@ public class LocalCarIssueAdapter {
                 c.moveToNext();
             }
         }
-        c.close();
-        db.close();
+
         return carIssues;
     }
 
@@ -116,8 +114,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-        c.close();
-        db.close();
+
         return carIssues;
     }
 
@@ -135,8 +132,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-        c.close();
-        db.close();
+
         return carIssues;
     }
 
@@ -155,8 +151,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-        c.close();
-        db.close();
+
         return carIssues;
     }
 
@@ -173,8 +168,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-        c.close();
-        db.close();
+
         return carIssues;
     }
 
@@ -185,7 +179,7 @@ public class LocalCarIssueAdapter {
         db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(issue.getId()) });
 
-        db.close();
+
     }
 
     public void deleteAllCarIssues() {
@@ -240,7 +234,7 @@ public class LocalCarIssueAdapter {
 
         db.delete(TABLES.CAR_ISSUES.TABLE_NAME, null, null);
 
-        db.close();
+
     }
 
 }

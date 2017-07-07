@@ -17,6 +17,7 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +32,8 @@ public class HttpRequest {
 
     private static final String TAG = HttpRequest.class.getSimpleName();
     private static Webb webClient;
+
+    private static final int CONFLICT_CODE = 409;
 
     private final String BASE_ENDPOINT;
     private RequestCallback listener;
@@ -174,7 +177,17 @@ public class HttpRequest {
         @Override
         protected void onPostExecute(Response<String> response) {
             if (response != null) {
-                if (response.isSuccess()) {
+                if(response.getStatusCode()== CONFLICT_CODE){// for shops
+                    try{
+                        JSONArray errorBody = new JSONArray(response.getErrorBody().toString());
+                        listener.done(errorBody.get(0).toString(),null);//bear with me
+                    }catch(JSONException e){
+                        RequestError requestError = new RequestError();
+                        requestError.setError(response.getErrorBody().toString());
+                        listener.done(null,requestError);
+                    }
+                }
+                else if (response.isSuccess()) {
                     String responseString;
                     try {
                         JSONObject responseJson = new JSONObject(response.getBody());
