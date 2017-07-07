@@ -67,4 +67,10 @@ public class RepositoryModule {
         return new ScannerRepository(networkHelper,localScannerAdapter);
     }
 
+
+    @Provides
+    @Singleton
+    public Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper){
+        return new Device215TripRepository(networkHelper);
+    }
 }
