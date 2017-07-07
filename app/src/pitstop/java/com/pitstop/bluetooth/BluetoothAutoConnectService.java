@@ -445,6 +445,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private long terminalRTCTime = -1;
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+    private boolean registerDummyTripStart = false;
+    private boolean registerDummyTripEnd = false;
 
     /**
      * Handles trip data containing mileage
@@ -460,7 +462,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , getApplicationContext());
 
         //No longer handle trip updates
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)) return;
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            return;
+        }
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
@@ -473,11 +477,38 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //215 logic below
 
-        //Check to see if we received current RTC time from device upon the app detecting device
-        //If not received yet store the trip for once it is received
+
         LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
                     +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
+
+        /*********************************TEST CODE START*********************************/
+
+        /*Create dummy start and end trip objects using the received update
+        **objects since the simulator only sends update objects*/
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            if (!registerDummyTripStart){
+                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                tripInfoPackage.rtcTime += 100;
+                registerDummyTripStart = true;
+                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+            }
+            else if (!registerDummyTripEnd){
+                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+                tripInfoPackage.rtcTime += 1000;
+                tripInfoPackage.mileage += 150;
+                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+            }
+            //If created dummy start and end already, ignore the remaining update trips
+            else{
+                return;
+            }
+        }
+
+        /*********************************TEST CODE END**********************************/
+
+        //Check to see if we received current RTC time from device upon the app detecting device
+        //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
         if (terminalRTCTime == -1){
             return;
