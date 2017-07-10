@@ -6,6 +6,8 @@ package com.pitstop.repositories;
 
 public interface Repository {
 
+    public static final String ERR_NETWORK = "error_network";
+
     interface Callback<T>{
         void onSuccess(T data);
         void onError(int error);

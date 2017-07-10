@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 public class ScannerRepository implements Repository {
 
+    public static final String ERR_NOT_EXISTS = "error_not_exists";
+
     private NetworkHelper networkHelper;
     private LocalScannerAdapter localScannerStorage;
 
@@ -41,8 +43,8 @@ public class ScannerRepository implements Repository {
         networkHelper.put("scanner", callback, body);
     }
 
-    public RequestCallback getCreateScannerCallback(Callback<Object> callback, ObdScanner scanner) {
-        RequestCallback requestCallback = new RequestCallback() {
+    private RequestCallback getCreateScannerCallback(Callback<Object> callback, ObdScanner scanner) {
+        return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
@@ -54,8 +56,6 @@ public class ScannerRepository implements Repository {
                 }
             }
         };
-
-        return requestCallback;
     }
 
     public void updateScanner(ObdScanner scanner, Callback<Object> callback){
@@ -63,8 +63,8 @@ public class ScannerRepository implements Repository {
         putScanner(scanner,getUpdateScannerCallback(callback,scanner));
     }
 
-    public RequestCallback getUpdateScannerCallback(Callback<Object> callback, ObdScanner scanner) {
-        RequestCallback requestCallback = new RequestCallback() {
+    private RequestCallback getUpdateScannerCallback(Callback<Object> callback, ObdScanner scanner) {
+        return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
@@ -76,16 +76,16 @@ public class ScannerRepository implements Repository {
                 }
             }
         };
-
-        return requestCallback;
     }
 
-    public void getScanner(int scannerId, Callback<ObdScanner> callback){
-        networkHelper.get("scanner/"+scannerId,getGetScannerCallback(callback));
+    /*boolean active: whether you want to look for active device or not*/
+    public void getScanner(String scannerId, boolean active, Callback<ObdScanner> callback){
+        networkHelper.get("scanner/?scannerId=" + scannerId + "&active="+active
+                ,getGetScannerCallback(callback));
     }
 
-    public RequestCallback getGetScannerCallback(Callback<ObdScanner> callback){
-        RequestCallback requestCallback = new RequestCallback() {
+    private RequestCallback getGetScannerCallback(Callback<ObdScanner> callback){
+        return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
@@ -109,8 +109,6 @@ public class ScannerRepository implements Repository {
                 }
             }
         };
-
-        return  requestCallback;
     }
 
 }
