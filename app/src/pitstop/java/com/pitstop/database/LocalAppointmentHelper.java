@@ -67,7 +67,7 @@ public class LocalAppointmentHelper {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return appointments;
     }
 
@@ -86,7 +86,7 @@ public class LocalAppointmentHelper {
             appointment = cursorToAppointment(c);
         }
 
-
+        c.close();
         return appointment;
     }
 

@@ -76,12 +76,13 @@ public class LocalShopHelper {
         Cursor c = db.query(TABLES.SHOP.TABLE_NAME, null,
                 TABLES.COMMON.KEY_OBJECT_ID +"=?",new String[]{String.valueOf(shopId)},null,null,null);
         if(c.getCount() == 0) {
+            c.close();
             return null;
         }
 
         c.moveToFirst();
         Dealership dealership = cursorToDealership(c);
-
+        c.close();
         return dealership;
     }
 
@@ -97,7 +98,7 @@ public class LocalShopHelper {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return dealerships;
     }
 
@@ -144,12 +145,6 @@ public class LocalShopHelper {
         db.delete(TABLES.SHOP.TABLE_NAME, null, null);
 
 
-    }
-
-    public void finalize(){
-        if (databaseHelper.getWritableDatabase().isOpen()){
-            databaseHelper.getWritableDatabase().close();
-        }
     }
 
 }

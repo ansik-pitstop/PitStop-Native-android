@@ -48,7 +48,7 @@ public class UserHelper {
         if(c.moveToFirst()) {
             user = cursorToUser(c);
         }
-
+        c.close();
         return user;
     }
 
@@ -79,11 +79,5 @@ public class UserHelper {
 
         db.delete(TABLES.USER.TABLE_NAME, null, null);
 
-    }
-
-    public void finalze(){
-        if (databaseHelper.getWritableDatabase().isOpen()){
-            databaseHelper.getWritableDatabase().close();
-        }
     }
 }
