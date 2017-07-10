@@ -476,10 +476,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mNetworkHelper.validateScannerId(scannerId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                //error
                 if (requestError != null) {
                     mCallback.pairCarError("Network error, please try again later");
                     mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
-                } else {
+                }
+                //success
+                else {
                     try {
                         JSONObject result = new JSONObject(response);
                         if (result.has("id")) { //invalid

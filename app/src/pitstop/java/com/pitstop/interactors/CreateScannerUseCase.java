@@ -13,7 +13,7 @@ public interface CreateScannerUseCase extends Interactor {
 
     interface Callback{
         void onScannerCreated();
-        void onDeviceHasCar();
+        void onDeviceAlreadyActive();
         void onError();
     }
 

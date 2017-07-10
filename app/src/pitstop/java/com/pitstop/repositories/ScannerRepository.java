@@ -6,6 +6,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +26,7 @@ public class ScannerRepository implements Repository {
         this.localScannerStorage = localScannerStorage;
     }
 
-    public void createScanner(ObdScanner scanner, Callback<Object> callback){
+    public void createScanner(ObdScanner scanner, Callback callback){
         putScanner(scanner,getCreateScannerCallback(callback,scanner));
     }
 
@@ -62,7 +63,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(requestError.getError());
                 }
             }
         };
@@ -82,14 +83,14 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(requestError.getError());
                 }
             }
         };
     }
 
     /*boolean active: whether you want to look for active device or not*/
-    public void getScanner(String scannerId, boolean active, Callback<ObdScanner> callback){
+    public void getScanner(String scannerId, Callback<ObdScanner> callback){
         networkHelper.get("scanner/"+scannerId, getGetScannerCallback(callback));
     }
 
@@ -99,7 +100,16 @@ public class ScannerRepository implements Repository {
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     try{
-                        JSONObject data = new JSONObject(response);
+                        //Data is returned in an array, first index is the scanner
+                        JSONArray dataArray = new JSONArray(response);
+                        //Check if scanner exists
+                        if (dataArray.length() == 0){
+                            callback.onError(ERR_NOT_EXISTS);
+                            return;
+                        }
+
+                        //Get scanner data and return onSuccess()
+                        JSONObject data = (new JSONArray(response)).getJSONObject(0);
 
                         int carId = data.getInt("carId");
                         String deviceName = data.getString("scannerId");
@@ -111,12 +121,12 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(0);
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(requestError.getError());
                 }
             }
         };

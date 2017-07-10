@@ -18,7 +18,6 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     private ObdScanner obdScanner;
 
     public CreateScannerUseCaseImpl(ScannerRepository scannerRepository, Handler handler){
-
         this.scannerRepository = scannerRepository;
         this.handler = handler;
     }
@@ -34,18 +33,38 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     public void run() {
 
         //Check to see if this scanner is already active
-        scannerRepository.getScanner(obdScanner.getScannerId(), true, new Repository.Callback<ObdScanner>() {
+        scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
+
             @Override
             public void onSuccess(ObdScanner data) {
 
+                //is already active
+                if (data.getStatus()){
+                    callback.onDeviceAlreadyActive();
+                    return;
+                }
+
+                //Create scanner otherwise
+                scannerRepository.createScanner(obdScanner, new Repository.Callback() {
+
+                    @Override
+                    public void onSuccess(Object data) {
+                       callback.onScannerCreated();
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        callback.onError();
+                    }
+                });
+
             }
 
             @Override
-            public void onError(int error) {
-
+            public void onError(String error) {
+                callback.onError();
             }
         });
-        //Create scanner both locally and remotely
     }
 
 
