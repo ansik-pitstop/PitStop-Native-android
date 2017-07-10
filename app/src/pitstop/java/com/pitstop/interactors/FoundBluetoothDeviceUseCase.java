@@ -12,9 +12,9 @@ public interface FoundBluetoothDeviceUseCase extends Interactor {
     public final static String BT_DEVICE_NAME_BROKEN = "XXXXXX";
 
     interface Callback{
-        void onDeviceValid();
-        void onDevice215Broken();
-        void onDeviceNotIDD();
+        void onDeviceMatchesCurrentCar(); //Device paired with current car
+        void onDevice215Broken();         //215 Device doesn't have a scanner name
+        void onDeviceNotMatch();          //Device did not match scanner id in any of the cars
         void onError();
     }
 
