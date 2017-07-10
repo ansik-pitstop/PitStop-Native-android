@@ -551,6 +551,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
             @Override
             public void onCarsRetrieved(List<Car> cars) {
+                Log.d(TAG,"retrievedCars: "+cars);
                 for (Car car : cars) { // populate scanner table with scanner ids associated with the cars
                     if (!scannerLocalStore.isCarExist(car.getId())) {
                         carLocalStore.deleteAllCars();
