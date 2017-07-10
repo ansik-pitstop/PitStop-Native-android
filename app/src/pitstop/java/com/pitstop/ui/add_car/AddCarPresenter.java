@@ -32,7 +32,9 @@ import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
@@ -75,6 +77,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
+    private UseCaseComponent mUseCaseComponent;
 
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
@@ -95,6 +98,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mAutoConnectService = activity.autoConnectService;
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
         this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
+
+        mUseCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(mApplication))
+                .build();
     }
 
     public boolean hasGotMileage = false;
@@ -472,6 +479,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         if (!mCallback.checkNetworkConnection(null)) return;
 
         mCallback.onPairingDeviceWithCar();
+
+        //mUseCaseComponent.
 
         mNetworkHelper.validateScannerId(scannerId, new RequestCallback() {
             @Override

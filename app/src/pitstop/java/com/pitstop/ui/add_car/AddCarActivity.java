@@ -79,14 +79,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
 
-    private UseCaseComponent component;
-
     private MixpanelHelper mixpanelHelper;
     private AddCarContract.Presenter presenter;
 
     public static boolean addingCar = false;
     public static boolean addingCarWithDevice = false;
     private boolean carSuccessfullyAdded;
+
+    private UseCaseComponent useCaseComponent;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -147,6 +147,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_add_car_fragmented);
         isPairingUnrecognizedDevice = getIntent().getBooleanExtra(EXTRA_PAIR_PENDING, false);
         setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice));
