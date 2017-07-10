@@ -12,7 +12,6 @@ import com.pitstop.repositories.UserRepository;
 
 public class FoundBluetoothDeviceUseCaseImpl implements FoundBluetoothDeviceUseCase {
 
-    private ScannerRepository scannerRepository;
     private UserRepository userRepository;
     private Handler handler;
     private Callback callback;
@@ -23,7 +22,6 @@ public class FoundBluetoothDeviceUseCaseImpl implements FoundBluetoothDeviceUseC
             , ScannerRepository scannerRepository, Handler handler, Callback callback) {
 
         this.userRepository = userRepository;
-        this.scannerRepository = scannerRepository;
         this.handler = handler;
         this.callback = callback;
     }
