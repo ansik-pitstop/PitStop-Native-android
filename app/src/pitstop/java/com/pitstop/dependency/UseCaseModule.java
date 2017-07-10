@@ -60,6 +60,7 @@ import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
