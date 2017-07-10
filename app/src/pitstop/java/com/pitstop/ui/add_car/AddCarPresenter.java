@@ -98,7 +98,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mLocalCarAdapter = new LocalCarAdapter(application);
         mAutoConnectService = activity.autoConnectService;
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
-        this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
+        this.isPairingUnrecognizedDevice = true; //FOR TESTING, REMOVE LATER
 
         mUseCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(mApplication))
@@ -440,7 +440,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
                         mLocalCarAdapter.updateCar(existedCar);
 
-                        if (carUserId != mApplication.getCurrentUserId()) {
+                        if (carUserId > 0 && carUserId != mApplication.getCurrentUserId()) {
                             mCallback.pairCarError("Sorry, the car we have connected to (" +
                                     existedCar.getYear() + " " + existedCar.getMake() + " " + existedCar.getModel() +
                                     ") belong to another user, please turn off your bluetooth and try again later.");
