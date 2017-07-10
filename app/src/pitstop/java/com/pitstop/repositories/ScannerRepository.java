@@ -35,7 +35,17 @@ public class ScannerRepository implements Repository {
         try {
             body.put("carId", scanner.getCarId());
             body.put("scannerId", scanner.getScannerId());
-            body.put("isActive", true);
+
+            boolean isActive;
+            if (scanner.getStatus() == null){
+                isActive = false;
+            }
+            else{
+                isActive = scanner.getStatus();
+            }
+
+            body.put("isActive", isActive);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -80,8 +90,7 @@ public class ScannerRepository implements Repository {
 
     /*boolean active: whether you want to look for active device or not*/
     public void getScanner(String scannerId, boolean active, Callback<ObdScanner> callback){
-        networkHelper.get("scanner/?scannerId=" + scannerId + "&active="+active
-                ,getGetScannerCallback(callback));
+        networkHelper.get("scanner/"+scannerId, getGetScannerCallback(callback));
     }
 
     private RequestCallback getGetScannerCallback(Callback<ObdScanner> callback){
@@ -95,8 +104,10 @@ public class ScannerRepository implements Repository {
                         int carId = data.getInt("carId");
                         String deviceName = data.getString("scannerId");
                         String scannerId = data.getString("scannerId");
+                        Boolean isActive = data.getBoolean("active");
 
                         ObdScanner obdScanner = new ObdScanner(carId,deviceName,scannerId);
+                        obdScanner.setStatus(isActive);
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
