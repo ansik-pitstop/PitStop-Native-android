@@ -1,7 +1,7 @@
 package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.UserHelper;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
@@ -23,7 +23,7 @@ import org.json.JSONObject;
 public class UserRepository {
 
     private static UserRepository INSTANCE;
-    private UserAdapter userAdapter;
+    private UserHelper userHelper;
     private NetworkHelper networkHelper;
 
     public interface UserSetCarCallback {
@@ -62,21 +62,21 @@ public class UserRepository {
         void onError();
     }
 
-    public static synchronized UserRepository getInstance(UserAdapter userAdapter
+    public static synchronized UserRepository getInstance(UserHelper userHelper
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new UserRepository(userAdapter, networkHelper);
+            INSTANCE = new UserRepository(userHelper, networkHelper);
         }
         return INSTANCE;
     }
 
-    public UserRepository(UserAdapter userAdapter, NetworkHelper networkHelper){
-        this.userAdapter = userAdapter;
+    public UserRepository(UserHelper userHelper, NetworkHelper networkHelper){
+        this.userHelper = userHelper;
         this.networkHelper = networkHelper;
     }
 
     public boolean insert(User model, UserInsertCallback callback) {
-        userAdapter.storeUserData(model);
+        userHelper.storeUserData(model);
         networkHelper.updateUser(model.getId(),model.getFirstName(),model.getLastName()
                 ,model.getPhone(),getInsertUserRequestCallback(callback));
         return true;
@@ -105,7 +105,7 @@ public class UserRepository {
     }
 
     public boolean update(User model, UserUpdateCallback callback) {
-        userAdapter.storeUserData(model);
+        userHelper.storeUserData(model);
         networkHelper.updateUser(model.getId(),model.getFirstName(),model.getLastName()
                 ,model.getPhone(),getUserUpdateRequestCallback(callback));
         return true;
@@ -137,7 +137,7 @@ public class UserRepository {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        networkHelper.getUser(userAdapter.getUser()
+        networkHelper.getUser(userHelper.getUser()
                 .getId(),getUserGetRequestCallback(callback));
     }
 
@@ -168,22 +168,22 @@ public class UserRepository {
     }
 
     public void setCurrentUser(User user){
-        userAdapter.storeUserData(user);
+        userHelper.storeUserData(user);
     }
 
     public void removeAllUsers(){
-        userAdapter.deleteAllUsers();
+        userHelper.deleteAllUsers();
     }
 
     public void getUserCar(UserGetCarCallback callback){
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        if (userAdapter.getUser() == null){
+        if (userHelper.getUser() == null){
             callback.onError();
             return;
         }
-        networkHelper.getMainCar(userAdapter.getUser().getId(),getUserGetCarRequestCallback(callback));
+        networkHelper.getMainCar(userHelper.getUser().getId(),getUserGetCarRequestCallback(callback));
     }
 
     private RequestCallback getUserGetCarRequestCallback(UserGetCarCallback callback){
@@ -194,7 +194,7 @@ public class UserRepository {
                 try {
                     if (requestError == null && response != null){
                         Car car = Car.createCar(response);
-                        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+                        networkHelper.getUserSettingsById(userHelper.getUser().getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if(response != null){
@@ -287,7 +287,7 @@ public class UserRepository {
     public void setFirstCarAdded(final boolean added
             , final UserFirstCarAddedSetCallback callback){
 
-        final int userId = userAdapter.getUser().getId();
+        final int userId = userHelper.getUser().getId();
 
         networkHelper.getUserSettingsById(userId, new RequestCallback() {
             @Override
@@ -339,7 +339,7 @@ public class UserRepository {
 
     public void checkFirstCarAdded(final CheckFirstCarAddedCallback callback){
 
-        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+        networkHelper.getUserSettingsById(userHelper.getUser().getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){

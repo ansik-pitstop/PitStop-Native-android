@@ -28,8 +28,8 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalCarHelper;
+import com.pitstop.database.LocalScannerHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -73,8 +73,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private BluetoothAutoConnectService mAutoConnectService;
     private ServiceConnection mServiceConnection;
 
-    private LocalScannerAdapter mLocalScannerAdapter;
-    private LocalCarAdapter mLocalCarAdapter;
+    private LocalScannerHelper mLocalScannerHelper;
+    private LocalCarHelper mLocalCarHelper;
 
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
@@ -90,8 +90,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mApplication = application;
         mNetworkHelper = tempNetworkComponent.networkHelper();
         mMixpanelHelper = new MixpanelHelper(application);
-        mLocalScannerAdapter = new LocalScannerAdapter(application);
-        mLocalCarAdapter = new LocalCarAdapter(application);
+        mLocalScannerHelper = new LocalScannerHelper(application);
+        mLocalCarHelper = new LocalCarHelper(application);
         mAutoConnectService = activity.autoConnectService;
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
         this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
@@ -239,8 +239,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                     Log.d(TAG, "Create car response: " + response);
                                     try {
                                         createdCar = Car.createCar(response);
-                                        mLocalCarAdapter.storeCarData(createdCar);// not correct,but I need the car to exist locally after its made
-                                        List<Car> localCarList = mLocalCarAdapter.getAllCars();
+                                        mLocalCarHelper.storeCarData(createdCar);// not correct,but I need the car to exist locally after its made
+                                        List<Car> localCarList = mLocalCarHelper.getAllCars();
 
                                         Log.d(TAG, "Current car list size: " + localCarList.size());
                                         Log.d(TAG, "Created car id: " + createdCar.getId());
@@ -285,7 +285,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     }
 
                     if (existedCar != null) {
-                        mLocalCarAdapter.updateCar(existedCar);
+                        mLocalCarHelper.updateCar(existedCar);
                         int carUserId = existedCar.getUserId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
                         if (carUserId != 0) { // User id is not 0, this car is still in use
@@ -347,7 +347,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         if (requestError == null) {
                             try {
                                 createdCar = Car.createCar(response);
-                                List<Car> localCarList = mLocalCarAdapter.getAllCars();
+                                List<Car> localCarList = mLocalCarHelper.getAllCars();
                                 Log.d(TAG, "Current car list size: " + localCarList.size());
                                 Log.d(TAG, "Created car id: " + createdCar.getId());
                                 if (localCarList.size() == 0) {
@@ -430,7 +430,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         int carUserId = existedCar.getUserId();
                         String carScannerId = existedCar.getScannerId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
-                        mLocalCarAdapter.updateCar(existedCar);
+                        mLocalCarHelper.updateCar(existedCar);
 
                         if (carUserId != mApplication.getCurrentUserId()) {
                             mCallback.pairCarError("Sorry, the car we have connected to (" +
@@ -454,7 +454,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public boolean selectedValidCar(Car car) {
-        return !mLocalScannerAdapter.carHasDevice(car.getId());
+        return !mLocalScannerHelper.carHasDevice(car.getId());
     }
 
     /**
@@ -499,7 +499,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                         // Save locally
                                         ObdScanner scanner = new ObdScanner(
                                                 car.getId(), scannerName, scannerId);
-                                        mLocalScannerAdapter.updateScannerByCarId(scanner);
+                                        mLocalScannerHelper.updateScannerByCarId(scanner);
                                         mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
                                         mCallback.onDeviceSuccessfullyPaired();
                                     }
@@ -599,7 +599,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public List<Car> getAllLocalCars() {
-        return mLocalCarAdapter.getAllCars();
+        return mLocalCarHelper.getAllCars();
     }
 
     @Override

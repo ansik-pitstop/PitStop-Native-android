@@ -55,7 +55,7 @@ import com.google.gson.Gson;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalTripAdapter;
+import com.pitstop.database.LocalTripHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -112,7 +112,7 @@ public class MyTripsActivity extends AppCompatActivity{
     private Trip trip;
     private List<Trip> locallyStoredTrips;
     private BroadcastReceiver broadcastReceiver;
-    private LocalTripAdapter localTripAdapter;
+    private LocalTripHelper localTripHelper;
 
     private Gson gson = new Gson();
 
@@ -158,8 +158,8 @@ public class MyTripsActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         application = (GlobalApplication) getApplicationContext();
 
-        localTripAdapter = new LocalTripAdapter(this);
-        locallyStoredTrips = localTripAdapter.getAllTrips();
+        localTripHelper = new LocalTripHelper(this);
+        locallyStoredTrips = localTripHelper.getAllTrips();
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))
@@ -314,7 +314,7 @@ public class MyTripsActivity extends AppCompatActivity{
 
 
     public void removeTrip(Trip trip){
-        localTripAdapter.deleteTrip(trip);
+        localTripHelper.deleteTrip(trip);
         locallyStoredTrips.remove(trip);
     }
 
@@ -484,7 +484,7 @@ public class MyTripsActivity extends AppCompatActivity{
 
         @Override
         protected Void doInBackground(Void... params) {
-            tripWithPath = localTripAdapter.getTrip(Integer.toString(trip.getId()));
+            tripWithPath = localTripHelper.getTrip(Integer.toString(trip.getId()));
             return null;
         }
 
@@ -610,7 +610,7 @@ public class MyTripsActivity extends AppCompatActivity{
         trip.setEnd(new TripLocation(lastKnownLocation));
         trip.setEndAddress(getAddress(lastKnownLocation));
         locallyStoredTrips.add(trip);
-        localTripAdapter.storeTripData(trip);
+        localTripHelper.storeTripData(trip);
         setViewTripHistory();
 
     }

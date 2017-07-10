@@ -1,11 +1,11 @@
 package com.pitstop.ui.settings.main_settings;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetCarsByUserIdUseCase;
-import com.pitstop.interactors.GetCurrentUserUseCase;
-import com.pitstop.interactors.GetUserShopsUseCase;
-import com.pitstop.interactors.UpdateUserNameUseCase;
-import com.pitstop.interactors.UpdateUserPhoneUseCase;
+import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.get.GetCurrentUserUseCase;
+import com.pitstop.interactors.get.GetUserShopsUseCase;
+import com.pitstop.interactors.update.UpdateUserNameUseCase;
+import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;

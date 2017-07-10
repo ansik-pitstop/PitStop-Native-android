@@ -2,9 +2,6 @@ package com.pitstop.ui.my_trips.view_fragments;
 
 import android.app.Fragment;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -13,23 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
-import com.pitstop.database.LocalTripAdapter;
 import com.pitstop.models.Trip;
-import com.pitstop.models.TripLocation;
 
 import com.pitstop.ui.my_trips.MyTripsActivity;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-17.

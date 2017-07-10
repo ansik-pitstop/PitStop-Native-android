@@ -15,7 +15,7 @@ import android.widget.EditText;
 
 import com.pitstop.R;
 import com.pitstop.adapters.DealershipSelectAdapter;
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalShopHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -49,7 +49,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
     /**
      * Database open helper
      */
-    private LocalShopAdapter localStore;
+    private LocalShopHelper localStore;
 
     private boolean hadInternetConnection;
     private NetworkHelper networkHelper;
@@ -72,7 +72,7 @@ public class AddCarChooseDealershipFragment extends Fragment implements Dealersh
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_add_car_dealership_xml, container, false);
 
-        localStore = new LocalShopAdapter(getContext());
+        localStore = new LocalShopHelper(getContext());
         networkHelper = tempNetworkComponent.networkHelper();
 
         setup();

@@ -1,7 +1,7 @@
 package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarHelper;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -24,7 +24,7 @@ import java.util.List;
 public class CarRepository {
 
     private static CarRepository INSTANCE;
-    private LocalCarAdapter localCarAdapter;
+    private LocalCarHelper localCarHelper;
     private NetworkHelper networkHelper;
 
     public interface CarInsertCallback{
@@ -52,28 +52,28 @@ public class CarRepository {
         void onError();
     }
 
-    public static synchronized CarRepository getInstance(LocalCarAdapter localCarAdapter
+    public static synchronized CarRepository getInstance(LocalCarHelper localCarHelper
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new CarRepository(localCarAdapter, networkHelper);
+            INSTANCE = new CarRepository(localCarHelper, networkHelper);
         }
         return INSTANCE;
     }
 
-    public CarRepository(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        this.localCarAdapter = localCarAdapter;
+    public CarRepository(LocalCarHelper localCarHelper, NetworkHelper networkHelper){
+        this.localCarHelper = localCarHelper;
         this.networkHelper = networkHelper;
     }
 
     public boolean insert(Car model, CarInsertCallback callback) {
 
         //Insert locally
-        if (localCarAdapter.getCar(model.getId()) == null){
-            localCarAdapter.storeCarData(model);
+        if (localCarHelper.getCar(model.getId()) == null){
+            localCarHelper.storeCarData(model);
         }
         else{
-            localCarAdapter.deleteCar(model.getId());
-            localCarAdapter.storeCarData(model);
+            localCarHelper.deleteCar(model.getId());
+            localCarHelper.storeCarData(model);
         }
 
         //Insert to backend
@@ -109,8 +109,8 @@ public class CarRepository {
     public boolean update(Car model, CarUpdateCallback callback) {
 
         //No rows updated, therefore updating car that doesnt exist so put it there
-        if (localCarAdapter.updateCar(model) == 0){
-           localCarAdapter.storeCarData(model);
+        if (localCarHelper.updateCar(model) == 0){
+           localCarHelper.storeCarData(model);
         }
         //Update backend
         networkHelper.updateCar(model.getId(),model.getTotalMileage()
@@ -146,7 +146,7 @@ public class CarRepository {
             callback.onError();
         }
         networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback, userId));
-        return localCarAdapter.getCarsByUserId(userId);
+        return localCarHelper.getCarsByUserId(userId);
     }
     private RequestCallback getCarsRequestCallback(CarsGetCallback callback, int userId){
         RequestCallback requestCallback = new RequestCallback() {
@@ -203,8 +203,8 @@ public class CarRepository {
                                                 }
                                             }
                                         }
-                                        localCarAdapter.deleteAllCars();
-                                        localCarAdapter.storeCars(cars);
+                                        localCarHelper.deleteAllCars();
+                                        localCarHelper.storeCars(cars);
                                         callback.onCarsGot(cars);
                                     }catch (JSONException e){
                                         callback.onError();
@@ -230,7 +230,7 @@ public class CarRepository {
 
     public Car get(int id,int userId, CarGetCallback callback) {
         networkHelper.getCarsById(id,getGetCarRequestCallback(callback,userId));
-        return localCarAdapter.getCar(id);
+        return localCarHelper.getCar(id);
     }
 
     private RequestCallback getGetCarRequestCallback(CarGetCallback callback, int userId){
@@ -277,8 +277,8 @@ public class CarRepository {
                                                 car.setDealership(noDealer);
                                             }
                                         }
-                                        localCarAdapter.deleteCar(car.getId());
-                                        localCarAdapter.storeCarData(car);
+                                        localCarHelper.deleteCar(car.getId());
+                                        localCarHelper.storeCarData(car);
                                         callback.onCarGot(car);
                                     }catch (JSONException e){
                                         callback.onError();
@@ -306,7 +306,7 @@ public class CarRepository {
     }
 
     public boolean delete(int carId, CarDeleteCallback callback) {
-        localCarAdapter.deleteCar(carId);
+        localCarHelper.deleteCar(carId);
         networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback));
         return true;
     }

@@ -2,7 +2,7 @@ package com.pitstop.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
-import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalCarIssueHelper;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.issue.UpcomingIssue;
@@ -32,7 +32,7 @@ public class CarIssueRepository {
     public static final int DEALERSHIP_ISSUES = 0;
 
     private static CarIssueRepository INSTANCE;
-    private LocalCarIssueAdapter carIssueAdapter;
+    private LocalCarIssueHelper carIssueAdapter;
     private NetworkHelper networkHelper;
 
     public interface CarIssueInsertCallback{
@@ -60,16 +60,16 @@ public class CarIssueRepository {
         void onError();
     }
 
-    public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
+    public static synchronized CarIssueRepository getInstance(LocalCarIssueHelper localCarIssueHelper
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new CarIssueRepository(localCarIssueAdapter,networkHelper);
+            INSTANCE = new CarIssueRepository(localCarIssueHelper,networkHelper);
         }
         return INSTANCE;
     }
 
-    public CarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
-        this.carIssueAdapter = localCarIssueAdapter;
+    public CarIssueRepository(LocalCarIssueHelper localCarIssueHelper, NetworkHelper networkHelper){
+        this.carIssueAdapter = localCarIssueHelper;
         this.networkHelper = networkHelper;
     }
 

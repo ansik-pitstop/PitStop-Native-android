@@ -38,15 +38,15 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalCarHelper;
+import com.pitstop.database.LocalCarIssueHelper;
+import com.pitstop.database.LocalShopHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
@@ -145,8 +145,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
 
 
     // Database accesses
-    private LocalCarAdapter carLocalStore;
-    private LocalShopAdapter shopLocalStore;
+    private LocalCarHelper carLocalStore;
+    private LocalShopHelper shopLocalStore;
 
     private GlobalApplication application;
     private SharedPreferences sharedPreferences;
@@ -193,8 +193,8 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // Local db adapters
-        carLocalStore = new LocalCarAdapter(context);
-        shopLocalStore = new LocalShopAdapter(context);
+        carLocalStore = new LocalCarHelper(context);
+        shopLocalStore = new LocalShopHelper(context);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
@@ -723,7 +723,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                 CarIssue issue = carIssues.get(index);
                 if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
                     carIssues.remove(index);
-                    new LocalCarIssueAdapter(application).deleteCarIssue(issue);
+                    new LocalCarIssueHelper(application).deleteCarIssue(issue);
                     notifyDataSetChanged();
                 }
             }
@@ -740,7 +740,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                     .setIssueType(CarIssue.TENTATIVE)
                     .build();
             carIssues.add(0, tutorial);
-            new LocalCarIssueAdapter(application).storeCarIssue(tutorial);
+            new LocalCarIssueHelper(application).storeCarIssue(tutorial);
             notifyDataSetChanged();
         }
 

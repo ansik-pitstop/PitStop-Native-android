@@ -14,7 +14,7 @@ import android.util.Log;
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalScannerHelper;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
@@ -34,12 +34,12 @@ public class BluetoothDeviceRecognizer {
         IGNORE, CONNECT, DISCONNECT
     }
 
-    private final LocalScannerAdapter mLocalScannerStore;
+    private final LocalScannerHelper mLocalScannerStore;
     private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
 
     public BluetoothDeviceRecognizer(Context context) {
-        mLocalScannerStore = new LocalScannerAdapter(context);
+        mLocalScannerStore = new LocalScannerHelper(context);
         mMixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         mContext = context;
     }

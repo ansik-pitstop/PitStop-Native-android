@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalAppointmentAdapter;
+import com.pitstop.database.LocalAppointmentHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -44,7 +44,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
 
     private GlobalApplication application;
     private NetworkHelper networkHelper;
-    private LocalAppointmentAdapter localAppointmentAdapter;
+    private LocalAppointmentHelper localAppointmentHelper;
     private MixpanelHelper mixpanelHelper;
 
     private Car dashboardCar;
@@ -67,7 +67,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = tempNetworkComponent.networkHelper();
-        localAppointmentAdapter = new LocalAppointmentAdapter(application);
+        localAppointmentHelper = new LocalAppointmentHelper(application);
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
         mAppts = new ArrayList<Appointment>();
@@ -99,8 +99,8 @@ public class MyAppointmentActivity extends AppCompatActivity {
                         mAppts.add(addAppt);
                     }
                     setupList();
-                    localAppointmentAdapter.deleteAllAppointments();
-                    localAppointmentAdapter.storeAppointments(mAppts);
+                    localAppointmentHelper.deleteAllAppointments();
+                    localAppointmentHelper.storeAppointments(mAppts);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -117,7 +117,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            mAppts = localAppointmentAdapter.getAllAppointments();
+            mAppts = localAppointmentHelper.getAllAppointments();
             return null;
         }
 

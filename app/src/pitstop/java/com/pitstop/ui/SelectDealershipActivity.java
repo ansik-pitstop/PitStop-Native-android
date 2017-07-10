@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalShopHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -54,7 +54,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
     private TextView message;
 
     private boolean hadInternetConnection = false;
-    private LocalShopAdapter localStore;
+    private LocalShopHelper localStore;
 
     private NetworkHelper networkHelper;
 
@@ -75,7 +75,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-        localStore = new LocalShopAdapter(this);
+        localStore = new LocalShopHelper(this);
         setup();
     }
 

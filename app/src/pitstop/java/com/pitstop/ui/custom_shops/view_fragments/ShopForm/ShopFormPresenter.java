@@ -2,9 +2,9 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.AddShopUseCase;
-import com.pitstop.interactors.UpdateCarDealershipUseCase;
-import com.pitstop.interactors.UpdateShopUseCase;
+import com.pitstop.interactors.add.AddShopUseCase;
+import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
+import com.pitstop.interactors.update.UpdateShopUseCase;
 import com.pitstop.models.Address;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;

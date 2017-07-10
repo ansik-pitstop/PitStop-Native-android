@@ -1,6 +1,6 @@
 package com.pitstop.repositories;
 
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalShopHelper;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ShopRepository {
     private static ShopRepository INSTANCE;
-    private LocalShopAdapter localShopAdapter;
+    private LocalShopHelper localShopHelper;
     private NetworkHelper networkHelper;
     private boolean removeLocalShop;
 
@@ -61,29 +61,29 @@ public class ShopRepository {
 
 
 
-    public static synchronized ShopRepository getInstance(LocalShopAdapter localShopAdapter, NetworkHelper networkHelper){
+    public static synchronized ShopRepository getInstance(LocalShopHelper localShopHelper, NetworkHelper networkHelper){
         if(INSTANCE == null){
-            INSTANCE = new ShopRepository(localShopAdapter, networkHelper);
+            INSTANCE = new ShopRepository(localShopHelper, networkHelper);
         }
         return INSTANCE;
     }
 
-    public ShopRepository(LocalShopAdapter localShopAdapter, NetworkHelper networkHelper){
-        this.localShopAdapter = localShopAdapter;
+    public ShopRepository(LocalShopHelper localShopHelper, NetworkHelper networkHelper){
+        this.localShopHelper = localShopHelper;
         this.networkHelper = networkHelper;
     }
 
     public boolean insertPitstopShop(Dealership dealership, InsertPitstopShopCallback callback ){
-        if(localShopAdapter.getDealership(dealership.getId()) != null){
+        if(localShopHelper.getDealership(dealership.getId()) != null){
             return false;
         }
-        localShopAdapter.storeDealership(dealership);
+        localShopHelper.storeDealership(dealership);
         return true;
     }
 
     public List<Dealership> getPitstopShops(GetPitstopShopsCallback callback){
         networkHelper.getPitStopShops(getGetPitstopShopsREquestCallback(callback));
-        List<Dealership> dealerships = localShopAdapter.getAllDealerships();
+        List<Dealership> dealerships = localShopHelper.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
             Dealership d = iterator.next();
@@ -101,7 +101,7 @@ public class ShopRepository {
                 if(response != null){
                     try{
                         List<Dealership> dealerships = Dealership.createDealershipList(response);
-                        localShopAdapter.storeDealerships(dealerships);
+                        localShopHelper.storeDealerships(dealerships);
                         callback.onShopsGot(dealerships);
                     }catch(JSONException e){
                         callback.onError();
@@ -170,9 +170,9 @@ public class ShopRepository {
                                             public void done(String response, RequestError requestError) {
                                                 if(response!=null){
                                                     if(removeLocalShop){
-                                                        localShopAdapter.removeById(dealership.getId());
+                                                        localShopHelper.removeById(dealership.getId());
                                                     }
-                                                    localShopAdapter.storeCustom(dealership);
+                                                    localShopHelper.storeCustom(dealership);
                                                     callback.onShopAdded();
                                                 }else{
                                                     callback.onError();
@@ -203,7 +203,7 @@ public class ShopRepository {
 
     public List<Dealership> getShopsByUserId(int userId, ShopsGetCallback callback){
         networkHelper.getUserSettingsById(userId,getGetShopsRequestCallback(callback));
-        List<Dealership> dealerships = localShopAdapter.getAllDealerships();
+        List<Dealership> dealerships = localShopHelper.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
             Dealership d = iterator.next();
@@ -236,8 +236,8 @@ public class ShopRepository {
                              dealership.setPhoneNumber(shop.getString("phone_number"));
                              dealership.setCustom(true);
                              dealershipArray.add(dealership);
-                             localShopAdapter.removeById(dealership.getId());
-                             localShopAdapter.storeCustom(dealership);
+                             localShopHelper.removeById(dealership.getId());
+                             localShopHelper.storeCustom(dealership);
                          }
                          callback.onShopsGot(dealershipArray);
                      }
@@ -254,7 +254,7 @@ public class ShopRepository {
     }
 
     public boolean update(Dealership dealership,int userId, ShopUpdateCallback callback ){
-        if(localShopAdapter.getDealership(dealership.getId()) == null){
+        if(localShopHelper.getDealership(dealership.getId()) == null){
             return false;
         }
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
@@ -294,8 +294,8 @@ public class ShopRepository {
                             public void done(String response, RequestError requestError) {
                                 if(response != null){
                                     callback.onShopUpdated();
-                                    localShopAdapter.removeById(dealership.getId());
-                                    localShopAdapter.storeCustom(dealership);
+                                    localShopHelper.removeById(dealership.getId());
+                                    localShopHelper.storeCustom(dealership);
                                 }else{
                                     callback.onError();
                                 }
@@ -317,7 +317,7 @@ public class ShopRepository {
 
 
     public boolean delete(int shopId,int userId, ShopDeleteCallback callback){
-        localShopAdapter.removeById(shopId);
+        localShopHelper.removeById(shopId);
         networkHelper.getUserSettingsById(userId,getDeleteShopRequestCallback(callback,userId,shopId) );
         return true;
     }
@@ -363,7 +363,7 @@ public class ShopRepository {
 
     public Dealership get(int dealerId, int userId, ShopGetCallback callback){
         networkHelper.getUserSettingsById(userId,getGetShopRequestCallback(callback, dealerId));
-        return localShopAdapter.getDealership(dealerId);
+        return localShopHelper.getDealership(dealerId);
     }
 
     private RequestCallback getGetShopRequestCallback(ShopGetCallback callback, int dealerId){
@@ -384,8 +384,8 @@ public class ShopRepository {
                                 dealership.setEmail(shop.getString("email"));
                                 dealership.setPhoneNumber(shop.getString("phone_number"));
                                 dealership.setCustom(true);
-                                localShopAdapter.removeById(dealership.getId());
-                                localShopAdapter.storeCustom(dealership);
+                                localShopHelper.removeById(dealership.getId());
+                                localShopHelper.storeCustom(dealership);
                                 callback.onShopGot(dealership);
                                 break;
                             }

@@ -323,7 +323,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     private BluetoothDevice mPendingDevice;
 
-    private LocalScannerAdapter scannerAdapter;
+    private LocalScannerHelper scannerAdapter;
 
     private boolean devicePending = false;
 

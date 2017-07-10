@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
-import com.pitstop.database.LocalDebugMessageAdapter;
+import com.pitstop.database.LocalDebugMessageHelper;
 import com.pitstop.models.DebugMessage;
 
 public class LogUtils {
@@ -18,7 +18,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.v(tag, message);
             }
-            new LocalDebugMessageAdapter(context).addMessage(
+            new LocalDebugMessageHelper(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_V));
         }
     }
@@ -28,7 +28,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.d(tag, message);
             }
-            new LocalDebugMessageAdapter(context).addMessage(
+            new LocalDebugMessageHelper(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_D));
         }
     }
@@ -38,7 +38,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.i(tag, message);
             }
-            new LocalDebugMessageAdapter(context).addMessage(
+            new LocalDebugMessageHelper(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_I));
         }
     }
@@ -48,7 +48,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.w(tag, message);
             }
-            new LocalDebugMessageAdapter(context).addMessage(
+            new LocalDebugMessageHelper(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_W));
         }
     }
@@ -58,7 +58,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.e(tag, message);
             }
-            new LocalDebugMessageAdapter(context).addMessage(
+            new LocalDebugMessageHelper(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_E));
         }
     }

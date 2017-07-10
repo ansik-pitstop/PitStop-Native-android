@@ -9,14 +9,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
@@ -51,21 +49,20 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalCarHelper;
+import com.pitstop.database.LocalScannerHelper;
+import com.pitstop.database.LocalShopHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.CheckFirstCarAddedUseCase;
-import com.pitstop.interactors.GetCarsByUserIdUseCase;
-import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -151,9 +148,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     };
 
     // Database accesses
-    private LocalCarAdapter carLocalStore;
-    private LocalShopAdapter shopLocalStore;
-    private LocalScannerAdapter scannerLocalStore;
+    private LocalCarHelper carLocalStore;
+    private LocalShopHelper shopLocalStore;
+    private LocalScannerHelper scannerLocalStore;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
@@ -259,9 +256,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-        carLocalStore = new LocalCarAdapter(application);
-        shopLocalStore = new LocalShopAdapter(application);
-        scannerLocalStore = new LocalScannerAdapter(application);
+        carLocalStore = new LocalCarHelper(application);
+        shopLocalStore = new LocalShopHelper(application);
+        scannerLocalStore = new LocalScannerHelper(application);
 
         logAuthInfo();
 
