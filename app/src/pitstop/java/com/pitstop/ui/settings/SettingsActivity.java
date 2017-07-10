@@ -149,6 +149,14 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     }
 
     @Override
+    public Preference noShops() {
+        Preference noShops = new Preference(context);
+        noShops.setTitle("No Shops");
+        noShops.setKey("no_shop_key");
+        return noShops;
+    }
+
+    @Override
     public Preference carToPref(Car car, boolean currentCar){// this is a tough one to decouple
         Preference carPref = new Preference(context);
         if(currentCar){

@@ -141,8 +141,12 @@ public class MainSettingsPresenter {
             public void onShopGot(List<Dealership> dealerships) {
                 if(mainSettings != null){
                     mainSettings.resetShops();
-                    for(Dealership d : dealerships){
-                        mainSettings.addShop(prefMaker.shopToPref(d));
+                    if(dealerships.size()>0){
+                        for(Dealership d : dealerships){
+                            mainSettings.addShop(prefMaker.shopToPref(d));
+                        }
+                    }else{
+                        mainSettings.addShop(prefMaker.noShops());
                     }
                 }
             }
