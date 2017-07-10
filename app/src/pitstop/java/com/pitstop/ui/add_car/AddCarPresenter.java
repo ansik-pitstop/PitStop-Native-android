@@ -35,6 +35,7 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.CreateScannerUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
@@ -476,55 +477,83 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public void validateAndPostScanner(final Car car, final String scannerId, final String scannerName) {
 
+        Log.d(TAG,"valiateAndPostScanner() called.");
+
         if (!mCallback.checkNetworkConnection(null)) return;
 
         mCallback.onPairingDeviceWithCar();
 
-        //mUseCaseComponent.
-
-        mNetworkHelper.validateScannerId(scannerId, new RequestCallback() {
+        ObdScanner obdScanner = new ObdScanner(car.getId(),scannerName,scannerId);
+        mUseCaseComponent.createScannerUseCase().execute(obdScanner, new CreateScannerUseCase.Callback() {
             @Override
-            public void done(String response, RequestError requestError) {
-                //error
-                if (requestError != null) {
-                    mCallback.pairCarError("Network error, please try again later");
-                    mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
-                }
-                //success
-                else {
-                    try {
-                        JSONObject result = new JSONObject(response);
-                        if (result.has("id")) { //invalid
-                            Log.d(TAG, "DeviceID is not valid");
-                            mCallback.pairCarError("This device has been paired with another car.");
-                            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID);
-                        } else {
-                            mNetworkHelper.createNewScanner(car.getId(), scannerId, new RequestCallback() {
-                                @Override
-                                public void done(String response, RequestError requestError) {
-                                    if (requestError != null) {
-                                        // Error occurred during creating new scanner
-                                        Log.d(TAG, "Create new scanner failed!");
-                                        mCallback.pairCarError("Network errors, please try again later");
-                                        mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
-                                    } else {
-                                        // Save locally
-                                        ObdScanner scanner = new ObdScanner(
-                                                car.getId(), scannerName, scannerId);
-                                        mLocalScannerAdapter.updateScannerByCarId(scanner);
-                                        mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
-                                        mCallback.onDeviceSuccessfullyPaired();
-                                    }
-                                }
-                            });
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        mCallback.pairCarError("Unknown error, please try again later");
-                    }
-                }
+            public void onScannerCreated() {
+                Log.d(TAG,"valiateAndPostScanner(): onScannerCreated()");
+                mMixpanelHelper.trackDetectUnrecognizedModule(
+                        MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
+                mCallback.onDeviceSuccessfullyPaired();
+            }
+
+            @Override
+            public void onDeviceAlreadyActive() {
+                Log.d(TAG, "validateAndPostScanner(): onDeviceAlreadyActive()");
+                mCallback.pairCarError("This device has been paired with another car.");
+                mMixpanelHelper.trackDetectUnrecognizedModule(
+                        MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID);
+            }
+
+            @Override
+            public void onError() {
+                Log.d(TAG, "validateAndPostScanner(): onError");
+                mCallback.pairCarError("Network errors, please try again later");
+                mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
             }
         });
+
+//        mNetworkHelper.validateScannerId(scannerId, new RequestCallback() {
+//            @Override
+//            public void done(String response, RequestError requestError) {
+//                //error
+//                if (requestError != null) {
+//                    mCallback.pairCarError("Network error, please try again later");
+//                    mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
+//                }
+//                //success
+//                else {
+//                    try {
+//                        JSONObject result = new JSONObject(response);
+//                        if (result.has("id")) { //invalid
+//                            Log.d(TAG, "DeviceID is not valid");
+//                            mCallback.pairCarError("This device has been paired with another car.");
+//                            mMixpanelHelper.trackDetectUnrecognizedModule(
+//                                    MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID);
+//
+//                        } else {
+//                            mNetworkHelper.createNewScanner(car.getId(), scannerId, new RequestCallback() {
+//                                @Override
+//                                public void done(String response, RequestError requestError) {
+//                                    if (requestError != null) {
+//                                        // Error occurred during creating new scanner
+//                                        Log.d(TAG, "Create new scanner failed!");
+//                                        mCallback.pairCarError("Network errors, please try again later");
+//                                        mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
+//                                    } else {
+//                                        // Save locally
+//                                        ObdScanner scanner = new ObdScanner(
+//                                                car.getId(), scannerName, scannerId);
+//                                        mLocalScannerAdapter.updateScannerByCarId(scanner);
+//                                        mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
+//                                        mCallback.onDeviceSuccessfullyPaired();
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                        mCallback.pairCarError("Unknown error, please try again later");
+//                    }
+//                }
+//            }
+//        });
     }
 
 
