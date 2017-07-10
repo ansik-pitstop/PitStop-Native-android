@@ -18,5 +18,5 @@ public interface FoundBluetoothDeviceUseCase extends Interactor {
         void onError();
     }
 
-    void execute(String scannerId, String scannerName);
+    void execute(String scannerId, String scannerName, Callback callback);
 }

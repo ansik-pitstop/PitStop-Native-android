@@ -3,7 +3,6 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
-import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -18,18 +17,17 @@ public class FoundBluetoothDeviceUseCaseImpl implements FoundBluetoothDeviceUseC
     private String scannerId;
     private String scannerName;
 
-    public FoundBluetoothDeviceUseCaseImpl(UserRepository userRepository
-            , ScannerRepository scannerRepository, Handler handler, Callback callback) {
+    public FoundBluetoothDeviceUseCaseImpl(UserRepository userRepository, Handler handler) {
 
         this.userRepository = userRepository;
         this.handler = handler;
-        this.callback = callback;
     }
 
     @Override
-    public void execute(String scannerId, String scannerName) {
+    public void execute(String scannerId, String scannerName, Callback callback) {
         this.scannerId = scannerId;
         this.scannerName = scannerName;
+        this.callback = callback;
         handler.post(this);
     }
 

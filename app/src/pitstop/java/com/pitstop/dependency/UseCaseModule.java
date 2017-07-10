@@ -2,15 +2,16 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.AddShopUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.CreateScannerUseCase;
+import com.pitstop.interactors.CreateScannerUseCaseImpl;
+import com.pitstop.interactors.FoundBluetoothDeviceUseCase;
+import com.pitstop.interactors.FoundBluetoothDeviceUseCaseImpl;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
@@ -57,15 +58,12 @@ import com.pitstop.interactors.UpdateUserNameUseCase;
 import com.pitstop.interactors.UpdateUserNameUseCaseImpl;
 import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
-import com.pitstop.models.Car;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
+import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
-
-import dagger.Module;
-import dagger.Provides;
 import com.pitstop.utils.NetworkHelper;
 
 import dagger.Module;
@@ -224,5 +222,17 @@ public class UseCaseModule {
             , UserRepository userRepository, Handler handler){
 
         return new Trip215EndUseCaseImpl(device215TripRepository, handler);
+    }
+
+    @Provides
+    CreateScannerUseCase createScannerUseCase(ScannerRepository scannerRepository, Handler handler){
+        return new CreateScannerUseCaseImpl(scannerRepository, handler);
+    }
+
+    @Provides
+    FoundBluetoothDeviceUseCase foundBluetoothDeviceUseCase(UserRepository userRepository
+            , Handler handler){
+
+        return new FoundBluetoothDeviceUseCaseImpl(userRepository, handler);
     }
 }

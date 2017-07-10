@@ -79,14 +79,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     private AddCarViewPagerAdapter mPagerAdapter;
     private ProgressDialog progressDialog;
 
+    private UseCaseComponent component;
+
     private MixpanelHelper mixpanelHelper;
     private AddCarContract.Presenter presenter;
 
     public static boolean addingCar = false;
     public static boolean addingCarWithDevice = false;
     private boolean carSuccessfullyAdded;
-
-    private UseCaseComponent useCaseComponent;
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override

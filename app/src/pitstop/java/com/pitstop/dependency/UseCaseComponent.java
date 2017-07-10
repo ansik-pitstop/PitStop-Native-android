@@ -3,6 +3,8 @@ package com.pitstop.dependency;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.CreateScannerUseCase;
+import com.pitstop.interactors.FoundBluetoothDeviceUseCase;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.GetCurrentServicesUseCase;
@@ -89,6 +91,10 @@ public interface UseCaseComponent {
     SetUserCarUseCase setUseCarUseCase();
 
     SetFirstCarAddedUseCase setFirstCarAddedUseCase();
+
+    FoundBluetoothDeviceUseCase foundBluetoothDeviceUseCase();
+
+    CreateScannerUseCase createScannerUseCase();
 
     Trip215StartUseCase trip215StartUseCase();
 
