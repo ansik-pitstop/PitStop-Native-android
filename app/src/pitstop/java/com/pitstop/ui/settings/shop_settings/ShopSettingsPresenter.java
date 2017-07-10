@@ -1,7 +1,7 @@
 package com.pitstop.ui.settings.shop_settings;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.RemoveShopUseCase;
+import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;

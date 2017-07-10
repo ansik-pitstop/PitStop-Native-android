@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalDatabaseHelper;
-import com.pitstop.database.LocalDebugMessageAdapter;
+import com.pitstop.database.LocalDebugMessageHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -41,7 +41,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
 
     // for logging
-    private LocalDebugMessageAdapter mDebugMessageAdapter;
+    private LocalDebugMessageHelper mDebugMessageAdapter;
     private QueryObservable mQueryBluetoothObservable;
     private Subscription mQueryBluetoothSubscription;
     private QueryObservable mQueryNetworkObservable;
@@ -145,7 +145,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
 
     public void setupLogging() {
 
-        mDebugMessageAdapter = new LocalDebugMessageAdapter(this);
+        mDebugMessageAdapter = new LocalDebugMessageHelper(this);
 
         // bluetooth
         View testBluetoothLogButton = findViewById(R.id.logBluetooth);

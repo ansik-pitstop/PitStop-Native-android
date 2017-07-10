@@ -12,7 +12,7 @@ import android.view.animation.AnimationUtils;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
 import com.pitstop.utils.MixpanelHelper;

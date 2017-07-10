@@ -1,9 +1,9 @@
 package com.pitstop.dependency;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalCarHelper;
+import com.pitstop.database.LocalCarIssueHelper;
+import com.pitstop.database.LocalShopHelper;
+import com.pitstop.database.UserHelper;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.ShopRepository;
@@ -24,29 +24,29 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public ShopRepository getShopRepository(LocalShopAdapter localShopAdapter
+    public ShopRepository getShopRepository(LocalShopHelper localShopHelper
             , NetworkHelper networkHelper){
-        return new ShopRepository(localShopAdapter,networkHelper);
+        return new ShopRepository(localShopHelper,networkHelper);
     }
 
     @Provides
     @Singleton
-    public UserRepository getUserRepository(UserAdapter userAdapter
+    public UserRepository getUserRepository(UserHelper userHelper
             , NetworkHelper networkHelper){
-        return new UserRepository(userAdapter,networkHelper);
+        return new UserRepository(userHelper,networkHelper);
     }
 
     @Provides
     @Singleton
-    public CarRepository getCarRepository(LocalCarAdapter localCarAdapter
+    public CarRepository getCarRepository(LocalCarHelper localCarHelper
             , NetworkHelper networkHelper){
-        return new CarRepository(localCarAdapter,networkHelper);
+        return new CarRepository(localCarHelper,networkHelper);
     }
 
     @Provides
     @Singleton
-    public CarIssueRepository getCarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter
+    public CarIssueRepository getCarIssueRepository(LocalCarIssueHelper localCarIssueHelper
             , NetworkHelper networkHelper){
-        return new CarIssueRepository(localCarIssueAdapter,networkHelper);
+        return new CarIssueRepository(localCarIssueHelper,networkHelper);
     }
 }

@@ -42,11 +42,11 @@ import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarHelper;
 import com.pitstop.database.LocalDatabaseHelper;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalPidResult4Adapter;
-import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalPidHelper;
+import com.pitstop.database.LocalPidResult4Helper;
+import com.pitstop.database.LocalScannerHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -123,15 +123,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String[] pids = new String[0];
     private int pidI = 0;
 
-    private LocalPidAdapter localPid;
-    private LocalPidResult4Adapter localPidResult4;
+    private LocalPidHelper localPid;
+    private LocalPidResult4Helper localPidResult4;
     private static final int PID_CHUNK_SIZE = 200;
 
     private String lastDataNum = "";
 
     private SharedPreferences sharedPreferences;
-    private LocalCarAdapter carAdapter;
-    private LocalScannerAdapter scannerAdapter;
+    private LocalCarHelper carAdapter;
+    private LocalScannerHelper scannerAdapter;
 
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
@@ -196,10 +196,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
 
-        localPid = new LocalPidAdapter(application);
-        localPidResult4 = new LocalPidResult4Adapter(application);
-        carAdapter = new LocalCarAdapter(application);
-        scannerAdapter = new LocalScannerAdapter(application);
+        localPid = new LocalPidHelper(application);
+        localPidResult4 = new LocalPidResult4Helper(application);
+        carAdapter = new LocalCarHelper(application);
+        scannerAdapter = new LocalScannerHelper(application);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -1430,7 +1430,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return jsonObject;
         }
 
-        Car car = new LocalCarAdapter(getApplicationContext()).getCarByScanner(data.deviceId);
+        Car car = new LocalCarHelper(getApplicationContext()).getCarByScanner(data.deviceId);
 
         double mileage;
 

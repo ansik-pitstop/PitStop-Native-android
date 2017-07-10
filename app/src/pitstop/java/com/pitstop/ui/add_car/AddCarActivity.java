@@ -29,7 +29,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.SetUserCarUseCase;
+import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;

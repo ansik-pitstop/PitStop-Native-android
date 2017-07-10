@@ -2,58 +2,54 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.UserAdapter;
-import com.pitstop.interactors.AddCarUseCase;
-import com.pitstop.interactors.AddCarUseCaseImpl;
-import com.pitstop.interactors.AddShopUseCase;
-import com.pitstop.interactors.AddShopUseCaseImpl;
-import com.pitstop.interactors.CheckFirstCarAddedUseCase;
-import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.GetCarByCarIdUseCase;
-import com.pitstop.interactors.GetCarByCarIdUseCaseImpl;
-import com.pitstop.interactors.GetCarsByUserIdUseCase;
-import com.pitstop.interactors.GetCarsByUserIdUseCaseImpl;
-import com.pitstop.interactors.GetCurrentServicesUseCase;
-import com.pitstop.interactors.GetCurrentServicesUseCaseImpl;
-import com.pitstop.interactors.GetCurrentUserUseCase;
-import com.pitstop.interactors.GetCurrentUserUseCaseImpl;
-import com.pitstop.interactors.GetDoneServicesUseCase;
-import com.pitstop.interactors.GetDoneServicesUseCaseImpl;
-import com.pitstop.interactors.GetGooglePlacesShopsUseCase;
-import com.pitstop.interactors.GetGooglePlacesShopsUseCaseImpl;
-import com.pitstop.interactors.GetPitstopShopsUseCase;
-import com.pitstop.interactors.GetPitstopShopsUseCaseImpl;
-import com.pitstop.interactors.GetPlaceDetailsUseCase;
-import com.pitstop.interactors.GetPlaceDetailsUseCaseImpl;
-import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
-import com.pitstop.interactors.GetUpcomingServicesMapUseCaseImpl;
-import com.pitstop.interactors.GetUserCarUseCase;
-import com.pitstop.interactors.GetUserCarUseCaseImpl;
-import com.pitstop.interactors.GetUserShopsUseCase;
-import com.pitstop.interactors.GetUserShopsUseCaseImpl;
-import com.pitstop.interactors.MarkServiceDoneUseCase;
-import com.pitstop.interactors.MarkServiceDoneUseCaseImpl;
-import com.pitstop.interactors.RemoveCarUseCase;
-import com.pitstop.interactors.RemoveCarUseCaseImpl;
-import com.pitstop.interactors.RemoveShopUseCase;
-import com.pitstop.interactors.RemoveShopUseCaseImpl;
-import com.pitstop.interactors.RequestServiceUseCase;
-import com.pitstop.interactors.RequestServiceUseCaseImpl;
-import com.pitstop.interactors.SetFirstCarAddedUseCase;
-import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.SetUserCarUseCase;
-import com.pitstop.interactors.SetUserCarUseCaseImpl;
-import com.pitstop.interactors.UpdateCarDealershipUseCase;
-import com.pitstop.interactors.UpdateCarDealershipUseCaseImpl;
-import com.pitstop.interactors.UpdateShopUseCase;
-import com.pitstop.interactors.UpdateShopUseCaseImpl;
-import com.pitstop.interactors.UpdateUserNameUseCase;
-import com.pitstop.interactors.UpdateUserNameUseCaseImpl;
-import com.pitstop.interactors.UpdateUserPhoneUseCase;
-import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
-import com.pitstop.models.Car;
+import com.pitstop.interactors.add.AddCarUseCase;
+import com.pitstop.interactors.add.AddCarUseCaseImpl;
+import com.pitstop.interactors.add.AddShopUseCase;
+import com.pitstop.interactors.add.AddShopUseCaseImpl;
+import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.get.GetCarByCarIdUseCase;
+import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCurrentServicesUseCase;
+import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
+import com.pitstop.interactors.get.GetCurrentUserUseCase;
+import com.pitstop.interactors.get.GetCurrentUserUseCaseImpl;
+import com.pitstop.interactors.get.GetDoneServicesUseCase;
+import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
+import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
+import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetPitstopShopsUseCase;
+import com.pitstop.interactors.get.GetPitstopShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
+import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
+import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
+import com.pitstop.interactors.get.GetUpcomingServicesMapUseCaseImpl;
+import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
+import com.pitstop.interactors.get.GetUserShopsUseCase;
+import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
+import com.pitstop.interactors.update.MarkServiceDoneUseCase;
+import com.pitstop.interactors.update.MarkServiceDoneUseCaseImpl;
+import com.pitstop.interactors.remove.RemoveCarUseCase;
+import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
+import com.pitstop.interactors.remove.RemoveShopUseCase;
+import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
+import com.pitstop.interactors.add.AddServiceUseCase;
+import com.pitstop.interactors.add.AddServiceUseCaseImpl;
+import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.set.SetUserCarUseCase;
+import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
+import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
+import com.pitstop.interactors.update.UpdateCarDealershipUseCaseImpl;
+import com.pitstop.interactors.update.UpdateShopUseCase;
+import com.pitstop.interactors.update.UpdateShopUseCaseImpl;
+import com.pitstop.interactors.update.UpdateUserNameUseCase;
+import com.pitstop.interactors.update.UpdateUserNameUseCaseImpl;
+import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
+import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.ShopRepository;
@@ -62,9 +58,6 @@ import com.pitstop.repositories.UserRepository;
 import dagger.Module;
 import dagger.Provides;
 import com.pitstop.utils.NetworkHelper;
-
-import dagger.Module;
-import dagger.Provides;
 
 /**
  * Created by Karol Zdebel on 6/5/2017.
@@ -192,9 +185,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
+    AddServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
             , Handler handler){
-        return new RequestServiceUseCaseImpl(carIssueRepository, handler);
+        return new AddServiceUseCaseImpl(carIssueRepository, handler);
     }
 
     @Provides

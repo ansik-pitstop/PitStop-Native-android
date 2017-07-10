@@ -2,10 +2,10 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalCarHelper;
+import com.pitstop.database.LocalCarIssueHelper;
+import com.pitstop.database.LocalShopHelper;
+import com.pitstop.database.UserHelper;
 
 import javax.inject.Singleton;
 
@@ -21,26 +21,26 @@ public class LocalStorageModule {
 
     @Singleton
     @Provides
-    public LocalShopAdapter localShopAdapter(Context context){
-        return new LocalShopAdapter(context);
+    public LocalShopHelper localShopAdapter(Context context){
+        return new LocalShopHelper(context);
     }
 
     @Singleton
     @Provides
-    public LocalCarAdapter localCarAdapter(Context context){
-        return new LocalCarAdapter(context);
+    public LocalCarHelper localCarAdapter(Context context){
+        return new LocalCarHelper(context);
     }
 
     @Singleton
     @Provides
-    public LocalCarIssueAdapter localCarIssueAdapter(Context context){
-        return new LocalCarIssueAdapter(context);
+    public LocalCarIssueHelper localCarIssueAdapter(Context context){
+        return new LocalCarIssueHelper(context);
     }
 
     @Singleton
     @Provides
-    public UserAdapter userAdapter(Context context){
-        return new UserAdapter(context);
+    public UserHelper userAdapter(Context context){
+        return new UserHelper(context);
     }
 
 }
