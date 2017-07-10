@@ -73,6 +73,7 @@ public class LocalCarAdapter {
                 c.moveToNext();
             }
         }
+        c.close();
         return cars;
     }
 
@@ -90,7 +91,7 @@ public class LocalCarAdapter {
         if(c.moveToFirst()) {
             car = cursorToCar(c);
         }
-
+        c.close();
         return car;
     }
 
@@ -109,7 +110,7 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-
+        c.close();
         return car;
     }
 
@@ -128,7 +129,7 @@ public class LocalCarAdapter {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return cars;
 
     }
@@ -148,7 +149,7 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-
+        c.close();
         return car;
     }
 
@@ -191,7 +192,7 @@ public class LocalCarAdapter {
             car = cursorToCar(c);
         }
 
-
+        c.close();
         return car;
     }
 
