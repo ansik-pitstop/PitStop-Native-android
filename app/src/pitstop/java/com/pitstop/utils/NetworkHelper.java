@@ -157,7 +157,7 @@ public class NetworkHelper {
             body.put("vin", vin);
             body.put("baseMileage", mileage);
             body.put("userId", userId);
-            body.put("FscannerId", scannerId);
+            body.put("scannerId", scannerId);
             body.put("shopId", shopId);
         } catch (JSONException e) {
             e.printStackTrace();

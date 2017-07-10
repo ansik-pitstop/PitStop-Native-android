@@ -107,7 +107,7 @@ public class ScannerRepository implements Repository {
                             return;
                         }
 
-                        //Get scanner data
+                        //GeFt scanner data
                         JSONObject data = (new JSONArray(response)).getJSONObject(0);
 
                         int carId = data.getInt("carId");
