@@ -3,22 +3,20 @@ package com.pitstop.ui.custom_shops;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.model.LatLng;
-
 import com.pitstop.R;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -29,7 +27,7 @@ import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
 
-
+import static com.pitstop.ui.add_car.AddCarActivity.ADD_CAR_SUCCESS;
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**
@@ -170,6 +168,9 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
 
     @Override
     public void endCustomShops() {
+        Intent intent = new Intent();
+        intent.putExtra(CAR_EXTRA,car);
+        setResult(ADD_CAR_SUCCESS,intent);
         finish();
     }
 

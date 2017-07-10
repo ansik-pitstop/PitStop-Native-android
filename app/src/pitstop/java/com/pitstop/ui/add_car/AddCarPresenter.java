@@ -490,7 +490,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 Log.d(TAG,"valiateAndPostScanner(): onScannerCreated()");
                 mMixpanelHelper.trackDetectUnrecognizedModule(
                         MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
-                mCallback.onDeviceSuccessfullyPaired();
+                mCallback.onDeviceSuccessfullyPaired(car);
             }
 
             @Override

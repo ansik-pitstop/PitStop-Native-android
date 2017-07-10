@@ -805,12 +805,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void onDeviceSuccessfullyPaired() {
-        Intent data = new Intent();
-        data.putExtra(MainActivity.REFRESH_FROM_SERVER, true);
-        setResult(PAIR_CAR_SUCCESS, data);
+    public void onDeviceSuccessfullyPaired(Car car) {
+        askForDealership(car);
         hideLoading("Finish");
-        finish();
     }
 
     @Override

@@ -120,8 +120,9 @@ public interface AddCarContract {
 
         /**
          * After unrecognized device got successfully paired
+         * @param car
          */
-        void onDeviceSuccessfullyPaired();
+        void onDeviceSuccessfullyPaired(Car car);
 
         /**
          * Check if connected, if not show a toast
