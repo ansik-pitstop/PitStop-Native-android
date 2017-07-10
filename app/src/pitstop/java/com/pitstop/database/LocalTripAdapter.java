@@ -79,7 +79,7 @@ public class LocalTripAdapter {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return trips;
     }
 
@@ -97,7 +97,7 @@ public class LocalTripAdapter {
         if(c.moveToFirst()) {
             trip = cursorToTripWithPath(c);
         }
-
+        c.close();
         return trip;
     }
 

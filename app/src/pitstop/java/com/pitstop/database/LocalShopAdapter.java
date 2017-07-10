@@ -76,12 +76,13 @@ public class LocalShopAdapter {
         Cursor c = db.query(TABLES.SHOP.TABLE_NAME, null,
                 TABLES.COMMON.KEY_OBJECT_ID +"=?",new String[]{String.valueOf(shopId)},null,null,null);
         if(c.getCount() == 0) {
+            c.close();
             return null;
         }
 
         c.moveToFirst();
         Dealership dealership = cursorToDealership(c);
-
+        c.close();
         return dealership;
     }
 
@@ -97,7 +98,7 @@ public class LocalShopAdapter {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return dealerships;
     }
 
