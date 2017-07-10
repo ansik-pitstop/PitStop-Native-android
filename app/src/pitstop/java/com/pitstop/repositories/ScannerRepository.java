@@ -16,8 +16,6 @@ import org.json.JSONObject;
 
 public class ScannerRepository implements Repository {
 
-    public static final String ERR_NOT_EXISTS = "error_not_exists";
-
     private NetworkHelper networkHelper;
     private LocalScannerAdapter localScannerStorage;
 
@@ -102,13 +100,14 @@ public class ScannerRepository implements Repository {
                     try{
                         //Data is returned in an array, first index is the scanner
                         JSONArray dataArray = new JSONArray(response);
+
                         //Check if scanner exists
                         if (dataArray.length() == 0){
-                            callback.onError(ERR_NOT_EXISTS);
+                            callback.onSuccess(null);
                             return;
                         }
 
-                        //Get scanner data and return onSuccess()
+                        //Get scanner data
                         JSONObject data = (new JSONArray(response)).getJSONObject(0);
 
                         int carId = data.getInt("carId");
@@ -121,7 +120,7 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError.getError());
                         e.printStackTrace();
                     }
                 }

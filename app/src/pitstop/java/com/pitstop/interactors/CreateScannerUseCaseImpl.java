@@ -38,8 +38,8 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
             @Override
             public void onSuccess(ObdScanner data) {
 
-                //is already active
-                if (data.getStatus()){
+                //device exists and is already active, do not store
+                if (data != null && data.getStatus()){
                     callback.onDeviceAlreadyActive();
                     return;
                 }
