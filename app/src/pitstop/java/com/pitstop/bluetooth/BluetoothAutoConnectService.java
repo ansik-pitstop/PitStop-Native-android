@@ -450,7 +450,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean registerDummyTripStart = false;
     private boolean registerDummyTripEnd = false;
     private int skipCounter = 0;
-    private int dummyTripId = 0;
+    private int dummyTripId = -1;
+    private double lastTripEndMileage = -1;
 
     /**
      * Handles trip data containing mileage
@@ -459,29 +460,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
 
+        final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
+
         LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString()
                         +", isConnected215?"+isConnectedTo215()
                         +", terminalRTCTime: "+terminalRTCTime
                 , true, DebugMessage.TYPE_BLUETOOTH
                 , getApplicationContext());
-
-//        UNCOMMENT THIS AFTER TESTING DONE
-//        No longer handle trip updates
-//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-//            return;
-//        }
-
-        /*Code for handling 212 trip logic, moved to private method since its being
-          phased out and won't be maintained*/
-        if (!isConnectedTo215()){
-            LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-            handle212Trip(tripInfoPackage);
-            return;
-        }
-
-        //215 logic below
-
 
         /*********************************TEST CODE START*********************************/
 
@@ -493,35 +478,49 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if (terminalRTCTime == -1 || tripInfoPackage.rtcTime < terminalRTCTime) return;
 
             if (!registerDummyTripStart && skipCounter == 0){
-                if (dummyTripId == 0){
+                if (dummyTripId == -1){
                     dummyTripId = tripInfoPackage.tripId;
                 }
                 else{
                     dummyTripId += 100;
                 }
 
-                tripInfoPackage.tripId = dummyTripId;
+                //Make sure start mileages make sense, meaning last trip end is this ones start
+                if (lastTripEndMileage != -1 && isConnectedTo215()){
+                    tripInfoPackage.mileage = lastTripEndMileage;
+                }
+                else if (!isConnectedTo215()){
+                    tripInfoPackage.mileage = 0;
+                }
 
+                if (isConnectedTo215()){
+                    tripInfoPackage.tripId = dummyTripId;
+                }
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                 tripInfoPackage.rtcTime += 100;
                 registerDummyTripStart = true;
                 registerDummyTripEnd = false;
-                skipCounter = 2;
+                skipCounter = 8;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
             else if (!registerDummyTripEnd && skipCounter == 0){
-                tripInfoPackage.tripId = dummyTripId;
+
+                if (isConnectedTo215()){
+                    tripInfoPackage.tripId = dummyTripId;
+                }
+
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
+                lastTripEndMileage = tripInfoPackage.mileage;
                 registerDummyTripEnd = true;
                 registerDummyTripStart = false;
-                skipCounter = 2;
+                skipCounter = 8;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
             //Skip 4 trip updates before create dummy trip start and trip end again
             else{
-                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
+                LogUtils.LOGD(TAG,"Skipping trip update, skips left:"+(skipCounter-1));
                 if (skipCounter > 0){
                     skipCounter--;
                 }
@@ -532,6 +531,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*********************************TEST CODE END**********************************/
 
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            return;
+        }
+
+        /*Code for handling 212 trip logic, moved to private method since its being
+          phased out and won't be maintained*/
+        if (!isConnectedTo215()){
+            LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+            handle212Trip(tripInfoPackage);
+            return;
+        }
 
         LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
                         +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
@@ -590,7 +601,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                 });
 
-                toRemove.add(trip);
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
 
@@ -630,8 +640,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
                 });
 
-                toRemove.add(trip);
             }
+            toRemove.add(trip);
 
         }
         pendingTripInfoPackages.removeAll(toRemove);
@@ -742,7 +752,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         // if trip id is different, start a new trip
-        if(pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
+        if(!isConnectedTo215() && pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
                 && carAdapter.getCarByScanner(pidPackage.deviceId) != null) {
             int newTripId = Integer.valueOf(pidPackage.tripId);
             if(newTripId != lastDeviceTripId) {

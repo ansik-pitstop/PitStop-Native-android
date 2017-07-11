@@ -61,7 +61,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
                         }
                         else{
-                            callback.onRealTimeTripEndSuccess();
+                            callback.onHistoricalTripEndSuccess();
                         }
                     }
 

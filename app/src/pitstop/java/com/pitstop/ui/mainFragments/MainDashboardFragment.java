@@ -54,6 +54,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -250,6 +251,9 @@ public class MainDashboardFragment extends CarDataFragment {
                             + car.getMake() + " "
                             + car.getModel());
                 }
+
+                LogUtils.LOGD(TAG,"updating mileage from "+mMileageText.getText()+" to "
+                        + car.getTotalMileage());
 
                 mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
                 mEngineText.setText(car.getEngine());
@@ -798,7 +802,7 @@ public class MainDashboardFragment extends CarDataFragment {
                         public void onClick(View v) {
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
-                            final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - dashboardCar.getTotalMileage());
+                            final double mileage = Double.parseDouble(input.getText().toString());
                             if (mileage > 20000000) {
                                 Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
@@ -825,7 +829,6 @@ public class MainDashboardFragment extends CarDataFragment {
                                             networkHelper.updateMileageStart(mileage, ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId(), null);
                                         }
 
-                                        dashboardCar.setDisplayedMileage(mileage);
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 
