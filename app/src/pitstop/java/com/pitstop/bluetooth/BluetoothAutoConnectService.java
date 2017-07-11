@@ -479,7 +479,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if (!registerDummyTripStart && skipCounter == 0){
                 if (dummyTripId == -1){
-                    dummyTripId = tripInfoPackage.tripId;
+                    if (isConnectedTo215()){
+                        dummyTripId = tripInfoPackage.tripId;
+                    }
+                    else{
+                        dummyTripId = (int)tripInfoPackage.rtcTime;
+                    }
                 }
                 else{
                     dummyTripId += 100;
@@ -493,9 +498,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     tripInfoPackage.mileage = 0;
                 }
 
-                if (isConnectedTo215()){
-                    tripInfoPackage.tripId = dummyTripId;
-                }
+                tripInfoPackage.tripId = dummyTripId;
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                 tripInfoPackage.rtcTime += 100;
                 registerDummyTripStart = true;
@@ -505,10 +508,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             else if (!registerDummyTripEnd && skipCounter == 0){
 
-                if (isConnectedTo215()){
-                    tripInfoPackage.tripId = dummyTripId;
-                }
-
+                tripInfoPackage.tripId = dummyTripId;
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
