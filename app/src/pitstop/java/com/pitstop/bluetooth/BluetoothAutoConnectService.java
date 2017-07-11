@@ -796,8 +796,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(lastData != null) {
                     sendPidDataResult4ToServer(lastData);
                 }
-                tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime, pidPackage.deviceId));
-                executeTripRequests();
+
+                useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                    @Override
+                    public void onCarRetrieved(Car car) {
+                        tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime
+                                , pidPackage.deviceId, car.getTotalMileage()));
+                        executeTripRequests();
+                    }
+
+                    @Override
+                    public void onNoCarSet() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
             }
         }
 
@@ -1613,8 +1631,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            tripRequestQueue.add(new TripStart(Integer.parseInt(tripId), rtcTime, deviceId));
-            executeTripRequests();
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car) {
+                    tripRequestQueue.add(new TripStart(Integer.parseInt(tripId), rtcTime
+                            , deviceId,car.getTotalMileage()));
+                    executeTripRequests();
+                }
+
+                @Override
+                public void onNoCarSet() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+
         }
     }
 
@@ -1684,8 +1719,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, currentDeviceId));
-            executeTripRequests();
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car) {
+                    tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime
+                            , currentDeviceId,car.getTotalMileage()));
+
+                    executeTripRequests();
+                }
+
+                @Override
+                public void onNoCarSet() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         }
     }
 
