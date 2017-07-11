@@ -214,15 +214,15 @@ public class UseCaseModule {
 
     @Provides
     Trip215StartUseCase trip215StartUseCase(Device215TripRepository device215TripRepository
-            , Handler handler){
+            , UserRepository userRepository, Handler handler){
 
-        return new Trip215StartUseCaseImpl(device215TripRepository, handler);
+        return new Trip215StartUseCaseImpl(device215TripRepository, userRepository, handler);
     }
 
     @Provides
     Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
-            , Handler handler){
+            , UserRepository userRepository, Handler handler){
 
-        return new Trip215EndUseCaseImpl(device215TripRepository,handler);
+        return new Trip215EndUseCaseImpl(device215TripRepository, userRepository, handler);
     }
 }

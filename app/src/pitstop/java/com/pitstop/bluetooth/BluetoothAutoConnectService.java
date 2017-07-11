@@ -502,6 +502,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
                 registerDummyTripEnd = true;
+                skipCounter = 2;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
             //Skip 4 trip updates before create dummy trip start and trip end again
@@ -515,7 +516,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
                     registerDummyTripStart = false;
                     registerDummyTripEnd = false;
-                    skipCounter = 3;
+                    skipCounter = 2;
                 }
                 return;
             }

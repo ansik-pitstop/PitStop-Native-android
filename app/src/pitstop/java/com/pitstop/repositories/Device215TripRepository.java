@@ -66,15 +66,18 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripRequestCallback(callback), body);
+        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(callback), body);
     }
 
-    private RequestCallback getStoreTripRequestCallback(Callback callback){
+    private RequestCallback getStoreTripEndRequestCallback(Callback callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     callback.onSuccess(null);
+                }
+                else{
+                    callback.onError(requestError.getStatusCode());
                 }
             }
         };
@@ -88,7 +91,7 @@ public class Device215TripRepository implements Repository{
     }
 
     private RequestCallback getRetrieveLatestTripCallback(Callback<Trip215> callback, String scannerName){
-        RequestCallback requestCallback = new RequestCallback() {
+        return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
@@ -111,7 +114,5 @@ public class Device215TripRepository implements Repository{
                 }
             }
         };
-
-        return requestCallback;
     }
 }
