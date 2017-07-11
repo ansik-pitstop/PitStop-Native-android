@@ -77,7 +77,7 @@ import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
-import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MigrationService;
@@ -804,9 +804,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 if (!checkDealership(car)) return;
 
                 // view is null for request from tutorial
-                final Intent intent = new Intent(thisInstance, ServiceRequestActivity.class);
-                intent.putExtra(ServiceRequestActivity.EXTRA_CAR, car);
-                intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
+                final Intent intent = new Intent(thisInstance, RequestServiceActivity.class);
+                intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
+                intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
                 isFirstAppointment = false;
                 startActivityForResult(intent, RC_REQUEST_SERVICE);
                 hideLoading();

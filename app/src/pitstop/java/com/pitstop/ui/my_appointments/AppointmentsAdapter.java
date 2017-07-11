@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.Appointment;
-import com.pitstop.ui.service_request.view_fragment.ServiceIssueAdapter;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,7 +23,6 @@ import java.util.TimeZone;
  */
 
 public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapter.MyAppointmentsViewHolder>  {
-    private static final String TAG = ServiceIssueAdapter.class.getSimpleName();
 
     private final int VIEW_TYPE_EMPTY = 100;
     private final int VIEW_TYPE_CUSTOM = 101;
