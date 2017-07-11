@@ -79,6 +79,7 @@ public class LocalPidResult4Adapter {
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
         }
+        c.close();
         return pidDataEntries;
     }
 
@@ -91,7 +92,7 @@ public class LocalPidResult4Adapter {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         int count = c.getCount();
-
+        c.close();
         return count;
     }
 

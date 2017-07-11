@@ -52,7 +52,7 @@ public class ParseNotificationStore {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return parseNotifications;
     }
 

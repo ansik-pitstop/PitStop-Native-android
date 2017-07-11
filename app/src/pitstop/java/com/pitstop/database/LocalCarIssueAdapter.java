@@ -79,7 +79,7 @@ public class LocalCarIssueAdapter {
             carIssue = cursorToCarIssue(c);
         }
 
-
+        c.close();
         return carIssue;
     }
 
@@ -96,7 +96,7 @@ public class LocalCarIssueAdapter {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return carIssues;
     }
 
@@ -114,7 +114,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-
+        c.close();
         return carIssues;
     }
 
@@ -132,7 +132,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-
+        c.close();
         return carIssues;
     }
 
@@ -151,7 +151,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-
+        c.close();
         return carIssues;
     }
 
@@ -168,7 +168,7 @@ public class LocalCarIssueAdapter {
             }
         }
 
-
+        c.close();
         return carIssues;
     }
 
@@ -206,7 +206,6 @@ public class LocalCarIssueAdapter {
         carIssue.setSymptoms(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS)));
         carIssue.setCauses(c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES)));
 
-        c.close();
         return carIssue;
     }
 

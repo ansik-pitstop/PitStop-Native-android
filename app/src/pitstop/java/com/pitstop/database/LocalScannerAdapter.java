@@ -49,7 +49,7 @@ public class LocalScannerAdapter {
                 c.moveToNext();
             }
         }
-
+        c.close();
         return scanners;
     }
 
@@ -66,6 +66,7 @@ public class LocalScannerAdapter {
                 c.moveToNext();
             }
         }
+        c.close();
         return exist;
     }
 
@@ -105,7 +106,7 @@ public class LocalScannerAdapter {
         if (c.moveToFirst()) {
             scanner = cursorToScanner(c);
         }
-
+        c.close();
         return scanner;
     }
 
@@ -124,6 +125,7 @@ public class LocalScannerAdapter {
         }catch (Exception e){
 
         }
+        c.close();
         return scanner;
     }
 
@@ -142,6 +144,7 @@ public class LocalScannerAdapter {
         }catch (Exception e){
 
         }
+        c.close();
         return scanner;
     }
 
@@ -185,6 +188,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return numberOfCars != numberOfScanners;
     }
 
@@ -196,6 +200,7 @@ public class LocalScannerAdapter {
                 while (!c.isAfterLast()) {
                     String storedName = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_DEVICE_NAME));
                     if (storedName != null && storedName.equals(deviceName)) {
+                        c.close();
                         return true;
                     }
                     c.moveToNext();
@@ -203,6 +208,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return false;
     }
 
@@ -214,6 +220,7 @@ public class LocalScannerAdapter {
                 while (!c.isAfterLast()) {
                     String storedID = c.getString(c.getColumnIndex(TABLES.SCANNER.KEY_SCANNER_ID));
                     if (storedID != null && storedID.equals(scannerId)) {
+                        c.close();
                         return true;
                     }
                     c.moveToNext();
@@ -221,6 +228,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return false;
     }
 
@@ -237,6 +245,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return size;
     }
 
@@ -259,6 +268,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return result;
     }
 
@@ -287,6 +297,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return numberOfDeviceNames != numberOfScanners;
     }
 
@@ -307,6 +318,7 @@ public class LocalScannerAdapter {
                         ObdScanner scanner = cursorToScanner(c);
                         scanner.setDeviceName(scannerName);
                         updateScanner(scanner);
+                        c.close();
                         return true;
                     }
                     c.moveToNext();
@@ -314,6 +326,7 @@ public class LocalScannerAdapter {
             }
         } finally {
         }
+        c.close();
         return false;
     }
 
@@ -329,11 +342,5 @@ public class LocalScannerAdapter {
 
         db.delete(TABLES.SCANNER.TABLE_NAME, null, null);
 
-    }
-
-    public void finalize(){
-        if (databaseHelper.getWritableDatabase().isOpen()){
-            databaseHelper.getWritableDatabase().close();
-        }
     }
 }
