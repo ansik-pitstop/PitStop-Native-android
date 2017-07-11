@@ -491,7 +491,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //We don't want to add to pending trip list if its an update
             if (terminalRTCTime == -1) return;
 
+            int dummyTripId = 0;
+
             if (!registerDummyTripStart && skipCounter == 0){
+                dummyTripId = tripInfoPackage.tripId + (int)tripInfoPackage.rtcTime;
+                tripInfoPackage.tripId = dummyTripId;
+
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                 tripInfoPackage.rtcTime += 100;
                 registerDummyTripStart = true;
@@ -500,6 +505,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
             else if (!registerDummyTripEnd && skipCounter == 0){
+                tripInfoPackage.tripId = dummyTripId;
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
