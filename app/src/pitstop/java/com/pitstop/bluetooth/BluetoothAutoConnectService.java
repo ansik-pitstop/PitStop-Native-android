@@ -491,17 +491,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //We don't want to add to pending trip list if its an update
             if (terminalRTCTime == -1) return;
 
-            if (!registerDummyTripStart){
+            if (!registerDummyTripStart && skipCounter == 0){
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                 tripInfoPackage.rtcTime += 100;
                 registerDummyTripStart = true;
+                registerDummyTripEnd = false;
+                skipCounter = 2;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
-            else if (!registerDummyTripEnd){
+            else if (!registerDummyTripEnd && skipCounter == 0){
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                 tripInfoPackage.rtcTime += 1000;
                 tripInfoPackage.mileage += 150;
                 registerDummyTripEnd = true;
+                registerDummyTripStart = false;
                 skipCounter = 2;
                 LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
             }
@@ -512,12 +515,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     skipCounter--;
                 }
                 //go back into simulate trip start and trip end mode again
-                else{
-                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
-                    registerDummyTripStart = false;
-                    registerDummyTripEnd = false;
-                    skipCounter = 2;
-                }
                 return;
             }
         }
