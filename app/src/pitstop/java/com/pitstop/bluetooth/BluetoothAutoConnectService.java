@@ -450,6 +450,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean registerDummyTripStart = false;
     private boolean registerDummyTripEnd = false;
     private int skipCounter = 0;
+    private int dummyTripId = 0;
 
     /**
      * Handles trip data containing mileage
@@ -488,13 +489,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         **objects since the simulator only sends update objects*/
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
 
-            //We don't want to add to pending trip list if its an update
-            if (terminalRTCTime == -1) return;
-
-            int dummyTripId = 0;
+            //We don't want to add to pending trip list if its an update or historical
+            if (terminalRTCTime == -1 || tripInfoPackage.rtcTime < terminalRTCTime) return;
 
             if (!registerDummyTripStart && skipCounter == 0){
-                dummyTripId = tripInfoPackage.tripId + (int)tripInfoPackage.rtcTime;
+                if (dummyTripId == 0){
+                    dummyTripId = tripInfoPackage.tripId;
+                }
+                else{
+                    dummyTripId += 100;
+                }
+
                 tripInfoPackage.tripId = dummyTripId;
 
                 tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
@@ -580,7 +585,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     @Override
                     public void onError() {
                         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Use case returned error", true
+                                        +" TRIP END Use case returned error", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
                 });
@@ -600,6 +605,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
                                         +" Real-time trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            }
+                        },TRIP_END_DELAY);
                     }
 
                     @Override

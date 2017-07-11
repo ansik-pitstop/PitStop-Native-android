@@ -41,6 +41,13 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
             @Override
             public void onSuccess(Trip215 data) {
 
+                //Another trip start got posted before onSuccess called, ignore trip end
+                //Back-end should have the logic implemented to take care of this case
+                if (data.getMileage() > tripInfoPackage.mileage){
+                    callback.onRealTimeTripEndSuccess();
+                    return;
+                }
+
                 Trip215 tripEnd = convertToTrip215End(tripInfoPackage,data);
 
                 //Store trip end
