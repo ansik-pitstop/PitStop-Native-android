@@ -14,10 +14,12 @@ import com.pitstop.network.RequestCallback;
 public class TripStart extends TripIndicator {
 
     private String scannerId;
+    private double tripStartMileage;
 
-    public TripStart(int tripId, String rtcTime, String scannerId) {
+    public TripStart(int tripId, String rtcTime, String scannerId, double tripStartMileage) {
         super(tripId, rtcTime);
         this.scannerId = scannerId;
+        this.tripStartMileage = tripStartMileage;
     }
 
     public String getScannerId() {
@@ -30,6 +32,6 @@ public class TripStart extends TripIndicator {
                 .contextModule(new ContextModule(context))
                 .build();
         tempNetworkComponent.networkHelper().sendTripStart(scannerId, rtcTime,
-                tripId == -1 ? "0" : String.valueOf(tripId), callback);
+                tripId == -1 ? "0" : String.valueOf(tripId), String.valueOf(tripStartMileage), callback);
     }
 }
