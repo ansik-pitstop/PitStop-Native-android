@@ -447,6 +447,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private long terminalRTCTime = -1;
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+
+    //Variables below are used for testing
     private boolean registerDummyTripStart = false;
     private boolean registerDummyTripEnd = false;
     private int skipCounter = 0;
