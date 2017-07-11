@@ -472,65 +472,66 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*Create dummy start and end trip objects using the received update
         **objects since the simulator only sends update objects*/
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-
-            //We don't want to add to pending trip list if its an update or historical
-            if (terminalRTCTime == -1 || tripInfoPackage.rtcTime < terminalRTCTime) return;
-
-            if (!registerDummyTripStart && skipCounter == 0){
-                if (dummyTripId == -1){
-                    if (isConnectedTo215()){
-                        dummyTripId = tripInfoPackage.tripId;
-                    }
-                    else{
-                        dummyTripId = (int)tripInfoPackage.rtcTime;
-                    }
-                }
-                else{
-                    dummyTripId += 100;
-                }
-
-                //Make sure start mileages make sense, meaning last trip end is this ones start
-                if (lastTripEndMileage != -1 && isConnectedTo215()){
-                    tripInfoPackage.mileage = lastTripEndMileage;
-                }
-                else if (!isConnectedTo215()){
-                    tripInfoPackage.mileage = 0;
-                }
-
-                tripInfoPackage.tripId = dummyTripId;
-                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-                tripInfoPackage.rtcTime += 100;
-                registerDummyTripStart = true;
-                registerDummyTripEnd = false;
-                skipCounter = 8;
-                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-            }
-            else if (!registerDummyTripEnd && skipCounter == 0){
-
-                tripInfoPackage.tripId = dummyTripId;
-                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-                tripInfoPackage.rtcTime += 1000;
-                tripInfoPackage.mileage += 150;
-                lastTripEndMileage = tripInfoPackage.mileage;
-                registerDummyTripEnd = true;
-                registerDummyTripStart = false;
-                skipCounter = 8;
-                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-            }
-            //Skip 4 trip updates before create dummy trip start and trip end again
-            else{
-                LogUtils.LOGD(TAG,"Skipping trip update, skips left:"+(skipCounter-1));
-                if (skipCounter > 0){
-                    skipCounter--;
-                }
-                //go back into simulate trip start and trip end mode again
-                return;
-            }
-        }
+//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+//
+//            //We don't want to add to pending trip list if its an update or historical
+//            if (terminalRTCTime == -1 || tripInfoPackage.rtcTime < terminalRTCTime) return;
+//
+//            if (!registerDummyTripStart && skipCounter == 0){
+//                if (dummyTripId == -1){
+//                    if (isConnectedTo215()){
+//                        dummyTripId = tripInfoPackage.tripId;
+//                    }
+//                    else{
+//                        dummyTripId = (int)tripInfoPackage.rtcTime;
+//                    }
+//                }
+//                else{
+//                    dummyTripId += 100;
+//                }
+//
+//                //Make sure start mileages make sense, meaning last trip end is this ones start
+//                if (lastTripEndMileage != -1 && isConnectedTo215()){
+//                    tripInfoPackage.mileage = lastTripEndMileage;
+//                }
+//                else if (!isConnectedTo215()){
+//                    tripInfoPackage.mileage = 0;
+//                }
+//
+//                tripInfoPackage.tripId = dummyTripId;
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+//                tripInfoPackage.rtcTime += 100;
+//                registerDummyTripStart = true;
+//                registerDummyTripEnd = false;
+//                skipCounter = 8;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            else if (!registerDummyTripEnd && skipCounter == 0){
+//
+//                tripInfoPackage.tripId = dummyTripId;
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+//                tripInfoPackage.rtcTime += 1000;
+//                tripInfoPackage.mileage += 150;
+//                lastTripEndMileage = tripInfoPackage.mileage;
+//                registerDummyTripEnd = true;
+//                registerDummyTripStart = false;
+//                skipCounter = 8;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            //Skip 4 trip updates before create dummy trip start and trip end again
+//            else{
+//                LogUtils.LOGD(TAG,"Skipping trip update, skips left:"+(skipCounter-1));
+//                if (skipCounter > 0){
+//                    skipCounter--;
+//                }
+//                //go back into simulate trip start and trip end mode again
+//                return;
+//            }
+//        }
 
         /*********************************TEST CODE END**********************************/
 
+        //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
             return;
         }
