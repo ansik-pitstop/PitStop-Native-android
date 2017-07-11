@@ -52,7 +52,6 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.Trip215EndUseCase;
 import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
@@ -763,26 +762,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if(lastData != null) {
                     sendPidDataResult4ToServer(lastData);
                 }
-
-                useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                    @Override
-                    public void onCarRetrieved(Car car) {
-                        tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime
-                                , pidPackage.deviceId, car.getTotalMileage()));
-                        executeTripRequests();
-                    }
-
-                    @Override
-                    public void onNoCarSet() {
-
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
-
+                tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime, pidPackage.deviceId));
+                executeTripRequests();
             }
         }
 
@@ -1597,25 +1578,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                @Override
-                public void onCarRetrieved(Car car) {
-                    tripRequestQueue.add(new TripStart(Integer.parseInt(tripId), rtcTime
-                            , deviceId,car.getTotalMileage()));
-                    executeTripRequests();
-                }
-
-                @Override
-                public void onNoCarSet() {
-
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
-
+            tripRequestQueue.add(new TripStart(Integer.parseInt(tripId), rtcTime, deviceId));
+            executeTripRequests();
         }
     }
 
@@ -1685,25 +1649,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         } else {
             isSendingPids = false;
-            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                @Override
-                public void onCarRetrieved(Car car) {
-                    tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime
-                            , currentDeviceId,car.getTotalMileage()));
-
-                    executeTripRequests();
-                }
-
-                @Override
-                public void onNoCarSet() {
-
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
+            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, currentDeviceId));
+            executeTripRequests();
         }
     }
 
