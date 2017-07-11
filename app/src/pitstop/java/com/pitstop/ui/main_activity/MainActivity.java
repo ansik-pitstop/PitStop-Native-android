@@ -78,7 +78,6 @@ import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
@@ -190,8 +189,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private NetworkHelper networkHelper;
 
     private boolean userSignedUp;
-
-    public static MainDashboardCallback mainDashboardCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
 
@@ -598,9 +595,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-        Log.d(TAG,"tripData() called");
-        if (mainDashboardCallback != null)
-            mainDashboardCallback.tripData(tripInfoPackage);
+
     }
 
     @Override

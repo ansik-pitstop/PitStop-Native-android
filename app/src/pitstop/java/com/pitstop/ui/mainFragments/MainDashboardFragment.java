@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -22,7 +21,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,7 +36,6 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
@@ -72,7 +69,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainDashboardFragment extends CarDataFragment implements MainDashboardCallback {
+public class MainDashboardFragment extends CarDataFragment {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
@@ -166,7 +163,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        MainActivity.mainDashboardCallback = this;
     }
 
     public static MainDashboardFragment newInstance() {
@@ -548,84 +544,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         }else{
             return 0;
         }
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-        if (dashboardCar == null) return;
-
-        Log.d(TAG,"tripData(), tripInfoPackage: "+tripInfoPackage);
-
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
-
-            //Wait for 5 seconds before updating mileage
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                        @Override
-                        public void onCarRetrieved(Car car) {
-                            displayMileage(car.getTotalMileage());
-                            Log.d(TAG,"Received car mileage 5 seconds after trip end "+car.getTotalMileage());
-
-                        }
-
-                        @Override
-                        public void onNoCarSet() {
-
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
-                }
-            },5000);
-
-        }
-
-//        Log.d(TAG,"Got trip data.");
-//        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-//            final double newTotalMileage;
-//            if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
-//                if (tripInfoPackage.rtcTime >= Long.valueOf(sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null)))
-//                    newTotalMileage = (dashboardCar.getTotalMileage() + tripInfoPackage.mileage) - Double.valueOf(sharedPreferences.getString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), null));
-//                else
-//                    return;
-//            else
-//                newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-//
-//            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
-//
-//            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-//                dashboardCar.setDisplayedMileage(newTotalMileage);
-//                carLocalStore.updateCar(dashboardCar);
-//            }
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-//                    mMileageText.setText(String.format("%.2f km", newTotalMileage));
-//                }
-//            });
-//
-//        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-//            //dashboardCar = carLocalStore.getCar(dashboardCar.getTripId());
-//            final double newBaseMileage = dashboardCar.getTotalMileage();
-//            //mCallback.onTripMileageUpdated(newBaseMileage);
-//
-//        }
-    }
-
-    private void displayMileage(double mileage){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                mMileageText.setText(String.format("%.2f km", mileage));
-            }
-        });
     }
 
     /**

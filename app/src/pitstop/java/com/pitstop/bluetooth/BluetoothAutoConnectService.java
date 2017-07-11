@@ -101,6 +101,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public static final String LAST_RTC = "last_rtc-{car_vin}";
     public static final String LAST_MILEAGE = "mileage-{car_vin}";
 
+    private static final int TRIP_END_DELAY = 5000;
+
     private final IBinder mBinder = new BluetoothBinder();
     private BluetoothDeviceManager deviceManager;
     private List<ObdManager.IBluetoothDataListener> callbacks = new ArrayList<>();
@@ -462,11 +464,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , true, DebugMessage.TYPE_BLUETOOTH
                 , getApplicationContext());
 
-        //UNCOMMENT THIS AFTER TESTING DONE
-        //No longer handle trip updates
-//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-//            return;
-//        }
+//        UNCOMMENT THIS AFTER TESTING DONE
+//        No longer handle trip updates
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            return;
+        }
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
@@ -484,40 +486,40 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*Create dummy start and end trip objects using the received update
         **objects since the simulator only sends update objects*/
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-
-            //We don't want to add to pending trip list if its an update
-            if (terminalRTCTime == -1) return;
-
-            if (!registerDummyTripStart){
-                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-                tripInfoPackage.rtcTime += 100;
-                registerDummyTripStart = true;
-                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-            }
-            else if (!registerDummyTripEnd){
-                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-                tripInfoPackage.rtcTime += 1000;
-                tripInfoPackage.mileage += 150;
-                registerDummyTripEnd = true;
-                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-            }
-            //Skip 4 trip updates before create dummy trip start and trip end again
-            else{
-                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
-                if (skipCounter > 0){
-                    skipCounter--;
-                }
-                //go back into simulate trip start and trip end mode again
-                else{
-                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
-                    registerDummyTripStart = false;
-                    registerDummyTripEnd = false;
-                    skipCounter = 4;
-                }
-                return;
-            }
-        }
+//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+//
+//            //We don't want to add to pending trip list if its an update
+//            if (terminalRTCTime == -1) return;
+//
+//            if (!registerDummyTripStart){
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+//                tripInfoPackage.rtcTime += 100;
+//                registerDummyTripStart = true;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            else if (!registerDummyTripEnd){
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+//                tripInfoPackage.rtcTime += 1000;
+//                tripInfoPackage.mileage += 150;
+//                registerDummyTripEnd = true;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            //Skip 4 trip updates before create dummy trip start and trip end again
+//            else{
+//                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
+//                if (skipCounter > 0){
+//                    skipCounter--;
+//                }
+//                //go back into simulate trip start and trip end mode again
+//                else{
+//                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
+//                    registerDummyTripStart = false;
+//                    registerDummyTripEnd = false;
+//                    skipCounter = 4;
+//                }
+//                return;
+//            }
+//        }
 
         /*********************************TEST CODE END**********************************/
 
@@ -560,6 +562,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
                                         +" Real-time END trip end saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                        //Send update mileage notification after 5 seconds to allow back-end to process mileage
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            }
+                        },TRIP_END_DELAY);
+
                     }
 
                     @Override
@@ -880,7 +891,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                     if (dtcListReference.indexOf(dtc)
                                                             == dtcListReference.size()-1){
 
-                                                        notifyDtcAddedToEventBus();
+                                                        notifyEventBus(new EventTypeImpl(
+                                                                EventType.EVENT_DTC_NEW));
                                                     }
                                                 }
                                             });
@@ -902,9 +914,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcAddedToEventBus(){
-        EventType eventType
-                = new EventTypeImpl(EventType.EVENT_DTC_NEW);
+    private void notifyEventBus(EventType eventType){
         CarDataChangedEvent carDataChangedEvent
                 = new CarDataChangedEvent(eventType,EVENT_SOURCE);
         EventBus.getDefault().post(carDataChangedEvent);
@@ -1778,7 +1788,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                         //Send notification that dtcs have been updated
                                         // after last one has been sent
                                         if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
-                                            notifyDtcAddedToEventBus();
+                                            notifyEventBus(new EventTypeImpl(EventType
+                                                    .EVENT_DTC_NEW));
                                         }
                                     }
                                 });
