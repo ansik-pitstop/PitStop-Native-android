@@ -466,9 +466,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
 //        UNCOMMENT THIS AFTER TESTING DONE
 //        No longer handle trip updates
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            return;
-        }
+//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+//            return;
+//        }
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
@@ -486,40 +486,40 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*Create dummy start and end trip objects using the received update
         **objects since the simulator only sends update objects*/
-//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-//
-//            //We don't want to add to pending trip list if its an update
-//            if (terminalRTCTime == -1) return;
-//
-//            if (!registerDummyTripStart){
-//                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-//                tripInfoPackage.rtcTime += 100;
-//                registerDummyTripStart = true;
-//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-//            }
-//            else if (!registerDummyTripEnd){
-//                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-//                tripInfoPackage.rtcTime += 1000;
-//                tripInfoPackage.mileage += 150;
-//                registerDummyTripEnd = true;
-//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
-//            }
-//            //Skip 4 trip updates before create dummy trip start and trip end again
-//            else{
-//                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
-//                if (skipCounter > 0){
-//                    skipCounter--;
-//                }
-//                //go back into simulate trip start and trip end mode again
-//                else{
-//                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
-//                    registerDummyTripStart = false;
-//                    registerDummyTripEnd = false;
-//                    skipCounter = 4;
-//                }
-//                return;
-//            }
-//        }
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+
+            //We don't want to add to pending trip list if its an update
+            if (terminalRTCTime == -1) return;
+
+            if (!registerDummyTripStart){
+                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                tripInfoPackage.rtcTime += 100;
+                registerDummyTripStart = true;
+                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+            }
+            else if (!registerDummyTripEnd){
+                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+                tripInfoPackage.rtcTime += 1000;
+                tripInfoPackage.mileage += 150;
+                registerDummyTripEnd = true;
+                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+            }
+            //Skip 4 trip updates before create dummy trip start and trip end again
+            else{
+                LogUtils.LOGD(TAG,"Skipping trip update, skipCounter:"+skipCounter);
+                if (skipCounter > 0){
+                    skipCounter--;
+                }
+                //go back into simulate trip start and trip end mode again
+                else{
+                    LogUtils.LOGD(TAG,"Resetting skipCounter to 4 skipCounter="+skipCounter);
+                    registerDummyTripStart = false;
+                    registerDummyTripEnd = false;
+                    skipCounter = 3;
+                }
+                return;
+            }
+        }
 
         /*********************************TEST CODE END**********************************/
 
@@ -717,7 +717,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned pidPackage:"+pidPackage.toString());
-            broadcastPidData(pidPackage);
             return;
         }
 

@@ -21,6 +21,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -155,15 +156,6 @@ public class MainDashboardFragment extends CarDataFragment {
     private UseCaseComponent useCaseComponent;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
-
-    /**
-     * Monitor app connection to device, so that ui can be updated
-     * appropriately.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
 
     public static MainDashboardFragment newInstance() {
         MainDashboardFragment fragment = new MainDashboardFragment();
@@ -544,6 +536,16 @@ public class MainDashboardFragment extends CarDataFragment {
         }else{
             return 0;
         }
+    }
+
+    private void displayMileage(double mileage){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                mMileageText.setText(String.format("%.2f km", mileage));
+            }
+        });
     }
 
     /**
