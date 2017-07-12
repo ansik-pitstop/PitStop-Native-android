@@ -616,11 +616,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
         if (BuildConfig.DEBUG && !ignoreMissingDeviceName){
-            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()
-                    && autoConnectService.getConnectedDeviceName().endsWith("XXX")){
-
+            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
                 displayGetScannerIdDialog();
-
             }
         }
     }
