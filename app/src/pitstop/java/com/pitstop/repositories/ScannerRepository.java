@@ -61,7 +61,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getError());
+                    callback.onError(requestError.getStatusCode());
                 }
             }
         };
@@ -81,7 +81,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getError());
+                    callback.onError(requestError.getStatusCode());
                 }
             }
         };
@@ -120,12 +120,12 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(requestError.getError());
+                        callback.onError(requestError.getStatusCode());
                         e.printStackTrace();
                     }
                 }
                 else{
-                    callback.onError(requestError.getError());
+                    callback.onError(requestError.getStatusCode());
                 }
             }
         };

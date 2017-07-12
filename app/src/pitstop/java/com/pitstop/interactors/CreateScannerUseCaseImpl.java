@@ -53,7 +53,7 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
                     }
 
                     @Override
-                    public void onError(String error) {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
@@ -61,7 +61,7 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
             }
 
             @Override
-            public void onError(String error) {
+            public void onError(int error) {
                 callback.onError();
             }
         });
