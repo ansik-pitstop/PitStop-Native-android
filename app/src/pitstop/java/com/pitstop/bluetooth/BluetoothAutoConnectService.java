@@ -168,7 +168,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * State variable for tracking bluetooth connection time in mixpanel
      */
     private boolean bluetoothConnectedTimeEventStarted = false;
-    private boolean deviceRTCSync = true;
     /**
      * for periodic bluetooth scans
      */
@@ -391,7 +390,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             currentDeviceId = responsePackageInfo.deviceId;
-            deviceRTCSync = true;
             saveSyncedDevice(responsePackageInfo.deviceId);
         }
 
@@ -689,7 +687,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
-                && terminalRTCTime == -1 && deviceRTCSync){
+                && terminalRTCTime == -1 && !AddCarActivity.addingCarWithDevice){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
         }
 
@@ -1157,9 +1155,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public void syncObdDevice() {
         LogUtils.debugLogI(TAG, "Resetting RTC time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        terminalRTCTime = -1;
-        deviceRTCSync = false;
         deviceManager.setRtc(System.currentTimeMillis());
+        terminalRTCTime = System.currentTimeMillis();
     }
 
     public void setDeviceNameAndId(String name){
