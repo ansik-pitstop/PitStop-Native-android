@@ -750,7 +750,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                         }
                                     });
                         }
-                        //ADDRESS THIS CASE
+                        //Update scanner once the user updates it
                         else if (!carScannerValid && !deviceIdValid){
 
                         }
