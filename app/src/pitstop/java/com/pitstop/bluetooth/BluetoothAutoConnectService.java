@@ -602,6 +602,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
 
                     @Override
+                    public void onStartTripNotFound() {
+                        LogUtils.debugLogD(TAG, "Trip start not found, mileage will update on "
+                                +"next trip start", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    }
+
+                            @Override
                     public void onError() {
                         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
                                         +" TRIP END Use case returned error", true
