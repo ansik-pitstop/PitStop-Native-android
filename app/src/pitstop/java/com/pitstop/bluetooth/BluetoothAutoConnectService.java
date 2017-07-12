@@ -222,7 +222,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         registerBroadcastReceiver();
 
-        Runnable runnable = new Runnable() { // start background search
+        Runnable periodScanRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
@@ -234,7 +234,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        handler.postDelayed(runnable, 15000);
+        //Sometimes terminal time might not be returned
+        Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
+            @Override
+            public void run() { // this is for auto connect for bluetooth classic
+                if (terminalRTCTime == -1){
+                    getObdDeviceTime();
+                }
+                handler.postDelayed(this, 10000);
+            }
+        };
+
+        handler.postDelayed(periodScanRunnable, 15000);
+        handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
