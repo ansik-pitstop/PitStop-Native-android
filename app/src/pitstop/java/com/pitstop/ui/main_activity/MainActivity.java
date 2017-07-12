@@ -9,14 +9,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
@@ -66,7 +64,6 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -615,7 +612,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
-        if (BuildConfig.DEBUG && !ignoreMissingDeviceName){
+        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                && !ignoreMissingDeviceName){
+
             if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
                 displayGetScannerIdDialog();
             }
@@ -642,6 +641,29 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             public void onClick(DialogInterface dialog,int id) {
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim().toUpperCase());
+
+                                useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                                    @Override
+                                    public void onCarRetrieved(Car car) {
+                                        if (car.getScannerId() != null && !car.getScannerId().isEmpty() ){
+                                            networkHelper.createNewScanner(car.getId()
+                                                    , input.getText().toString().trim().toUpperCase(),null);
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onNoCarSet() {
+
+                                    }
+
+                                    @Override
+                                    public void onError() {
+
+                                    }
+                                });
+
+
                                 idInput = true;
                             }
                         })
