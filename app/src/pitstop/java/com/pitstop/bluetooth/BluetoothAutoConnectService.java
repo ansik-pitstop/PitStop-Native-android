@@ -680,13 +680,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time
-        if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)
+        if (parameterPackage.paramType== ParameterPackage.ParamType.RTC_TIME
                 && terminalRTCTime == -1){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
         }
 
         //Check to see if VIN is correct
-        else if(parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)
+        else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCar){
             String vin = parameterPackage.value;
 
