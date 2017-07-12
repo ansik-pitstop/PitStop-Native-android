@@ -238,7 +238,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (terminalRTCTime == -1){
+                if (terminalRTCTime == -1 && deviceManager.getState()
+                        == IBluetoothCommunicator.CONNECTED){
                     getObdDeviceTime();
                 }
                 handler.postDelayed(this, 10000);
