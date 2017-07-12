@@ -15,13 +15,10 @@ import android.widget.Toast;
 
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.bluetooth.BluetoothDeviceRecognizer;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.utils.MixpanelHelper;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +62,11 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     @Override
     public int getState() {
         return btConnectionState;
+    }
+
+    @Override
+    public void disconnect(BluetoothDevice device) {
+        mBluetoothChat.closeConnect();
     }
 
     @Override

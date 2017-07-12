@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -80,6 +81,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private BluetoothCommunicator communicator;
 
     private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
+
+    private BluetoothDevice connectedDevice;
+
+    //List of invalid addresses from current or past search that we do not want to deal with again
+    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
     public enum CommType {
         CLASSIC, LE
@@ -213,6 +219,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
     }
 
+    public void onConnectedDeviceInvalid(){
+        bannedDeviceList.add(connectedDevice);
+        communicator.disconnect(connectedDevice);
+        startScan();
+    }
+
     /**
      * @param device
      */
@@ -246,6 +258,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
+        connectedDevice = device;
         communicator.connectToDevice(device);
     }
 
@@ -311,16 +324,35 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         //}
     }
 
+    private boolean isBanned(BluetoothDevice device){
+        for (BluetoothDevice d: bannedDeviceList){
+            if (d.getAddress().equals(device.getAddress())
+                    && d.getName().equals(device.getName())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     // for classic discovery
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
                 Log.d(TAG, deviceName + "   " + device.getAddress());
+
+                //Check whether device has already been added to invalid list during prior search
+                if (isBanned(device)){
+                    Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
+                            +" is on banned list and being ignored");
+                    return;
+                }
+
                 switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
                     case CONNECT:
                         Log.v(TAG, "Found device: " + deviceName);

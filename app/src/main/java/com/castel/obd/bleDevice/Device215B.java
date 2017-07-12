@@ -4,24 +4,26 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd215b.info.FaultInfo;
-import com.castel.obd215b.info.PIDInfo;
-import com.castel.obd215b.util.FaultParse;
-import com.castel.obd215b.util.Utils;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.info.DTCInfo;
+import com.castel.obd215b.info.FaultInfo;
 import com.castel.obd215b.info.IDRInfo;
+import com.castel.obd215b.info.PIDInfo;
 import com.castel.obd215b.info.SettingInfo;
 import com.castel.obd215b.util.Constants;
 import com.castel.obd215b.util.DataParseUtil;
 import com.castel.obd215b.util.DateUtil;
+import com.castel.obd215b.util.FaultParse;
+import com.castel.obd215b.util.Utils;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.DebugMessage;
+import com.pitstop.utils.LogUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -30,6 +32,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Ben Wu on 2016-08-29.
@@ -374,6 +378,9 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
+
+                    LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmValues: "+idrInfo.alarmValues
+                        +", deviceId: "+idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     if (idrInfo.alarmValues.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;

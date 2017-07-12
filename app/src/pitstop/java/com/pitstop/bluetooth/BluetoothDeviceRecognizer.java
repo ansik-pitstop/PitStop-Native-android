@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
@@ -55,6 +56,16 @@ public class BluetoothDeviceRecognizer {
         Log.d(TAG, "Any car lack scanner: " + mLocalScannerStore.anyCarLackScanner());
 
         logScannerTable();
+
+        //ONLY CONNECT TO THIS DEVICE FOR TESTING
+        if (BuildConfig.DEBUG){
+            //if (scannerName.endsWith("XXX")){
+                return RecognizeResult.CONNECT;
+            //}
+            //else{
+            //    return RecognizeResult.IGNORE;
+            //}
+        }
 
         if (AddCarActivity.addingCarWithDevice
                 || mLocalScannerStore.anyScannerLackName()

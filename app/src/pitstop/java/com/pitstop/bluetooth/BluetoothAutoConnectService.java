@@ -52,6 +52,7 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.Trip215EndUseCase;
 import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
@@ -84,6 +85,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Created by Paul Soladoye on 11/04/2016.
@@ -272,6 +274,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+            //Get VIN to validate car
+            getVinFromCar();
 
             //Get RTC and mileage once connected
             getObdDeviceTime();
@@ -674,9 +679,40 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        //Get terminal RTC time
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)
                 && terminalRTCTime == -1){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
+        }
+
+        //Check to see if VIN is correct
+        else if(parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)
+                && !AddCarActivity.addingCar){
+            String vin = parameterPackage.value;
+
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car) {
+                    LogUtils.debugLogD(TAG, "Comparing SelectedCarVin["+car.getVin()
+                            +"] and DeviceVin["+vin+"]", true
+                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    //Device VIN invalid, get a different one
+                    if (!car.getVin().equals(vin)){
+
+                        deviceManager.onConnectedDeviceInvalid();
+                    }
+                }
+
+                @Override
+                public void onNoCarSet() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
