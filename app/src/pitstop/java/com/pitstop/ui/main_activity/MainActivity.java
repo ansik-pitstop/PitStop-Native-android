@@ -641,29 +641,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                             public void onClick(DialogInterface dialog,int id) {
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim().toUpperCase());
-
-                                useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                                    @Override
-                                    public void onCarRetrieved(Car car) {
-                                        if (car.getScannerId() != null && !car.getScannerId().isEmpty() ){
-                                            networkHelper.createNewScanner(car.getId()
-                                                    , input.getText().toString().trim().toUpperCase(),null);
-                                        }
-
-                                    }
-
-                                    @Override
-                                    public void onNoCarSet() {
-
-                                    }
-
-                                    @Override
-                                    public void onError() {
-
-                                    }
-                                });
-
-
                                 idInput = true;
                             }
                         })
