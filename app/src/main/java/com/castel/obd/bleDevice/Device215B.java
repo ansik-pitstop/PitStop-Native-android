@@ -374,7 +374,17 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
-                    tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
+
+                    if (idrInfo.alarmValues.equals("2")){
+                        tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+                    }
+                    else if (idrInfo.alarmValues.equals("1")){
+                        tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                    }
+                    else{
+                        tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
+                    }
+
                     tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
 
                     dataListener.tripData(tripInfoPackage);
