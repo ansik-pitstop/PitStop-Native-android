@@ -38,7 +38,6 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -67,7 +66,6 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
@@ -745,28 +743,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 supportedPids = DEFAULT_PIDS;
             }
             deviceManager.setPidsToSend(supportedPids);
-        }
-
-
-        if (parameterPackage instanceof MultiParameterPackage && deviceManager.isConnectedTo215()){
-            MultiParameterPackage multiParameterPackage = (MultiParameterPackage) parameterPackage;
-            Log.d(TAG, "MultiparameterData: " + multiParameterPackage.toString());
-            if (carAdapter.getDashboardCar() != null || carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null)) != null){
-                Car dashboardCar;
-                if (carAdapter.getDashboardCar() != null)
-                    dashboardCar = carAdapter.getDashboardCar();
-                else
-                    dashboardCar = carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null));
-
-                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE) != null)
-                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE)).commit();
-
-                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME) != null){
-                    //Store terminal RTC time only at beginning
-                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME)).commit();
-                }
-
-            }
         }
 
         broadcastParameterData(parameterPackage);
