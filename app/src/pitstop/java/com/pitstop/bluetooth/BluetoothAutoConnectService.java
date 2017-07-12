@@ -51,6 +51,8 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.CreateScannerUseCase;
+import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.Trip215EndUseCase;
 import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
@@ -709,14 +711,51 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
                 public void onCarRetrieved(Car car) {
+
                     LogUtils.debugLogD(TAG, "Comparing SelectedCarVin["+car.getVin()
                             +"] and DeviceVin["+vin+"]", true
                             , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
                     //Device VIN invalid, get a different one
                     if (!car.getVin().equals(vin)){
-
                         deviceManager.onConnectedDeviceInvalid();
                     }
+                    else{
+                        boolean carScannerValid = car.getScannerId() != null && !car.getScannerId().isEmpty()
+                                && car.getScannerId().equals(currentDeviceId);
+                        boolean deviceIdValid = currentDeviceId != null && !currentDeviceId.isEmpty();
+
+                        //VIN matches and the device has an id that does not
+                        // match the cars or the cars is missing
+                        if (!carScannerValid && deviceIdValid){
+
+                            useCaseComponent.createScannerUseCase().execute(
+                                    new ObdScanner(car.getId(), currentDeviceId), new CreateScannerUseCase.Callback() {
+                                        @Override
+                                        public void onScannerCreated() {
+                                            LogUtils.debugLogD(TAG, "Car scanner updated/created", true
+                                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                        }
+
+                                        @Override
+                                        public void onDeviceAlreadyActive() {
+                                            LogUtils.debugLogD(TAG, "Could not update/create scanner, already active"
+                                                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            LogUtils.debugLogD(TAG, "Error updating/creating scanner", true
+                                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                        }
+                                    });
+                        }
+                        //ADDRESS THIS CASE
+                        else if (!carScannerValid && !deviceIdValid){
+
+                        }
+                    }
+
                 }
 
                 @Override
