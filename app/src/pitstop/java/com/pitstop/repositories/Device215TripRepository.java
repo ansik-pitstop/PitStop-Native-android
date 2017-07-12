@@ -97,6 +97,10 @@ public class Device215TripRepository implements Repository{
                 if (requestError == null){
                     try{
                         JSONObject data = new JSONObject(response);
+                        //Trip start didn't make it to backend
+                        if (!data.has("id")){
+                            callback.onSuccess(null);
+                        }
                         int id = data.getInt("id");
                         double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");

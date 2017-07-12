@@ -379,13 +379,13 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
 
-                    LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmValues: "+idrInfo.alarmValues
+                    LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", deviceId: "+idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                    if (idrInfo.alarmValues.equals("2")){
+                    if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                     }
-                    else if (idrInfo.alarmValues.equals("1")){
+                    else if (idrInfo.alarmEvents.equals("1")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                     }
                     else{

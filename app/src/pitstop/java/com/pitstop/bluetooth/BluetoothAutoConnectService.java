@@ -680,7 +680,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time
-        if (parameterPackage.paramType== ParameterPackage.ParamType.RTC_TIME
+        if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
                 && terminalRTCTime == -1){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
         }
