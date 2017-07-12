@@ -80,9 +80,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothCommunicator communicator;
 
-    private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
-
     private BluetoothDevice connectedDevice;
+
+    private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
 
     //List of invalid addresses from current or past search that we do not want to deal with again
     private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
@@ -219,9 +219,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
     }
 
+    //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
-        bannedDeviceList.add(connectedDevice);
+        mBluetoothDeviceRecognizer.banDevice(connectedDevice);
         communicator.disconnect(connectedDevice);
+        mBluetoothAdapter.cancelDiscovery();
         startScan();
     }
 
@@ -324,16 +326,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         //}
     }
 
-    private boolean isBanned(BluetoothDevice device){
-        for (BluetoothDevice d: bannedDeviceList){
-            if (d.getAddress().equals(device.getAddress())
-                    && d.getName().equals(device.getName())){
-                return true;
-            }
-        }
-        return false;
-    }
-
     // for classic discovery
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -346,14 +338,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 String deviceName = device.getName();
                 Log.d(TAG, deviceName + "   " + device.getAddress());
 
-                //Check whether device has already been added to invalid list during prior search
-                if (isBanned(device)){
-                    Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
-                            +" is on banned list and being ignored");
-                    return;
-                }
-
-                switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
+                switch (mBluetoothDeviceRecognizer.onDeviceFound(device)) {
                     case CONNECT:
                         Log.v(TAG, "Found device: " + deviceName);
                         if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
@@ -363,6 +348,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                             deviceInterface = new Device215B(mContext, dataListener, deviceName);
                             connectToDevice(device);
                         }
+                        break;
+
+                    case BANNED:
+                        Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
+                                +" is on banned list and being ignored");
                         break;
                 }
             }

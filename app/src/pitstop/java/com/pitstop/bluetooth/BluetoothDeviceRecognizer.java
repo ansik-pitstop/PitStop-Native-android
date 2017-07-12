@@ -3,6 +3,7 @@ package com.pitstop.bluetooth;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
@@ -20,6 +20,7 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,12 +33,14 @@ public class BluetoothDeviceRecognizer {
     private static final int NOTIFICATION_ID = 9101; // arbitrary id
 
     public enum RecognizeResult {
-        IGNORE, CONNECT, DISCONNECT
+        IGNORE, CONNECT, DISCONNECT, BANNED
     }
 
     private final LocalScannerAdapter mLocalScannerStore;
     private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
+
+    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
     public BluetoothDeviceRecognizer(Context context) {
         mLocalScannerStore = new LocalScannerAdapter(context);
@@ -45,10 +48,24 @@ public class BluetoothDeviceRecognizer {
         mContext = context;
     }
 
-    public RecognizeResult onDeviceFound(String scannerName) {
-        if (scannerName == null || !scannerName.contains(ObdManager.BT_DEVICE_NAME)) {
-            return RecognizeResult.IGNORE;
+    public void banDevice(BluetoothDevice device){
+        bannedDeviceList.add(device);
+    }
+
+    private boolean isBanned(BluetoothDevice device){
+        for (BluetoothDevice d: bannedDeviceList){
+            if (d.getAddress().equals(device.getAddress())
+                    && d.getName().equals(device.getName())){
+                return true;
+            }
         }
+        return false;
+    }
+
+    public RecognizeResult onDeviceFound(BluetoothDevice device) {
+        if (device == null) return RecognizeResult.DISCONNECT;
+
+        String scannerName = device.getName();
 
         Log.d(TAG, "Adding car with device: " + AddCarActivity.addingCarWithDevice);
         Log.d(TAG, "Any scanner lack name: " + mLocalScannerStore.anyScannerLackName());
@@ -57,27 +74,38 @@ public class BluetoothDeviceRecognizer {
 
         logScannerTable();
 
-        //ONLY CONNECT TO THIS DEVICE FOR TESTING
-        if (BuildConfig.DEBUG){
-            //if (scannerName.endsWith("XXX")){
-                return RecognizeResult.CONNECT;
-            //}
-            //else{
-            //    return RecognizeResult.IGNORE;
-            //}
+        if (scannerName == null || !scannerName.contains(ObdManager.BT_DEVICE_NAME)) {
+            return RecognizeResult.IGNORE;
+        }
+        else if (isBanned(device) && !AddCarActivity.addingCarWithDevice){
+            Log.d(TAG,"Device banned");
+            return RecognizeResult.BANNED;
+        }
+        else{
+            return RecognizeResult.CONNECT;
         }
 
-        if (AddCarActivity.addingCarWithDevice
-                || mLocalScannerStore.anyScannerLackName()
-                || mLocalScannerStore.deviceNameExists(scannerName)) {
-            return RecognizeResult.CONNECT;
-        } else if (mLocalScannerStore.anyCarLackScanner()) {
-            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
-            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
-            return RecognizeResult.IGNORE;
-        } else { // this part should never be reached.... but whatever
-            return RecognizeResult.IGNORE;
-        }
+//        //ONLY CONNECT TO THIS DEVICE FOR TESTING
+//        if (BuildConfig.DEBUG){
+//            //if (scannerName.endsWith("XXX")){
+//                return RecognizeResult.CONNECT;
+//            //}
+//            //else{
+//            //    return RecognizeResult.IGNORE;
+//            //}
+//        }
+//
+//        if (AddCarActivity.addingCarWithDevice
+//                || mLocalScannerStore.anyScannerLackName()
+//                || mLocalScannerStore.deviceNameExists(scannerName)) {
+//            return RecognizeResult.CONNECT;
+//        } else if (mLocalScannerStore.anyCarLackScanner()) {
+//            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
+//            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
+//            return RecognizeResult.IGNORE;
+//        } else { // this part should never be reached.... but whatever
+//            return RecognizeResult.IGNORE;
+//        }
     }
 
     public void onDeviceConnected(String scannerName, String scannerId){
