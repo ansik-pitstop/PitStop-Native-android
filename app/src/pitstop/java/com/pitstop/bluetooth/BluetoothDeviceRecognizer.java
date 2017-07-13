@@ -16,7 +16,6 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -65,19 +64,10 @@ public class BluetoothDeviceRecognizer {
     public RecognizeResult onDeviceFound(BluetoothDevice device) {
         if (device == null) return RecognizeResult.DISCONNECT;
 
-        //if (device.getName().equals(ObdManager.BT_DEVICE_NAME_215))
+        Log.d(TAG,"onDeviceFound, device: "+device);
 
-        String scannerName = device.getName();
-
-        Log.d(TAG, "OnDeviceFound() name:"+device.getName()+" address:"+device.getAddress());
-        Log.d(TAG, "Adding car with device: " + AddCarActivity.addingCarWithDevice);
-        Log.d(TAG, "Any scanner lack name: " + mLocalScannerStore.anyScannerLackName());
-        Log.d(TAG, "Device name exists: " + mLocalScannerStore.deviceNameExists(scannerName));
-        Log.d(TAG, "Any car lack scanner: " + mLocalScannerStore.anyCarLackScanner());
-
-        logScannerTable();
-
-        if (scannerName == null || !scannerName.contains(ObdManager.BT_DEVICE_NAME)) {
+        if (device.getName() == null || !device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+            Log.d(TAG,"scanner name null or scanner name doesn't contain BT_DEVICE_NAME");
             return RecognizeResult.IGNORE;
         }
         else if (isBanned(device) && !AddCarActivity.addingCarWithDevice){
@@ -85,6 +75,7 @@ public class BluetoothDeviceRecognizer {
             return RecognizeResult.BANNED;
         }
         else{
+            Log.d(TAG,"Returning CONNECT");
             return RecognizeResult.CONNECT;
         }
 
@@ -154,16 +145,6 @@ public class BluetoothDeviceRecognizer {
                         .setContentText("Tap to pair with " + scannerName);
 
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    private void logScannerTable() {
-        List<ObdScanner> scanners = mLocalScannerStore.getAllScanners();
-        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
-        for (ObdScanner scanner : scanners) {
-            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
-            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
-            Log.d(TAG, "Car ID: " + scanner.getCarId());
-        }
     }
 
 }

@@ -223,7 +223,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void onConnectedDeviceInvalid(){
         mBluetoothDeviceRecognizer.banDevice(connectedDevice);
         communicator.disconnect(connectedDevice);
-        mBluetoothAdapter.cancelDiscovery();
+        if (mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+        }
         startScan();
     }
 
