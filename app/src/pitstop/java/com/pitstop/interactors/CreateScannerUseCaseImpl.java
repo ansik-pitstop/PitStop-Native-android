@@ -32,6 +32,9 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     @Override
     public void run() {
 
+        //Active scanner
+        obdScanner.setStatus(true);
+
         //Check to see if this scanner is already active
         scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
 

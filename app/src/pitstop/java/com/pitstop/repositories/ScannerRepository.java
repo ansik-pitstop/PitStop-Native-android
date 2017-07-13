@@ -54,6 +54,7 @@ public class ScannerRepository implements Repository {
             e.printStackTrace();
         }
 
+        Log.d(TAG,"PUT scanner, body= "+body.toString());
         networkHelper.put("scanner", callback, body);
     }
 

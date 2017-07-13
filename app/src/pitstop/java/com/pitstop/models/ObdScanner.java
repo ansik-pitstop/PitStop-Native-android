@@ -65,4 +65,9 @@ public class ObdScanner {
     public void setDatanum(String datanum) {
         this.datanum = datanum;
     }
+
+    @Override
+    public String toString(){
+        return "device name: "+deviceName +", scanner id:"+scannerId+", car id: "+carId;
+    }
 }

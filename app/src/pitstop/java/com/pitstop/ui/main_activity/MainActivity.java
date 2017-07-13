@@ -318,7 +318,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     protected void onResume() {
         super.onResume();
 
-        Log.d(TAG, "onResume");
+        Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -358,8 +358,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         super.onDestroy();
 
         Log.i(TAG, "onDestroy");
-        if (serviceIsBound) {
-            unbindService(serviceConnection);
+        if (serviceIntent != null){
+            stopService(serviceIntent);
         }
     }
 
