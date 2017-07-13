@@ -729,7 +729,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                         boolean carScannerValid = car.getScannerId() != null && !car.getScannerId().isEmpty()
                                 && car.getScannerId().equals(currentDeviceId);
-                        boolean deviceIdValid = currentDeviceId != null && !currentDeviceId.isEmpty();
+                        boolean deviceIdValid = parameterPackage.deviceId != null
+                                && !parameterPackage.deviceId.isEmpty();
 
                         LogUtils.debugLogD(TAG, "VIN VALID: carScannerValid?"+carScannerValid
                                 +" deviceIdValid?"+deviceIdValid, true
