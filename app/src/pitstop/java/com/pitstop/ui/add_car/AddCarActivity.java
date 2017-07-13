@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,25 +25,25 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
+import com.pitstop.adapters.AddCarViewPagerAdapter;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.R;
-import com.pitstop.adapters.AddCarViewPagerAdapter;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.view_fragment.AddCar1Fragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2NoDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2YesDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarMileageDialog;
 import com.pitstop.ui.add_car.view_fragment.AddCarViewPager;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -64,7 +63,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     // extras
     public static final String EXTRA_PAIR_PENDING = "com.pitstop.ui.add_car.AddCarActivity.extra_pair_pending";
-    public static boolean isPairingUnrecognizedDevice = false;
 
     // activity result
     public static final int ADD_CAR_SUCCESS = 51;
@@ -149,8 +147,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_add_car_fragmented);
-        isPairingUnrecognizedDevice = getIntent().getBooleanExtra(EXTRA_PAIR_PENDING, false);
-        setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext(), isPairingUnrecognizedDevice));
+        setPresenter(new AddCarPresenter(this, (GlobalApplication) getApplicationContext()));
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
         component = DaggerUseCaseComponent.builder()
@@ -160,14 +157,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         mPager = (AddCarViewPager) findViewById(R.id.add_car_view_pager);
         mPagerAdapter = new AddCarViewPagerAdapter(getSupportFragmentManager(), this);
 
-        if (isPairingUnrecognizedDevice) {
-            addingCarWithDevice = true;
-            mPagerAdapter.addFragment(AddCar2YesDongleFragment.class, "Pair Scanner", 0);
-            ((TextView) findViewById(R.id.step_text)).setText("Pair Scanner");
-        } else {
-            mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
-            carSuccessfullyAdded = false;
-        }
+
+        mPagerAdapter.addFragment(AddCar1Fragment.class, "STEP 1/3", 0);
+        carSuccessfullyAdded = false;
+
         mPager.setAdapter(mPagerAdapter);
         setupUIReferences();
 
@@ -286,11 +279,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      */
     public void searchForCar(View view) {
 
-        if (isPairingUnrecognizedDevice) { // if is searching for unrecognized device
-            presenter.searchForUnrecognizedDevice();
-            return;
-        }
-
         try { // Log in Mixpanel
             JSONObject properties = new JSONObject();
             properties.put("Button", addingCarWithDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
@@ -382,11 +370,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     protected void onResume() {
-        if (isPairingUnrecognizedDevice) {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.UNRECOGNIZED_MODULE_VIEW);
-        } else {
-            mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
-        }
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIEW);
 
         registerBluetoothReceiver();
 
@@ -415,7 +399,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         hideLoading(null);
 
         addingCarWithDevice = false;
-        isPairingUnrecognizedDevice = false;
 
         if (serviceIsBound) {
             presenter.unbindBluetoothService();
@@ -569,12 +552,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (!isPairingUnrecognizedDevice) {
-                            mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
-                            searchForCar(null);
-                        } else {
-                            presenter.searchForUnrecognizedDevice();
-                        }
+                        mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
+                        searchForCar(null);
                     }
                 })
                 .setNegativeButton("NO", null)
@@ -684,124 +663,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);*/
     }
 
-    /**
-     * During pair car with device process, when the scanner does not return the VIN
-     *
-     * @param scannerName
-     * @param scannerId
-     */
-    @Override
-    public void showSelectCarDialog(final String scannerName, final String scannerId) {
-        if (isFinishing()) return;
-
-        if (autoConnectService != null && !selectCarDialogShowing) {
-//            final CarListAdapter carListAdapter = new CarListAdapter(MainActivity.carList);
-            final CarListAdapter carListAdapter = new CarListAdapter(presenter.getAllLocalCars());
-            final Car[] pickedCar = new Car[1];
-
-            final AlertDialog d = new AnimatedDialogBuilder(this)
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setCancelable(false)
-                    .setTitle("Unrecognized module detected, please select the car this device is connected to:")
-                    .setSingleChoiceItems(carListAdapter, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            pickedCar[0] = (Car) carListAdapter.getItem(which);
-                        }
-                    })
-                    .setPositiveButton("Confirm", null)
-                    .setNegativeButton("Cancel", null)
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            selectCarDialogShowing = false;
-                        }
-                    }).create();
-
-            d.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    d.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (pickedCar[0] == null) {
-                                Toast.makeText(AddCarActivity.this, "Please pick a car!", Toast.LENGTH_SHORT).show();
-                            } else if (presenter.selectedValidCar(pickedCar[0])) {
-                                presenter.validateAndPostScanner(pickedCar[0], scannerId, scannerName);
-                                d.dismiss();
-                            } else {
-                                Toast.makeText(AddCarActivity.this, "This car has scanner!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-            });
-
-            d.show();
-            selectCarDialogShowing = true;
-        }
-    }
-
-    /**
-     * Show a dialog prompting user to pair the corresponding car
-     *
-     * @param existedCar  The car retrieved from the backend whose user_id matches current user id
-     * @param scannerName Current scanner name
-     * @param scannerId   Current scanner id
-     */
-    @Override
-    public void confirmPairCarWithDevice(final Car existedCar, final String scannerName, final String scannerId) {
-        if (isFinishing()) {
-            return;
-        }
-
-        new AnimatedDialogBuilder(this)
-                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                .setTitle("Unrecognized device found")
-                .setMessage("We have found a OBD bluetooth device " + scannerId + ", and it is connected to " +
-                        "your " + existedCar.getYear() + " " + existedCar.getMake() + " " + existedCar.getModel() +
-                        ". Do your want us to link the device with your car?")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.validateAndPostScanner(existedCar, scannerId, scannerName);
-                    }
-                }).show();
-    }
-
     @Override
     public void onPairingDeviceWithCar() {
         showLoading("Linking device with the vehicle...");
-    }
-
-    @Override
-    public void pairCarError(String errorMessage) {
-        if (isFinishing()) {
-            return;
-        }
-
-        new AnimatedDialogBuilder(this)
-                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                .setTitle("Error in pairing device")
-                .setMessage(errorMessage)
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.searchForUnrecognizedDevice();
-                    }
-                }).show();
     }
 
     @Override

@@ -35,10 +35,8 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.CreateScannerUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.BasePresenter;
@@ -57,6 +55,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * Created by yifan on 16/11/22.
@@ -82,9 +81,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
-    private final boolean isPairingUnrecognizedDevice;
-
-    public AddCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application, boolean isPairingUnrecognizedDevice) {
+    public AddCarPresenter(IBluetoothServiceActivity activity, GlobalApplication application) {
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(activity))
@@ -98,7 +95,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mLocalCarAdapter = new LocalCarAdapter(application);
         mAutoConnectService = activity.autoConnectService;
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
-        this.isPairingUnrecognizedDevice = isPairingUnrecognizedDevice;
 
         mUseCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(mApplication))
@@ -174,32 +170,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     @Override
-    public void searchForUnrecognizedDevice() {
-        checkBluetoothService();
-
-        mCallback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
-
-        if (ContextCompat.checkSelfPermission(mApplication, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(mApplication, MainActivity.LOC_PERMS[1]) != PackageManager.PERMISSION_GRANTED) {
-            mCallback.hideLoading("Location permissions are required");
-        } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
-            mCallback.hideLoading("Your device does not support bluetooth");
-        } else {
-            if (mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED) {
-                // Already connected to module
-                Log.i(TAG, "OBD device is connected, reading VIN");
-                mCallback.showLoading("We have found the device, verifying...");
-                getVinWithTimeout();
-            } else {
-                // Need to search for module
-                Log.i(TAG, "Searching for car but device not connected");
-                mCallback.showLoading("Searching for scanner, please make sure your car engine is on and OBD device is plugged in.");
-                searchCarWithTimeout();
-            }
-        }
-    }
-
-    @Override
     public void setPendingCarVin(final String vin) {
         pendingCar.setVin(vin);
     }
@@ -210,9 +180,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
         if (!mCallback.checkNetworkConnection(null)) {
             Log.d(TAG, "Start Pending Add Car");
-            if (!isPairingUnrecognizedDevice) {
                 mCallback.startPendingAddCarActivity(pendingCar);
-            }
             return;
         }
 
@@ -400,114 +368,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 });
     }
 
-
-    @Override
-    public void startPairingUnrecognizedDevice() {
-
-        checkBluetoothService();
-
-        if (!mCallback.checkNetworkConnection("Network unavailable. Please turn on your Wi-Fi or Cellular network and try again.")) {
-            return;
-        }
-
-        mCallback.showLoading("Checking car vin");
-        mNetworkHelper.getCarsByVin(pendingCar.getVin(), new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError != null) {
-                    mCallback.hideLoading("There was an error, please try again");
-                    Log.e(TAG, "Check vin: " + requestError.getMessage());
-                    return;
-                }
-
-                if (response.equals("{}")) {
-                    mCallback.hideLoading(null);
-                    mCallback.pairCarError("Oops, we didn't find the information for the car we are currently connected to, please turn off your Bluetooth and retry.");
-                } else { // VIN exists in the backend
-                    mCallback.hideLoading("Car information found!");
-
-                    // Car exists
-                    Car existedCar = null;
-                    try {
-                        existedCar = Car.createCar(response);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (existedCar != null) {
-                        int carUserId = existedCar.getUserId();
-                        String carScannerId = existedCar.getScannerId();
-                        Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
-                        mLocalCarAdapter.updateCar(existedCar);
-
-                        if (carUserId > 0 && carUserId != mApplication.getCurrentUserId()) {
-                            mCallback.pairCarError("Sorry, the car we have connected to (" +
-                                    existedCar.getYear() + " " + existedCar.getMake() + " " + existedCar.getModel() +
-                                    ") belong to another user, please turn off your bluetooth and try again later.");
-                        } else if (carScannerId != null) {
-                            mCallback.pairCarError("Sorry, the car we have connected to already has a scanner connected to it," +
-                                    " please turn off your bluetooth and try again later.");
-                        } else {
-                            mCallback.confirmPairCarWithDevice(existedCar,
-                                    mAutoConnectService.getConnectedDeviceName(),
-                                    mAutoConnectService.getCurrentDeviceId());
-                        }
-                    } else {
-                        mCallback.pairCarError("Sorry, unknown error happened when we are validating the VIN number, please try again.");
-                    }
-                }
-            }
-        });
-    }
-
     @Override
     public boolean selectedValidCar(Car car) {
         return !mLocalScannerAdapter.carHasDevice(car.getId());
-    }
-
-    /**
-     * 1. Check with the backend and see if scanner is valid <br>
-     * 2. If so, create an association with the car selected and the scanner <br>
-     * 3. On success, store scanner information locally, and finish.
-     *
-     * @param car         selected car or the car retrieved from the backend by its VIN
-     * @param scannerId   The current scannerId
-     * @param scannerName The current scannerName
-     */
-    @Override
-    public void validateAndPostScanner(final Car car, final String scannerId, final String scannerName) {
-
-        Log.d(TAG,"valiateAndPostScanner() called.");
-
-        if (!mCallback.checkNetworkConnection(null)) return;
-
-        mCallback.onPairingDeviceWithCar();
-
-        ObdScanner obdScanner = new ObdScanner(car.getId(),scannerName,scannerId);
-        mUseCaseComponent.createScannerUseCase().execute(obdScanner, new CreateScannerUseCase.Callback() {
-            @Override
-            public void onScannerCreated() {
-                Log.d(TAG,"valiateAndPostScanner(): onScannerCreated()");
-                mMixpanelHelper.trackDetectUnrecognizedModule(
-                        MixpanelHelper.UNRECOGNIZED_MODULE_PAIRING_SUCCESS);
-                mCallback.onDeviceSuccessfullyPaired(car);
-            }
-
-            @Override
-            public void onDeviceAlreadyActive() {
-                Log.d(TAG, "validateAndPostScanner(): onDeviceAlreadyActive()");
-                mCallback.pairCarError("This device has been paired with another car.");
-                mMixpanelHelper.trackDetectUnrecognizedModule(
-                        MixpanelHelper.UNRECOGNIZED_MODULE_INVALID_ID);
-            }
-
-            @Override
-            public void onError() {
-                Log.d(TAG, "validateAndPostScanner(): onError");
-                mCallback.pairCarError("Network errors, please try again later");
-                mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_NETWORK_ERROR);
-            }
-        });
     }
 
 
@@ -772,20 +635,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     mAutoConnectService.setFixedUpload();
                     pendingCar.setVin(retrievedVin);
 
-                    if (isPairingUnrecognizedDevice) { // is adding a scanner to a car
-                        startPairingUnrecognizedDevice();
-                    } else { // is adding a new car (with a scanner)
-                        startAddingNewCar();
-                        mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-                    }
+                    startAddingNewCar();
+                    mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
                 } else if (!needToSetTime && getVinAttempts > 8) { /* || -> && */
                     isAskingForVin = false;
-                    if (isPairingUnrecognizedDevice) {
-                        mCallback.showSelectCarDialog(mAutoConnectService.getConnectedDeviceName(),
-                                mAutoConnectService.getCurrentDeviceId());
-                        return;
-                    }
-
                     mCallback.onVINRetrieved(null, false);
 
                     Log.i(TAG, "Vin returned was not valid");
