@@ -26,25 +26,25 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
+import com.pitstop.adapters.AddCarViewPagerAdapter;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.R;
-import com.pitstop.adapters.AddCarViewPagerAdapter;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.view_fragment.AddCar1Fragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2NoDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2YesDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarMileageDialog;
 import com.pitstop.ui.add_car.view_fragment.AddCarViewPager;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -283,7 +283,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      *
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
+    private boolean searchingForCar = false;
     public void searchForCar(View view) {
+
+        if (searchingForCar) return;
+
+        searchingForCar = true;
 
         if (isPairingUnrecognizedDevice) { // if is searching for unrecognized device
             presenter.searchForUnrecognizedDevice();
@@ -335,6 +340,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 presenter.searchAndGetVin();
             }
         }
+
+        searchingForCar = false;
     }
 
     @Override
