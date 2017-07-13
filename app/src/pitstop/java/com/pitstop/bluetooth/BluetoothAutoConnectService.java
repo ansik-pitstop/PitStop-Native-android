@@ -697,7 +697,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
-        LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+"parameterPackage: " + parameterPackage.toString()
+        LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time

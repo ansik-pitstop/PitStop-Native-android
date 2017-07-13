@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
@@ -16,6 +18,8 @@ import org.json.JSONObject;
 
 public class ScannerRepository implements Repository {
 
+    private final String TAG = getClass().getSimpleName();
+
     private NetworkHelper networkHelper;
     private LocalScannerAdapter localScannerStorage;
 
@@ -25,6 +29,7 @@ public class ScannerRepository implements Repository {
     }
 
     public void createScanner(ObdScanner scanner, Callback callback){
+        Log.d(TAG,"creating scanner: "+scanner);
         putScanner(scanner,getCreateScannerCallback(callback,scanner));
     }
 
@@ -56,6 +61,7 @@ public class ScannerRepository implements Repository {
         return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                Log.d(TAG,"Create scanner response: "+response+", error: "+requestError);
                 if (requestError == null){
                     localScannerStorage.storeScanner(scanner);
                     callback.onSuccess(response);
@@ -69,6 +75,7 @@ public class ScannerRepository implements Repository {
 
     public void updateScanner(ObdScanner scanner, Callback<Object> callback){
         //Same logic for both
+        Log.d(TAG,"updating scanner: "+scanner);
         putScanner(scanner,getUpdateScannerCallback(callback,scanner));
     }
 
@@ -76,6 +83,7 @@ public class ScannerRepository implements Repository {
         return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                Log.d(TAG,"Update scanner response: "+response+", error: "+requestError);
                 if (requestError == null){
                     localScannerStorage.updateScanner(scanner);
                     callback.onSuccess(response);
@@ -89,6 +97,7 @@ public class ScannerRepository implements Repository {
 
     /*boolean active: whether you want to look for active device or not*/
     public void getScanner(String scannerId, Callback<ObdScanner> callback){
+        Log.d(TAG,"getting scanner, scannerId: "+scannerId);
         networkHelper.get("scanner/"+scannerId, getGetScannerCallback(callback));
     }
 
@@ -96,6 +105,7 @@ public class ScannerRepository implements Repository {
         return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                Log.d(TAG,"Get scanner response: "+response+", error: "+requestError);
                 if (requestError == null){
                     try{
                         //Data is returned in an array, first index is the scanner
