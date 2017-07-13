@@ -695,7 +695,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
 
-        LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        final String TAG = getClass().getSimpleName() + ".parameterData()";
+
+        LogUtils.debugLogD(TAG, "parameterPackage: " + parameterPackage.toString()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
@@ -718,34 +721,43 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     //Device VIN invalid, get a different one
                     if (!car.getVin().equals(vin)){
+                        LogUtils.debugLogD(TAG, "VIN INVALID: ignoring device.", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                         deviceManager.onConnectedDeviceInvalid();
                     }
                     else{
+
                         boolean carScannerValid = car.getScannerId() != null && !car.getScannerId().isEmpty()
                                 && car.getScannerId().equals(currentDeviceId);
                         boolean deviceIdValid = currentDeviceId != null && !currentDeviceId.isEmpty();
+
+                        LogUtils.debugLogD(TAG, "VIN VALID: carScannerValid?"+carScannerValid
+                                +" deviceIdValid?"+deviceIdValid, true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                         //VIN matches and the device has an id that does not
                         // match the cars or the cars is missing
                         if (!carScannerValid && deviceIdValid){
 
+                            LogUtils.debugLogD(TAG, "Executing create scanner use case.", true
+                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                             useCaseComponent.createScannerUseCase().execute(
                                     new ObdScanner(car.getId(), currentDeviceId), new CreateScannerUseCase.Callback() {
                                         @Override
                                         public void onScannerCreated() {
-                                            LogUtils.debugLogD(TAG, "Car scanner updated/created", true
+                                            LogUtils.debugLogD(TAG, "onScannerCreated(): Car scanner updated/created", true
                                                     , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                                         }
 
                                         @Override
                                         public void onDeviceAlreadyActive() {
-                                            LogUtils.debugLogD(TAG, "Could not update/create scanner, already active"
+                                            LogUtils.debugLogD(TAG, "onDeviceAlreadyActive(): Could not update/create scanner, already active"
                                                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                                         }
 
                                         @Override
                                         public void onError() {
-                                            LogUtils.debugLogD(TAG, "Error updating/creating scanner", true
+                                            LogUtils.debugLogD(TAG, "onError(): Error updating/creating scanner", true
                                                     , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                                         }
                                     });
