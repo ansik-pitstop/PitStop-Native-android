@@ -65,8 +65,11 @@ public class BluetoothDeviceRecognizer {
     public RecognizeResult onDeviceFound(BluetoothDevice device) {
         if (device == null) return RecognizeResult.DISCONNECT;
 
+        //if (device.getName().equals(ObdManager.BT_DEVICE_NAME_215))
+
         String scannerName = device.getName();
 
+        Log.d(TAG, "OnDeviceFound() name:"+device.getName()+" address:"+device.getAddress());
         Log.d(TAG, "Adding car with device: " + AddCarActivity.addingCarWithDevice);
         Log.d(TAG, "Any scanner lack name: " + mLocalScannerStore.anyScannerLackName());
         Log.d(TAG, "Device name exists: " + mLocalScannerStore.deviceNameExists(scannerName));

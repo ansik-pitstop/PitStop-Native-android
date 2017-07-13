@@ -697,7 +697,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
-        LogUtils.debugLogD(TAG, "parameterPackage: " + parameterPackage.toString()
+        LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+"parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time
@@ -708,7 +708,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Check to see if VIN is correct
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCar){
+                && !AddCarActivity.addingCarWithDevice){
             String vin = parameterPackage.value;
 
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
