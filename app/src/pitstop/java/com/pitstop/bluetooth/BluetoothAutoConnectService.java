@@ -743,7 +743,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             LogUtils.debugLogD(TAG, "Executing create scanner use case.", true
                                     , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                             useCaseComponent.createScannerUseCase().execute(
-                                    new ObdScanner(car.getId(), currentDeviceId), new CreateScannerUseCase.Callback() {
+                                    new ObdScanner(car.getId(), parameterPackage.deviceId), new CreateScannerUseCase.Callback() {
                                         @Override
                                         public void onScannerCreated() {
                                             LogUtils.debugLogD(TAG, "onScannerCreated(): Car scanner updated/created", true
