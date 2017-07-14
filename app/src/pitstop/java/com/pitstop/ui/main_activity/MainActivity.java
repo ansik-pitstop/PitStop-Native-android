@@ -617,12 +617,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
                 && !ignoreMissingDeviceName){
 
-            //TEST
-            if (pidPackage.deviceId.equals("215B002373")){
-                displayGetScannerIdDialog();
-            }
-
-            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
+            if (autoConnectService.isConnectedTo215() && (pidPackage.deviceId.isEmpty() || pidPackage.deviceId.equals("0"))){
                 displayGetScannerIdDialog();
             }
         }
@@ -630,8 +625,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void displayGetScannerIdDialog(){
         if (idInput) return;
-        if (alertInvalidDeviceNameDialog != null)
-            if (alertInvalidDeviceNameDialog.isShowing()) return;
+        if (alertInvalidDeviceNameDialog != null && alertInvalidDeviceNameDialog.isShowing())
+            return;
 
         runOnUiThread(new Runnable() {
             @Override
@@ -646,13 +641,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                if (input.getText().toString().isEmpty()){
-                                    autoConnectService.setDeviceId("");
-                                }
-                                else{
-                                    autoConnectService.setDeviceNameAndId(input.getText()
-                                            .toString().trim().toUpperCase());
-                                }
+
+                                autoConnectService.setDeviceNameAndId(input.getText()
+                                        .toString().trim().toUpperCase());
 
                                 idInput = true;
                             }

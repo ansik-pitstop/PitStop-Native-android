@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalScannerAdapter;
@@ -64,15 +63,6 @@ public class BluetoothDeviceRecognizer {
 
     public RecognizeResult onDeviceFound(BluetoothDevice device) {
         if (device == null || device.getName() == null) return RecognizeResult.DISCONNECT;
-
-        //Don't connect to Nitish's car
-        if (BuildConfig.DEBUG && device.getName().equals("IDD-215B 003028")){
-            return RecognizeResult.DISCONNECT;
-        }
-        //Connect to test device
-        if (BuildConfig.DEBUG && device.getName().endsWith("XXX")){
-            return RecognizeResult.CONNECT;
-        }
 
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 

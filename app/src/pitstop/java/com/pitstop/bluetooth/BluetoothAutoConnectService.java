@@ -1206,7 +1206,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void setDeviceId(String id){
-        LogUtils.debugLogI(TAG, "Setting device id to "+id, true
+        LogUtils.debugLogI(TAG, "Setting device id to ["+id+"]", true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setDeviceId(id);
     }
