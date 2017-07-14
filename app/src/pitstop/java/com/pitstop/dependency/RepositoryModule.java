@@ -55,12 +55,6 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper){
-        return new Device215TripRepository(networkHelper);
-    }
-
-    @Provides
-    @Singleton
     ScannerRepository getScannerRepository(NetworkHelper networkHelper
             , LocalScannerAdapter localScannerAdapter){
 
