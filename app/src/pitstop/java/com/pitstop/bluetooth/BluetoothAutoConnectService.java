@@ -709,78 +709,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //Check to see if VIN is correct
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCarWithDevice){
-            String vin = parameterPackage.value;
-
-            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                @Override
-                public void onCarRetrieved(Car car) {
-
-                    LogUtils.debugLogD(TAG, "Comparing SelectedCarVin["+car.getVin()
-                            +"] and DeviceVin["+vin+"]", true
-                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    //Device VIN invalid, get a different one
-                    if (!car.getVin().equals(vin)){
-                        LogUtils.debugLogD(TAG, "VIN INVALID: ignoring device.", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                        deviceManager.onConnectedDeviceInvalid();
-                    }
-                    else{
-
-                        boolean carScannerValid = car.getScannerId() != null && !car.getScannerId().isEmpty()
-                                && car.getScannerId().equals(currentDeviceId);
-                        boolean deviceIdValid = parameterPackage.deviceId != null
-                                && !parameterPackage.deviceId.isEmpty();
-
-                        LogUtils.debugLogD(TAG, "VIN VALID: carScannerValid?"+carScannerValid
-                                +" deviceIdValid?"+deviceIdValid, true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                        //VIN matches and the device has an id that does not
-                        // match the cars or the cars is missing
-                        if (!carScannerValid && deviceIdValid){
-
-                            LogUtils.debugLogD(TAG, "Executing create scanner use case.", true
-                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                            useCaseComponent.createScannerUseCase().execute(
-                                    new ObdScanner(car.getId(), parameterPackage.deviceId), new CreateScannerUseCase.Callback() {
-                                        @Override
-                                        public void onScannerCreated() {
-                                            LogUtils.debugLogD(TAG, "onScannerCreated(): Car scanner updated/created", true
-                                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                                        }
-
-                                        @Override
-                                        public void onDeviceAlreadyActive() {
-                                            LogUtils.debugLogD(TAG, "onDeviceAlreadyActive(): Could not update/create scanner, already active"
-                                                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                                        }
-
-                                        @Override
-                                        public void onError() {
-                                            LogUtils.debugLogD(TAG, "onError(): Error updating/creating scanner", true
-                                                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                                        }
-                                    });
-                        }
-                        //Update scanner once the user updates it
-                        else if (!carScannerValid && !deviceIdValid){
-                            //This case has not been implemented.
-                        }
-                    }
-
-                }
-
-                @Override
-                public void onNoCarSet() {
-
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
+            useCaseComponent.createScannerUseCase().execute();
         }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {

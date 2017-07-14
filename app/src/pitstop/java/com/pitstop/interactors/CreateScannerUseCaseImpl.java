@@ -19,7 +19,6 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     UserRepository userRepository;
     private Handler handler;
     private Callback callback;
-    private ObdScanner obdScanner;
     private ParameterPackage parameterPackage;
 
     public CreateScannerUseCaseImpl(ScannerRepository scannerRepository
@@ -30,8 +29,7 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     }
 
     @Override
-    public void execute(ObdScanner obdScanner, Callback callback, ParameterPackage parameterPackage) {
-        this.obdScanner = obdScanner;
+    public void execute(Callback callback, ParameterPackage parameterPackage) {
         this.callback = callback;
         this.parameterPackage = parameterPackage;
         handler.post(this);
@@ -84,44 +82,68 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
 
                 /*We need to check whether the car has no scanner at all, or whether it is being changed
                 * If the scanner is being changed, the old one needs to be deactived*/
-                if (car.getScannerId() == null || car.getScannerId().isEmpty()){
+
+                ObdScanner obdScanner = new ObdScanner(car.getId(),deviceId); //Scanner to be added
+                obdScanner.setStatus(true); //Set to active
+
+                if (car.getScannerId() != null && !car.getScannerId().isEmpty()){
+                    ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScannerId());
+                    oldCarScanner.setStatus(false); //Set to inactive
+
+                    scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object data) {
+
+                            //Scanner set to inactive, now add the new one
+                            addScanner(obdScanner, new AddScannerCallback() {
+                                @Override
+                                public void onDeviceAlreadyActive() {
+                                    //Another user has this scanner
+                                    callback.onDeviceAlreadyActive();
+                                }
+
+                                @Override
+                                public void onScannerCreated() {
+                                    callback.onSuccess();
+                                }
+
+                                @Override
+                                public void onError() {
+                                    callback.onError();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(int error) {
+
+                        }
+                    });
 
                 }
 
-                scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
-
-                    @Override
-                    public void onSuccess(ObdScanner data) {
-
-                        //device exists and is already active, do not store
-                        if (data != null && data.getStatus()){
+                //Car does not have a scanner so simply create one
+                else{
+                    addScanner(obdScanner, new AddScannerCallback() {
+                        @Override
+                        public void onDeviceAlreadyActive() {
+                            //Another user has this scanner
                             callback.onDeviceAlreadyActive();
-                            return;
                         }
 
+                        @Override
+                        public void onScannerCreated() {
+                            //Scanner created
+                            callback.onSuccess();
+                        }
 
-                        //Create scanner otherwise
-                        obdScanner.setStatus(true);
-                        scannerRepository.createScanner(obdScanner, new Repository.Callback() {
+                        @Override
+                        public void onError() {
+                            callback.onError();
+                        }
+                    });
+                }
 
-                            @Override
-                            public void onSuccess(Object data) {
-                                callback.onScannerCreated();
-                            }
-
-                            @Override
-                            public void onError(int error) {
-                                callback.onError();
-                            }
-                        });
-
-                    }
-
-                    @Override
-                    public void onError(int error) {
-                        callback.onError();
-                    }
-                });
             }
 
             @Override
@@ -135,6 +157,49 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
             }
         });
 
+    }
+
+    interface AddScannerCallback {
+        void onDeviceAlreadyActive();
+        void onScannerCreated();
+        void onError();
+    }
+
+    private void addScanner(ObdScanner obdScanner, AddScannerCallback callback){
+        scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
+
+            @Override
+            public void onSuccess(ObdScanner data) {
+
+                //device exists and is already active, do not store
+                if (data != null && data.getStatus()){
+                    callback.onDeviceAlreadyActive();
+                    return;
+                }
+
+
+                //Create scanner otherwise
+                obdScanner.setStatus(true);
+                scannerRepository.createScanner(obdScanner, new Repository.Callback() {
+
+                    @Override
+                    public void onSuccess(Object data) {
+                        callback.onScannerCreated();
+                    }
+
+                    @Override
+                    public void onError(int error) {
+                        callback.onError();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onError(int error) {
+                callback.onError();
+            }
+        });
     }
 
 

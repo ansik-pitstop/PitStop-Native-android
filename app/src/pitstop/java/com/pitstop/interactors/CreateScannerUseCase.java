@@ -1,11 +1,12 @@
 package com.pitstop.interactors;
 
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.models.ObdScanner;
 
 /**
  * Validates scanner to see if its paired with another car and if so
  * creates the scanner both locally and remotely
+ *
+ * Only for 215, not tested on 212
  *
  * Created by Karol Zdebel on 7/10/2017.
  */
@@ -13,13 +14,12 @@ import com.pitstop.models.ObdScanner;
 public interface CreateScannerUseCase extends Interactor {
 
     interface Callback{
-        void onScannerCreated();
         void onSuccess();
         void onDeviceIdOverrideNeeded();
         void onDeviceInvalid();
-        void onDeviceAlreadyActive();
+        void onDeviceAlreadyActive(); //Another user has this scanner
         void onError();
     }
 
-    void execute(ObdScanner obdScanner, Callback callback, ParameterPackage parameterPackage);
+    void execute(Callback callback, ParameterPackage parameterPackage);
 }
