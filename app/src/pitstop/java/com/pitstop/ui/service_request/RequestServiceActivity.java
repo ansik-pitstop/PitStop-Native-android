@@ -8,7 +8,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.pitstop.R;
-import com.pitstop.ui.service_request.view_fragment.main_form_view.ServiceFormFragment;
+import com.pitstop.models.Car;
+import com.pitstop.ui.service_request.view_fragment.time_picker_view.TimePickerFragment;
+import com.pitstop.ui.service_request.view_fragment.main_from_view.ServiceFormFragment;
 
 /**
  * Created by Matthew on 2017-07-11.
@@ -24,15 +26,20 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
 
     private ServiceFormFragment serviceFormFragment;
+    private TimePickerFragment timePickerFragment;
 
     private RequestServicePresenter presenter;
 
     private FragmentManager fragmentManager;
 
+    private Car dashCar;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_service);
+
+        dashCar = getIntent().getParcelableExtra(EXTRA_CAR);
 
         fragmentManager = getFragmentManager();
 
@@ -40,6 +47,11 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         presenter.subscribe(this);
 
         serviceFormFragment = new ServiceFormFragment();
+        serviceFormFragment.setActivityCallback(this);
+        serviceFormFragment.setCar(dashCar);
+
+        timePickerFragment = new TimePickerFragment();
+        timePickerFragment.setActivityCallback(this);
 
         presenter.setViewMainForm();
     }
@@ -48,6 +60,14 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
     public void setViewMainForm() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.request_service_fragment_holder,serviceFormFragment);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void setViewTimePicker() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.request_service_fragment_holder,timePickerFragment);
+        fragmentTransaction.addToBackStack("time_picker");
         fragmentTransaction.commit();
     }
 }

@@ -100,6 +100,9 @@ public class ShopRepository {
             public void done(String response, RequestError requestError) {
                 if(response != null){
                     try{
+                        System.out.println("Testing response "+response);
+                        JSONArray shops = new JSONArray(response);
+
                         List<Dealership> dealerships = Dealership.createDealershipList(response);
                         localShopAdapter.storeDealerships(dealerships);
                         callback.onShopsGot(dealerships);

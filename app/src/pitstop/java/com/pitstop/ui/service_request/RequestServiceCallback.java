@@ -6,4 +6,5 @@ package com.pitstop.ui.service_request;
 
 public interface RequestServiceCallback {
     void setViewMainForm();
+    void setViewTimePicker();
 }
