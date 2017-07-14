@@ -10,8 +10,6 @@ import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.HandleVinOnConnectUseCaseImpl;
-import com.pitstop.interactors.FoundBluetoothDeviceUseCase;
-import com.pitstop.interactors.FoundBluetoothDeviceUseCaseImpl;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
@@ -232,10 +230,4 @@ public class UseCaseModule {
                 , userRepository,  handler);
     }
 
-    @Provides
-    FoundBluetoothDeviceUseCase foundBluetoothDeviceUseCase(UserRepository userRepository
-            , Handler handler){
-
-        return new FoundBluetoothDeviceUseCaseImpl(userRepository, handler);
-    }
 }
