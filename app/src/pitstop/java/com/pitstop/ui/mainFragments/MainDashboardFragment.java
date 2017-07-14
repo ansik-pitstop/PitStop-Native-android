@@ -37,7 +37,6 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.database.LocalShopAdapter;
@@ -55,6 +54,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -71,10 +71,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_MILEAGE;
-import static com.pitstop.bluetooth.BluetoothAutoConnectService.LAST_RTC;
-
-public class MainDashboardFragment extends CarDataFragment implements MainDashboardCallback {
+public class MainDashboardFragment extends CarDataFragment {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
@@ -160,16 +157,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
     private UseCaseComponent useCaseComponent;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
-
-    /**
-     * Monitor app connection to device, so that ui can be updated
-     * appropriately.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        MainActivity.mainDashboardCallback = this;
-    }
 
     public static MainDashboardFragment newInstance() {
         MainDashboardFragment fragment = new MainDashboardFragment();
@@ -264,6 +251,9 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                             + car.getMake() + " "
                             + car.getModel());
                 }
+
+                LogUtils.LOGD(TAG,"updating mileage from "+mMileageText.getText()+" to "
+                        + car.getTotalMileage());
 
                 mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
                 mEngineText.setText(car.getEngine());
@@ -552,47 +542,14 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
         }
     }
 
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-        if (dashboardCar == null) return;
-
-        Log.d(TAG,"Got trip data.");
-        if (tripInfoPackage.flag == TripInfoPackage.TripFlag.UPDATE) { // live mileage update
-            final double newTotalMileage;
-            if (((MainActivity)getActivity()).getBluetoothConnectService().isConnectedTo215() && sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null) != null )
-                if (tripInfoPackage.rtcTime >= Long.valueOf(sharedPreferences.getString(LAST_RTC.replace("{car_vin}", dashboardCar.getVin()), null)))
-                    newTotalMileage = (dashboardCar.getTotalMileage() + tripInfoPackage.mileage) - Double.valueOf(sharedPreferences.getString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), null));
-                else
-                    return;
-            else
-                newTotalMileage = ((int) ((dashboardCar.getTotalMileage() + tripInfoPackage.mileage) * 100)) / 100.0; // round to 2 decimal places
-
-            Log.v(TAG, "Mileage updated: tripMileage: " + tripInfoPackage.mileage + ", baseMileage: " + dashboardCar.getTotalMileage() + ", newMileage: " + newTotalMileage);
-
-            if (dashboardCar.getDisplayedMileage() < newTotalMileage) {
-                dashboardCar.setDisplayedMileage(newTotalMileage);
-                carLocalStore.updateCar(dashboardCar);
+    private void displayMileage(double mileage){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
+                mMileageText.setText(String.format("%.2f km", mileage));
             }
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.format("%.2f km", newTotalMileage));
-                }
-            });
-
-        } else if (tripInfoPackage.flag == TripInfoPackage.TripFlag.END) { // uploading historical data
-            //dashboardCar = carLocalStore.getCar(dashboardCar.getId());
-            final double newBaseMileage = dashboardCar.getTotalMileage();
-            //mCallback.onTripMileageUpdated(newBaseMileage);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                    mMileageText.setText(String.format("%.2f km", newBaseMileage));
-                }
-            });
-        }
+        });
     }
 
     /**
@@ -845,7 +802,7 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                         public void onClick(View v) {
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
-                            final double mileage = Double.parseDouble(input.getText().toString()) - (dashboardCar.getDisplayedMileage() - dashboardCar.getTotalMileage());
+                            final double mileage = Double.parseDouble(input.getText().toString());
                             if (mileage > 20000000) {
                                 Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
@@ -872,7 +829,6 @@ public class MainDashboardFragment extends CarDataFragment implements MainDashbo
                                             networkHelper.updateMileageStart(mileage, ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId(), null);
                                         }
 
-                                        dashboardCar.setDisplayedMileage(mileage);
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 

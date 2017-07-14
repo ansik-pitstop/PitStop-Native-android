@@ -284,7 +284,7 @@ public class Car implements Parcelable {
         car.setShopId(jsonObject.getJSONObject("shop").getInt("id_shop"));
         car.setVin(jsonObject.getString("vin"));
 
-        //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
+        //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getTripId()));
 
         return car;
     }
