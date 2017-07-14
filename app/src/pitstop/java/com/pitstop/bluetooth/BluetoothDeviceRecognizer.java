@@ -79,27 +79,6 @@ public class BluetoothDeviceRecognizer {
             return RecognizeResult.CONNECT;
         }
 
-//        //ONLY CONNECT TO THIS DEVICE FOR TESTING
-//        if (BuildConfig.DEBUG){
-//            //if (scannerName.endsWith("XXX")){
-//                return RecognizeResult.CONNECT;
-//            //}
-//            //else{
-//            //    return RecognizeResult.IGNORE;
-//            //}
-//        }
-//
-//        if (AddCarActivity.addingCarWithDevice
-//                || mLocalScannerStore.anyScannerLackName()
-//                || mLocalScannerStore.deviceNameExists(scannerName)) {
-//            return RecognizeResult.CONNECT;
-//        } else if (mLocalScannerStore.anyCarLackScanner()) {
-//            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
-//            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
-//            return RecognizeResult.IGNORE;
-//        } else { // this part should never be reached.... but whatever
-//            return RecognizeResult.IGNORE;
-//        }
     }
 
     public void onDeviceConnected(String scannerName, String scannerId){
