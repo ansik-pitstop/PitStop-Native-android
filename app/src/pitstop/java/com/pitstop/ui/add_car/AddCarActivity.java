@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import butterknife.internal.DebouncingOnClickListener;
 
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
@@ -172,6 +175,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         // Mixpanel time event
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_ADD_CAR);
+
     }
 
     private void setupUIReferences() {
@@ -267,6 +271,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      *
      * @param view The "No" button
      */
+    Button addCarButton;
     public void noDongleClicked(View view) {
 
         addingCarWithDevice = false;
@@ -276,6 +281,19 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
+        addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        addCarButton.setOnClickListener(new DebouncingOnClickListener() {
+            @Override
+            public void doClick(View v) {
+                addCarButton.setEnabled(false);
+                searchForCar(v);
+            }
+        });
+    }
+
+    @Override
+    public void onMileageInputCancelled(){
+        addCarButton.setEnabled(true);
     }
 
     /**
@@ -283,12 +301,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      *
      * @param view the "Search for vehicle"/"Add vehicle" button
      */
-    private boolean searchingForCar = false;
     public void searchForCar(View view) {
-
-        if (searchingForCar) return;
-
-        searchingForCar = true;
 
         if (isPairingUnrecognizedDevice) { // if is searching for unrecognized device
             presenter.searchForUnrecognizedDevice();
@@ -326,6 +339,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
+                addCarButton.setEnabled(true);
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
@@ -340,8 +354,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 presenter.searchAndGetVin();
             }
         }
-
-        searchingForCar = false;
     }
 
     @Override
@@ -525,6 +537,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
+        addCarButton.setEnabled(true);
         showLoading("Mileage entered, searching for car...");
     }
 
