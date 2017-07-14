@@ -24,6 +24,8 @@ import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.UpdateShopUseCase;
 import com.pitstop.interactors.UpdateUserNameUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCase;
+import com.pitstop.interactors.Trip215EndUseCase;
+import com.pitstop.interactors.Trip215StartUseCase;
 
 import javax.inject.Singleton;
 
@@ -87,5 +89,9 @@ public interface UseCaseComponent {
     SetUserCarUseCase setUseCarUseCase();
 
     SetFirstCarAddedUseCase setFirstCarAddedUseCase();
+
+    Trip215StartUseCase trip215StartUseCase();
+
+    Trip215EndUseCase trip215EndUseCase();
 
 }

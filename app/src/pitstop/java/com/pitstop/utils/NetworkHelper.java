@@ -84,7 +84,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
+    public void postNoAuth(String uri, RequestCallback callback, JSONObject body) { // for login, sign up, scans
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
                 .body(body)
@@ -142,7 +142,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
+    public void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
                 .body(body)

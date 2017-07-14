@@ -9,14 +9,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
@@ -32,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
@@ -65,7 +64,6 @@ import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.IntentProxyObject;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
@@ -77,7 +75,6 @@ import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
-import com.pitstop.ui.mainFragments.MainDashboardCallback;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.service_request.ServiceRequestActivity;
@@ -189,8 +186,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private NetworkHelper networkHelper;
 
     private boolean userSignedUp;
-
-    public static MainDashboardCallback mainDashboardCallback;
 
     private MaterialShowcaseSequence tutorialSequence;
 
@@ -597,9 +592,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
-        Log.d(TAG,"tripData() called");
-        if (mainDashboardCallback != null)
-            mainDashboardCallback.tripData(tripInfoPackage);
+
     }
 
     @Override
@@ -607,9 +600,60 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     }
 
+    private boolean ignoreMissingDeviceName = false;
+    private AlertDialog alertInvalidDeviceNameDialog = null;
+    private boolean idInput = false;
+
     @Override
     public void pidData(PidPackage pidPackage) {
 
+        LogUtils.LOGD(TAG,"pidData(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
+                + " ignoreMissingDeviceName?"+ignoreMissingDeviceName);
+
+        /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
+        **For 215 device only*/
+        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                && !ignoreMissingDeviceName){
+
+            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
+                displayGetScannerIdDialog();
+            }
+        }
+    }
+
+    private void displayGetScannerIdDialog(){
+        if (idInput) return;
+        if (alertInvalidDeviceNameDialog != null)
+            if (alertInvalidDeviceNameDialog.isShowing()) return;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final EditText input = new EditText(MainActivity.this);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setTitle("Device Id Invalid");
+                alertDialogBuilder
+                        .setView(input)
+                        .setMessage("Your OBD device has lost its ID or is invalid, please input " +
+                                "the ID on the front of the device.")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                autoConnectService.setDeviceNameAndId(input.getText()
+                                        .toString().trim().toUpperCase());
+                                idInput = true;
+                            }
+                        })
+                        .setNegativeButton("Ignore",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                                ignoreMissingDeviceName = true;
+                            }
+                        });
+                alertInvalidDeviceNameDialog = alertDialogBuilder.create();
+                alertInvalidDeviceNameDialog.show();
+            }
+        });
     }
 
     @Override

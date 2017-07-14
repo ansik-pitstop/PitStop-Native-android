@@ -38,7 +38,6 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
@@ -49,7 +48,12 @@ import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.Trip215EndUseCase;
+import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
@@ -62,7 +66,6 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
@@ -81,6 +84,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Created by Paul Soladoye on 11/04/2016.
  */
@@ -96,6 +100,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     public static final String LAST_RTC = "last_rtc-{car_vin}";
     public static final String LAST_MILEAGE = "mileage-{car_vin}";
+
+    private static final int TRIP_END_DELAY = 5000;
 
     private final IBinder mBinder = new BluetoothBinder();
     private BluetoothDeviceManager deviceManager;
@@ -133,6 +139,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private LocalCarAdapter carAdapter;
     private LocalScannerAdapter scannerAdapter;
 
+    private UseCaseComponent useCaseComponent;
+
     private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
     private int lastDeviceTripId = -1; // from device
@@ -158,7 +166,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * State variable for tracking bluetooth connection time in mixpanel
      */
     private boolean bluetoothConnectedTimeEventStarted = false;
-
     /**
      * for periodic bluetooth scans
      */
@@ -177,6 +184,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 .contextModule(new ContextModule(this))
                 .build();
         networkHelper = tempNetworkComponent.networkHelper();
+
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
 
         mixpanelHelper = new MixpanelHelper(application);
 
@@ -211,7 +222,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         registerBroadcastReceiver();
 
-        Runnable runnable = new Runnable() { // start background search
+        Runnable periodScanRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled() &&
@@ -223,7 +234,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        handler.postDelayed(runnable, 15000);
+        //Sometimes terminal time might not be returned
+        Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
+            @Override
+            public void run() { // this is for auto connect for bluetooth classic
+                if (terminalRTCTime == -1 && deviceManager.getState()
+                        == IBluetoothCommunicator.CONNECTED){
+                    getObdDeviceTime();
+                }
+                handler.postDelayed(this, 10000);
+            }
+        };
+
+        handler.postDelayed(periodScanRunnable, 15000);
+        handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
@@ -257,6 +281,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.CONNECTED) {
+
+            LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+            //Get VIN to validate car
+            getVinFromCar();
+
+            //Get RTC and mileage once connected
+            getObdDeviceTime();
+
             //show a custom notification
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
 
@@ -300,6 +334,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
         } else {
+
+            LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
             /**
              * Set device connection state for connected car indicator,
              * once bluetooth connection is lost.
@@ -358,6 +396,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
+        LogUtils.LOGD(TAG,"setParameterResponse(), "+responsePackageInfo.toString());
+
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             currentDeviceId = responsePackageInfo.deviceId;
@@ -374,14 +414,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    /**
-     * Handles trip data containing mileage
-     * @param tripInfoPackage
-     */
-    @Override
-    public void tripData(final TripInfoPackage tripInfoPackage) {
-        LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
+    private void handle212Trip(TripInfoPackage tripInfoPackage){
         if(manuallyUpdateMileage) {
             Log.i(TAG, "Currently scanning car, ignoring trips");
             return;
@@ -425,7 +458,226 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
             }
         }
+    }
 
+    private long terminalRTCTime = -1;
+    private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+
+    //Variables below are used for testing
+    private boolean registerDummyTripStart = false;
+    private boolean registerDummyTripEnd = false;
+    private int skipCounter = 0;
+    private int dummyTripId = -1;
+    private double lastTripEndMileage = -1;
+
+    /**
+     * Handles trip data containing mileage
+     * @param tripInfoPackage
+     */
+    @Override
+    public void tripData(final TripInfoPackage tripInfoPackage) {
+
+        final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
+
+        LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString()
+                        +", isConnected215?"+isConnectedTo215()
+                        +", terminalRTCTime: "+terminalRTCTime
+                , true, DebugMessage.TYPE_BLUETOOTH
+                , getApplicationContext());
+
+        /*********************************TEST CODE START*********************************/
+
+        /*Create dummy start and end trip objects using the received update
+        **objects since the simulator only sends update objects*/
+//        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+//
+//            //We don't want to add to pending trip list if its an update or historical
+//            if (terminalRTCTime == -1 || tripInfoPackage.rtcTime < terminalRTCTime) return;
+//
+//            if (!registerDummyTripStart && skipCounter == 0){
+//                if (dummyTripId == -1){
+//                    if (isConnectedTo215()){
+//                        dummyTripId = tripInfoPackage.tripId;
+//                    }
+//                    else{
+//                        dummyTripId = (int)tripInfoPackage.rtcTime;
+//                    }
+//                }
+//                else{
+//                    dummyTripId += 100;
+//                }
+//
+//                //Make sure start mileages make sense, meaning last trip end is this ones start
+//                if (lastTripEndMileage != -1 && isConnectedTo215()){
+//                    tripInfoPackage.mileage = lastTripEndMileage;
+//                }
+//                else if (!isConnectedTo215()){
+//                    tripInfoPackage.mileage = 0;
+//                }
+//
+//                tripInfoPackage.tripId = dummyTripId;
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+//                tripInfoPackage.rtcTime += 100;
+//                registerDummyTripStart = true;
+//                registerDummyTripEnd = false;
+//                skipCounter = 8;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            else if (!registerDummyTripEnd && skipCounter == 0){
+//
+//                tripInfoPackage.tripId = dummyTripId;
+//                tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+//                tripInfoPackage.rtcTime += 1000;
+//                tripInfoPackage.mileage += 150;
+//                lastTripEndMileage = tripInfoPackage.mileage;
+//                registerDummyTripEnd = true;
+//                registerDummyTripStart = false;
+//                skipCounter = 8;
+//                LogUtils.LOGD(TAG,"Created dummy tripInfoPackage: "+tripInfoPackage);
+//            }
+//            //Skip 4 trip updates before create dummy trip start and trip end again
+//            else{
+//                LogUtils.LOGD(TAG,"Skipping trip update, skips left:"+(skipCounter-1));
+//                if (skipCounter > 0){
+//                    skipCounter--;
+//                }
+//                //go back into simulate trip start and trip end mode again
+//                return;
+//            }
+//        }
+
+        /*********************************TEST CODE END**********************************/
+
+        //Not handling trip updates anymore since live mileage has been removed
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            return;
+        }
+
+        /*Code for handling 212 trip logic, moved to private method since its being
+          phased out and won't be maintained*/
+        if (!isConnectedTo215()){
+            LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+            handle212Trip(tripInfoPackage);
+            return;
+        }
+
+        LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
+                        +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
+                , getApplicationContext());
+        //Check to see if we received current RTC time from device upon the app detecting device
+        //If not received yet store the trip for once it is received
+        pendingTripInfoPackages.add(tripInfoPackage);
+        if (terminalRTCTime == -1){
+            return;
+        }
+
+        LogUtils.debugLogD(TAG, "Going through all pending trips, rtcTime:"+tripInfoPackage.rtcTime
+                        +" tripListSize: "+pendingTripInfoPackages.size()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        //Go through all pending trip info packages including the one just passed in parameter
+        List<TripInfoPackage> toRemove = new ArrayList<>();
+        for (TripInfoPackage trip: pendingTripInfoPackages){
+
+            if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnectedTo215()){
+
+                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                        +" trip end received, executing use case", true
+                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
+                        , new Trip215EndUseCase.Callback() {
+                    @Override
+                    public void onHistoricalTripEndSuccess() {
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                +" Historical trip END saved successfully", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    }
+
+                    @Override
+                    public void onRealTimeTripEndSuccess() {
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                        +" Real-time END trip end saved successfully", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                        //Send update mileage notification after 5 seconds to allow back-end to process mileage
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            }
+                        },TRIP_END_DELAY);
+
+                    }
+
+                    @Override
+                    public void onStartTripNotFound() {
+                        LogUtils.debugLogD(TAG, "Trip start not found, mileage will update on "
+                                +"next trip start", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    }
+
+                            @Override
+                    public void onError() {
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                        +" TRIP END Use case returned error", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    }
+                });
+
+            }
+            else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
+
+                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                +" trip start received, executing use case", true
+                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
+                        , new Trip215StartUseCase.Callback() {
+                    @Override
+                    public void onRealTimeTripStartSuccess() {
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                        +" Real-time trip START saved successfully", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            }
+                        },TRIP_END_DELAY);
+                    }
+
+                    @Override
+                    public void onHistoricalTripStartSuccess(){
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                        +" Historical trip START saved successfully", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                                        +" Error saving trip start", true
+                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    }
+                });
+
+            }
+            toRemove.add(trip);
+
+        }
+        pendingTripInfoPackages.removeAll(toRemove);
+
+        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                +" Completed all running use cases on all pending trips"
+                +" pendingTripList.size() after removing:"
+                +pendingTripInfoPackages.size(), true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        //Send trip to listeners
         broadcastTripData(tripInfoPackage);
     }
 
@@ -443,6 +695,42 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void parameterData(ParameterPackage parameterPackage) {
 
         LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        //Get terminal RTC time
+        if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
+                && terminalRTCTime == -1 && !AddCarActivity.addingCarWithDevice){
+            terminalRTCTime = Long.valueOf(parameterPackage.value);
+        }
+
+        //Check to see if VIN is correct
+        else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
+                && !AddCarActivity.addingCar){
+            String vin = parameterPackage.value;
+
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car) {
+                    LogUtils.debugLogD(TAG, "Comparing SelectedCarVin["+car.getVin()
+                            +"] and DeviceVin["+vin+"]", true
+                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    //Device VIN invalid, get a different one
+                    if (!car.getVin().equals(vin)){
+
+                        deviceManager.onConnectedDeviceInvalid();
+                    }
+                }
+
+                @Override
+                public void onNoCarSet() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+        }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
             Log.d(TAG, "parameterData: " + parameterPackage.toString());
@@ -470,25 +758,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager.setPidsToSend(supportedPids);
         }
 
-
-        if (parameterPackage instanceof MultiParameterPackage && deviceManager.isConnectedTo215()){
-            MultiParameterPackage multiParameterPackage = (MultiParameterPackage) parameterPackage;
-            Log.d(TAG, "MultiparameterData: " + multiParameterPackage.toString());
-            if (carAdapter.getDashboardCar() != null || carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null)) != null){
-                Car dashboardCar;
-                if (carAdapter.getDashboardCar() != null)
-                    dashboardCar = carAdapter.getDashboardCar();
-                else
-                    dashboardCar = carAdapter.getCar(sharedPreferences.getString(MainDashboardFragment.pfCurrentCar, null));
-
-                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE) != null)
-                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.MILEAGE)).commit();
-
-                if (multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME) != null)
-                    sharedPreferences.edit().putString(LAST_MILEAGE.replace("{car_vin}", dashboardCar.getVin()), multiParameterPackage.mParamsValueMap.get(ParameterPackage.ParamType.RTC_TIME)).commit();
-            }
-        }
-
         broadcastParameterData(parameterPackage);
     }
 
@@ -507,8 +776,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
-            Log.i(TAG, "No pids returned");
-            broadcastPidData(pidPackage);
+            Log.i(TAG, "No pids returned pidPackage:"+pidPackage.toString());
             return;
         }
 
@@ -518,7 +786,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         // if trip id is different, start a new trip
-        if(pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
+        if(!isConnectedTo215() && pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
                 && carAdapter.getCarByScanner(pidPackage.deviceId) != null) {
             int newTripId = Integer.valueOf(pidPackage.tripId);
             if(newTripId != lastDeviceTripId) {
@@ -682,7 +950,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                                     if (dtcListReference.indexOf(dtc)
                                                             == dtcListReference.size()-1){
 
-                                                        notifyDtcAddedToEventBus();
+                                                        notifyEventBus(new EventTypeImpl(
+                                                                EventType.EVENT_DTC_NEW));
                                                     }
                                                 }
                                             });
@@ -704,9 +973,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcAddedToEventBus(){
-        EventType eventType
-                = new EventTypeImpl(EventType.EVENT_DTC_NEW);
+    private void notifyEventBus(EventType eventType){
         CarDataChangedEvent carDataChangedEvent
                 = new CarDataChangedEvent(eventType,EVENT_SOURCE);
         EventBus.getDefault().post(carDataChangedEvent);
@@ -878,6 +1145,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void syncObdDevice() {
         LogUtils.debugLogI(TAG, "Resetting RTC time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setRtc(System.currentTimeMillis());
+        terminalRTCTime = System.currentTimeMillis();
+    }
+
+    public void setDeviceNameAndId(String name){
+        LogUtils.debugLogI(TAG, "Setting device name and id to "+name, true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        deviceManager.setDeviceNameAndId(name);
     }
 
     public void resetObdDeviceTime() {
@@ -1574,7 +1848,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                         //Send notification that dtcs have been updated
                                         // after last one has been sent
                                         if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
-                                            notifyDtcAddedToEventBus();
+                                            notifyEventBus(new EventTypeImpl(EventType
+                                                    .EVENT_DTC_NEW));
                                         }
                                     }
                                 });
