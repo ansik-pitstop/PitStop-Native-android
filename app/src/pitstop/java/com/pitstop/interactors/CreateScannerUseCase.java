@@ -1,5 +1,6 @@
 package com.pitstop.interactors;
 
+import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.ObdScanner;
 
 /**
@@ -13,9 +14,12 @@ public interface CreateScannerUseCase extends Interactor {
 
     interface Callback{
         void onScannerCreated();
+        void onSuccess();
+        void onDeviceIdOverrideNeeded();
+        void onDeviceInvalid();
         void onDeviceAlreadyActive();
         void onError();
     }
 
-    void execute(ObdScanner obdScanner, Callback callback);
+    void execute(ObdScanner obdScanner, Callback callback, ParameterPackage parameterPackage);
 }
