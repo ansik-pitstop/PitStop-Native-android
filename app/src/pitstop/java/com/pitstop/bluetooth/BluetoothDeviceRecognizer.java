@@ -69,6 +69,11 @@ public class BluetoothDeviceRecognizer {
         if (BuildConfig.DEBUG && device.getName().equals("IDD-215B 003028")){
             return RecognizeResult.DISCONNECT;
         }
+        //Connect to test device
+        if (BuildConfig.DEBUG && device.getName().endsWith("XXX")){
+            return RecognizeResult.CONNECT;
+        }
+
 
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 
