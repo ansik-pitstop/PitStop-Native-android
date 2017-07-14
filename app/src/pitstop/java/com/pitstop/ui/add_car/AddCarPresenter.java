@@ -246,6 +246,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                             mCallback.hideLoading("Great! We have added this car to your account, now please pick the dealership for your car.");
                                             mCallback.askForDealership(createdCar);
                                         } else { // has default shop selected in the backend
+                                            mCallback.hideLoading("Great! We have added this car to your account.");
                                             onCarSuccessfullyPosted();
                                         }
 

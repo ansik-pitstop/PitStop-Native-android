@@ -15,6 +15,8 @@ import com.pitstop.repositories.UserRepository;
 
 public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private ScannerRepository scannerRepository;
     private UserRepository userRepository;
     private Handler handler;
@@ -37,6 +39,9 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
     @Override
     public void run() {
+        //ADD LOGS
+        //Log.d(TAG,"")
+
         if (!parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
             callback.onError();
             return;
