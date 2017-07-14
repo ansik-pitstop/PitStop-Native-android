@@ -8,8 +8,8 @@ import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.AddShopUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.CreateScannerUseCase;
-import com.pitstop.interactors.CreateScannerUseCaseImpl;
+import com.pitstop.interactors.HandleVinOnConnectUseCase;
+import com.pitstop.interactors.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.FoundBluetoothDeviceUseCase;
 import com.pitstop.interactors.FoundBluetoothDeviceUseCaseImpl;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
@@ -62,7 +62,6 @@ import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.Device215TripRepository;
-import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -226,8 +225,8 @@ public class UseCaseModule {
     }
 
     @Provides
-    CreateScannerUseCase createScannerUseCase(ScannerRepository scannerRepository, Handler handler){
-        return new CreateScannerUseCaseImpl(scannerRepository, handler);
+    HandleVinOnConnectUseCase createScannerUseCase(ScannerRepository scannerRepository, Handler handler){
+        return new HandleVinOnConnectUseCaseImpl(scannerRepository, handler);
     }
 
     @Provides

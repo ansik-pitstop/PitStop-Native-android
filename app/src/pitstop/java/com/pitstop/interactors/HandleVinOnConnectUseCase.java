@@ -11,7 +11,7 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
  * Created by Karol Zdebel on 7/10/2017.
  */
 
-public interface CreateScannerUseCase extends Interactor {
+public interface HandleVinOnConnectUseCase extends Interactor {
 
     interface Callback{
         void onSuccess();
@@ -21,5 +21,5 @@ public interface CreateScannerUseCase extends Interactor {
         void onError();
     }
 
-    void execute(Callback callback, ParameterPackage parameterPackage);
+    void execute(ParameterPackage parameterPackage, Callback callback);
 }

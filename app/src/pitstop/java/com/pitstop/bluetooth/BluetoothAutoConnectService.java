@@ -51,8 +51,7 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.CreateScannerUseCase;
-import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.Trip215EndUseCase;
 import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
@@ -709,7 +708,33 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //Check to see if VIN is correct
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCarWithDevice){
-            useCaseComponent.createScannerUseCase().execute();
+            useCaseComponent.createScannerUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
+                @Override
+                public void onSuccess() {
+                    LogUtils.debugLogD(TAG, ""
+                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                }
+
+                @Override
+                public void onDeviceIdOverrideNeeded() {
+
+                }
+
+                @Override
+                public void onDeviceInvalid() {
+
+                }
+
+                @Override
+                public void onDeviceAlreadyActive() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {

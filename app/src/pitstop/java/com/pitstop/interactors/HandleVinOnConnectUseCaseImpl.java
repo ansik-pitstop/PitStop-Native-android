@@ -13,15 +13,15 @@ import com.pitstop.repositories.UserRepository;
  * Created by Karol Zdebel on 7/10/2017.
  */
 
-public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
+public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase {
 
     private ScannerRepository scannerRepository;
-    UserRepository userRepository;
+    private UserRepository userRepository;
     private Handler handler;
     private Callback callback;
     private ParameterPackage parameterPackage;
 
-    public CreateScannerUseCaseImpl(ScannerRepository scannerRepository
+    public HandleVinOnConnectUseCaseImpl(ScannerRepository scannerRepository
             , UserRepository userRepository, Handler handler){
         this.scannerRepository = scannerRepository;
         this.userRepository = userRepository;
@@ -29,9 +29,9 @@ public class CreateScannerUseCaseImpl implements CreateScannerUseCase {
     }
 
     @Override
-    public void execute(Callback callback, ParameterPackage parameterPackage) {
-        this.callback = callback;
+    public void execute(ParameterPackage parameterPackage, Callback callback) {
         this.parameterPackage = parameterPackage;
+        this.callback = callback;
         handler.post(this);
     }
 
