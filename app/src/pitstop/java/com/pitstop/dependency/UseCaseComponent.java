@@ -94,7 +94,7 @@ public interface UseCaseComponent {
 
     FoundBluetoothDeviceUseCase foundBluetoothDeviceUseCase();
 
-    HandleVinOnConnectUseCase createScannerUseCase();
+    HandleVinOnConnectUseCase handleVinOnConnectUseCase();
 
     Trip215StartUseCase trip215StartUseCase();
 

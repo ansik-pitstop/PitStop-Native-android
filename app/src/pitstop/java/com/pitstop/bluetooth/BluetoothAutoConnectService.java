@@ -708,7 +708,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //Check to see if VIN is correct
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCarWithDevice){
-            useCaseComponent.createScannerUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
+            useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {
                     LogUtils.debugLogD(TAG, ""

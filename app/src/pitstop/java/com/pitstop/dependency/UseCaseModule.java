@@ -225,8 +225,11 @@ public class UseCaseModule {
     }
 
     @Provides
-    HandleVinOnConnectUseCase createScannerUseCase(ScannerRepository scannerRepository, Handler handler){
-        return new HandleVinOnConnectUseCaseImpl(scannerRepository, handler);
+    HandleVinOnConnectUseCase handleVinOnConnectUseCase(ScannerRepository scannerRepository
+            , UserRepository userRepository, Handler handler){
+
+        return new HandleVinOnConnectUseCaseImpl(scannerRepository
+                , userRepository,  handler);
     }
 
     @Provides
