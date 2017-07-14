@@ -693,6 +693,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+        if (parameterPackage == null) return;
 
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
@@ -774,7 +775,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void broadcastParameterData(ParameterPackage parameterPackage){
         for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.parameterData(parameterPackage);
+            if (c != null){
+                c.parameterData(parameterPackage);
+            }
         }
     }
 
