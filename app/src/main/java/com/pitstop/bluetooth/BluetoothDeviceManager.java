@@ -300,32 +300,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
         mBluetoothAdapter.startDiscovery();
-
-        //scanLeDevice(true);
-
-        //if (mGatt != null && !needToScan) {
-        //    try {
-        //        //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
-        //        // Previously connected device.  Try to reconnect.
-        //        if (mGatt.connect()) {
-        //            Log.i(TAG, "Trying to connect to device - BluetoothLeComm");
-        //            btConnectionState = CONNECTING;
-        //        } else {
-        //            //mGatt = null;
-        //            Log.i(TAG, "Could not connect to previous device, scanning...");
-        //            scanLeDevice(true);
-        //        }
-        //    } catch (Exception e) {
-        //        Log.e(TAG, "Exception thrown by connect");
-        //        e.printStackTrace();
-        //        mGatt.close();
-        //        mGatt = null;
-        //        scanLeDevice(true);
-        //    }
-        //} else  {
-        //    Log.i(TAG, "mGatt is null or bluetooth adapter reset");
-        //    scanLeDevice(true);
-        //}
     }
 
     // for classic discovery
