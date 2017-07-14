@@ -408,6 +408,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
+    public void setDeviceId(String id){
+        if (isConnectedTo215()){
+            Device215B device215B = (Device215B)deviceInterface;
+            Log.d(TAG,"Setting device id to "+id+", command: "+device215B.setDeviceId(id));
+            writeToObd(device215B.setDeviceId(id));
+        }
+    }
+
     public void setRtc(long rtcTime) {
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;

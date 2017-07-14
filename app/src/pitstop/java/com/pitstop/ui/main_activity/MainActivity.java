@@ -613,8 +613,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
+
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
                 && !ignoreMissingDeviceName){
+
+            //TEST
+            if (pidPackage.deviceId.equals("215B002373")){
+                displayGetScannerIdDialog();
+            }
 
             if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
                 displayGetScannerIdDialog();
@@ -640,8 +646,14 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                autoConnectService.setDeviceNameAndId(input.getText()
-                                        .toString().trim().toUpperCase());
+                                if (input.getText().toString().isEmpty()){
+                                    autoConnectService.setDeviceId("");
+                                }
+                                else{
+                                    autoConnectService.setDeviceNameAndId(input.getText()
+                                            .toString().trim().toUpperCase());
+                                }
+
                                 idInput = true;
                             }
                         })

@@ -74,7 +74,6 @@ public class BluetoothDeviceRecognizer {
             return RecognizeResult.CONNECT;
         }
 
-
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 
         if (device.getName() == null || !device.getName().contains(ObdManager.BT_DEVICE_NAME)) {

@@ -1205,6 +1205,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.setDeviceNameAndId(name);
     }
 
+    public void setDeviceId(String id){
+        LogUtils.debugLogI(TAG, "Setting device id to "+id, true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        deviceManager.setDeviceId(id);
+    }
+
     public void resetObdDeviceTime() {
         LogUtils.debugLogI(TAG, "Setting RTC time to 200x", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setRtc(1088804101);
