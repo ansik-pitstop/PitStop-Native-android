@@ -325,8 +325,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
 
-            mBluetoothDeviceRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
-
             // Mixpanel time event
             if (!bluetoothConnectedTimeEventStarted) {
                 bluetoothConnectedTimeEventStarted = true;
@@ -1016,8 +1014,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             currentDeviceId = loginPackageInfo.deviceId;
             deviceManager.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
-
-            mBluetoothDeviceRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;

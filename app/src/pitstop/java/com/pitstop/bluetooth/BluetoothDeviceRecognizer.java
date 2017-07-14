@@ -15,7 +15,6 @@ import android.util.Log;
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -35,14 +34,12 @@ public class BluetoothDeviceRecognizer {
         IGNORE, CONNECT, DISCONNECT, BANNED
     }
 
-    private final LocalScannerAdapter mLocalScannerStore;
     private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
 
     private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
     public BluetoothDeviceRecognizer(Context context) {
-        mLocalScannerStore = new LocalScannerAdapter(context);
         mMixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         mContext = context;
     }
@@ -79,21 +76,6 @@ public class BluetoothDeviceRecognizer {
             return RecognizeResult.CONNECT;
         }
 
-    }
-
-    public void onDeviceConnected(String scannerName, String scannerId){
-        if (scannerName == null || scannerId == null) return; // just to be fault-tolerant
-        if (mLocalScannerStore.scannerIdExists(scannerId)) {
-            mLocalScannerStore.updateScannerName(scannerId, scannerName);
-        } else { // Scanner Id does not exist locally
-            if (AddCarActivity.addingCarWithDevice) {
-                // 1. Adding car
-
-            } else {
-                // 2. Connected to a wrong device most likely
-
-            }
-        }
     }
 
     private void notifyOnUnrecognizedDeviceFound(String scannerName) {
