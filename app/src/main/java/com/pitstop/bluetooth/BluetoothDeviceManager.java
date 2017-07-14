@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -79,7 +80,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothCommunicator communicator;
 
+    private BluetoothDevice connectedDevice;
+
     private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
+
+    //List of invalid addresses from current or past search that we do not want to deal with again
+    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
     public enum CommType {
         CLASSIC, LE
@@ -213,6 +219,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
     }
 
+    //Disconnect from device, add it to invalid device list, reset scan
+    public void onConnectedDeviceInvalid(){
+        mBluetoothDeviceRecognizer.banDevice(connectedDevice);
+        communicator.disconnect(connectedDevice);
+        mBluetoothAdapter.cancelDiscovery();
+        startScan();
+    }
+
     /**
      * @param device
      */
@@ -246,6 +260,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
+        connectedDevice = device;
         communicator.connectToDevice(device);
     }
 
@@ -316,12 +331,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
                 Log.d(TAG, deviceName + "   " + device.getAddress());
-                switch (mBluetoothDeviceRecognizer.onDeviceFound(deviceName)) {
+
+                switch (mBluetoothDeviceRecognizer.onDeviceFound(device)) {
                     case CONNECT:
                         Log.v(TAG, "Found device: " + deviceName);
                         if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
@@ -331,6 +348,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                             deviceInterface = new Device215B(mContext, dataListener, deviceName);
                             connectToDevice(device);
                         }
+                        break;
+
+                    case BANNED:
+                        Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
+                                +" is on banned list and being ignored");
                         break;
                 }
             }
@@ -373,6 +395,15 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         writeToObd(deviceInterface.getRtc());
+    }
+
+    public void setDeviceNameAndId(String name){
+        //Device name should never be set for 212
+        if (isConnectedTo215()){
+            Device215B device215B = (Device215B)deviceInterface;
+            Log.d(TAG,"Setting device name and id to "+name+", command: "+device215B.setDeviceNameAndId(name));
+            writeToObd(device215B.setDeviceNameAndId(name));
+        }
     }
 
     public void setRtc(long rtcTime) {

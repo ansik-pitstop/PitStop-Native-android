@@ -45,6 +45,10 @@ import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.interactors.SetUserCarUseCaseImpl;
+import com.pitstop.interactors.Trip215EndUseCase;
+import com.pitstop.interactors.Trip215EndUseCaseImpl;
+import com.pitstop.interactors.Trip215StartUseCase;
+import com.pitstop.interactors.Trip215StartUseCaseImpl;
 import com.pitstop.interactors.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.UpdateCarDealershipUseCaseImpl;
 import com.pitstop.interactors.UpdateShopUseCase;
@@ -56,6 +60,7 @@ import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
@@ -205,5 +210,19 @@ public class UseCaseModule {
     @Provides
     SetFirstCarAddedUseCase setFirstCarAddedUseCase(UserRepository userRepository){
         return new SetFirstCarAddedUseCaseImpl(userRepository);
+    }
+
+    @Provides
+    Trip215StartUseCase trip215StartUseCase(Device215TripRepository device215TripRepository
+            , UserRepository userRepository, Handler handler){
+
+        return new Trip215StartUseCaseImpl(device215TripRepository, handler);
+    }
+
+    @Provides
+    Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
+            , UserRepository userRepository, Handler handler){
+
+        return new Trip215EndUseCaseImpl(device215TripRepository, handler);
     }
 }

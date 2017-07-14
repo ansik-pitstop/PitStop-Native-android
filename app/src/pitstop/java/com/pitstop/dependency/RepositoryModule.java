@@ -7,6 +7,7 @@ import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.ShopRepository;
+import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
@@ -48,5 +49,11 @@ public class RepositoryModule {
     public CarIssueRepository getCarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter
             , NetworkHelper networkHelper){
         return new CarIssueRepository(localCarIssueAdapter,networkHelper);
+    }
+
+    @Provides
+    @Singleton
+    public Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper){
+        return new Device215TripRepository(networkHelper);
     }
 }
