@@ -116,7 +116,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                         @Override
                         public void onError(int error) {
-
+                            callback.onError();
                         }
                     });
 
@@ -148,12 +148,12 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
             @Override
             public void onNoCarSet() {
-
+                callback.onError();
             }
 
             @Override
             public void onError() {
-
+                callback.onError();
             }
         });
 
@@ -165,6 +165,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         void onError();
     }
 
+    //Add scanner, but first verify that it isn't already active
     private void addScanner(ObdScanner obdScanner, AddScannerCallback callback){
         scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
 

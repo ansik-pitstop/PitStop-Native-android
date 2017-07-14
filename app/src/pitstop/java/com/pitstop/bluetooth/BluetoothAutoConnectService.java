@@ -711,28 +711,32 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {
-                    LogUtils.debugLogD(TAG, ""
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success"
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 }
 
                 @Override
                 public void onDeviceIdOverrideNeeded() {
-
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
+                          ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 }
 
                 @Override
                 public void onDeviceInvalid() {
-
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid."
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 }
 
                 @Override
                 public void onDeviceAlreadyActive() {
-
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active"
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 }
 
                 @Override
                 public void onError() {
-
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred"
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 }
             });
         }
