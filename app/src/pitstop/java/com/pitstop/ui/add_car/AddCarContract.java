@@ -21,6 +21,8 @@ public interface AddCarContract {
 
     interface View extends BaseView<Presenter>, ILoadingActivity {
 
+        void onMileageInputCancelled();
+
         void setPresenter(Presenter presenter);
 
         /**

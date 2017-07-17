@@ -130,6 +130,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     .put("View", MixpanelHelper.ADD_CAR_VIEW)
                     .put("Method of Adding Car", AddCarActivity.addingCarWithDevice ? MixpanelHelper.ADD_CAR_METHOD_DEVICE : MixpanelHelper.ADD_CAR_METHOD_MANUAL);
             mMixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
+            mCallback.onMileageInputCancelled();
         } catch (JSONException e) {
             e.printStackTrace();
         }
