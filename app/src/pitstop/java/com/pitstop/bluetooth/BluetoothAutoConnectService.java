@@ -988,14 +988,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "ffData() " + ffPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        if (!deviceIsVerified && pendingFreezeFrames.size() > 0){
+        if (!deviceIsVerified){
             LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingFreezeFrames.add(ffPackage);
             return;
         }
 
-        if (!pendingFreezeFrames.contains(ffPackage)){
+        if (!pendingFreezeFrames.contains(ffPackage) && pendingFreezeFrames.size() > 0){
             LogUtils.debugLogD(TAG, "Going through pending freeze frames"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             for (FreezeFramePackage p: pendingFreezeFrames){
