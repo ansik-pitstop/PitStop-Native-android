@@ -153,12 +153,6 @@ public interface AddCarContract {
         void startAddingNewCar();
 
         /**
-         * @param car
-         * @return true if this car has no scanner
-         */
-        boolean selectedValidCar(Car car);
-
-        /**
          * Update the shop for created car. <br>
          * @param dealership
          */

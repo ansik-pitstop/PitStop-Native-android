@@ -29,12 +29,9 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
-import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
-import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -75,9 +72,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private BluetoothAutoConnectService mAutoConnectService;
     private ServiceConnection mServiceConnection;
 
-    private LocalScannerAdapter mLocalScannerAdapter;
     private LocalCarAdapter mLocalCarAdapter;
-    private UseCaseComponent mUseCaseComponent;
 
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
 
@@ -91,14 +86,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mApplication = application;
         mNetworkHelper = tempNetworkComponent.networkHelper();
         mMixpanelHelper = new MixpanelHelper(application);
-        mLocalScannerAdapter = new LocalScannerAdapter(application);
         mLocalCarAdapter = new LocalCarAdapter(application);
         mAutoConnectService = activity.autoConnectService;
         mServiceConnection = new BluetoothServiceConnection(application, activity, this);
-
-        mUseCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(mApplication))
-                .build();
     }
 
     public boolean hasGotMileage = false;
@@ -375,12 +365,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     }
                 });
     }
-
-    @Override
-    public boolean selectedValidCar(Car car) {
-        return !mLocalScannerAdapter.carHasDevice(car.getId());
-    }
-
 
     @Override
     public void updateCreatedCarDealership(final Dealership dealership) {
