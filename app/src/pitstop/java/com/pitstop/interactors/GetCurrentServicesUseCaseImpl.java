@@ -2,9 +2,10 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.ArrayList;
@@ -38,33 +39,32 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     public void run() {
 
         //Get current users car
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                //Use the current users car to get all the current issues
-                        carIssueRepository.getCurrentCarIssues(car.getId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
-                            @Override
-                            public void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent) {
-                                callback.onGotCurrentServices(carIssueCurrent);
-                            }
+            public void onSuccess(Settings data) {
 
-                            @Override
-                            public void onError() {
-                                callback.onError();
-                            }
-                        });
+                if (!data.hasMainCar()){
+                    callback.onGotCurrentServices(new ArrayList<>());
+                    return;
+                }
+
+                carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
+                    @Override
+                    public void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent) {
+                        callback.onGotCurrentServices(carIssueCurrent);
+                    }
+
+                    @Override
+                    public void onError() {
+                        callback.onError();
+                    }
+                });
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onGotCurrentServices(new ArrayList<>());
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
-
     }
 }

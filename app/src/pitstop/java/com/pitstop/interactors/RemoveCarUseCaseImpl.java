@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -58,15 +59,15 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     @Override
     public void run() {
 
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
-
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                carRepository.delete(carToDeleteId, new Repository.Callback<Object>() {
+            public void onSuccess(Settings data) {
+
+                carRepository.delete(carToDeleteId, new CarRepository.CarDeleteCallback() {
 
                     @Override
                     public void onSuccess(Object response) {
-                        if(car.getId() == carToDeleteId){// deleted the users current car
+                        if(data.getCarId() == carToDeleteId){// deleted the users current car
                             userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
 
                                 @Override
@@ -133,15 +134,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-
-            }
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
-
             }
         });
-
     }
 }
