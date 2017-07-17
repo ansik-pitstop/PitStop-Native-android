@@ -27,7 +27,9 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -36,6 +38,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Ben!
@@ -221,6 +225,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
+        LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         mBluetoothDeviceRecognizer.banDevice(connectedDevice);
         communicator.disconnect(connectedDevice);
         if (mBluetoothAdapter.isDiscovering()){

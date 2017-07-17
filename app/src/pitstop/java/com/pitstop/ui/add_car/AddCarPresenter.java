@@ -304,6 +304,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         }
                     } else { // in case error happened when parsing the car response
                         mCallback.askForManualVinInput();
+                        mAutoConnectService.connectedDeviceInvalid();
                     }
                 }
             }

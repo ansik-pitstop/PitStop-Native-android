@@ -681,6 +681,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    public void connectedDeviceInvalid(){
+        deviceManager.onConnectedDeviceInvalid();
+    }
+
     /**
      * Handles the data returned from a parameter query command
      * @param parameterPackage
@@ -725,6 +729,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
+                    deviceManager.onConnectedDeviceInvalid();
                 }
 
                 @Override
@@ -733,6 +738,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
+                    deviceManager.onConnectedDeviceInvalid();
                 }
 
                 @Override
@@ -741,6 +747,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
+                    deviceManager.onConnectedDeviceInvalid();
                 }
             });
 
