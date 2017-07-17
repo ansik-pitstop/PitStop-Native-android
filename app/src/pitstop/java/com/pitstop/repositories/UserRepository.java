@@ -283,7 +283,6 @@ public class UserRepository implements Repository{
                     }
                     if (settings.getJSONObject("user").has("mainCar")){
                         carId = settings.getJSONObject("user").getInt("mainCar");
-                        callback.onSuccess(new Settings(carId,firstCarAdded));
                     }
 
                     if (carId == -1){
