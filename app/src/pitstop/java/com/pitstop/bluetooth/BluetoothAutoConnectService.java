@@ -478,11 +478,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
 
-        LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString()
-                        +", isConnected215?"+isConnectedTo215()
-                        +", terminalRTCTime: "+terminalRTCTime
-                , true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
+        //Not handling trip updates anymore since live mileage has been removed
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            LogUtils.debugLogD(TAG, "trip update received, ignoring: "
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            return;
+        }
+
+        LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+
 
         /*********************************TEST CODE START*********************************/
 
@@ -547,11 +553,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*********************************TEST CODE END**********************************/
 
-        //Not handling trip updates anymore since live mileage has been removed
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            return;
-        }
-
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
         if (!isConnectedTo215() && deviceIsVerified){
@@ -561,19 +562,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
-                        +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
+        LogUtils.debugLogD(TAG, "Adding trip to pending list"
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
         if (terminalRTCTime == -1 || !deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Trip will not be processed, terminalRtcSet?"
+                    +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified, true
+                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Going through all pending trips, rtcTime:"+tripInfoPackage.rtcTime
-                        +" tripListSize: "+pendingTripInfoPackages.size()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        LogUtils.debugLogD(TAG, "Going through all pending trips tripListSize: "
+                +pendingTripInfoPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                , getApplicationContext());
 
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
@@ -581,23 +584,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnectedTo215()){
 
-                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                        +" trip end received, executing use case", true
+                LogUtils.debugLogD(TAG, "Executing trip end use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                 useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
                         , new Trip215EndUseCase.Callback() {
                     @Override
                     public void onHistoricalTripEndSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                +" Historical trip END saved successfully", true
+                        LogUtils.debugLogD(TAG, "Historical trip END saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
 
                     @Override
                     public void onRealTimeTripEndSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Real-time END trip end saved successfully", true
+                        LogUtils.debugLogD(TAG, "Real-time END trip end saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                         //Send update mileage notification after 5 seconds to allow back-end to process mileage
@@ -619,8 +619,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                             @Override
                     public void onError() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" TRIP END Use case returned error", true
+                        LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
                 });
@@ -628,16 +627,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
 
-                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                +" trip start received, executing use case", true
+                LogUtils.debugLogD(TAG, "Executing trip start use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                 useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
                         , new Trip215StartUseCase.Callback() {
                     @Override
                     public void onRealTimeTripStartSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Real-time trip START saved successfully", true
+                        LogUtils.debugLogD(TAG, "Real-time trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                         handler.postDelayed(new Runnable() {
@@ -650,16 +647,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onHistoricalTripStartSuccess(){
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Historical trip START saved successfully", true
+                        LogUtils.debugLogD(TAG, "Historical trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     }
 
                     @Override
                     public void onError() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Error saving trip start", true
+                        LogUtils.debugLogD(TAG,"Error saving trip start", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
                 });
@@ -801,14 +796,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (!deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified!"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingPidPackages.add(pidPackage);
             return;
         }
 
         //Check if its a recursive call
         if (!processedPidPackages.contains(pidPackage)){
-
+            LogUtils.debugLogD(TAG, "Device is verified, going through pid pending list, size: "
+                    +pendingPidPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
             //Not a recursive call, go throgh pending pid packages recursively
             for (PidPackage p: pendingPidPackages){
                 processedPidPackages.add(p);
@@ -816,6 +817,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
             pendingPidPackages.removeAll(processedPidPackages);
+            LogUtils.debugLogD(TAG, "Pid pending list size after removal: "+pendingPidPackages.size()
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         }
 
 
@@ -942,16 +945,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if (!deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingDtcPackages.add(dtcPackage);
             return;
         }
 
         if (!pendingDtcPackages.contains(dtcPackage)){
+            LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
+                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
             for (DtcPackage p: pendingDtcPackages){
                 processedDtcPackages.add(p);
                 dtcData(p);
             }
-            pendingDtcPackages.removeAll(processedPidPackages);
+            pendingDtcPackages.removeAll(processedDtcPackages);
+            LogUtils.debugLogD(TAG, "Pending dtc packages list length after removal: "
+                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
         }
 
 
