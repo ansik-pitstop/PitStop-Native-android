@@ -4,6 +4,7 @@ import com.google.gson.JsonIOException;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -20,7 +21,10 @@ import org.json.JSONObject;
  * Created by Karol Zdebel on 5/29/2017.
  */
 
-public class UserRepository {
+public class UserRepository implements Repository{
+
+    private final String END_POINT_SETTINGS = "settings/?userId=";
+    private final String END_POINT_USER = "user/";
 
     private static UserRepository INSTANCE;
     private UserAdapter userAdapter;
@@ -75,11 +79,10 @@ public class UserRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(User model, UserInsertCallback callback) {
+    public void insert(User model, UserInsertCallback callback) {
         userAdapter.storeUserData(model);
-        networkHelper.updateUser(model.getId(),model.getFirstName(),model.getLastName()
-                ,model.getPhone(),getInsertUserRequestCallback(callback));
-        return true;
+        updateUser(model.getId(),model.getFirstName(),model.getLastName()
+            ,model.getPhone(),getInsertUserRequestCallback(callback));
     }
 
     private RequestCallback getInsertUserRequestCallback(UserInsertCallback callback){
@@ -104,11 +107,10 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public boolean update(User model, UserUpdateCallback callback) {
+    public void update(User model, UserUpdateCallback callback) {
         userAdapter.storeUserData(model);
-        networkHelper.updateUser(model.getId(),model.getFirstName(),model.getLastName()
-                ,model.getPhone(),getUserUpdateRequestCallback(callback));
-        return true;
+        updateUser(model.getId(),model.getFirstName(),model.getLastName()
+            ,model.getPhone(),getUserUpdateRequestCallback(callback));
     }
 
     private RequestCallback getUserUpdateRequestCallback(UserUpdateCallback callback){
@@ -137,8 +139,7 @@ public class UserRepository {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        networkHelper.getUser(userAdapter.getUser()
-                .getId(),getUserGetRequestCallback(callback));
+        getUser(userAdapter.getUser().getId(),getUserGetRequestCallback(callback));
     }
 
     public void get(int id, UserGetCallback callback) {
@@ -194,7 +195,7 @@ public class UserRepository {
                 try {
                     if (requestError == null && response != null){
                         Car car = Car.createCar(response);
-                        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+                        getUserSettings(userAdapter.getUser().getId(), new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if(response != null){
@@ -289,7 +290,7 @@ public class UserRepository {
 
         final int userId = userAdapter.getUser().getId();
 
-        networkHelper.getUserSettingsById(userId, new RequestCallback() {
+        getUserSettings(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
@@ -337,35 +338,62 @@ public class UserRepository {
         return requestCallback;
     }
 
-    public void checkFirstCarAdded(final CheckFirstCarAddedCallback callback){
+    public void getCurrentUserSettings(Callback<Settings> callback){
 
-        networkHelper.getUserSettingsById(userAdapter.getUser().getId(), new RequestCallback() {
+        getUserSettings(userAdapter.getUser().getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    try{
-                        JSONObject options = new JSONObject(response).getJSONObject("user");
-                        boolean added;
-                        if (options.has("isFirstCarAdded")){
-                            //New users will have this property
-                            added = options.getBoolean("isFirstCarAdded");
-                        }else{
-                            //Users that have registered prior to this patch will not send greeting messages
-                            added = true;
-                        }
+                if (requestError != null){
+                    callback.onError(requestError.getStatusCode());
+                    return;
+                }
+                try{
+                    JSONObject settings = new JSONObject(response);
+                    int carId = -1;
+                    boolean firstCarAdded = false;
 
-                        callback.onFirstCarAddedChecked(added);
+                    if (settings.getJSONObject("user").has("isFirstCarAdded")){
+                        firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded");
                     }
-                    catch(JSONException e){
-                        callback.onError();
+                    if (settings.getJSONObject("user").has("mainCar")){
+                        carId = settings.getJSONObject("user").getInt("mainCar");
+                        callback.onSuccess(new Settings(carId,firstCarAdded));
+                    }
+
+                    if (carId == -1){
+                        callback.onSuccess(new Settings(firstCarAdded));
+                    }
+                    else{
+                        callback.onSuccess(new Settings(carId,firstCarAdded));
                     }
 
                 }
-                else{
-                    callback.onError();
+                catch(JSONException e){
+                    e.printStackTrace();
                 }
             }
         });
+    }
+
+    private void getUserSettings(int userId, RequestCallback callback){
+        networkHelper.get(END_POINT_SETTINGS+userId,callback);
+    }
+
+    private void getUser(int userId, RequestCallback callback){
+        networkHelper.get(END_POINT_USER+userId,callback);
+    }
+
+    private void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("userId", userId);
+            json.put("firstName", firstName);
+            json.put("lastName", lastName);
+            json.put("phone", phoneNumber);
+            networkHelper.put(END_POINT_USER, callback, json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 }
