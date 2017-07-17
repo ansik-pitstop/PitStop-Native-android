@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,25 +27,25 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
+import com.pitstop.adapters.AddCarViewPagerAdapter;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.SetUserCarUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.R;
-import com.pitstop.adapters.AddCarViewPagerAdapter;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.view_fragment.AddCar1Fragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2NoDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2YesDongleFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarChooseDealershipFragment;
 import com.pitstop.ui.add_car.view_fragment.AddCarMileageDialog;
 import com.pitstop.ui.add_car.view_fragment.AddCarViewPager;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
@@ -52,6 +53,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import butterknife.internal.DebouncingOnClickListener;
 
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
@@ -172,6 +175,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         // Mixpanel time event
         mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_ADD_CAR);
+
     }
 
     private void setupUIReferences() {
@@ -267,6 +271,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      *
      * @param view The "No" button
      */
+    Button addCarButton;
     public void noDongleClicked(View view) {
 
         addingCarWithDevice = false;
@@ -276,6 +281,19 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         ((TextView) findViewById(R.id.step_text)).setText("STEP 2/3");
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
+        addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        addCarButton.setOnClickListener(new DebouncingOnClickListener() {
+            @Override
+            public void doClick(View v) {
+                addCarButton.setEnabled(false);
+                searchForCar(v);
+            }
+        });
+    }
+
+    @Override
+    public void onMileageInputCancelled(){
+        addCarButton.setEnabled(true);
     }
 
     /**
@@ -321,6 +339,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
+                addCarButton.setEnabled(true);
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
@@ -518,6 +537,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
+        addCarButton.setEnabled(true);
         showLoading("Mileage entered, searching for car...");
     }
 
