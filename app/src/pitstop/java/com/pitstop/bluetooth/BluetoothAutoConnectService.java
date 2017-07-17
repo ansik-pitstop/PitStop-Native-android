@@ -806,7 +806,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         //Check if its a recursive call
-        if (!processedPidPackages.contains(pidPackage)){
+        if (!processedPidPackages.contains(pidPackage) && pendingPidPackages.size() > 0){
             LogUtils.debugLogD(TAG, "Device is verified, going through pid pending list, size: "
                     +pendingPidPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
@@ -951,7 +951,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        if (!pendingDtcPackages.contains(dtcPackage)){
+        if (!pendingDtcPackages.contains(dtcPackage) && pendingDtcPackages.size() > 0){
             LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
                     +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
@@ -988,7 +988,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "ffData() " + ffPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        if (!deviceIsVerified){
+        if (!deviceIsVerified && pendingFreezeFrames.size() > 0){
             LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingFreezeFrames.add(ffPackage);
