@@ -134,14 +134,11 @@ public class UserRepository implements Repository{
     }
 
     public void getCurrentUser(UserGetCallback callback){
-        if(!networkHelper.isConnected()){
+        if(!networkHelper.isConnected() || userAdapter.getUser() == null){
             callback.onError();
         }
-        getUser(userAdapter.getUser().getId(),getUserGetRequestCallback(callback));
-    }
-
-    public void get(int id, UserGetCallback callback) {
-        networkHelper.getUser(id,getUserGetRequestCallback(callback));
+        networkHelper.get(END_POINT_USER+userAdapter.getUser().getId()
+                ,getUserGetRequestCallback(callback));
     }
 
     private RequestCallback getUserGetRequestCallback(UserGetCallback callback){
@@ -306,10 +303,6 @@ public class UserRepository implements Repository{
 
     private void getUserSettings(int userId, RequestCallback callback){
         networkHelper.get(END_POINT_SETTINGS+userId,callback);
-    }
-
-    private void getUser(int userId, RequestCallback callback){
-        networkHelper.get(END_POINT_USER+userId,callback);
     }
 
     private void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
