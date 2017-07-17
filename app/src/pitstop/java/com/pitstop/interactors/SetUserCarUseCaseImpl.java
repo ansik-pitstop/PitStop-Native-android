@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.User;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import org.greenrobot.eventbus.EventBus;
@@ -32,12 +33,12 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
-                userRepository.setUserCar(user.getId(), carId, new UserRepository.UserSetCarCallback() {
+            public void onSuccess(User user) {
+                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
                     @Override
-                    public void onSetCar() {
+                    public void onSuccess(Object object) {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
@@ -45,14 +46,14 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

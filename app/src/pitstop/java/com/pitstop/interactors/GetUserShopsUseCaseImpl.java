@@ -34,10 +34,10 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
-                shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>>() {
+            public void onSuccess(User user) {
+                shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>> {
                     @Override
                     public void onSuccess(List<Dealership> dealerships) {
                         callback.onShopGot(dealerships);
@@ -51,7 +51,7 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

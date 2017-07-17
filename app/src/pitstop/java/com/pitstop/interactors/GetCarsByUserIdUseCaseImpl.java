@@ -48,12 +48,10 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     return;
                 }
 
-                userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
+                userRepository.getCurrentUser(new Repository.Callback<User>(){
                     @Override
-                    public void onGotUser(User user) {
-                        carRepository.getCarsByUserId(user.getId()
-                                ,new Repository.Callback<List<Car>>() {
-
+                    public void onSuccess(User user) {
+                        carRepository.getCarsByUserId(user.getId(),new CarRepository.Callback<List<Car>>() {
                             @Override
                             public void onSuccess(List<Car> cars) {
                                 callback.onCarsRetrieved(cars);
@@ -66,7 +64,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });

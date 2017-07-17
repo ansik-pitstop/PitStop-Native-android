@@ -68,7 +68,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                     @Override
                     public void onSuccess(Object response) {
                         if(data.getCarId() == carToDeleteId){// deleted the users current car
-                            userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+                            userRepository.getCurrentUser(new Repository.Callback<User>() {
 
                                 @Override
                                 public void onGotUser(User user) {
@@ -77,10 +77,10 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                         @Override
                                         public void onSuccess(List<Car> cars) {
                                             if(cars.size()>0){//does the user have another car?
-                                                userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new UserRepository.UserSetCarCallback() {
+                                                userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new Repository.Callback<Object>() {
 
                                                     @Override
-                                                    public void onSetCar() {
+                                                    public void onSuccess(Object object) {
                                                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                                 ,eventSource));
@@ -88,7 +88,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     }
 
                                                     @Override
-                                                    public void onError() {
+                                                    public void onError(int error) {
                                                         callback.onError();
                                                     }
                                                 });
@@ -117,7 +117,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                 }
 
                                 @Override
-                                public void onError() {
+                                public void onError(int error) {
                                     callback.onError();
                                 }
                             });

@@ -35,10 +35,10 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
-                shopRepository.insert(dealership, user.getId(), new Repository.Callback<Object>() {
+            public void onSuccess(User user) {
+                shopRepository.insert(dealership, user.getId(), new ShopRepository.ShopInsertCallback() {
                     @Override
                     public void onSuccess(Object response) {
                         callback.onShopAdded();
@@ -53,7 +53,7 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

@@ -2,7 +2,6 @@ package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
 import com.pitstop.database.UserAdapter;
-import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
@@ -28,42 +27,6 @@ public class UserRepository implements Repository{
     private UserAdapter userAdapter;
     private NetworkHelper networkHelper;
 
-    public interface UserSetCarCallback {
-        void onSetCar();
-        void onError();
-    }
-
-    public interface UserFirstCarAddedSetCallback {
-        void onFirstCarAddedSet();
-        void onError();
-    }
-
-    public interface CheckFirstCarAddedCallback {
-        void onFirstCarAddedChecked(boolean added);
-        void onError();
-    }
-
-    public interface UserGetCallback {
-        void onGotUser(User user);
-        void onError();
-    }
-
-    public interface UserUpdateCallback {
-        void onUpdatedUser();
-        void onError();
-    }
-
-    public interface UserInsertCallback {
-        void onInsertedUser();
-        void onError();
-    }
-
-    public interface UserGetCarCallback {
-        void onGotCar(Car car);
-        void onNoCarSet();
-        void onError();
-    }
-
     public static synchronized UserRepository getInstance(UserAdapter userAdapter
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
@@ -77,27 +40,28 @@ public class UserRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insert(User model, UserInsertCallback callback) {
+    public void insert(User model, Callback<Object> callback) {
         userAdapter.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getInsertUserRequestCallback(callback));
     }
 
-    private RequestCallback getInsertUserRequestCallback(UserInsertCallback callback){
+    private RequestCallback getInsertUserRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onInsertedUser();
+                        callback.onSuccess(null);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError.getStatusCode());
                     }
                 }
                 catch(JsonIOException e){
-
+                    e.printStackTrace();
+                    callback.onError(0);
                 }
             }
         };
@@ -105,27 +69,28 @@ public class UserRepository implements Repository{
         return requestCallback;
     }
 
-    public void update(User model, UserUpdateCallback callback) {
+    public void update(User model, Callback<Object> callback) {
         userAdapter.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getUserUpdateRequestCallback(callback));
     }
 
-    private RequestCallback getUserUpdateRequestCallback(UserUpdateCallback callback){
+    private RequestCallback getUserUpdateRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onUpdatedUser();
+                        callback.onSuccess(null);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError.getStatusCode());
                     }
                 }
                 catch(JsonIOException e){
-
+                    e.printStackTrace();
+                    callback.onError(0);
                 }
             }
         };
@@ -133,29 +98,30 @@ public class UserRepository implements Repository{
         return requestCallback;
     }
 
-    public void getCurrentUser(UserGetCallback callback){
+    public void getCurrentUser(Callback<User> callback){
         if(!networkHelper.isConnected() || userAdapter.getUser() == null){
-            callback.onError();
+            callback.onError(0);
         }
         networkHelper.get(END_POINT_USER+userAdapter.getUser().getId()
                 ,getUserGetRequestCallback(callback));
     }
 
-    private RequestCallback getUserGetRequestCallback(UserGetCallback callback){
+    private RequestCallback getUserGetRequestCallback(Callback<User> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onGotUser(User.jsonToUserObject(response));
+                        callback.onSuccess(User.jsonToUserObject(response));
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError.getStatusCode());
                     }
                 }
                 catch(JsonIOException e){
-
+                    e.printStackTrace();
+                    callback.onError(0);
                 }
             }
         };
@@ -163,7 +129,7 @@ public class UserRepository implements Repository{
         return requestCallback;
     }
 
-    public void setUserCar(int userId, int carId, UserSetCarCallback callback){
+    public void setUserCar(int userId, int carId, Callback<Object> callback){
         getUserSettings(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -181,27 +147,28 @@ public class UserRepository implements Repository{
                     }
                 }
                 else{
-                    callback.onError();
+                    callback.onError(0);
                 }
             }
         });
     }
 
-    private RequestCallback getUserSetCarRequestCallback(UserSetCarCallback callback){
+    private RequestCallback getUserSetCarRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onSetCar();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError.getStatusCode());
                     }
                 }
                 catch(JsonIOException e){
-
+                    e.printStackTrace();
+                    callback.onError(0);
                 }
             }
         };
@@ -210,7 +177,7 @@ public class UserRepository implements Repository{
     }
 
     public void setFirstCarAdded(final boolean added
-            , final UserFirstCarAddedSetCallback callback){
+            , final Callback<Object> callback){
 
         final int userId = userAdapter.getUser().getId();
 
@@ -230,31 +197,35 @@ public class UserRepository implements Repository{
 
                         networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
                     }
-                    catch(JSONException e){}
+                    catch(JSONException e){
+                        e.printStackTrace();
+                        callback.onError(0);
+                    }
 
                 }
                 else{
-                    callback.onError();
+                    callback.onError(0);
                 }
             }
         });
     }
 
-    private RequestCallback getSetFirstCarAddedCallback(UserFirstCarAddedSetCallback callback){
+    private RequestCallback getSetFirstCarAddedCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onFirstCarAddedSet();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError.getStatusCode());
                     }
                 }
                 catch(JsonIOException e){
-                    callback.onError();
+                    e.printStackTrace();
+                    callback.onError(0);
                 }
             }
         };

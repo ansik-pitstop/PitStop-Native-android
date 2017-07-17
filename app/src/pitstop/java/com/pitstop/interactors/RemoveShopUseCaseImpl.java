@@ -39,9 +39,9 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
+            public void onSuccess(User user) {
                 carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
                     @Override
                     public void onSuccess(List<Car> cars) {
@@ -72,7 +72,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                 });
             }
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
