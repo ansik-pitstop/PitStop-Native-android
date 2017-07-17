@@ -8,15 +8,18 @@ package com.pitstop.models;
 
 public class Settings {
 
+    private int userId;
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
 
-    public Settings(int carId, boolean firstCarAdded) {
+    public Settings(int userId, int carId, boolean firstCarAdded) {
+        this.userId = userId;
         this.carId = carId;
         this.firstCarAdded = firstCarAdded;
     }
 
-    public Settings(boolean firstCarAdded){
+    public Settings(int userId, boolean firstCarAdded){
+        this.userId = userId;
         this.firstCarAdded = firstCarAdded;
         carId = -1;
     }
@@ -33,4 +36,11 @@ public class Settings {
         return firstCarAdded;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 }

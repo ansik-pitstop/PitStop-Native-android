@@ -176,17 +176,6 @@ public class UserRepository implements Repository{
         userAdapter.deleteAllUsers();
     }
 
-    public void getUserCar(UserGetCarCallback callback){
-        if(!networkHelper.isConnected()){
-            callback.onError();
-        }
-        if (userAdapter.getUser() == null){
-            callback.onError();
-            return;
-        }
-        networkHelper.getMainCar(userAdapter.getUser().getId(),getUserGetCarRequestCallback(callback));
-    }
-
     private RequestCallback getUserGetCarRequestCallback(UserGetCarCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
@@ -260,7 +249,27 @@ public class UserRepository implements Repository{
     }
 
     public void setUserCar(int userId, int carId, UserSetCarCallback callback){
-        networkHelper.setMainCar(userId,carId,getUserSetCarRequestCallback(callback));
+        getUserSettings(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null) {
+                    try {
+                        JSONObject options = new JSONObject(response).getJSONObject("user");
+                        options.put("mainCar",carId);
+
+                        JSONObject putOptions = new JSONObject();
+                        putOptions.put("settings",options);
+
+                        networkHelper.put("user/" + userId + "/settings", getUserSetCarRequestCallback(callback), putOptions);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else{
+                    callback.onError();
+                }
+            }
+        });
     }
 
     private RequestCallback getUserSetCarRequestCallback(UserSetCarCallback callback){
@@ -340,7 +349,9 @@ public class UserRepository implements Repository{
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 
-        getUserSettings(userAdapter.getUser().getId(), new RequestCallback() {
+        final int userId = userAdapter.getUser().getId();
+
+        getUserSettings(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError != null){
@@ -361,10 +372,10 @@ public class UserRepository implements Repository{
                     }
 
                     if (carId == -1){
-                        callback.onSuccess(new Settings(firstCarAdded));
+                        callback.onSuccess(new Settings(userId,firstCarAdded));
                     }
                     else{
-                        callback.onSuccess(new Settings(carId,firstCarAdded));
+                        callback.onSuccess(new Settings(userId,carId,firstCarAdded));
                     }
 
                 }
