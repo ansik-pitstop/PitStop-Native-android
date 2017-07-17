@@ -3,14 +3,12 @@ package com.pitstop.repositories;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -161,86 +159,6 @@ public class UserRepository implements Repository{
                 }
                 catch(JsonIOException e){
 
-                }
-            }
-        };
-
-        return requestCallback;
-    }
-
-    public void setCurrentUser(User user){
-        userAdapter.storeUserData(user);
-    }
-
-    public void removeAllUsers(){
-        userAdapter.deleteAllUsers();
-    }
-
-    private RequestCallback getUserGetCarRequestCallback(UserGetCarCallback callback){
-        //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null && response != null){
-                        Car car = Car.createCar(response);
-                        getUserSettings(userAdapter.getUser().getId(), new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if(response != null){
-                                    try{
-                                        JSONObject responseJson = new JSONObject(response);
-                                        JSONArray customShops;
-                                        if( responseJson.getJSONObject("user").has("customShops")) {
-                                            customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-
-                                            for (int i = 0; i < customShops.length(); i++) {
-                                                JSONObject shop = customShops.getJSONObject(i);
-                                                if (car.getDealership() != null) {
-                                                    if (car.getDealership().getId() == shop.getInt("id")) {
-                                                        Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                        dealership.setCustom(true);
-                                                        car.setDealership(dealership);
-                                                    }
-                                                } else {
-                                                    Dealership noDealer = new Dealership();
-                                                    noDealer.setName("No Dealership");
-                                                    noDealer.setId(19);
-                                                    noDealer.setEmail("info@getpitstop.io");
-                                                    noDealer.setCustom(true);
-                                                    car.setDealership(noDealer);
-                                                }
-                                            }
-                                        }else{
-                                            if(car.getDealership() == null){
-                                                Dealership noDealer = new Dealership();
-                                                noDealer.setName("No Dealership");
-                                                noDealer.setId(19);
-                                                noDealer.setEmail("info@getpitstop.io");
-                                                noDealer.setCustom(true);
-                                                car.setDealership(noDealer);
-                                            }
-                                        }
-                                        callback.onGotCar(car);
-                                    }catch (JSONException e){
-                                        callback.onError();
-                                        e.printStackTrace();
-                                    }
-                                }else{
-                                    callback.onError();
-                                }
-                            }
-                        });
-                    }
-                    else if (requestError == null && response == null){
-                        callback.onNoCarSet();
-                    }
-                    else{
-                        callback.onError();
-                    }
-                }
-                catch(JSONException e){
-                    callback.onError();
                 }
             }
         };
