@@ -62,12 +62,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(null);
                     }
                     else{
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -96,12 +96,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(null);
                     }
                     else{
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -133,12 +133,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(User.jsonToUserObject(response));
                     }
                     else{
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -170,7 +170,7 @@ public class UserRepository implements Repository{
                     }
                 }
                 else{
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         });
@@ -186,12 +186,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -227,12 +227,12 @@ public class UserRepository implements Repository{
                     }
                     catch(JSONException e){
                         e.printStackTrace();
-                        callback.onError(0);
+                        callback.onError(ERR_UNKNOWN);
                     }
 
                 }
                 else{
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         });
@@ -248,12 +248,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(0);
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -274,7 +274,7 @@ public class UserRepository implements Repository{
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError != null){
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                     return;
                 }
                 try{
