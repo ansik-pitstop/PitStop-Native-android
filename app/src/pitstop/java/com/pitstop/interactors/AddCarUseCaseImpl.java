@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -40,9 +41,9 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     @Override
     public void run() {
-        carRepository.insert(car, new CarRepository.CarInsertCallback() {
+        carRepository.insert(car, new Repository.Callback<Object>() {
             @Override
-            public void onCarAdded() {
+            public void onSuccess(Object response) {
                 EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                 EventBus.getDefault().post(new CarDataChangedEvent(eventType
                         ,eventSource));
@@ -51,7 +52,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

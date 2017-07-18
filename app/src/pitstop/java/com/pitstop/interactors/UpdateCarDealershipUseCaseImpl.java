@@ -11,6 +11,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,13 +52,14 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                carRepository.get(carId,user.getId(), new CarRepository.CarGetCallback() {
+                carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
+
                     @Override
-                    public void onCarGot(Car car) {
+                    public void onSuccess(Car car) {
                         car.setDealership(dealership);
-                        carRepository.update(car, new CarRepository.CarUpdateCallback() {
+                        carRepository.update(car, new Repository.Callback<Object>() {
                             @Override
-                            public void onCarUpdated() {
+                            public void onSuccess(Object response) {
 
                                 EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
                                 EventBus.getDefault().post(new CarDataChangedEvent(eventType
@@ -66,13 +68,13 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(int error) {
                                 callback.onError();
                             }
                         });
                     }
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
