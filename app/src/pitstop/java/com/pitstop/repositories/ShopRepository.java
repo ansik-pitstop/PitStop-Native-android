@@ -19,47 +19,15 @@ import java.util.List;
  * Created by Matthew on 2017-06-21.
  */
 
-public class ShopRepository {
+public class ShopRepository implements Repository{
+
+    private final String END_POINT_SHOP_PITSTOP = "shop?shopType=partner";
+    private final String END_POINT_SHOP = "shop";
+
     private static ShopRepository INSTANCE;
     private LocalShopAdapter localShopAdapter;
     private NetworkHelper networkHelper;
     private boolean removeLocalShop;
-
-    public interface ShopInsertCallback{
-        void onShopAdded();
-        void onError();
-    }
-
-    public interface ShopUpdateCallback{
-        void onShopUpdated();
-        void onError();
-    }
-
-    public interface ShopGetCallback{
-        void onShopGot(Dealership dealership);
-        void onError();
-    }
-
-    public interface ShopsGetCallback{
-        void onShopsGot(List<Dealership> dealerships);
-        void onError();
-    }
-    public interface ShopDeleteCallback{
-        void onShopDeleted();
-        void onError();
-    }
-
-    public interface InsertPitstopShopCallback{
-        void onShopAdded();
-        void onError();
-    }
-
-    public interface GetPitstopShopsCallback{
-        void onShopsGot(List<Dealership> dealershipList);
-        void onError();
-    }
-
-
 
     public static synchronized ShopRepository getInstance(LocalShopAdapter localShopAdapter, NetworkHelper networkHelper){
         if(INSTANCE == null){
@@ -73,7 +41,7 @@ public class ShopRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insertPitstopShop(Dealership dealership, InsertPitstopShopCallback callback ){
+    public boolean insertPitstopShop(Dealership dealership, Callback<Object> callback ){
         if(localShopAdapter.getDealership(dealership.getId()) != null){
             return false;
         }
@@ -81,8 +49,16 @@ public class ShopRepository {
         return true;
     }
 
-    public List<Dealership> getPitstopShops(GetPitstopShopsCallback callback){
-        networkHelper.getPitStopShops(getGetPitstopShopsRequestCallback(callback));
+    public void getPitstopShops(Callback<List<Dealership>> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
+        networkHelper.get(END_POINT_SHOP_PITSTOP,getGetPitstopShopsRequestCallback(callback));
+
+        //Offline logic below, not being used as of n
         List<Dealership> dealerships = localShopAdapter.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
@@ -91,58 +67,58 @@ public class ShopRepository {
                 iterator.remove();
             }
         }
-        return dealerships;
     }
 
-    private RequestCallback getGetPitstopShopsRequestCallback(GetPitstopShopsCallback callback){
+    private RequestCallback getGetPitstopShopsRequestCallback(Callback<List<Dealership>> callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(response != null){
                     try{
-                        JSONArray shops = new JSONArray(response);
-                        List<Dealership> dealerships = new ArrayList<>();
-                        for(int i = 0 ; i < shops.length();i++){
-                            JSONObject shop = shops.getJSONObject(i);
-                            Dealership dealership = new Dealership();
-                            dealership.setId(shop.getInt("id"));
-                            dealership.setName(shop.getString("name"));
-                            dealership.setAddress(shop.getString("address"));
-                            dealership.setEmail(shop.getString("email"));
-                            dealership.setPhoneNumber(shop.getString("phone"));
-                           try{
-                               dealership.setHours(new JSONArray(shop.getString("openingHours")));
-                           }catch (JSONException e){
-
-                           }
-                            dealerships.add(dealership);
-                        }
+                        List<Dealership> dealerships = Dealership.createDealershipList(response);
                         localShopAdapter.storeDealerships(dealerships);
-                        callback.onShopsGot(dealerships);
+                        callback.onSuccess(dealerships);
                     }catch(JSONException e){
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                 }
+
             }
         };
         return requestCallback;
     }
 
-    public boolean insert(Dealership dealership, int userId, ShopInsertCallback callback){
+    public void insert(Dealership dealership, int userId, Callback<Object> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         removeLocalShop = false;
-        networkHelper.postShop(dealership,getInsertShopRequestCallback(callback,userId,dealership));
-        return true;
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("name",dealership.getName());
+            body.put("email",dealership.getEmail());
+            body.put("phone",dealership.getPhone());
+            body.put("address",dealership.getAddress());
+            body.put("googlePlacesId","");// to be added
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        networkHelper.post(END_POINT_SHOP
+                ,getInsertShopRequestCallback(callback,userId,dealership),body);
     }
 
-    private RequestCallback getInsertShopRequestCallback(ShopInsertCallback callback, int userId, Dealership dealership){
+    private RequestCallback getInsertShopRequestCallback(Callback<Object> callback, int userId, Dealership dealership){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                System.out.println("Testing response "+response);
                 try {
                     if (requestError == null){
                         JSONObject shopResponse = new JSONObject(response);
@@ -161,12 +137,6 @@ public class ShopRepository {
                                         userSettingsDealer.put("email",dealership.getEmail());
                                         userSettingsDealer.put("phone_number",dealership.getPhone());
                                         userSettingsDealer.put("address",dealership.getAddress());
-                                        userSettingsDealer.put("google_places_id",dealership.getGooglePlaceId());
-                                        try {
-                                            userSettingsDealer.put("opening_hours", shopResponse.getString("opening_hours"));
-                                        }catch (JSONException e){
-
-                                        }
                                         if(userJson.has("customShops")){
                                             JSONArray shopsToSend = new JSONArray();
                                             customShops = userJson.getJSONArray("customShops");
@@ -195,26 +165,26 @@ public class ShopRepository {
                                                         localShopAdapter.removeById(dealership.getId());
                                                     }
                                                     localShopAdapter.storeCustom(dealership);
-                                                    callback.onShopAdded();
+                                                    callback.onSuccess(response);
                                                 }else{
-                                                    callback.onError();
+                                                    callback.onError(ERR_UNKNOWN);
                                                 }
                                             }
                                         },userSettings);
                                     }else{
-                                        callback.onError();
+                                        callback.onError(ERR_UNKNOWN);
                                     }
                                 }catch (JSONException e){
-                                    callback.onError();
+                                    callback.onError(ERR_UNKNOWN);
                                     e.printStackTrace();
                                 }
                             }
                         });
                     }else{
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }catch(JSONException e){
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                     e.printStackTrace();
                 }
             }
@@ -223,8 +193,16 @@ public class ShopRepository {
         return requestCallback;
     }
 
-    public List<Dealership> getShopsByUserId(int userId, ShopsGetCallback callback){
+    public void getShopsByUserId(int userId, Callback<List<Dealership>> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         networkHelper.getUserSettingsById(userId,getGetShopsRequestCallback(callback));
+
+        //Offline logic below, not being used for now
         List<Dealership> dealerships = localShopAdapter.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
@@ -233,10 +211,10 @@ public class ShopRepository {
                 iterator.remove();
             }
         }
-        return dealerships;
+        //return dealerships;
     }
 
-    private  RequestCallback getGetShopsRequestCallback(ShopsGetCallback callback){
+    private  RequestCallback getGetShopsRequestCallback(Callback<List<Dealership>> callback){
      RequestCallback requestCallback = new RequestCallback() {
          @Override
          public void done(String response, RequestError requestError) {
@@ -244,7 +222,7 @@ public class ShopRepository {
                  try{
                      JSONObject responseJson = new JSONObject(response);
                      if(!responseJson.getJSONObject("user").has("customShops")){
-                         callback.onShopsGot(new ArrayList<Dealership>());
+                         callback.onSuccess(new ArrayList<Dealership>());
                      }else{
                          JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
                          List<Dealership> dealershipArray  = new ArrayList<>();
@@ -256,45 +234,37 @@ public class ShopRepository {
                              dealership.setAddress(shop.getString("address"));
                              dealership.setEmail(shop.getString("email"));
                              dealership.setPhoneNumber(shop.getString("phone_number"));
-                             try {
-                                 dealership.setHours(new JSONArray(shop.getString("opening_hours")));
-                             }catch (JSONException e){
-
-                             }
-                             try {
-                                dealership.setGooglePlaceId(shop.getString("google_places_id"));
-                             }catch (JSONException e){
-
-                             }
                              dealership.setCustom(true);
                              dealershipArray.add(dealership);
                              localShopAdapter.removeById(dealership.getId());
                              localShopAdapter.storeCustom(dealership);
                          }
-                         callback.onShopsGot(dealershipArray);
+                         callback.onSuccess(dealershipArray);
                      }
                  }catch (JSONException e){
-                     callback.onError();
+                     callback.onError(ERR_UNKNOWN);
                      e.printStackTrace();
                  }
              }else{
-                 callback.onError();
+                 callback.onError(ERR_UNKNOWN);
              }
          }
      };
      return requestCallback;
     }
 
-    public boolean update(Dealership dealership,int userId, ShopUpdateCallback callback ){
-        if(localShopAdapter.getDealership(dealership.getId()) == null){
-            return false;
+    public void update(Dealership dealership,int userId, Callback<Object> callback ){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
         }
+
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
 
-        return true;
     }
 
-    private RequestCallback getUpdateShopRequestCallback(Dealership dealership,int userId, ShopUpdateCallback callback){
+    private RequestCallback getUpdateShopRequestCallback(Dealership dealership,int userId, Callback<Object> callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -325,21 +295,21 @@ public class ShopRepository {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if(response != null){
-                                    callback.onShopUpdated();
+                                    callback.onSuccess(response);
                                     localShopAdapter.removeById(dealership.getId());
                                     localShopAdapter.storeCustom(dealership);
                                 }else{
-                                    callback.onError();
+                                    callback.onError(ERR_UNKNOWN);
                                 }
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
 
                 }else{
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -348,13 +318,17 @@ public class ShopRepository {
     }
 
 
-    public boolean delete(int shopId,int userId, ShopDeleteCallback callback){
-        localShopAdapter.removeById(shopId);
+    public void delete(int shopId,int userId, Callback<Object> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         networkHelper.getUserSettingsById(userId,getDeleteShopRequestCallback(callback,userId,shopId) );
-        return true;
     }
 
-    private RequestCallback getDeleteShopRequestCallback(ShopDeleteCallback callback, int userId, int shopId){
+    private RequestCallback getDeleteShopRequestCallback(Callback<Object> callback, int userId, int shopId){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -377,15 +351,15 @@ public class ShopRepository {
                         networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                callback.onShopDeleted();
+                                callback.onSuccess(response);
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -393,12 +367,20 @@ public class ShopRepository {
     }
 
 
-    public Dealership get(int dealerId, int userId, ShopGetCallback callback){
+    public void get(int dealerId, int userId, Callback<Dealership> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         networkHelper.getUserSettingsById(userId,getGetShopRequestCallback(callback, dealerId));
-        return localShopAdapter.getDealership(dealerId);
+
+        //Offline logic below, not being used for now
+        //return localShopAdapter.getDealership(dealerId);
     }
 
-    private RequestCallback getGetShopRequestCallback(ShopGetCallback callback, int dealerId){
+    private RequestCallback getGetShopRequestCallback(Callback<Dealership> callback, int dealerId){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -418,16 +400,16 @@ public class ShopRepository {
                                 dealership.setCustom(true);
                                 localShopAdapter.removeById(dealership.getId());
                                 localShopAdapter.storeCustom(dealership);
-                                callback.onShopGot(dealership);
+                                callback.onSuccess(dealership);
                                 break;
                             }
                         }
                     }catch(JSONException e){
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
