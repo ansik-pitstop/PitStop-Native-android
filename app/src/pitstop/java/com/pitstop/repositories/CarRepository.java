@@ -21,36 +21,11 @@ import java.util.List;
  * Created by Karol Zdebel on 5/26/2017.
  */
 
-public class CarRepository {
+public class CarRepository implements Repository{
 
     private static CarRepository INSTANCE;
     private LocalCarAdapter localCarAdapter;
     private NetworkHelper networkHelper;
-
-    public interface CarInsertCallback{
-        void onCarAdded();
-        void onError();
-    }
-
-    public interface CarUpdateCallback{
-        void onCarUpdated();
-        void onError();
-    }
-
-    public interface CarGetCallback{
-        void onCarGot(Car car);
-        void onError();
-    }
-    public interface CarsGetCallback{
-        void onCarsGot(List<Car> cars);
-        void onNoCarsGot(List<Car> cars);
-        void onError();
-    }
-
-    public interface CarDeleteCallback{
-        void onCarDeleted();
-        void onError();
-    }
 
     public static synchronized CarRepository getInstance(LocalCarAdapter localCarAdapter
             , NetworkHelper networkHelper) {
@@ -65,15 +40,11 @@ public class CarRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(Car model, CarInsertCallback callback) {
+    public void insert(Car model, Callback<Object> callback) {
 
-        //Insert locally
-        if (localCarAdapter.getCar(model.getId()) == null){
-            localCarAdapter.storeCarData(model);
-        }
-        else{
-            localCarAdapter.deleteCar(model.getId());
-            localCarAdapter.storeCarData(model);
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
         }
 
         //Insert to backend
@@ -81,24 +52,24 @@ public class CarRepository {
             ,model.getVin(),model.getScannerId(),model.getShopId()
                 ,getInsertCarRequestCallback(callback));
 
-        return true;
     }
 
-    private RequestCallback getInsertCarRequestCallback(CarInsertCallback callback){
+    private RequestCallback getInsertCarRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarAdded();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
-
+                    callback.onError(ERR_UNKNOWN);
+                    return;
                 }
             }
         };
@@ -106,34 +77,28 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public boolean update(Car model, CarUpdateCallback callback) {
+    public void update(Car model, Callback<Object> callback) {
 
-        //No rows updated, therefore updating car that doesnt exist so put it there
-        if (localCarAdapter.updateCar(model) == 0){
-           localCarAdapter.storeCarData(model);
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
         }
+
         //Update backend
         networkHelper.updateCar(model.getId(),model.getTotalMileage()
                 ,model.getShopId(),getUpdateCarRequestCallback(callback));
-
-        return true;
     }
 
-    private RequestCallback getUpdateCarRequestCallback(CarUpdateCallback callback){
+    private RequestCallback getUpdateCarRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onCarUpdated();
-                    }
-                    else{
-                        callback.onError();
-                    }
+                if (requestError == null){
+                    callback.onSuccess(response);
                 }
-                catch(JsonIOException e){
-
+                else{
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -141,14 +106,17 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public List<Car> getCarsByUserId(int userId, CarsGetCallback callback ){
-        if(!networkHelper.isConnected()){
-            callback.onError();
+    public void getCarsByUserId(int userId, Callback<List<Car>> callback ){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
         }
+
         networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback, userId));
-        return localCarAdapter.getCarsByUserId(userId);
     }
-    private RequestCallback getCarsRequestCallback(CarsGetCallback callback, int userId){
+
+    private RequestCallback getCarsRequestCallback(Callback<List<Car>> callback, int userId){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -205,22 +173,22 @@ public class CarRepository {
                                         }
                                         localCarAdapter.deleteAllCars();
                                         localCarAdapter.storeCars(cars);
-                                        callback.onCarsGot(cars);
+                                        callback.onSuccess(cars);
                                     }catch (JSONException e){
-                                        callback.onError();
+                                        callback.onError(ERR_UNKNOWN);
                                     }
                                 }else{
-                                    callback.onError();
+                                    callback.onError(ERR_UNKNOWN);
                                 }
                             }
                         });
                     }
                     else{
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JSONException e){
-                    callback.onError();
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -228,12 +196,17 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public Car get(int id,int userId, CarGetCallback callback) {
+    public void get(int id,int userId, Callback<Car> callback) {
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         networkHelper.getCarsById(id,getGetCarRequestCallback(callback,userId));
-        return localCarAdapter.getCar(id);
     }
 
-    private RequestCallback getGetCarRequestCallback(CarGetCallback callback, int userId){
+    private RequestCallback getGetCarRequestCallback(Callback<Car> callback, int userId){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -279,13 +252,13 @@ public class CarRepository {
                                         }
                                         localCarAdapter.deleteCar(car.getId());
                                         localCarAdapter.storeCarData(car);
-                                        callback.onCarGot(car);
+                                        callback.onSuccess(car);
                                     }catch (JSONException e){
-                                        callback.onError();
+                                        callback.onError(ERR_UNKNOWN);
                                         e.printStackTrace();
                                     }
                                 }else{
-                                    callback.onError();
+                                    callback.onError(ERR_UNKNOWN);
                                 }
                             }
                         });
@@ -293,11 +266,11 @@ public class CarRepository {
 
                     }
                     else{
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JSONException e){
-
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -305,27 +278,31 @@ public class CarRepository {
         return requestCallback;
     }
 
-    public boolean delete(int carId, CarDeleteCallback callback) {
-        localCarAdapter.deleteCar(carId);
+    public void delete(int carId, Callback<Object> callback) {
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback));
-        return true;
     }
 
-    private RequestCallback getDeleteCarRequestCallback(CarDeleteCallback callback){
+    private RequestCallback getDeleteCarRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarDeleted();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(ERR_UNKNOWN);
                     }
                 }
                 catch(JsonIOException e){
-
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
