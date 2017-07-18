@@ -348,6 +348,7 @@ public class Device215B implements AbstractDevice {
     private StringBuilder sbRead = new StringBuilder();
 
     private long prevIgnitionTime = -1;
+    private long lastSentTripStart = -1;
 
     // parser for 215B data
     private void parseReadData(String msg) throws Exception{
@@ -384,6 +385,7 @@ public class Device215B implements AbstractDevice {
                 //First ignition time received
                 if (prevIgnitionTime == -1){
                     prevIgnitionTime = ignitionTime;
+                    ignitionTimeChanged = false;
                 }
                 //Change in ignition time
                 else if (prevIgnitionTime != ignitionTime){
@@ -406,7 +408,15 @@ public class Device215B implements AbstractDevice {
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                     }
                     else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+
+                        //Check whether this trip start was already sent
+                        boolean tripStartWasAlreadySent = lastSentTripStart != -1
+                                && lastSentTripStart != tripInfoPackage.tripId;
+
+                        if (!tripStartWasAlreadySent){
+                            tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                            lastSentTripStart = tripInfoPackage.tripId;
+                        }
                     }
                     else{
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
