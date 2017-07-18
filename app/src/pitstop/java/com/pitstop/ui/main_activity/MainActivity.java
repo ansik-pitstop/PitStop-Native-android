@@ -318,7 +318,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     protected void onResume() {
         super.onResume();
 
-        Log.d(TAG, "onResume");
+        Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -358,8 +358,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         super.onDestroy();
 
         Log.i(TAG, "onDestroy");
-        if (serviceIsBound) {
-            unbindService(serviceConnection);
+        if (serviceIntent != null){
+            stopService(serviceIntent);
         }
     }
 
@@ -551,6 +551,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
             @Override
             public void onCarsRetrieved(List<Car> cars) {
+                Log.d(TAG,"retrievedCars: "+cars);
                 for (Car car : cars) { // populate scanner table with scanner ids associated with the cars
                     if (!scannerLocalStore.isCarExist(car.getId())) {
                         carLocalStore.deleteAllCars();
@@ -612,10 +613,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
+
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
                 && !ignoreMissingDeviceName){
 
-            if (autoConnectService.isConnectedTo215() && pidPackage.deviceId.isEmpty()){
+            if (autoConnectService.isConnectedTo215() && (pidPackage.deviceId.isEmpty() || pidPackage.deviceId.equals("0"))){
                 displayGetScannerIdDialog();
             }
         }
@@ -623,8 +625,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     private void displayGetScannerIdDialog(){
         if (idInput) return;
-        if (alertInvalidDeviceNameDialog != null)
-            if (alertInvalidDeviceNameDialog.isShowing()) return;
+        if (alertInvalidDeviceNameDialog != null && alertInvalidDeviceNameDialog.isShowing())
+            return;
 
         runOnUiThread(new Runnable() {
             @Override
@@ -639,8 +641,10 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
+
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim().toUpperCase());
+
                                 idInput = true;
                             }
                         })

@@ -15,8 +15,6 @@ import android.util.Log;
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -36,14 +34,12 @@ public class BluetoothDeviceRecognizer {
         IGNORE, CONNECT, DISCONNECT, BANNED
     }
 
-    private final LocalScannerAdapter mLocalScannerStore;
     private final MixpanelHelper mMixpanelHelper;
     private final Context mContext;
 
     private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
     public BluetoothDeviceRecognizer(Context context) {
-        mLocalScannerStore = new LocalScannerAdapter(context);
         mMixpanelHelper = new MixpanelHelper((GlobalApplication) context.getApplicationContext());
         mContext = context;
     }
@@ -63,18 +59,12 @@ public class BluetoothDeviceRecognizer {
     }
 
     public RecognizeResult onDeviceFound(BluetoothDevice device) {
-        if (device == null) return RecognizeResult.DISCONNECT;
+        if (device == null || device.getName() == null) return RecognizeResult.DISCONNECT;
 
-        String scannerName = device.getName();
+        Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 
-        Log.d(TAG, "Adding car with device: " + AddCarActivity.addingCarWithDevice);
-        Log.d(TAG, "Any scanner lack name: " + mLocalScannerStore.anyScannerLackName());
-        Log.d(TAG, "Device name exists: " + mLocalScannerStore.deviceNameExists(scannerName));
-        Log.d(TAG, "Any car lack scanner: " + mLocalScannerStore.anyCarLackScanner());
-
-        logScannerTable();
-
-        if (scannerName == null || !scannerName.contains(ObdManager.BT_DEVICE_NAME)) {
+        if (device.getName() == null || !device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
+            Log.d(TAG,"scanner name null or scanner name doesn't contain BT_DEVICE_NAME");
             return RecognizeResult.IGNORE;
         }
         else if (isBanned(device) && !AddCarActivity.addingCarWithDevice){
@@ -82,45 +72,10 @@ public class BluetoothDeviceRecognizer {
             return RecognizeResult.BANNED;
         }
         else{
+            Log.d(TAG,"Returning CONNECT");
             return RecognizeResult.CONNECT;
         }
 
-//        //ONLY CONNECT TO THIS DEVICE FOR TESTING
-//        if (BuildConfig.DEBUG){
-//            //if (scannerName.endsWith("XXX")){
-//                return RecognizeResult.CONNECT;
-//            //}
-//            //else{
-//            //    return RecognizeResult.IGNORE;
-//            //}
-//        }
-//
-//        if (AddCarActivity.addingCarWithDevice
-//                || mLocalScannerStore.anyScannerLackName()
-//                || mLocalScannerStore.deviceNameExists(scannerName)) {
-//            return RecognizeResult.CONNECT;
-//        } else if (mLocalScannerStore.anyCarLackScanner()) {
-//            //notifyOnUnrecognizedDeviceFound(scannerName); REMOVE PUSH NOTIFICATIONS THEY ARE ANNOYING
-//            mMixpanelHelper.trackDetectUnrecognizedModule(MixpanelHelper.UNRECOGNIZED_MODULE_FOUND);
-//            return RecognizeResult.IGNORE;
-//        } else { // this part should never be reached.... but whatever
-//            return RecognizeResult.IGNORE;
-//        }
-    }
-
-    public void onDeviceConnected(String scannerName, String scannerId){
-        if (scannerName == null || scannerId == null) return; // just to be fault-tolerant
-        if (mLocalScannerStore.scannerIdExists(scannerId)) {
-            mLocalScannerStore.updateScannerName(scannerId, scannerName);
-        } else { // Scanner Id does not exist locally
-            if (AddCarActivity.addingCarWithDevice) {
-                // 1. Adding car
-
-            } else {
-                // 2. Connected to a wrong device most likely
-
-            }
-        }
     }
 
     private void notifyOnUnrecognizedDeviceFound(String scannerName) {
@@ -151,16 +106,6 @@ public class BluetoothDeviceRecognizer {
                         .setContentText("Tap to pair with " + scannerName);
 
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    private void logScannerTable() {
-        List<ObdScanner> scanners = mLocalScannerStore.getAllScanners();
-        if (scanners.size() == 0) Log.d(TAG, "Scanner table is empty");
-        for (ObdScanner scanner : scanners) {
-            Log.d(TAG, "Scanner name: " + scanner.getDeviceName());
-            Log.d(TAG, "Scanner ID: " + scanner.getScannerId());
-            Log.d(TAG, "Car ID: " + scanner.getCarId());
-        }
     }
 
 }

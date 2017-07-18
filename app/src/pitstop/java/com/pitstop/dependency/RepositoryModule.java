@@ -2,10 +2,12 @@ package com.pitstop.dependency;
 
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.UserRepository;
@@ -53,7 +55,16 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
+    ScannerRepository getScannerRepository(NetworkHelper networkHelper
+            , LocalScannerAdapter localScannerAdapter){
+
+        return new ScannerRepository(networkHelper,localScannerAdapter);
+    }
+
+    @Provides
+    @Singleton
     public Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper){
         return new Device215TripRepository(networkHelper);
     }
+
 }

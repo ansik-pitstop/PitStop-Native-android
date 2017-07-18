@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
 import com.pitstop.database.UserAdapter;
 
@@ -41,6 +42,12 @@ public class LocalStorageModule {
     @Provides
     public UserAdapter userAdapter(Context context){
         return new UserAdapter(context);
+    }
+
+    @Singleton
+    @Provides
+    LocalScannerAdapter localScannerAdapter(Context context){
+        return new LocalScannerAdapter(context);
     }
 
 }

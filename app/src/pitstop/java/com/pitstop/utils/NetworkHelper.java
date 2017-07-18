@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.models.issue.CarIssue;
@@ -27,10 +26,6 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
-
-import io.fabric.sdk.android.services.network.DefaultHttpRequestFactory;
-import io.fabric.sdk.android.services.network.HttpRequestFactory;
-import okhttp3.OkHttpClient;
 
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
