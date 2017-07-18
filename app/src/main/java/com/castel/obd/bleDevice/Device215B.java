@@ -347,6 +347,8 @@ public class Device215B implements AbstractDevice {
 
     private StringBuilder sbRead = new StringBuilder();
 
+    private long prevIgnitionTime = -1;
+
     // parser for 215B data
     private void parseReadData(String msg) throws Exception{
         sbRead.append(msg);
@@ -377,8 +379,21 @@ public class Device215B implements AbstractDevice {
                     ignitionTime = 0;
                 }
 
+                boolean ignitionTimeChanged = false;
+
+                //First ignition time received
+                if (prevIgnitionTime == -1){
+                    prevIgnitionTime = ignitionTime;
+                }
+                //Change in ignition time
+                else if (prevIgnitionTime != ignitionTime){
+                    ignitionTimeChanged = true;
+                    prevIgnitionTime = ignitionTime;
+                }
+
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
+
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
@@ -390,7 +405,7 @@ public class Device215B implements AbstractDevice {
                     if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                     }
-                    else if (idrInfo.alarmEvents.equals("1")){
+                    else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                     }
                     else{
