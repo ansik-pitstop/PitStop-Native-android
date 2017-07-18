@@ -247,8 +247,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
+        //Sometimes vin might not be returned
+        Runnable periodicGetVinRunnable = new Runnable() { // start background search
+            @Override
+            public void run() { // this is for auto connect for bluetooth classic
+                if (!deviceIsVerified && !verificationInProgress && deviceManager.getState()
+                        == IBluetoothCommunicator.CONNECTED){
+                    getVinFromCar();
+                }
+                handler.postDelayed(this, 5000);
+            }
+        };
+
         handler.postDelayed(periodScanRunnable, 15000);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
+        handler.postDelayed(periodicGetVinRunnable,5000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
@@ -685,6 +698,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.onConnectedDeviceInvalid();
     }
 
+    boolean verificationInProgress = false;
+
     /**
      * Handles the data returned from a parameter query command
      * @param parameterPackage
@@ -706,7 +721,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCarWithDevice){
+                && !AddCarActivity.addingCarWithDevice && !verificationInProgress){
+
+            verificationInProgress = true;
 
             useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
@@ -714,6 +731,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     LogUtils.debugLogD(TAG, "handleVinOnConnect: Success"
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceIsVerified = true;
+                    verificationInProgress = false;
                 }
 
                 @Override
@@ -721,6 +739,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
                           ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceIsVerified = true;
+                    verificationInProgress = false;
                 }
 
                 @Override
@@ -729,6 +748,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
+                    verificationInProgress = false;
                     deviceManager.onConnectedDeviceInvalid();
                 }
 
@@ -739,6 +759,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     deviceManager.onConnectedDeviceInvalid();
+                    verificationInProgress = false;
                 }
 
                 @Override
@@ -748,6 +769,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     deviceManager.onConnectedDeviceInvalid();
+                    verificationInProgress = false;
                 }
             });
 
