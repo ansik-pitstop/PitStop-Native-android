@@ -40,7 +40,7 @@ public class CarRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insert(Car model, Callback<Object> callback) {
+    public void insert(Car car, Callback<Object> callback) {
 
         if (!networkHelper.isConnected()){
             callback.onError(ERR_OFFLINE);
@@ -48,19 +48,21 @@ public class CarRepository implements Repository{
         }
 
         //Insert to backend
-        networkHelper.createNewCar(model.getUserId(),(int)model.getTotalMileage()
-            ,model.getVin(),model.getScannerId(),model.getShopId()
-                ,getInsertCarRequestCallback(callback));
+        networkHelper.createNewCar(car.getUserId(),(int)car.getTotalMileage()
+            ,car.getVin(),car.getScannerId(),car.getShopId()
+                ,getInsertCarRequestCallback(callback, car));
 
     }
 
-    private RequestCallback getInsertCarRequestCallback(Callback<Object> callback){
+    private RequestCallback getInsertCarRequestCallback(Callback<Object> callback, Car car){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        localCarAdapter.deleteCar(car.getId());
+                        localCarAdapter.storeCarData(car);
                         callback.onSuccess(response);
                     }
                     else{
@@ -77,7 +79,7 @@ public class CarRepository implements Repository{
         return requestCallback;
     }
 
-    public void update(Car model, Callback<Object> callback) {
+    public void update(Car car, Callback<Object> callback) {
 
         if (!networkHelper.isConnected()){
             callback.onError(ERR_OFFLINE);
@@ -85,16 +87,17 @@ public class CarRepository implements Repository{
         }
 
         //Update backend
-        networkHelper.updateCar(model.getId(),model.getTotalMileage()
-                ,model.getShopId(),getUpdateCarRequestCallback(callback));
+        networkHelper.updateCar(car.getId(),car.getTotalMileage()
+                ,car.getShopId(),getUpdateCarRequestCallback(callback,car));
     }
 
-    private RequestCallback getUpdateCarRequestCallback(Callback<Object> callback){
+    private RequestCallback getUpdateCarRequestCallback(Callback<Object> callback, Car car){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
+                    localCarAdapter.updateCar(car);
                     callback.onSuccess(response);
                 }
                 else{
@@ -285,16 +288,17 @@ public class CarRepository implements Repository{
             return;
         }
 
-        networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback));
+        networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback, carId));
     }
 
-    private RequestCallback getDeleteCarRequestCallback(Callback<Object> callback){
+    private RequestCallback getDeleteCarRequestCallback(Callback<Object> callback, int carId){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        localCarAdapter.deleteCar(carId);
                         callback.onSuccess(response);
                     }
                     else{

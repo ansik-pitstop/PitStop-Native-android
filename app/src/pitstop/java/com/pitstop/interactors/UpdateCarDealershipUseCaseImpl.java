@@ -31,7 +31,6 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
     private int carId;
     private Dealership dealership;
 
-
     public UpdateCarDealershipUseCaseImpl(CarRepository carRepository, UserRepository userRepository, Handler handler) {
         this.userRepository = userRepository;
         this.carRepository = carRepository;
