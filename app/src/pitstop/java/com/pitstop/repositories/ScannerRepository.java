@@ -74,7 +74,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -102,7 +102,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -152,12 +152,12 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
