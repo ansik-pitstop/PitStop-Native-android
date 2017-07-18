@@ -409,6 +409,8 @@ public class Device215B implements AbstractDevice {
                     if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                     }
+                    /*Trip start detected by ignition time changing or alarm, if both occur
+                    /* , one will be sent as an update*/
                     else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
 
                         //Check whether this trip start was already sent
