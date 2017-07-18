@@ -280,7 +280,7 @@ public class UserRepository implements Repository{
                 try{
                     JSONObject settings = new JSONObject(response);
                     int carId = -1;
-                    boolean firstCarAdded = false;
+                    boolean firstCarAdded = true; //if not present, default is true
 
                     if (settings.getJSONObject("user").has("isFirstCarAdded")){
                         firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded");
