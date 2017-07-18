@@ -279,7 +279,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
-                addCarButton.setEnabled(false);
+                if (addCarButton != null){
+                    addCarButton.setEnabled(false);
+                }
                 searchForCar(v);
             }
         });
@@ -287,7 +289,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageInputCancelled(){
-        addCarButton.setEnabled(true);
+        if (addCarButton != null){
+            addCarButton.setEnabled(true);
+        }
     }
 
     /**
