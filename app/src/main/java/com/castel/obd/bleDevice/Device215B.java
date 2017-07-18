@@ -402,7 +402,9 @@ public class Device215B implements AbstractDevice {
                     tripInfoPackage.tripId = (int) ignitionTime;
 
                     LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
-                        +", deviceId: "+idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                        +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
+                            +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH
+                            , getApplicationContext());
 
                     if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
@@ -413,6 +415,8 @@ public class Device215B implements AbstractDevice {
                         boolean tripStartWasAlreadySent = lastSentTripStart != -1
                                 && lastSentTripStart != tripInfoPackage.tripId;
 
+                        Log.d(TAG,"AlarmEvent is 1 OR ignition time changed signaling trip start," +
+                                " tripStartWasAlreadySent? "+tripStartWasAlreadySent);
                         if (!tripStartWasAlreadySent){
                             tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                             lastSentTripStart = tripInfoPackage.tripId;
