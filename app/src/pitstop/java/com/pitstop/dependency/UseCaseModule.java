@@ -248,9 +248,9 @@ public class UseCaseModule {
 
     @Provides
     HandleVinOnConnectUseCase handleVinOnConnectUseCase(ScannerRepository scannerRepository
-            , UserRepository userRepository, Handler handler){
+            , CarRepository carRepository, UserRepository userRepository, Handler handler){
 
-        return new HandleVinOnConnectUseCaseImpl(scannerRepository
+        return new HandleVinOnConnectUseCaseImpl(scannerRepository, carRepository
                 , userRepository,  handler);
     }
 
