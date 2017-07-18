@@ -96,7 +96,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="10dp" />
+                        android:layout_margin="10dp"
+                        android:text="Tap to select date" />
 
                     <ImageView
                         android:id="@+id/imageView1"
@@ -147,15 +148,17 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_alignParentRight="true"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true">
 
                     <TextView
                         android:id="@+id/service_time_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="10dp" />
+                        android:layout_margin="10dp"
+                        android:text="Tap to select time" />
 
                     <ImageView
                         android:id="@+id/imageView31"
@@ -176,6 +179,15 @@
             android:layout_weight="1.12"
             android:background="@color/white"
             android:visibility="visible">
+
+            <ProgressBar
+                android:id="@+id/service_time_loading"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:visibility="gone" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/service_time_list"

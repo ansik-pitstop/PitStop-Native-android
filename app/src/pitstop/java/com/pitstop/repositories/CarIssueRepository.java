@@ -73,11 +73,30 @@ public class CarIssueRepository {
         this.networkHelper = networkHelper;
     }
 
-    public synchronized boolean insert(CarIssue model, CarIssueInsertCallback callback) {
+    public boolean insert(CarIssue model, CarIssueInsertCallback callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
                 ,model.getDescription(),model.getPriority(),getInsertCarIssueRequestCallback(callback));
         return true;
+    }
+
+    public void insert(int carId,List<CarIssue> issues, CarIssueInsertCallback callback){
+        carIssueAdapter.storeIssues(issues);
+        networkHelper.postMultiplePresetIssue(carId, issues, getgetInsertCarIssuesRequestCallback(callback));
+    }
+
+    private RequestCallback getgetInsertCarIssuesRequestCallback(CarIssueInsertCallback callback){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null && response != null){
+                    callback.onCarIssueAdded();
+                }else{
+                    callback.onError();
+                }
+            }
+        };
+        return requestCallback;
     }
 
     private RequestCallback getInsertCarIssueRequestCallback(CarIssueInsertCallback callback){
@@ -102,7 +121,7 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized boolean updateCarIssue(CarIssue model, CarIssueUpdateCallback callback) {
+    public boolean updateCarIssue(CarIssue model, CarIssueUpdateCallback callback) {
         carIssueAdapter.updateCarIssue(model);
 
         if (model.getStatus().equals(CarIssue.ISSUE_DONE)){
@@ -143,7 +162,7 @@ public class CarIssueRepository {
         networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
     }
 
-    private synchronized RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
+    private RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -163,11 +182,11 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized void getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
+    public  void getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
         networkHelper.getCurrentCarIssues(carId,getCurrentCarIssuesRequestCallback(carId,callback));
     }
 
-    private synchronized RequestCallback getCurrentCarIssuesRequestCallback(final int carId, CarIssueGetCurrentCallback callback){
+    private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, CarIssueGetCurrentCallback callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -193,7 +212,12 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized List<CarIssue> getDoneCarIssues(int carId, CarIssueGetDoneCallback callback){
+
+    public void requestService(int userId,int carId, int shopId,String state, String appointmentTimeStamp, String comments, RequestCallback callback ){
+        networkHelper.requestService(userId,carId,shopId,state ,appointmentTimeStamp, comments,callback);
+    }
+
+    public  List<CarIssue> getDoneCarIssues(int carId, CarIssueGetDoneCallback callback){
         networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllDoneCarIssues();
     }

@@ -34,12 +34,16 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
     private Car dashCar;
 
+    private boolean isFirstBooking;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_service);
+        isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
 
         dashCar = getIntent().getParcelableExtra(EXTRA_CAR);
+
 
         fragmentManager = getFragmentManager();
 
@@ -69,5 +73,19 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         fragmentTransaction.replace(R.id.request_service_fragment_holder,timePickerFragment);
         fragmentTransaction.addToBackStack("time_picker");
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void finishActivity() {
+        super.finish();
+    }
+
+    @Override
+    public String checkTentative() {
+        if(isFirstBooking){
+            return STATE_TENTATIVE;
+        }else{
+            return STATE_REQUESTED;
+        }
     }
 }

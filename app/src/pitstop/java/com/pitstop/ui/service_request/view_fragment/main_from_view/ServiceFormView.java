@@ -13,6 +13,7 @@ public interface ServiceFormView {
     void toggleCalender();
     void showDate(String date);
     void hideCalender();
+    void showCalender();
     void setupTimeList(List<String> times);
     void toggleTimeList();
     void showTime(String time);
@@ -21,5 +22,9 @@ public interface ServiceFormView {
     List<CarIssue> getPresetList();
     void toggleServiceList();
     void setupSelectedIssues(List<CarIssue> issues);
+    void showReminder(String message);
+    String getComments();
+    void toast(String message);
+    void showLoading(boolean show);
 
 }

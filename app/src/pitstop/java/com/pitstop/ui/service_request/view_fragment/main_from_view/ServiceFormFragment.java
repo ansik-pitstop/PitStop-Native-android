@@ -1,5 +1,6 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,8 +15,10 @@ import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -83,6 +86,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     @BindView(R.id.service_submit)
     Button submitButton;
 
+    @BindView(R.id.service_time_loading)
+    ProgressBar timeLoading;
+
+
+
 
 
 
@@ -124,11 +132,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-
+        calender.setMinDate(System.currentTimeMillis());
         calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                presenter.dateSelected(year,month+1,dayOfMonth);//month is 0 based
+                presenter.dateSelected(year,month+1,dayOfMonth,calender);//month is 0 based
             }
         });
 
@@ -163,12 +171,38 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
 
         presenter.setDealer(dashCar);
-        presenter.setTimes(800,2000);
         presenter.setIssues();
 
         return view;
     }
 
+    @Override
+    public String getComments() {
+        return additionalComments.getText().toString();
+    }
+
+    @Override
+    public void showReminder(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(message)
+                .setTitle("Reminder");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void showLoading(boolean show) {
+        if(show){
+            timeLoading.setVisibility(View.VISIBLE);
+        }else{
+            timeLoading.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public  List<CarIssue> getPresetList() {
@@ -252,6 +286,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     @Override
     public void hideCalender() {
         calender.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showCalender() {
+        calender.setVisibility(View.VISIBLE);
     }
 
     @Override
