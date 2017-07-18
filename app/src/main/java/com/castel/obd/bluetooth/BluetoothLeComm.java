@@ -115,6 +115,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     @Override
     public void disconnect(final BluetoothDevice device){
+        if (mGatt == null) return;
+
         mCommandQueue.clear();
         mGatt.disconnect();
         btConnectionState = DISCONNECTED;

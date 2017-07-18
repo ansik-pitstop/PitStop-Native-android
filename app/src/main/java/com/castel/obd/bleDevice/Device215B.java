@@ -111,6 +111,10 @@ public class Device215B implements AbstractDevice {
                 ,name + "," + name);
     }
 
+    public String setDeviceId(String id){
+        return siSingle(TERMINAL_ID_PARAM,id);
+    }
+
     @Override
     public String getRtc() {
         return qiSingle(RTC_TIME_PARAM);
@@ -240,6 +244,7 @@ public class Device215B implements AbstractDevice {
     }
 
     private String siMulti(String params, String values) {
+
         String[] splitParams = params.split(",");
         String[] splitValues = values.split(",");
 

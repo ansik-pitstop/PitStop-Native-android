@@ -93,37 +93,16 @@ public interface AddCarContract {
         void askForDealership(Car car);
 
         /**
-         * If during pairing unrecognized scanner, VIN is "not support" or has not been returned
-         *
-         * @param scannerName
-         * @param scannerId
-         */
-        void showSelectCarDialog(String scannerName, String scannerId);
-
-
-        /**
-         * Show a confirm dialog to asking user to pair car with unrecognized device
-         * @param existedCar
-         * @param scannerName
-         * @param scannerId
-         */
-        void confirmPairCarWithDevice(Car existedCar, String scannerName, String scannerId);
-
-        /**
          * When start validating and creating new scanner in the backend
          */
         void onPairingDeviceWithCar();
 
-        /**
-         * Show error message for pairing unrecognized device
-         * @param errorMessage
-         */
-        void pairCarError(final String errorMessage);
 
         /**
          * After unrecognized device got successfully paired
+         * @param car
          */
-        void onDeviceSuccessfullyPaired();
+        void onDeviceSuccessfullyPaired(Car car);
 
         /**
          * Check if connected, if not show a toast
@@ -164,12 +143,6 @@ public interface AddCarContract {
         void searchAndGetVin();
 
         /**
-         * Similar to searchAndGetVin <br>
-         * But does not create the car <br>
-         */
-        void searchForUnrecognizedDevice();
-
-        /**
          * If the user is adding car without a device, we let them enter the VIN themselves
          * @param VIN
          */
@@ -180,25 +153,6 @@ public interface AddCarContract {
          * Using synchronized (?) to prevent adding the same car twice at the same time
          */
         void startAddingNewCar();
-
-        /**
-         * Do Vin validation and update scanner info
-         */
-        void startPairingUnrecognizedDevice();
-
-        /**
-         * @param car
-         * @return true if this car has no scanner
-         */
-        boolean selectedValidCar(Car car);
-
-        /**
-         * See if the scanner is in use, if not create new scanner.
-         * @param car
-         * @param scannerId
-         * @param scannerName
-         */
-        void validateAndPostScanner(final Car car, final String scannerId, final String scannerName);
 
         /**
          * Update the shop for created car. <br>
