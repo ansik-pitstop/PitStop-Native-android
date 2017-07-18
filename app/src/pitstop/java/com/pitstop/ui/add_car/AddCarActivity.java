@@ -521,7 +521,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
-        addCarButton.setEnabled(true);
+        if (addCarButton != null){
+            addCarButton.setEnabled(true);
+        }
         showLoading("Mileage entered, searching for car...");
     }
 
