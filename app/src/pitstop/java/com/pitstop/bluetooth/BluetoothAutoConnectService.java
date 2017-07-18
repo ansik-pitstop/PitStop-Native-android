@@ -253,6 +253,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void run() { // this is for auto connect for bluetooth classic
                 if (!deviceIsVerified && !verificationInProgress && deviceManager.getState()
                         == IBluetoothCommunicator.CONNECTED){
+                    LogUtils.debugLogI(TAG, "Periodic vin request executed."
+                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
                 }
                 handler.postDelayed(this, 5000);
