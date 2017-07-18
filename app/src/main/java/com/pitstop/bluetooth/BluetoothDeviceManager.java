@@ -27,7 +27,9 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -36,6 +38,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Ben!
@@ -112,7 +116,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         this.dataListener = dataListener;
     }
 
-    public void startScan() {
+    public synchronized void startScan() {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
@@ -221,9 +225,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
+        LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         mBluetoothDeviceRecognizer.banDevice(connectedDevice);
         communicator.disconnect(connectedDevice);
-        mBluetoothAdapter.cancelDiscovery();
+        if (mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+        }
         startScan();
     }
 
@@ -278,7 +286,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return deviceInterface.getDeviceName();
     }
 
-    private void connectBluetooth() {
+    private synchronized void connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
@@ -298,32 +306,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
         mBluetoothAdapter.startDiscovery();
-
-        //scanLeDevice(true);
-
-        //if (mGatt != null && !needToScan) {
-        //    try {
-        //        //BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
-        //        // Previously connected device.  Try to reconnect.
-        //        if (mGatt.connect()) {
-        //            Log.i(TAG, "Trying to connect to device - BluetoothLeComm");
-        //            btConnectionState = CONNECTING;
-        //        } else {
-        //            //mGatt = null;
-        //            Log.i(TAG, "Could not connect to previous device, scanning...");
-        //            scanLeDevice(true);
-        //        }
-        //    } catch (Exception e) {
-        //        Log.e(TAG, "Exception thrown by connect");
-        //        e.printStackTrace();
-        //        mGatt.close();
-        //        mGatt = null;
-        //        scanLeDevice(true);
-        //    }
-        //} else  {
-        //    Log.i(TAG, "mGatt is null or bluetooth adapter reset");
-        //    scanLeDevice(true);
-        //}
     }
 
     // for classic discovery
@@ -403,6 +385,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             Device215B device215B = (Device215B)deviceInterface;
             Log.d(TAG,"Setting device name and id to "+name+", command: "+device215B.setDeviceNameAndId(name));
             writeToObd(device215B.setDeviceNameAndId(name));
+        }
+    }
+
+    public void setDeviceId(String id){
+        if (isConnectedTo215()){
+            Device215B device215B = (Device215B)deviceInterface;
+            Log.d(TAG,"Setting device id to "+id+", command: "+device215B.setDeviceId(id));
+            writeToObd(device215B.setDeviceId(id));
         }
     }
 

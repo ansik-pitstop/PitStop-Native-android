@@ -51,7 +51,7 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.Trip215EndUseCase;
 import com.pitstop.interactors.Trip215StartUseCase;
 import com.pitstop.models.Car;
@@ -157,6 +157,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     // queue for sending trip flags
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private boolean isSendingTripRequest = false;
+    private boolean deviceIsVerified = false;
 
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
     private String supportedPids = "";
@@ -246,8 +247,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
+        //Sometimes vin might not be returned
+        Runnable periodicGetVinRunnable = new Runnable() { // start background search
+            @Override
+            public void run() { // this is for auto connect for bluetooth classic
+                if (!deviceIsVerified && !verificationInProgress && deviceManager.getState()
+                        == IBluetoothCommunicator.CONNECTED){
+                    LogUtils.debugLogI(TAG, "Periodic vin request executed."
+                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    getVinFromCar();
+                }
+                handler.postDelayed(this, 5000);
+            }
+        };
+
         handler.postDelayed(periodScanRunnable, 15000);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
+        handler.postDelayed(periodicGetVinRunnable,5000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
@@ -324,8 +340,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(notifID, mBuilder.build());
-
-            mBluetoothDeviceRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
             // Mixpanel time event
             if (!bluetoothConnectedTimeEventStarted) {
@@ -479,11 +493,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
 
-        LogUtils.debugLogD(TAG, "tripData: " + tripInfoPackage.toString()
-                        +", isConnected215?"+isConnectedTo215()
-                        +", terminalRTCTime: "+terminalRTCTime
-                , true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
+        //Not handling trip updates anymore since live mileage has been removed
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            LogUtils.debugLogD(TAG, "trip update received, ignoring: "
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            return;
+        }
+
+        LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+
 
         /*********************************TEST CODE START*********************************/
 
@@ -548,33 +568,30 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         /*********************************TEST CODE END**********************************/
 
-        //Not handling trip updates anymore since live mileage has been removed
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            return;
-        }
-
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
-        if (!isConnectedTo215()){
+        if (!isConnectedTo215() && deviceIsVerified){
             LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             handle212Trip(tripInfoPackage);
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Adding pending trip, terminalRTCTime: "+terminalRTCTime
-                        +", rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
+        LogUtils.debugLogD(TAG, "Adding trip to pending list"
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
-        if (terminalRTCTime == -1){
+        if (terminalRTCTime == -1 || !deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Trip will not be processed, terminalRtcSet?"
+                    +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified, true
+                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Going through all pending trips, rtcTime:"+tripInfoPackage.rtcTime
-                        +" tripListSize: "+pendingTripInfoPackages.size()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        LogUtils.debugLogD(TAG, "Going through all pending trips tripListSize: "
+                +pendingTripInfoPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                , getApplicationContext());
 
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
@@ -582,23 +599,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnectedTo215()){
 
-                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                        +" trip end received, executing use case", true
+                LogUtils.debugLogD(TAG, "Executing trip end use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                 useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
                         , new Trip215EndUseCase.Callback() {
                     @Override
                     public void onHistoricalTripEndSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                +" Historical trip END saved successfully", true
+                        LogUtils.debugLogD(TAG, "Historical trip END saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
 
                     @Override
                     public void onRealTimeTripEndSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Real-time END trip end saved successfully", true
+                        LogUtils.debugLogD(TAG, "Real-time END trip end saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                         //Send update mileage notification after 5 seconds to allow back-end to process mileage
@@ -620,8 +634,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                             @Override
                     public void onError() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" TRIP END Use case returned error", true
+                        LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
                 });
@@ -629,16 +642,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
 
-                LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                +" trip start received, executing use case", true
+                LogUtils.debugLogD(TAG, "Executing trip start use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                 useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
                         , new Trip215StartUseCase.Callback() {
                     @Override
                     public void onRealTimeTripStartSuccess() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Real-time trip START saved successfully", true
+                        LogUtils.debugLogD(TAG, "Real-time trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                         handler.postDelayed(new Runnable() {
@@ -651,16 +662,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onHistoricalTripStartSuccess(){
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Historical trip START saved successfully", true
+                        LogUtils.debugLogD(TAG, "Historical trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     }
 
                     @Override
                     public void onError() {
-                        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                                        +" Error saving trip start", true
+                        LogUtils.debugLogD(TAG,"Error saving trip start", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
                 });
@@ -687,14 +696,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    public void connectedDeviceInvalid(){
+        deviceManager.onConnectedDeviceInvalid();
+    }
+
+    boolean verificationInProgress = false;
+
     /**
      * Handles the data returned from a parameter query command
      * @param parameterPackage
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+        if (parameterPackage == null) return;
 
-        LogUtils.debugLogD(TAG, "parameterData: " + parameterPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        final String TAG = getClass().getSimpleName() + ".parameterData()";
+
+        LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
@@ -702,34 +721,60 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             terminalRTCTime = Long.valueOf(parameterPackage.value);
         }
 
-        //Check to see if VIN is correct
+        //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCar){
-            String vin = parameterPackage.value;
+                && !AddCarActivity.addingCarWithDevice && !verificationInProgress){
 
-            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            verificationInProgress = true;
+
+            useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
-                public void onCarRetrieved(Car car) {
-                    LogUtils.debugLogD(TAG, "Comparing SelectedCarVin["+car.getVin()
-                            +"] and DeviceVin["+vin+"]", true
-                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                    //Device VIN invalid, get a different one
-                    if (!car.getVin().equals(vin)){
-
-                        deviceManager.onConnectedDeviceInvalid();
-                    }
+                public void onSuccess() {
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success"
+                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    deviceIsVerified = true;
+                    verificationInProgress = false;
                 }
 
                 @Override
-                public void onNoCarSet() {
+                public void onDeviceIdOverrideNeeded() {
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
+                          ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    deviceIsVerified = true;
+                    verificationInProgress = false;
+                }
 
+                @Override
+                public void onDeviceInvalid() {
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid."
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    clearInvalidDeviceData();
+                    deviceIsVerified = false;
+                    verificationInProgress = false;
+                    deviceManager.onConnectedDeviceInvalid();
+                }
+
+                @Override
+                public void onDeviceAlreadyActive() {
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active"
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    clearInvalidDeviceData();
+                    deviceIsVerified = false;
+                    deviceManager.onConnectedDeviceInvalid();
+                    verificationInProgress = false;
                 }
 
                 @Override
                 public void onError() {
-
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred"
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    clearInvalidDeviceData();
+                    deviceIsVerified = false;
+                    deviceManager.onConnectedDeviceInvalid();
+                    verificationInProgress = false;
                 }
             });
+
         }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
@@ -761,14 +806,53 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         broadcastParameterData(parameterPackage);
     }
 
+    //Remove data that was acquired from the wrong device during the VIN verification process
+    private void clearInvalidDeviceData(){
+        pendingPidPackages.clear();
+        pendingTripInfoPackages.clear();
+        pendingDtcPackages.clear();
+    }
+
     private void broadcastParameterData(ParameterPackage parameterPackage){
         for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.parameterData(parameterPackage);
+            if (c != null){
+                c.parameterData(parameterPackage);
+            }
         }
     }
 
+    //Queue up the pid packages that arrive before VIN is verified
+    private List<PidPackage> pendingPidPackages = new ArrayList<>();
+    private List<PidPackage> processedPidPackages = new ArrayList<>();
+
     @Override
     public void pidData(PidPackage pidPackage) {
+        LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        if (!deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified!"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            pendingPidPackages.add(pidPackage);
+            return;
+        }
+
+        //Check if its a recursive call
+        if (!processedPidPackages.contains(pidPackage) && pendingPidPackages.size() > 0){
+            LogUtils.debugLogD(TAG, "Device is verified, going through pid pending list, size: "
+                    +pendingPidPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+            //Not a recursive call, go throgh pending pid packages recursively
+            for (PidPackage p: pendingPidPackages){
+                processedPidPackages.add(p);
+                pidData(p);
+            }
+
+            pendingPidPackages.removeAll(processedPidPackages);
+            LogUtils.debugLogD(TAG, "Pid pending list size after removal: "+pendingPidPackages.size()
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        }
+
+
         deviceManager.requestData();
 
         if(pidPackage.realTime) { // notify that real time received
@@ -880,6 +964,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
+    private List<DtcPackage> processedDtcPackages = new ArrayList<>();
+
     /**
      * Process dtc data from obd
      * @param dtcPackage
@@ -887,6 +974,29 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        if (!deviceIsVerified){
+            LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            pendingDtcPackages.add(dtcPackage);
+            return;
+        }
+
+        if (!pendingDtcPackages.contains(dtcPackage) && pendingDtcPackages.size() > 0){
+            LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
+                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+            for (DtcPackage p: pendingDtcPackages){
+                processedDtcPackages.add(p);
+                dtcData(p);
+            }
+            pendingDtcPackages.removeAll(processedDtcPackages);
+            LogUtils.debugLogD(TAG, "Pending dtc packages list length after removal: "
+                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+        }
+
+
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
             getFreezeData();
@@ -901,9 +1011,35 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    private List<FreezeFramePackage> pendingFreezeFrames = new ArrayList<>();
+    private List<FreezeFramePackage> processedFreezeFrames = new ArrayList<>();
+
     @Override
     public void ffData(FreezeFramePackage ffPackage) {
-        LogUtils.debugLogD(TAG, "Receives FreezeFrame: " + ffPackage, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        LogUtils.debugLogD(TAG, "ffData() " + ffPackage
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        if (!deviceIsVerified){
+            LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            pendingFreezeFrames.add(ffPackage);
+            return;
+        }
+
+        if (!pendingFreezeFrames.contains(ffPackage) && pendingFreezeFrames.size() > 0){
+            LogUtils.debugLogD(TAG, "Going through pending freeze frames"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            for (FreezeFramePackage p: pendingFreezeFrames){
+                processedFreezeFrames.add(p);
+                ffData(p);
+            }
+            pendingFreezeFrames.removeAll(processedFreezeFrames);
+            LogUtils.debugLogD(TAG, "Pending freeze frames size() after removal: "
+                    + pendingFreezeFrames.size(), true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+
+        }
+
         saveFreezeFrame(ffPackage);
     }
 
@@ -1002,8 +1138,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             currentDeviceId = loginPackageInfo.deviceId;
             deviceManager.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
-
-            mBluetoothDeviceRecognizer.onDeviceConnected(getConnectedDeviceName(), currentDeviceId);
 
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
@@ -1152,6 +1286,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogI(TAG, "Setting device name and id to "+name, true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setDeviceNameAndId(name);
+    }
+
+    public void setDeviceId(String id){
+        LogUtils.debugLogI(TAG, "Setting device id to ["+id+"]", true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        deviceManager.setDeviceId(id);
     }
 
     public void resetObdDeviceTime() {
