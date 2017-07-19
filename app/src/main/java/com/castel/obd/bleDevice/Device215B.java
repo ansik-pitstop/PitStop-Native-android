@@ -186,7 +186,6 @@ public class Device215B implements AbstractDevice {
         }
 
         Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
-        readData.replace("215B002373",""); //TEST
 
         if(readData.isEmpty()) {
             return;
@@ -369,7 +368,6 @@ public class Device215B implements AbstractDevice {
 
         if (sbRead.toString().contains("\r\n")) {
             String msgInfo = sbRead.toString().replace("\r\n", "\\r\\n");
-            msgInfo = msgInfo.replace("215B002373",""); // TEST
 
             msgInfo = msgInfo.substring(msgInfo.lastIndexOf("$$"), msgInfo.length() - 1); // TODO: 16/12/13 Test this
 
