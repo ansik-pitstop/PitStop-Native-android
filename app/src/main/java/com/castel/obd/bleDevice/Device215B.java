@@ -360,6 +360,7 @@ public class Device215B implements AbstractDevice {
     private StringBuilder sbRead = new StringBuilder();
 
     private long lastSentTripStart = -1;
+    private long lastSentTripEnd = -1;
 
     // parser for 215B data
     private void parseReadData(String msg) throws Exception{
@@ -412,7 +413,15 @@ public class Device215B implements AbstractDevice {
                             , getApplicationContext());
 
                     if (idrInfo.alarmEvents.equals("2")){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+
+                        //Check whether this trip end was already sent
+                        boolean tripEndNotSent = lastSentTripEnd == -1
+                                || lastSentTripEnd != tripInfoPackage.tripId;
+
+                        if (tripEndNotSent){
+                            tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+                            lastSentTripEnd = tripInfoPackage.tripId;
+                        }
                     }
                     /*Trip start detected by ignition time changing or alarm, if both occur
                     /* , one will be sent as an update*/
