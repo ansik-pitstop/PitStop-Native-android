@@ -419,12 +419,13 @@ public class Device215B implements AbstractDevice {
                     else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
 
                         //Check whether this trip start was already sent
-                        boolean tripStartWasAlreadySent = lastSentTripStart != -1
-                                && lastSentTripStart == tripInfoPackage.tripId;
+                        boolean tripStartNotSent = lastSentTripStart == -1
+                                || lastSentTripStart != tripInfoPackage.tripId;
 
                         Log.d(TAG,"AlarmEvent is 1 OR ignition time changed signaling trip start," +
-                                " tripStartWasAlreadySent? "+tripStartWasAlreadySent);
-                        if (!tripStartWasAlreadySent){
+                                " tripStartNotSent? "+tripStartNotSent);
+                        if (tripStartNotSent){
+                            Log.d(TAG,"Trip start flag set.");
                             tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                             lastSentTripStart = tripInfoPackage.tripId;
                         }
