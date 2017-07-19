@@ -637,7 +637,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 alertDialogBuilder
                         .setView(input)
                         .setMessage("Your OBD device has lost its ID or is invalid, please input " +
-                                "the ID on the front of the device.")
+                                "the ID on the front of the device so our algorithm can fix it.")
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
