@@ -279,7 +279,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
-                addCarButton.setEnabled(false);
+                if (addCarButton != null){
+                    addCarButton.setEnabled(false);
+                }
                 searchForCar(v);
             }
         });
@@ -287,7 +289,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageInputCancelled(){
-        addCarButton.setEnabled(true);
+        if (addCarButton != null){
+            addCarButton.setEnabled(true);
+        }
     }
 
     /**
@@ -328,7 +332,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
-                addCarButton.setEnabled(true);
+                if (addCarButton != null){
+                    addCarButton.setEnabled(true);
+                }
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
@@ -521,7 +527,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
-        addCarButton.setEnabled(true);
+        if (addCarButton != null){
+            addCarButton.setEnabled(true);
+        }
         showLoading("Mileage entered, searching for car...");
     }
 

@@ -50,6 +50,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/assets" type="java-test-resource" />
@@ -58,13 +65,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/assets" type="java-resource" />
@@ -164,7 +164,7 @@
     <orderEntry type="library" exported="" name="acra-4.9.0" level="project" />
     <orderEntry type="library" exported="" name="sqlbrite-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
-    <orderEntry type="library" exported="" name="ui-4.7.0" level="project" />
+    <orderEntry type="library" exported="" name="ui-4.7.1" level="project" />
     <orderEntry type="library" exported="" name="rxandroid-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-places-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-10.0.1" level="project" />
@@ -189,10 +189,10 @@
     <orderEntry type="library" exported="" name="dagger-2.9" level="project" />
     <orderEntry type="library" exported="" name="bolts-applinks-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-25.1.0" level="project" />
+    <orderEntry type="library" exported="" name="core-4.7.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="butterknife-annotations-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="customtabs-23.4.0" level="project" />
-    <orderEntry type="library" exported="" name="core-4.7.0" level="project" />
     <orderEntry type="library" exported="" name="butterknife-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-10.0.1" level="project" />
