@@ -59,10 +59,8 @@ public class HttpRequest {
         this.listener = listener;
         this.body = body;
 
-        if (uri.contains("trip")){
-            LogUtils.debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
-                    false, DebugMessage.TYPE_NETWORK, context);
-        }
+        LogUtils.debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
+                false, DebugMessage.TYPE_NETWORK, context);
 
 
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
@@ -200,18 +198,14 @@ public class HttpRequest {
                         responseString = response.getBody();
                     }
 
-                    if (uri.contains("trip")){
-                        LogUtils.debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
-                                true, DebugMessage.TYPE_NETWORK, application);
-                    }
+                    LogUtils.debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
+                            true, DebugMessage.TYPE_NETWORK, application);
 
                     listener.done(response.getBody(), null);
                 } else {
-                    if (uri.contains("trip")) {
-                        LogUtils.debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
-                                        + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
-                                true, DebugMessage.TYPE_NETWORK, application);
-                    }
+                    LogUtils.debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
+                                    + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
+                            true, DebugMessage.TYPE_NETWORK, application);
 
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
                     error.setStatusCode(response.getStatusCode());
