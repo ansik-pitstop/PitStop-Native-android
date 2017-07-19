@@ -105,6 +105,15 @@ public class GlobalApplication extends Application {
         //Begin Crashlytics
         Fabric.with(this, new Crashlytics());
 
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            Log.d(TAG,"Release build.");
+            Crashlytics.setString(BuildConfig.VERSION_NAME,"Release");
+        }
+        else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            Log.d(TAG,"Beta build.");
+            Crashlytics.setString(BuildConfig.VERSION_NAME,"Beta");
+        }
+
         MultiDex.install(this);
 
         initiateDatabase();
