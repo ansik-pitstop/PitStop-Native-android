@@ -50,8 +50,9 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
                     return;
                 }
 
-                //Trip id is the ignition time, this probably isn't the best way of doing this
-                callback.onGotIgnitionTime(data.getTripId());
+                //TripIdRaw = IgnitionTime just different names
+                // , this probably isn't the best way of doing this
+                callback.onGotIgnitionTime(data.getTripIdRaw());
             }
 
             @Override
