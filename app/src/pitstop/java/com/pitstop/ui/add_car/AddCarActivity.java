@@ -332,7 +332,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
-                addCarButton.setEnabled(true);
+                if (addCarButton != null){
+                    addCarButton.setEnabled(true);
+                }
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
