@@ -13,7 +13,7 @@ import com.pitstop.repositories.Repository;
 public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCase {
 
     private Device215TripRepository device215TripRepository;
-    private String scannerName;
+    private String device215FullName;
     private Callback callback;
     private Handler handler;
 
@@ -24,15 +24,21 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
     }
 
     @Override
-    public void execute(String scannerName, Callback callback) {
-        this.scannerName = scannerName;
+    public void execute(String device215Fullname, Callback callback) {
+        this.device215FullName = device215Fullname;
         this.callback = callback;
 
         handler.post(this);
     }
 
+    private String getScannerName(String device215FullName){
+        return device215FullName.replace("IDD-","").replace("215B ","215B");
+    }
+
     @Override
     public void run() {
+
+        String scannerName = getScannerName(device215FullName); //Convert device name to scanner name
 
         device215TripRepository.retrieveLatestTrip(scannerName, new Repository.Callback<Trip215>() {
 
