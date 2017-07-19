@@ -606,6 +606,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private boolean idInput = false;
 
     @Override
+    //This method is invoked by BluetoothAutoConnectService, only after device has been verified
     public void pidData(PidPackage pidPackage) {
 
         LogUtils.LOGD(TAG,"pidData(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
@@ -637,7 +638,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 alertDialogBuilder
                         .setView(input)
                         .setMessage("Your OBD device has lost its ID or is invalid, please input " +
-                                "the ID on the front of the device so our algorithm can fix it.")
+                                "the ID found on the front of the device so our algorithm can fix it.")
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
