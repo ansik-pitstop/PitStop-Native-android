@@ -605,6 +605,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private AlertDialog alertInvalidDeviceNameDialog = null;
     private boolean idInput = false;
 
+    //Primarily for development reasons, set inside BluetoothAutoConnectService
+    public static boolean allowDeviceOverwrite = false;
+
     @Override
     //This method is invoked by BluetoothAutoConnectService, only after device has been verified
     public void pidData(PidPackage pidPackage) {
@@ -616,7 +619,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         **For 215 device only*/
 
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                && !ignoreMissingDeviceName){
+                && !ignoreMissingDeviceName && allowDeviceOverwrite){
 
             if (autoConnectService.isConnectedTo215() && (pidPackage.deviceId.isEmpty() || pidPackage.deviceId.equals("0"))){
                 displayGetScannerIdDialog();
@@ -646,6 +649,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim().toUpperCase());
 
+                                allowDeviceOverwrite = false;
                                 idInput = true;
                             }
                         })

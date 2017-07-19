@@ -741,6 +741,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 public void onDeviceBrokenAndCarMissingScanner() {
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
                           ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
                 }
