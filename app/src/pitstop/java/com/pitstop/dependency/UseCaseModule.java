@@ -8,8 +8,6 @@ import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.AddShopUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.HandleVinOnConnectUseCase;
-import com.pitstop.interactors.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
@@ -26,12 +24,16 @@ import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.GetPlaceDetailsUseCaseImpl;
+import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
+import com.pitstop.interactors.GetPrevIgnitionTimeUseCaseImpl;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCaseImpl;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.GetUserShopsUseCase;
 import com.pitstop.interactors.GetUserShopsUseCaseImpl;
+import com.pitstop.interactors.HandleVinOnConnectUseCase;
+import com.pitstop.interactors.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCaseImpl;
 import com.pitstop.interactors.RemoveCarUseCase;
@@ -58,8 +60,8 @@ import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.Device215TripRepository;
+import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -228,6 +230,13 @@ public class UseCaseModule {
 
         return new HandleVinOnConnectUseCaseImpl(scannerRepository
                 , userRepository,  handler);
+    }
+
+    @Provides
+    GetPrevIgnitionTimeUseCase getPreviousIgnitionTimeUseCase(
+            Device215TripRepository device215TripRepository, Handler handler){
+
+        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, handler);
     }
 
 }

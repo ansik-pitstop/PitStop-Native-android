@@ -57,11 +57,23 @@ public class Device215B implements AbstractDevice {
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
     private final String deviceName;
+    private long prevIgnitionTime = -1;
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName
+            , long prevIgnitionTime) {
+
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
+        this.prevIgnitionTime = prevIgnitionTime;
+    }
+
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
+
+        this.dataListener = dataListener;
+        this.context = context;
+        this.deviceName = deviceName;
+        this.prevIgnitionTime = -1;
     }
 
     // functions
@@ -347,7 +359,6 @@ public class Device215B implements AbstractDevice {
 
     private StringBuilder sbRead = new StringBuilder();
 
-    private long prevIgnitionTime = -1;
     private long lastSentTripStart = -1;
 
     // parser for 215B data
@@ -382,13 +393,7 @@ public class Device215B implements AbstractDevice {
 
                 boolean ignitionTimeChanged = false;
 
-                //First ignition time received
-                if (prevIgnitionTime == -1){
-                    prevIgnitionTime = ignitionTime;
-                    ignitionTimeChanged = false;
-                }
-                //Change in ignition time
-                else if (prevIgnitionTime != ignitionTime){
+                if (prevIgnitionTime != ignitionTime){
                     ignitionTimeChanged = true;
                     prevIgnitionTime = ignitionTime;
                 }
@@ -415,7 +420,7 @@ public class Device215B implements AbstractDevice {
 
                         //Check whether this trip start was already sent
                         boolean tripStartWasAlreadySent = lastSentTripStart != -1
-                                && lastSentTripStart != tripInfoPackage.tripId;
+                                && lastSentTripStart == tripInfoPackage.tripId;
 
                         Log.d(TAG,"AlarmEvent is 1 OR ignition time changed signaling trip start," +
                                 " tripStartWasAlreadySent? "+tripStartWasAlreadySent);
