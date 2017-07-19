@@ -60,9 +60,12 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     return;
                 }
 
+
                 boolean carScannerValid = car.getScannerId() != null
                         && car.getScannerId().isEmpty()
                         && car.getScannerId().equals(deviceId);
+                boolean carScannerExists = car.getScannerId() != null
+                        && car.getScannerId().isEmpty();
                 boolean deviceIdValid = deviceId != null
                         && !deviceId.isEmpty();
 
@@ -72,15 +75,24 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     return;
                 }
 
-                /*Otherwise a scanner needs to be created there are two cases
+                /*Otherwise a scanner needs to be created there are three cases
                 * 1. User has a good scanner, but the car doesn't have it stored
                 * 2. User has a broken scanner, and the car doesn't have it stored
+                * 3. User has a broken scanner and the car has it stored
                 * In case 2 we need to wait for the user to override the ID, this isn't addressed
                 * in this use case. YET*/
 
+                //Case 3, use car scanner id as the device id
+                if (carScannerExists && !deviceIdValid){
+                    callback.onDeviceBrokenAndCarHasScanner(car.getScannerId());
+                    return;
+                }
+
                 //Case 2, address this later
-                if (!carScannerValid && !deviceIdValid){
-                    callback.onDeviceIdOverrideNeeded();
+                if (!carScannerExists && !deviceIdValid){
+
+                    //Check if car has a scanner id, if so use that one
+                    callback.onDeviceBrokenAndCarMissingScanner();
                     return;
                 }
                 //Anything below is case 1
