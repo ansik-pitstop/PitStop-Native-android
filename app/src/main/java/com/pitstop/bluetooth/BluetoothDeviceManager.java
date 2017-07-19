@@ -361,6 +361,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                                 @Override
                                 public void onError(String error) {
+                                    deviceInterface = new Device215B(mContext, dataListener
+                                            , deviceName);
+                                    connectToDevice(device);
                                     Log.v(TAG, "ERROR: could not get previous ignition time");
 
                                 }
