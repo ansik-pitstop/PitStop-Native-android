@@ -157,7 +157,7 @@
     <orderEntry type="library" exported="" name="acra-4.9.0" level="project" />
     <orderEntry type="library" exported="" name="sqlbrite-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
-    <orderEntry type="library" exported="" name="ui-4.7.0" level="project" />
+    <orderEntry type="library" exported="" name="ui-4.7.1" level="project" />
     <orderEntry type="library" exported="" name="rxandroid-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-places-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-10.0.1" level="project" />
@@ -182,10 +182,10 @@
     <orderEntry type="library" exported="" name="dagger-2.9" level="project" />
     <orderEntry type="library" exported="" name="bolts-applinks-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-25.1.0" level="project" />
+    <orderEntry type="library" exported="" name="core-4.7.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="butterknife-annotations-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="customtabs-23.4.0" level="project" />
-    <orderEntry type="library" exported="" name="core-4.7.0" level="project" />
     <orderEntry type="library" exported="" name="butterknife-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-10.0.1" level="project" />

@@ -62,6 +62,7 @@ public class HttpRequest {
         LogUtils.debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
                 false, DebugMessage.TYPE_NETWORK, context);
 
+
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
     }
 
@@ -196,6 +197,7 @@ public class HttpRequest {
                     } catch (JSONException e) {
                         responseString = response.getBody();
                     }
+
                     LogUtils.debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
                             true, DebugMessage.TYPE_NETWORK, application);
 

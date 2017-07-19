@@ -57,11 +57,23 @@ public class Device215B implements AbstractDevice {
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
     private final String deviceName;
+    private long prevIgnitionTime = -1;
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName
+            , long prevIgnitionTime) {
+
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
+        this.prevIgnitionTime = prevIgnitionTime;
+    }
+
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
+
+        this.dataListener = dataListener;
+        this.context = context;
+        this.deviceName = deviceName;
+        this.prevIgnitionTime = -1;
     }
 
     // functions
@@ -347,6 +359,9 @@ public class Device215B implements AbstractDevice {
 
     private StringBuilder sbRead = new StringBuilder();
 
+    private long lastSentTripStart = -1;
+    private long lastSentTripEnd = -1;
+
     // parser for 215B data
     private void parseReadData(String msg) throws Exception{
         sbRead.append(msg);
@@ -377,21 +392,52 @@ public class Device215B implements AbstractDevice {
                     ignitionTime = 0;
                 }
 
+                boolean ignitionTimeChanged = false;
+
+                if (prevIgnitionTime != ignitionTime){
+                    ignitionTimeChanged = true;
+                    prevIgnitionTime = ignitionTime;
+                }
+
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
+
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = (int) ignitionTime;
 
                     LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
-                        +", deviceId: "+idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                        +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
+                            +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH
+                            , getApplicationContext());
 
                     if (idrInfo.alarmEvents.equals("2")){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+
+                        //Check whether this trip end was already sent
+                        boolean tripEndNotSent = lastSentTripEnd == -1
+                                || lastSentTripEnd != tripInfoPackage.tripId;
+
+                        if (tripEndNotSent){
+                            tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
+                            lastSentTripEnd = tripInfoPackage.tripId;
+                        }
                     }
-                    else if (idrInfo.alarmEvents.equals("1")){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                    /*Trip start detected by ignition time changing or alarm, if both occur
+                    /* , one will be sent as an update*/
+                    else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
+
+                        //Check whether this trip start was already sent
+                        boolean tripStartNotSent = lastSentTripStart == -1
+                                || lastSentTripStart != tripInfoPackage.tripId;
+
+                        Log.d(TAG,"AlarmEvent is 1 OR ignition time changed signaling trip start," +
+                                " tripStartNotSent? "+tripStartNotSent);
+                        if (tripStartNotSent){
+                            Log.d(TAG,"Trip start flag set.");
+                            tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
+                            lastSentTripStart = tripInfoPackage.tripId;
+                        }
                     }
                     else{
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
