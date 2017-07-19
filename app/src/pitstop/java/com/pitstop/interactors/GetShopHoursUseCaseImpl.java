@@ -12,6 +12,7 @@ import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,44 +102,98 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
     }
     private void getHours(Dealership dealership){
         System.out.println("Testing does the dealership have hours "+dealership.getHours());
-        networkHelper.get("shop/" + dealership.getId() + "/calendar/?from="+year+"-"+month+"-"+day+"&to="+year+"-"+month+"-"+(day+1), new RequestCallback() {
+
+        networkHelper.get("shop/" + dealership.getId() + "/calendar", new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                System.out.println("Testing response "+response);
+                List<String> timesToRemove = new ArrayList<String>();
+
+                if(requestError == null && response != null){
+                    try{
+                        JSONObject responsesJson = new JSONObject(response);
+                        JSONObject dates = responsesJson.getJSONObject("dates");
+                        System.out.println("Testing response "+dates);
+
+                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("requested"),year+"-"+fixMonth(month)+"-"+day));
+                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
+                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
+                        for(String s:timesToRemove){
+                            System.out.println("Testing remove time "+s);
+                        }
+
+
+                    }catch (JSONException e){
+
+                    }
+                }
+
+                if(dealership.getHours() == null){
+                    callback.onNoHoursAvailable(makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR,timesToRemove));
+                    return;
+                }
+                JSONArray hours = dealership.getHours();
+                try{
+                    JSONObject hour = hours.getJSONObject(dayInWeek);
+                    String open =  hour.getString("open");
+                    String close = hour.getString("close");
+                    if(open.equals("") || close.equals("")){
+                        callback.onNotOpen();
+                        return;
+                    }
+                    callback.onHoursGot(makeTimes(Integer.parseInt(hour.getString("open")),Integer.parseInt(hour.getString("close")),timesToRemove));
+                }catch (JSONException e){
+                    callback.onError();
+                }
             }
         });
-        if(dealership.getHours() == null){
-            callback.onNoHoursAvailable(makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR));
-            return;
-        }
-        JSONArray hours = dealership.getHours();
-        try{
-            JSONObject hour = hours.getJSONObject(dayInWeek);
-            String open =  hour.getString("open");
-            String close = hour.getString("close");
-            if(open.equals("") || close.equals("")){
-                callback.onNotOpen();
-                return;
-            }
-            callback.onHoursGot(makeTimes(Integer.parseInt(hour.getString("open")),Integer.parseInt(hour.getString("close"))));
-        }catch (JSONException e){
-         callback.onError();
-        }
     }
 
-    private List<String> makeTimes(int start, int end){
+    private List<String> makeTimes(int start, int end,List<String> remove){
         List<String> times = new ArrayList<>();
         for(int i = start;i<end;i+=100){
-            times.add(timeFormat(i));
-            times.add(timeFormat(i+30));
+            String t1 = Integer.toString(i);
+            String t2 = Integer.toString(i+30);
+            if(t1.length()<4){
+                t1 = "0"+t1;
+            }
+            if(t2.length()<4){
+                t2 = "0"+t2;
+            }
+            if(!remove.contains(t1)){
+                times.add(timeFormat(t1));
+            }
+            if(!remove.contains(t2)){
+                times.add(timeFormat(t2));
+            }
         }
         return times;
     }
-    private String timeFormat(int time){
-        String date = Integer.toString(time);
-        if(date.length()<4){
-            date = "0"+date;
+    public String fixMonth(int month){
+        if(month<10){
+            return  "0"+month;
+        }else{
+            return  ""+month;
         }
+    }
+
+    public List<String> getRemoveTimes(JSONArray dates,String date){
+        System.out.println("Testing date"+date);
+        List<String> datesToRemove = new ArrayList<>();
+        for(int i = 0 ;i < dates.length();i++){
+            try{
+                String currentDate = dates.getString(i);
+                if(currentDate.contains(date)){
+                    datesToRemove.add(currentDate.substring(11,13)+currentDate.substring(14,16));
+                    System.out.println("Testing "+currentDate.substring(11,13)+currentDate.substring(14,16));
+                }
+            }catch (JSONException e){
+            }
+        }
+        return datesToRemove;
+    }
+
+    private String timeFormat(String time){
+        String date = time;
         SimpleDateFormat in = new SimpleDateFormat("HHmm");
         SimpleDateFormat out = new SimpleDateFormat("hh:mm aa");
         try{
