@@ -141,6 +141,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         connectBluetooth();
     }
 
+    public synchronized void onConnectDeviceValid(){
+        if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
+            Log.i(TAG,"Stopping scan");
+            mBluetoothAdapter.cancelDiscovery();
+        }
+    }
+
     @Override
     public void sendCommandPassive(String payload) {
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {

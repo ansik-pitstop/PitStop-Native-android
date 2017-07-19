@@ -35,7 +35,8 @@ public class DataParseUtil {
 		IDRInfo idrInfo = new IDRInfo();
 		String[] msgs = msg.split(",");
 
-		idrInfo.terminalSN = msgs[0].substring(2);
+		//idrInfo.terminalSN = msgs[0].substring(2);
+		idrInfo.terminalSN = ""; //TEST
 		idrInfo.idr = msgs[1];
 		idrInfo.ignitionTime = msgs[2];
 		idrInfo.runTime = msgs[3];

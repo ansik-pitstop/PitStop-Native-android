@@ -65,7 +65,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         && car.getScannerId().isEmpty()
                         && car.getScannerId().equals(deviceId);
                 boolean carScannerExists = car.getScannerId() != null
-                        && car.getScannerId().isEmpty();
+                        && !car.getScannerId().isEmpty();
                 boolean deviceIdValid = deviceId != null
                         && !deviceId.isEmpty();
 
