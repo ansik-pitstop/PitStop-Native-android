@@ -26,6 +26,8 @@ public class ShopFormPresenter {
 
     private MixpanelHelper mixpanelHelper;
 
+    private String googlePlacesId;
+
     public ShopFormPresenter(CustomShopActivityCallback switcher1, FragmentSwitcher switcher2, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher1 = switcher1;
         this.switcher2 = switcher2;
@@ -44,6 +46,7 @@ public class ShopFormPresenter {
 
     public void clearFields(){
         if(shopForm == null){return;}
+        googlePlacesId = "";
         shopForm.showName("");
         shopForm.showPhone("");
         shopForm.showEmail("");
@@ -83,7 +86,7 @@ public class ShopFormPresenter {
         if(!shopPostal.isEmpty()){shopPostal = ","+shopPostal;}
         if(!shopCountry.isEmpty()){shopCountry = ","+shopCountry;}
         dealership.setAddress(shopAddress+shopCity+shopProvince+shopPostal+shopCountry);
-
+        dealership.setGooglePlaceId(googlePlacesId);
         if(update){
           dealership.setId(shopForm.getDealership().getId());
             component.getUpdateShopUseCase().execute(dealership, EventSource.SOURCE_SETTINGS, new UpdateShopUseCase.Callback() {
@@ -136,6 +139,7 @@ public class ShopFormPresenter {
         if(dealership == null){
             return;
         }
+        googlePlacesId = dealership.getGooglePlaceId();
         Address address = new Address(dealership.getAddress());
         if(dealership.getName() != null){
             shopForm.showName(dealership.getName());

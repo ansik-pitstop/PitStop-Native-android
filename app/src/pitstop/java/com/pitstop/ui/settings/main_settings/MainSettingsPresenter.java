@@ -62,7 +62,7 @@ public class MainSettingsPresenter {
     }
 
     public void preferenceClicked(String prefKey){
-        if(mainSettings == null){return;}
+        if(mainSettings == null || switcher ==null){return;}
         if(prefKey.equals(ADD_CAR_KEY)){
             mixpanelHelper.trackButtonTapped("AddCar","MainSettings");
             switcher.startAddCar();
@@ -79,7 +79,7 @@ public class MainSettingsPresenter {
     }
 
     public void update(){
-        if(mainSettings == null){return;}
+        if(mainSettings == null || switcher == null){return;}
         switcher.loading(true);
         getUser();
         getCars();
@@ -88,11 +88,11 @@ public class MainSettingsPresenter {
 
 
     public void getCars(){// this needs to be changed
-        if(mainSettings == null){return;}
+        if(mainSettings == null || switcher == null){return;}
         component.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback(){
             @Override
             public void onCarsRetrieved(List<Car> cars) {
-                if(mainSettings != null){
+                if(mainSettings != null && switcher != null){
                     mainSettings.resetCars();
                     Collections.reverse(cars);
                     for(Car c:cars) {
@@ -103,7 +103,7 @@ public class MainSettingsPresenter {
             }
             @Override
             public void onError() {
-                if(mainSettings != null){
+                if(mainSettings != null && switcher != null){
                     switcher.loading(false);
                     mainSettings.toast("There was an error loading your cars");
                 }

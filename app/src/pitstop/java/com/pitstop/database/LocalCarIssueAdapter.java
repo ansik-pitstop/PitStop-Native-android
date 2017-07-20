@@ -54,6 +54,11 @@ public class LocalCarIssueAdapter {
             }
         }
     }
+    public void storeIssues(List<CarIssue> issues){
+        for(CarIssue c : issues){
+            storeCarIssue(c);
+        }
+    }
 
     public int updateCarIssue(CarIssue carIssue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

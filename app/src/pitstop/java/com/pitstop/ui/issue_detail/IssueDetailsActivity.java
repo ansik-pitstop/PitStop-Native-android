@@ -15,7 +15,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
-import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
 
@@ -158,9 +158,9 @@ public class IssueDetailsActivity extends AppCompatActivity {
     }
 
     private void startRequestServiceActivity() {
-        final Intent intent = new Intent(this, ServiceRequestActivity.class);
-        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, dashboardCar);
-        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+        final Intent intent = new Intent(this, RequestServiceActivity.class);
+        intent.putExtra(RequestServiceActivity.EXTRA_CAR, dashboardCar);
+        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
     }
 
