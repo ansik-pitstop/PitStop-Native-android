@@ -245,6 +245,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        serviceIsBound = true;
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toggleConnectionStatusActionBar(false);
@@ -322,6 +325,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            serviceIsBound = true;
         }
         if (autoConnectService != null){
             autoConnectService.addCallback(this);
@@ -351,16 +355,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         hideLoading();
         autoConnectService.removeCallback(this);
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.i(TAG, "onDestroy");
-        if (serviceIntent != null){
-            stopService(serviceIntent);
-        }
     }
 
     @Override
@@ -605,7 +599,11 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     private AlertDialog alertInvalidDeviceNameDialog = null;
     private boolean idInput = false;
 
+    //Primarily for development reasons, set inside BluetoothAutoConnectService
+    public static boolean allowDeviceOverwrite = false;
+
     @Override
+    //This method is invoked by BluetoothAutoConnectService, only after device has been verified
     public void pidData(PidPackage pidPackage) {
 
         LogUtils.LOGD(TAG,"pidData(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
@@ -615,7 +613,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         **For 215 device only*/
 
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                && !ignoreMissingDeviceName){
+                && !ignoreMissingDeviceName && allowDeviceOverwrite){
 
             if (autoConnectService.isConnectedTo215() && (pidPackage.deviceId.isEmpty() || pidPackage.deviceId.equals("0"))){
                 displayGetScannerIdDialog();
@@ -637,7 +635,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 alertDialogBuilder
                         .setView(input)
                         .setMessage("Your OBD device has lost its ID or is invalid, please input " +
-                                "the ID on the front of the device.")
+                                "the ID found on the front of the device so our algorithm can fix it.")
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
@@ -645,6 +643,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                                 autoConnectService.setDeviceNameAndId(input.getText()
                                         .toString().trim().toUpperCase());
 
+                                allowDeviceOverwrite = false;
                                 idInput = true;
                             }
                         })
@@ -1063,6 +1062,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
         startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (serviceIsBound && serviceConnection != null){
+            unbindService(serviceConnection);
+            serviceIsBound = false;
+        }
+        super.onDestroy();
     }
 
     private boolean checkDealership(Car car) {

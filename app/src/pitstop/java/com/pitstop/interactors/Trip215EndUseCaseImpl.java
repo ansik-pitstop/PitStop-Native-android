@@ -42,7 +42,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
             public void onSuccess(Trip215 data) {
 
                 //Latest trip does not exist, don't store trip end
-                if (data == null){
+                if (data == null || data.getTripIdRaw() != tripInfoPackage.tripId){
                     callback.onStartTripNotFound();
                     return;
                 }
@@ -89,7 +89,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     private Trip215 convertToTrip215End(TripInfoPackage tripInfoPackage, Trip215 tripStart){
         double tripMileage = tripInfoPackage.mileage - tripStart.getMileage();
 
-        return new Trip215(tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
+        return new Trip215(tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
                 ,tripInfoPackage.deviceId);
     }
 }

@@ -7,16 +7,33 @@ package com.pitstop.models;
  */
 
 public class Trip215 {
-    private int tripId;
+    private int tripId = -1;
     private double mileage;
     private long rtcTime;
     private String scannerName;
+    private long tripIdRaw = -1;
 
-    public Trip215(int id, double mileage, long rtcTime, String scannerName) {
-        this.tripId = id;
+    public Trip215(int tripIdRaw, double mileage, long rtcTime, String scannerName) {
+        this.tripIdRaw = tripIdRaw;
         this.mileage = mileage;
         this.rtcTime = rtcTime;
         this.scannerName = scannerName;
+    }
+
+    public Trip215(int id, long tripIdRaw, double mileage, long rtcTime, String scannerName) {
+        this.tripId = id;
+        this.tripIdRaw = tripIdRaw;
+        this.mileage = mileage;
+        this.rtcTime = rtcTime;
+        this.scannerName = scannerName;
+    }
+
+    public long getTripIdRaw() {
+        return tripIdRaw;
+    }
+
+    public void setTripIdRaw(long tripIdRaw) {
+        this.tripIdRaw = tripIdRaw;
     }
 
     public int getTripId() {

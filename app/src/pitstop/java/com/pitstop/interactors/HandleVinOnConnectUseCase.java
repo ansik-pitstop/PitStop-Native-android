@@ -15,7 +15,8 @@ public interface HandleVinOnConnectUseCase extends Interactor {
 
     interface Callback{
         void onSuccess();
-        void onDeviceIdOverrideNeeded();
+        void onDeviceBrokenAndCarMissingScanner();
+        void onDeviceBrokenAndCarHasScanner(String scannerId);
         void onDeviceInvalid();
         void onDeviceAlreadyActive(); //Another user has this scanner
         void onError();
