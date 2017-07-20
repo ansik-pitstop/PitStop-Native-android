@@ -1239,13 +1239,13 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     boolean deviceReady = false;
     @Override
-    public void notifyDeviceReady() {
+    public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
         deviceReady = true;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (BluetoothObserver observer: observerList){
-                    observer.onDeviceReady(autoConnectService);
+                    observer.onDeviceReady(vin, scannerId, scannerName);
                 }
             }
         });
