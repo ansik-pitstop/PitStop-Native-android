@@ -579,13 +579,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         LogUtils.debugLogD(TAG, "Adding trip to pending list"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        boolean deviceIdMissing = (tripInfoPackage.deviceId == null
+                || tripInfoPackage.deviceId.isEmpty());
+
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
-        if (terminalRTCTime == -1 || !deviceIsVerified){
-            LogUtils.debugLogD(TAG, "Trip will not be processed, terminalRtcSet?"
-                    +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified, true
-                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
+            LogUtils.debugLogD(TAG, "Trip added to pending list, terminalRtcSet?"
+                            +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
+                            +", deviceIdMissing?"+deviceIdMissing
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
 
@@ -596,6 +601,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
         for (TripInfoPackage trip: pendingTripInfoPackages){
+
+            /*Set the device id for any trips that were received while a device was broken
+            /** prior to an overwrite*/
+            boolean tripHasNoId = trip.deviceId == null || trip.deviceId.isEmpty();
+            if (tripHasNoId){
+                //TripInfoPackage must have trip id or it would have returned due to deviceIdMissing flag
+                trip.deviceId = tripInfoPackage.deviceId;
+            }
 
             if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnectedTo215()){
 
@@ -701,6 +714,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     boolean verificationInProgress = false;
+    boolean deviceIdOverwriteInProgress= false;
 
     /**
      * Handles the data returned from a parameter query command
@@ -723,7 +737,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCarWithDevice && !verificationInProgress){
+                && !AddCarActivity.addingCarWithDevice && !verificationInProgress
+                && !deviceIsVerified){
 
             verificationInProgress = true;
 
@@ -734,14 +749,29 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceIsVerified = true;
                     verificationInProgress = false;
+                    deviceManager.onConnectDeviceValid();
                 }
 
                 @Override
-                public void onDeviceIdOverrideNeeded() {
+                public void onDeviceBrokenAndCarMissingScanner() {
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
                           ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
+                    deviceManager.onConnectDeviceValid();
+                }
+
+                @Override
+                public void onDeviceBrokenAndCarHasScanner(String scannerId) {
+                    LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
+                            ", overwriting scanner id to "+scannerId,true
+                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    setDeviceNameAndId(scannerId);
+                    deviceIdOverwriteInProgress = true;
+                    deviceIsVerified = true;
+                    verificationInProgress = false;
+                    deviceManager.onConnectDeviceValid();
                 }
 
                 @Override
@@ -760,8 +790,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
-                    deviceManager.onConnectedDeviceInvalid();
                     verificationInProgress = false;
+                    deviceManager.onConnectedDeviceInvalid();
                 }
 
                 @Override
@@ -829,20 +859,32 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void pidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (!deviceIsVerified){
-            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified!"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        boolean deviceIdMissing = pidPackage.deviceId == null || pidPackage.deviceId.isEmpty();
+
+        if (!deviceIsVerified || deviceIdMissing){
+            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified " +
+                    "OR device id is missing.", true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
             pendingPidPackages.add(pidPackage);
             return;
         }
 
         //Check if its a recursive call
         if (!processedPidPackages.contains(pidPackage) && pendingPidPackages.size() > 0){
-            LogUtils.debugLogD(TAG, "Device is verified, going through pid pending list, size: "
-                    +pendingPidPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+            LogUtils.debugLogD(TAG, "Device is verified and device id present" +
+                    ", going through pid pending list, size: " +pendingPidPackages.size()
+                    , true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             //Not a recursive call, go throgh pending pid packages recursively
             for (PidPackage p: pendingPidPackages){
+
+                //Set device id if it is is missing
+                if (p.deviceId == null || p.deviceId.isEmpty()){
+                    //pidPackage must have device id otherwise we would've returned
+                    p.deviceId = pidPackage.deviceId;
+                }
+
                 processedPidPackages.add(p);
                 pidData(p);
             }
@@ -975,7 +1017,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        if (!deviceIsVerified){
+        //Waiting for overwrite
+        boolean deviceIdMissing = dtcPackage.deviceId == null || dtcPackage.deviceId.isEmpty();
+
+        if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingDtcPackages.add(dtcPackage);
@@ -987,6 +1032,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             for (DtcPackage p: pendingDtcPackages){
+
+                //Set device id if it is missing
+                if (p.deviceId == null || p.deviceId.isEmpty()){
+
+                    //Must be present otherwise we would've returned due to deviceIdMissing flag
+                    p.deviceId = dtcPackage.deviceId;
+                }
+
                 processedDtcPackages.add(p);
                 dtcData(p);
             }
@@ -1019,7 +1072,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "ffData() " + ffPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        if (!deviceIsVerified){
+        boolean deviceIdMissing = ffPackage.deviceId == null || ffPackage.deviceId.isEmpty();
+
+        if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingFreezeFrames.add(ffPackage);
@@ -1030,6 +1085,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             LogUtils.debugLogD(TAG, "Going through pending freeze frames"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             for (FreezeFramePackage p: pendingFreezeFrames){
+
+                //Set device id if it is missing
+                if (p.deviceId == null || p.deviceId.isEmpty()){
+                    //ffPackage must have device id otherwise we wouldve returned
+                    p.deviceId = ffPackage.deviceId;
+                }
+
                 processedFreezeFrames.add(p);
                 ffData(p);
             }
