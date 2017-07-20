@@ -82,7 +82,7 @@ public class ShopRepository {
     }
 
     public List<Dealership> getPitstopShops(GetPitstopShopsCallback callback){
-        networkHelper.getPitStopShops(getGetPitstopShopsREquestCallback(callback));
+        networkHelper.getPitStopShops(getGetPitstopShopsRequestCallback(callback));
         List<Dealership> dealerships = localShopAdapter.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
@@ -94,13 +94,29 @@ public class ShopRepository {
         return dealerships;
     }
 
-    private RequestCallback getGetPitstopShopsREquestCallback(GetPitstopShopsCallback callback){
+    private RequestCallback getGetPitstopShopsRequestCallback(GetPitstopShopsCallback callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(response != null){
                     try{
-                        List<Dealership> dealerships = Dealership.createDealershipList(response);
+                        JSONArray shops = new JSONArray(response);
+                        List<Dealership> dealerships = new ArrayList<>();
+                        for(int i = 0 ; i < shops.length();i++){
+                            JSONObject shop = shops.getJSONObject(i);
+                            Dealership dealership = new Dealership();
+                            dealership.setId(shop.getInt("id"));
+                            dealership.setName(shop.getString("name"));
+                            dealership.setAddress(shop.getString("address"));
+                            dealership.setEmail(shop.getString("email"));
+                            dealership.setPhoneNumber(shop.getString("phone"));
+                           try{
+                               dealership.setHours(new JSONArray(shop.getString("openingHours")));
+                           }catch (JSONException e){
+
+                           }
+                            dealerships.add(dealership);
+                        }
                         localShopAdapter.storeDealerships(dealerships);
                         callback.onShopsGot(dealerships);
                     }catch(JSONException e){
@@ -110,7 +126,6 @@ public class ShopRepository {
                 }else{
                     callback.onError();
                 }
-
             }
         };
         return requestCallback;
@@ -127,6 +142,7 @@ public class ShopRepository {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
+                System.out.println("Testing response "+response);
                 try {
                     if (requestError == null){
                         JSONObject shopResponse = new JSONObject(response);
@@ -145,6 +161,12 @@ public class ShopRepository {
                                         userSettingsDealer.put("email",dealership.getEmail());
                                         userSettingsDealer.put("phone_number",dealership.getPhone());
                                         userSettingsDealer.put("address",dealership.getAddress());
+                                        userSettingsDealer.put("google_places_id",dealership.getGooglePlaceId());
+                                        try {
+                                            userSettingsDealer.put("opening_hours", shopResponse.getString("opening_hours"));
+                                        }catch (JSONException e){
+
+                                        }
                                         if(userJson.has("customShops")){
                                             JSONArray shopsToSend = new JSONArray();
                                             customShops = userJson.getJSONArray("customShops");
@@ -234,6 +256,16 @@ public class ShopRepository {
                              dealership.setAddress(shop.getString("address"));
                              dealership.setEmail(shop.getString("email"));
                              dealership.setPhoneNumber(shop.getString("phone_number"));
+                             try {
+                                 dealership.setHours(new JSONArray(shop.getString("opening_hours")));
+                             }catch (JSONException e){
+
+                             }
+                             try {
+                                dealership.setGooglePlaceId(shop.getString("google_places_id"));
+                             }catch (JSONException e){
+
+                             }
                              dealership.setCustom(true);
                              dealershipArray.add(dealership);
                              localShopAdapter.removeById(dealership.getId());

@@ -18,7 +18,7 @@ import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
-import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -650,11 +650,10 @@ public class NetworkHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         post("utility/serviceRequest", callback, body);
 
         // If state is tentative, we put salesPerson to another endpoint
-        if (state.equals(ServiceRequestActivity.STATE_TENTATIVE)) {
+        if (state.equals(RequestServiceActivity.STATE_TENTATIVE)) {
             JSONObject updateSalesman = new JSONObject();
             try {
                 updateSalesman.put("carId", carId);
@@ -844,11 +843,11 @@ public class NetworkHelper {
             body.put("email",dealership.getEmail());
             body.put("phone",dealership.getPhone());
             body.put("address",dealership.getAddress());
-            body.put("googlePlacesId","");// to be added
+            body.put("googlePlacesId",dealership.getGooglePlaceId());
         }catch (JSONException e){
             e.printStackTrace();
         }
-        post("shop",callback,body);
+          post("shop",callback,body);
     }
 
     /**

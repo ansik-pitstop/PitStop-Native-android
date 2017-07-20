@@ -1,6 +1,7 @@
 package com.pitstop.dependency;
 
 import com.pitstop.interactors.AddCarUseCase;
+import com.pitstop.interactors.AddServicesUseCase;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
@@ -13,12 +14,14 @@ import com.pitstop.interactors.GetDoneServicesUseCase;
 import com.pitstop.interactors.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.GetPlaceDetailsUseCase;
+import com.pitstop.interactors.GetShopHoursUseCase;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.interactors.GetUserShopsUseCase;
 import com.pitstop.interactors.MarkServiceDoneUseCase;
 import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.RemoveShopUseCase;
+import com.pitstop.interactors.AddServiceUseCase;
 import com.pitstop.interactors.RequestServiceUseCase;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.SetUserCarUseCase;
@@ -43,6 +46,15 @@ import dagger.Component;
 @Singleton
 @Component(modules = UseCaseModule.class)
 public interface UseCaseComponent {
+
+
+    GetShopHoursUseCase getGetShopHoursUseCase();
+
+    RequestServiceUseCase getRequestServiceUseCase();
+
+    AddServicesUseCase getAddServicesUseCase();
+
+    AddServiceUseCase getAddServiceUseCase();
 
     RemoveShopUseCase getRemoveShopUseCase();
 
@@ -85,8 +97,6 @@ public interface UseCaseComponent {
     MarkServiceDoneUseCase markServiceDoneUseCase();
 
     RemoveCarUseCase removeCarUseCase();
-
-    RequestServiceUseCase requestServiceUseCase();
 
     SetUserCarUseCase setUseCarUseCase();
 

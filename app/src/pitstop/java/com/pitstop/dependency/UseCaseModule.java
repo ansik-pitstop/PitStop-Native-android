@@ -4,6 +4,9 @@ import android.os.Handler;
 
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddCarUseCaseImpl;
+import com.pitstop.interactors.AddServiceUseCaseImpl;
+import com.pitstop.interactors.AddServicesUseCase;
+import com.pitstop.interactors.AddServicesUseCaseImpl;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.AddShopUseCaseImpl;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
@@ -24,6 +27,8 @@ import com.pitstop.interactors.GetPitstopShopsUseCase;
 import com.pitstop.interactors.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.GetPlaceDetailsUseCaseImpl;
+import com.pitstop.interactors.GetShopHoursUseCase;
+import com.pitstop.interactors.GetShopHoursUseCaseImpl;
 import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.GetPrevIgnitionTimeUseCaseImpl;
 import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
@@ -40,6 +45,7 @@ import com.pitstop.interactors.RemoveCarUseCase;
 import com.pitstop.interactors.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.RemoveShopUseCase;
 import com.pitstop.interactors.RemoveShopUseCaseImpl;
+import com.pitstop.interactors.AddServiceUseCase;
 import com.pitstop.interactors.RequestServiceUseCase;
 import com.pitstop.interactors.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.SetFirstCarAddedUseCase;
@@ -58,6 +64,7 @@ import com.pitstop.interactors.UpdateUserNameUseCase;
 import com.pitstop.interactors.UpdateUserNameUseCaseImpl;
 import com.pitstop.interactors.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.UpdateUserPhoneUseCaseImpl;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
@@ -75,6 +82,26 @@ import dagger.Provides;
 
 @Module(includes = {RepositoryModule.class, HandlerModule.class} )
 public class UseCaseModule {
+
+    @Provides
+    GetShopHoursUseCase getShopHoursUseCase(ShopRepository shopRepository, UserRepository userRepository, NetworkHelper networkHelper, Handler handler){
+        return new GetShopHoursUseCaseImpl(shopRepository,userRepository,networkHelper,handler);
+    }
+
+    @Provides
+    AddServiceUseCase addServiceUseCase(CarIssueRepository carIssueRepository, Handler handler){
+        return new AddServiceUseCaseImpl(carIssueRepository, handler);
+    }
+
+    @Provides
+    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository, UserRepository userRepository, CarRepository carRepository, Handler handler){
+        return new RequestServiceUseCaseImpl(carIssueRepository,userRepository,carRepository,handler);
+    }
+
+    @Provides
+    AddServicesUseCase addServicesUseCase(CarIssueRepository carIssueRepository, UserRepository userRepository, Handler handler){
+        return new AddServicesUseCaseImpl(carIssueRepository,userRepository,handler);
+    }
 
     @Provides
     RemoveShopUseCase removeShopUseCase(ShopRepository shopRepository,CarRepository carRepository,UserRepository userRepository,NetworkHelper networkHelper,Handler handler){
@@ -194,11 +221,6 @@ public class UseCaseModule {
         return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper,handler);
     }
 
-    @Provides
-    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
-            , Handler handler){
-        return new RequestServiceUseCaseImpl(carIssueRepository, handler);
-    }
 
     @Provides
     SetUserCarUseCase setUseCarUseCase(UserRepository userRepository, Handler handler){
