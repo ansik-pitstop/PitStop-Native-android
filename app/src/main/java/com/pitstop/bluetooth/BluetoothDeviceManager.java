@@ -27,6 +27,10 @@ import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
@@ -91,6 +95,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     //List of invalid addresses from current or past search that we do not want to deal with again
     private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
 
+    private UseCaseComponent useCaseComponent;
+
     public enum CommType {
         CLASSIC, LE
     }
@@ -100,6 +106,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
+
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(mContext))
+                .build();
 
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -129,6 +139,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         connectBluetooth();
+    }
+
+    public synchronized void onConnectDeviceValid(){
+        if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
+            Log.i(TAG,"Stopping scan");
+            mBluetoothAdapter.cancelDiscovery();
+        }
     }
 
     @Override
@@ -327,8 +344,37 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                             deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, deviceName);
                             connectToDevice(device);
                         } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
-                            deviceInterface = new Device215B(mContext, dataListener, deviceName);
-                            connectToDevice(device);
+
+                            //Device needs previous ignition time for trip start/end logic
+                            useCaseComponent.getPrevIgnitionTimeUseCase().execute(deviceName
+                                    , new GetPrevIgnitionTimeUseCase.Callback() {
+
+                                @Override
+                                public void onGotIgnitionTime(long ignitionTime) {
+                                    Log.v(TAG, "Received ignition time: "+ignitionTime);
+                                    deviceInterface = new Device215B(mContext, dataListener
+                                            , deviceName, ignitionTime);
+                                    connectToDevice(device);
+
+                                }
+
+                                @Override
+                                public void onNoneExists() {
+                                    Log.v(TAG, "No previous ignition time exists!");
+                                    deviceInterface = new Device215B(mContext, dataListener
+                                            , deviceName);
+                                    connectToDevice(device);
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    deviceInterface = new Device215B(mContext, dataListener
+                                            , deviceName);
+                                    connectToDevice(device);
+                                    Log.v(TAG, "ERROR: could not get previous ignition time");
+
+                                }
+                            });
                         }
                         break;
 

@@ -3,6 +3,7 @@ package com.pitstop.dependency;
 import com.pitstop.interactors.AddCarUseCase;
 import com.pitstop.interactors.AddShopUseCase;
 import com.pitstop.interactors.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.GetCarByCarIdUseCase;
 import com.pitstop.interactors.GetCarsByUserIdUseCase;
@@ -96,5 +97,7 @@ public interface UseCaseComponent {
     Trip215StartUseCase trip215StartUseCase();
 
     Trip215EndUseCase trip215EndUseCase();
+
+    GetPrevIgnitionTimeUseCase getPrevIgnitionTimeUseCase();
 
 }
