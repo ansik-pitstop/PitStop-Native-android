@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.pitstop.R;
 import com.pitstop.models.Car;
-import com.pitstop.ui.service_request.view_fragment.time_picker_view.TimePickerFragment;
 import com.pitstop.ui.service_request.view_fragment.main_from_view.ServiceFormFragment;
 
 /**
@@ -26,7 +25,6 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
 
     private ServiceFormFragment serviceFormFragment;
-    private TimePickerFragment timePickerFragment;
 
     private RequestServicePresenter presenter;
 
@@ -42,6 +40,7 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         setContentView(R.layout.activity_request_service);
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
 
+
         dashCar = getIntent().getParcelableExtra(EXTRA_CAR);
 
 
@@ -54,9 +53,6 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         serviceFormFragment.setActivityCallback(this);
         serviceFormFragment.setCar(dashCar);
 
-        timePickerFragment = new TimePickerFragment();
-        timePickerFragment.setActivityCallback(this);
-
         presenter.setViewMainForm();
     }
 
@@ -67,13 +63,6 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         fragmentTransaction.commit();
     }
 
-    @Override
-    public void setViewTimePicker() {
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.request_service_fragment_holder,timePickerFragment);
-        fragmentTransaction.addToBackStack("time_picker");
-        fragmentTransaction.commit();
-    }
 
     @Override
     public void finishActivity() {

@@ -41,6 +41,9 @@ import butterknife.ButterKnife;
 
 public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
+    public static final String STATE_TENTATIVE = "tentative";
+    public static final String STATE_REQUESTED = "requested";
+
     @BindView(R.id.addition_comments)
     EditText additionalComments;
 
@@ -129,6 +132,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
 
 
+
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
@@ -142,6 +146,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
         presenter = new ServiceFormPresenter(callback,component);
         presenter.subscribe(this);
+        if(callback.checkTentative().equals(STATE_TENTATIVE)){
+            presenter.setCommentHint("Salesperson");
+        }
 
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,6 +283,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     public void showShop(String name,String address) {
         shopName.setText(name);
         shopAddress.setText(address);
+    }
+
+    @Override
+    public void setCommentHint(String hint) {
+        additionalComments.setHint(hint);
     }
 
     @Override

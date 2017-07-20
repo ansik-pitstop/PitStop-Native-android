@@ -26,5 +26,6 @@ public interface ServiceFormView {
     String getComments();
     void toast(String message);
     void showLoading(boolean show);
+    void setCommentHint(String hint);
 
 }

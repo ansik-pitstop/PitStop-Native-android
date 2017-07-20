@@ -169,6 +169,9 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.setupSelectedIssues(issues);
         }
     }
+    public void setCommentHint(String hint){
+        view.setCommentHint(hint);
+    }
 
     @Override
     public void onRemoveClicked(CarIssue issue) {
