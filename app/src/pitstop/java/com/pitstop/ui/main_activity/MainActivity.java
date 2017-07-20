@@ -245,6 +245,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         serviceIntent = new Intent(MainActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        serviceIsBound = true;
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toggleConnectionStatusActionBar(false);
@@ -322,6 +325,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            serviceIsBound = true;
         }
         if (autoConnectService != null){
             autoConnectService.addCallback(this);
@@ -351,16 +355,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         hideLoading();
         autoConnectService.removeCallback(this);
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.i(TAG, "onDestroy");
-        if (serviceIntent != null){
-            stopService(serviceIntent);
-        }
     }
 
     @Override
@@ -1068,6 +1062,15 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
         startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (serviceIsBound && serviceConnection != null){
+            unbindService(serviceConnection);
+            serviceIsBound = false;
+        }
+        super.onDestroy();
     }
 
     private boolean checkDealership(Car car) {

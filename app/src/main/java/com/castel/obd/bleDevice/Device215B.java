@@ -422,6 +422,9 @@ public class Device215B implements AbstractDevice {
                             tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                             lastSentTripEnd = tripInfoPackage.tripId;
                         }
+                        else{
+                            return;
+                        }
                     }
                     /*Trip start detected by ignition time changing or alarm, if both occur
                     /* , one will be sent as an update*/
@@ -437,6 +440,9 @@ public class Device215B implements AbstractDevice {
                             Log.d(TAG,"Trip start flag set.");
                             tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                             lastSentTripStart = tripInfoPackage.tripId;
+                        }
+                        else{
+                            return;
                         }
                     }
                     else{

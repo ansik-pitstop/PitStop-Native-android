@@ -587,9 +587,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
         if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
-            LogUtils.debugLogD(TAG, "Trip will not be processed, terminalRtcSet?"
-                    +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified, true
-                    , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            LogUtils.debugLogD(TAG, "Trip added to pending list, terminalRtcSet?"
+                            +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
+                            +", deviceIdMissing?"+deviceIdMissing
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
 
@@ -871,8 +872,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Check if its a recursive call
         if (!processedPidPackages.contains(pidPackage) && pendingPidPackages.size() > 0){
-            LogUtils.debugLogD(TAG, "Device is verified, going through pid pending list, size: "
-                    +pendingPidPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
+            LogUtils.debugLogD(TAG, "Device is verified and device id present" +
+                    ", going through pid pending list, size: " +pendingPidPackages.size()
+                    , true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             //Not a recursive call, go throgh pending pid packages recursively
             for (PidPackage p: pendingPidPackages){
