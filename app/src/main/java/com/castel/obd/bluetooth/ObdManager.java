@@ -320,6 +320,7 @@ public class ObdManager {
         void dtcData(DtcPackage dtcPackage);
 
         void ffData(FreezeFramePackage ffPackage);
+
     }
 
 

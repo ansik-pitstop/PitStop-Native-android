@@ -7,6 +7,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
  */
 
 public interface BluetoothObserver{
-    void onDeviceConnected(BluetoothAutoConnectService bluetoothAutoConnectService);
+    void onSearchingForDevice();
+    void onDeviceReady(BluetoothAutoConnectService bluetoothAutoConnectService);
     void onDeviceDisconnected();
 }

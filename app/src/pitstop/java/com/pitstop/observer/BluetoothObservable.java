@@ -7,7 +7,8 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
  */
 
 public interface BluetoothObservable<T> extends Subject<T>{
-    void notifyDeviceConnected();
+    void notifySearchingForDevice();
+    void notifyDeviceReady();
     void notifyDeviceDisconnected();
     BluetoothAutoConnectService getBluetoothAutoConnectService();
 }

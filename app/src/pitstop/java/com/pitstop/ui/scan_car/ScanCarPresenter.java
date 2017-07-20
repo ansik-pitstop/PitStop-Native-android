@@ -327,7 +327,12 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onDeviceConnected(BluetoothAutoConnectService bluetoothAutoConnectService) {
+    public void onSearchingForDevice() {
+
+    }
+
+    @Override
+    public void onDeviceReady(BluetoothAutoConnectService bluetoothAutoConnectService) {
         mAutoConnectService = bluetoothAutoConnectService;
     }
 

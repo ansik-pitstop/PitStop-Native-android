@@ -570,8 +570,8 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             notifyDeviceDisconnected();
             Log.i(TAG, "Bluetooth disconnected");
         }
-        else if (state == IBluetoothCommunicator.CONNECTED){
-            notifyDeviceConnected();
+        else if (state == IBluetoothCommunicator.CONNECTING){
+            notifySearchingForDevice();
         }
     }
 
@@ -1226,12 +1226,26 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     }
 
     @Override
-    public void notifyDeviceConnected() {
+    public void notifySearchingForDevice() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (BluetoothObserver observer: observerList){
-                    observer.onDeviceConnected(autoConnectService);
+                    observer.onSearchingForDevice();
+                }
+            }
+        });
+    }
+
+    boolean deviceReady = false;
+    @Override
+    public void notifyDeviceReady() {
+        deviceReady = true;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (BluetoothObserver observer: observerList){
+                    observer.onDeviceReady(autoConnectService);
                 }
             }
         });
@@ -1239,14 +1253,19 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     @Override
     public void notifyDeviceDisconnected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (BluetoothObserver observer: observerList){
-                    observer.onDeviceDisconnected();
+        //Only notify disconnection if the device that was disconnected was verified and ready
+        if (deviceReady){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (BluetoothObserver observer: observerList){
+                        observer.onDeviceDisconnected();
+                    }
                 }
-            }
-        });
+            });
+            deviceReady = false;
+        }
+
 
     }
 
