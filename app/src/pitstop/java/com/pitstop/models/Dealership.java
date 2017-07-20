@@ -26,6 +26,7 @@ public class Dealership implements Parcelable {
     private String latitude;
     private String googlePlaceId;
     private double googlePlaceRating = 0;
+    private JSONArray hours;
 
     private boolean custom;
 
@@ -39,6 +40,14 @@ public class Dealership implements Parcelable {
             this.custom = false;
         }
     }
+    public void setHours(JSONArray hours){
+        this.hours = hours;
+
+    }
+    public JSONArray getHours(){
+        return hours;
+    }
+
     public void setRating(double rating){
         this.googlePlaceRating = rating;
     }
@@ -120,6 +129,7 @@ public class Dealership implements Parcelable {
             if(dealership.getId() == 0) {
                 dealership = new Dealership();
                 JSONObject dealershipJson = new JSONObject(json).getJSONObject("dealership");
+                System.out.println("Testing dealerJson"+dealershipJson);
                 dealership.setId(dealershipJson.getInt("id"));
                 dealership.setName(dealershipJson.getString("name"));
                 dealership.setAddress(dealershipJson.getString("address"));

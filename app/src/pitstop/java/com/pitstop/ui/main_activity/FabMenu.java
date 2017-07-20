@@ -14,7 +14,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.GetUserCarUseCase;
 import com.pitstop.models.Car;
-import com.pitstop.ui.service_request.ServiceRequestActivity;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -132,9 +132,9 @@ public class FabMenu {
                     @Override
                     public void onCarRetrieved(Car car) {
                         mMixpanelHelper.trackFabClicked("Request Service");
-                        final Intent intent = new Intent(mActivity, ServiceRequestActivity.class);
-                        intent.putExtra(ServiceRequestActivity.EXTRA_CAR, car);
-                        intent.putExtra(ServiceRequestActivity.EXTRA_FIRST_BOOKING, false);
+                        final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
+                        intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
+                        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
                         mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
                     }
 

@@ -182,9 +182,9 @@
             android:theme="@style/AppNoActionBarTheme" />
 
         <activity
-            android:name=".ui.service_request.ServiceRequestActivity"
+            android:name=".ui.service_request.RequestServiceActivity"
             android:label="Request Service"
-            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
