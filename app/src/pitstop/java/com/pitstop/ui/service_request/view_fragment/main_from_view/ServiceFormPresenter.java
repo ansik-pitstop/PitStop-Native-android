@@ -61,6 +61,9 @@ public class ServiceFormPresenter implements PresenterCallback{
         timeSelected = false;
         issues = new ArrayList<>();
         this.view = view;
+        if(callback.checkTentative().equals(STATE_TENTATIVE)){
+            setCommentHint("Salesperson");
+        }
         setDealer(dashCar);
         setIssues();
     }

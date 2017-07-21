@@ -139,10 +139,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
         presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
 
-        if(callback.checkTentative().equals(STATE_TENTATIVE)){
-            presenter.setCommentHint("Salesperson");
-        }
-
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
