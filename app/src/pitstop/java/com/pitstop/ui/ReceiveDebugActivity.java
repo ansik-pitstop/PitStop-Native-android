@@ -1,7 +1,6 @@
 package com.pitstop.ui;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -43,7 +42,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = ((BluetoothAutoConnectService.BluetoothBinder) service1).getService();
-            service.addCallback(ReceiveDebugActivity.this); // register
+            //service.addCallback(ReceiveDebugActivity.this); // register
         }
 
         @Override
@@ -58,8 +57,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         BTSTATUS.setText("Bluetooth Getting Started");
         setTitle("Connect to Car");
         pendingUpload = false;
-        bindService(new Intent(this, BluetoothAutoConnectService.class),
-                serviceConnection, BIND_AUTO_CREATE);
+//        bindService(new Intent(this, BluetoothAutoConnectService.class),
+//                serviceConnection, BIND_AUTO_CREATE);
         clicked = false;
     }
 

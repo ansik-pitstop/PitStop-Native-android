@@ -302,18 +302,6 @@ public class MainDashboardFragment extends CarDataFragment {
         super.onPause();
     }
 
-    private void updateConnectedCarIndicator(boolean isConnected) {
-        if (isConnected) {
-            /*connectedCarIndicator.setImageDrawable(
-                    ContextCompat.getDrawable(getActivity(), R.drawable.device_connected_indicator));*/
-            ((MainActivity)getActivity()).toggleConnectionStatusActionBar(true);
-        } else {
-            /*connectedCarIndicator.setImageDrawable(
-                    ContextCompat.getDrawable(getActivity(), R.drawable.circle_indicator_stroke));*/
-            ((MainActivity)getActivity()).toggleConnectionStatusActionBar(false);
-        }
-    }
-
     private void setDealership() {
         Dealership shop = dashboardCar.getDealership();
         if (shop == null) {

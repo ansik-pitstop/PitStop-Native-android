@@ -65,12 +65,12 @@ import com.pitstop.models.TripStart;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothCarObserver;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
-import com.pitstop.observer.BluetoothScanObservable;
-import com.pitstop.observer.BluetoothScanObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
+import com.pitstop.observer.Subject;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
@@ -95,7 +95,7 @@ import java.util.Map;
  * Created by Paul Soladoye on 11/04/2016.
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
-        , BluetoothScanObservable, BluetoothConnectionObservable{
+        , BluetoothConnectionObservable, Subject {
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
     private static final EventSource EVENT_SOURCE
@@ -464,10 +464,42 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public void notifyVerifyingDevice() {
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
+            }
+        }
+    }
+
+    @Override
+    public void notifyVIN(String vin){
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothCarObserver){
+                ((BluetoothCarObserver)observer).onGotVIN(vin);
+            }
+        }
+    }
+
+    @Override
+    public void requestVIN() {
+        getVinFromCar();
+    }
+
+    @Override
+    public void notifySyncingDevice() {
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
+            }
+        }
+    }
+
+    @Override
     public void notifyDtcData(DtcPackage dtcPackage) {
         for (Observer observer : observerList) {
-            if (observer instanceof BluetoothScanObserver) {
-                ((BluetoothScanObserver) observer).onGotDtc(dtcPackage);
+            if (observer instanceof BluetoothCarObserver) {
+                ((BluetoothCarObserver) observer).onGotDtc(dtcPackage);
             }
         }
     }
@@ -797,6 +829,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCarWithDevice && !verificationInProgress
                 && !deviceIsVerified){
+
+            //Notify observers about the received VIN
+            notifyVIN(parameterPackage.value);
 
             verificationInProgress = true;
 

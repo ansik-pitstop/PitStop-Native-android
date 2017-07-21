@@ -1162,4 +1162,14 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             getSupportActionBar().setSubtitle("Disconnected");
         }
     }
+
+    @Override
+    public void onDeviceVerifying() {
+
+    }
+
+    @Override
+    public void onDeviceSyncing() {
+
+    }
 }

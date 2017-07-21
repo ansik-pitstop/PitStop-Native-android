@@ -485,11 +485,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     public void checkBluetoothService() {
         if (mAutoConnectService == null) {
             mAutoConnectService = mCallback.getAutoConnectService();
-            mAutoConnectService.addCallback(this);
+            mAutoConnectService.subscribe(this);
         }
     }
 
-    @Override
+    //@Override
     public void getBluetoothState(int state) {
         Log.i(TAG, "Bluetooth state updateCarIssue");
         switch (state) {
@@ -514,12 +514,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
 
-    }
 
-    @Override
+    //@Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         Log.i(TAG, "Set Parameter Response");
 
@@ -534,7 +531,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    @Override
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
             pendingCar.setScannerId(loginPackageInfo.deviceId);
@@ -543,12 +539,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    @Override
     public void tripData(TripInfoPackage tripInfoPackage) {
 
     }
 
-    @Override
+    //All this logic should be in AutoConnectService
     public void parameterData(ParameterPackage parameterPackage) {
         Log.i(TAG, "Get parameter data");
 
@@ -557,6 +552,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         switch (type) {
             case RTC_TIME:
                 if (!isAskingForRtc) return;
+
                 pendingCar.setScannerId(parameterPackage.deviceId);
 
                 // If RTC is off by more than a year, a lot of stuff get fucked up
@@ -647,40 +643,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    @Override
-    public void pidData(PidPackage pidPackage) {
-
-    }
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-        Log.d(TAG, "dtcData() - Num of dtc:" + dtcPackage.dtcs.length);
-        if (isAskingForDtc) {
-            isAskingForDtc = false;
-
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
-            PreferenceManager.getDefaultSharedPreferences(mApplication).edit().putInt(MainDashboardFragment.pfCurrentCar,
-                    createdCar.getId()).apply();
-            mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null){
-
-                        EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                        EventBus.getDefault().post( new CarDataChangedEvent(type,EVENT_SOURCE));
-                        mCallback.onPostCarSucceeded(createdCar);
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
-    }
-
     private void searchCarWithTimeout() {
         if (mAutoConnectService.getState() != BluetoothCommunicator.CONNECTED) hasGotValidRtc = false;
         mAutoConnectService.startBluetoothSearch(2);  // search for car
@@ -690,8 +652,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private void getVinWithTimeout() {
-        mAutoConnectService.getCarVIN();
-        isAskingForRtc = true;
+        mAutoConnectService.requestVIN();
         isAskingForVin = true;
         mGetVinTimer.cancel();
         mGetVinTimer.start();
@@ -841,7 +802,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
         if (mAutoConnectService != null){
-            mAutoConnectService.addCallback(this);
+            mAutoConnectService.subscribe(this);
         }
 
         this.mCallback = (AddCarContract.View)view;
@@ -850,9 +811,49 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public void unbind() {
         if (mAutoConnectService != null){
-            mAutoConnectService.removeCallback(this);
+            mAutoConnectService.unsubscribe(this);
         }
 
         this.mCallback = null;
+    }
+
+    @Override
+    public void onDeviceNeedsOverwrite() {
+
+    }
+
+    @Override
+    public void onSearchingForDevice() {
+        if (isSearchingForCar) mCallback.showLoading("Connecting to device");
+    }
+
+    @Override
+    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+        mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
+        if (isSearchingForCar) { // it was searching for device previously
+            isSearchingForCar = false;
+            mSearchCarTimer.cancel();
+
+            mCallback.onDeviceConnected();
+
+            hasGotValidRtc = false;
+            getVinWithTimeout();
+        }
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+
+    }
+
+    @Override
+    public void onDeviceVerifying() {
+
+    }
+
+    @Override
+    public void onDeviceSyncing() {
+
     }
 }
