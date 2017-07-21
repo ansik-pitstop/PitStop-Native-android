@@ -70,7 +70,6 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
-import com.pitstop.observer.Subject;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
@@ -95,7 +94,7 @@ import java.util.Map;
  * Created by Paul Soladoye on 11/04/2016.
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
-        , BluetoothConnectionObservable, Subject {
+        , BluetoothConnectionObservable {
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
     private static final EventSource EVENT_SOURCE
@@ -473,10 +472,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void notifyVIN(String vin){
+    public void notifyVIN(String vin, String scannerId){
         for (Observer observer: observerList){
             if (observer instanceof BluetoothCarObserver){
-                ((BluetoothCarObserver)observer).onGotVIN(vin);
+                ((BluetoothCarObserver)observer).onGotVIN(vin, scannerId);
             }
         }
     }
@@ -831,7 +830,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && !deviceIsVerified){
 
             //Notify observers about the received VIN
-            notifyVIN(parameterPackage.value);
+            notifyVIN(parameterPackage.value, parameterPackage.deviceId);
 
             verificationInProgress = true;
 

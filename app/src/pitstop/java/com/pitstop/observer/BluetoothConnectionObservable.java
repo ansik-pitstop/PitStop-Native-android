@@ -30,7 +30,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void notifyDtcData(DtcPackage dtcPackage);
 
     //Invoked when the VIN has been retrieved from the vehicle
-    void notifyVIN(String vin);
+    void notifyVIN(String vin, String scannerId);
 
     //Invoked when an observer requests a VIN, returned through notifyVIN() method
     void requestVIN();

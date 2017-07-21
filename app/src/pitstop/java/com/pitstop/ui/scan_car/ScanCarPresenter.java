@@ -352,7 +352,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onGotVIN(String vin) {
+    public void onGotVIN(String vin, String scannerId) {
 
     }
 

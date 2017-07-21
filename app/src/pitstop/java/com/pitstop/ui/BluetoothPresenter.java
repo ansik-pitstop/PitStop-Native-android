@@ -1,6 +1,7 @@
 package com.pitstop.ui;
 
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.observer.BluetoothCarObserver;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 
@@ -11,7 +12,7 @@ import com.pitstop.observer.Device215BreakingObserver;
  * 2. Act as a bluetooth data callback for BluetoothAutoConnectService (IBluetoothDataListener)
  */
 public interface BluetoothPresenter extends BasePresenter, BluetoothConnectionObserver
-        , Device215BreakingObserver{
+        , Device215BreakingObserver, BluetoothCarObserver{
 
     void bindBluetoothService();
 

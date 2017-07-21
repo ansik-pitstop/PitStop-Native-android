@@ -13,7 +13,6 @@ import android.util.Log;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -24,10 +23,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -489,58 +485,12 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    //@Override
-    public void getBluetoothState(int state) {
-        Log.i(TAG, "Bluetooth state updateCarIssue");
-        switch (state) {
-            case BluetoothCommunicator.CONNECTED:
-                // Successfully connected to OBD device
-                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
-                if (isSearchingForCar) { // it was searching for device previously
-                    isSearchingForCar = false;
-                    mSearchCarTimer.cancel();
-
-                    mCallback.onDeviceConnected();
-
-                    hasGotValidRtc = false; // reset flag variable
-                    getVinWithTimeout(); // get RTC then get VIN
-                }
-                break;
-
-            case BluetoothCommunicator.CONNECTING:
-                if (isSearchingForCar) mCallback.showLoading("Connecting to device");
-                break;
-        }
-    }
-
-
-
-    //@Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(TAG, "Set Parameter Response");
-
-        if ((responsePackageInfo.type + responsePackageInfo.value).equals(ObdManager.RTC_TAG)) {
-            // Once device time is reset, the obd device disconnects from mobile device
-            Log.i(TAG, "Set parameter() device time is set-- starting bluetooth search");
-            mCallback.onRTCReset();
-            hasGotValidRtc = true;
-            needToSetTime = false;
-            mSetRtcTimer.cancel();
-            searchAndGetVin();
-        }
-    }
-
     public void deviceLogin(LoginPackageInfo loginPackageInfo) {
         if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
             pendingCar.setScannerId(loginPackageInfo.deviceId);
         } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             pendingCar.setScannerId(null);
         }
-    }
-
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
     }
 
     //All this logic should be in AutoConnectService
@@ -550,52 +500,52 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         ParameterPackage.ParamType type = parameterPackage.paramType;
 
         switch (type) {
-            case RTC_TIME:
-                if (!isAskingForRtc) return;
-
-                pendingCar.setScannerId(parameterPackage.deviceId);
-
-                // If RTC is off by more than a year, a lot of stuff get fucked up
-                // So if that is the case, we reset the RTC using current time
-                Log.i(TAG, "Returned RTC: " + parameterPackage.value);
-                long moreThanOneYear = 32000000;
-                long deviceTime = Long.valueOf(parameterPackage.value);
-                long currentTime = System.currentTimeMillis() / 1000;
-                long diff = currentTime - deviceTime;
-
-                // Now we got RTC from the device
-                try {
-                    JSONObject properties = new JSONObject()
-                            .put(MixpanelHelper.ADD_CAR_STEP, MixpanelHelper.ADD_CAR_STEP_GET_RTC)
-                            .put("View", MixpanelHelper.ADD_CAR_VIEW)
-                            .put("RTC Time", String.valueOf(deviceTime))
-                            .put(MixpanelHelper.ADD_CAR_STEP_RESULT, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-                    mMixpanelHelper.trackCustom(MixpanelHelper.EVENT_ADD_CAR_PROCESS, properties);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                mCallback.onRTCRetrieved(diff > moreThanOneYear);
-
-                if (diff > moreThanOneYear) {
-                    Log.i(TAG, "Device RTC time is off by more than one year");
-                    setRtcWithTimeout();
-                    try {
-                        JSONObject properties = new JSONObject()
-                                .put(MixpanelHelper.ADD_CAR_STEP, MixpanelHelper.ADD_CAR_STEP_SET_RTC)
-                                .put("RTC Time", String.valueOf(deviceTime))
-                                .put(MixpanelHelper.ADD_CAR_STEP_RESULT, MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
-                        mMixpanelHelper.trackCustom(MixpanelHelper.EVENT_ADD_CAR_PROCESS, properties);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Log.i(TAG, "Device RTC time is within the desired range, start getting VIN");
-                    hasGotValidRtc = true;
-                    mAutoConnectService.saveSyncedDevice(parameterPackage.deviceId);
-                    mAutoConnectService.getVinFromCar(); // get parameter VIN
-                }
-                break;
+//            case RTC_TIME:
+//                if (!isAskingForRtc) return;
+//
+//                pendingCar.setScannerId(parameterPackage.deviceId);
+//
+//                // If RTC is off by more than a year, a lot of stuff get fucked up
+//                // So if that is the case, we reset the RTC using current time
+//                Log.i(TAG, "Returned RTC: " + parameterPackage.value);
+//                long moreThanOneYear = 32000000;
+//                long deviceTime = Long.valueOf(parameterPackage.value);
+//                long currentTime = System.currentTimeMillis() / 1000;
+//                long diff = currentTime - deviceTime;
+//
+//                // Now we got RTC from the device
+//                try {
+//                    JSONObject properties = new JSONObject()
+//                            .put(MixpanelHelper.ADD_CAR_STEP, MixpanelHelper.ADD_CAR_STEP_GET_RTC)
+//                            .put("View", MixpanelHelper.ADD_CAR_VIEW)
+//                            .put("RTC Time", String.valueOf(deviceTime))
+//                            .put(MixpanelHelper.ADD_CAR_STEP_RESULT, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+//                    mMixpanelHelper.trackCustom(MixpanelHelper.EVENT_ADD_CAR_PROCESS, properties);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                mCallback.onRTCRetrieved(diff > moreThanOneYear);
+//
+//                if (diff > moreThanOneYear) {
+//                    Log.i(TAG, "Device RTC time is off by more than one year");
+//                    setRtcWithTimeout();
+//                    try {
+//                        JSONObject properties = new JSONObject()
+//                                .put(MixpanelHelper.ADD_CAR_STEP, MixpanelHelper.ADD_CAR_STEP_SET_RTC)
+//                                .put("RTC Time", String.valueOf(deviceTime))
+//                                .put(MixpanelHelper.ADD_CAR_STEP_RESULT, MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
+//                        mMixpanelHelper.trackCustom(MixpanelHelper.EVENT_ADD_CAR_PROCESS, properties);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    Log.i(TAG, "Device RTC time is within the desired range, start getting VIN");
+//                    hasGotValidRtc = true;
+//                    mAutoConnectService.saveSyncedDevice(parameterPackage.deviceId);
+//                    mAutoConnectService.getVinFromCar(); // get parameter VIN
+//                }
+//                break;
             case VIN:
                 if (!isAskingForVin) return;
                 pendingCar.setScannerId(parameterPackage.deviceId);
@@ -844,7 +794,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onDeviceDisconnected() {
-
+        if (isSearchingForCar) mCallback.hideLoading("Disconnected from device, add failed.");
     }
 
     @Override
@@ -854,6 +804,57 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onDeviceSyncing() {
+
+    }
+
+    @Override
+    public void onGotVIN(String vin, String scannerId) {
+        if (!isAskingForVin) return;
+        pendingCar.setScannerId(scannerId);
+        Log.d(TAG, "Retrieved VIN: " + vin +" from scanner: "+scannerId);
+
+        mCallback.showLoading("Getting car VIN");
+
+        try {
+            JSONObject properties = new JSONObject()
+                    .put("VIN", vin)
+                    .put("View", MixpanelHelper.ADD_CAR_VIEW);
+            mMixpanelHelper.trackCustom("Retrieved VIN from device", properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (isValidVin(vin)) {
+            Log.i(TAG, "Retrieved VIN is valid");
+            mCallback.onVINRetrieved(vin, true);
+
+            isAskingForVin = false;
+            getVinAttempts = 0;
+            mGetVinTimer.cancel();
+
+            mAutoConnectService.setFixedUpload();
+            pendingCar.setVin(vin);
+
+            startAddingNewCar();
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
+        } else if (!needToSetTime && getVinAttempts > 8) { /* || -> && */
+            isAskingForVin = false;
+            mCallback.onVINRetrieved(null, false);
+
+            Log.i(TAG, "Vin returned was not valid");
+            getVinAttempts = 0;
+            pendingCar.setVin("");
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
+        } else {
+            Log.i(TAG, "VIN returned is not valid, attempts: " + getVinAttempts);
+            getVinAttempts++;
+            isAskingForVin = true;
+        }
+    }
+
+    @Override
+    public void onGotDtc(DtcPackage dtcPackage) {
 
     }
 }
