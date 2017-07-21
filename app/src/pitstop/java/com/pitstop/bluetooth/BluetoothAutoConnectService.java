@@ -231,7 +231,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     Log.d(TAG, "Running periodic scan");
                     startBluetoothSearch(4); // periodic scan
                 }
-                handler.postDelayed(this, 120000);
+                handler.postDelayed(this, 12000);
+            }
+        };
+
+        //Periodically set fixed upload, temporary solution while queue for set parameters isn't implemented yet
+        Runnable periodicSetFixedUploadRunnable = new Runnable() {
+            @Override
+            public void run(){
+                if (deviceIsVerified && deviceManager.getState()
+                        == IBluetoothCommunicator.CONNECTED){
+                    setFixedUpload();
+                }
+                handler.postDelayed(this,15000);
             }
         };
 
@@ -264,6 +276,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         handler.postDelayed(periodScanRunnable, 15000);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
+        handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
 
         mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
