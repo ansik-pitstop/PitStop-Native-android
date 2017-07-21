@@ -105,7 +105,6 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
             @Override
             public void done(String response, RequestError requestError) {
                 List<String> timesToRemove = new ArrayList<String>();
-
                 if(requestError == null && response != null){
                     try{
                         JSONObject responsesJson = new JSONObject(response);

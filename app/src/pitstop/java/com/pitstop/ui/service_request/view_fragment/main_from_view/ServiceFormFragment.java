@@ -297,6 +297,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     }
 
     @Override
+    public void disableButton(boolean disable) {
+            submitButton.setClickable(!disable);
+    }
+
+    @Override
     public void showCalender() {
         calender.setVisibility(View.VISIBLE);
     }

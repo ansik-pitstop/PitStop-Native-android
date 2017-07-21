@@ -176,6 +176,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             return;
         }
         String outDate = date+" "+time;
+        view.disableButton(true);
         component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate), view.getComments(), new RequestServiceUseCase.Callback() {
             @Override
             public void onServicesRequested() {
@@ -184,12 +185,14 @@ public class ServiceFormPresenter implements PresenterCallback{
                    @Override
                    public void onServicesAdded() {
                        if(view == null || callback == null){return;}
+                       view.disableButton(false);
                        callback.finishActivity();
                    }
 
                    @Override
                    public void onError() {
                        if(view == null || callback == null){return;}
+                       view.disableButton(false);
                       view.toast("There was an error adding your services");
                    }
                });
@@ -198,6 +201,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             @Override
             public void onError() {
                 if(view == null || callback == null){return;}
+                view.disableButton(false);
               view.toast("There was an error requesting this service");
             }
         });
