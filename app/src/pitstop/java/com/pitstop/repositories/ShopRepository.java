@@ -142,7 +142,6 @@ public class ShopRepository {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                System.out.println("Testing response "+response);
                 try {
                     if (requestError == null){
                         JSONObject shopResponse = new JSONObject(response);

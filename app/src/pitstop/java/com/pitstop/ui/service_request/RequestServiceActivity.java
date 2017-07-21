@@ -8,8 +8,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.ui.service_request.view_fragment.main_from_view.ServiceFormFragment;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Matthew on 2017-07-11.
@@ -45,15 +47,21 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
 
         fragmentManager = getFragmentManager();
+        MixpanelHelper mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
 
-        presenter = new RequestServicePresenter(this);
-        presenter.subscribe(this);
+        presenter = new RequestServicePresenter(this,mixpanelHelper);
 
         serviceFormFragment = new ServiceFormFragment();
         serviceFormFragment.setActivityCallback(this);
         serviceFormFragment.setCar(dashCar);
 
-        presenter.setViewMainForm();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.subscribe(this);
     }
 
     @Override
@@ -63,6 +71,11 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         fragmentTransaction.commit();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.unsubscribe();
+    }
 
     @Override
     public void finishActivity() {

@@ -129,7 +129,6 @@ public class Dealership implements Parcelable {
             if(dealership.getId() == 0) {
                 dealership = new Dealership();
                 JSONObject dealershipJson = new JSONObject(json).getJSONObject("dealership");
-                System.out.println("Testing dealerJson"+dealershipJson);
                 dealership.setId(dealershipJson.getInt("id"));
                 dealership.setName(dealershipJson.getString("name"));
                 dealership.setAddress(dealershipJson.getString("address"));
