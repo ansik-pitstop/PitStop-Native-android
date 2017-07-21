@@ -749,6 +749,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceIsVerified = true;
                     verificationInProgress = false;
+                    setFixedUpload();
                     deviceManager.onConnectDeviceValid();
                 }
 
@@ -759,6 +760,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
+                    setFixedUpload();
                     deviceManager.onConnectDeviceValid();
                 }
 
@@ -771,6 +773,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceIdOverwriteInProgress = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
+                    setFixedUpload();
                     deviceManager.onConnectDeviceValid();
                 }
 
