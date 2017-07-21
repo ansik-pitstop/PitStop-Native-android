@@ -402,6 +402,8 @@ public class Device215B implements AbstractDevice {
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
 
+                    boolean ignoreIdr = false;
+
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
@@ -423,7 +425,7 @@ public class Device215B implements AbstractDevice {
                             lastSentTripEnd = tripInfoPackage.tripId;
                         }
                         else{
-                            return;
+                            ignoreIdr = true;
                         }
                     }
                     /*Trip start detected by ignition time changing or alarm, if both occur
@@ -442,7 +444,7 @@ public class Device215B implements AbstractDevice {
                             lastSentTripStart = tripInfoPackage.tripId;
                         }
                         else{
-                            return;
+                            ignoreIdr = true;
                         }
                     }
                     else{
@@ -451,7 +453,9 @@ public class Device215B implements AbstractDevice {
 
                     tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
 
-                    dataListener.tripData(tripInfoPackage);
+                    if (!ignoreIdr){
+                        dataListener.tripData(tripInfoPackage);
+                    }
                 }
 
                 if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {
